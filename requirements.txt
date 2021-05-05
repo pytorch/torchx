@@ -1,0 +1,2 @@
+torch>=1.8.1
+# (optional) kfp==1.4.0
