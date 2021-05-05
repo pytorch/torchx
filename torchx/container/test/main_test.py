@@ -8,10 +8,13 @@
 
 import json
 import os.path
+import sys
 import tempfile
 import unittest
 from typing import TypedDict, Optional
+from unittest.mock import patch
 
+import yaml
 from torchx.container.main import main
 from torchx.sdk.component import Component
 from torchx.sdk.storage import temppath, upload_file, download_file
@@ -56,11 +59,30 @@ class TestComponent(Component[Config, Inputs, Outputs]):
         TestComponent.ran = True
 
 
+class NoopConfig(TypedDict):
+    pass
+
+
+class NoopInputs(TypedDict):
+    pass
+
+
+class NoopOutputs(TypedDict):
+    pass
+
+
+class NoopComponent(Component[NoopConfig, NoopInputs, NoopOutputs]):
+    Version: str = "0.1"
+
+    def run(self, inputs: NoopInputs, outputs: NoopOutputs) -> None:
+        pass
+
+
 class ContainerTest(unittest.TestCase):
     def test_main(self) -> None:
         main(
             [
-                "main.par",
+                "main.py",
                 "torchx.container.test.main_test.TestComponent",
                 "--input_path",
                 "somepath",
@@ -99,3 +121,26 @@ class ContainerTest(unittest.TestCase):
             self.assertEqual(out, data)
             with open(out_path_file, "rt") as f:
                 self.assertEqual(f.read(), output_path)
+
+    def test_config_storage_providers(self) -> None:
+        """
+        Tests that storage providers from the specified config are loaded.
+        """
+
+        module = "torchx.container.test.dummy_module"
+        config = {
+            "storage_providers": [module],
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = os.path.join(tmpdir, "torchx.yaml")
+            with open(config_path, "w") as f:
+                yaml.dump(config, f)
+            with patch("torchx.container.main.TORCHX_CONFIG_PATH", config_path):
+                self.assertNotIn(module, sys.modules)
+                main(
+                    [
+                        "main.py",
+                        "torchx.container.test.main_test.NoopComponent",
+                    ]
+                )
+                self.assertIn(module, sys.modules)
