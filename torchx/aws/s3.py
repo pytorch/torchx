@@ -10,15 +10,20 @@ import os
 import shutil
 import tarfile as tar
 import tempfile
+from typing import Tuple
+from urllib.parse import urlparse
 
 import boto3
 import botocore
+from torchx.sdk.storage import register_storage_provider, StorageProvider
 
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-class S3:
+class S3(StorageProvider):
+    SCHEME: str = "s3"
+
     def __init__(self, session: boto3.Session) -> None:
         self._session = session
         self._s3: botocore.client.BaseClient = session.client("s3")
@@ -60,3 +65,19 @@ class S3:
             log.info(f"Deleting tmp dir: {tmpdir}")
             shutil.rmtree(tmpdir)
         return f"s3://{bucket}/{dest_key}"
+
+    def _parse_url(self, url: str) -> Tuple[str, str]:
+        parsed = urlparse(url)
+        return parsed.netloc, parsed.path[1:]
+
+    def download_file(self, url: str) -> bytes:
+        bucket, path = self._parse_url(url)
+        return self._s3.get_object(Bucket=bucket, Key=path)["Body"].read()
+
+    def upload_file(self, url: str, body: bytes) -> None:
+        bucket, path = self._parse_url(url)
+        self._s3.put_object(Bucket=bucket, Key=path, Body=body)
+
+
+def init_plugin(args: None) -> None:
+    register_storage_provider(S3(boto3.Session()))
