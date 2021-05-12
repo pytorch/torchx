@@ -6,6 +6,7 @@
 
 import argparse
 import ast
+import re
 from typing import Type, List, Iterable, Callable
 
 import torchelastic.tsm.driver as tsm
@@ -77,8 +78,28 @@ def _get_arg_type(type_name: str) -> Callable[[str], object]:
     raise TypeError(f"unknown argument type {type_name}")
 
 
+def _parse_scheduler_args(arg: str) -> tsm.RunConfig:
+    conf = tsm.RunConfig()
+    for kv in re.split(r"[, ;]", arg):
+        if kv == "":
+            continue
+        key, value = kv.split("=")
+        conf.set(key, value)
+    return conf
+
+
 class CmdRun(SubCommand):
     def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
+        subparser.add_argument(
+            "--scheduler",
+            type=str,
+            help="Name of the scheduler to use",
+        )
+        subparser.add_argument(
+            "--scheduler_args",
+            type=_parse_scheduler_args,
+            help="Arguments to pass to the scheduler. Ex: `cluster=foo,user=bar`",
+        )
         subparser.add_argument(
             "script",
             type=str,
@@ -132,4 +153,12 @@ class CmdRun(SubCommand):
             app, tsm.Application
         ), f"config file did not export a tsm.Application {app}"
 
-        raise NotImplementedError("no implementation for run yet")
+        session = tsm.session()
+        app_handle = session.run(app, args.scheduler, args.scheduler_args)
+        print(f"Launched app: {app_handle}")
+        status = session.status(app_handle)
+        print(f"App status: {status}")
+        if args.scheduler == "local":
+            session.wait(app_handle)
+        else:
+            print(f"Job URL: {status.ui_url}")
