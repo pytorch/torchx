@@ -8,7 +8,11 @@ import sys
 from argparse import ArgumentParser
 from typing import List
 
+from torchx.cli.cmd_describe import CmdDescribe
+from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdRun
+from torchx.cli.cmd_runopts import CmdRunopts
+from torchx.cli.cmd_status import CmdStatus
 
 
 sub_parser_description = """Use the following commands to run operations, e.g.:
@@ -28,7 +32,11 @@ def create_parser() -> ArgumentParser:
     )
 
     subcmds = {
+        "describe": CmdDescribe(),
+        "log": CmdLog(),
         "run": CmdRun(),
+        "runopts": CmdRunopts(),
+        "status": CmdStatus(),
     }
 
     for subcmd_name, cmd in subcmds.items():
