@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 import torchelastic.tsm.driver.api as tsm
-from torchx.cli.cmd_run import _parse_scheduler_args
+from torchx.cli.cmd_run import _parse_run_config
 from torchx.cli.main import main
 
 _root: Path = Path(__file__).parent
@@ -31,17 +31,15 @@ class CLITest(unittest.TestCase):
         )
 
     def test_run_scheduler_args_empty(self) -> None:
-        self.assertEqual(_parse_scheduler_args(""), tsm.RunConfig())
+        self.assertEqual(_parse_run_config(""), tsm.RunConfig())
 
     def test_run_scheduler_args_simple(self) -> None:
         self.assertEqual(
-            _parse_scheduler_args("a=1,b=2;c=3 d=4"),
+            _parse_run_config("a=1,b=2;3;4"),
             tsm.RunConfig(
                 cfgs={
                     "a": "1",
-                    "b": "2",
-                    "c": "3",
-                    "d": "4",
+                    "b": ["2", "3", "4"],
                 }
             ),
         )

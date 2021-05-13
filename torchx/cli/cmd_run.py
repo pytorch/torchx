@@ -6,12 +6,12 @@
 
 import argparse
 import ast
-import re
 from typing import Type, List, Iterable, Callable
 
 import torchelastic.tsm.driver as tsm
 import yaml
 from torchx.cli.cmd_base import SubCommand
+from torchx.cli.conf_helpers import parse_args_children
 
 
 class UnsupportFeatureError(Exception):
@@ -23,6 +23,8 @@ class ConfValidator(ast.NodeVisitor):
     IMPORT_ALLOWLIST: Iterable[str] = (
         "torchx",
         "torchelastic.tsm",
+        "os.path",
+        "pytorch.elastic.torchelastic.tsm",
     )
 
     FEATURE_BLOCKLIST: Iterable[Type[object]] = (
@@ -54,20 +56,19 @@ class ConfValidator(ast.NodeVisitor):
 
         super().visit(node)
 
-    def _validate_import_path(self, names: List[ast.alias]) -> None:
-        for alias in names:
-            if not any(
-                alias.name.startswith(prefix) for prefix in self.IMPORT_ALLOWLIST
-            ):
+    def _validate_import_path(self, names: List[str]) -> None:
+        for name in names:
+            if not any(name.startswith(prefix) for prefix in self.IMPORT_ALLOWLIST):
                 raise ImportError(
-                    f"import {alias.name} not in allowed import prefixes {self.IMPORT_ALLOWLIST}"
+                    f"import {name} not in allowed import prefixes {self.IMPORT_ALLOWLIST}"
                 )
 
     def visit_Import(self, node: ast.Import) -> None:
-        self._validate_import_path(node.names)
+        self._validate_import_path([alias.name for alias in node.names])
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        self._validate_import_path(node.names)
+        if module := node.module:
+            self._validate_import_path([module])
 
 
 def _get_arg_type(type_name: str) -> Callable[[str], object]:
@@ -78,12 +79,9 @@ def _get_arg_type(type_name: str) -> Callable[[str], object]:
     raise TypeError(f"unknown argument type {type_name}")
 
 
-def _parse_scheduler_args(arg: str) -> tsm.RunConfig:
+def _parse_run_config(arg: str) -> tsm.RunConfig:
     conf = tsm.RunConfig()
-    for kv in re.split(r"[, ;]", arg):
-        if kv == "":
-            continue
-        key, value = kv.split("=")
+    for key, value in parse_args_children(arg).items():
         conf.set(key, value)
     return conf
 
@@ -97,7 +95,7 @@ class CmdRun(SubCommand):
         )
         subparser.add_argument(
             "--scheduler_args",
-            type=_parse_scheduler_args,
+            type=_parse_run_config,
             help="Arguments to pass to the scheduler. Ex: `cluster=foo,user=bar`",
         )
         subparser.add_argument(
@@ -124,11 +122,17 @@ class CmdRun(SubCommand):
             default = arg.get("default")
             if default:
                 default = arg_type(default)
+            script_args = {
+                "help": arg.get("help"),
+                "type": arg_type,
+                "default": default,
+            }
+            if arg.get("remainder"):
+                script_args["nargs"] = argparse.REMAINDER
+
             script_parser.add_argument(
                 arg["name"],
-                help=arg.get("help"),
-                type=arg_type,
-                default=default,
+                **script_args,
             )
 
         node = ast.parse(script)
@@ -144,6 +148,7 @@ class CmdRun(SubCommand):
         scope = {
             "export": export,
             "args": script_parser.parse_args(args.script_args),
+            "scheduler": args.scheduler,
         }
 
         exec(script, scope)  # noqa: P204
