@@ -11,7 +11,7 @@ from typing import Type, Callable, List, Optional, Dict
 
 import yaml
 from kfp import components, dsl
-from torchx.sdk.component import Component, is_optional
+from torchx.runtime.component import Component, is_optional
 
 from .version import __version__ as __version__  # noqa F401
 

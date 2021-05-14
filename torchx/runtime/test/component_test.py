@@ -8,8 +8,8 @@
 import unittest
 from typing import TypedDict, Optional
 
-from torchx.sdk.component import Component
-from torchx.sdk.storage import upload_file, download_file, temppath
+from torchx.runtime.component import Component
+from torchx.runtime.storage import upload_file, download_file, temppath
 
 
 class Config(TypedDict):

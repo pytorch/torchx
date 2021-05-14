@@ -11,9 +11,9 @@ import unittest
 from typing import TypedDict, Optional
 
 from kfp import compiler, components, dsl
-from torchx.components.io.copy import Copy
-from torchx.kfp.adapter import component_spec, TorchXComponent
-from torchx.sdk.component import Component
+from torchx.apps.io.copy import Copy
+from torchx.pipelines.kfp.adapter import component_spec, TorchXComponent
+from torchx.runtime.component import Component
 
 
 class Config(TypedDict):
@@ -43,14 +43,14 @@ class KFPTest(unittest.TestCase):
         self.assertIsNotNone(components.load_component_from_text(spec))
         self.assertEqual(
             spec,
-            """description: 'KFP wrapper for TorchX component torchx.kfp.test.adapter_test.TestComponent.
+            """description: 'KFP wrapper for TorchX component torchx.pipelines.kfp.test.adapter_test.TestComponent.
   Version: 0.1'
 implementation:
   container:
     command:
     - python3
     - torchx/container/main.py
-    - torchx.kfp.test.adapter_test.TestComponent
+    - torchx.pipelines.kfp.test.adapter_test.TestComponent
     - --a
     - inputValue: a
     - --b

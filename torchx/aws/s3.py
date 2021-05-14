@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 import boto3
 import botocore
-from torchx.sdk.storage import register_storage_provider, StorageProvider
+from torchx.runtime.storage import register_storage_provider, StorageProvider
 
 
 log: logging.Logger = logging.getLogger(__name__)

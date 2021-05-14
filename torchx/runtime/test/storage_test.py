@@ -7,7 +7,7 @@
 
 import unittest
 
-from torchx.sdk.storage import upload_file, download_file, temppath
+from torchx.runtime.storage import upload_file, download_file, temppath
 
 
 class StorageTest(unittest.TestCase):

@@ -7,8 +7,8 @@
 
 import unittest
 
-from torchx.components.io.copy import Copy
-from torchx.sdk.storage import upload_file, download_file, temppath
+from torchx.apps.io.copy import Copy
+from torchx.runtime.storage import upload_file, download_file, temppath
 
 
 class CopyTest(unittest.TestCase):

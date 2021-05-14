@@ -11,9 +11,9 @@ import tempfile
 import unittest
 from typing import TypedDict, Optional
 
-from torchx.container.main import main
-from torchx.sdk.component import Component
-from torchx.sdk.storage import temppath, upload_file, download_file
+from torchx.runtime.component import Component
+from torchx.runtime.container.main import main
+from torchx.runtime.storage import temppath, upload_file, download_file
 
 
 class SubConfig(TypedDict):
@@ -60,7 +60,7 @@ class ContainerTest(unittest.TestCase):
         main(
             [
                 "main.par",
-                "torchx.container.test.main_test.TestComponent",
+                "torchx.runtime.container.test.main_test.TestComponent",
                 "--input_path",
                 "somepath",
                 "--output_path",
@@ -85,7 +85,7 @@ class ContainerTest(unittest.TestCase):
             main(
                 [
                     "main.par",
-                    "torchx.components.io.copy.Copy",
+                    "torchx.apps.io.copy.Copy",
                     "--input_path",
                     input_path,
                     "--output_path",

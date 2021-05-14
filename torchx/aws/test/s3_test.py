@@ -9,7 +9,7 @@ import unittest
 import boto3
 from moto import mock_s3
 from torchx.aws.s3 import init_plugin
-from torchx.sdk.storage import download_file, upload_file
+from torchx.runtime.storage import download_file, upload_file
 
 
 class S3Test(unittest.TestCase):

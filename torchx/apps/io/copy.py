@@ -7,8 +7,8 @@
 
 from typing import TypedDict
 
-from torchx.sdk.component import Component
-from torchx.sdk.storage import upload_file, download_file
+from torchx.runtime.component import Component
+from torchx.runtime.storage import upload_file, download_file
 
 
 class Config(TypedDict):

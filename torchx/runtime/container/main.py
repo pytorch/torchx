@@ -13,7 +13,7 @@ import sys
 from typing import Type, List, Set, Callable, Optional
 
 import torchx
-from torchx.sdk.component import is_optional, Component
+from torchx.runtime.component import is_optional, Component
 
 # pyre-fixme[24]: Generic type `Component` expects 3 type parameters.
 def get_component_class(path: str) -> Type[Component]:
