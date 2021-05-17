@@ -13,7 +13,7 @@ from typing import TypedDict, Optional
 
 from torchx.runtime.component import Component
 from torchx.runtime.container.main import main
-from torchx.runtime.storage import temppath, upload_file, download_file
+from torchx.runtime.storage import temppath, upload_blob, download_blob
 
 
 class SubConfig(TypedDict):
@@ -81,7 +81,7 @@ class ContainerTest(unittest.TestCase):
         with temppath() as input_path, temppath() as output_path, tempfile.TemporaryDirectory() as tmpdir:
             out_path_file = os.path.join(tmpdir, "dir", "out_path.txt")
             data = b"banana"
-            upload_file(input_path, data)
+            upload_blob(input_path, data)
             main(
                 [
                     "main.par",
@@ -94,7 +94,7 @@ class ContainerTest(unittest.TestCase):
                     out_path_file,
                 ]
             )
-            out = download_file(output_path)
+            out = download_blob(output_path)
             self.assertEqual(out, data)
             with open(out_path_file, "rt") as f:
                 self.assertEqual(f.read(), output_path)

@@ -70,13 +70,21 @@ class S3(StorageProvider):
         parsed = urlparse(url)
         return parsed.netloc, parsed.path[1:]
 
-    def download_file(self, url: str) -> bytes:
+    def download_blob(self, url: str) -> bytes:
         bucket, path = self._parse_url(url)
         return self._s3.get_object(Bucket=bucket, Key=path)["Body"].read()
 
-    def upload_file(self, url: str, body: bytes) -> None:
+    def upload_blob(self, url: str, body: bytes) -> None:
         bucket, path = self._parse_url(url)
         self._s3.put_object(Bucket=bucket, Key=path, Body=body)
+
+    def download_file(self, url: str, path: str) -> None:
+        bucket, remote_path = self._parse_url(url)
+        self._s3.download_file(bucket, remote_path, path)
+
+    def upload_file(self, path: str, url: str) -> None:
+        bucket, remote_path = self._parse_url(url)
+        self._s3.upload_file(path, bucket, remote_path)
 
 
 def init_plugin(args: None) -> None:

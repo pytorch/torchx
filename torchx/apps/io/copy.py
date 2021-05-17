@@ -8,7 +8,7 @@
 from typing import TypedDict
 
 from torchx.runtime.component import Component
-from torchx.runtime.storage import upload_file, download_file
+from torchx.runtime.storage import upload_blob, download_blob
 
 
 class Config(TypedDict):
@@ -27,4 +27,4 @@ class Copy(Component[Config, Inputs, Outputs]):
     Version: str = "0.1"
 
     def run(self, inputs: Inputs, outputs: Outputs) -> None:
-        upload_file(outputs["output_path"], download_file(inputs["input_path"]))
+        upload_blob(outputs["output_path"], download_blob(inputs["input_path"]))

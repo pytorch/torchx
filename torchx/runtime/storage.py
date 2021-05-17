@@ -7,6 +7,7 @@
 
 import abc
 import os
+import shutil
 import tempfile
 from contextlib import contextmanager
 from typing import Dict
@@ -14,23 +15,39 @@ from typing import Generator
 from urllib.parse import urlparse
 
 
-def download_file(url: str) -> bytes:
-    return get_storage_provider(url).download_file(url)
+def download_blob(url: str) -> bytes:
+    return get_storage_provider(url).download_blob(url)
 
 
-def upload_file(url: str, body: bytes) -> None:
-    get_storage_provider(url).upload_file(url, body)
+def upload_blob(url: str, body: bytes) -> None:
+    get_storage_provider(url).upload_blob(url, body)
+
+
+def download_file(url: str, path: str) -> None:
+    return get_storage_provider(url).download_file(url, path)
+
+
+def upload_file(path: str, url: str) -> None:
+    get_storage_provider(url).upload_file(path, url)
 
 
 class StorageProvider(abc.ABC):
     SCHEME: str
 
     @abc.abstractmethod
-    def download_file(self, url: str) -> bytes:
+    def download_blob(self, url: str) -> bytes:
         ...
 
     @abc.abstractmethod
-    def upload_file(self, url: str, body: bytes) -> None:
+    def upload_blob(self, url: str, body: bytes) -> None:
+        ...
+
+    @abc.abstractmethod
+    def download_file(self, url: str, path: str) -> None:
+        ...
+
+    @abc.abstractmethod
+    def upload_file(self, path: str, url: str) -> None:
         ...
 
 
@@ -52,15 +69,35 @@ def get_storage_provider(url: str) -> StorageProvider:
 class FileProvider(StorageProvider):
     SCHEME: str = "file"
 
-    def download_file(self, url: str) -> bytes:
+    def download_blob(self, url: str) -> bytes:
+        """
+        download_blob fetches the contents of the file located at the URL.
+        """
         parsed = urlparse(url)
         with open(parsed.path, "rb") as f:
             return f.read()
 
-    def upload_file(self, url: str, body: bytes) -> None:
+    def upload_blob(self, url: str, body: bytes) -> None:
+        """
+        upload_blob uploads the body to the location specified by the URL.
+        """
         parsed = urlparse(url)
         with open(parsed.path, "wb") as f:
             f.write(body)
+
+    def download_file(self, url: str, path: str) -> None:
+        """
+        download_file downloads the file located at the URL to a location on disk.
+        """
+        parsed = urlparse(url)
+        shutil.copyfile(parsed.path, path)
+
+    def upload_file(self, path: str, url: str) -> None:
+        """
+        upload_file uploads a file on disk to the location specified by the URL.
+        """
+        parsed = urlparse(url)
+        shutil.copyfile(path, parsed.path)
 
 
 @contextmanager

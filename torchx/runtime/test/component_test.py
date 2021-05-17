@@ -9,7 +9,7 @@ import unittest
 from typing import TypedDict, Optional
 
 from torchx.runtime.component import Component
-from torchx.runtime.storage import upload_file, download_file, temppath
+from torchx.runtime.storage import upload_blob, download_blob, temppath
 
 
 class Config(TypedDict):
@@ -29,17 +29,17 @@ class Copy(Component[Config, Inputs, Outputs]):
     Version: str = "0.1"
 
     def run(self, inputs: Inputs, outputs: Outputs) -> None:
-        upload_file(outputs["output_path"], download_file(inputs["input_path"]))
+        upload_blob(outputs["output_path"], download_blob(inputs["input_path"]))
 
 
 class ComponentTest(unittest.TestCase):
     def test_basic_component(self) -> None:
         with temppath() as input_path, temppath() as output_path:
             data = b"banana"
-            upload_file(input_path, data)
+            upload_blob(input_path, data)
             c = Copy(input_path=input_path, output_path=output_path, a=10)
             c.run(c.inputs, c.outputs)
-            out = download_file(output_path)
+            out = download_blob(output_path)
             self.assertEqual(out, data)
 
     def test_required_fields(self) -> None:
