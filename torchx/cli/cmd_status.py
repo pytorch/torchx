@@ -14,6 +14,7 @@ from typing import List, Optional, Pattern
 
 import torchelastic.tsm.driver as tsm
 from torchx.cli.cmd_base import SubCommand
+from torchx.specs.api import NONE
 
 _APP_STATUS_FORMAT_TEMPLATE = """Application:
   State: ${state}
@@ -71,7 +72,7 @@ def format_error_message(msg: str, header: str, width: int = 80) -> str:
 
 
 def format_replica_status(replica_status: tsm.ReplicaStatus) -> str:
-    if replica_status.structured_error_msg != tsm.api.NONE:
+    if replica_status.structured_error_msg != NONE:
         error_data = json.loads(replica_status.structured_error_msg)
         error_message = format_error_message(
             msg=error_data["message"]["message"], header="    error_msg: "

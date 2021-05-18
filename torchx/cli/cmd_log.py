@@ -15,7 +15,7 @@ from typing import Optional
 from urllib.parse import urlparse
 
 import torchelastic.tsm.driver as tsm
-from torchelastic.tsm.driver.api import make_app_handle
+from torchelastic.tsm.driver import make_app_handle
 from torchx.cli.cmd_base import SubCommand
 
 GREEN = "\033[32m"

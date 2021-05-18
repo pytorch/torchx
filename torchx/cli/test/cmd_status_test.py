@@ -9,12 +9,12 @@ import argparse
 import unittest
 from unittest.mock import patch
 
-from torchelastic.tsm.driver.api import AppState, AppStatus, ReplicaStatus, RoleStatus
 from torchx.cli.cmd_status import (
     CmdStatus,
     format_app_status,
     format_error_message,
 )
+from torchx.specs.api import AppState, AppStatus, ReplicaStatus, RoleStatus
 
 
 class CmdStatusTest(unittest.TestCase):

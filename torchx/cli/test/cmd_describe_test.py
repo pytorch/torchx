@@ -9,8 +9,8 @@ import argparse
 import unittest
 from unittest.mock import patch
 
-from torchelastic.tsm.driver.api import Application, Container, Resource, ElasticRole
 from torchx.cli.cmd_describe import CmdDescribe
+from torchx.specs.api import Application, Container, Resource, ElasticRole
 
 
 class CmdStatusTest(unittest.TestCase):

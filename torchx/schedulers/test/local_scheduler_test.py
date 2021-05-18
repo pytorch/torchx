@@ -17,7 +17,12 @@ from typing import Optional
 from unittest import mock
 from unittest.mock import patch
 
-from torchelastic.tsm.driver.api import (
+from torchx.schedulers.local_scheduler import (
+    LocalDirectoryImageFetcher,
+    LocalScheduler,
+    make_unique,
+)
+from torchx.specs.api import (
     Application,
     AppState,
     RunConfig,
@@ -26,11 +31,6 @@ from torchelastic.tsm.driver.api import (
     Role,
     is_terminal,
     macros,
-)
-from torchx.schedulers.local_scheduler import (
-    LocalDirectoryImageFetcher,
-    LocalScheduler,
-    make_unique,
 )
 
 from .test_util import write_shell_script

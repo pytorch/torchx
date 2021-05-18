@@ -23,7 +23,7 @@ from datetime import datetime
 from typing import TextIO, Dict, Iterable, List, Optional, Tuple, Pattern, Any
 from uuid import uuid4
 
-from torchelastic.tsm.driver.api import (
+from torchx.specs.api import (
     NONE,
     AppDryRunInfo,
     Application,
@@ -307,7 +307,7 @@ class PopenRequest:
     role_log_dirs: Dict[RoleName, List[str]]
 
 
-class LocalScheduler(Scheduler):
+class LocalScheduler(Scheduler[PopenRequest]):
     """
     Schedules on localhost. Containers are modeled as processes and
     certain properties of the container that are either not relevant

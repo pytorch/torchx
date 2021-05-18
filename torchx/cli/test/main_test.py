@@ -8,7 +8,7 @@
 import unittest
 from pathlib import Path
 
-import torchelastic.tsm.driver.api as tsm
+import torchelastic.tsm.driver as tsm
 from torchx.cli.cmd_run import _parse_run_config
 from torchx.cli.main import main
 

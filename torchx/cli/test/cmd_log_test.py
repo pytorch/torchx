@@ -10,8 +10,8 @@ import unittest
 from typing import Optional, Iterator
 from unittest.mock import patch, MagicMock
 
-from torchelastic.tsm.driver.api import Application, Role, parse_app_handle
 from torchx.cli.cmd_log import ENDC, GREEN, get_logs
+from torchx.specs.api import Application, Role, parse_app_handle
 
 
 class SentinelError(Exception):
