@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          set -eux
+          pip install isort
+          pip install black
+      - name: Run Lint
+        run: scripts/lint.sh

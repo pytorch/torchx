@@ -1,4 +1,5 @@
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)![Tests](https://github.com/pytorch/torchx/actions/workflows/python-unittests.yaml/badge.svg)![Lint](https://github.com/pytorch/torchx/actions/workflows/lint.yaml/badge.svg)
+
 
 # TorchX
 
