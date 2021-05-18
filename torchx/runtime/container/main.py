@@ -13,7 +13,11 @@ import sys
 from typing import Type, List, Set, Callable, Optional
 
 import torchx
+import yaml
 from torchx.runtime.component import is_optional, Component
+
+TORCHX_CONFIG_ENV: str = "TORCHX_CONFIG"
+DEFAULT_TORCHX_CONFIG_PATH = "/etc/torchx/config.yaml"
 
 # pyre-fixme[24]: Generic type `Component` expects 3 type parameters.
 def get_component_class(path: str) -> Type[Component]:
@@ -34,11 +38,33 @@ def _get_parser(field: Type[object]) -> Callable[[str], object]:
     return json.loads
 
 
+def load_and_process_config(path: str) -> None:
+    if not os.path.exists(path):
+        return
+
+    with open(path, "r") as f:
+        config = yaml.safe_load(f)
+
+    if plugins := config.get("plugins"):
+        if not isinstance(plugins, dict):
+            raise TypeError(f"plugins must be a dict: {plugins}")
+
+        for provider, args in plugins.items():
+            print(f"loading plugin: {provider}")
+            module = importlib.import_module(provider)
+            # pyre-fixme[16]: `ModuleType` has no attribute `init_plugin`.
+            module.init_plugin(args)
+
+
 def main(args: List[str]) -> None:
     print(f"torchx version: {torchx.__version__}")
     print(f"process args: {args}")
     component_name = args[1]
     print(f"component_name: {component_name}")
+
+    config_path: str = os.getenv(TORCHX_CONFIG_ENV, DEFAULT_TORCHX_CONFIG_PATH)
+    print(f"config path: {config_path}")
+    load_and_process_config(config_path)
 
     parser = argparse.ArgumentParser(prog="torchx-main")
     cls = get_component_class(component_name)
@@ -75,6 +101,8 @@ def main(args: List[str]) -> None:
     # pyre-fixme[45]: Cannot instantiate abstract class `Component`.
     component = cls(**inputs)
     component.run(component.inputs, component.outputs)
+
+    print("done")
 
 
 if __name__ == "__main__":

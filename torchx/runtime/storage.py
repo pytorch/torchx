@@ -62,7 +62,9 @@ def register_storage_provider(provider: StorageProvider) -> None:
 def get_storage_provider(url: str) -> StorageProvider:
     parsed = urlparse(url)
     scheme = parsed.scheme
-    assert scheme in _PROVIDERS, f"failed to find provider for URL {url}"
+    assert (
+        scheme in _PROVIDERS
+    ), f"failed to find provider {scheme} for URL {url} - must be one of {list(_PROVIDERS.keys())}"
     return _PROVIDERS[scheme]
 
 

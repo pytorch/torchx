@@ -11,8 +11,9 @@ import tempfile
 import unittest
 from typing import TypedDict, Optional
 
+import yaml
 from torchx.runtime.component import Component
-from torchx.runtime.container.main import main
+from torchx.runtime.container.main import main, TORCHX_CONFIG_ENV
 from torchx.runtime.storage import temppath, upload_blob, download_blob
 
 
@@ -53,6 +54,25 @@ class TestComponent(Component[Config, Inputs, Outputs]):
         assert outputs["output_path"] == "somepath2"
 
         TestComponent.ran = True
+
+
+class NoopConfig(TypedDict):
+    pass
+
+
+class NoopInputs(TypedDict):
+    pass
+
+
+class NoopOutputs(TypedDict):
+    pass
+
+
+class NoopComponent(Component[NoopConfig, NoopInputs, NoopOutputs]):
+    Version: str = "0.1"
+
+    def run(self, inputs: NoopInputs, outputs: NoopOutputs) -> None:
+        pass
 
 
 class ContainerTest(unittest.TestCase):
@@ -98,3 +118,31 @@ class ContainerTest(unittest.TestCase):
             self.assertEqual(out, data)
             with open(out_path_file, "rt") as f:
                 self.assertEqual(f.read(), output_path)
+
+    def test_config_plugins(self) -> None:
+        """
+        Tests that storage providers from the specified config are loaded.
+        """
+        from torchx.runtime.container.test import dummy_module
+
+        module = "torchx.runtime.container.test.dummy_module"
+        config = {
+            "plugins": {
+                module: {
+                    "foo": "bar",
+                },
+            },
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = os.path.join(tmpdir, "torchx.yaml")
+            with open(config_path, "w") as f:
+                yaml.dump(config, f)
+            os.environ[TORCHX_CONFIG_ENV] = config_path
+            self.assertEqual(dummy_module.INIT_COUNT, 0)
+            main(
+                [
+                    "main.py",
+                    "torchx.runtime.container.test.main_test.NoopComponent",
+                ]
+            )
+            self.assertEqual(dummy_module.INIT_COUNT, 1)
