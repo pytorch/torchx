@@ -7,35 +7,47 @@
 import os.path
 import tempfile
 import unittest
+import unittest.mock as mock
+from typing import Dict
 
 import boto3
 from moto import mock_s3
 from torchx.aws.s3 import init_plugin
 from torchx.runtime.storage import (
+    _PROVIDERS,
+    StorageProvider,
     download_blob,
-    upload_blob,
     download_file,
+    upload_blob,
     upload_file,
 )
 
 
+_EMPTY_MAP: Dict[str, StorageProvider] = {}
+
+
 class S3Test(unittest.TestCase):
+    def _create_bucket(self) -> None:
+        region = "us-west-2"
+        client = boto3.Session().client("s3", region_name=region)
+        client.create_bucket(
+            Bucket="bucket", CreateBucketConfiguration={"LocationConstraint": region}
+        )
+
+    @mock.patch.dict(_PROVIDERS, _EMPTY_MAP)
     @mock_s3
     def test_storage_provider_blob(self) -> None:
-        client = boto3.Session().client("s3")
-        client.create_bucket(Bucket="bucket")
-
+        self._create_bucket()
         init_plugin(None)
         path = "s3://bucket/path"
         body = b"foo"
         upload_blob(path, body)
         self.assertEqual(download_blob(path), body)
 
+    @mock.patch.dict(_PROVIDERS, _EMPTY_MAP)
     @mock_s3
     def test_storage_provider_file(self) -> None:
-        client = boto3.Session().client("s3")
-        client.create_bucket(Bucket="bucket")
-
+        self._create_bucket()
         data = bytes(range(256))
         init_plugin(None)
         remote_path = "s3://bucket/path"
