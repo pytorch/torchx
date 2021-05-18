@@ -13,7 +13,8 @@ from typing import TypedDict, Optional
 
 import yaml
 from torchx.runtime.component import Component
-from torchx.runtime.container.main import main, TORCHX_CONFIG_ENV
+from torchx.runtime.container.main import main
+from torchx.runtime.plugins import TORCHX_CONFIG_ENV
 from torchx.runtime.storage import temppath, upload_blob, download_blob
 
 
@@ -123,9 +124,9 @@ class ContainerTest(unittest.TestCase):
         """
         Tests that storage providers from the specified config are loaded.
         """
-        from torchx.runtime.container.test import dummy_module
+        from torchx.runtime.test import dummy_module
 
-        module = "torchx.runtime.container.test.dummy_module"
+        module = "torchx.runtime.test.dummy_module"
         config = {
             "plugins": {
                 module: {

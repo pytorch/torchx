@@ -26,33 +26,7 @@ Ex:
 Configuration
 -----------------
 
-The entry point automatically loads a configuration file located at
-`/etc/torchx/config.yaml` or from the path specified by `TORCHX_CONFIG`.
-
-The config looks like this:
-
-.. code:: yaml
-
-    plugins:
-      torchx.aws.s3: null
-      your_plugin:
-        foo: bar
-
-
-Configuration options:
-
-**plugins**
-
-This is a list of python packages that should be loaded at runtime to register any third party plugins.
-The init_plugin method of the module will be called with the parsed yaml options from the plugin config.
-
-.. code:: python
-
-    from torchx.sdk.storage import register_storage_provider
-
-    def init_plugin(args):
-        register_storage_provider(<your provider>)
-
+See plugins.py for information on configuring dynamic dependencies.
 
 Extending
 -----------------
