@@ -298,8 +298,12 @@ class Role:
         return self
 
     def pre_proc(
-        self, scheduler: SchedulerBackend, dryrun_info: "AppDryRunInfo[T]"
-    ) -> "AppDryRunInfo[T]":
+        self,
+        scheduler: SchedulerBackend,
+        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+        dryrun_info: "AppDryRunInfo",
+        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    ) -> "AppDryRunInfo":
         """
         Modifies the scheduler request based on the role specific configuration.
         The method is invoked for each role during scheduler ``submit_dryrun``.
@@ -822,7 +826,7 @@ class InvalidRunConfigException(Exception):
         super().__init__(f"{invalid_reason}. Given: {run_config}, Expected: {runopts}")
 
 
-class Scheduler(Generic[T]):
+class Scheduler(abc.ABC):
     """
     An interface abstracting functionalities of a scheduler.
     Implementors need only implement those methods annotated with
@@ -844,7 +848,8 @@ class Scheduler(Generic[T]):
         return self.schedule(dryrun_info)
 
     @abc.abstractmethod
-    def schedule(self, dryrun_info: AppDryRunInfo[T]) -> str:
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def schedule(self, dryrun_info: AppDryRunInfo) -> str:
         """
         Same as ``submit`` except that it takes an ``AppDryrunInfo``.
         Implementors are encouraged to implement this method rather than
@@ -860,7 +865,8 @@ class Scheduler(Generic[T]):
 
         raise NotImplementedError()
 
-    def submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo[T]:
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo:
         """
         Rather than submitting the request to run the app, returns the
         request object that would have been submitted to the underlying
@@ -877,7 +883,8 @@ class Scheduler(Generic[T]):
         dryrun_info._cfg = resolved_cfg
         return dryrun_info
 
-    def _submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo[T]:
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def _submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo:
         raise NotImplementedError()
 
     def run_opts(self) -> runopts:
@@ -1093,7 +1100,7 @@ def parse_app_handle(app_handle: AppHandle) -> Tuple[SchedulerBackend, str, str]
     return gd["scheduler_backend"], gd["session_name"], gd["app_id"]
 
 
-class Session(Generic[T]):
+class Session(abc.ABC):
     """
     Entrypoint and client-facing API for Torchx. Has the methods for the user to
     define and act upon ``Applications``. The ``Session`` is stateful and
@@ -1137,7 +1144,8 @@ class Session(Generic[T]):
         return self.schedule(dryrun_info)
 
     @abc.abstractmethod
-    def schedule(self, dryrun_info: AppDryRunInfo[T]) -> AppHandle:
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
         """
         Actually runs the application from the given dryrun info.
         Useful when one needs to overwrite a parameter in the scheduler
@@ -1174,7 +1182,8 @@ class Session(Generic[T]):
         app: Application,
         scheduler: SchedulerBackend = "default",
         cfg: Optional[RunConfig] = None,
-    ) -> AppDryRunInfo[T]:
+        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    ) -> AppDryRunInfo:
         """
         Dry runs an app on the given scheduler with the provided run configs.
         Does not actually submit the app but rather returns what would have been
@@ -1217,8 +1226,12 @@ class Session(Generic[T]):
 
     @abc.abstractmethod
     def _dryrun(
-        self, app: Application, scheduler: SchedulerBackend, cfg: RunConfig
-    ) -> AppDryRunInfo[T]:
+        self,
+        app: Application,
+        scheduler: SchedulerBackend,
+        cfg: RunConfig
+        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    ) -> AppDryRunInfo:
         """
         The actual dryrun logic.
         Implementors of ``Session`` should implement this method rather than ``dryrun``.

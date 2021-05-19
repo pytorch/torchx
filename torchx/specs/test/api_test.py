@@ -335,7 +335,7 @@ class ApplicationTest(unittest.TestCase):
 
 
 class SessionTest(unittest.TestCase):
-    class MockSession(Session[Text]):
+    class MockSession(Session):
         def __init__(self) -> None:
             super().__init__("mock session")
 
@@ -556,7 +556,7 @@ class RunConfigTest(unittest.TestCase):
 
 
 class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler[None]):
+    class MockScheduler(Scheduler):
         def __init__(self, session_name: str) -> None:
             super().__init__("mock", session_name)
 

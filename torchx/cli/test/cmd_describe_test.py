@@ -35,7 +35,7 @@ class CmdStatusTest(unittest.TestCase):
         for app in [None, self.get_test_app()]:
             with self.subTest(app=app):
                 with patch(
-                    "torchelastic.tsm.driver.standalone_session.StandaloneSession.describe",
+                    "torchx.runner.standalone_runner.StandaloneRunner.describe",
                     return_value=app,
                 ) as desc_mock:
                     cmd_describe.run(args)

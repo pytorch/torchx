@@ -307,7 +307,7 @@ class PopenRequest:
     role_log_dirs: Dict[RoleName, List[str]]
 
 
-class LocalScheduler(Scheduler[PopenRequest]):
+class LocalScheduler(Scheduler):
     """
     Schedules on localhost. Containers are modeled as processes and
     certain properties of the container that are either not relevant

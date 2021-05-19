@@ -27,7 +27,7 @@ class CmdStatusTest(unittest.TestCase):
         for app_status in [None, AppStatus(state=AppState.RUNNING)]:
             with self.subTest(app_status=app_status):
                 with patch(
-                    "torchelastic.tsm.driver.standalone_session.StandaloneSession.status"
+                    "torchx.runner.standalone_runner.StandaloneRunner.status"
                 ) as status_mock:
                     status_mock.return_value = app_status
 
