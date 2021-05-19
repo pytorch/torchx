@@ -8,9 +8,10 @@
 import argparse
 import unittest
 
-# @manual=//pytorch/elastic/torchelastic/tsm/driver/fb:schedulers
-from torchelastic.tsm.driver.schedulers import get_schedulers
 from torchx.cli.cmd_runopts import CmdRunopts
+
+# @manual=//torchx/schedulers/fb:registry
+from torchx.schedulers.registry import get_schedulers
 
 
 class CmdRunOptsTest(unittest.TestCase):
