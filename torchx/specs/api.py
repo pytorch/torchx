@@ -8,6 +8,7 @@
 # TODO(aivanou): Update documentation
 
 import abc
+import copy
 import json
 import os
 from dataclasses import asdict, dataclass, field
@@ -189,24 +190,27 @@ class macros:
     app_id = "${app_id}"
     replica_id = "${replica_id}"
 
-    @staticmethod
-    def substitute(
-        args: List[str],
-        img_root: str,
-        app_id: str,
-        replica_id: str,
-        base_img_root: str = NONE,
-    ) -> List[str]:
-        args_sub = []
-        for arg in args:
-            sub = Template(arg).safe_substitute(
-                img_root=img_root,
-                app_id=app_id,
-                replica_id=replica_id,
-                base_img_root=base_img_root,
-            )
-            args_sub.append(sub)
-        return args_sub
+    @dataclass
+    class Values:
+        img_root: str
+        app_id: str
+        replica_id: str
+        base_img_root: str = NONE
+
+        def apply(self, role: "Role") -> "Role":
+            """
+            apply applies the values to a copy the specified role and returns it.
+            """
+            role = copy.deepcopy(role)
+            role.args = [self.substitute(arg) for arg in role.args]
+            role.env = {key: self.substitute(arg) for key, arg in role.env.items()}
+            return role
+
+        def substitute(self, arg: str) -> str:
+            """
+            substitute applies the values to the template arg.
+            """
+            return Template(arg).safe_substitute(**asdict(self))
 
 
 class RetryPolicy(str, Enum):

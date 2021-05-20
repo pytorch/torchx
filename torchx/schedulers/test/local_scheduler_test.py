@@ -78,6 +78,7 @@ class LocalSchedulerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.test_dir = tempfile.mkdtemp(prefix=f"{self.__class__.__name__}_")
         write_shell_script(self.test_dir, "touch.sh", ["touch $1"])
+        write_shell_script(self.test_dir, "env.sh", ["env > $1"])
         write_shell_script(self.test_dir, "fail.sh", ["exit 1"])
         write_shell_script(self.test_dir, "sleep.sh", ["sleep $1"])
         write_shell_script(self.test_dir, "echo_stdout.sh", ["echo $1"])
@@ -159,6 +160,42 @@ class LocalSchedulerTest(unittest.TestCase):
         assert desc is not None
         self.assertEqual(f"{expected_app_id}", app_id)
         self.assertEqual(AppState.FAILED, desc.state)
+
+    def test_macros_env(self) -> None:
+        # make sure the macro substitution works
+        # touch a file called {app_id}_{replica_id} in the img_root directory (self.test_dir)
+        test_file_name = f"{macros.app_id}_{macros.replica_id}"
+        num_replicas = 2
+        role = (
+            Role("role1")
+            .runs(
+                "env.sh",
+                join(f"{macros.img_root}", test_file_name),
+                FOO=join(macros.img_root, "config.yaml"),
+            )
+            .on(self.test_container)
+            .replicas(num_replicas)
+        )
+        app = Application(name="test_app").of(role)
+        expected_app_id = make_unique(app.name)
+        with patch(LOCAL_SCHEDULER_MAKE_UNIQUE, return_value=expected_app_id):
+            cfg = RunConfig({"log_dir": self.test_dir})
+            app_id = self.scheduler.submit(app, cfg)
+
+        self.assertEqual(f"{expected_app_id}", app_id)
+        app_response = self.wait(app_id)
+        assert app_response is not None
+        self.assertEqual(AppState.SUCCEEDED, app_response.state)
+
+        for i in range(num_replicas):
+            file = join(self.test_dir, f"{expected_app_id}_{i}")
+            self.assertTrue(os.path.isfile(file))
+
+            # check environment variable is substituted
+            with open(file, "r") as f:
+                body = f.read()
+            foo_env = join(self.test_dir, "config.yaml")
+            self.assertIn(f"FOO={foo_env}", body)
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_inherit_parent_envs(self) -> None:

@@ -526,9 +526,13 @@ class LocalScheduler(Scheduler):
             cmd = os.path.join(img_root, role.entrypoint)
 
             for replica_id in range(role.num_replicas):
-                args = [cmd] + macros.substitute(
-                    role.args, img_root, app_id, str(replica_id)
+                values = macros.Values(
+                    img_root=img_root,
+                    app_id=app_id,
+                    replica_id=str(replica_id),
                 )
+                replica_role = values.apply(role)
+                args = [cmd] + replica_role.args
                 replica_log_dir = os.path.join(app_log_dir, role.name, str(replica_id))
 
                 env_vars = {
@@ -537,7 +541,7 @@ class LocalScheduler(Scheduler):
                     "TORCHELASTIC_ERROR_FILE": os.path.join(
                         replica_log_dir, "error.json"
                     ),
-                    **role.env,
+                    **replica_role.env,
                 }
                 stdout = None
                 stderr = None

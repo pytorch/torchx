@@ -570,3 +570,29 @@ class GetTypeNameTest(unittest.TestCase):
         self.assertEqual(
             "typing.List[typing.List[int]]", get_type_name(List[List[int]])
         )
+
+
+class MacrosTest(unittest.TestCase):
+    def test_substitute(self) -> None:
+        v = macros.Values(
+            img_root="img_root",
+            app_id="app_id",
+            replica_id="replica_id",
+            base_img_root="base_img_root",
+        )
+        for key, val in dataclasses.asdict(v).items():
+            template = f"tmpl-{getattr(macros, key)}"
+            self.assertEqual(v.substitute(template), f"tmpl-{val}")
+
+    def test_apply(self) -> None:
+        role = Role(name="test").runs("foo.py", macros.img_root, FOO=macros.app_id)
+        v = macros.Values(
+            img_root="img_root",
+            app_id="app_id",
+            replica_id="replica_id",
+            base_img_root="base_img_root",
+        )
+        newrole = v.apply(role)
+        self.assertNotEqual(newrole, role)
+        self.assertEqual(newrole.args, ["img_root"])
+        self.assertEqual(newrole.env, {"FOO": "app_id"})
