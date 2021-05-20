@@ -6,33 +6,25 @@
 # LICENSE file in the root directory of this source tree.
 
 import datetime
-import json
 import os
 import shutil
 import tempfile
 import unittest
-from typing import Optional, Dict, List, Iterator
 from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
-from torchelastic.tsm.events import SourceType, TsmEvent
-from torchx.runner.standalone_runner import LoggingRunner, StandaloneRunner
+from torchx.runner import Runner
 from torchx.schedulers.local_scheduler import LocalScheduler
 from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs.api import (
     Application,
-    AppStatus,
     AppState,
     Container,
     DescribeAppResponse,
     Resource,
-    AppDryRunInfo,
     Role,
-    AppHandle,
     RunConfig,
-    SessionMismatchException,
     UnknownAppException,
-    parse_app_handle,
 )
 
 
@@ -45,132 +37,7 @@ class resource:
 SESSION_NAME = "test_session"
 
 
-class DummySession(LoggingRunner):
-    def _dryrun(
-        self, app: Application, scheduler: str, cfg: RunConfig
-    ) -> AppDryRunInfo[str]:
-        # pyre-fixme[7]: Expected `AppDryRunInfo[str]` but got `AppDryRunInfo[typing_extensions.Literal['test']]`
-        return AppDryRunInfo("test", lambda x: "test")
-
-    def scheduler_backends(self) -> List[str]:
-        return []
-
-    def _schedule(self, dryrun_info: AppDryRunInfo[str]) -> AppHandle:
-        return "default://test_session/test_app"
-
-    def _status(self, app_handle: AppHandle) -> Optional[AppStatus]:
-        return None
-
-    def _wait(self, app_handle: AppHandle) -> Optional[AppStatus]:
-        return None
-
-    def _list(self) -> Dict[AppHandle, Application]:
-        return {}
-
-    def _stop(self, app_handle: AppHandle) -> None:
-        pass
-
-    def _describe(self, app_handle: AppHandle) -> Optional[Application]:
-        return None
-
-    def _log_lines(
-        self,
-        app_handle: AppHandle,
-        role_name: str,
-        k: int = 0,
-        regex: Optional[str] = None,
-        since: Optional[datetime.datetime] = None,
-        until: Optional[datetime.datetime] = None,
-        should_tail: bool = False,
-    ) -> Iterator[str]:
-        return iter(["test_log"])
-
-
-@patch("torchx.runner.standalone_runner.record")
-class LoggingRunnerTest(unittest.TestCase):
-    def assert_tsm_event(self, expected: TsmEvent, actual: TsmEvent) -> None:
-        self.assertEqual(expected.session, actual.session)
-        self.assertEqual(expected.app_id, actual.app_id)
-        self.assertEqual(expected.api, actual.api)
-        self.assertEqual(expected.source, actual.source)
-
-    def test_status_success(self, record_tsm_mock: MagicMock) -> None:
-        session = DummySession("test_session")
-        session.status("default://test_session/test_app")
-        actual_tsm_event = record_tsm_mock.call_args[0][0]  # first arg
-        self.assert_tsm_event(
-            session._generate_tsm_event(
-                "status", "default", "test_app", source=SourceType.EXTERNAL
-            ),
-            actual_tsm_event,
-        )
-
-    def test_status_fail(self, record_tsm_mock: MagicMock) -> None:
-        session = DummySession("test_session")
-        with self.assertRaises(RuntimeError):
-            with patch.object(session, "_status") as status_mock:
-                status_mock.side_effect = RuntimeError("test error")
-                session.status("default://test_session/test_app")
-        record_tsm_mock.assert_called()
-
-    def test_wait_fail(self, record_tsm_mock: MagicMock) -> None:
-        session = DummySession("test_session")
-        with self.assertRaises(RuntimeError):
-            with patch.object(session, "_wait") as status_mock:
-                status_mock.side_effect = RuntimeError("test error")
-                session.wait("default://test_session/test_app")
-        record_tsm_mock.assert_called()
-
-    def test_describe_fail(self, record_tsm_mock: MagicMock) -> None:
-        session = DummySession("test_session")
-        with self.assertRaises(RuntimeError):
-            with patch.object(session, "_describe") as status_mock:
-                status_mock.side_effect = RuntimeError("test error")
-                session.describe("default://test_session/test_app")
-        record_tsm_mock.assert_called()
-
-    def test_list_fail(self, record_tsm_mock: MagicMock) -> None:
-        session = DummySession("test_session")
-        with self.assertRaises(RuntimeError):
-            with patch.object(session, "_list") as status_mock:
-                status_mock.side_effect = RuntimeError("test error")
-                session.list()
-        record_tsm_mock.assert_called()
-
-    def test_schedule_fail(self, record_tsm_mock: MagicMock) -> None:
-        app_info = AppDryRunInfo("test", lambda x: "test")
-        app_info._scheduler = "default"
-        cfg = RunConfig({"image_fetcher": "dir"})
-        app_info._cfg = cfg
-        session = DummySession("test_session")
-        with self.assertRaises(RuntimeError):
-            with patch.object(session, "_schedule") as schedule_mock:
-                schedule_mock.side_effect = RuntimeError("test error")
-                session.schedule(app_info)
-        record_tsm_mock.assert_called()
-
-    def test_schedule_success(self, record_tsm_mock: MagicMock) -> None:
-        app_info = AppDryRunInfo("test", lambda x: "test")
-        app_info._scheduler = "default"
-        cfg = RunConfig({"image_fetcher": "dir"})
-        app_info._cfg = cfg
-        session = DummySession("test_session")
-        app_handle = session.schedule(app_info)
-        actual_tsm_event = record_tsm_mock.call_args[0][0]  # first arg
-        _, _, app_id = parse_app_handle(app_handle)
-        self.assert_tsm_event(
-            session._generate_tsm_event(
-                "schedule",
-                "default",
-                app_id,
-                runcfg=json.dumps(cfg.cfgs),
-                source=SourceType.EXTERNAL,
-            ),
-            actual_tsm_event,
-        )
-
-
-@patch("torchx.runner.standalone_runner.record")
+@patch("torchx.runner.api.log_event")
 class RunnerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.test_dir = tempfile.mkdtemp("RunnerTest")
@@ -188,9 +55,35 @@ class RunnerTest(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.test_dir)
 
+    def test_validate_no_roles(self, _) -> None:
+        runner = Runner("test", schedulers={"default": self.scheduler})
+        with self.assertRaises(ValueError):
+            app = Application("no roles")
+            runner.run(app)
+
+    def test_validate_no_container(self, _) -> None:
+        runner = Runner("test", schedulers={"default": self.scheduler})
+        with self.assertRaises(ValueError):
+            role = Role("no container").runs("echo", "hello_world")
+            app = Application("no container").of(role)
+            runner.run(app)
+
+    def test_validate_invalid_replicas(self, _) -> None:
+        runner = Runner("test", schedulers={"default": self.scheduler})
+        with self.assertRaises(ValueError):
+            container = Container("torch").require(Resource(cpu=1, gpu=0, memMB=500))
+            role = (
+                Role("no container")
+                .runs("echo", "hello_world")
+                .on(container)
+                .replicas(0)
+            )
+            app = Application("no container").of(role)
+            runner.run(app)
+
     def test_run(self, _) -> None:
         test_file = os.path.join(self.test_dir, "test_file")
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME,
             schedulers={"default": self.scheduler},
             wait_interval=1,
@@ -206,7 +99,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_dryrun(self, _) -> None:
         scheduler_mock = MagicMock()
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
         )
         role = Role(name="touch").runs("echo", "hello world").on(self.test_container)
@@ -216,9 +109,7 @@ class RunnerTest(unittest.TestCase):
         scheduler_mock._validate.assert_called_once()
 
     def test_describe(self, _) -> None:
-        session = StandaloneRunner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}
-        )
+        session = Runner(name=SESSION_NAME, schedulers={"default": self.scheduler})
         role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
         app = Application("sleeper").of(role)
 
@@ -228,7 +119,7 @@ class RunnerTest(unittest.TestCase):
         self.assertIsNone(session.describe("default://session1/unknown_app"))
 
     def test_list(self, _) -> None:
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         role = Role(name="touch").runs("sleep.sh", "1").on(self.test_container)
@@ -251,7 +142,7 @@ class RunnerTest(unittest.TestCase):
         # called on the app
 
         scheduler = LocalScheduler(session_name=SESSION_NAME, cache_size=1)
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": scheduler}, wait_interval=1
         )
         test_file = os.path.join(self.test_dir, "test_file")
@@ -274,7 +165,7 @@ class RunnerTest(unittest.TestCase):
         self.assertTrue(app_id2 in apps)
 
     def test_status(self, _) -> None:
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
@@ -287,7 +178,7 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(AppState.CANCELLED, app_status.state)
 
     def test_status_unknown_app(self, _) -> None:
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         self.assertIsNone(session.status("default://test_session/unknown_app_id"))
@@ -302,7 +193,7 @@ class RunnerTest(unittest.TestCase):
         mock_scheduler.submit.return_value = app_id
         mock_scheduler.describe.return_value = resp
 
-        session = StandaloneRunner(
+        session = Runner(
             name="test_ui_url_session", schedulers={"default": mock_scheduler}
         )
         role = Role("ignored").runs("/bin/echo").on(self.test_container)
@@ -320,7 +211,7 @@ class RunnerTest(unittest.TestCase):
         mock_scheduler.submit.return_value = app_id
         mock_scheduler.describe.return_value = resp
 
-        session = StandaloneRunner(
+        session = Runner(
             name="test_structured_msg", schedulers={"default": mock_scheduler}
         )
         role = Role("ignored").runs("/bin/echo").on(self.test_container)
@@ -329,23 +220,20 @@ class RunnerTest(unittest.TestCase):
         self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
 
     def test_wait_unknown_app(self, _) -> None:
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         self.assertIsNone(session.wait("default://test_session/unknown_app_id"))
         self.assertIsNone(session.wait("default://another_session/some_app"))
 
     def test_stop(self, _) -> None:
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         self.assertIsNone(session.stop("default://test_session/unknown_app_id"))
 
-        with self.assertRaises(SessionMismatchException):
-            session.stop("default://another_session/some_app_id")
-
     def test_log_lines_unknown_app(self, _) -> None:
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         with self.assertRaises(UnknownAppException):
@@ -359,7 +247,7 @@ class RunnerTest(unittest.TestCase):
             app_id, AppState.RUNNING
         )
         scheduler_mock.log_iter.return_value = iter(["hello", "world"])
-        session = StandaloneRunner(
+        session = Runner(
             name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
         )
 
@@ -386,7 +274,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_no_default_scheduler(self, _) -> None:
         with self.assertRaises(ValueError):
-            StandaloneRunner(name=SESSION_NAME, schedulers={"local": self.scheduler})
+            Runner(name=SESSION_NAME, schedulers={"local": self.scheduler})
 
     @patch("json.dumps")
     def test_get_schedulers(self, json_dumps_mock: MagicMock, _) -> None:
@@ -394,7 +282,7 @@ class RunnerTest(unittest.TestCase):
         json_dumps_mock.return_value = "{}"
         local_sched_mock = MagicMock()
         schedulers = {"default": default_sched_mock, "local": local_sched_mock}
-        session = StandaloneRunner(name="test_session", schedulers=schedulers)
+        session = Runner(name="test_session", schedulers=schedulers)
 
         role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
         app = Application("sleeper").of(role)

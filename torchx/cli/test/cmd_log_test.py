@@ -22,7 +22,7 @@ class SentinelError(Exception):
     pass
 
 
-SESSION = "torchelastic.tsm.driver.session"
+SESSION = "torchx.specs.lib.run"
 
 
 class MockSession:

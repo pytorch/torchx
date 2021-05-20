@@ -35,7 +35,6 @@ from torchx.specs.api import (
     RunConfig,
     Scheduler,
     SchedulerBackend,
-    Session,
     get_type_name,
     macros,
     make_app_handle,
@@ -332,79 +331,6 @@ class ApplicationTest(unittest.TestCase):
         app = Application(name="test_app").add_metadata("test_key", "test_value")
         self.assertEqual("test_value", app.get_metadata("test_key"))
         self.assertEqual(None, app.get_metadata("non_existent"))
-
-
-class SessionTest(unittest.TestCase):
-    class MockSession(Session):
-        def __init__(self) -> None:
-            super().__init__("mock session")
-
-        def schedule(self, dryrun_info: AppDryRunInfo[Text]) -> str:
-            app = dryrun_info._app
-            assert app is not None
-            return app.name
-
-        def _dryrun(
-            self, app: Application, scheduler: SchedulerBackend, cfg: RunConfig
-        ) -> AppDryRunInfo[Text]:
-            # It is sad that we have to use cast explicitly
-            return AppDryRunInfo(cast(str, "<mock request>"), lambda r: r)
-
-        def status(self, app_handle: AppHandle) -> Optional[AppStatus]:
-            return None
-
-        def wait(self, app_handle: AppHandle) -> Optional[AppStatus]:
-            return None
-
-        def list(self) -> Dict[str, Application]:
-            return {}
-
-        def stop(self, app_handle: AppHandle) -> None:
-            pass
-
-        def describe(self, app_handle: AppHandle) -> Optional[Application]:
-            return Application(app_handle)
-
-        def log_lines(
-            self,
-            app_handle: AppHandle,
-            role_name: str,
-            k: int = 0,
-            regex: Optional[str] = None,
-            since: Optional[datetime] = None,
-            until: Optional[datetime] = None,
-            should_tail: bool = False,
-        ) -> Iterable[str]:
-            return iter([])
-
-        def scheduler_backends(self) -> List[SchedulerBackend]:
-            return ["default"]
-
-    def test_validate_no_roles(self) -> None:
-        session = self.MockSession()
-        with self.assertRaises(ValueError):
-            app = Application("no roles")
-            session.run(app)
-
-    def test_validate_no_container(self) -> None:
-        session = self.MockSession()
-        with self.assertRaises(ValueError):
-            role = Role("no container").runs("echo", "hello_world")
-            app = Application("no container").of(role)
-            session.run(app)
-
-    def test_validate_invalid_replicas(self) -> None:
-        session = self.MockSession()
-        with self.assertRaises(ValueError):
-            container = Container("torch").require(Resource(cpu=1, gpu=0, memMB=500))
-            role = (
-                Role("no container")
-                .runs("echo", "hello_world")
-                .on(container)
-                .replicas(0)
-            )
-            app = Application("no container").of(role)
-            session.run(app)
 
 
 class AppDryRunInfoTest(unittest.TestCase):

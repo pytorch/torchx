@@ -26,9 +26,7 @@ class CmdStatusTest(unittest.TestCase):
 
         for app_status in [None, AppStatus(state=AppState.RUNNING)]:
             with self.subTest(app_status=app_status):
-                with patch(
-                    "torchx.runner.standalone_runner.StandaloneRunner.status"
-                ) as status_mock:
+                with patch("torchx.runner.api.Runner.status") as status_mock:
                     status_mock.return_value = app_status
 
                     cmd_status.run(args)

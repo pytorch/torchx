@@ -14,9 +14,10 @@ from queue import Queue
 from typing import Optional
 from urllib.parse import urlparse
 
-import torchelastic.tsm.driver as tsm
-from torchelastic.tsm.driver import make_app_handle
+import torchx.specs.lib as torchx
+from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
+from torchx.runner import Runner
 
 GREEN = "\033[32m"
 ENDC = "\033[0m"
@@ -34,7 +35,7 @@ def validate(job_identifier: str) -> None:
 
 
 def print_log_lines(
-    session: tsm.Session,
+    runner: Runner,
     app_handle: str,
     role_name: str,
     replica_id: int,
@@ -43,7 +44,7 @@ def print_log_lines(
     exceptions: "Queue[Exception]",
 ) -> None:
     try:
-        for line in session.log_lines(
+        for line in runner.log_lines(
             app_handle, role_name, replica_id, regex, should_tail=should_tail
         ):
             print(f"{GREEN}{role_name}/{replica_id}{ENDC} {line}")
@@ -63,9 +64,10 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
     app_id = path[1]
     role_name = path[2]
 
-    session_ = tsm.session(name=session_name)
-    app_handle = make_app_handle(scheduler_backend, session_name, app_id)
-    app = session_.describe(app_handle)
+    session_ = torchx.run(name=session_name)
+    app_handle = torchx.make_app_handle(scheduler_backend, session_name, app_id)
+
+    app = none_throws(session_.describe(app_handle))
 
     if len(path) == 4:
         replica_ids = [int(id) for id in path[3].split(",") if id]
@@ -124,7 +126,7 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
         raise threads_exceptions[0]
 
 
-def find_role_replicas(app: tsm.Application, role_name: str) -> Optional[int]:
+def find_role_replicas(app: torchx.Application, role_name: str) -> Optional[int]:
     for role in app.roles:
         if role_name == role.name:
             return role.num_replicas

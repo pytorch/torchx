@@ -64,7 +64,7 @@ In the example above, we have done a few things:
 import getpass
 from typing import Optional
 
-from torchx.runner import StandaloneRunner as StandaloneSession
+from torchx.runner import Runner
 from torchx.schedulers.registry import get_schedulers
 from torchx.specs.api import (  # noqa: F401 F403
     AppDryRunInfo,
@@ -84,7 +84,6 @@ from torchx.specs.api import (  # noqa: F401 F403
     RunConfig,
     Scheduler,
     SchedulerBackend,
-    Session,
     is_terminal,
     macros,
     make_app_handle,
@@ -112,16 +111,16 @@ def _gen_session_name() -> str:
     return f"tsm_{get_owner()}"
 
 
-def session(
+def run(
     name: Optional[str] = None, backend: str = "standalone", **scheduler_args: str
-) -> StandaloneSession:
+) -> Runner:
     if backend != "standalone":
         raise ValueError(
             f"Unsupported session backend: {backend}. Supported values: standalone"
         )
 
+    # TODO(aivanou): remove session name in follow up diffs
     if not name:
         name = _gen_session_name()
-
     scheduler_args["session_name"] = name
-    return StandaloneSession(name=name, schedulers=get_schedulers(**scheduler_args))
+    return Runner(name=name, schedulers=get_schedulers(**scheduler_args))

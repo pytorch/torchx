@@ -35,7 +35,7 @@ class CmdStatusTest(unittest.TestCase):
         for app in [None, self.get_test_app()]:
             with self.subTest(app=app):
                 with patch(
-                    "torchx.runner.standalone_runner.StandaloneRunner.describe",
+                    "torchx.runner.api.Runner.describe",
                     return_value=app,
                 ) as desc_mock:
                     cmd_describe.run(args)
