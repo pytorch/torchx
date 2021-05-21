@@ -10,14 +10,16 @@ import os
 import warnings
 from dataclasses import asdict
 from os import path
+from pathlib import Path
 from pprint import pformat
-from typing import Callable, Iterable, List, Type
+from typing import Callable, Iterable, List, Optional, Type
 
 import torchx.specs as specs
 import yaml
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.conf_helpers import parse_args_children
 from torchx.runner import get_runner
+from torchx.util import entrypoints
 
 
 class UnsupportFeatureError(Exception):
@@ -94,34 +96,52 @@ def _parse_run_config(arg: str) -> specs.RunConfig:
 
 # TODO kiuk@ move read_conf_file + _builtins to the Runner once the Runner is API stable
 
-_CONFIG_DIR: str = path.join(path.dirname(__file__), "config")
+_CONFIG_DIR: Path = Path("torchx/cli/config")
 _CONFIG_EXT = ".torchx"
 
 
+def get_file_contents(conf_file: str) -> Optional[str]:
+    """
+    Reads the ``conf_file`` relative to the root of the project.
+    Returns ``None`` if ``$root/$conf_file`` does not exist.
+    Example: ``get_file("torchx/cli/config/foo.txt")``
+    """
+
+    root = path.dirname(__file__).replace(__name__.replace(".", path.sep), "")
+    abspath = path.join(root, conf_file)
+    if path.exists(abspath):
+        with open(abspath, "r") as f:
+            return f.read()
+    else:
+        return None
+
+
 def read_conf_file(conf_file: str) -> str:
-    builtin_conf = path.join(_CONFIG_DIR, conf_file)
+    builtin_conf = entrypoints.load(
+        "torchx.file",
+        "get_file_contents",
+        default=get_file_contents,
+    )(str(_CONFIG_DIR / conf_file))
 
     # user provided conf file precedes the builtin config
     # just print a warning but use the user provided one
     if path.exists(conf_file):
-        if path.exists(builtin_conf):
+        if builtin_conf:
             warnings.warn(
                 f"The provided config file: {conf_file} overlaps"
                 f" with a built-in. It is recommended that you either"
                 f" rename the config file or use abs path."
                 f" Will use: {path.abspath(conf_file)} for this run."
             )
-    else:  # conf_file does not exist fallback to builtin
-        conf_file = builtin_conf
-
-    if not path.exists(conf_file):
+        with open(conf_file, "r") as f:
+            return f.read()
+    elif builtin_conf:  # conf_file does not exist fallback to builtin
+        return builtin_conf
+    else:  # neither conf_file nor builtin exists, raise error
         raise FileNotFoundError(
-            f"{conf_file} does not exist and/or is not a builtin."
+            f"{conf_file} does not exist and is not a builtin."
             " For a list of available builtins run `torchx builtins`"
         )
-
-    with open(conf_file, "r") as f:
-        return f.read()
 
 
 def _builtins() -> List[str]:
@@ -143,7 +163,7 @@ class CmdBuiltins(SubCommand):
         num_builtins = len(builtin_configs)
         print(f"Found {num_builtins} builtin configs:")
         for i, name in enumerate(builtin_configs):
-            print(f" {i+1:2d}. {name}")
+            print(f" {i + 1:2d}. {name}")
 
 
 class CmdRun(SubCommand):
