@@ -1,0 +1,49 @@
+"""
+description: Runs the example lightning_classy_vision app.
+arguments:
+  - name: --image
+    type: str
+    help: image to run (e.g. foobar:latest)
+  - name: --resource
+    type: str
+    help: resource spec
+    default: T1
+  - name: --output_path
+    type: str
+    help: output path for model checkpoints (e.g. file:///foo/bar)
+    required: true
+  - name: --load_path
+    type: str
+    help: path to load pretrained model from
+    default: ""
+  - name: --log_dir
+    type: str
+    help: path to save tensorboard logs to
+    default: "/logs"
+"""
+
+import torchx.specs.api as torchx
+import torchx.schedulers.fb.resource as resource
+
+container = torchx.Container(image=args.image).require(resources=resource.get(args.resource))
+entrypoint = "main"
+
+trainer_role = (
+    torchx.Role(
+        name="trainer"
+    )
+    .runs(
+      "main",
+      "--output_path",
+      args.output_path,
+      "--load_path",
+      args.load_path,
+      "--log_dir",
+      args.log_dir,
+    )
+    .on(container)
+    .replicas(1)
+)
+
+app = torchx.Application("examples-lightning_classy_vision").of(trainer_role)
+export(app)
