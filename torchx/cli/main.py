@@ -48,7 +48,7 @@ def create_parser() -> ArgumentParser:
     return parser
 
 
-def main(argv: List[str]) -> None:
+def main(argv: List[str] = sys.argv[1:]) -> None:
     parser = create_parser()
     args = parser.parse_args(argv)
     if "func" not in args:
@@ -58,4 +58,4 @@ def main(argv: List[str]) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

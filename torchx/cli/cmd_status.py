@@ -12,9 +12,10 @@ from datetime import datetime
 from string import Template
 from typing import List, Optional, Pattern
 
-import torchelastic.tsm.driver as tsm
 from torchx.cli.cmd_base import SubCommand
+from torchx.specs import api
 from torchx.specs.api import NONE
+from torchx.runner import get_runner
 
 _APP_STATUS_FORMAT_TEMPLATE = """Application:
   State: ${state}
@@ -71,7 +72,7 @@ def format_error_message(msg: str, header: str, width: int = 80) -> str:
     return "\n".join(lines)
 
 
-def format_replica_status(replica_status: tsm.ReplicaStatus) -> str:
+def format_replica_status(replica_status: api.ReplicaStatus) -> str:
     if replica_status.structured_error_msg != NONE:
         error_data = json.loads(replica_status.structured_error_msg)
         error_message = format_error_message(
@@ -88,8 +89,8 @@ def format_replica_status(replica_status: tsm.ReplicaStatus) -> str:
     else:
         data = f"{replica_status.state}"
         if replica_status.state in [
-            tsm.ReplicaState.CANCELLED,
-            tsm.ReplicaState.FAILED,
+            api.ReplicaState.CANCELLED,
+            api.ReplicaState.FAILED,
         ]:
             data += " (no reply file)"
 
@@ -102,7 +103,7 @@ def format_replica_status(replica_status: tsm.ReplicaStatus) -> str:
 
 
 def format_role_status(
-    role_status: tsm.RoleStatus,
+    role_status: api.RoleStatus,
 ) -> str:
     replica_data = ""
 
@@ -112,15 +113,15 @@ def format_role_status(
 
 
 def get_roles(
-    roles: List[tsm.RoleStatus], filter_roles: Optional[List[str]] = None
-) -> List[tsm.RoleStatus]:
+    roles: List[api.RoleStatus], filter_roles: Optional[List[str]] = None
+) -> List[api.RoleStatus]:
     if not filter_roles:
         return roles
     return [role_status for role_status in roles if role_status.role in filter_roles]
 
 
 def format_app_status(
-    app_status: tsm.AppStatus,
+    app_status: api.AppStatus,
     filter_roles: Optional[List[str]] = None,
 ) -> str:
     roles_data = ""
@@ -153,9 +154,9 @@ class CmdStatus(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         app_handle = args.app_handle
-        scheduler, session_name, app_id = tsm.parse_app_handle(app_handle)
-        session = tsm.session(name=session_name)
-        app_status = session.status(app_handle)
+        scheduler, session_name, app_id = api.parse_app_handle(app_handle)
+        runner = get_runner(name=session_name)
+        app_status = runner.status(app_handle)
         filter_roles = parse_list_arg(args.roles)
         if app_status:
             print(format_app_status(app_status, filter_roles))

@@ -7,6 +7,7 @@
 import os
 import tempfile
 import unittest
+import importlib
 
 import yaml
 from torchx.runtime.plugins import init_plugins, TORCHX_CONFIG_ENV
@@ -18,6 +19,7 @@ class ContainerTest(unittest.TestCase):
         Tests that storage providers from the specified config are loaded.
         """
         from torchx.runtime.test import dummy_module
+        importlib.reload(dummy_module)
 
         module = "torchx.runtime.test.dummy_module"
         config = {

@@ -13,7 +13,7 @@ from torchx.cli.cmd_describe import CmdDescribe
 from torchx.specs.api import Application, Container, ElasticRole, Resource
 
 
-class CmdStatusTest(unittest.TestCase):
+class CmdDescribeTest(unittest.TestCase):
     def get_test_app(self) -> Application:
         resource = Resource(cpu=2, gpu=0, memMB=256)
         trainer = (

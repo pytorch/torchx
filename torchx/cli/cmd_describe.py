@@ -9,8 +9,9 @@ import argparse
 import dataclasses
 import pprint
 
-import torchelastic.tsm.driver as tsm
+from torchx.runner import get_runner
 from torchx.cli.cmd_base import SubCommand
+from torchx.specs import api
 
 
 class CmdDescribe(SubCommand):
@@ -23,9 +24,9 @@ class CmdDescribe(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         app_handle = args.app_handle
-        scheduler, session_name, app_id = tsm.parse_app_handle(app_handle)
-        session = tsm.session(name=session_name)
-        app = session.describe(app_handle)
+        scheduler, session_name, app_id = api.parse_app_handle(app_handle)
+        runner = get_runner(name=session_name)
+        app = runner.describe(app_handle)
 
         if app:
             pprint.pprint(dataclasses.asdict(app), indent=2, width=80)
