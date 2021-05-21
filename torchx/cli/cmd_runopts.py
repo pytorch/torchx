@@ -7,8 +7,8 @@
 
 import argparse
 
-import torchelastic.tsm.driver as tsm
 from torchx.cli.cmd_base import SubCommand
+from torchx.runner.api import get_runner
 
 
 class CmdRunopts(SubCommand):
@@ -22,7 +22,7 @@ class CmdRunopts(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         scheduler = args.scheduler
-        run_opts = tsm.session(name="default").run_opts()
+        run_opts = get_runner().run_opts()
 
         if not scheduler:
             print(run_opts)

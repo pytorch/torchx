@@ -1,3 +1,6 @@
 boto3>=1.11.11
 moto>=2.0.6
 kfp==1.4.0
+pyre-extensions>=0.0.21
+black>=21.5b1
+isort>=5.8.0

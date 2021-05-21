@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import importlib
 import os
 import tempfile
 import unittest
@@ -18,6 +19,8 @@ class ContainerTest(unittest.TestCase):
         Tests that storage providers from the specified config are loaded.
         """
         from torchx.runtime.test import dummy_module
+
+        importlib.reload(dummy_module)
 
         module = "torchx.runtime.test.dummy_module"
         config = {

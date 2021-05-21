@@ -6,6 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import os
+import time
 import unittest
 from unittest.mock import patch
 
@@ -71,6 +73,9 @@ Traceback (most recent call last):
         return AppStatus(state=AppState.RUNNING, roles=[role_status])
 
     def test_format_app_status(self) -> None:
+        os.environ["TZ"] = "Europe/London"
+        time.tzset()
+
         app_status = self._get_test_app_status()
         actual_message = format_app_status(app_status)
         print(actual_message)
@@ -79,7 +84,7 @@ Traceback (most recent call last):
   Num Restarts: 0
 Roles:
  *worker[0]:FAILED (exitcode: -1)
-    timestamp: 1970-01-15 15:13:02
+    timestamp: 1970-01-16 00:13:02
     hostname: localhost
     error_msg: error
   worker[1]:RUNNING"""

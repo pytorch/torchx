@@ -32,6 +32,9 @@ if __name__ == "__main__":
     with open("requirements.txt") as f:
         reqs = f.read()
 
+    with open("dev-requirements.txt") as f:
+        test_reqs = f.read()
+
     version = get_version()
     print("-- Building version: " + version)
 
@@ -49,9 +52,15 @@ if __name__ == "__main__":
         keywords=["pytorch", "machine learning"],
         python_requires=">=3.8",
         install_requires=reqs.strip().split("\n"),
+        tests_requires=test_reqs.strip().split("\n"),
         include_package_data=True,
         packages=find_packages(exclude=("*.test", "aws*", "*.fb")),
         test_suite="torchx.test.suites.unittests",
+        entry_points={
+            "console_scripts": [
+                "torchx=torchx.cli.main:main",
+            ],
+        },
         # PyPI package information.
         classifiers=[
             "Development Status :: 4 - Beta",
