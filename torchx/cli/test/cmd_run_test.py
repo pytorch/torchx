@@ -76,7 +76,7 @@ class CmdRunTest(unittest.TestCase):
             )
 
             self.cmd_run.run(args)
-            mock_warn.assert_called_once()
+            mock_warn.assert_called()
             self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.test")))
 
     def test_run_with_relpath(self) -> None:
@@ -105,6 +105,20 @@ class CmdRunTest(unittest.TestCase):
                 ]
             )
             self.cmd_run.run(args)
+
+    @patch("torchx.runner.Runner.run")
+    def test_run_dryrun(self, mock_runner_run: MagicMock) -> None:
+        args = self.parser.parse_args(
+            [
+                "--dryrun",
+                "--verbose",
+                "--scheduler",
+                "local",
+                "echo.torchx",
+            ]
+        )
+        self.cmd_run.run(args)
+        mock_runner_run.assert_not_called()
 
 
 class CmdBuiltinTest(unittest.TestCase):

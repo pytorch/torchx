@@ -1,3 +1,4 @@
+"""
 description: A simple configuration example.
 arguments:
   - name: --num_trainers
@@ -7,10 +8,10 @@ arguments:
   - name: --trainer_image
     help: The trainer image to use.
     default: pytorch/torchx:latest
-
----
+"""
 
 import torchx.specs as specs
+
 
 trainer_image = specs.Container(image=args.trainer_image)
 reader_image = specs.Container(image=args.trainer_image)

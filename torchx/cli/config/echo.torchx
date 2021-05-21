@@ -1,13 +1,14 @@
+"""
 description: Echos a message
 arguments:
   - name: --msg
     help: Message to echo
     default: "hello world"
     type: str
-
----
+"""
 
 import torchx.specs as specs
+
 
 echo = specs.Role(
     name="echo",

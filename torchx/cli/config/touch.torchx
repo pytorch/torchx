@@ -1,12 +1,13 @@
+"""
 description: /bin/touch a file (with a .test extension)
 arguments:
   - name: --file
     help: file path
     type: str
-
----
+"""
 
 import torchx.specs as specs
+
 
 touch = specs.Role(
     name="touch",

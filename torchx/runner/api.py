@@ -5,34 +5,28 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import getpass
 import json
 import time
 from datetime import datetime
-from typing import (
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-)
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
-from torchx.schedulers.api import (
-    Scheduler,
-)
+from torchx.schedulers.api import Scheduler
+from torchx.schedulers.registry import get_schedulers
 from torchx.specs.api import (
+    NULL_CONTAINER,
+    AppDryRunInfo,
     AppHandle,
     Application,
     AppStatus,
-    AppDryRunInfo,
     RunConfig,
     SchedulerBackend,
     UnknownAppException,
     make_app_handle,
     parse_app_handle,
     runopts,
-    NULL_CONTAINER,
 )
 
 
@@ -423,3 +417,15 @@ class Runner:
         scheduler_backend, _, app_id = parse_app_handle(app_handle)
         scheduler = self._scheduler(scheduler_backend)
         return scheduler, scheduler_backend, app_id
+
+
+def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
+    """
+    Convenience method to construct and get a Runner object.
+    """
+    if not name:
+        name = f"torchx_{getpass.getuser()}"
+
+    scheduler_params["session_name"] = name
+    schedulers = get_schedulers(**scheduler_params)
+    return Runner(name, schedulers)

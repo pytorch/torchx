@@ -8,13 +8,16 @@ import argparse
 import ast
 import os
 import warnings
+from dataclasses import asdict
 from os import path
+from pprint import pformat
 from typing import Callable, Iterable, List, Type
 
-import torchelastic.tsm.driver as tsm
+import torchx.specs as specs
 import yaml
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.conf_helpers import parse_args_children
+from torchx.runner import get_runner
 
 
 class UnsupportFeatureError(Exception):
@@ -50,7 +53,7 @@ class ConfValidator(ast.NodeVisitor):
         ast.ListComp,
         ast.SetComp,
         ast.DictComp,
-        ast.GeneratorExp,
+        # ast.GeneratorExp,
     )
 
     def visit(self, node: ast.AST) -> None:
@@ -82,8 +85,8 @@ def _get_arg_type(type_name: str) -> Callable[[str], object]:
     raise TypeError(f"unknown argument type {type_name}")
 
 
-def _parse_run_config(arg: str) -> tsm.RunConfig:
-    conf = tsm.RunConfig()
+def _parse_run_config(arg: str) -> specs.RunConfig:
+    conf = specs.RunConfig()
     for key, value in parse_args_children(arg).items():
         conf.set(key, value)
     return conf
@@ -158,6 +161,19 @@ class CmdRun(SubCommand):
             "",
         )
         subparser.add_argument(
+            "--dryrun",
+            action="store_true",
+            default=False,
+            help="Does not actually submit the app,"
+            " just prints the scheduler request",
+        )
+        subparser.add_argument(
+            "--verbose",
+            action="store_true",
+            default=False,
+            help="Verbose mode, pretty print the app spec",
+        )
+        subparser.add_argument(
             "conf_file",
             type=str,
             help="Name of builtin conf or path of the *.torchx.conf file."
@@ -170,9 +186,16 @@ class CmdRun(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         body = read_conf_file(args.conf_file)
-        frontmatter, script = body.split("\n---\n")
+        node = ast.parse(body)
 
-        conf = yaml.safe_load(frontmatter)
+        # we expect the docstring of the conf file to be yaml
+        docstring = ast.get_docstring(node)
+        if not docstring:
+            raise RuntimeError(
+                f"Missing parameters docstring in conf file: {args.conf_file}."
+                f" Please reference `torchx.cli.config.simple_example.torchx` as an example"
+            )
+        conf = yaml.safe_load(docstring)
         script_parser = argparse.ArgumentParser(
             prog=f"torchx run {args.conf_file}", description=conf.get("description")
         )
@@ -194,13 +217,12 @@ class CmdRun(SubCommand):
                 **script_args,
             )
 
-        node = ast.parse(script)
         validator = ConfValidator()
         validator.visit(node)
 
         app = None
 
-        def export(_app: tsm.Application) -> None:
+        def export(_app: specs.Application) -> None:
             nonlocal app
             app = _app
 
@@ -210,19 +232,29 @@ class CmdRun(SubCommand):
             "scheduler": args.scheduler,
         }
 
-        exec(script, scope)  # noqa: P204
+        exec(body, scope)  # noqa: P204
 
         assert app is not None, "config file did not export an app"
         assert isinstance(
-            app, tsm.Application
+            app, specs.Application
         ), f"config file did not export a torchx.spec.Application {app}"
 
-        session = tsm.session()
-        app_handle = session.run(app, args.scheduler, args.scheduler_args)
-        print(f"Launched app: {app_handle}")
-        status = session.status(app_handle)
-        print(f"App status: {status}")
-        if args.scheduler == "local":
-            session.wait(app_handle)
-        else:
-            print(f"Job URL: {status.ui_url}")
+        runner = get_runner()
+
+        if args.verbose or args.dryrun:
+            print("=== APPLICATION ===")
+            print(pformat(asdict(app), indent=2, width=80))
+
+            print("=== SCHEDULER REQUEST ===")
+            print(runner.dryrun(app, args.scheduler, args.scheduler_args))
+
+        if not args.dryrun:
+            app_handle = runner.run(app, args.scheduler, args.scheduler_args)
+            print("=== RUN RESULT ===")
+            print(f"Launched app: {app_handle}")
+            status = runner.status(app_handle)
+            print(f"App status: {status}")
+            if args.scheduler == "local":
+                runner.wait(app_handle)
+            else:
+                print(f"Job URL: {status.ui_url}")
