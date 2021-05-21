@@ -9,13 +9,11 @@ arguments:
 import torchx.specs as specs
 
 touch = specs.Role(
-         name="echo",
-         entrypoint="/bin/touch",
-         args=[f"{args.file}.testv2"],
-         container=specs.Container(image="/tmp"),
-         num_replicas=1,
-       )
+    name="touch",
+    entrypoint="/bin/touch",
+    args=[f"{args.file}.testv2"],
+    container=specs.Container(image="/tmp"),
+    num_replicas=1,
+)
 
-app = specs.Application(name="touch", roles=[touch])
-
-export(app)
+export(specs.Application(name="touch", roles=[touch]))

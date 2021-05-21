@@ -1,4 +1,4 @@
-description: /bin/touch a file
+description: /bin/touch a file (with a .test extension)
 arguments:
   - name: --file
     help: file path
@@ -9,13 +9,11 @@ arguments:
 import torchx.specs as specs
 
 touch = specs.Role(
-         name="touch",
-         entrypoint="/bin/touch",
-         args=[args.file],
-         container=specs.Container(image="/tmp"),
-         num_replicas=1,
-       )
+    name="touch",
+    entrypoint="/bin/touch",
+    args=[f"{args.file}"],
+    container=specs.Container(image="/tmp"),
+    num_replicas=1,
+)
 
-app = specs.Application(name="touch", roles=[touch])
-
-export(app)
+export(specs.Application(name="touch", roles=[touch]))

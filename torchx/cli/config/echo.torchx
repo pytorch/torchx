@@ -10,12 +10,12 @@ arguments:
 import torchx.specs as specs
 
 echo = specs.Role(
-         name="echo",
-         entrypoint="/bin/echo",
-         args=[args.msg],
-         container=specs.Container(image="/tmp"),
-         num_replicas=1,
-       )
+    name="echo",
+    entrypoint="/bin/echo",
+    args=[args.msg],
+    container=specs.Container(image="/tmp"),
+    num_replicas=1,
+)
 
 app = specs.Application(name="echo", roles=[echo])
 
