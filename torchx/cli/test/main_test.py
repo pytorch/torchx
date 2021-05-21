@@ -12,17 +12,34 @@ import torchelastic.tsm.driver as tsm
 from torchx.cli.cmd_run import _parse_run_config
 from torchx.cli.main import main
 
+
 _root: Path = Path(__file__).parent
+
+_SIMPLE_CONF: str = "simple_example.torchx"
 
 
 class CLITest(unittest.TestCase):
-    def test_run(self) -> None:
+    def test_run_abs_config_path(self) -> None:
         main(
             [
                 "run",
                 "--scheduler",
                 "local",
-                str(_root / "examples" / "simple.conf"),
+                str(_root / "examples" / "test_simple.torchx"),
+                "--num_trainers",
+                "2",
+                "--trainer_image",
+                str(_root / "examples" / "container"),
+            ]
+        )
+
+    def test_run_builtin_config(self) -> None:
+        main(
+            [
+                "run",
+                "--scheduler",
+                "local",
+                _SIMPLE_CONF,
                 "--num_trainers",
                 "2",
                 "--trainer_image",

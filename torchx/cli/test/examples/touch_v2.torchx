@@ -1,0 +1,21 @@
+description: /bin/touch a file (with a .testv2 extension)
+arguments:
+  - name: --file
+    help: file path
+    type: str
+
+---
+
+import torchx.specs as specs
+
+touch = specs.Role(
+         name="echo",
+         entrypoint="/bin/touch",
+         args=[f"{args.file}.testv2"],
+         container=specs.Container(image="/tmp"),
+         num_replicas=1,
+       )
+
+app = specs.Application(name="touch", roles=[touch])
+
+export(app)

@@ -6,7 +6,10 @@
 
 import argparse
 import ast
-from typing import Type, List, Iterable, Callable
+import os
+import warnings
+from os import path
+from typing import Callable, Iterable, List, Type
 
 import torchelastic.tsm.driver as tsm
 import yaml
@@ -86,6 +89,60 @@ def _parse_run_config(arg: str) -> tsm.RunConfig:
     return conf
 
 
+# TODO kiuk@ move read_conf_file + _builtins to the Runner once the Runner is API stable
+
+_CONFIG_DIR: str = path.join(path.dirname(__file__), "config")
+_CONFIG_EXT = ".torchx"
+
+
+def read_conf_file(conf_file: str) -> str:
+    builtin_conf = path.join(_CONFIG_DIR, conf_file)
+
+    # user provided conf file precedes the builtin config
+    # just print a warning but use the user provided one
+    if path.exists(conf_file):
+        if path.exists(builtin_conf):
+            warnings.warn(
+                f"The provided config file: {conf_file} overlaps"
+                f" with a built-in. It is recommended that you either"
+                f" rename the config file or use abs path."
+                f" Will use: {path.abspath(conf_file)} for this run."
+            )
+    else:  # conf_file does not exist fallback to builtin
+        conf_file = builtin_conf
+
+    if not path.exists(conf_file):
+        raise FileNotFoundError(
+            f"{conf_file} does not exist and/or is not a builtin."
+            " For a list of available builtins run `torchx builtins`"
+        )
+
+    with open(conf_file, "r") as f:
+        return f.read()
+
+
+def _builtins() -> List[str]:
+    builtins: List[str] = []
+    for f in os.listdir(_CONFIG_DIR):
+        _, extension = os.path.splitext(f)
+        if f.endswith(_CONFIG_EXT):
+            builtins.append(f)
+
+    return builtins
+
+
+class CmdBuiltins(SubCommand):
+    def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
+        pass  # no arguments
+
+    def run(self, args: argparse.Namespace) -> None:
+        builtin_configs = _builtins()
+        num_builtins = len(builtin_configs)
+        print(f"Found {num_builtins} builtin configs:")
+        for i, name in enumerate(builtin_configs):
+            print(f" {i+1:2d}. {name}")
+
+
 class CmdRun(SubCommand):
     def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
         subparser.add_argument(
@@ -96,27 +153,29 @@ class CmdRun(SubCommand):
         subparser.add_argument(
             "--scheduler_args",
             type=_parse_run_config,
-            help="Arguments to pass to the scheduler. Ex: `cluster=foo,user=bar`",
+            help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."
+            " For a list of scheduler run options run: `torchx runopts`"
+            "",
         )
         subparser.add_argument(
-            "script",
+            "conf_file",
             type=str,
-            help="Name of the main binary, relative to the fbpkg directory",
+            help="Name of builtin conf or path of the *.torchx.conf file."
+            " for a list of available builtins run:`torchx builtins`",
         )
         subparser.add_argument(
-            "script_args",
+            "conf_args",
             nargs=argparse.REMAINDER,
         )
 
     def run(self, args: argparse.Namespace) -> None:
-        script_path = args.script
-        with open(script_path, "r") as f:
-            body = f.read()
-
+        body = read_conf_file(args.conf_file)
         frontmatter, script = body.split("\n---\n")
 
         conf = yaml.safe_load(frontmatter)
-        script_parser = argparse.ArgumentParser(description=conf.get("description"))
+        script_parser = argparse.ArgumentParser(
+            prog=f"torchx run {args.conf_file}", description=conf.get("description")
+        )
         for arg in conf["arguments"]:
             arg_type = _get_arg_type(arg.get("type", "str"))
             default = arg.get("default")
@@ -147,7 +206,7 @@ class CmdRun(SubCommand):
 
         scope = {
             "export": export,
-            "args": script_parser.parse_args(args.script_args),
+            "args": script_parser.parse_args(args.conf_args),
             "scheduler": args.scheduler,
         }
 
@@ -156,7 +215,7 @@ class CmdRun(SubCommand):
         assert app is not None, "config file did not export an app"
         assert isinstance(
             app, tsm.Application
-        ), f"config file did not export a tsm.Application {app}"
+        ), f"config file did not export a torchx.spec.Application {app}"
 
         session = tsm.session()
         app_handle = session.run(app, args.scheduler, args.scheduler_args)

@@ -10,7 +10,7 @@ arguments:
 
 ---
 
-import torchx.specs.api as specs
+import torchx.specs as specs
 
 trainer_image = specs.Container(image=args.trainer_image)
 reader_image = specs.Container(image=args.trainer_image)

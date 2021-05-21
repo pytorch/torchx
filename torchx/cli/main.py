@@ -10,7 +10,7 @@ from typing import List
 
 from torchx.cli.cmd_describe import CmdDescribe
 from torchx.cli.cmd_log import CmdLog
-from torchx.cli.cmd_run import CmdRun
+from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
 from torchx.cli.cmd_status import CmdStatus
 
@@ -35,6 +35,7 @@ def create_parser() -> ArgumentParser:
         "describe": CmdDescribe(),
         "log": CmdLog(),
         "run": CmdRun(),
+        "builtins": CmdBuiltins(),
         "runopts": CmdRunopts(),
         "status": CmdStatus(),
     }
