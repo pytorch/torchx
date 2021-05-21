@@ -1,0 +1,251 @@
+#!/usr/bin/env python3
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+import abc
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import List, Optional, Iterable
+
+from torchx.specs.api import (
+    Application,
+    RunConfig,
+    AppState,
+    RoleStatus,
+    Role,
+    AppDryRunInfo,
+    runopts,
+    NONE,
+    SchedulerBackend,
+    NULL_RESOURCE,
+)
+
+
+@dataclass
+class DescribeAppResponse:
+    """
+    Response object returned by ``Scheduler.describe(app)`` API. Contains
+    the status and description of the application as known by the scheduler.
+    For some schedulers implementations this response object has necessary
+    and sufficient information to recreate an ``Application`` object in the
+    absence of the hosting ``Session``. For these types of schedulers,
+    the user can re-``run()`` the attached application. Otherwise the user
+    can only call non-creating methods (e.g. ``wait()``, ``status()``, etc).
+
+    Since this class is a data class and contains many member variables we
+    keep the usage simple and provide a no-args constructor and chose to
+    access the member vars directly rather than provide accessors.
+
+    If scheduler returns arbitrary message, the ``msg`` field should be populated.
+    If scheduler returns a structured json, the ``structured_error_msg`` field should be populated.
+    """
+
+    app_id: str = "<NOT_SET>"
+    state: AppState = AppState.UNSUBMITTED
+    num_restarts: int = -1
+    msg: str = NONE
+    structured_error_msg: str = NONE
+    ui_url: Optional[str] = None
+
+    roles_statuses: List[RoleStatus] = field(default_factory=list)
+    roles: List[Role] = field(default_factory=list)
+
+
+class Scheduler(abc.ABC):
+    """
+    An interface abstracting functionalities of a scheduler.
+    Implementors need only implement those methods annotated with
+    ``@abc.abstractmethod``.
+    """
+
+    def __init__(self, backend: SchedulerBackend, session_name: str) -> None:
+        self.backend = backend
+        self.session_name = session_name
+
+    def submit(self, app: Application, cfg: RunConfig) -> str:
+        """
+        Submits the application to be run by the scheduler.
+
+        Returns:
+            The application id that uniquely identifies the submitted app.
+        """
+        dryrun_info = self.submit_dryrun(app, cfg)
+        return self.schedule(dryrun_info)
+
+    @abc.abstractmethod
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def schedule(self, dryrun_info: AppDryRunInfo) -> str:
+        """
+        Same as ``submit`` except that it takes an ``AppDryrunInfo``.
+        Implementors are encouraged to implement this method rather than
+        directly implementing ``submit`` since ``submit`` can be trivially
+        implemented by:
+
+        ::
+
+         dryrun_info = self.submit_dryrun(app, cfg)
+         return schedule(dryrun_info)
+
+        """
+
+        raise NotImplementedError()
+
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo:
+        """
+        Rather than submitting the request to run the app, returns the
+        request object that would have been submitted to the underlying
+        service. The type of the request object is scheduler dependent.
+        This method can be used to dry-run an application. Please refer
+        to the scheduler implementation's documentation regarding
+        the actual return type.
+        """
+        resolved_cfg = self.run_opts().resolve(cfg)
+        dryrun_info = self._submit_dryrun(app, resolved_cfg)
+        for role in app.roles:
+            dryrun_info = role.pre_proc(self.backend, dryrun_info)
+        dryrun_info._app = app
+        dryrun_info._cfg = resolved_cfg
+        return dryrun_info
+
+    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+    def _submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo:
+        raise NotImplementedError()
+
+    def run_opts(self) -> runopts:
+        """
+        Returns the run configuration options expected by the scheduler.
+        Basically a ``--help`` for the ``run`` API.
+        """
+        return runopts()
+
+    @abc.abstractmethod
+    def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        """
+        Describes the specified application.
+
+        Returns:
+            Application description or ``None`` if the app does not exist.
+        """
+        raise NotImplementedError()
+
+    def exists(self, app_id: str) -> bool:
+        """
+        Returns:
+            ``True`` if the app exists (was submitted), ``False`` otherwise
+        """
+        desc = self.describe(app_id)
+        return desc is not None
+
+    @abc.abstractmethod
+    def _cancel_existing(self, app_id: str) -> None:
+        """
+        Kills the application. This method will only be called on an
+        application that exists.
+        """
+        raise NotImplementedError()
+
+    def cancel(self, app_id: str) -> None:
+        """
+        Cancels/kills the application. This method is idempotent within the same
+        thread and is safe to call on the same application multiple times.
+        However when called from multiple threads/processes on the same app
+        the exact semantics of this method depends on the idempotency guarantees
+        of the underlying scheduler API.
+
+        .. note:: This method does not block for the application to reach a
+                  cancelled state. To ensure that the application reaches a
+                  terminal state use the ``wait`` API.
+        """
+        if self.exists(app_id):
+            self._cancel_existing(app_id)
+        else:
+            # do nothing if the app does not exist
+            return
+
+    def log_iter(
+        self,
+        app_id: str,
+        role_name: str,
+        k: int = 0,
+        regex: Optional[str] = None,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+        should_tail: bool = False,
+    ) -> Iterable[str]:
+        """
+        Returns an iterator to the log lines of the ``k``th replica of the ``role``.
+        The iterator ends end all qualifying log lines have been read.
+
+        If the scheduler supports time-based cursors fetching log lines
+        for custom time ranges, then the ``since``, ``until`` fields are
+        honored, otherwise they are ignored. Not specifying ``since`` and ``until``
+        is equivalent to getting all available log lines. If the ``until`` is
+        empty, then the iterator behaves like ``tail -f``, following the log output
+        until the job reaches a terminal state.
+
+        The exact definition of what constitutes a log is scheduler specific. Some
+        schedulers may consider stderr or stdout as the log, others may read the logs
+        from a log file.
+
+        Behaviors and assumptions:
+
+        1. Produces an undefined-behavior if called on an app that does not exist
+           The caller should check that the app exists using ``exists(app_id)``
+           prior to calling this method.
+
+        2. Is not stateful, calling this method twice with same parameters
+           returns a new iterator. Prior iteration
+           progress is lost.
+
+        3. Does not always support log-tailing. Not all schedulers support live
+           log iteration (e.g. tailing logs while the app is running). Refer to
+           the specific scheduler's documentation for the iterator's behavior.
+
+        3.1 If the scheduler supports log-tailing, it should be controlled
+            by``should_tail`` parameter.
+
+        4. Does not guarantee log retention. It is possible that by the time this
+           method is called, the underlying scheduler may have purged the log records
+           for this application. If so this method raises an arbitrary exception.
+
+        5. If ``should_tail`` is True, the method only raises a ``StopIteration`` exception
+           when the accessible log lines have been fully exhausted and the app has reached
+           a final state. For instance, if the app gets stuck and does not produce any log lines,
+           then the iterator blocks until the app eventually gets killed (either via
+           timeout or manually) at which point it raises a ``StopIteration``.
+
+           If ``should_tail`` is False, the method raises ``StopIteration``
+           when there are no more logs.
+
+        6. Need not be supported by all schedulers.
+
+        7. Some schedulers may support line cursors by supporting ``__getitem__``
+           (e.g. ``iter[50]`` seeks to the 50th log line).
+
+        Returns:
+            An ``Iterator`` over log lines of the specified role replica
+
+        Raises:
+            NotImplementedError - if the scheduler does not support log iteration
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__qualname__} does not support application log iteration"
+        )
+
+    def _validate(self, app: Application, scheduler: SchedulerBackend) -> None:
+        """
+        Validates whether application is consistent with the scheduler.
+
+        Raises:
+            ValueError: if application is not compatible with scheduler
+        """
+        for role in app.roles:
+            if role.container.resources == NULL_RESOURCE:
+                raise ValueError(
+                    f"No resources for container: {role.container.image}."
+                    f" Did you forget to call container.require(resources)"
+                )

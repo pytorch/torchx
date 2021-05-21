@@ -14,13 +14,13 @@ from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
 from torchx.runner import Runner
+from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import LocalScheduler
 from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs.api import (
     Application,
     AppState,
     Container,
-    DescribeAppResponse,
     Resource,
     Role,
     RunConfig,

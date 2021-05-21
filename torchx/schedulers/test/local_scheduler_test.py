@@ -17,6 +17,7 @@ from typing import Optional
 from unittest import mock
 from unittest.mock import patch
 
+from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     LocalDirectoryImageFetcher,
     LocalScheduler,
@@ -27,7 +28,6 @@ from torchx.specs.api import (
     AppState,
     RunConfig,
     Container,
-    DescribeAppResponse,
     Role,
     is_terminal,
     macros,

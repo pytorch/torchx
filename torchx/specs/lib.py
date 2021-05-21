@@ -65,15 +65,18 @@ import getpass
 from typing import Optional
 
 from torchx.runner import Runner
+from torchx.schedulers.api import (  # noqa: F401 F403
+    DescribeAppResponse,
+    Scheduler,
+)
 from torchx.schedulers.registry import get_schedulers
 from torchx.specs.api import (  # noqa: F401 F403
-    AppDryRunInfo,
     AppHandle,
+    AppDryRunInfo,
     Application,
     AppState,
     AppStatus,
     Container,
-    DescribeAppResponse,
     ElasticRole,
     ReplicaState,
     ReplicaStatus,
@@ -82,7 +85,6 @@ from torchx.specs.api import (  # noqa: F401 F403
     Role,
     RoleStatus,
     RunConfig,
-    Scheduler,
     SchedulerBackend,
     is_terminal,
     macros,

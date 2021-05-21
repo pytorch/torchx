@@ -8,7 +8,8 @@
 from typing import Dict
 
 import torchx.schedulers.local_scheduler as local_scheduler
-from torchx.specs.api import Scheduler, SchedulerBackend
+from torchx.schedulers.api import Scheduler
+from torchx.specs.api import SchedulerBackend
 
 
 def get_schedulers(

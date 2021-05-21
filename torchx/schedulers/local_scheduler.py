@@ -23,15 +23,13 @@ from datetime import datetime
 from typing import TextIO, Dict, Iterable, List, Optional, Tuple, Pattern, Any
 from uuid import uuid4
 
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
 from torchx.specs.api import (
     NONE,
-    AppDryRunInfo,
     Application,
     AppState,
-    DescribeAppResponse,
     InvalidRunConfigException,
     RunConfig,
-    Scheduler,
     SchedulerBackend,
     is_terminal,
     macros,

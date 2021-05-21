@@ -19,21 +19,19 @@ from torchx.specs.api import (
     MISSING,
     NULL_CONTAINER,
     NULL_RESOURCE,
-    AppDryRunInfo,
     AppHandle,
     Application,
     AppState,
     AppStatus,
     Container,
-    DescribeAppResponse,
     ElasticRole,
     InvalidRunConfigException,
     MalformedAppHandleException,
     Resource,
     RetryPolicy,
+    AppDryRunInfo,
     Role,
     RunConfig,
-    Scheduler,
     SchedulerBackend,
     get_type_name,
     macros,
@@ -41,6 +39,17 @@ from torchx.specs.api import (
     parse_app_handle,
     runopts,
 )
+
+
+class AppDryRunInfoTest(unittest.TestCase):
+    def test_repr(self) -> None:
+        request_mock = MagicMock()
+        to_string_mock = MagicMock()
+        info = AppDryRunInfo(request_mock, to_string_mock)
+        info.__repr__()
+        self.assertEqual(request_mock, info.request)
+
+        to_string_mock.assert_called_once_with(request_mock)
 
 
 class ApplicationStatusTest(unittest.TestCase):
@@ -333,17 +342,6 @@ class ApplicationTest(unittest.TestCase):
         self.assertEqual(None, app.get_metadata("non_existent"))
 
 
-class AppDryRunInfoTest(unittest.TestCase):
-    def test_repr(self) -> None:
-        request_mock = MagicMock()
-        to_string_mock = MagicMock()
-        info = AppDryRunInfo(request_mock, to_string_mock)
-        info.__repr__()
-        self.assertEqual(request_mock, info.request)
-
-        to_string_mock.assert_called_once_with(request_mock)
-
-
 class RunConfigTest(unittest.TestCase):
     def get_cfg(self) -> RunConfig:
         cfg = RunConfig()
@@ -479,85 +477,6 @@ class RunConfigTest(unittest.TestCase):
         self.assertFalse(runopts.is_type(None, List[str]))
         self.assertTrue(runopts.is_type([], List[str]))
         self.assertTrue(runopts.is_type(["a", "b"], List[str]))
-
-
-class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler):
-        def __init__(self, session_name: str) -> None:
-            super().__init__("mock", session_name)
-
-        def schedule(self, dryrun_info: AppDryRunInfo[None]) -> str:
-            app = dryrun_info._app
-            assert app is not None
-            return app.name
-
-        def _submit_dryrun(
-            self, app: Application, cfg: RunConfig
-        ) -> AppDryRunInfo[None]:
-            return AppDryRunInfo(None, lambda t: "None")
-
-        def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-            return None
-
-        def _cancel_existing(self, app_id: str) -> None:
-            pass
-
-        def log_iter(
-            self,
-            app_id: str,
-            role_name: str,
-            k: int = 0,
-            regex: Optional[str] = None,
-            since: Optional[datetime] = None,
-            until: Optional[datetime] = None,
-            should_tail: bool = False,
-        ) -> Iterable[str]:
-            return iter([])
-
-        def run_opts(self) -> runopts:
-            opts = runopts()
-            opts.add("foo", type_=str, required=True, help="required option")
-            return opts
-
-        def resolve_resource(self, resource: Union[str, Resource]) -> Resource:
-            return NULL_RESOURCE
-
-    def test_invalid_run_cfg(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
-        app_mock = MagicMock()
-
-        with self.assertRaises(InvalidRunConfigException):
-            empty_cfg = RunConfig()
-            scheduler_mock.submit(app_mock, empty_cfg)
-
-        with self.assertRaises(InvalidRunConfigException):
-            bad_type_cfg = RunConfig()
-            bad_type_cfg.set("foo", 100)
-            scheduler_mock.submit(app_mock, empty_cfg)
-
-    def test_invalid_dryrun_cfg(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
-        app_mock = MagicMock()
-
-        with self.assertRaises(InvalidRunConfigException):
-            empty_cfg = RunConfig()
-            scheduler_mock.submit_dryrun(app_mock, empty_cfg)
-
-        with self.assertRaises(InvalidRunConfigException):
-            bad_type_cfg = RunConfig()
-            bad_type_cfg.set("foo", 100)
-            scheduler_mock.submit_dryrun(app_mock, empty_cfg)
-
-    def test_role_preproc_called(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
-        app_mock = MagicMock()
-        app_mock.roles = [MagicMock()]
-
-        cfg = RunConfig()
-        cfg.set("foo", "bar")
-        scheduler_mock.submit_dryrun(app_mock, cfg)
-        role_mock = app_mock.roles[0]
-        role_mock.pre_proc.assert_called_once()
 
 
 class GetTypeNameTest(unittest.TestCase):
