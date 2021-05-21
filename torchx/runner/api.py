@@ -17,7 +17,7 @@ from typing import (
 )
 
 from pyre_extensions import none_throws
-from torchelastic.tsm.events import log_event
+from torchx.runner.events import log_event
 from torchx.schedulers.api import (
     Scheduler,
 )
@@ -125,7 +125,7 @@ class Runner:
             app = none_throws(dryrun_info._app)
             self._apps[app_handle] = app
             _, _, app_id = parse_app_handle(app_handle)
-            logger_context._tsm_event.app_id = app_id
+            logger_context._torchx_event.app_id = app_id
             return app_handle
 
     def name(self) -> str:
