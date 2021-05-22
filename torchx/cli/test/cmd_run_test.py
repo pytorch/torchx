@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _builtins
+from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _builtins, get_file_contents
 
 
 @contextmanager
@@ -119,6 +119,10 @@ class CmdRunTest(unittest.TestCase):
         )
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
+
+    def test_get_file_contents(self) -> None:
+        content = get_file_contents("torchx/cli/config/echo.torchx")
+        self.assertIsNotNone(content)
 
 
 class CmdBuiltinTest(unittest.TestCase):

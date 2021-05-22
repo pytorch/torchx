@@ -107,8 +107,11 @@ def get_file_contents(conf_file: str) -> Optional[str]:
     Example: ``get_file("torchx/cli/config/foo.txt")``
     """
 
-    root = path.dirname(__file__).replace(__name__.replace(".", path.sep), "")
+    module = __name__.replace(".", path.sep)  # torchx/cli/cmd_run
+    module_path, _ = path.splitext(__file__)  # $root/torchx/cli/cmd_run
+    root = module_path.replace(module, "")
     abspath = path.join(root, conf_file)
+
     if path.exists(abspath):
         with open(abspath, "r") as f:
             return f.read()
