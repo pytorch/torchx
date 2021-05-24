@@ -1,9 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+
+set -e
 
 if [ ! "$(black --version)" ]
 then
@@ -19,10 +21,10 @@ fi
 # cd to the project directory
 cd "$(dirname "$0")/.." || exit 1
 
-GIT_URL_1="git@github.com:pytorch/torchx.git"
+GIT_URL_1="https://github.com/pytorch/torchx.git"
 GIT_URL_2="git@github.com:pytorch/torchx.git"
 
-UPSTREAM_URL="$(git config remote.upstream.url)"
+UPSTREAM_URL="$(git config remote.upstream.url)" || true
 
 if [ -z "$UPSTREAM_URL" ]
 then
@@ -36,9 +38,7 @@ then
     exit 1
 fi
 
-# fetch upstream
 git fetch upstream
-
 
 CHANGED_FILES="$(git diff --diff-filter=ACMRT --name-only upstream/master | grep '\.py$' | tr '\n' ' ')"
 
@@ -50,10 +50,9 @@ then
     for file in $CHANGED_FILES
     do
         echo "Checking $file"
-        set -e isort "$file" --recursive --multi-line 3 --trailing-comma --force-grid-wrap 0 \
+        isort "$file" --recursive --multi-line 3 --trailing-comma --force-grid-wrap 0 \
                 --line-width 88 --lines-after-imports 2 --combine-as --section-default THIRDPARTY
-
-        set -e black "$file"
+        black "$file"
     done
 else
     echo "No changes made to any Python files. Nothing to do."

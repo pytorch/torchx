@@ -23,4 +23,6 @@ jobs:
           pip install isort
           pip install black
       - name: Run Lint
-        run: scripts/lint.sh
+        run: |
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          scripts/lint.sh
