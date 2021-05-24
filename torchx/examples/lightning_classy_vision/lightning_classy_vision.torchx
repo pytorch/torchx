@@ -25,21 +25,21 @@ arguments:
 import torchx.specs.api as torchx
 import torchx.schedulers.fb.resource as resource
 
-container = torchx.Container(image=args.image).require(resources=resource.get(args.resource))
+container = torchx.Container(image=args.image).require(
+    resources=resource.get(args.resource)
+)
 entrypoint = "main"
 
 trainer_role = (
-    torchx.Role(
-        name="trainer"
-    )
+    torchx.Role(name="trainer")
     .runs(
-      "main",
-      "--output_path",
-      args.output_path,
-      "--load_path",
-      args.load_path,
-      "--log_dir",
-      args.log_dir,
+        "main",
+        "--output_path",
+        args.output_path,
+        "--load_path",
+        args.load_path,
+        "--log_dir",
+        args.log_dir,
     )
     .on(container)
     .replicas(1)

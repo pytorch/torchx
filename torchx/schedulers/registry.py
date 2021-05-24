@@ -13,7 +13,7 @@ from torchx.specs.api import SchedulerBackend
 
 
 def get_schedulers(
-    session_name: str, **scheduler_params
+    session_name: str, **scheduler_params: object
 ) -> Dict[SchedulerBackend, Scheduler]:
     return {
         "local": local_scheduler.create_scheduler(session_name, **scheduler_params),
