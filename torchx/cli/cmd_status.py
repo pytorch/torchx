@@ -17,6 +17,7 @@ from torchx.runner import get_runner
 from torchx.specs import api
 from torchx.specs.api import NONE
 
+
 _APP_STATUS_FORMAT_TEMPLATE = """Application:
   State: ${state}
   Num Restarts: ${num_restarts}
@@ -82,12 +83,12 @@ def format_replica_status(replica_status: api.ReplicaStatus) -> str:
         exitcode = error_data["message"]["errorCode"]
         if not exitcode:
             exitcode = "<N/A>"
-        data = f"""{replica_status.state} (exitcode: {exitcode})
+        data = f"""{str(replica_status.state)} (exitcode: {exitcode})
     timestamp: {datetime.fromtimestamp(timestamp)}
     hostname: {replica_status.hostname}
 {error_message}"""
     else:
-        data = f"{replica_status.state}"
+        data = f"{str(replica_status.state)}"
         if replica_status.state in [
             api.ReplicaState.CANCELLED,
             api.ReplicaState.FAILED,
