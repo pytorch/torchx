@@ -11,7 +11,7 @@ import unittest
 from itertools import chain
 
 
-def _circleci_parallelism(suite):
+def _circleci_parallelism(suite: unittest.TestSuite) -> unittest.TestSuite:
     """Allow for parallelism in CircleCI for speedier tests.."""
     if int(os.environ.get("CIRCLE_NODE_TOTAL", 0)) <= 1:
         # either not running on circleci, or we're not using parallelism.
@@ -23,6 +23,7 @@ def _circleci_parallelism(suite):
 
     # right now each test is corresponds to a /file/. Certain files are slower than
     # others, so we want to flatten it
+    # pyre-fixme[16]: `TestCase` has no attribute `_tests`.
     tests = [testfile._tests for testfile in suite._tests]
     tests = list(chain.from_iterable(tests))
     random.Random(42).shuffle(tests)
@@ -30,7 +31,7 @@ def _circleci_parallelism(suite):
     return unittest.TestSuite(tests)
 
 
-def unittests():
+def unittests() -> unittest.TestSuite:
     """
     Short tests.
 

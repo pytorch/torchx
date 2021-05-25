@@ -1,0 +1,11 @@
+{
+  "source_directories": [
+    "."
+  ],
+  "strict": true,
+  "exclude": [
+    ".*/build/.*",
+    ".*/docs/.*",
+    ".*/setup.py"
+  ]
+}

@@ -1,0 +1,26 @@
+name: Pyre
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  pyre:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          set -eux
+          pip install -r dev-requirements.txt
+          pip install pyre-check
+      - name: Run Pyre
+        run: scripts/pyre.sh
