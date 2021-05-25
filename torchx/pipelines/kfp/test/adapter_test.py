@@ -8,12 +8,18 @@
 import os.path
 import tempfile
 import unittest
-from typing import TypedDict, Optional
+from typing import Callable, Optional, TypedDict
 
 from kfp import compiler, components, dsl
 from torchx.apps.io.copy import Copy
-from torchx.pipelines.kfp.adapter import component_spec, TorchXComponent
+from torchx.pipelines.kfp.adapter import (
+    TorchXComponent,
+    component_from_app,
+    component_spec,
+    component_spec_from_app,
+)
 from torchx.runtime.component import Component
+from torchx.specs import api
 
 
 class Config(TypedDict):
@@ -103,3 +109,60 @@ outputs:
         print(copy)
         # pyre-fixme[16]: `KFPCopy` has no attribute `component_ref`.
         self.assertEqual(copy.component_ref.spec.implementation.container.image, "foo")
+
+
+class KFPSpecsTest(unittest.TestCase):
+    """
+    tests KFP components using torchx.specs.api
+    """
+
+    def _test_app(self) -> api.Application:
+        container = api.Container(image="pytorch/torchx:latest")
+        trainer_role = (
+            api.Role(name="trainer")
+            .runs(
+                "main",
+                "--output-path",
+                "blah",
+                FOO="bar",
+            )
+            .on(container)
+            .replicas(1)
+        )
+
+        return api.Application("test").of(trainer_role)
+
+    def test_component_spec_from_app(self) -> None:
+        app = self._test_app()
+
+        spec = component_spec_from_app(app)
+        self.assertIsNotNone(components.load_component_from_text(spec))
+        self.assertEqual(
+            spec,
+            """description: KFP wrapper for TorchX component test, role trainer
+implementation:
+  container:
+    command:
+    - main
+    - --output-path
+    - blah
+    env:
+      FOO: bar
+    image: pytorch/torchx:latest
+name: test-trainer
+""",
+        )
+
+    def test_pipeline(self) -> None:
+        app = self._test_app()
+        # pyre-fixme[24]: Generic type `Callable` expects 2 type parameters.
+        kfp_copy: Callable = component_from_app(app)
+
+        def pipeline() -> dsl.PipelineParam:
+            a = kfp_copy()
+            b = kfp_copy()
+            b.after(a)
+            return b
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            compiler.Compiler().compile(pipeline, os.path.join(tmpdir, "pipeline.zip"))
