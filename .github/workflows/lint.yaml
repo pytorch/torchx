@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eux
-          pip install isort
+          pip install isort==4.3.21
           pip install black
       - name: Run Lint
         run: |
