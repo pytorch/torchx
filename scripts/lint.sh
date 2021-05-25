@@ -17,6 +17,11 @@ then
     echo "Please install isort."
     exit 1
 fi
+if [ ! "$(flake8 --version)" ]
+then
+    echo "Please install flake8."
+    exit 1
+fi
 
 # cd to the project directory
 cd "$(dirname "$0")/.." || exit 1
@@ -51,8 +56,9 @@ then
     do
         echo "Checking $file"
         isort "$file" --recursive --multi-line 3 --trailing-comma --force-grid-wrap 0 \
-                --line-width 88 --lines-after-imports 2 --combine-as --section-default THIRDPARTY
-        black "$file"
+            --line-width 88 --lines-after-imports 2 --combine-as --section-default THIRDPARTY -q
+        black "$file" -q
+        flake8 "$file" || LINT_ERRORS=1
     done
 else
     echo "No changes made to any Python files. Nothing to do."
@@ -62,7 +68,7 @@ fi
 # Check if any files were modified by running isort + black
 # If so, then the files were formatted incorrectly (e.g. did not pass lint)
 CHANGED_FILES="$(git diff --name-only | grep '\.py$' | tr '\n' ' ')"
-if [ "$CHANGED_FILES" != "" ]
+if [ "$CHANGED_FILES" != "" ] || [ "$LINT_ERRORS" != "" ]
 then
     # need this so that CircleCI fails
     exit 1
