@@ -6,13 +6,26 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
+from typing import Any, Dict, Optional
+from unittest.mock import MagicMock, patch
 
+from torchx.schedulers import get_schedulers
 from torchx.schedulers.local_scheduler import LocalScheduler
-from torchx.schedulers.registry import get_schedulers
+
+
+class spy_load_group:
+    def __call__(
+        self,
+        group: str,
+        default: Dict[str, Any],
+        ignore_missing: Optional[bool] = False,
+    ) -> Dict[str, Any]:
+        return default
 
 
 class SchedulersTest(unittest.TestCase):
-    def test_get_local_schedulers(self) -> None:
+    @patch("torchx.schedulers.load_group", new_callable=spy_load_group)
+    def test_get_local_schedulers(self, mock_load_group: MagicMock) -> None:
         schedulers = get_schedulers(session_name="test_session")
         self.assertTrue(isinstance(schedulers["local"], LocalScheduler))
         self.assertTrue(isinstance(schedulers["default"], LocalScheduler))
