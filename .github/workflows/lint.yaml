@@ -22,6 +22,7 @@ jobs:
           set -eux
           pip install isort==4.3.21
           pip install black
+          pip install flake8==3.9.0
       - name: Run Lint
         run: |
           git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"

@@ -8,3 +8,4 @@ pytorch-lightning>=0.5.3
 torch>=1.8.1
 torchvision>=0.9.1
 classy-vision>=0.5.0
+flake8==3.9.0
