@@ -100,18 +100,20 @@ _CONFIG_DIR: Path = Path("torchx/cli/config")
 _CONFIG_EXT = ".torchx"
 
 
+def get_abspath(relpath: str) -> str:
+    module = __name__.replace(".", path.sep)  # torchx/cli/cmd_run
+    module_path, _ = path.splitext(__file__)  # $root/torchx/cli/cmd_run
+    root = module_path.replace(module, "")
+    return path.join(root, relpath)
+
+
 def get_file_contents(conf_file: str) -> Optional[str]:
     """
     Reads the ``conf_file`` relative to the root of the project.
     Returns ``None`` if ``$root/$conf_file`` does not exist.
     Example: ``get_file("torchx/cli/config/foo.txt")``
     """
-
-    module = __name__.replace(".", path.sep)  # torchx/cli/cmd_run
-    module_path, _ = path.splitext(__file__)  # $root/torchx/cli/cmd_run
-    root = module_path.replace(module, "")
-    abspath = path.join(root, conf_file)
-
+    abspath = get_abspath(conf_file)
     if path.exists(abspath):
         with open(abspath, "r") as f:
             return f.read()
@@ -148,8 +150,12 @@ def read_conf_file(conf_file: str) -> str:
 
 
 def _builtins() -> List[str]:
+    config_dir = entrypoints.load("torchx.file", "get_dir_path", default=get_abspath)(
+        _CONFIG_DIR
+    )
+
     builtins: List[str] = []
-    for f in os.listdir(_CONFIG_DIR):
+    for f in os.listdir(config_dir):
         _, extension = os.path.splitext(f)
         if f.endswith(_CONFIG_EXT):
             builtins.append(f)

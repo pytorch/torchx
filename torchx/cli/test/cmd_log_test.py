@@ -7,8 +7,8 @@
 
 import io
 import unittest
-from typing import Optional, Iterator
-from unittest.mock import patch, MagicMock
+from typing import Iterator, Optional
+from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_log import ENDC, GREEN, get_logs
 from torchx.specs.api import Application, Role, parse_app_handle
@@ -22,11 +22,11 @@ class SentinelError(Exception):
     pass
 
 
-SESSION = "torchx.specs.lib.run"
+RUNNER = "torchx.cli.cmd_log.get_runner"
 
 
-class MockSession:
-    def __call__(self, name: Optional[str] = None) -> "MockSession":
+class MockRunner:
+    def __call__(self, name: Optional[str] = None) -> "MockRunner":
         return self
 
     def describe(self, app_handle: str) -> Application:
@@ -61,10 +61,10 @@ class CmdLogTest(unittest.TestCase):
             get_logs("local:///SparseNNApplication/", "QPS.*")
         exit_mock.assert_called_once_with(1)
 
-    @patch(SESSION, new_callable=MockSession)
+    @patch(RUNNER, new_callable=MockRunner)
     @patch("sys.exit", side_effect=SentinelError)
     def test_cmd_log_unknown_role(
-        self, exit_mock: MagicMock, session_mock: MagicMock
+        self, exit_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
         with self.assertRaises(SentinelError):
             get_logs(
@@ -74,10 +74,10 @@ class CmdLogTest(unittest.TestCase):
 
         exit_mock.assert_called_once_with(1)
 
-    @patch(SESSION, new_callable=MockSession)
+    @patch(RUNNER, new_callable=MockRunner)
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_cmd_log_all_replicas(
-        self, stdout_mock: MagicMock, session_mock: MagicMock
+        self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
         get_logs("local://test-session/SparseNNApplication/trainer", regex="INFO")
         self.assertSetEqual(
@@ -92,10 +92,10 @@ class CmdLogTest(unittest.TestCase):
             set(stdout_mock.getvalue().split("\n")),
         )
 
-    @patch(SESSION, new_callable=MockSession)
+    @patch(RUNNER, new_callable=MockRunner)
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_cmd_log_one_replica(
-        self, stdout_mock: MagicMock, session_mock: MagicMock
+        self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
         get_logs("local://test-session/SparseNNApplication/trainer/0", regex=None)
         self.assertSetEqual(
@@ -110,10 +110,10 @@ class CmdLogTest(unittest.TestCase):
             set(stdout_mock.getvalue().split("\n")),
         )
 
-    @patch(SESSION, new_callable=MockSession)
+    @patch(RUNNER, new_callable=MockRunner)
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_cmd_log_some_replicas(
-        self, stdout_mock: MagicMock, session_mock: MagicMock
+        self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
         get_logs("local://test-session/SparseNNApplication/trainer/0,2", regex="WARN")
         self.assertSetEqual(
@@ -127,11 +127,11 @@ class CmdLogTest(unittest.TestCase):
             set(stdout_mock.getvalue().split("\n")),
         )
 
-    @patch(SESSION, new_callable=MockSession)
-    def test_print_log_lines_throws(self, session_mock: MagicMock) -> None:
+    @patch(RUNNER, new_callable=MockRunner)
+    def test_print_log_lines_throws(self, mock_runner: MagicMock) -> None:
         # makes sure that when the function executed in the threadpool
         # errors out; we raise the exception all the way through
-        with patch.object(session_mock, "log_lines") as log_lines_mock:
+        with patch.object(mock_runner, "log_lines") as log_lines_mock:
             log_lines_mock.side_effect = RuntimeError
             with self.assertRaises(RuntimeError):
                 get_logs(

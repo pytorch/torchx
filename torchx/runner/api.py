@@ -13,8 +13,8 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
+from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler
-from torchx.schedulers.registry import get_schedulers
 from torchx.specs.api import (
     NULL_CONTAINER,
     AppDryRunInfo,
@@ -426,6 +426,5 @@ def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
     if not name:
         name = f"torchx_{getpass.getuser()}"
 
-    scheduler_params["session_name"] = name
-    schedulers = get_schedulers(**scheduler_params)
+    schedulers = get_schedulers(session_name=name, **scheduler_params)
     return Runner(name, schedulers)

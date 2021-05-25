@@ -14,10 +14,12 @@ from queue import Queue
 from typing import Optional
 from urllib.parse import urlparse
 
-import torchx.specs.lib as torchx
 from pyre_extensions import none_throws
+from torchx import specs
 from torchx.cli.cmd_base import SubCommand
-from torchx.runner import Runner
+from torchx.runner import Runner, get_runner
+from torchx.specs.api import make_app_handle
+
 
 GREEN = "\033[32m"
 ENDC = "\033[0m"
@@ -64,10 +66,10 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
     app_id = path[1]
     role_name = path[2]
 
-    session_ = torchx.run(name=session_name)
-    app_handle = torchx.make_app_handle(scheduler_backend, session_name, app_id)
+    runner = get_runner(name=session_name)
+    app_handle = make_app_handle(scheduler_backend, session_name, app_id)
 
-    app = none_throws(session_.describe(app_handle))
+    app = none_throws(runner.describe(app_handle))
 
     if len(path) == 4:
         replica_ids = [int(id) for id in path[3].split(",") if id]
@@ -98,7 +100,7 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
         thread = threading.Thread(
             target=print_log_lines,
             args=(
-                session_,
+                runner,
                 app_handle,
                 role_name,
                 replica_id,
@@ -126,7 +128,7 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
         raise threads_exceptions[0]
 
 
-def find_role_replicas(app: torchx.Application, role_name: str) -> Optional[int]:
+def find_role_replicas(app: specs.Application, role_name: str) -> Optional[int]:
     for role in app.roles:
         if role_name == role.name:
             return role.num_replicas
