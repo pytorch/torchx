@@ -11,6 +11,7 @@ import unittest
 from typing import Callable, Optional, TypedDict
 
 from kfp import compiler, components, dsl
+from kubernetes.client.models import V1ResourceRequirements
 from torchx.apps.io.copy import Copy
 from torchx.pipelines.kfp.adapter import (
     TorchXComponent,
@@ -117,7 +118,14 @@ class KFPSpecsTest(unittest.TestCase):
     """
 
     def _test_app(self) -> api.Application:
-        container = api.Container(image="pytorch/torchx:latest")
+        container = api.Container(
+            image="pytorch/torchx:latest",
+            resources=api.Resource(
+                cpu=2,
+                memMB=3000,
+                gpu=4,
+            ),
+        )
         trainer_role = (
             api.Role(name="trainer")
             .runs(
@@ -135,8 +143,9 @@ class KFPSpecsTest(unittest.TestCase):
     def test_component_spec_from_app(self) -> None:
         app = self._test_app()
 
-        spec = component_spec_from_app(app)
+        spec, resources = component_spec_from_app(app)
         self.assertIsNotNone(components.load_component_from_text(spec))
+        self.assertEqual(resources, app.roles[0].container.resources)
         self.assertEqual(
             spec,
             """description: KFP wrapper for TorchX component test, role trainer
@@ -160,6 +169,22 @@ name: test-trainer
 
         def pipeline() -> dsl.PipelineParam:
             a = kfp_copy()
+            resources: V1ResourceRequirements = a.container.resources
+            self.assertEqual(
+                resources,
+                V1ResourceRequirements(
+                    limits={
+                        "cpu": "2000m",
+                        "memory": "3000M",
+                        "nvidia.com/gpu": "4",
+                    },
+                    requests={
+                        "cpu": "2000m",
+                        "memory": "3000M",
+                    },
+                ),
+            )
+
             b = kfp_copy()
             b.after(a)
             return b

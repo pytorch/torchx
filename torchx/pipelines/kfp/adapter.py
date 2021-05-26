@@ -7,7 +7,7 @@
 
 import copy
 import os
-from typing import Callable, Dict, List, Optional, Type
+from typing import Callable, Dict, List, Optional, Protocol, Tuple, Type
 
 import yaml
 from kfp import components, dsl
@@ -115,7 +115,7 @@ class TorchXComponent:
         ...
 
 
-def component_spec_from_app(app: api.Application) -> str:
+def component_spec_from_app(app: api.Application) -> Tuple[str, api.Resource]:
     assert len(app.roles) == 1, f"KFP adapter only support one role, got {app.roles}"
 
     role = app.roles[0]
@@ -126,9 +126,6 @@ def component_spec_from_app(app: api.Application) -> str:
 
     container = role.container
     assert container.base_image is None, "KFP adapter does not support base_image"
-    assert (
-        container.resources == api.NULL_RESOURCE
-    ), "KFP adapter requires you to specify resources in the pipeline"
     assert len(container.port_map) == 0, "KFP adapter does not support port_map"
 
     command = [role.entrypoint, *role.args]
@@ -144,10 +141,36 @@ def component_spec_from_app(app: api.Application) -> str:
             }
         },
     }
-    return yaml.dump(spec)
+    return yaml.dump(spec), container.resources
 
 
-# pyre-fixme[24]: Generic type `Callable` expects 2 type parameters.
-def component_from_app(app: api.Application) -> Callable:
-    spec = component_spec_from_app(app)
-    return components.load_component_from_text(spec)
+class ContainerFactory(Protocol):
+    def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp:
+        ...
+
+
+def component_from_app(app: api.Application) -> ContainerFactory:
+    resources: api.Resource
+    spec, resources = component_spec_from_app(app)
+
+    assert (
+        len(resources.capabilities) == 0
+    ), f"KFP doesn't support capabilities, got {resources.capabilities}"
+    component_factory: ContainerFactory = components.load_component_from_text(spec)
+
+    def factory_wrapper(*args: object, **kwargs: object) -> dsl.ContainerOp:
+        c = component_factory(*args, **kwargs)
+        container = c.container
+        if (cpu := resources.cpu) >= 0:
+            cpu_str = f"{int(cpu*1000)}m"
+            container.set_cpu_request(cpu_str)
+            container.set_cpu_limit(cpu_str)
+        if (mem := resources.memMB) >= 0:
+            mem_str = f"{int(mem)}M"
+            container.set_memory_request(mem_str)
+            container.set_memory_limit(mem_str)
+        if (gpu := resources.gpu) >= 0:
+            container.set_gpu_limit(str(gpu))
+        return c
+
+    return factory_wrapper
