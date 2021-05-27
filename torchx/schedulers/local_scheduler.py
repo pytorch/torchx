@@ -20,7 +20,7 @@ import time
 import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import TextIO, Dict, Iterable, List, Optional, Tuple, Pattern, Any
+from typing import Any, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
 from uuid import uuid4
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
@@ -47,9 +47,9 @@ def make_unique(app_name: str) -> str:
 NA: str = "<N/A>"
 
 
-class ImageFetcher(abc.ABC):
+class ImageProvider(abc.ABC):
     """
-    Downloads and sets up an image onto the localhost. This is only needed for
+    Manages downloading and setting up an on localhost. This is only needed for
     ``LocalhostScheduler`` since typically real schedulers will do this
     on-behalf of the user.
     """
@@ -62,8 +62,17 @@ class ImageFetcher(abc.ABC):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def get_command(
+        self, image: str, args: List[str], env_vars: Dict[str, str]
+    ) -> List[str]:
+        """
+        Returns the command line required to run the specified image.
+        """
+        raise NotImplementedError()
 
-class LocalDirectoryImageFetcher(ImageFetcher):
+
+class LocalDirectoryImageProvider(ImageProvider):
     """
     Interprets the image name as the path to a directory on
     local host. Does not "fetch" (e.g. download) anything. Used in conjunction
@@ -99,6 +108,36 @@ class LocalDirectoryImageFetcher(ImageFetcher):
             )
 
         return image
+
+    def get_command(
+        self, image: str, args: List[str], env_vars: Dict[str, str]
+    ) -> List[str]:
+        return args
+
+
+class DockerImageProvider(ImageProvider):
+    """
+    Calls into docker CLI to pull and run the specified image.
+
+    Example:
+
+    1. ``fetch(Image(name="pytorch/pytorch:latest"))`` returns ``pytorch/pytorch:latest``
+    """
+
+    def __init__(self, cfg: RunConfig) -> None:
+        pass
+
+    def fetch(self, image: str) -> str:
+        subprocess.run(["docker", "pull", image], check=True)
+        return image
+
+    def get_command(
+        self, image: str, args: List[str], env_vars: Dict[str, str]
+    ) -> List[str]:
+        env = []
+        for k, v in env_vars.items():
+            env += ["--env", f"{k}={v}"]
+        return ["docker", "run", "-it", "--rm"] + env + [image] + args
 
 
 # aliases to make clear what the mappings are
@@ -336,7 +375,7 @@ class LocalScheduler(Scheduler):
 
     def run_opts(self) -> runopts:
         opts = runopts()
-        opts.add("image_fetcher", type_=str, help="image fetcher type", default="dir")
+        opts.add("image_type", type_=str, help="image type", default="dir")
         opts.add(
             "log_dir",
             type_=str,
@@ -349,21 +388,24 @@ class LocalScheduler(Scheduler):
         # Skip validation step for local application
         pass
 
-    def _img_fetchers(self, cfg: RunConfig) -> Dict[str, ImageFetcher]:
-        return {"dir": LocalDirectoryImageFetcher(cfg)}
+    def _img_providers(self, cfg: RunConfig) -> Dict[str, ImageProvider]:
+        return {
+            "dir": LocalDirectoryImageProvider(cfg),
+            "docker": DockerImageProvider(cfg),
+        }
 
-    def _get_img_fetcher(self, cfg: RunConfig) -> ImageFetcher:
-        img_fetcher_type = cfg.get("image_fetcher")
-        fetchers = self._img_fetchers(cfg)
+    def _get_img_provider(self, cfg: RunConfig) -> ImageProvider:
+        img_type = cfg.get("image_type")
+        providers = self._img_providers(cfg)
         # pyre-ignore [6]: type check already done by runopt.resolve
-        img_fetcher = fetchers.get(img_fetcher_type, None)
-        if not img_fetcher:
+        img_provider = providers.get(img_type, None)
+        if not img_provider:
             raise InvalidRunConfigException(
-                f"Unsupported image fetcher type: {img_fetcher_type}. Must be one of: {fetchers.keys()}",
+                f"Unsupported image provider type: {img_type}. Must be one of: {providers.keys()}",
                 cfg,
                 self.run_opts(),
             )
-        return img_fetcher
+        return img_provider
 
     def _evict_lru(self) -> bool:
         """
@@ -510,7 +552,7 @@ class LocalScheduler(Scheduler):
         """
 
         app_id = make_unique(app.name)
-        image_fetcher = self._get_img_fetcher(cfg)
+        image_provider = self._get_img_provider(cfg)
         app_log_dir, redirect_std = self._get_app_log_dir(app_id, cfg)
 
         role_params: Dict[str, List[ReplicaParam]] = {}
@@ -520,7 +562,7 @@ class LocalScheduler(Scheduler):
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
             container = role.container
-            img_root = image_fetcher.fetch(container.image)
+            img_root = image_provider.fetch(container.image)
             cmd = os.path.join(img_root, role.entrypoint)
 
             for replica_id in range(role.num_replicas):
@@ -547,7 +589,13 @@ class LocalScheduler(Scheduler):
                     stdout = os.path.join(replica_log_dir, "stdout.log")
                     stderr = os.path.join(replica_log_dir, "stderr.log")
 
-                replica_params.append(ReplicaParam(args, env_vars, stdout, stderr))
+                provider_cmd = image_provider.get_command(
+                    container.image, args, env_vars
+                )
+
+                replica_params.append(
+                    ReplicaParam(provider_cmd, env_vars, stdout, stderr)
+                )
                 replica_log_dirs.append(replica_log_dir)
 
         return PopenRequest(app_id, app_log_dir, role_params, role_log_dirs)
