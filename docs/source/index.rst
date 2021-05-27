@@ -3,71 +3,58 @@
 TorchX
 ==================
 
-TorchX is a component SDK and Library for PyTorch ML pipelines.
+TorchX is an application spec SDK for PyTorch related apps. It defines
+standard structs called ``specs`` that represent the job definition of an
+application. The application ``spec`` is the common language between
+TorchX ``runners`` and pipeline ``adapters``. Once an application's ``spec``
+is created, the application can be run as a standalone job on a cluster or
+as a stage in an ML pipeline/workflow. TorchX works with several mainstream
+job schedulers and ML pipeline platforms so chances are you are already familiar
+with one that works with TorchX.
 
-TorchX lets you build an ML pipeline by composing TorchX
-:ref:`provided components<Components>` into a workflow. TorchX components
-can be used as pipeline stages in various existing ML platforms by passing them
-through one of the :ref:`supported adapters<Adapters>`.
+Just getting started? First learn the :ref:`basic concepts<Basics>` and
+take a look at the :ref:`builtin components<torchx.components>` library.
 
 Not finding the component or adapter you are looking for? Write a custom one
-that fits your needs by using our :ref:`SDK<Documentation>`.
-
-.. image:: components_diagram.jpg
-.. note:: Diagram above for illustration purposes only. Not all boxes
-          are currently available out-of-the-box.
-
-
-Get Started
----------------
-.. toctree::
-   :maxdepth: 1
-   :caption: Usage
-
-   quickstart
-   configure
-   examples
-
+that fits your needs by using our :ref:`SDK<torchx.api>`.
 
 Documentation
 ---------------
 
 .. toctree::
    :maxdepth: 1
-   :caption: SDK
+   :caption: Usage
 
-   sdk
+   basics
+   quickstart
+   cli
+   configure
 
-Components
----------------
-
+.. _torchx.api:
 .. toctree::
    :maxdepth: 1
-   :caption: Components
+   :caption: API
 
-   components/data
-   components/train
-   components/deploy
-   components/hpo
+   specs
+   runner
+   components
 
-Adapters
+Works With
 ---------------
 
+.. _torchx.schedulers:
 .. toctree::
    :maxdepth: 1
-   :caption: Adapters
+   :caption: Schedulers
 
-   adapters/kfp
+   schedulers/local
 
-Plugins
----------------
+.. _torchx.pipelines:
 .. toctree::
    :maxdepth: 1
-   :caption: Plugins
+   :caption: Pipeline Adapters
 
-   plugins/aws
-   plugins/azure
-   plugins/gcp
+   pipelines/kfp
 
 Experimental
 ---------------

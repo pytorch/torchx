@@ -42,10 +42,11 @@ class Resource:
     Represents resource requirements for a ``Container``.
 
     Args:
-            cpu: number of cpu cores (note: not hyper threads)
-            gpu: number of gpus
-            memMB: MB of ram
-            capabilities: additional hardware specs (interpreted by scheduler)
+        cpu: number of cpu cores (note: not hyper threads)
+        gpu: number of gpus
+        memMB: MB of ram
+        capabilities: additional hardware specs (interpreted by scheduler)
+
     """
 
     cpu: int
@@ -90,7 +91,7 @@ class Container:
     An image could be as simple as a tar-ball or map to a docker image.
     The scheduler typically knows how to "pull" the image given an
     image name (str), which could be a simple name (e.g. docker image) or a url
-    (e.g. s3://path/my_image.tar).
+    (e.g. ``s3://path/my_image.tar``).
 
     A ``Resource`` can be bound to a specific scheduler backend or ``SchedulerBackend.ALL`` (default)
     to specify that the same ``Resource`` is to be used for all schedulers.
@@ -108,21 +109,20 @@ class Container:
 
     Usage:
 
-    ::
+    .. code-block:: python
 
-     # define resource for all schedulers
-     my_container = Container(image="pytorch/torch:1")
-                       .require(Resource(cpu=1, gpu=1, memMB=500))
-                       .ports(tcp_store=8080, tensorboard=8081)
+     my_container = Container(
+        image="pytorch/torch:1",
+        resources=Resource(cpu=1, gpu=1, memMB=500),
+        ports={"tcp_store":8080, "tensorboard": 8081}
+     )
 
-     # define resource for a specific scheduler
-     my_container = Container(image="pytorch/torch:1")
-                       .require(Resource(cpu=1, gpu=1, memMB=500), "custom_scheduler")
-                       .ports(tcp_store=8080, tensorboard=8081)
+     # for schedulers that support base_images
+     my_container = Container(
+        image="my/trainer:1",
+        base_image="common/ml-tools:latest"
+     )
 
-    # for schedulers that support base_images
-    my_container = Container(image="my/trainer:1", base_image="common/ml-tools:latest")
-                      .require(...)
     """
 
     image: str
@@ -268,8 +268,6 @@ class Role:
             replicas: number of container replicas to run
             max_retries: max number of retries before giving up
             retry_policy: retry behavior upon replica failures
-            deployment_preference: hint to the scheduler on how to best
-                                   deploy and manage replicas of this role
 
     """
 
@@ -568,7 +566,7 @@ class RunConfig:
     Since ``Session`` allows the application to be submitted
     to multiple schedulers, users who want to submit the same
     app into multiple schedulers from the same session can
-    union all the ``RunConfig``s into a single object. The
+    union all the ``RunConfigs`` into a single object. The
     scheduler implementation will selectively read the configs
     it needs.
 
@@ -576,23 +574,24 @@ class RunConfig:
     passed around or saved hence only allow primitives
     as config values. Should the scheduler need more than
     simple primitives (e.g. list of str) it is up to the
-    scheduler to document a way to encode thie value as a
+    scheduler to document a way to encode this value as a
     str and parse it (e.g. representing list of str as
     comma delimited str).
 
     Usage:
 
-    ::
+    .. code-block:: python
 
      # write
      config = RunConfig()
-     config.set("run_as_user", prod")
+     config.set("run_as_user", "prod")
      config.set("priority", 10)
 
      # read
      config.get("run_as_user") # "prod"
      config.get("priority") # 10
      config.get("never_set") # None
+
     """
 
     cfgs: Dict[str, ConfigValue] = field(default_factory=dict)
@@ -665,9 +664,11 @@ class runopts:
     .. important:: This class has no accessors because it is intended to
                    be constructed and returned by ``Scheduler.run_config_options``
                    and printed out as a "help" tool or as part of an exception msg.
+
     Usage:
 
-    ::
+    .. code-block:: python
+
      opts = runopts()
 
      opts.add("run_as_user", type_=str, help="user to run the job as")
@@ -681,6 +682,7 @@ class runopts:
 
      opts.check(RunConfig)
      print(opts)
+
     """
 
     def __init__(self) -> None:

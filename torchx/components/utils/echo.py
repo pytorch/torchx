@@ -1,0 +1,29 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+import torchx.specs as specs
+
+
+def get_app_spec(msg: str = "hello world") -> specs.Application:
+    """
+    Echos a message to stdout (calls /bin/echo)
+
+    Args:
+        msg: message to echo
+
+    """
+    return specs.Application(
+        name="echo",
+        roles=[
+            specs.Role(
+                name="echo",
+                entrypoint="/bin/echo",
+                args=[msg],
+                container=specs.Container(image="/tmp"),
+                num_replicas=1,
+            )
+        ],
+    )
