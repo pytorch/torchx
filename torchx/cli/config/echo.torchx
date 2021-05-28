@@ -5,6 +5,10 @@ arguments:
     help: Message to echo
     default: "hello world"
     type: str
+  - name: --image
+    help: Image to run
+    default: /tmp
+    type: str
 """
 
 import torchx.specs as specs
@@ -14,7 +18,7 @@ echo = specs.Role(
     name="echo",
     entrypoint="/bin/echo",
     args=[args.msg],
-    container=specs.Container(image="/tmp"),
+    container=specs.Container(image=args.image),
     num_replicas=1,
 )
 

@@ -143,7 +143,7 @@ Now that you've figured out what scheduler args are required, launch your app
 
  $ torchx run --scheduler <sched_name> --scheduler_args <k1=v1,k2=v2,...> \
      ~/my_app.py <app_args...>
- $ torchx run --scheduler local --scheduler_args image_fetcher=dir,log_dir=/tmp \
+ $ torchx run --scheduler local --scheduler_args image_type=dir,log_dir=/tmp \
      ~/my_app.py --foo=bar
 
 .. note:: If your app args overlap with the ``run`` subcommand's args, you

@@ -15,20 +15,21 @@ from datetime import datetime
 from os.path import join
 from typing import Optional
 from unittest import mock
-from unittest.mock import patch
+from unittest.mock import MagicMock, call, patch
 
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
-    LocalDirectoryImageFetcher,
+    DockerImageProvider,
+    LocalDirectoryImageProvider,
     LocalScheduler,
     make_unique,
 )
 from torchx.specs.api import (
     Application,
     AppState,
-    RunConfig,
     Container,
     Role,
+    RunConfig,
     is_terminal,
     macros,
 )
@@ -36,14 +37,14 @@ from torchx.specs.api import (
 from .test_util import write_shell_script
 
 
-LOCAL_DIR_IMAGE_FETCHER_FETCH = (
-    "torchx.schedulers.local_scheduler.LocalDirectoryImageFetcher.fetch"
+LOCAL_DIR_IMAGE_PROVIDER_FETCH = (
+    "torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch"
 )
 
 
-class LocalDirImageFetcherTest(unittest.TestCase):
+class LocalDirImageProviderTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.test_dir = tempfile.mkdtemp(prefix="LocalDirImageFetcherTest")
+        self.test_dir = tempfile.mkdtemp(prefix="LocalDirImageProviderTest")
         self.test_dir_name = os.path.basename(self.test_dir)
         self.maxDiff = None  # get full diff on assertion error
 
@@ -52,21 +53,67 @@ class LocalDirImageFetcherTest(unittest.TestCase):
 
     def test_fetch_abs_path(self) -> None:
         cfg = RunConfig()
-        fetcher = LocalDirectoryImageFetcher(cfg)
-        self.assertEqual(self.test_dir, fetcher.fetch(self.test_dir))
+        provider = LocalDirectoryImageProvider(cfg)
+        self.assertEqual(self.test_dir, provider.fetch(self.test_dir))
 
     def test_fetch_relative_path_should_throw(self) -> None:
         cfg = RunConfig()
-        fetcher = LocalDirectoryImageFetcher(cfg)
+        provider = LocalDirectoryImageProvider(cfg)
         with self.assertRaises(ValueError):
-            fetcher.fetch(self.test_dir_name)
+            provider.fetch(self.test_dir_name)
 
     def test_fetch_does_not_exist_should_throw(self) -> None:
         non_existent_dir = join(self.test_dir, "non_existent_dir")
         cfg = RunConfig()
-        fetcher = LocalDirectoryImageFetcher(cfg)
+        provider = LocalDirectoryImageProvider(cfg)
         with self.assertRaises(ValueError):
-            fetcher.fetch(non_existent_dir)
+            provider.fetch(non_existent_dir)
+
+    def test_get_command(self) -> None:
+        cfg = RunConfig()
+        provider = LocalDirectoryImageProvider(cfg)
+        args = ["a", "b"]
+        self.assertEqual(provider.get_command("image", args, {}), args)
+
+
+class DockerImageProviderTest(unittest.TestCase):
+    @patch("subprocess.run")
+    def test_fetch(self, run: MagicMock) -> None:
+        cfg = RunConfig()
+        provider = DockerImageProvider(cfg)
+        img = "pytorch/pytorch:latest"
+        self.assertEqual(provider.fetch(img), img)
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(run.call_args, call(["docker", "pull", img], check=True))
+
+    def test_get_command(self) -> None:
+        cfg = RunConfig()
+        provider = DockerImageProvider(cfg)
+        cmd = provider.get_command(
+            "pytorch/pytorch:latest",
+            ["main.py", "--a", "b"],
+            {
+                "FOO": "bar",
+                "FOO2": "bar3",
+            },
+        )
+        self.assertEqual(
+            cmd,
+            [
+                "docker",
+                "run",
+                "-it",
+                "--rm",
+                "--env",
+                "FOO=bar",
+                "--env",
+                "FOO2=bar3",
+                "pytorch/pytorch:latest",
+                "main.py",
+                "--a",
+                "b",
+            ],
+        )
 
 
 LOCAL_SCHEDULER_MAKE_UNIQUE = "torchx.schedulers.local_scheduler.make_unique"
@@ -266,9 +313,9 @@ class LocalSchedulerTest(unittest.TestCase):
                             replica_info[std_stream], "hello_world\n"
                         )
 
-    @patch(LOCAL_DIR_IMAGE_FETCHER_FETCH, return_value="")
+    @patch(LOCAL_DIR_IMAGE_PROVIDER_FETCH, return_value="")
     def test_submit_dryrun_without_log_dir_cfg(
-        self, img_fetcher_fetch_mock: mock.Mock
+        self, img_provider_fetch_mock: mock.Mock
     ) -> None:
         master = (
             Role("master")
@@ -321,9 +368,9 @@ class LocalSchedulerTest(unittest.TestCase):
                 self.assertIsNone(replica_param.stdout)
                 self.assertIsNone(replica_param.stderr)
 
-    @patch(LOCAL_DIR_IMAGE_FETCHER_FETCH, return_value="")
+    @patch(LOCAL_DIR_IMAGE_PROVIDER_FETCH, return_value="")
     def test_submit_dryrun_with_log_dir_cfg(
-        self, img_fetcher_fetch_mock: mock.Mock
+        self, img_provider_fetch_mock: mock.Mock
     ) -> None:
         trainer = (
             Role("trainer").runs("trainer.par").on(self.test_container).replicas(2)

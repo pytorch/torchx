@@ -47,7 +47,7 @@ class RunnerTest(unittest.TestCase):
         write_shell_script(self.test_dir, "sleep.sh", ["sleep $1"])
 
         self.scheduler = LocalScheduler(SESSION_NAME)
-        self.cfg = RunConfig({"image_fetcher": "dir"})
+        self.cfg = RunConfig({"image_type": "dir"})
 
         # resource ignored for local scheduler; adding as an example
         self.test_container = Container(image=self.test_dir).require(resource.SMALL)
