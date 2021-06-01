@@ -82,9 +82,10 @@ class LocalDirectoryImageProvider(ImageProvider):
 
     Example:
 
-    1. ``fetch(Image(name="/tmp/foobar"))`` returns ``/tmp/foobar``
-    2. ``fetch(Image(name="foobar"))`` raises ``ValueError``
-    2. ``fetch(Image(name="/tmp/dir/that/does/not_exist"))`` raises ``ValueError``
+    #. ``fetch(Image(name="/tmp/foobar"))`` returns ``/tmp/foobar``
+    #. ``fetch(Image(name="foobar"))`` raises ``ValueError``
+    #. ``fetch(Image(name="/tmp/dir/that/does/not_exist"))`` raises ``ValueError``
+
     """
 
     def __init__(self, cfg: RunConfig) -> None:

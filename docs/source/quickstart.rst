@@ -158,8 +158,8 @@ Now that you've figured out what scheduler args are required, launch your app
 
 Next Steps
 ------------
-1. Checkout other features of the :ref:`torchx CLI`
+1. Checkout other features of the :ref:`torchx CLI<CLI>`
 2. Learn how to author more complex app specs by referencing :ref:`torchx.specs`
-3. Browse through the collection of :ref:`builtin components<torchx.components>`
-4. Take a look at the :ref:`list of schedulers<torchx.schedulers>` supported by the runner
-5. See which :ref:`ML pipeline platforms<torchx.pipelines>` you can run components on
+3. Browse through the collection of :ref:`builtin components<Components Library>`
+4. Take a look at the :ref:`list of schedulers<Schedulers>` supported by the runner
+5. See which :ref:`ML pipeline platforms<Pipelines>` you can run components on

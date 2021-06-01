@@ -36,20 +36,33 @@ Documentation
    :caption: API
 
    specs
-   runner
    components
+   runner
+   schedulers
+
+
+Components Library
+---------------------
+.. toctree::
+   :maxdepth: 1
+   :caption: Components
+
+   components/base
+   components/distributed
+   components/hpo
+   components/utils
 
 Works With
 ---------------
 
-.. _torchx.schedulers:
+.. _Schedulers:
 .. toctree::
    :maxdepth: 1
    :caption: Schedulers
 
    schedulers/local
 
-.. _torchx.pipelines:
+.. _Pipelines:
 .. toctree::
    :maxdepth: 1
    :caption: Pipeline Adapters

@@ -154,7 +154,7 @@ stage, then TorchX may take advantage of such feature to "inline" the
 sub-pipeline to the main pipeline. TorchX generally tries its best to adapt
 app specs to the **most canonical** representation in the target pipeline platform.
 
-See :ref:`torchx.pipelines` for a list of supported pipeline platforms.
+See :ref:`Pipelines` for a list of supported pipeline platforms.
 
 Runtime
 ~~~~~~~~

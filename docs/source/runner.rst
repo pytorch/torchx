@@ -1,8 +1,6 @@
 torchx.runner
 ==============
 
-Runner
-----------
 .. automodule:: torchx.runner
 .. currentmodule:: torchx.runner
 
@@ -10,12 +8,5 @@ Runner
 .. autofunction:: get_runner
 
 .. autoclass:: Runner
+   :members:
 
-Scheduler
-------------
-.. automodule:: torchx.schedulers
-.. currentmodule:: torchx.schedulers
-
-.. autofunction:: get_schedulers
-
-.. autoclass:: Scheduler
