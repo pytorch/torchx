@@ -38,6 +38,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--log_dir", type=str, help="directory to place the logs", default="/tmp"
     )
+    parser.add_argument(
+        "--package_path",
+        type=str,
+        help="path to place the compiled pipeline package",
+        default="pipeline.yaml",
+    )
     return parser.parse_args(argv)
 
 
@@ -79,7 +85,7 @@ def main(argv: List[str]) -> None:
 
     kfp.compiler.Compiler().compile(
         pipeline_func=pipeline,
-        package_path="pipeline.yaml",
+        package_path=args.package_path,
     )
 
 
