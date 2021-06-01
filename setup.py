@@ -54,7 +54,7 @@ if __name__ == "__main__":
         install_requires=reqs.strip().split("\n"),
         tests_requires=test_reqs.strip().split("\n"),
         include_package_data=True,
-        packages=find_packages(exclude=("*.test", "aws*", "*.fb")),
+        packages=find_packages(exclude=("examples", "*.test", "aws*", "*.fb")),
         test_suite="torchx.test.suites.unittests",
         entry_points={
             "console_scripts": [
