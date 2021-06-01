@@ -51,7 +51,7 @@ if [ "$CHANGED_FILES" != "" ]
 then
     # Processing files one by one since passing directly $CHANGED_FILES will
     # treat the whole variable as a single file.
-    echo "Running isort and black ..."
+    echo "Running linters ..."
     for file in $CHANGED_FILES
     do
         echo "Checking $file"
@@ -59,6 +59,7 @@ then
             --line-width 88 --lines-after-imports 2 --combine-as --section-default THIRDPARTY -q
         black "$file" -q
         flake8 "$file" || LINT_ERRORS=1
+        scripts/copyright.py "$file" || LINT_ERRORS=1
     done
 else
     echo "No changes made to any Python files. Nothing to do."
