@@ -66,11 +66,20 @@ else
     exit 0
 fi
 
+if [ "$LINT_ERRORS" != "" ]
+then
+    echo "One of the linters returned an error. See above output."
+    # need this so that CI fails
+    exit 1
+fi
+
 # Check if any files were modified by running isort + black
 # If so, then the files were formatted incorrectly (e.g. did not pass lint)
 CHANGED_FILES="$(git diff --name-only | grep '\.py$' | tr '\n' ' ')"
-if [ "$CHANGED_FILES" != "" ] || [ "$LINT_ERRORS" != "" ]
+if [ "$CHANGED_FILES" != "" ]
 then
-    # need this so that CircleCI fails
+    git diff --name-only
+    echo "There are uncommitted changes on disk likely caused by the linters."
+    # need this so that CI fails
     exit 1
 fi
