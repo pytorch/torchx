@@ -6,20 +6,30 @@
 
 import argparse
 import ast
+import glob
+import importlib
 import os
-import warnings
-from dataclasses import asdict
-from os import path
-from pathlib import Path
-from pprint import pformat
-from typing import Callable, Iterable, List, Optional, Type
+from dataclasses import dataclass
+from inspect import getmembers, isfunction
+from typing import Dict, Iterable, List, Optional, Type, Union
 
 import torchx.specs as specs
-import yaml
+from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
-from torchx.cli.conf_helpers import parse_args_children
 from torchx.runner import get_runner
+from torchx.specs.file_linter import get_fn_docstring, validate
 from torchx.util import entrypoints
+from torchx.util.io import COMPONENTS_DIR, get_abspath, read_conf_file
+from torchx.util.types import to_dict
+
+
+def parse_args_children(arg: str) -> Dict[str, Union[str, List[str]]]:
+    conf = {}
+    for key, value in to_dict(arg).items():
+        if ";" in value:
+            value = value.split(";")
+        conf[key] = value
+    return conf
 
 
 class UnsupportFeatureError(Exception):
@@ -79,14 +89,6 @@ class ConfValidator(ast.NodeVisitor):
             self._validate_import_path([module])
 
 
-def _get_arg_type(type_name: str) -> Callable[[str], object]:
-    TYPES = (int, str, float)
-    for t in TYPES:
-        if t.__name__ == type_name:
-            return t
-    raise TypeError(f"unknown argument type {type_name}")
-
-
 def _parse_run_config(arg: str) -> specs.RunConfig:
     conf = specs.RunConfig()
     for key, value in parse_args_children(arg).items():
@@ -94,72 +96,84 @@ def _parse_run_config(arg: str) -> specs.RunConfig:
     return conf
 
 
-# TODO kiuk@ move read_conf_file + _builtins to the Runner once the Runner is API stable
-
-_CONFIG_DIR: Path = Path("torchx/cli/config")
-_CONFIG_EXT = ".torchx"
-
-
-def get_abspath(relpath: str) -> str:
-    module = __name__.replace(".", path.sep)  # torchx/cli/cmd_run
-    module_path, _ = path.splitext(__file__)  # $root/torchx/cli/cmd_run
-    root = module_path.replace(module, "")
-    return path.join(root, relpath)
+def _to_module(filepath: str) -> str:
+    path, _ = os.path.splitext(filepath)
+    return path.replace(os.path.sep, ".")
 
 
-def get_file_contents(conf_file: str) -> Optional[str]:
-    """
-    Reads the ``conf_file`` relative to the root of the project.
-    Returns ``None`` if ``$root/$conf_file`` does not exist.
-    Example: ``get_file("torchx/cli/config/foo.txt")``
-    """
-    abspath = get_abspath(conf_file)
-    if path.exists(abspath):
-        with open(abspath, "r") as f:
-            return f.read()
-    else:
+def _get_builtin_description(filepath: str, function_name: str) -> Optional[str]:
+    source = read_conf_file(filepath)
+    if len(validate(source, torchx_function=function_name)) != 0:
         return None
 
+    func_definition, _ = none_throws(get_fn_docstring(source, function_name))
+    return func_definition
 
-def read_conf_file(conf_file: str) -> str:
-    builtin_conf = entrypoints.load(
-        "torchx.file",
-        "get_file_contents",
-        default=get_file_contents,
-    )(str(_CONFIG_DIR / conf_file))
 
-    # user provided conf file precedes the builtin config
-    # just print a warning but use the user provided one
-    if path.exists(conf_file):
-        if builtin_conf:
-            warnings.warn(
-                f"The provided config file: {conf_file} overlaps"
-                f" with a built-in. It is recommended that you either"
-                f" rename the config file or use abs path."
-                f" Will use: {path.abspath(conf_file)} for this run."
+@dataclass
+class BuiltinComponent:
+    definition: str
+    description: str
+
+
+def _get_component_definition(module: str, function_name: str) -> str:
+    if module.startswith("torchx.components"):
+        module = module.split("torchx.components.")[1]
+    return f"{module}.{function_name}"
+
+
+def _get_components_from_file(filepath: str) -> List[BuiltinComponent]:
+    if filepath.endswith("__init__.py"):
+        return []
+    if os.path.isabs(filepath):
+        if str(COMPONENTS_DIR) not in filepath:
+            return []
+        rel_path = filepath.split(str(COMPONENTS_DIR))[1]
+        if rel_path[1:].startswith("test"):
+            return []
+        components_path = f"{str(COMPONENTS_DIR)}{rel_path}"
+    else:
+        components_path = os.path.join(str(COMPONENTS_DIR), filepath)
+    components_module_path = _to_module(components_path)
+    module = importlib.import_module(components_module_path)
+    functions = getmembers(module, isfunction)
+    buitin_functions = []
+    for function_name, _ in functions:
+        # Ignore private functions.
+        if function_name.startswith("_"):
+            continue
+        component_desc = _get_builtin_description(filepath, function_name)
+        if component_desc:
+            definition = _get_component_definition(
+                components_module_path, function_name
             )
-        with open(conf_file, "r") as f:
-            return f.read()
-    elif builtin_conf:  # conf_file does not exist fallback to builtin
-        return builtin_conf
-    else:  # neither conf_file nor builtin exists, raise error
-        raise FileNotFoundError(
-            f"{conf_file} does not exist and is not a builtin."
-            " For a list of available builtins run `torchx builtins`"
-        )
+            builtin_component = BuiltinComponent(
+                definition=definition,
+                description=component_desc,
+            )
+            buitin_functions.append(builtin_component)
+    return buitin_functions
 
 
-def _builtins() -> List[str]:
-    config_dir = entrypoints.load("torchx.file", "get_dir_path", default=get_abspath)(
-        _CONFIG_DIR
-    )
+def _allowed_path(path: str) -> bool:
+    filename = os.path.basename(path)
+    if filename.startswith("_"):
+        return False
+    return True
 
-    builtins: List[str] = []
-    for f in os.listdir(config_dir):
-        _, extension = os.path.splitext(f)
-        if f.endswith(_CONFIG_EXT):
-            builtins.append(f)
 
+def _builtins() -> List[BuiltinComponent]:
+    components_dir = entrypoints.load(
+        "torchx.file", "get_dir_path", default=get_abspath
+    )(COMPONENTS_DIR)
+
+    builtins: List[BuiltinComponent] = []
+    search_pattern = os.path.join(components_dir, "**", "*.py")
+    for filepath in glob.glob(search_pattern, recursive=True):
+        if not _allowed_path(filepath):
+            continue
+        components = _get_components_from_file(filepath)
+        builtins += components
     return builtins
 
 
@@ -171,8 +185,8 @@ class CmdBuiltins(SubCommand):
         builtin_configs = _builtins()
         num_builtins = len(builtin_configs)
         print(f"Found {num_builtins} builtin configs:")
-        for i, name in enumerate(builtin_configs):
-            print(f" {i + 1:2d}. {name}")
+        for i, component in enumerate(builtin_configs):
+            print(f" {i + 1:2d}. {component.definition} - {component.description}")
 
 
 class CmdRun(SubCommand):
@@ -214,71 +228,17 @@ class CmdRun(SubCommand):
         )
 
     def run(self, args: argparse.Namespace) -> None:
-        body = read_conf_file(args.conf_file)
-        node = ast.parse(body)
-
-        # we expect the docstring of the conf file to be yaml
-        docstring = ast.get_docstring(node)
-        if not docstring:
-            raise RuntimeError(
-                f"Missing parameters docstring in conf file: {args.conf_file}."
-                f" Please reference `torchx.cli.config.simple_example.torchx` as an example"
-            )
-        conf = yaml.safe_load(docstring)
-        script_parser = argparse.ArgumentParser(
-            prog=f"torchx run {args.conf_file}", description=conf.get("description")
-        )
-        for arg in conf["arguments"]:
-            arg_type = _get_arg_type(arg.get("type", "str"))
-            default = arg.get("default")
-            if default:
-                default = arg_type(default)
-            script_args = {
-                "help": arg.get("help"),
-                "type": arg_type,
-                "default": default,
-            }
-            if arg.get("remainder"):
-                script_args["nargs"] = argparse.REMAINDER
-
-            script_parser.add_argument(
-                arg["name"],
-                **script_args,
-            )
-
-        validator = ConfValidator()
-        validator.visit(node)
-
-        app = None
-
-        def export(_app: specs.Application) -> None:
-            nonlocal app
-            app = _app
-
-        scope = {
-            "export": export,
-            "args": script_parser.parse_args(args.conf_args),
-            "scheduler": args.scheduler,
-        }
-
-        exec(body, scope)  # noqa: P204
-
-        assert app is not None, "config file did not export an app"
-        assert isinstance(
-            app, specs.Application
-        ), f"config file did not export a torchx.spec.Application {app}"
-
+        # TODO: T91790598 - remove the if condition when all apps are migrated to pure python
         runner = get_runner()
-
-        if args.verbose or args.dryrun:
-            print("=== APPLICATION ===")
-            print(pformat(asdict(app), indent=2, width=80))
-
-            print("=== SCHEDULER REQUEST ===")
-            print(runner.dryrun(app, args.scheduler, args.scheduler_args))
+        app_handle = runner.run_from_path(
+            args.conf_file,
+            args.conf_args,
+            args.scheduler,
+            args.scheduler_args,
+            dryrun=args.dryrun,
+        )
 
         if not args.dryrun:
-            app_handle = runner.run(app, args.scheduler, args.scheduler_args)
             print("=== RUN RESULT ===")
             print(f"Launched app: {app_handle}")
             status = runner.status(app_handle)
@@ -286,4 +246,4 @@ class CmdRun(SubCommand):
             if args.scheduler == "local":
                 runner.wait(app_handle)
             else:
-                print(f"Job URL: {status.ui_url}")
+                print(f"Job URL: {none_throws(status).ui_url}")

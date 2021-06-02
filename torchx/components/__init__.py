@@ -15,5 +15,34 @@ You can browse the library of components on
 `github <https://github.com/pytorch/torchx/tree/master/torchx/components>`_
 or on our :ref:`docs page<Components Library>`.
 
+Components can be used out of the box by either torchx cli or torchx sdk.
 
+::
+
+  # using via sdk
+  from torchx.runner import get_runner
+  get_runner().run_from_path("distributed.ddb", app_args=[], scheduler="local", ...)
+
+  # using via torchx-cli
+
+  >> torchx run --scheduler local distributed.ddb --param1 --param2
+
+
+Components development
+
+The addition of a new component is pretty straightforward and consists
+ of the following steps:
+* Determine component location
+* Create component as function
+* Unit tests
+
+Determine component location. Each component belongs to one or another category,
+and should be located accordingly. E.g. the definition of distributed components
+should be located in ``distributed.py`` file.
+
+Create component as function. Each component represents a function that accepts
+ arbitrary arguments and returns ``specs.Application``.
+
+Unit tests. Write unit tests that use ``torchx.specs.file_linter`` to validate
+the component's structure,  similar to ``torchx.components.tests.distributed_test.py``.
 """

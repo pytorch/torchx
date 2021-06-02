@@ -15,7 +15,7 @@ from torchx.specs import api
 
 _root: Path = Path(__file__).parent
 
-_SIMPLE_CONF: str = "simple_example.torchx"
+_SIMPLE_CONF: str = "tests.simple"
 
 
 class CLITest(unittest.TestCase):
@@ -25,7 +25,7 @@ class CLITest(unittest.TestCase):
                 "run",
                 "--scheduler",
                 "local",
-                str(_root / "examples" / "test_simple.torchx"),
+                str(_root / "examples" / "test.py:simple"),
                 "--num_trainers",
                 "2",
                 "--trainer_image",

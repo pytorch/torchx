@@ -9,17 +9,18 @@
 import dataclasses
 import json
 import os
+import pathlib
+import sys
 import unittest
-from datetime import datetime
-from typing import Dict, Iterable, List, Optional, Union, Text, cast
+from dataclasses import asdict
+from typing import Dict, List, Optional, Union
 from unittest.mock import MagicMock
 
 from torchx.specs.api import (
     _TERMINAL_STATES,
     MISSING,
     NULL_CONTAINER,
-    NULL_RESOURCE,
-    AppHandle,
+    AppDryRunInfo,
     Application,
     AppState,
     AppStatus,
@@ -29,10 +30,11 @@ from torchx.specs.api import (
     MalformedAppHandleException,
     Resource,
     RetryPolicy,
-    AppDryRunInfo,
     Role,
     RunConfig,
-    SchedulerBackend,
+    from_file,
+    from_function,
+    from_module,
     get_type_name,
     macros,
     make_app_handle,
@@ -515,3 +517,172 @@ class MacrosTest(unittest.TestCase):
         self.assertNotEqual(newrole, role)
         self.assertEqual(newrole.args, ["img_root"])
         self.assertEqual(newrole.env, {"FOO": "app_id"})
+
+
+def get_dummy_application(role: str) -> Application:
+    container = Container(image="test_image")
+    trainer = Role(role).runs("main_script.py", "--train").on(container).replicas(2)
+    return Application(name="test_app").of(trainer)
+
+
+def test_empty_fn() -> Application:
+    """Empty function that returns dummy app"""
+    return get_dummy_application("trainer")
+
+
+def test_empty_fn_no_docstring() -> Application:
+    return get_dummy_application("trainer")
+
+
+def test_complex_fn(
+    app_name: str,
+    containers: List[str],
+    roles_scripts: Dict[str, str],
+    num_cpus: Optional[List[int]] = None,
+    num_gpus: Optional[Dict[str, int]] = None,
+    nnodes: int = 4,
+    *roles_args: str,
+) -> Application:
+    """Creates complex application, testing all possible complex types
+
+    Args:
+        app_name: Application name
+        containers: List of containers
+        roles_scripts: Dict role_name -> role_script
+        num_cpus: List of cpus per role
+        num_gpus: Dict role_name -> gpus used for role
+        nnodes: Num replicas per role
+        roles_args: Roles args
+    """
+    num_roles = len(roles_scripts)
+    if not num_cpus:
+        num_cpus = [1] * num_roles
+    if not num_gpus:
+        num_gpus = {}
+        for role in roles_scripts.keys():
+            num_gpus[role] = 1
+    roles = []
+    for idx, (role_name, role_script) in enumerate(roles_scripts.items()):
+        container_img = containers[idx]
+        cpus = num_cpus[idx]
+        gpus = num_gpus[role_name]
+        container = Container(image=container_img).require(
+            Resource(cpu=cpus, gpu=gpus, memMB=1)
+        )
+        role = (
+            Role(role_name)
+            .replicas(nnodes)
+            .on(container)
+            .runs(role_script, *roles_args)
+        )
+        roles.append(role)
+    return Application(app_name, roles)
+
+
+class ApplicationLoadTest(unittest.TestCase):
+    def assert_apps(self, expected_app: Application, actual_app: Application) -> None:
+        self.assertDictEqual(asdict(expected_app), asdict(actual_app))
+
+    def _get_role_args(self) -> List[str]:
+        return ["--train", "data_source", "random", "--epochs", "128"]
+
+    def _get_expected_app_with_default(self) -> Application:
+        role_args = self._get_role_args()
+        return test_complex_fn(
+            "test_app",
+            ["img1", "img2"],
+            {"worker": "worker.py", "master": "master.py"},
+            None,
+            None,
+            4,
+            *role_args,
+        )
+
+    def _get_args_with_default(self) -> List[str]:
+        role_args = self._get_role_args()
+        return [
+            "--app_name",
+            "test_app",
+            "--containers",
+            "img1,img2",
+            "--roles_scripts",
+            "worker=worker.py,master=master.py",
+            "--",
+            *role_args,
+        ]
+
+    def _get_expected_app_with_all_args(self) -> Application:
+        role_args = self._get_role_args()
+        return test_complex_fn(
+            "test_app",
+            ["img1", "img2"],
+            {"worker": "worker.py", "master": "master.py"},
+            [1, 2],
+            {"worker": 1, "master": 4},
+            8,
+            *role_args,
+        )
+
+    def _get_args_with_all_args(self) -> List[str]:
+        role_args = self._get_role_args()
+        return [
+            "--app_name",
+            "test_app",
+            "--containers",
+            "img1,img2",
+            "--roles_scripts",
+            "worker=worker.py,master=master.py",
+            "--num_cpus",
+            "1,2",
+            "--num_gpus",
+            "worker=1,master=4",
+            "--nnodes",
+            "8",
+            "--",
+            *role_args,
+        ]
+
+    def test_load_from_fn_empty(self) -> None:
+        actual_app = from_function(test_empty_fn, [])
+        expected_app = get_dummy_application("trainer")
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_fn_complex_all_args(self) -> None:
+        expected_app = self._get_expected_app_with_all_args()
+        app_args = self._get_args_with_all_args()
+        actual_app = from_function(test_complex_fn, app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_fn_with_default(self) -> None:
+        expected_app = self._get_expected_app_with_default()
+        app_args = self._get_args_with_default()
+        actual_app = from_function(test_complex_fn, app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_module_complex_all_args(self) -> None:
+        expected_app = self._get_expected_app_with_all_args()
+        app_args = app_args = self._get_args_with_all_args()
+        curr_module = sys.modules[__name__]
+        actual_app = from_module(curr_module, "test_complex_fn", app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_module_with_default(self) -> None:
+        expected_app = self._get_expected_app_with_default()
+        app_args = self._get_args_with_default()
+        curr_module = sys.modules[__name__]
+        actual_app = from_module(curr_module, "test_complex_fn", app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_file_complex_all_args(self) -> None:
+        expected_app = self._get_expected_app_with_all_args()
+        app_args = app_args = self._get_args_with_all_args()
+        filepath = str(pathlib.Path(__file__))
+        actual_app = from_file(filepath, "test_complex_fn", app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_load_from_file_with_default(self) -> None:
+        expected_app = self._get_expected_app_with_default()
+        app_args = self._get_args_with_default()
+        filepath = str(pathlib.Path(__file__))
+        actual_app = from_file(filepath, "test_complex_fn", app_args)
+        self.assert_apps(expected_app, actual_app)

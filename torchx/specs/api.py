@@ -7,24 +7,33 @@
 
 # TODO(aivanou): Update documentation
 
+import argparse
 import copy
+import inspect
 import json
 import os
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from string import Template
+from types import ModuleType
 from typing import (
     Any,
     Callable,
     Dict,
     Generic,
     List,
+    Mapping,
     Optional,
     Tuple,
     Type,
     TypeVar,
     Union,
 )
+
+from pyre_extensions import none_throws
+from torchx.specs.file_linter import parse_fn_docstring, validate
+from torchx.util.io import read_conf_file
+from torchx.util.types import decode_from_string, is_primitive
 
 
 SchedulerBackend = str
@@ -855,3 +864,177 @@ def parse_app_handle(app_handle: AppHandle) -> Tuple[SchedulerBackend, str, str]
         raise MalformedAppHandleException(app_handle)
     gd = match.groupdict()
     return gd["scheduler_backend"], gd["session_name"], gd["app_id"]
+
+
+def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], object]:
+    if is_primitive(parameter.annotation):
+        return parameter.annotation
+    else:
+        return str
+
+
+def _create_args_parser(
+    parameters: Mapping[str, inspect.Parameter],
+    function_desc: str,
+    args_desc: Dict[str, str],
+) -> argparse.ArgumentParser:
+    script_parser = argparse.ArgumentParser(
+        prog="torchx run",
+        description=f"App spec: {function_desc}",
+    )
+
+    for param_name, parameter in parameters.items():
+        script_args = {
+            "help": args_desc[param_name],
+            "type": get_argparse_param_type(parameter),
+        }
+        if parameter.default != inspect.Parameter.empty:
+            script_args["default"] = parameter.default
+        if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
+            script_args["nargs"] = argparse.REMAINDER
+            arg_name = param_name
+        else:
+            arg_name = f"--{param_name}"
+        # pyre-ignore[6]: Ignore explicit casting of type from Callable to argparse.Action
+        script_parser.add_argument(arg_name, **script_args)
+    return script_parser
+
+
+# pyre-ignore[3]: Ignore, and make return List[Any]
+def _get_function_args(
+    app_fn: Callable[..., Application], app_args: List[str]
+) -> Tuple[List[Any], List[str]]:
+    docstring = none_throws(inspect.getdoc(app_fn))
+    function_desc, args_desc = parse_fn_docstring(docstring)
+
+    parameters = inspect.signature(app_fn).parameters
+    script_parser = _create_args_parser(parameters, function_desc, args_desc)
+
+    parsed_args = script_parser.parse_args(app_args)
+
+    function_args = []
+    var_arg = []
+
+    for param_name, parameter in parameters.items():
+        arg_value = getattr(parsed_args, param_name)
+        if not is_primitive(parameter.annotation):
+            arg_value = decode_from_string(arg_value, parameter.annotation)
+        if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
+            var_arg = arg_value
+        else:
+            function_args.append(arg_value)
+    if len(var_arg) > 0 and var_arg[0] == "--":
+        var_arg = var_arg[1:]
+    return function_args, var_arg
+
+
+def _validate_and_raise(file_path: str, function_name: str) -> None:
+    file_content = read_conf_file(file_path)
+    linter_errors = validate(file_content, file_path, function_name)
+    if len(linter_errors) > 0:
+        error_msg = "\n".join(
+            linter_error.description for linter_error in linter_errors
+        )
+        raise ValueError(
+            f"Encounterred linter errors while processing {file_path}:{function_name}: \n {error_msg}"
+        )
+
+
+def from_function(
+    app_fn: Callable[..., Application],
+    app_args: List[str],
+    should_validate: bool = True,
+) -> Application:
+    if should_validate:
+        file_path = inspect.getfile(app_fn)
+        _validate_and_raise(file_path, app_fn.__name__)
+    function_args, var_arg = _get_function_args(app_fn, app_args)
+    return app_fn(*function_args, *var_arg)
+
+
+def from_file(
+    file_path: str,
+    function_name: str,
+    app_args: List[str],
+    should_validate: bool = True,
+) -> Application:
+    """
+    Creates an application by extracing user defined ``function_name`` and running it.
+
+    ``function_name`` has the following restrictions:
+        * Name must be ``function_name``
+        * All arguments should be annotated
+        * Supported argument types:
+            - primitive: int, str, float
+            - Dict[primitive, primitive]
+            - List[primitive]
+            - Optional[Dict[primitive, primitive]]
+            - Optional[List[primitive]]
+        * ``function_name`` can define a vararg (*arg) at the end
+        * There should be a docstring for the function that defines
+            All arguments in a google-style format
+        * There can be default values for the function arguments.
+        * The return object must be ``Application``
+
+    Args:
+        file_path: The path to the torchx file, mainly used for validation info.
+        function_name: Function name
+        app_args: Applciation arguments that will be decoded based on the
+            ``function_name`` arguments types and passed to ``function_name``
+
+    Returns:
+        An application spec
+    """
+
+    if should_validate:
+        _validate_and_raise(file_path, function_name)
+
+    file_content = read_conf_file(file_path)
+
+    namespace = globals()
+    exec(file_content, namespace)  # noqa: P204
+    if function_name not in namespace:
+        raise ValueError(f"Function {function_name} does not exist in file {file_path}")
+    app_fn = namespace[function_name]
+    return from_function(app_fn, app_args, should_validate=False)
+
+
+def from_module(
+    module: ModuleType,
+    function_name: str,
+    app_args: List[str],
+    should_validate: bool = True,
+) -> Application:
+    """
+    Creates an application by extracing user defined ``function_name`` and running it.
+
+    ``function_name`` has the following restrictions:
+        * Name must be ``function_name``
+        * All arguments should be annotated
+        * Supported argument types:
+            - primitive: int, str, float
+            - Dict[primitive, primitive]
+            - List[primitive]
+            - Optional[Dict[primitive, primitive]]
+            - Optional[List[primitive]]
+        * ``function_name`` can define a vararg (*arg) at the end
+        * There should be a docstring for the function that defines
+            All arguments in a google-style format
+        * There can be default values for the function arguments.
+        * The return object must be ``Application``
+
+    Args:
+        file_path: The path to the torchx file, mainly used for validation info.
+        function_name: Function name
+        app_args: Applciation arguments that will be decoded based on the
+            ``function_name`` arguments types and passed to ``function_name``
+
+    Returns:
+        An application spec
+    """
+
+    if not hasattr(module, function_name):
+        raise ValueError(f"Module {module.__name__} has no function: {function_name}")
+
+    app_fn = getattr(module, function_name)
+    return from_function(app_fn, app_args, should_validate=should_validate)
