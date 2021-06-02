@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _builtins, get_file_contents
+from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _builtins, _parse_run_config
 
 
 @contextmanager
@@ -41,7 +41,7 @@ class CmdRunTest(unittest.TestCase):
     def test_run_with_builtin(self) -> None:
         foobar_txt = str(self.tmpdir / "foobar.txt")
         args = self.parser.parse_args(
-            ["--scheduler", "local", "touch.torchx", "--file", foobar_txt]
+            ["--scheduler", "local", "tests.touch", "--file", foobar_txt]
         )
 
         self.cmd_run.run(args)
@@ -52,32 +52,13 @@ class CmdRunTest(unittest.TestCase):
             [
                 "--scheduler",
                 "local",
-                str(Path(__file__).parent / "examples/touch.torchx"),
+                str(Path(__file__).parent / "examples/test.py:touch"),
                 "--file",
                 str(self.tmpdir / "foobar.txt"),
             ]
         )
-
         self.cmd_run.run(args)
         self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.test")))
-
-    @patch("warnings.warn")
-    def test_run_with_conflict(self, mock_warn: MagicMock) -> None:
-        # should pick up test/examples/touch.torchx (not the builtin)
-        with cwd(str(Path(__file__).parent / "examples")):
-            args = self.parser.parse_args(
-                [
-                    "--scheduler",
-                    "local",
-                    "touch.torchx",
-                    "--file",
-                    str(self.tmpdir / "foobar.txt"),
-                ]
-            )
-
-            self.cmd_run.run(args)
-            mock_warn.assert_called()
-            self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.test")))
 
     def test_run_with_relpath(self) -> None:
         # should pick up test/examples/touch.torchx (not the builtin)
@@ -86,7 +67,7 @@ class CmdRunTest(unittest.TestCase):
                 [
                     "--scheduler",
                     "local",
-                    "touch_v2.torchx",
+                    "tests.touch_v2",
                     "--file",
                     str(self.tmpdir / "foobar.txt"),
                 ]
@@ -96,7 +77,7 @@ class CmdRunTest(unittest.TestCase):
             self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.testv2")))
 
     def test_run_missing(self) -> None:
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(ValueError):
             args = self.parser.parse_args(
                 [
                     "--scheduler",
@@ -114,15 +95,17 @@ class CmdRunTest(unittest.TestCase):
                 "--verbose",
                 "--scheduler",
                 "local",
-                "echo.torchx",
+                "tests.echo",
             ]
         )
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
 
-    def test_get_file_contents(self) -> None:
-        content = get_file_contents("torchx/cli/config/echo.torchx")
-        self.assertIsNotNone(content)
+    def test_parse_run_config(self) -> None:
+        args = "key=value,foo=bar"
+        cfg = _parse_run_config(args)
+        self.assertEqual("value", cfg.get("key"))
+        self.assertEqual("bar", cfg.get("foo"))
 
 
 class CmdBuiltinTest(unittest.TestCase):

@@ -6,9 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 import getpass
+import importlib
 import json
 import time
+from dataclasses import asdict
 from datetime import datetime
+from pprint import pformat
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from pyre_extensions import none_throws
@@ -24,10 +27,17 @@ from torchx.specs.api import (
     RunConfig,
     SchedulerBackend,
     UnknownAppException,
+    from_file,
+    from_function,
+    from_module,
     make_app_handle,
     parse_app_handle,
     runopts,
 )
+from torchx.util import entrypoints
+
+
+NONE: str = "<NONE>"
 
 
 class Runner:
@@ -55,6 +65,85 @@ class Runner:
         self._schedulers = schedulers
         self._wait_interval = wait_interval
         self._apps: Dict[AppHandle, Application] = {}
+
+    def run_from_path(
+        self,
+        component_path: str,
+        app_args: List[str],
+        scheduler: SchedulerBackend = "default",
+        cfg: Optional[RunConfig] = None,
+        dryrun: bool = False,
+    ) -> AppHandle:
+        """Resolves and runs the application in the specified mode.
+
+        Retrieves application based on ``component_path`` and runs it in the specified mode.
+
+        The ``component_path`` has the following resolution order(from high-pri to low-pri):
+            * User-registerred components. Users can register components via
+                https://packaging.python.org/specifications/entry-points/. Method looks for
+                entrypoints in the group ``torchx.components``.
+            * File-based components in format: ``$FILE_PATH:FUNCTION_NAME``. Both relative and
+                absolute paths supported.
+            * Builtin components relative to `torchx.components`. The path to the component should
+                be module name relative to `torchx.components` and function name in a format:
+                ``$module.$function``.
+
+        Usage:
+
+        ::
+
+         runner.run_from_path("distributed.ddp", ...) - will be resolved to
+            ``torchx.components.distributed`` module and ``ddp`` function.
+
+
+         runner.run_from_path("~/home/components.py:my_component", ...) - will be resolved to
+            ``~/home/components.py`` file and ``my_component`` function.
+
+
+        Returns:
+            An application handle that is used to call other action APIs on the app, or ``<NONE>``
+            if it dryrun specified.
+
+        Raises:
+            AppNotReRunnableException: if the session/scheduler does not support re-running attached apps
+            ValueError: if the ``component_path`` is failed to resolve.
+        """
+
+        app_fn = entrypoints.load("torchx.components", component_path, default=NONE)
+        if app_fn != NONE:
+            app = from_function(app_fn, app_args)
+        elif ":" in component_path:
+            file_path, function_name = component_path.split(":")
+            if not function_name:
+                raise ValueError(
+                    f"Incorrect path: {component_path}. Missing function name after `:`"
+                )
+            app = from_file(file_path, function_name, app_args)
+        else:
+            function_name = component_path.split(".")[-1]
+            component_module = component_path[
+                0 : len(component_path) - len(function_name) - 1
+            ]
+            full_module = f"torchx.components.{component_module}"
+            try:
+                app_module = importlib.import_module(full_module)
+            except ModuleNotFoundError:
+                raise ValueError(
+                    f"Incorrect component path: {component_path}. Valid values: \n"
+                    "* $file_path:function_name, Example: ~/home/file.py:my_component \n"
+                    "* Module and function name to the builtin components, e.g. : distributed.ddp"
+                )
+            app = from_module(app_module, function_name, app_args)
+
+        if dryrun:
+            print("=== APPLICATION ===")
+            print(pformat(asdict(app), indent=2, width=80))
+
+            print("=== SCHEDULER REQUEST ===")
+            print(self.dryrun(app, scheduler, cfg))
+            return "<NONE>"
+        else:
+            return self.run(app, scheduler, cfg)
 
     def run(
         self,

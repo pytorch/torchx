@@ -10,6 +10,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from dataclasses import asdict
 from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
@@ -35,6 +36,11 @@ class resource:
 
 
 SESSION_NAME = "test_session"
+
+
+def get_full_path(name: str) -> str:
+    dir = os.path.dirname(__file__)
+    return os.path.join(os.path.dirname(__file__), "resource", name)
 
 
 @patch("torchx.runner.api.log_event")
@@ -289,3 +295,73 @@ class RunnerTest(unittest.TestCase):
         cfg = RunConfig()
         session.run(app, scheduler="local", cfg=cfg)
         local_sched_mock.submit.called_once_with(app, cfg)
+
+    def test_run_from_module(self, _) -> None:
+        local_sched_mock = MagicMock()
+        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
+        runner = Runner(name="test_session", schedulers=schedulers)
+
+        app_args = ["--script", "test.py"]
+        with patch.object(runner, "run") as run_mock:
+            app_handle = runner.run_from_path("distributed.ddp", app_args, "local")
+            args, kwargs = run_mock.call_args
+            actual_app = args[0]
+        entrypoint = "${img_root}/test.py"
+        expected_app = Application(
+            "ddp_app",
+            roles=[
+                Role("worker")
+                .on(Container("dummy_image").require(Resource(1, 0, 1)))
+                .runs(entrypoint)
+            ],
+        )
+        self.assertDictEqual(asdict(expected_app), asdict(actual_app))
+
+    def test_run_from_module_unknown_module(self, _) -> None:
+        local_sched_mock = MagicMock()
+        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
+        runner = Runner(name="test_session", schedulers=schedulers)
+        with patch.object(runner, "run") as run_mock:
+            with self.assertRaises(ValueError):
+                runner.run_from_path("distributed.unknown_module.ddp", [], "local")
+
+    def test_run_from_file(self, _) -> None:
+        local_sched_mock = MagicMock()
+        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
+        runner = Runner(name="test_session", schedulers=schedulers)
+
+        app_args = ["--script", "test.py"]
+        component_path = get_full_path("distributed.py")
+        with patch.object(runner, "run") as run_mock:
+            app_handle = runner.run_from_path(
+                f"{component_path}:ddp", app_args, "local"
+            )
+            args, kwargs = run_mock.call_args
+            actual_app = args[0]
+        entrypoint = "${img_root}/test.py"
+        expected_app = Application(
+            "ddp_app",
+            roles=[
+                Role("worker")
+                .on(Container("dummy_image").require(Resource(1, 0, 1)))
+                .runs(entrypoint)
+            ],
+        )
+        self.assertDictEqual(asdict(expected_app), asdict(actual_app))
+
+    def test_run_from_file_no_function_provided(self, _) -> None:
+        local_sched_mock = MagicMock()
+        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
+        runner = Runner(name="test_session", schedulers=schedulers)
+        with patch.object(runner, "run") as run_mock:
+            with self.assertRaises(ValueError):
+                app_handle = runner.run_from_path("file_path/dir:", [], "local")
+
+    def test_run_from_file_no_function_found(self, _) -> None:
+        local_sched_mock = MagicMock()
+        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
+        runner = Runner(name="test_session", schedulers=schedulers)
+        component_path = get_full_path("distributed.py")
+        with patch.object(runner, "run") as run_mock:
+            with self.assertRaises(ValueError):
+                runner.run_from_path(f"{component_path}:unknown_function", [], "local")
