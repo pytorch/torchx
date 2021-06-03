@@ -1,0 +1,27 @@
+name: Docker Container
+
+on:
+  push:
+    branches:
+      - master
+      - torchxcontainer
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Configure Docker
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          set -eux
+          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
+      - name: Build container
+        run: torchx/runtime/container/build.sh
+      - name: Tag container
+        run: docker tag torchx ${{secrets.TORCHX_CONTAINER_REPO}}:latest
+      - name: Push container
+        run: docker push ${{secrets.TORCHX_CONTAINER_REPO}}:latest
