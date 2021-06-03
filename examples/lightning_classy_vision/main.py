@@ -9,6 +9,7 @@
 
 import argparse
 import os.path
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -17,6 +18,7 @@ from typing import List
 import fsspec
 import pytorch_lightning as pl
 import torch
+import torch.jit
 from classy_vision.dataset.classy_dataset import ClassyDataset
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -87,23 +89,66 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def download_data(remote_path: str, tmpdir: str) -> str:
+    tar_path = os.path.join(tmpdir, "data.tar.gz")
+    print(f"downloading dataset from {remote_path} to {tar_path}...")
+    fs, _, rpaths = fsspec.get_fs_token_paths(remote_path)
+    assert len(rpaths) == 1, "must have single path"
+    fs.get(rpaths[0], tar_path)
+
+    data_path = os.path.join(tmpdir, "data")
+    print(f"extracting {tar_path} to {data_path}...")
+    with tarfile.open(tar_path, mode="r") as f:
+        f.extractall(data_path)
+
+    return data_path
+
+
+def export_inference_model(
+    model: TinyImageNetModel, out_path: str, tmpdir: str
+) -> None:
+    print("exporting inference model")
+    jit_path = os.path.join(tmpdir, "model_jit.pt")
+    jitted = torch.jit.script(model)
+    print(f"saving JIT model to {jit_path}")
+    torch.jit.save(jitted, jit_path)
+
+    model_name = "tiny_image_net"
+
+    mar_path = os.path.join(tmpdir, f"{model_name}.mar")
+    print(f"creating model archive at {mar_path}")
+    subprocess.run(
+        [
+            "torch-model-archiver",
+            "--model-name",
+            "tiny_image_net",
+            "--handler",
+            "image_classifier",
+            "--version",
+            "1",
+            "--serialized-file",
+            jit_path,
+            "--export-path",
+            tmpdir,
+        ],
+        check=True,
+    )
+
+    remote_path = os.path.join(out_path, "model.mar")
+    print(f"uploading to {remote_path}")
+    fs, _, rpaths = fsspec.get_fs_token_paths(remote_path)
+    assert len(rpaths) == 1, "must have single path"
+    fs.put(mar_path, rpaths[0])
+
+
 def main(argv):
-    args = parse_args(argv)
-
-    # Init our model
-    model = TinyImageNetModel()
-
     with tempfile.TemporaryDirectory() as tmpdir:
-        tar_path = os.path.join(tmpdir, "data.tar.gz")
-        print(f"downloading dataset from {args.data_path} to {tar_path}...")
-        fs, _, rpaths = fsspec.get_fs_token_paths(args.data_path)
-        assert len(rpaths) == 1, "must have single path"
-        fs.get(rpaths[0], tar_path)
+        args = parse_args(argv)
 
-        data_path = os.path.join(tmpdir, "data")
-        print(f"extracting {tar_path} to {data_path}...")
-        with tarfile.open(tar_path, mode="r") as f:
-            f.extractall(data_path)
+        # Init our model
+        model = TinyImageNetModel()
+
+        data_path = download_data(args.data_path, tmpdir)
 
         # Setup data loader and transforms
         img_transform = transforms.Compose(
@@ -140,6 +185,8 @@ def main(argv):
 
         # Train the model ⚡
         trainer.fit(model, train_loader)
+
+        export_inference_model(model, args.output_path, tmpdir)
 
 
 if __name__ == "__main__":
