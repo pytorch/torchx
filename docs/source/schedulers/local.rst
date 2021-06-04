@@ -1,4 +1,4 @@
-Local Scheduler
+Localhost
 =================
 
 .. automodule:: torchx.schedulers.local_scheduler
@@ -7,11 +7,14 @@ Local Scheduler
 .. autoclass:: LocalScheduler
    :members:
 
-Image Fetchers
-================
+Image Providers
+~~~~~~~~~~~~~~~~~
 
-.. autoclass:: ImageFetcher
+.. autoclass:: ImageProvider
    :members:
 
-.. autoclass:: LocalDirectoryImageFetcher
+.. autoclass:: LocalDirectoryImageProvider
+   :members:
+
+.. autoclass::DockerImageProvider
    :members:

@@ -11,8 +11,7 @@ templetized app specs. Think of them as a factory methods for different types
 of job definitions. The functions that return ``specs.Application`` in this
 module are what we refer to as components.
 
-You can browse the library of components on
-`github <https://github.com/pytorch/torchx/tree/master/torchx/components>`_
+You can browse the library of components in the ``torchx.components`` module
 or on our :ref:`docs page<Components Library>`.
 
 Components can be used out of the box by either torchx cli or torchx sdk.
@@ -32,6 +31,7 @@ Components development
 
 The addition of a new component is pretty straightforward and consists
  of the following steps:
+
 * Determine component location
 * Create component as function
 * Unit tests
@@ -45,4 +45,5 @@ Create component as function. Each component represents a function that accepts
 
 Unit tests. Write unit tests that use ``torchx.specs.file_linter`` to validate
 the component's structure,  similar to ``torchx.components.tests.distributed_test.py``.
+
 """
