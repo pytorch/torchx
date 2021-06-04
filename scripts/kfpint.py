@@ -11,23 +11,24 @@ import os.path
 import subprocess
 import tempfile
 from getpass import getuser
-from typing import Optional
 
 import kfp
 import requests
 
 
-NAMESPACE: Optional[str] = os.getenv("KFP_NAMESPACE")
-assert NAMESPACE, "missing KFP_NAMESPACE environment variable"
+def getenv_asserts(env: str) -> str:
+    v = os.getenv(env)
+    assert v, f"must have {env} environment variable"
+    return v
+
+
+NAMESPACE: str = getenv_asserts("KFP_NAMESPACE")
+HOST: str = getenv_asserts("KFP_HOST")
 
 
 def get_client() -> kfp.Client:
-    HOST = os.getenv("KFP_HOST")
-    assert HOST, "must have KFP_HOST environment variable"
-    USERNAME = os.getenv("KFP_USERNAME")
-    assert USERNAME, "must have KFP_USERNAME environment variable"
-    PASSWORD = os.getenv("KFP_PASSWORD")
-    assert PASSWORD, "must have KFP_PASSWORD environment variable"
+    USERNAME = getenv_asserts("KFP_USERNAME")
+    PASSWORD = getenv_asserts("KFP_PASSWORD")
 
     session = requests.Session()
     response = session.get(HOST)
@@ -55,21 +56,35 @@ def rand_id() -> str:
     return binascii.b2a_hex(os.urandom(8)).decode("utf-8")
 
 
-def build_canary(id: str) -> str:
-    CONTAINER_REPO = os.getenv("EXAMPLES_CONTAINER_REPO")
-    assert CONTAINER_REPO, "must have EXAMPLES_CONTAINER_REPO environment variable"
-    tag = f"{CONTAINER_REPO}:canary_{id}"
-    print(f"building {tag}")
-    run("docker", "build", "-t", tag, "examples/")
-    run("docker", "push", tag)
-    return tag
+def build_examples_canary(id: str) -> str:
+    EXAMPLES_CONTAINER_REPO = getenv_asserts("EXAMPLES_CONTAINER_REPO")
+    examples_tag = f"{EXAMPLES_CONTAINER_REPO}:canary_{id}"
+
+    print(f"building {examples_tag}")
+    run("docker", "build", "-t", examples_tag, "examples/")
+    run("docker", "push", examples_tag)
+
+    return examples_tag
+
+
+def build_torchx_canary(id: str) -> str:
+    TORCHX_CONTAINER_REPO = getenv_asserts("TORCHX_CONTAINER_REPO")
+    torchx_tag = f"{TORCHX_CONTAINER_REPO}:canary_{id}"
+
+    print(f"building {torchx_tag}")
+    run("./torchx/runtime/container/build.sh")
+    run("docker", "tag", "torchx", torchx_tag)
+    run("docker", "push", torchx_tag)
+
+    return torchx_tag
 
 
 def run_test() -> None:
     STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE")
     assert STORAGE_PATH, "must have INTEGRATION_TEST_STORAGE environment variable"
     id = f"{getuser()}_{rand_id()}"
-    image = build_canary(id)
+    examples_image = build_examples_canary(id)
+    torchx_image = build_torchx_canary(id)
     root = os.path.join(STORAGE_PATH, id)
     data = os.path.join(root, "data")
     output = os.path.join(root, "output")
@@ -83,9 +98,13 @@ def run_test() -> None:
             "--output_path",
             output,
             "--image",
-            image,
+            examples_image,
             "--package_path",
             package,
+            "--torchx_image",
+            torchx_image,
+            "--model_name",
+            f"tiny_image_net_{id}",
         )
 
         print("launching run")
@@ -98,8 +117,11 @@ def run_test() -> None:
             run_name=f"integration test {id}",
         )
         print("waiting for completion", resp)
+        ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
+        print(f"view run at {ui_url}")
         result = resp.wait_for_run_completion(timeout=1 * 60 * 60)  # 1 hour
         print("finished", result)
+        print(f"view run at {ui_url}")
         assert result.run.status == "Succeeded", "run didn't succeed"
 
 

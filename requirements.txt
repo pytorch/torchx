@@ -1,3 +1,3 @@
 torch>=1.8.1
 pyre-extensions
-# (optional) kfp==1.4.0
+# (optional) kfp==1.6.2
