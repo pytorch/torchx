@@ -120,7 +120,7 @@ class Container:
      my_container = Container(
         image="pytorch/torch:1",
         resources=Resource(cpu=1, gpu=1, memMB=500),
-        ports={"tcp_store":8080, "tensorboard": 8081}
+        port_map={"tcp_store":8080, "tensorboard": 8081}
      )
 
      # for schedulers that support base_images

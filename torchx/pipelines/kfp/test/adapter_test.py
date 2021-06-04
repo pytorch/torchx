@@ -8,10 +8,10 @@
 import os.path
 import tempfile
 import unittest
-from typing import Callable, Optional, TypedDict
+from typing import Callable, List, Optional, TypedDict
 
 from kfp import compiler, components, dsl
-from kubernetes.client.models import V1ResourceRequirements
+from kubernetes.client.models import V1ContainerPort, V1ResourceRequirements
 from torchx.apps.io.copy import Copy
 from torchx.pipelines.kfp.adapter import (
     TorchXComponent,
@@ -125,6 +125,7 @@ class KFPSpecsTest(unittest.TestCase):
                 memMB=3000,
                 gpu=4,
             ),
+            port_map={"foo": 1234},
         )
         trainer_role = (
             api.Role(name="trainer")
@@ -143,9 +144,9 @@ class KFPSpecsTest(unittest.TestCase):
     def test_component_spec_from_app(self) -> None:
         app = self._test_app()
 
-        spec, resources = component_spec_from_app(app)
+        spec, container = component_spec_from_app(app)
         self.assertIsNotNone(components.load_component_from_text(spec))
-        self.assertEqual(resources, app.roles[0].container.resources)
+        self.assertEqual(container, app.roles[0].container)
         self.assertEqual(
             spec,
             """description: KFP wrapper for TorchX component test, role trainer
@@ -183,6 +184,11 @@ name: test-trainer
                         "memory": "3000M",
                     },
                 ),
+            )
+            ports: List[V1ContainerPort] = a.container.ports
+            self.assertEqual(
+                ports,
+                [V1ContainerPort(name="foo", container_port=1234)],
             )
 
             b = kfp_copy()

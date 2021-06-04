@@ -11,6 +11,7 @@ from typing import Callable, Dict, List, Optional, Protocol, Tuple, Type
 
 import yaml
 from kfp import components, dsl
+from kubernetes.client.models import V1ContainerPort
 from torchx.runtime.component import Component, is_optional
 from torchx.specs import api
 
@@ -28,6 +29,10 @@ PYTHON_COMMAND = "python3"
 
 # pyre-fixme[24]: Generic type `Component` expects 3 type parameters.
 def component_spec(c: Type[Component], image: Optional[str] = None) -> str:
+    """
+    deprecated: do not use
+    """
+
     assert issubclass(c, Component), f"{c} must be a subclass of Component"
     inputs = []
     outputs = []
@@ -76,11 +81,19 @@ def component_spec(c: Type[Component], image: Optional[str] = None) -> str:
 # pyre-fixme[24]: Generic type `Component` expects 3 type parameters.
 # pyre-fixme[24]: Generic type `Callable` expects 2 type parameters.
 def component_op(c: Type[Component], image: Optional[str] = None) -> Callable:
+    """
+    deprecated: do not use
+    """
+
     spec = component_spec(c, image=image)
     return components.load_component_from_text(spec)
 
 
 class TorchXComponent:
+    """
+    deprecated: do not use
+    """
+
     # pyre-fixme[24]: Generic type `Callable` expects 2 type parameters.
     _factory: Optional[Callable] = None
 
@@ -115,7 +128,7 @@ class TorchXComponent:
         ...
 
 
-def component_spec_from_app(app: api.Application) -> Tuple[str, api.Resource]:
+def component_spec_from_app(app: api.Application) -> Tuple[str, api.Container]:
     assert len(app.roles) == 1, f"KFP adapter only support one role, got {app.roles}"
 
     role = app.roles[0]
@@ -126,7 +139,6 @@ def component_spec_from_app(app: api.Application) -> Tuple[str, api.Resource]:
 
     container = role.container
     assert container.base_image is None, "KFP adapter does not support base_image"
-    assert len(container.port_map) == 0, "KFP adapter does not support port_map"
 
     command = [role.entrypoint, *role.args]
 
@@ -141,7 +153,7 @@ def component_spec_from_app(app: api.Application) -> Tuple[str, api.Resource]:
             }
         },
     }
-    return yaml.dump(spec), container.resources
+    return yaml.dump(spec), container
 
 
 class ContainerFactory(Protocol):
@@ -150,8 +162,9 @@ class ContainerFactory(Protocol):
 
 
 def component_from_app(app: api.Application) -> ContainerFactory:
-    resources: api.Resource
-    spec, resources = component_spec_from_app(app)
+    container_spec: api.Container
+    spec, container_spec = component_spec_from_app(app)
+    resources: api.Resource = container_spec.resources
 
     assert (
         len(resources.capabilities) == 0
@@ -161,6 +174,7 @@ def component_from_app(app: api.Application) -> ContainerFactory:
     def factory_wrapper(*args: object, **kwargs: object) -> dsl.ContainerOp:
         c = component_factory(*args, **kwargs)
         container = c.container
+
         if (cpu := resources.cpu) >= 0:
             cpu_str = f"{int(cpu*1000)}m"
             container.set_cpu_request(cpu_str)
@@ -171,6 +185,15 @@ def component_from_app(app: api.Application) -> ContainerFactory:
             container.set_memory_limit(mem_str)
         if (gpu := resources.gpu) >= 0:
             container.set_gpu_limit(str(gpu))
+
+        for name, port in container_spec.port_map.items():
+            container.add_port(
+                V1ContainerPort(
+                    name=name,
+                    container_port=port,
+                ),
+            )
+
         return c
 
     return factory_wrapper
