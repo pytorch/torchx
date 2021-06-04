@@ -1,0 +1,58 @@
+torchx.specs
+======================
+
+.. automodule:: torchx.specs
+.. currentmodule:: torchx.specs
+
+
+Application
+------------
+
+.. autoclass:: Application
+   :members:
+
+Role
+------------
+.. autoclass:: Role
+   :members:
+
+.. autoclass:: ElasticRole
+   :members:
+
+.. autoclass:: RetryPolicy
+   :members:
+
+Container
+------------
+.. autoclass:: Container
+   :members:
+
+Resource
+------------
+.. autoclass:: Resource
+   :members:
+
+Macros
+------------
+.. autoclass:: macros
+   :members:
+
+
+Run Configs
+--------------
+.. autoclass:: RunConfig
+   :members:
+
+.. autoclass:: runopts
+   :members:
+
+Run Status
+--------------
+.. autoclass:: AppStatus
+   :members:
+
+.. autoclass:: AppState
+   :members:
+
+.. autoclass:: ReplicaState
+   :members:
