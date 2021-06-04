@@ -13,7 +13,7 @@ job schedulers and ML pipeline platforms so chances are you are already familiar
 with one that works with TorchX.
 
 Just getting started? First learn the :ref:`basic concepts<Basics>` and
-take a look at the :ref:`builtin components<torchx.components>` library.
+take a look at the :ref:`builtin components<Components Library>` library.
 
 Not finding the component or adapter you are looking for? Write a custom one
 that fits your needs by using our :ref:`SDK<torchx.api>`.
@@ -61,6 +61,8 @@ Works With
    :caption: Schedulers
 
    schedulers/local
+   schedulers/kubernetes
+   schedulers/slurm
 
 .. _Pipelines:
 .. toctree::

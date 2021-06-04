@@ -1,0 +1,39 @@
+name: DocBuild
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  docbuild:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          set -eux
+          pip install -r dev-requirements.txt
+          pip install -r docs/requirements.txt
+      - name: Install TorchX
+        run: |
+          python setup.py develop
+      - name: Doc Test
+        run: |
+          cd docs
+          make doctest
+      - name: Linkcheck
+        run: |
+          cd docs
+          make linkcheck
+      - name: Doc Build
+        run: |
+          cd docs
+          make html
