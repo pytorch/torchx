@@ -40,7 +40,7 @@ SchedulerBackend = str
 
 
 # ========================================
-# ==== Distributed Application API =======
+# ==== Distributed AppDef API =======
 # ========================================
 @dataclass
 class Resource:
@@ -186,7 +186,7 @@ class macros:
 
      # runs: hello_world.py --app_id ${app_id}
      trainer = Role(name="trainer").runs("hello_world.py", "--app_id", macros.app_id)
-     app = Application("train_app").of(trainer)
+     app = AppDef("train_app").of(trainer)
      app_handle = session.run(app, scheduler="local", cfg=RunConfig())
 
     """
@@ -221,7 +221,7 @@ class macros:
 
 class RetryPolicy(str, Enum):
     """
-    Defines the retry policy for the ``Roles`` in the ``Application``.
+    Defines the retry policy for the ``Roles`` in the ``AppDef``.
     The policy defines the behavior when the role replica encounters a failure:
 
     1. unsuccessful (non zero) exit code
@@ -249,7 +249,7 @@ class RetryPolicy(str, Enum):
 @dataclass
 class Role:
     """
-    A set of nodes that perform a specific duty within the ``Application``.
+    A set of nodes that perform a specific duty within the ``AppDef``.
     Examples:
 
     1. Distributed data parallel app - made up of a single role (trainer).
@@ -316,7 +316,7 @@ class Role:
         Modifies the scheduler request based on the role specific configuration.
         The method is invoked for each role during scheduler ``submit_dryrun``.
         If there are multiple roles, the method is invoked for each role in
-        order that is defined by the ``Application.roles`` list.
+        order that is defined by the ``AppDef.roles`` list.
         """
         return dryrun_info
 
@@ -389,7 +389,7 @@ class ElasticRole(Role):
 
 
 @dataclass
-class Application:
+class AppDef:
     """
     Represents a distributed application made up of multiple ``Roles``
     and metadata. Contains the necessary information for the driver
@@ -398,7 +398,7 @@ class Application:
     Args:
         name: Name of application
         roles: List of roles
-        metadata: Application specific configuration, in comparison
+        metadata: AppDef specific configuration, in comparison
             ``RunConfig`` is runtime specific configuration.
     """
 
@@ -406,11 +406,11 @@ class Application:
     roles: List[Role] = field(default_factory=list)
     metadata: Dict[str, str] = field(default_factory=dict)
 
-    def of(self, *roles: Role) -> "Application":
+    def of(self, *roles: Role) -> "AppDef":
         self.roles += [*roles]
         return self
 
-    def add_metadata(self, key: str, value: str) -> "Application":
+    def add_metadata(self, key: str, value: str) -> "AppDef":
         """
         Adds metadata to the application.
         .. note:: If the key already exists, this method overwrites the metadata value.
@@ -513,7 +513,7 @@ class RoleStatus:
 @dataclass
 class AppStatus:
     """
-    The runtime status of the ``Application``. The scheduler can
+    The runtime status of the ``AppDef``. The scheduler can
     return an arbitrary text message (msg field).
     If any error occurs, scheduler can populate ``structured_error_msg``
     with json response.
@@ -560,7 +560,7 @@ class RunConfig:
     """
     Additional run configs for the app. These are typically
     scheduler runtime configs/arguments that do not bind
-    to ``Application`` nor the ``Scheduler``. For example
+    to ``AppDef`` nor the ``Scheduler``. For example
     a particular cluster (within the scheduler) the application
     should be submitted to. Since the same app can be launched
     into multiple types of clusters (devo, prod) the
@@ -637,7 +637,7 @@ class AppDryRunInfo(Generic[T]):
         # manually rather than through constructor arguments
         # DO NOT create getters or make these public
         # unless there is a good reason to
-        self._app: Optional[Application] = None
+        self._app: Optional[AppDef] = None
         self._cfg: Optional[RunConfig] = None
         self._scheduler: Optional[SchedulerBackend] = None
 
@@ -902,7 +902,7 @@ def _create_args_parser(
 
 # pyre-ignore[3]: Ignore, and make return List[Any]
 def _get_function_args(
-    app_fn: Callable[..., Application], app_args: List[str]
+    app_fn: Callable[..., AppDef], app_args: List[str]
 ) -> Tuple[List[Any], List[str]]:
     docstring = none_throws(inspect.getdoc(app_fn))
     function_desc, args_desc = parse_fn_docstring(docstring)
@@ -941,10 +941,10 @@ def _validate_and_raise(file_path: str, function_name: str) -> None:
 
 
 def from_function(
-    app_fn: Callable[..., Application],
+    app_fn: Callable[..., AppDef],
     app_args: List[str],
     should_validate: bool = True,
-) -> Application:
+) -> AppDef:
     if should_validate:
         file_path = inspect.getfile(app_fn)
         _validate_and_raise(file_path, app_fn.__name__)
@@ -957,7 +957,7 @@ def from_file(
     function_name: str,
     app_args: List[str],
     should_validate: bool = True,
-) -> Application:
+) -> AppDef:
     """
     Creates an application by extracing user defined ``function_name`` and running it.
 
@@ -974,7 +974,7 @@ def from_file(
         * There should be a docstring for the function that defines
             All arguments in a google-style format
         * There can be default values for the function arguments.
-        * The return object must be ``Application``
+        * The return object must be ``AppDef``
 
     Args:
         file_path: The path to the torchx file, mainly used for validation info.
@@ -1004,7 +1004,7 @@ def from_module(
     function_name: str,
     app_args: List[str],
     should_validate: bool = True,
-) -> Application:
+) -> AppDef:
     """
     Creates an application by extracing user defined ``function_name`` and running it.
 
@@ -1021,7 +1021,7 @@ def from_module(
         * There should be a docstring for the function that defines
             All arguments in a google-style format
         * There can be default values for the function arguments.
-        * The return object must be ``Application``
+        * The return object must be ``AppDef``
 
     Args:
         file_path: The path to the torchx file, mainly used for validation info.

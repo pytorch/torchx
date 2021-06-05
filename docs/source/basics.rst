@@ -20,25 +20,25 @@ Below is a UML diagram
 Concepts
 -----------
 
-Applications
+AppDefs
 ~~~~~~~~~~~~~
 
-In TorchX an ``Application`` is simply a struct with the *definition* of
+In TorchX an ``AppDef`` is simply a struct with the *definition* of
 the actual application. In scheduler lingo, this is a ``JobDefinition`` and a
 similar concept in Kubernetes is the ``spec.yaml``. To disambiguate between the
 application binary (logic) and the spec, we typically refer to a TorchX
-``Application`` as an "app spec" or ``specs.Application``. ``specs.Application``
+``AppDef`` as an "app spec" or ``specs.AppDef``. ``specs.AppDef``
 is the common interface understood by ``torchx.runner``
 and ``torchx.pipelines`` allowing you to run your app as a standalone job
 or as a stage in an ML pipeline.
 
-Below is a simple example of an ``specs.Application`` that echos "hello world"
+Below is a simple example of an ``specs.AppDef`` that echos "hello world"
 
 .. code-block:: python
 
  import torchx.specs as specs
 
- specs.Application(
+ specs.AppDef(
     name="echo",
     roles=[
         specs.Role(
@@ -51,7 +51,7 @@ Below is a simple example of an ``specs.Application`` that echos "hello world"
     ]
  )
 
-As you can see, ``specs.Application`` is a pure python dataclass that
+As you can see, ``specs.AppDef`` is a pure python dataclass that
 simply encodes the name of the main binary (entrypoint), arguments to
 pass to it, and a few other runtime parameters such as ``num_replicas`` and
 information about the container in which to run (``entrypoint=/bin/echo``).
@@ -71,11 +71,11 @@ Rather you would use a templetized app spec called ``components``.
 Components
 ~~~~~~~~~~~~
 
-A component in TorchX is simply a templetized ``spec.Application``. You can
-think of them as convenient "factory methods" for ``spec.Application``.
+A component in TorchX is simply a templetized ``spec.AppDef``. You can
+think of them as convenient "factory methods" for ``spec.AppDef``.
 
 .. note:: Unlike applications, components don't map to an actual python dataclass.
-          Rather a factory function that returns an ``spec.Application``
+          Rather a factory function that returns an ``spec.AppDef``
           is called a component.
 
 The granularity at which the app spec is templetized varies. Some components
@@ -91,7 +91,7 @@ of a homogeneous ``gang`` trainer app spec:
  def get_app_spec(jobname: str, nnodes: int, image: str, entrypoint: str, *script_args: str):
     single_gpu = specs.Resources(cpu=4, gpu=1, memMB=1024)
     container = specs.Container(image=image, resources=single_gpu)
-    return specs.Appplication(
+    return specs.AppDef(
             name=jobname,
             roles=[
                 specs.Role(

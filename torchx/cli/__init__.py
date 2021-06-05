@@ -6,7 +6,7 @@
 
 """
 The ``torchx`` CLI is a commandline tool around :py:class:`torchx.runner.Runner`.
-It allows users to launch :py:class:`torchx.specs.Application` directly onto
+It allows users to launch :py:class:`torchx.specs.AppDef` directly onto
 one of the supported schedulers without authoring a pipeline (aka workflow).
 This is convenient for quickly iterating on the application logic without
 incurring both the technical and cognitive overhead of learning, writing, and
@@ -63,7 +63,7 @@ The ``run``  subcommand takes either one of:
      $ cat ~/my_trainer_spec.py
      import torchx.specs as specs
 
-     def get_spec(foo: int, bar: str) -> specs.Application:
+     def get_spec(foo: int, bar: str) -> specs.AppDef:
        <...spec file details omitted for brevity...>
 
      $ torchx run --scheduler <sched_name> ~/my_trainer_spec.py get_spec

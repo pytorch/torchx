@@ -26,7 +26,7 @@ from uuid import uuid4
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
 from torchx.specs.api import (
     NONE,
-    Application,
+    AppDef,
     AppState,
     InvalidRunConfigException,
     RunConfig,
@@ -188,7 +188,7 @@ class _LocalReplica:
             return self.proc.returncode != 0
 
 
-class _LocalApplication:
+class _LocalAppDef:
     """
     Container object used by ``LocalhostScheduler`` to group the pids that
     form an application. Each replica of a role in the application is a
@@ -368,7 +368,7 @@ class LocalScheduler(Scheduler):
         super().__init__("local", session_name)
 
         # TODO T72035686 replace dict with a proper LRUCache data structure
-        self._apps: Dict[AppId, _LocalApplication] = {}
+        self._apps: Dict[AppId, _LocalAppDef] = {}
 
         if cache_size <= 0:
             raise ValueError("cache size must be greater than zero")
@@ -385,7 +385,7 @@ class LocalScheduler(Scheduler):
         )
         return opts
 
-    def _validate(self, app: Application, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
         # Skip validation step for local application
         pass
 
@@ -522,7 +522,7 @@ class LocalScheduler(Scheduler):
         ), "no app_id collisons expected since uuid4 suffix is used"
 
         os.makedirs(app_log_dir)
-        local_app = _LocalApplication(app_id, app_log_dir)
+        local_app = _LocalAppDef(app_id, app_log_dir)
 
         for role_name in request.role_params.keys():
             role_params = request.role_params[role_name]
@@ -538,14 +538,14 @@ class LocalScheduler(Scheduler):
         return app_id
 
     def _submit_dryrun(
-        self, app: Application, cfg: RunConfig
+        self, app: AppDef, cfg: RunConfig
     ) -> AppDryRunInfo[PopenRequest]:
         request = self._to_popen_request(app, cfg)
         return AppDryRunInfo(request, lambda p: pprint.pformat(p, indent=2, width=80))
 
     def _to_popen_request(
         self,
-        app: Application,
+        app: AppDef,
         cfg: RunConfig,
     ) -> PopenRequest:
         """

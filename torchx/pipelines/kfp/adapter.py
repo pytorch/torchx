@@ -128,7 +128,7 @@ class TorchXComponent:
         ...
 
 
-def component_spec_from_app(app: api.Application) -> Tuple[str, api.Container]:
+def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Container]:
     assert len(app.roles) == 1, f"KFP adapter only support one role, got {app.roles}"
 
     role = app.roles[0]
@@ -161,11 +161,10 @@ class ContainerFactory(Protocol):
         ...
 
 
-def component_from_app(app: api.Application) -> ContainerFactory:
+def component_from_app(app: api.AppDef) -> ContainerFactory:
     container_spec: api.Container
     spec, container_spec = component_spec_from_app(app)
     resources: api.Resource = container_spec.resources
-
     assert (
         len(resources.capabilities) == 0
     ), f"KFP doesn't support capabilities, got {resources.capabilities}"

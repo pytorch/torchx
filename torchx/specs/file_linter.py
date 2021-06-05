@@ -190,10 +190,10 @@ class TorchxReturnValidator(TorchxFunctionValidator):
     def validate(self, app_specs_func_def: ast.FunctionDef) -> List[LinterMessage]:
         """
         Validates return annotation of the torchx function. Current allowed annotations:
-            * Application
-            * specs.Application
+            * AppDef
+            * specs.AppDef
         """
-        supported_return_annotation = "Application"
+        supported_return_annotation = "AppDef"
         return_annotation = self._get_return_annotation(app_specs_func_def)
         linter_errors = []
         if not return_annotation:

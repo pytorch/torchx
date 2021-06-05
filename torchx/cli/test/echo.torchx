@@ -19,6 +19,6 @@ echo = specs.Role(
     num_replicas=1,
 )
 
-app = specs.Application(name="echo_job", roles=[echo])
+app = specs.AppDef(name="echo_job", roles=[echo])
 
 export(app)

@@ -8,7 +8,7 @@
 This module contains a collection of builtin TorchX components. The directory
 structure is organized by component category. Components are simply
 templetized app specs. Think of them as a factory methods for different types
-of job definitions. The functions that return ``specs.Application`` in this
+of job definitions. The functions that return ``specs.AppDef`` in this
 module are what we refer to as components.
 
 You can browse the library of components in the ``torchx.components`` module
@@ -41,7 +41,7 @@ and should be located accordingly. E.g. the definition of distributed components
 should be located in ``distributed.py`` file.
 
 Create component as function. Each component represents a function that accepts
- arbitrary arguments and returns ``specs.Application``.
+ arbitrary arguments and returns ``specs.AppDef``.
 
 Unit tests. Write unit tests that use ``torchx.specs.file_linter`` to validate
 the component's structure,  similar to ``torchx.components.tests.distributed_test.py``.

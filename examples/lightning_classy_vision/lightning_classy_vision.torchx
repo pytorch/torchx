@@ -45,5 +45,5 @@ trainer_role = (
     .replicas(1)
 )
 
-app = torchx.Application("examples-lightning_classy_vision").of(trainer_role)
+app = torchx.AppDef("examples-lightning_classy_vision").of(trainer_role)
 export(app)

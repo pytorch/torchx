@@ -9,14 +9,13 @@
 import unittest
 from datetime import datetime
 from typing import Iterable, Optional, Union
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from torchx.schedulers.api import Scheduler, DescribeAppResponse
+from torchx.schedulers.api import DescribeAppResponse, Scheduler
 from torchx.specs.api import (
     NULL_RESOURCE,
+    AppDef,
     AppDryRunInfo,
-    Application,
     InvalidRunConfigException,
     Resource,
     RunConfig,
@@ -34,9 +33,7 @@ class SchedulerTest(unittest.TestCase):
             assert app is not None
             return app.name
 
-        def _submit_dryrun(
-            self, app: Application, cfg: RunConfig
-        ) -> AppDryRunInfo[None]:
+        def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[None]:
             return AppDryRunInfo(None, lambda t: "None")
 
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:

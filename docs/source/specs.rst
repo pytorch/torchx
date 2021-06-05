@@ -5,10 +5,10 @@ torchx.specs
 .. currentmodule:: torchx.specs
 
 
-Application
+AppDef
 ------------
 
-.. autoclass:: Application
+.. autoclass:: AppDef
    :members:
 
 Role

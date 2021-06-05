@@ -10,11 +10,11 @@ import unittest
 from unittest.mock import patch
 
 from torchx.cli.cmd_describe import CmdDescribe
-from torchx.specs.api import Application, Container, ElasticRole, Resource
+from torchx.specs.api import AppDef, Container, ElasticRole, Resource
 
 
 class CmdDescribeTest(unittest.TestCase):
-    def get_test_app(self) -> Application:
+    def get_test_app(self) -> AppDef:
         resource = Resource(cpu=2, gpu=0, memMB=256)
         trainer = (
             ElasticRole("elastic_trainer", nnodes="2:3")
@@ -23,7 +23,7 @@ class CmdDescribeTest(unittest.TestCase):
             .replicas(2)
         )
 
-        return Application("my_train_job").of(trainer)
+        return AppDef("my_train_job").of(trainer)
 
     def test_run(self) -> None:
         parser = argparse.ArgumentParser()

@@ -128,7 +128,7 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
         raise threads_exceptions[0]
 
 
-def find_role_replicas(app: specs.Application, role_name: str) -> Optional[int]:
+def find_role_replicas(app: specs.AppDef, role_name: str) -> Optional[int]:
     for role in app.roles:
         if role_name == role.name:
             return role.num_replicas

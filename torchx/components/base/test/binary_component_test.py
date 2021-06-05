@@ -12,7 +12,7 @@ from torchx.specs import api
 
 class BinaryComponentTest(unittest.TestCase):
     def test_binary_component(self) -> None:
-        want = api.Application(
+        want = api.AppDef(
             name="datapreproc",
             roles=[
                 api.Role(

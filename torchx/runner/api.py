@@ -20,9 +20,9 @@ from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import (
     NULL_CONTAINER,
+    AppDef,
     AppDryRunInfo,
     AppHandle,
-    Application,
     AppStatus,
     RunConfig,
     SchedulerBackend,
@@ -43,7 +43,7 @@ NONE: str = "<NONE>"
 class Runner:
     """
     Torchx individual component runner. Has the methods for the user to
-    act upon ``Applications``. The ``Runner`` is stateful and
+    act upon ``AppDefs``. The ``Runner`` is stateful and
     represents a logical workspace of the user. It can be backed by a service
     (e.g. Torchx server) for persistence or can be standalone with no persistence
     meaning that the ``Runner`` lasts only during the duration of the hosting
@@ -64,7 +64,7 @@ class Runner:
         self._name: str = name
         self._schedulers = schedulers
         self._wait_interval = wait_interval
-        self._apps: Dict[AppHandle, Application] = {}
+        self._apps: Dict[AppHandle, AppDef] = {}
 
     def run_from_path(
         self,
@@ -147,7 +147,7 @@ class Runner:
 
     def run(
         self,
-        app: Application,
+        app: AppDef,
         scheduler: SchedulerBackend = "default",
         cfg: Optional[RunConfig] = None,
     ) -> AppHandle:
@@ -216,7 +216,7 @@ class Runner:
 
     def dryrun(
         self,
-        app: Application,
+        app: AppDef,
         scheduler: SchedulerBackend = "default",
         cfg: Optional[RunConfig] = None,
         # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
@@ -350,7 +350,7 @@ class Runner:
                 else:
                     time.sleep(self._wait_interval)
 
-    def list(self) -> Dict[AppHandle, Application]:
+    def list(self) -> Dict[AppHandle, AppDef]:
         """
         Returns the applications that were run with this session mapped by the app handle.
         The persistence of the session is implementation dependent.
@@ -380,7 +380,7 @@ class Runner:
             if status is not None and not status.is_terminal():
                 scheduler.cancel(app_id)
 
-    def describe(self, app_handle: AppHandle) -> Optional[Application]:
+    def describe(self, app_handle: AppHandle) -> Optional[AppDef]:
         """
         Reconstructs the application (to the best extent) given the app handle.
         Note that the reconstructed application may not be the complete app as
@@ -388,7 +388,7 @@ class Runner:
         is scheduler dependent.
 
         Returns:
-            Application or None if the app does not exist anymore or if the
+            AppDef or None if the app does not exist anymore or if the
             scheduler does not support describing the app handle
         """
         scheduler, scheduler_backend, app_id = self._scheduler_app_id(
@@ -401,7 +401,7 @@ class Runner:
             if not app:
                 desc = scheduler.describe(app_id)
                 if desc:
-                    app = Application(name=app_id).of(*desc.roles)
+                    app = AppDef(name=app_id).of(*desc.roles)
             return app
 
     def log_lines(

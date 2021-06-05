@@ -17,7 +17,7 @@ def ddp(
     role: str = "worker",
     env: Optional[Dict[str, str]] = None,
     *script_args: str,
-) -> specs.Application:
+) -> specs.AppDef:
     """Single role application.
 
     Single role application.
@@ -31,7 +31,7 @@ def ddp(
         script_args: Script arguments.
 
     Returns:
-        specs.Application: Torchx Application
+        specs.AppDef: Torchx AppDef
     """
     app_env: Dict[str, str] = {}
     if env:
@@ -49,4 +49,4 @@ def ddp(
 
     # get app name from cli or extract from fbpkg. Note that fbpkg name can has "."
     # but not allowed in app name.
-    return specs.Application(name).of(ddp_role)
+    return specs.AppDef(name).of(ddp_role)

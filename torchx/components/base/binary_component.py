@@ -15,7 +15,7 @@ def binary_component(
     entrypoint: str,
     args: Optional[List[str]] = None,
     env: Optional[Dict[str, str]] = None,
-) -> api.Application:
+) -> api.AppDef:
     """
     binary_component creates a single binary and container component from the
     provided arguments.
@@ -32,7 +32,7 @@ def binary_component(
         )
     """
 
-    return api.Application(
+    return api.AppDef(
         name=name,
         roles=[
             api.Role(

@@ -11,11 +11,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from torchx.cli.cmd_status import (
-    CmdStatus,
-    format_app_status,
-    format_error_message,
-)
+from torchx.cli.cmd_status import CmdStatus, format_app_status, format_error_message
 from torchx.specs.api import AppState, AppStatus, ReplicaStatus, RoleStatus
 
 
@@ -79,7 +75,7 @@ Traceback (most recent call last):
         app_status = self._get_test_app_status()
         actual_message = format_app_status(app_status)
         print(actual_message)
-        expected_message = """Application:
+        expected_message = """AppDef:
   State: RUNNING
   Num Restarts: 0
 Roles:
