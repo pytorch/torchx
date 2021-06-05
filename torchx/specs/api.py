@@ -12,6 +12,7 @@ import copy
 import inspect
 import json
 import os
+import warnings
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from string import Template
@@ -323,43 +324,16 @@ class Role:
 
 class ElasticRole(Role):
     """
-    A ``Role`` for which the user provided ``entrypoint`` is executed with the
-    torchelastic agent (in the container). Note that the torchelastic agent
-    invokes multiple copies of ``entrypoint``.
-
-    For more information about torchelastic see
-    `torchelastic quickstart docs <http://pytorch.org/elastic/0.2.0/quickstart.html>`__.
-
-    .. important:: It is the responsibility of the user to ensure that the
-                   container's image includes torchelastic. Since Torchx has no
-                   control over the build process of the image, it cannot
-                   automatically include torchelastic in the container's image.
-
-    The following example launches 2 ``replicas`` (nodes) of an elastic ``my_train_script.py``
-    that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed
-    to fail and restart a maximum of 3 times.
-
-    .. warning:: ``replicas`` MUST BE an integer between (inclusive) ``nnodes``. That is,
-                   ``ElasticRole("trainer", nnodes="2:4").replicas(5)`` is invalid and will
-                   result in undefined behavior.
-
-    ::
-
-     elastic_trainer = ElasticRole("trainer", nproc_per_node=8, nnodes="2:4", max_restarts=3)
-                        .runs("my_train_script.py", "--script_arg", "foo", "--another_arg", "bar")
-                        .on(container)
-                        .replicas(2)
-     # effectively runs:
-     #    python -m torchelastic.distributed.launch
-     #        --nproc_per_node 8
-     #        --nnodes 2:4
-     #        --max_restarts 3
-     #        my_train_script.py --script_arg foo --another_arg bar
-
+    Deprecated, use ``torchx.components.base.torch_dist_role`` method.
     """
 
     def __init__(self, name: str, **launch_kwargs: Any) -> None:
         super().__init__(name=name)
+
+        warnings.warn(
+            "ElasticRole is deprecated, use torchx.components.base.torch_dist_role factory method",
+            category=DeprecationWarning,
+        )
         self.entrypoint = "python"
         self.args: List[str] = []
         self.args += ["-m", "torchelastic.distributed.launch"]
