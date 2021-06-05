@@ -67,7 +67,7 @@ Now copy paste the following into echo_torchx.py
  import torchx.specs as specs
 
 
- def get_app_spec(num_replicas: int, msg: str = "hello world") -> specs.Application:
+ def get_app_spec(num_replicas: int, msg: str = "hello world") -> specs.AppDef:
      """
      Echos a message to stdout (calls /bin/echo)
 
@@ -76,7 +76,7 @@ Now copy paste the following into echo_torchx.py
         msg: message to echo
 
      """
-     return specs.Application(
+     return specs.AppDef(
          name="echo",
          roles=[
              specs.Role(

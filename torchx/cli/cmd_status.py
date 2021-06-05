@@ -18,7 +18,7 @@ from torchx.specs import api
 from torchx.specs.api import NONE
 
 
-_APP_STATUS_FORMAT_TEMPLATE = """Application:
+_APP_STATUS_FORMAT_TEMPLATE = """AppDef:
   State: ${state}
   Num Restarts: ${num_restarts}
 Roles:${roles}"""
@@ -163,6 +163,6 @@ class CmdStatus(SubCommand):
             print(format_app_status(app_status, filter_roles))
         else:
             print(
-                f"Application: {app_id} on session: {session_name},"
+                f"AppDef: {app_id} on session: {session_name},"
                 f" does not exist or has been removed from {scheduler}'s data plane"
             )

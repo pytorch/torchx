@@ -8,7 +8,7 @@
 import torchx.specs as specs
 
 
-def echo(msg: str = "hello world", image: str = "/tmp") -> specs.Application:
+def echo(msg: str = "hello world", image: str = "/tmp") -> specs.AppDef:
     """Echos a message
 
     Args:
@@ -24,10 +24,10 @@ def echo(msg: str = "hello world", image: str = "/tmp") -> specs.Application:
         num_replicas=1,
     )
 
-    return specs.Application(name="echo", roles=[echo])
+    return specs.AppDef(name="echo", roles=[echo])
 
 
-def touch(file: str) -> specs.Application:
+def touch(file: str) -> specs.AppDef:
     """Echos a message
 
     Args:
@@ -42,10 +42,10 @@ def touch(file: str) -> specs.Application:
         num_replicas=1,
     )
 
-    return specs.Application(name="touch", roles=[touch])
+    return specs.AppDef(name="touch", roles=[touch])
 
 
-def touch_v2(file: str) -> specs.Application:
+def touch_v2(file: str) -> specs.AppDef:
     """Echos a message
 
     Args:
@@ -60,12 +60,12 @@ def touch_v2(file: str) -> specs.Application:
         num_replicas=1,
     )
 
-    return specs.Application(name="touch", roles=[touch])
+    return specs.AppDef(name="touch", roles=[touch])
 
 
 def simple(
     num_trainers: int = 10, trainer_image: str = "pytorch/torchx:latest"
-) -> specs.Application:
+) -> specs.AppDef:
     """A simple configuration example.
 
     Args:
@@ -100,4 +100,4 @@ def simple(
         num_replicas=1,
     )
 
-    return specs.Application(name="my_train_job", roles=[trainer, ps, reader])
+    return specs.AppDef(name="my_train_job", roles=[trainer, ps, reader])

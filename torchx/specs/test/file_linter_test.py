@@ -14,8 +14,8 @@ from torchx.specs.file_linter import get_fn_docstring, parse_fn_docstring, valid
 
 
 # Note if the function is moved, the tests need to be updated with new lineno
-# pyre-ignore[11]: Ignore unknown type "Application"
-def _test_empty_fn() -> "Application":
+# pyre-ignore[11]: Ignore unknown type "AppDef"
+def _test_empty_fn() -> "AppDef":
     pass
 
 
@@ -35,28 +35,26 @@ def _test_fn_return_int() -> int:
     return 0
 
 
-def _test_docstring_empty(arg: str) -> "Application":
+def _test_docstring_empty(arg: str) -> "AppDef":
     """ """
     pass
 
 
-def _test_docstring_func_desc() -> "Application":
+def _test_docstring_func_desc() -> "AppDef":
     """
     Function description
     """
     pass
 
 
-def _test_docstring_no_args(arg: str) -> "Application":
+def _test_docstring_no_args(arg: str) -> "AppDef":
     """
     Test description
     """
     pass
 
 
-def _test_docstring_correct(
-    arg0: str, arg1: int, arg2: Dict[int, str]
-) -> "Application":
+def _test_docstring_correct(arg0: str, arg1: int, arg2: Dict[int, str]) -> "AppDef":
     """Short Test description
 
     Long funct description
@@ -70,7 +68,7 @@ def _test_docstring_correct(
 
 
 # pyre-ignore[2]: Omit return value for testing purposes
-def _test_args_no_type_defs(arg0, arg1, arg2: Dict[int, str]) -> "Application":
+def _test_args_no_type_defs(arg0, arg1, arg2: Dict[int, str]) -> "AppDef":
     """
     Test description
 
@@ -90,7 +88,7 @@ def _test_args_dict_list_complex_types(
     arg2: Dict[int, List[str]],
     arg3: List[List[str]],
     arg4: Optional[Optional[str]],
-) -> "Application":
+) -> "AppDef":
     """
     Test description
 
@@ -127,7 +125,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(1, len(linter_errors))
         expected_desc = (
             "Function: _test_fn_no_return missing return annotation or "
-            "has unknown annotations. Supported return annotation: Application"
+            "has unknown annotations. Supported return annotation: AppDef"
         )
         self.assertEqual(expected_desc, linter_errors[0].description)
 
@@ -138,7 +136,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(1, len(linter_errors))
         expected_desc = (
             "Function: _test_fn_return_int has incorrect return annotation, "
-            "supported annotation: Application"
+            "supported annotation: AppDef"
         )
         self.assertEqual(expected_desc, linter_errors[0].description)
 

@@ -7,8 +7,8 @@
 import torchx.specs as specs
 
 
-def get_app_spec(fixme: str) -> specs.Application:
+def get_app_spec(fixme: str) -> specs.AppDef:
     # TODO actually return ddp app (to get the resources right needs to be
     #  done after properly implementing torchx.components.base.named_resource)
     role = specs.ElasticRole(name="foobar")
-    return specs.Application(name=fixme, roles=[role])
+    return specs.AppDef(name=fixme, roles=[role])

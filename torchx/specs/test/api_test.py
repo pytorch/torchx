@@ -20,8 +20,8 @@ from torchx.specs.api import (
     _TERMINAL_STATES,
     MISSING,
     NULL_CONTAINER,
+    AppDef,
     AppDryRunInfo,
-    Application,
     AppState,
     AppStatus,
     Container,
@@ -54,7 +54,7 @@ class AppDryRunInfoTest(unittest.TestCase):
         to_string_mock.assert_called_once_with(request_mock)
 
 
-class ApplicationStatusTest(unittest.TestCase):
+class AppDefStatusTest(unittest.TestCase):
     def test_is_terminal(self) -> None:
         for s in AppState:
             is_terminal = AppStatus(state=s).is_terminal()
@@ -325,21 +325,21 @@ class AppHandleTest(unittest.TestCase):
         self.assertEqual("local://my_session/my_app_id_1234", app_handle)
 
 
-class ApplicationTest(unittest.TestCase):
+class AppDefTest(unittest.TestCase):
     def test_application(self) -> None:
         container = Container(image="test_image")
         trainer = Role("trainer").runs("/bin/sleep", "10").on(container).replicas(2)
-        app = Application(name="test_app").of(trainer)
+        app = AppDef(name="test_app").of(trainer)
         self.assertEqual("test_app", app.name)
         self.assertEqual(1, len(app.roles))
         self.assertEqual(trainer, app.roles[0])
 
     def test_application_default(self) -> None:
-        app = Application(name="test_app")
+        app = AppDef(name="test_app")
         self.assertEqual(0, len(app.roles))
 
     def test_getset_metadata(self) -> None:
-        app = Application(name="test_app").add_metadata("test_key", "test_value")
+        app = AppDef(name="test_app").add_metadata("test_key", "test_value")
         self.assertEqual("test_value", app.get_metadata("test_key"))
         self.assertEqual(None, app.get_metadata("non_existent"))
 
@@ -519,18 +519,18 @@ class MacrosTest(unittest.TestCase):
         self.assertEqual(newrole.env, {"FOO": "app_id"})
 
 
-def get_dummy_application(role: str) -> Application:
+def get_dummy_application(role: str) -> AppDef:
     container = Container(image="test_image")
     trainer = Role(role).runs("main_script.py", "--train").on(container).replicas(2)
-    return Application(name="test_app").of(trainer)
+    return AppDef(name="test_app").of(trainer)
 
 
-def test_empty_fn() -> Application:
+def test_empty_fn() -> AppDef:
     """Empty function that returns dummy app"""
     return get_dummy_application("trainer")
 
 
-def test_empty_fn_no_docstring() -> Application:
+def test_empty_fn_no_docstring() -> AppDef:
     return get_dummy_application("trainer")
 
 
@@ -542,11 +542,11 @@ def test_complex_fn(
     num_gpus: Optional[Dict[str, int]] = None,
     nnodes: int = 4,
     *roles_args: str,
-) -> Application:
+) -> AppDef:
     """Creates complex application, testing all possible complex types
 
     Args:
-        app_name: Application name
+        app_name: AppDef name
         containers: List of containers
         roles_scripts: Dict role_name -> role_script
         num_cpus: List of cpus per role
@@ -576,17 +576,17 @@ def test_complex_fn(
             .runs(role_script, *roles_args)
         )
         roles.append(role)
-    return Application(app_name, roles)
+    return AppDef(app_name, roles)
 
 
-class ApplicationLoadTest(unittest.TestCase):
-    def assert_apps(self, expected_app: Application, actual_app: Application) -> None:
+class AppDefLoadTest(unittest.TestCase):
+    def assert_apps(self, expected_app: AppDef, actual_app: AppDef) -> None:
         self.assertDictEqual(asdict(expected_app), asdict(actual_app))
 
     def _get_role_args(self) -> List[str]:
         return ["--train", "data_source", "random", "--epochs", "128"]
 
-    def _get_expected_app_with_default(self) -> Application:
+    def _get_expected_app_with_default(self) -> AppDef:
         role_args = self._get_role_args()
         return test_complex_fn(
             "test_app",
@@ -611,7 +611,7 @@ class ApplicationLoadTest(unittest.TestCase):
             *role_args,
         ]
 
-    def _get_expected_app_with_all_args(self) -> Application:
+    def _get_expected_app_with_all_args(self) -> AppDef:
         role_args = self._get_role_args()
         return test_complex_fn(
             "test_app",

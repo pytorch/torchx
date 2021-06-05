@@ -17,4 +17,4 @@ touch = specs.Role(
     num_replicas=1,
 )
 
-export(specs.Application(name="touch", roles=[touch]))
+export(specs.AppDef(name="touch", roles=[touch]))

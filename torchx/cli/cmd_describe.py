@@ -32,6 +32,6 @@ class CmdDescribe(SubCommand):
             pprint.pprint(dataclasses.asdict(app), indent=2, width=80)
         else:
             print(
-                f"Application: {app_id} on session: {session_name},"
+                f"AppDef: {app_id} on session: {session_name},"
                 f" does not exist or has been removed from {scheduler}'s data plane"
             )

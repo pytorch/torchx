@@ -7,7 +7,7 @@
 import torchx.specs as specs
 
 
-def get_app_spec(msg: str = "hello world") -> specs.Application:
+def get_app_spec(msg: str = "hello world") -> specs.AppDef:
     """
     Echos a message to stdout (calls /bin/echo)
 
@@ -15,7 +15,7 @@ def get_app_spec(msg: str = "hello world") -> specs.Application:
         msg: message to echo
 
     """
-    return specs.Application(
+    return specs.AppDef(
         name="echo",
         roles=[
             specs.Role(

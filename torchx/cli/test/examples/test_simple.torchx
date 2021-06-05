@@ -42,6 +42,6 @@ reader = specs.Role(
     num_replicas=1,
 )
 
-app = specs.Application(name="my_train_job", roles=[trainer, ps, reader])
+app = specs.AppDef(name="my_train_job", roles=[trainer, ps, reader])
 
 export(app)

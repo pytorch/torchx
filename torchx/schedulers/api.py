@@ -8,19 +8,19 @@
 import abc
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Iterable
+from typing import Iterable, List, Optional
 
 from torchx.specs.api import (
-    Application,
-    RunConfig,
-    AppState,
-    RoleStatus,
-    Role,
-    AppDryRunInfo,
-    runopts,
     NONE,
-    SchedulerBackend,
     NULL_RESOURCE,
+    AppDef,
+    AppDryRunInfo,
+    AppState,
+    Role,
+    RoleStatus,
+    RunConfig,
+    SchedulerBackend,
+    runopts,
 )
 
 
@@ -30,7 +30,7 @@ class DescribeAppResponse:
     Response object returned by ``Scheduler.describe(app)`` API. Contains
     the status and description of the application as known by the scheduler.
     For some schedulers implementations this response object has necessary
-    and sufficient information to recreate an ``Application`` object in the
+    and sufficient information to recreate an ``AppDef`` object in the
     absence of the hosting ``Session``. For these types of schedulers,
     the user can re-``run()`` the attached application. Otherwise the user
     can only call non-creating methods (e.g. ``wait()``, ``status()``, etc).
@@ -65,7 +65,7 @@ class Scheduler(abc.ABC):
         self.backend = backend
         self.session_name = session_name
 
-    def submit(self, app: Application, cfg: RunConfig) -> str:
+    def submit(self, app: AppDef, cfg: RunConfig) -> str:
         """
         Submits the application to be run by the scheduler.
 
@@ -94,7 +94,7 @@ class Scheduler(abc.ABC):
         raise NotImplementedError()
 
     # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
-    def submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo:
+    def submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo:
         """
         Rather than submitting the request to run the app, returns the
         request object that would have been submitted to the underlying
@@ -112,7 +112,7 @@ class Scheduler(abc.ABC):
         return dryrun_info
 
     # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
-    def _submit_dryrun(self, app: Application, cfg: RunConfig) -> AppDryRunInfo:
+    def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo:
         raise NotImplementedError()
 
     def run_opts(self) -> runopts:
@@ -128,7 +128,7 @@ class Scheduler(abc.ABC):
         Describes the specified application.
 
         Returns:
-            Application description or ``None`` if the app does not exist.
+            AppDef description or ``None`` if the app does not exist.
         """
         raise NotImplementedError()
 
@@ -236,7 +236,7 @@ class Scheduler(abc.ABC):
             f"{self.__class__.__qualname__} does not support application log iteration"
         )
 
-    def _validate(self, app: Application, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
         """
         Validates whether application is consistent with the scheduler.
 

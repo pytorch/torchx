@@ -19,7 +19,7 @@ from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import LocalScheduler
 from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs.api import (
-    Application,
+    AppDef,
     AppState,
     Container,
     Resource,
@@ -64,14 +64,14 @@ class RunnerTest(unittest.TestCase):
     def test_validate_no_roles(self, _) -> None:
         runner = Runner("test", schedulers={"default": self.scheduler})
         with self.assertRaises(ValueError):
-            app = Application("no roles")
+            app = AppDef("no roles")
             runner.run(app)
 
     def test_validate_no_container(self, _) -> None:
         runner = Runner("test", schedulers={"default": self.scheduler})
         with self.assertRaises(ValueError):
             role = Role("no container").runs("echo", "hello_world")
-            app = Application("no container").of(role)
+            app = AppDef("no container").of(role)
             runner.run(app)
 
     def test_validate_invalid_replicas(self, _) -> None:
@@ -84,7 +84,7 @@ class RunnerTest(unittest.TestCase):
                 .on(container)
                 .replicas(0)
             )
-            app = Application("no container").of(role)
+            app = AppDef("no container").of(role)
             runner.run(app)
 
     def test_run(self, _) -> None:
@@ -97,7 +97,7 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(1, len(session.scheduler_backends()))
 
         role = Role(name="touch").runs("touch.sh", test_file).on(self.test_container)
-        app = Application("name").of(role)
+        app = AppDef("name").of(role)
 
         app_handle = session.run(app, cfg=self.cfg)
         app_status = none_throws(session.wait(app_handle))
@@ -109,7 +109,7 @@ class RunnerTest(unittest.TestCase):
             name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
         )
         role = Role(name="touch").runs("echo", "hello world").on(self.test_container)
-        app = Application("name").of(role)
+        app = AppDef("name").of(role)
         session.dryrun(app, "default", cfg=self.cfg)
         scheduler_mock.submit_dryrun.assert_called_once_with(app, self.cfg)
         scheduler_mock._validate.assert_called_once()
@@ -117,7 +117,7 @@ class RunnerTest(unittest.TestCase):
     def test_describe(self, _) -> None:
         session = Runner(name=SESSION_NAME, schedulers={"default": self.scheduler})
         role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
-        app = Application("sleeper").of(role)
+        app = AppDef("sleeper").of(role)
 
         app_handle = session.run(app, cfg=self.cfg)
         self.assertEqual(app, session.describe(app_handle))
@@ -129,7 +129,7 @@ class RunnerTest(unittest.TestCase):
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         role = Role(name="touch").runs("sleep.sh", "1").on(self.test_container)
-        app = Application("sleeper").of(role)
+        app = AppDef("sleeper").of(role)
 
         num_apps = 4
 
@@ -153,7 +153,7 @@ class RunnerTest(unittest.TestCase):
         )
         test_file = os.path.join(self.test_dir, "test_file")
         role = Role(name="touch").runs("touch.sh", test_file).on(self.test_container)
-        app = Application("touch_test_file").of(role)
+        app = AppDef("touch_test_file").of(role)
 
         # local scheduler was setup with a cache size of 1
         # run the same app twice (the first will be removed from the scheduler's cache)
@@ -175,7 +175,7 @@ class RunnerTest(unittest.TestCase):
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
         role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
-        app = Application("sleeper").of(role)
+        app = AppDef("sleeper").of(role)
         app_handle = session.run(app, cfg=self.cfg)
         app_status = none_throws(session.status(app_handle))
         self.assertEqual(AppState.RUNNING, app_status.state)
@@ -203,7 +203,7 @@ class RunnerTest(unittest.TestCase):
             name="test_ui_url_session", schedulers={"default": mock_scheduler}
         )
         role = Role("ignored").runs("/bin/echo").on(self.test_container)
-        app_handle = session.run(Application(app_id).of(role))
+        app_handle = session.run(AppDef(app_id).of(role))
         status = none_throws(session.status(app_handle))
         self.assertEquals(resp.ui_url, status.ui_url)
 
@@ -221,7 +221,7 @@ class RunnerTest(unittest.TestCase):
             name="test_structured_msg", schedulers={"default": mock_scheduler}
         )
         role = Role("ignored").runs("/bin/echo").on(self.test_container)
-        app_handle = session.run(Application(app_id).of(role))
+        app_handle = session.run(AppDef(app_id).of(role))
         status = none_throws(session.status(app_handle))
         self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
 
@@ -291,7 +291,7 @@ class RunnerTest(unittest.TestCase):
         session = Runner(name="test_session", schedulers=schedulers)
 
         role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
-        app = Application("sleeper").of(role)
+        app = AppDef("sleeper").of(role)
         cfg = RunConfig()
         session.run(app, scheduler="local", cfg=cfg)
         local_sched_mock.submit.called_once_with(app, cfg)
@@ -307,7 +307,7 @@ class RunnerTest(unittest.TestCase):
             args, kwargs = run_mock.call_args
             actual_app = args[0]
         entrypoint = "${img_root}/test.py"
-        expected_app = Application(
+        expected_app = AppDef(
             "ddp_app",
             roles=[
                 Role("worker")
@@ -339,7 +339,7 @@ class RunnerTest(unittest.TestCase):
             args, kwargs = run_mock.call_args
             actual_app = args[0]
         entrypoint = "${img_root}/test.py"
-        expected_app = Application(
+        expected_app = AppDef(
             "ddp_app",
             roles=[
                 Role("worker")

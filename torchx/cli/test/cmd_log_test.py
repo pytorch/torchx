@@ -11,7 +11,7 @@ from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_log import ENDC, GREEN, get_logs
-from torchx.specs.api import Application, Role, parse_app_handle
+from torchx.specs.api import AppDef, Role, parse_app_handle
 
 
 class SentinelError(Exception):
@@ -29,9 +29,9 @@ class MockRunner:
     def __call__(self, name: Optional[str] = None) -> "MockRunner":
         return self
 
-    def describe(self, app_handle: str) -> Application:
+    def describe(self, app_handle: str) -> AppDef:
         scheduler_backend, session_name, app_id = parse_app_handle(app_handle)
-        return Application(name=app_id).of(
+        return AppDef(name=app_id).of(
             Role(name="master").replicas(1), Role(name="trainer").replicas(3)
         )
 
@@ -58,7 +58,7 @@ class CmdLogTest(unittest.TestCase):
     @patch("sys.exit", side_effect=SentinelError)
     def test_cmd_log_bad_job_identifier(self, exit_mock: MagicMock) -> None:
         with self.assertRaises(SentinelError):
-            get_logs("local:///SparseNNApplication/", "QPS.*")
+            get_logs("local:///SparseNNAppDef/", "QPS.*")
         exit_mock.assert_called_once_with(1)
 
     @patch(RUNNER, new_callable=MockRunner)
@@ -68,7 +68,7 @@ class CmdLogTest(unittest.TestCase):
     ) -> None:
         with self.assertRaises(SentinelError):
             get_logs(
-                "local://default/SparseNNApplication/unknown_role",
+                "local://default/SparseNNAppDef/unknown_role",
                 regex=None,
             )
 
@@ -79,7 +79,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_all_replicas(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNApplication/trainer", regex="INFO")
+        get_logs("local://test-session/SparseNNAppDef/trainer", regex="INFO")
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} INFO foo",
@@ -97,7 +97,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_one_replica(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNApplication/trainer/0", regex=None)
+        get_logs("local://test-session/SparseNNAppDef/trainer/0", regex=None)
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} INFO foo",
@@ -115,7 +115,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_some_replicas(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNApplication/trainer/0,2", regex="WARN")
+        get_logs("local://test-session/SparseNNAppDef/trainer/0,2", regex="WARN")
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} WARN baz",
@@ -134,6 +134,4 @@ class CmdLogTest(unittest.TestCase):
         with patch.object(mock_runner, "log_lines") as log_lines_mock:
             log_lines_mock.side_effect = RuntimeError
             with self.assertRaises(RuntimeError):
-                get_logs(
-                    "local://test-session/SparseNNApplication/trainer/0,1", regex=None
-                )
+                get_logs("local://test-session/SparseNNAppDef/trainer/0,1", regex=None)

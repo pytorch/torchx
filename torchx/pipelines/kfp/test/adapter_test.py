@@ -117,7 +117,7 @@ class KFPSpecsTest(unittest.TestCase):
     tests KFP components using torchx.specs.api
     """
 
-    def _test_app(self) -> api.Application:
+    def _test_app(self) -> api.AppDef:
         container = api.Container(
             image="pytorch/torchx:latest",
             resources=api.Resource(
@@ -139,7 +139,7 @@ class KFPSpecsTest(unittest.TestCase):
             .replicas(1)
         )
 
-        return api.Application("test").of(trainer_role)
+        return api.AppDef("test").of(trainer_role)
 
     def test_component_spec_from_app(self) -> None:
         app = self._test_app()
