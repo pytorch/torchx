@@ -19,19 +19,22 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import pytorch_sphinx_theme
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-import torchx
+import os
+import sys
+
+import pytorch_sphinx_theme
 from docutils import nodes
 from sphinx import addnodes
 from sphinx.util.docfields import TypedField
+
+
+if True:  # stop isort from reordering
+    sys.path.append(os.path.abspath("../.."))
+    import torchx
 
 
 # -- General configuration ------------------------------------------------

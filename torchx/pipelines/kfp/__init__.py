@@ -5,6 +5,14 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+"""
+This module contains adapters for converting TorchX components into KubeFlow
+Pipeline components.
+
+The current KFP adapters only support single node (1 role and 1 replica)
+components.
+"""
+
 import kfp
 
 from .version import __version__ as __version__  # noqa F401

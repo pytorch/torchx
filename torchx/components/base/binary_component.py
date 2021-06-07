@@ -20,16 +20,17 @@ def binary_component(
     binary_component creates a single binary and container component from the
     provided arguments.
 
-    Ex:
-        binary_compoonent(
-            name="datapreproc",
-            image="pytorch/pytorch:latest",
-            entrypoint="python3",
-            args=["--version"],
-            env={
-                "FOO": "bar",
-            },
-        )
+    >>> from torchx.components.base.binary_component import binary_component
+    >>> binary_component(
+    ...     name="datapreproc",
+    ...     image="pytorch/pytorch:latest",
+    ...     entrypoint="python3",
+    ...     args=["--version"],
+    ...     env={
+    ...         "FOO": "bar",
+    ...     },
+    ... )
+    AppDef(name='datapreproc', ...)
     """
 
     return api.AppDef(
