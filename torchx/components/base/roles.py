@@ -42,18 +42,24 @@ def create_torch_dist_role(
                    ``ElasticRole("trainer", nnodes="2:4").replicas(5)`` is invalid and will
                    result in undefined behavior.
 
-    ::
 
-     elastic_trainer = torch_dist_role("trainer", "my_train_script.py",
-                            script_args=["--script_arg", "foo", "--another_arg", "bar"],
-                            num_replicas=4, max_retries=1,
-                            nproc_per_node=8, nnodes="2:4", max_restarts=3)
-     # effectively runs:
-     #    python -m torch.distributed.launch
-     #        --nproc_per_node 8
-     #        --nnodes 2:4
-     #        --max_restarts 3
-     #        my_train_script.py --script_arg foo --another_arg bar
+    >>> from torchx.components.base.roles import create_torch_dist_role
+    >>> from torchx.specs.api import NULL_CONTAINER
+    >>> elastic_trainer = create_torch_dist_role(
+    ...     name="trainer",
+    ...     container=NULL_CONTAINER,
+    ...     entrypoint="my_train_script.py",
+    ...     script_args=["--script_arg", "foo", "--another_arg", "bar"],
+    ...     num_replicas=4, max_retries=1,
+    ...     nproc_per_node=8, nnodes="2:4", max_restarts=3)
+    ... # effectively runs:
+    ... #    python -m torch.distributed.launch
+    ... #        --nproc_per_node 8
+    ... #        --nnodes 2:4
+    ... #        --max_restarts 3
+    ... #        my_train_script.py --script_arg foo --another_arg bar
+    >>> elastic_trainer
+    Role(name='trainer', ...)
 
     Args:
         name: Name of the role

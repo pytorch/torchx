@@ -129,6 +129,20 @@ class TorchXComponent:
 
 
 def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Container]:
+    """
+    component_spec_from_app takes in a TorchX component and generates the yaml
+    spec for it. Notably this doesn't apply resources or port_maps since those
+    must be applied at runtime which is why it returns the container spec as well.
+
+    >>> from torchx import specs
+    >>> from torchx.pipelines.kfp.adapter import component_spec_from_app
+    >>> app_def = specs.AppDef(
+    ...     name="trainer",
+    ...     roles=[specs.Role("trainer", container=specs.Container(image="foo:latest"))],
+    ... )
+    >>> component_spec_from_app(app_def)
+    ('description: ...', Container(...))
+    """
     assert len(app.roles) == 1, f"KFP adapter only support one role, got {app.roles}"
 
     role = app.roles[0]
@@ -157,11 +171,33 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Container]:
 
 
 class ContainerFactory(Protocol):
+    """
+    ContainerFactory is a protocol that represents a function that when called produces a
+    kfp.dsl.ContainerOp.
+    """
+
     def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp:
         ...
 
 
 def component_from_app(app: api.AppDef) -> ContainerFactory:
+    """
+    component_from_app takes in a TorchX component/AppDef and returns a KFP
+    ContainerOp factory. This is equivalent to the
+    `kfp.components.load_component_from_*
+    <https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.load_component_from_text>`_
+    methods.
+
+    >>> from torchx import specs
+    >>> from torchx.pipelines.kfp.adapter import component_from_app
+    >>> app_def = specs.AppDef(
+    ...     name="trainer",
+    ...     roles=[specs.Role("trainer", container=specs.Container(image="foo:latest"))],
+    ... )
+    >>> component_from_app(app_def)
+    <function component_from_app...>
+    """
+
     container_spec: api.Container
     spec, container_spec = component_spec_from_app(app)
     resources: api.Resource = container_spec.resources

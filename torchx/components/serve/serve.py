@@ -18,6 +18,13 @@ def torchserve(
     """Deploys the provided model to the given torchserve management API
     endpoint.
 
+    >>> from torchx.components.serve.serve import torchserve
+    >>> torchserve(
+    ...     model_path="s3://your-bucket/your-model.pt",
+    ...     management_api="http://torchserve:8081",
+    ... )
+    AppDef(name='torchx-serve-torchserve', ...)
+
     Args:
         model_path: The fsspec path to the model archive file.
         management_api: The URL to the root of the torchserve management API.
@@ -26,7 +33,7 @@ def torchserve(
             See https://pytorch.org/serve/management_api.html#register-a-model
 
     Returns:
-        specs.AppDef: Torchx applicaiton definition
+        specs.AppDef: the Torchx application definition
     """
 
     args = [

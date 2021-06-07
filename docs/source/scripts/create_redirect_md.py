@@ -16,7 +16,10 @@ import glob
 import os
 import sys
 
-import torchx
+
+if True:  # stop isort from reordering
+    sys.path.append(os.path.abspath(".."))
+    import torchx
 
 
 def parse_args(args):

@@ -39,6 +39,7 @@ Documentation
    components
    runner
    schedulers
+   pipelines
 
 
 Components Library
@@ -49,6 +50,7 @@ Components Library
 
    components/base
    components/distributed
+   components/serve
    components/hpo
    components/utils
 
