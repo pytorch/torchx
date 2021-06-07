@@ -9,11 +9,14 @@ on:
 jobs:
   unittest:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
     steps:
-      - name: Setup Python
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
