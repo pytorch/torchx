@@ -13,7 +13,7 @@ from torchx.components.serve.serve import torchserve
 
 class ServeTest(unittest.TestCase):
     def test_torchserve(self) -> None:
-        want = specs.Application(
+        want = specs.AppDef(
             name="torchx-serve-torchserve",
             roles=[
                 specs.Role(

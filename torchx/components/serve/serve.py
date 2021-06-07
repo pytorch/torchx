@@ -14,7 +14,7 @@ def torchserve(
     management_api: str,
     image: str = "495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest",
     params: Optional[Dict[str, object]] = None,
-) -> specs.Application:
+) -> specs.AppDef:
     """Deploys the provided model to the given torchserve management API
     endpoint.
 
@@ -26,7 +26,7 @@ def torchserve(
             See https://pytorch.org/serve/management_api.html#register-a-model
 
     Returns:
-        specs.Application: Torchx Application
+        specs.AppDef: Torchx applicaiton definition
     """
 
     args = [
@@ -43,7 +43,7 @@ def torchserve(
                 str(value),
             ]
 
-    return specs.Application(
+    return specs.AppDef(
         name="torchx-serve-torchserve",
         roles=[
             specs.Role(
