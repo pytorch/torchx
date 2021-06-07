@@ -6,11 +6,13 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import os.path
 import sys
 from typing import List
 
 import kfp
 from torchx.components.base.binary_component import binary_component
+from torchx.components.serve.serve import torchserve
 from torchx.pipelines.kfp.adapter import ContainerFactory, component_from_app
 
 
@@ -21,6 +23,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         type=str,
         help="docker image to use",
         default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/examples:latest",
+    )
+    parser.add_argument(
+        "--torchx_image",
+        type=str,
+        help="docker image to use",
+        default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest",
     )
     parser.add_argument(
         "--data_path",
@@ -43,6 +51,18 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         type=str,
         help="path to place the compiled pipeline package",
         default="pipeline.yaml",
+    )
+    parser.add_argument(
+        "--management_api",
+        type=str,
+        help="path to the torchserve management API",
+        default="http://torchserve.default.svc.cluster.local:8081",
+    )
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        help="the name of the inference model",
+        default="tiny_image_net",
     )
     return parser.parse_args(argv)
 
@@ -78,10 +98,29 @@ def main(argv: List[str]) -> None:
     )
     trainer_comp: ContainerFactory = component_from_app(trainer_app)
 
+    serve_app = torchserve(
+        model_path=os.path.join(args.output_path, "model.mar"),
+        management_api=args.management_api,
+        image=args.torchx_image,
+        params={
+            "model_name": args.model_name,
+            # set this to allocate a worker
+            # "initial_workers": 1,
+        },
+    )
+    serve_comp: ContainerFactory = component_from_app(serve_app)
+
     def pipeline() -> None:
         datapreproc = datapreproc_comp()
+        datapreproc.container.set_tty()
+
         trainer = trainer_comp()
+        trainer.container.set_tty()
         trainer.after(datapreproc)
+
+        serve = serve_comp()
+        serve.container.set_tty()
+        serve.after(trainer)
 
     kfp.compiler.Compiler().compile(
         pipeline_func=pipeline,

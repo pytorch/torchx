@@ -37,4 +37,5 @@ jobs:
           KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           EXAMPLES_CONTAINER_REPO: ${{ secrets.EXAMPLES_CONTAINER_REPO }}
+          TORCHX_CONTAINER_REPO: ${{ secrets.TORCHX_CONTAINER_REPO }}
         run: scripts/kfpint.py
