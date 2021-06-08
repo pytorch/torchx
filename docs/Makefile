@@ -32,4 +32,4 @@ clean:
 
 # optional live version
 livehtml:
-	sphinx-autobuild --watch ../torchx "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	sphinx-autobuild --watch ../torchx --watch ../examples --re-ignore ".*auto_examples.*" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

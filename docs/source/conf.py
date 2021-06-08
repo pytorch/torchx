@@ -57,6 +57,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.katex",
     "sphinx.ext.autosectionlabel",
+    "sphinx_gallery.gen_gallery",
 ]
 
 # katex options
@@ -147,17 +148,22 @@ html_logo = "_static/img/pytorch-logo-dark.svg"
 html_static_path = ["_static"]
 
 
+html_css_files = [
+    "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css",
+    "css/torchx.css",
+]
+
+
 def setup(app):
     # NOTE: in Sphinx 1.8+ `html_css_files` is an official configuration value
     # and can be moved outside of this function (and the setup(app) function
     # can be deleted).
-    html_css_files = [
-        "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css"
-    ]
 
     # In Sphinx 1.8 it was renamed to `add_css_file`, 1.7 and prior it is
     # `add_stylesheet` (deprecated in 1.8).
-    add_css = getattr(app, "add_css_file", getattr(app, "add_stylesheet"))  # noqa B009
+    add_css = getattr(
+        app, "add_css_file", getattr(app, "add_stylesheet", None)
+    )  # noqa B009
     for css_file in html_css_files:
         add_css(css_file)
 
@@ -285,3 +291,10 @@ def patched_make_field(self, types, domain, items, **kw):
 
 
 TypedField.make_field = patched_make_field
+
+
+# -- Options for Sphinx-Gallery -----
+sphinx_gallery_conf = {
+    "examples_dirs": "../../examples",  # path to your example scripts
+    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
+}

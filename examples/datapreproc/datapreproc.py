@@ -5,6 +5,14 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+"""
+Data Preprocessing App Example
+====================================
+
+This is a simple TorchX app that downloads some data via HTTP, normalizes the
+images via torchvision and then reuploads it via fsspec.
+"""
+
 import argparse
 import os
 import sys

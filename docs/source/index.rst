@@ -30,6 +30,14 @@ Documentation
    cli
    configure
 
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
+
+   auto_examples/index
+
+
 .. _torchx.api:
 .. toctree::
    :maxdepth: 1
