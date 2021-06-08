@@ -44,6 +44,29 @@ def torch_dist_role(
     will be used.
 
     For more information see ``torchx.components.base.roles``
+
+    Usage:
+
+    ::
+
+     # nnodes and nproc_per_node correspond to the ``torch.distributed.launch`` arguments. More
+     # info about available arguments: https://pytorch.org/docs/stable/distributed.html#launch-utility
+     trainer = torch_dist_role("trainer",container, entrypoint="trainer.py",.., nnodes=2, nproc_per_node=4)
+
+    Args:
+        name: Name of the role
+        container: Container
+        entrypoint: Script or binary to launch
+        script_args: Arguments to the script
+        script_envs: Env. variables to the worker
+        num_replicas: Number of replicas
+        max_retries: Number of retries
+        retry_policy: ``torchx.specs.api.RetryPolicy``
+        launch_kwargs: ``torch.distributed.launch`` arguments.
+
+    Returns:
+        Torchx role
+
     """
     dist_role_factory = load(
         "torchx.base",
