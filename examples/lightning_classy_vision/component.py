@@ -5,7 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-Runs the example lightning_classy_vision app.
+Trainer Component Example
+=========================
+
+This is a component definition that runs the example lightning_classy_vision app.
 """
 
 import torchx.specs.api as torchx

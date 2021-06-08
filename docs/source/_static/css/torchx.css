@@ -1,0 +1,7 @@
+/* fixes the python3 type annotation rendering */
+article.pytorch-article .py dt a[title] {
+  position: initial;
+}
+article.pytorch-article .py dt span.pre {
+  padding: 0;
+}

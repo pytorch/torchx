@@ -7,6 +7,18 @@
 
 # pyre-unsafe
 
+"""
+Trainer App Example
+=============================================
+
+This is an example TorchX app that uses PyTorch Lightning and ClassyVision to
+train a model.
+
+This app only uses standard OSS libraries and has no runtime torchx
+dependencies. For saving and loading data and models it uses fsspec which makes
+the app agnostic to the environment it's running in.
+"""
+
 import argparse
 import os.path
 import subprocess
@@ -123,7 +135,7 @@ def export_inference_model(
             "--model-name",
             "tiny_image_net",
             "--handler",
-            "lightning_classy_vision/handler.py",
+            "lightning_classy_vision/handler/handler.py",
             "--version",
             "1",
             "--serialized-file",

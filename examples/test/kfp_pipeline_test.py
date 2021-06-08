@@ -6,10 +6,9 @@
 
 import os
 import os.path
+import sys
 import tempfile
 import unittest
-
-from examples import kfp_pipeline
 
 
 class ExamplesTest(unittest.TestCase):
@@ -18,7 +17,9 @@ class ExamplesTest(unittest.TestCase):
             orig_dir = os.getcwd()
             os.chdir(tmpdir)
 
-            kfp_pipeline.main(["--data_path", "foo", "--output_path", "bar"])
+            sys.argv = ["kfp_pipeline.py", "--data_path", "foo", "--output_path", "bar"]
+            from examples import kfp_pipeline  # noqa: F401
+
             self.assertTrue(os.path.exists("pipeline.yaml"))
 
             os.chdir(orig_dir)
