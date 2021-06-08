@@ -139,8 +139,12 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
         complex_type_def = cast(ast.Subscript, none_throws(arg_def.annotation))
         # pyre-fixme[16]: # TODO(aivanou) remove fixme
         if complex_type_def.value.id == "Optional":
-            # pyre-fixme[16]: # TODO(aivanou) remove fixme
-            complex_type_def = arg_def.annotation.slice.value
+            # ast module in python3.9 does not have ast.Index wrapper
+            if isinstance(complex_type_def.slice, ast.Index):
+                # pyre-fixme[16]: # TODO(aivanou) remove fixme
+                complex_type_def = complex_type_def.slice.value
+            else:
+                complex_type_def = complex_type_def.slice
             # Check if type is Optional[primitive_type]
             if isinstance(complex_type_def, ast.Name):
                 return []
@@ -153,13 +157,18 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
             )
             return [self._gen_linter_message(desc, arg_def.lineno)]
         linter_errors = []
+        # ast module in python3.9 does not have objects wrapped in ast.Index
+        if isinstance(complex_type_def.slice, ast.Index):
+            sub_type = complex_type_def.slice.value
+        else:
+            sub_type = complex_type_def.slice
         if type_name == "Dict":
-            sub_type_tuple = cast(ast.Tuple, complex_type_def.slice.value)
+            sub_type_tuple = cast(ast.Tuple, sub_type)
             for el in sub_type_tuple.elts:
                 if not isinstance(el, ast.Name):
                     desc = "Dict can only have primitive types"
                     linter_errors.append(self._gen_linter_message(desc, arg_def.lineno))
-        elif not isinstance(complex_type_def.slice.value, ast.Name):
+        elif not isinstance(sub_type, ast.Name):
             desc = "List can only have primitive types"
             linter_errors.append(self._gen_linter_message(desc, arg_def.lineno))
         return linter_errors
