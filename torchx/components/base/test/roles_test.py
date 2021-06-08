@@ -11,7 +11,7 @@ import unittest
 from dataclasses import asdict
 
 from torchx.components.base.roles import create_torch_dist_role
-from torchx.specs.api import NULL_CONTAINER, Container, Resource, Role, macros
+from torchx.specs.api import Resource, Role, macros
 
 
 class TorchDistRoleBuilderTest(unittest.TestCase):
@@ -23,14 +23,13 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         #                    --rdzv_backend etcd
         #                    --rdzv_id ${app_id}
         #                    /bin/echo hello world
-        container = Container(image="test_image")
-        container.ports(foo=8080)
         elastic_trainer = create_torch_dist_role(
             "elastic_trainer",
-            container,
+            image="test_image",
             entrypoint="/bin/echo",
             script_args=["hello", "world"],
             script_envs={"ENV_VAR_1": "FOOBAR"},
+            port_map={"foo": 8080},
             nnodes="2:4",
             max_restarts=3,
             no_python=True,
@@ -59,14 +58,13 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
             elastic_trainer.args,
         )
         self.assertEqual({"ENV_VAR_1": "FOOBAR"}, elastic_trainer.env)
-        self.assertEqual(container, elastic_trainer.container)
         self.assertEqual(2, elastic_trainer.num_replicas)
 
     def test_build_create_torch_dist_role_override_rdzv_params(self) -> None:
         role = create_torch_dist_role(
             "test_role",
-            NULL_CONTAINER,
-            "user_script.py",
+            image="torch_image",
+            entrypoint="user_script.py",
             script_args=["--script_arg", "foo"],
             nnodes="2:4",
             rdzv_backend="etcd",
@@ -93,7 +91,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
 
     def test_build_create_torch_dist_role_flag_args(self) -> None:
         role = create_torch_dist_role(
-            "test_role", NULL_CONTAINER, "user_script.py", no_python=False
+            "test_role", "torch_image", "user_script.py", no_python=False
         )
         self.assertEqual(
             [
@@ -115,7 +113,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
     ) -> None:
         role = create_torch_dist_role(
             "test_role",
-            NULL_CONTAINER,
+            "torch_image",
             os.path.join(macros.img_root, "user_script.py"),
             no_python=False,
         )
@@ -141,15 +139,14 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         utility to make it easy for users to create a Role with the entrypoint
         being ``torch.distributed.launch``
         """
-        resources = Resource(cpu=1, gpu=0, memMB=512)
-        container = Container(image="user_image", resources=resources).ports(
-            tensorboard=8080
-        )
+        resource = Resource(cpu=1, gpu=0, memMB=512)
         role = create_torch_dist_role(
             "test_role",
-            container,
+            "user_image",
             "user_script.py",
+            resource=resource,
             script_args=["--script_arg", "foo"],
+            port_map={"tensorboard": 8080},
             nnodes="2:4",
             rdzv_backend="etcd",
             rdzv_id="foobar",
@@ -157,15 +154,10 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
 
         # this is effectively JSON
         elastic_json = asdict(role)
-        container_json = elastic_json.pop("container")
-        resource_json = container_json.pop("resources")
-        container_json["resources"] = Resource(**resource_json)
-
-        role = Role(
-            **elastic_json,
-            container=Container(**container_json),
-        )
-        self.assertEqual(container, role.container)
+        resource_json = elastic_json.pop("resource")
+        elastic_json["resource"] = Resource(**resource_json)
+        role = Role(**elastic_json)
+        self.assertEqual(resource, role.resource)
         self.assertEqual(role.name, role.name)
         self.assertEqual(role.entrypoint, role.entrypoint)
         self.assertEqual(

@@ -22,11 +22,6 @@ Role
 .. autoclass:: RetryPolicy
    :members:
 
-Container
-------------
-.. autoclass:: Container
-   :members:
-
 Resource
 ------------
 .. autoclass:: Resource

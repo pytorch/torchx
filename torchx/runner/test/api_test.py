@@ -21,7 +21,6 @@ from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs.api import (
     AppDef,
     AppState,
-    Container,
     Resource,
     Role,
     RunConfig,
@@ -56,7 +55,6 @@ class RunnerTest(unittest.TestCase):
         self.cfg = RunConfig({"image_type": "dir"})
 
         # resource ignored for local scheduler; adding as an example
-        self.test_container = Container(image=self.test_dir).require(resource.SMALL)
 
     def tearDown(self) -> None:
         shutil.rmtree(self.test_dir)
@@ -67,24 +65,26 @@ class RunnerTest(unittest.TestCase):
             app = AppDef("no roles")
             runner.run(app)
 
-    def test_validate_no_container(self, _) -> None:
+    def test_validate_no_resource(self, _) -> None:
         runner = Runner("test", schedulers={"default": self.scheduler})
         with self.assertRaises(ValueError):
-            role = Role("no container").runs("echo", "hello_world")
-            app = AppDef("no container").of(role)
+            role = Role("no resource", image="no_image").runs("echo", "hello_world")
+            app = AppDef("no resource").of(role)
             runner.run(app)
 
     def test_validate_invalid_replicas(self, _) -> None:
         runner = Runner("test", schedulers={"default": self.scheduler})
         with self.assertRaises(ValueError):
-            container = Container("torch").require(Resource(cpu=1, gpu=0, memMB=500))
             role = (
-                Role("no container")
+                Role(
+                    "invalid replicas",
+                    image="torch",
+                    resource=Resource(cpu=1, gpu=0, memMB=500),
+                )
                 .runs("echo", "hello_world")
-                .on(container)
                 .replicas(0)
             )
-            app = AppDef("no container").of(role)
+            app = AppDef("invalid replicas").of(role)
             runner.run(app)
 
     def test_run(self, _) -> None:
@@ -95,8 +95,9 @@ class RunnerTest(unittest.TestCase):
             wait_interval=1,
         )
         self.assertEqual(1, len(session.scheduler_backends()))
-
-        role = Role(name="touch").runs("touch.sh", test_file).on(self.test_container)
+        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
+            "touch.sh", test_file
+        )
         app = AppDef("name").of(role)
 
         app_handle = session.run(app, cfg=self.cfg)
@@ -108,7 +109,9 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
         )
-        role = Role(name="touch").runs("echo", "hello world").on(self.test_container)
+        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
+            "echo", "hello world"
+        )
         app = AppDef("name").of(role)
         session.dryrun(app, "default", cfg=self.cfg)
         scheduler_mock.submit_dryrun.assert_called_once_with(app, self.cfg)
@@ -116,7 +119,9 @@ class RunnerTest(unittest.TestCase):
 
     def test_describe(self, _) -> None:
         session = Runner(name=SESSION_NAME, schedulers={"default": self.scheduler})
-        role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
+        role = Role(name="sleep", image=self.test_dir, resource=resource.SMALL).runs(
+            "sleep.sh", "60"
+        )
         app = AppDef("sleeper").of(role)
 
         app_handle = session.run(app, cfg=self.cfg)
@@ -128,7 +133,9 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
-        role = Role(name="touch").runs("sleep.sh", "1").on(self.test_container)
+        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
+            "sleep.sh", "1"
+        )
         app = AppDef("sleeper").of(role)
 
         num_apps = 4
@@ -152,7 +159,9 @@ class RunnerTest(unittest.TestCase):
             name=SESSION_NAME, schedulers={"default": scheduler}, wait_interval=1
         )
         test_file = os.path.join(self.test_dir, "test_file")
-        role = Role(name="touch").runs("touch.sh", test_file).on(self.test_container)
+        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
+            "touch.sh", test_file
+        )
         app = AppDef("touch_test_file").of(role)
 
         # local scheduler was setup with a cache size of 1
@@ -174,7 +183,9 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
-        role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
+        role = Role(name="sleep", image=self.test_dir, resource=resource.SMALL).runs(
+            "sleep.sh", "60"
+        )
         app = AppDef("sleeper").of(role)
         app_handle = session.run(app, cfg=self.cfg)
         app_status = none_throws(session.status(app_handle))
@@ -202,7 +213,9 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name="test_ui_url_session", schedulers={"default": mock_scheduler}
         )
-        role = Role("ignored").runs("/bin/echo").on(self.test_container)
+        role = Role("ignored", image=self.test_dir, resource=resource.SMALL).runs(
+            "/bin/echo"
+        )
         app_handle = session.run(AppDef(app_id).of(role))
         status = none_throws(session.status(app_handle))
         self.assertEquals(resp.ui_url, status.ui_url)
@@ -220,7 +233,9 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name="test_structured_msg", schedulers={"default": mock_scheduler}
         )
-        role = Role("ignored").runs("/bin/echo").on(self.test_container)
+        role = Role("ignored", image=self.test_dir, resource=resource.SMALL).runs(
+            "/bin/echo"
+        )
         app_handle = session.run(AppDef(app_id).of(role))
         status = none_throws(session.status(app_handle))
         self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
@@ -290,7 +305,9 @@ class RunnerTest(unittest.TestCase):
         schedulers = {"default": default_sched_mock, "local": local_sched_mock}
         session = Runner(name="test_session", schedulers=schedulers)
 
-        role = Role(name="sleep").runs("sleep.sh", "60").on(self.test_container)
+        role = Role(name="sleep", image=self.test_dir, resource=resource.SMALL).runs(
+            "sleep.sh", "60"
+        )
         app = AppDef("sleeper").of(role)
         cfg = RunConfig()
         session.run(app, scheduler="local", cfg=cfg)
@@ -310,9 +327,9 @@ class RunnerTest(unittest.TestCase):
         expected_app = AppDef(
             "ddp_app",
             roles=[
-                Role("worker")
-                .on(Container("dummy_image").require(Resource(1, 0, 1)))
-                .runs(entrypoint)
+                Role("worker", image="dummy_image", resource=Resource(1, 0, 1)).runs(
+                    entrypoint
+                )
             ],
         )
         self.assertDictEqual(asdict(expected_app), asdict(actual_app))
@@ -342,9 +359,9 @@ class RunnerTest(unittest.TestCase):
         expected_app = AppDef(
             "ddp_app",
             roles=[
-                Role("worker")
-                .on(Container("dummy_image").require(Resource(1, 0, 1)))
-                .runs(entrypoint)
+                Role("worker", image="dummy_image", resource=Resource(1, 0, 1)).runs(
+                    entrypoint
+                )
             ],
         )
         self.assertDictEqual(asdict(expected_app), asdict(actual_app))

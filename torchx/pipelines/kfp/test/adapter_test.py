@@ -118,24 +118,23 @@ class KFPSpecsTest(unittest.TestCase):
     """
 
     def _test_app(self) -> api.AppDef:
-        container = api.Container(
-            image="pytorch/torchx:latest",
-            resources=api.Resource(
-                cpu=2,
-                memMB=3000,
-                gpu=4,
-            ),
-            port_map={"foo": 1234},
-        )
         trainer_role = (
-            api.Role(name="trainer")
+            api.Role(
+                name="trainer",
+                image="pytorch/torchx:latest",
+                resource=api.Resource(
+                    cpu=2,
+                    memMB=3000,
+                    gpu=4,
+                ),
+                port_map={"foo": 1234},
+            )
             .runs(
                 "main",
                 "--output-path",
                 "blah",
                 FOO="bar",
             )
-            .on(container)
             .replicas(1)
         )
 
@@ -144,9 +143,9 @@ class KFPSpecsTest(unittest.TestCase):
     def test_component_spec_from_app(self) -> None:
         app = self._test_app()
 
-        spec, container = component_spec_from_app(app)
+        spec, role = component_spec_from_app(app)
         self.assertIsNotNone(components.load_component_from_text(spec))
-        self.assertEqual(container, app.roles[0].container)
+        self.assertEqual(role.resource, app.roles[0].resource)
         self.assertEqual(
             spec,
             """description: KFP wrapper for TorchX component test, role trainer

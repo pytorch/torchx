@@ -17,7 +17,7 @@ def binary_component(
     env: Optional[Dict[str, str]] = None,
 ) -> api.AppDef:
     """
-    binary_component creates a single binary and container component from the
+    binary_component creates a single binary component from the
     provided arguments.
 
     >>> from torchx.components.base.binary_component import binary_component
@@ -38,12 +38,10 @@ def binary_component(
         roles=[
             api.Role(
                 name=name,
+                image=image,
                 entrypoint=entrypoint,
                 args=args or [],
                 env=env or {},
-                container=api.Container(
-                    image=image,
-                ),
             ),
         ],
     )

@@ -82,8 +82,8 @@ Now copy paste the following into echo_torchx.py
              specs.Role(
                  name="echo",
                  entrypoint="/bin/echo",
+                 image="/tmp",
                  args=[f"replica #{specs.macros.replica_id}: msg"],
-                 container=specs.Container(image="/tmp"),
                  num_replicas=1,
              )
          ],

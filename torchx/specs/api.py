@@ -38,14 +38,13 @@ from torchx.util.types import decode_from_string, is_primitive
 
 SchedulerBackend = str
 
-
 # ========================================
 # ==== Distributed AppDef API =======
 # ========================================
 @dataclass
 class Resource:
     """
-    Represents resource requirements for a ``Container``.
+    Represents resource requirements for a ``Role``.
 
     Args:
         cpu: number of cpu cores (note: not hyper threads)
@@ -83,82 +82,11 @@ NULL_RESOURCE: Resource = Resource(cpu=-1, gpu=-1, memMB=-1)
 # used as "*" scheduler backend
 ALL: SchedulerBackend = "all"
 
-
-@dataclass
-class Container:
-    """
-    Represents the specifications of the container that instances of ``Roles``
-    run on. Maps to the container abstraction that the underlying scheduler
-    supports. This could be an actual container (e.g. Docker) or a physical
-    instance depending on the scheduler.
-
-    An ``image`` is a software bundle that is installed on a ``Container``.
-    The container on the scheduler dictates what an image actually is.
-    An image could be as simple as a tar-ball or map to a docker image.
-    The scheduler typically knows how to "pull" the image given an
-    image name (str), which could be a simple name (e.g. docker image) or a url
-    (e.g. ``s3://path/my_image.tar``).
-
-    A ``Resource`` can be bound to a specific scheduler backend or ``SchedulerBackend.ALL`` (default)
-    to specify that the same ``Resource`` is to be used for all schedulers.
-
-    An optional ``base_image`` can be specified if the scheduler supports a
-    concept of base images. For schedulers that run Docker containers the
-    base image is not useful since the application image itself can be
-    built from a base image (using the ``FROM base/image:latest`` construct in
-    the Dockerfile). However the base image is useful for schedulers that
-    work with simple image artifacts (e.g. ``*.tar.gz``) that do not have a built-in
-    concept of base images. For these schedulers, specifying a base image that
-    includes dependencies while the main image is the actual application code
-    makes it possible to make changes to the application code without incurring
-    the cost of re-building the uber artifact.
-
-    Usage:
-
-    .. code-block:: python
-
-     my_container = Container(
-        image="pytorch/torch:1",
-        resources=Resource(cpu=1, gpu=1, memMB=500),
-        port_map={"tcp_store":8080, "tensorboard": 8081}
-     )
-
-     # for schedulers that support base_images
-     my_container = Container(
-        image="my/trainer:1",
-        base_image="common/ml-tools:latest"
-     )
-
-    """
-
-    image: str
-    base_image: Optional[str] = None
-    resources: Resource = NULL_RESOURCE
-    port_map: Dict[str, int] = field(default_factory=dict)
-
-    def require(self, resources: Resource) -> "Container":
-        """
-        Sets resource requirements on the container.
-        """
-        self.resources = resources
-        return self
-
-    def ports(self, **kwargs: int) -> "Container":
-        """
-        Adds a port mapping for the container
-        """
-        self.port_map.update({**kwargs})
-        return self
-
-
 # sentinel value used to represent missing string attributes, such as image or entrypoint
 MISSING: str = "<MISSING>"
 
 # sentinel value used to represent "unset" optional string attributes
 NONE: str = "<NONE>"
-
-# sentinel value used as the "zero" element in the container group
-NULL_CONTAINER: Container = Container(image=MISSING)
 
 
 class macros:
@@ -169,7 +97,7 @@ class macros:
     Available macros:
 
     1. ``img_root`` - root directory of the pulled conatiner.image
-    2. ``base_img_root`` - root directory of the pulled container.base_image
+    2. ``base_img_root`` - root directory of the pulled role.base_image
                            (resolves to "<NONE>" if no base_image set)
     3. ``app_id`` - application id as assigned by the scheduler
     4. ``replica_id`` - unique id for each instance of a replica of a Role,
@@ -256,44 +184,72 @@ class Role:
 
     2. App with parameter server - made up of multiple roles (trainer, ps).
 
+    .. note:: An ``image`` is a software bundle that is installed on the container
+              scheduled by the scheduler. The container on the scheduler dictates
+              what an image actually is. An image could be as simple as a tar-ball
+              or map to a docker image. The scheduler typically knows how to "pull"
+              the image given an image name (str), which could be a simple name
+              (e.g. docker image) or a url e.g. ``s3://path/my_image.tar``).
+
+
+    .. note:: An optional ``base_image`` can be specified if the scheduler supports a
+              concept of base images. For schedulers that run Docker containers the
+              base image is not useful since the application image itself can be
+              built from a base image (using the ``FROM base/image:latest`` construct in
+              the Dockerfile). However the base image is useful for schedulers that
+              work with simple image artifacts (e.g. ``*.tar.gz``) that do not have a built-in
+              concept of base images. For these schedulers, specifying a base image that
+              includes dependencies while the main image is the actual application code
+              makes it possible to make changes to the application code without incurring
+              the cost of re-building the uber artifact.
+
     Usage:
 
     ::
 
-     trainer = Role(name="trainer")
+     trainer = Role(name="trainer", "pytorch/torch:1")
                  .runs("my_trainer.py", "--arg", "foo", ENV_VAR="FOOBAR")
-                 .on(container)
                  .replicas(4)
+                 .require(Resource(cpu=1, gpu=1, memMB=500))
+                 .ports({"tcp_store":8080, "tensorboard": 8081})
+
+
+     # for schedulers that support base_images
+     trainer = Role(name="trainer", image="pytorch/torch:1", base_image="common/ml-tools:latest")...
 
     Args:
             name: name of the role
+            image: a software bundle that is installed on a container.
+            base_image: Optional base image, if schedulers support image overlay
             entrypoint: command (within the container) to invoke the role
             args: commandline arguments to the entrypoint cmd
             env: environment variable mappings
-            container: container to run in
             replicas: number of container replicas to run
             max_retries: max number of retries before giving up
             retry_policy: retry behavior upon replica failures
-
+            resource: Resource requirement for the role. The role should be scheduled
+                by the scheduler on ``num_replicas`` container, each of them should have at
+                least ``resource`` guarantees.
+            port_map: Port mapping for the role. The key is the unique identifier of the port
+                e.g. "tensorboard": 9090
     """
 
     name: str
+    image: str
+    base_image: Optional[str] = None
     entrypoint: str = MISSING
     args: List[str] = field(default_factory=list)
     env: Dict[str, str] = field(default_factory=dict)
-    container: Container = NULL_CONTAINER
     num_replicas: int = 1
     max_retries: int = 0
     retry_policy: RetryPolicy = RetryPolicy.APPLICATION
+    resource: Resource = NULL_RESOURCE
+    port_map: Dict[str, int] = field(default_factory=dict)
 
     def runs(self, entrypoint: str, *args: str, **kwargs: str) -> "Role":
         self.entrypoint = entrypoint
         self.args += [*args]
         self.env.update({**kwargs})
-        return self
-
-    def on(self, container: Container) -> "Role":
-        self.container = container
         return self
 
     def replicas(self, replicas: int) -> "Role":
@@ -326,8 +282,23 @@ class ElasticRole(Role):
     Deprecated, use ``torchx.components.base.torch_dist_role`` method.
     """
 
-    def __init__(self, name: str, **launch_kwargs: Any) -> None:
-        super().__init__(name=name)
+    def __init__(
+        self,
+        name: str,
+        image: str,
+        base_image: Optional[str] = None,
+        resource: Resource = NULL_RESOURCE,
+        port_map: Optional[Dict[str, int]] = None,
+        **launch_kwargs: Any,
+    ) -> None:
+        port_map = port_map or {}
+        super().__init__(
+            name=name,
+            image=image,
+            base_image=base_image,
+            resource=resource,
+            port_map=port_map,
+        )
 
         warnings.warn(
             "ElasticRole is deprecated, use torchx.components.base.torch_dist_role factory method",

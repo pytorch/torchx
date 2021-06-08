@@ -18,6 +18,7 @@ class ServeTest(unittest.TestCase):
             roles=[
                 specs.Role(
                     name="torchx-serve-torchserve",
+                    image="torchx:latest",
                     entrypoint="python3",
                     args=[
                         "torchx/apps/serve/serve.py",
@@ -28,10 +29,7 @@ class ServeTest(unittest.TestCase):
                         "--initial_workers",
                         "1",
                     ],
-                    container=specs.Container(
-                        image="torchx:latest",
-                        port_map={"model-download": 8222},
-                    ),
+                    port_map={"model-download": 8222},
                 ),
             ],
         )

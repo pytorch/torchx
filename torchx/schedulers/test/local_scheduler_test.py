@@ -27,7 +27,6 @@ from torchx.schedulers.local_scheduler import (
 from torchx.specs.api import (
     AppDef,
     AppState,
-    Container,
     Role,
     RunConfig,
     is_terminal,
@@ -137,7 +136,6 @@ class LocalSchedulerTest(unittest.TestCase):
         )
         write_shell_script(self.test_dir, "echo_env_foo.sh", ["echo $FOO 1>&2"])
         self.scheduler = LocalScheduler(session_name="test_session")
-        self.test_container = Container(image=self.test_dir)
 
     def wait(
         self,
@@ -176,9 +174,8 @@ class LocalSchedulerTest(unittest.TestCase):
         test_file_name = f"{macros.app_id}_{macros.replica_id}"
         num_replicas = 2
         role = (
-            Role("role1")
+            Role("role1", image=self.test_dir)
             .runs("touch.sh", join(f"{macros.img_root}", test_file_name))
-            .on(self.test_container)
             .replicas(num_replicas)
         )
         app = AppDef(name="test_app").of(role)
@@ -197,7 +194,7 @@ class LocalSchedulerTest(unittest.TestCase):
                 os.path.isfile(join(self.test_dir, f"{expected_app_id}_{i}"))
             )
 
-        role = Role("role1").runs("fail.sh").on(self.test_container).replicas(2)
+        role = Role("role1", image=self.test_dir).runs("fail.sh").replicas(2)
         app = AppDef(name="test_app").of(role)
         expected_app_id = make_unique(app.name)
         with patch(LOCAL_SCHEDULER_MAKE_UNIQUE, return_value=expected_app_id):
@@ -214,13 +211,12 @@ class LocalSchedulerTest(unittest.TestCase):
         test_file_name = f"{macros.app_id}_{macros.replica_id}"
         num_replicas = 2
         role = (
-            Role("role1")
+            Role("role1", image=self.test_dir)
             .runs(
                 "env.sh",
                 join(f"{macros.img_root}", test_file_name),
                 FOO=join(macros.img_root, "config.yaml"),
             )
-            .on(self.test_container)
             .replicas(num_replicas)
         )
         app = AppDef(name="test_app").of(role)
@@ -246,7 +242,7 @@ class LocalSchedulerTest(unittest.TestCase):
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_inherit_parent_envs(self) -> None:
-        role = Role("echo_foo").runs("echo_env_foo.sh").on(self.test_container)
+        role = Role("echo_foo", image=self.test_dir).runs("echo_env_foo.sh")
         app = AppDef(name="check_foo_env_var").of(role)
         app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
         for line in self.scheduler.log_iter(app_id, "echo_foo"):
@@ -258,10 +254,8 @@ class LocalSchedulerTest(unittest.TestCase):
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_override_parent_env(self) -> None:
-        role = (
-            Role("echo_foo")
-            .runs("echo_env_foo.sh", FOO="new_bar")
-            .on(self.test_container)
+        role = Role("echo_foo", image=self.test_dir).runs(
+            "echo_env_foo.sh", FOO="new_bar"
         )
         app = AppDef(name="check_foo_env_var").of(role)
         app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
@@ -285,9 +279,8 @@ class LocalSchedulerTest(unittest.TestCase):
                 cfg = RunConfig({"log_dir": log_dir})
 
                 role = (
-                    Role("role1")
+                    Role("role1", image=self.test_dir)
                     .runs(f"echo_{std_stream}.sh", "hello_world")
-                    .on(self.test_container)
                     .replicas(num_replicas)
                 )
                 app = AppDef(name="test_app").of(role)
@@ -317,14 +310,10 @@ class LocalSchedulerTest(unittest.TestCase):
     def test_submit_dryrun_without_log_dir_cfg(
         self, img_provider_fetch_mock: mock.Mock
     ) -> None:
-        master = (
-            Role("master")
-            .runs("master.par", "arg1", ENV_VAR_1="VAL1")
-            .on(self.test_container)
+        master = Role("master", image=self.test_dir).runs(
+            "master.par", "arg1", ENV_VAR_1="VAL1"
         )
-        trainer = (
-            Role("trainer").runs("trainer.par").on(self.test_container).replicas(2)
-        )
+        trainer = Role("trainer", image=self.test_dir).runs("trainer.par").replicas(2)
 
         app = AppDef(name="test_app").of(master, trainer)
         cfg = RunConfig()
@@ -372,9 +361,7 @@ class LocalSchedulerTest(unittest.TestCase):
     def test_submit_dryrun_with_log_dir_cfg(
         self, img_provider_fetch_mock: mock.Mock
     ) -> None:
-        trainer = (
-            Role("trainer").runs("trainer.par").on(self.test_container).replicas(2)
-        )
+        trainer = Role("trainer", image=self.test_dir).runs("trainer.par").replicas(2)
 
         app = AppDef(name="test_app").of(trainer)
         cfg = RunConfig({"log_dir": self.test_dir})
@@ -419,9 +406,8 @@ class LocalSchedulerTest(unittest.TestCase):
 
     def test_log_iterator(self) -> None:
         role = (
-            Role("role1")
+            Role("role1", image=self.test_dir)
             .runs("echo_range.sh", "10", "0.5")
-            .on(self.test_container)
             .replicas(1)
         )
 
@@ -448,9 +434,8 @@ class LocalSchedulerTest(unittest.TestCase):
 
     def test_log_iterator_no_log_dir(self) -> None:
         role = (
-            Role("role1")
+            Role("role1", image=self.test_dir)
             .runs("echo_range.sh", "10", "0.5")
-            .on(self.test_container)
             .replicas(1)
         )
 
@@ -464,16 +449,10 @@ class LocalSchedulerTest(unittest.TestCase):
         test_file1 = join(self.test_dir, "test_file_1")
         test_file2 = join(self.test_dir, "test_file_2")
         role1 = (
-            Role("role1")
-            .runs("touch.sh", test_file1)
-            .on(self.test_container)
-            .replicas(1)
+            Role("role1", image=self.test_dir).runs("touch.sh", test_file1).replicas(1)
         )
         role2 = (
-            Role("role2")
-            .runs("touch.sh", test_file2)
-            .on(self.test_container)
-            .replicas(1)
+            Role("role2", image=self.test_dir).runs("touch.sh", test_file2).replicas(1)
         )
         app = AppDef(name="test_app").of(role1, role2)
         cfg = RunConfig({"log_dir": self.test_dir})
@@ -486,7 +465,7 @@ class LocalSchedulerTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(test_file2))
 
     def test_describe(self) -> None:
-        role = Role("role1").runs("sleep.sh", "2").on(self.test_container).replicas(1)
+        role = Role("role1", image=self.test_dir).runs("sleep.sh", "2").replicas(1)
         app = AppDef(name="test_app").of(role)
         cfg = RunConfig({"log_dir": self.test_dir})
         self.assertIsNone(self.scheduler.describe("test_app_0"))
@@ -499,7 +478,7 @@ class LocalSchedulerTest(unittest.TestCase):
         self.assertEqual(AppState.SUCCEEDED, desc_resp.state)
 
     def test_cancel(self) -> None:
-        role = Role("role1").runs("sleep.sh", "10").on(self.test_container).replicas(1)
+        role = Role("role1", image=self.test_dir).runs("sleep.sh", "10").replicas(1)
         app = AppDef(name="test_app").of(role)
         cfg = RunConfig({"log_dir": self.test_dir})
         app_id = self.scheduler.submit(app, cfg)
@@ -512,7 +491,7 @@ class LocalSchedulerTest(unittest.TestCase):
         self.assertEqual(AppState.CANCELLED, desc.state)
 
     def test_exists(self) -> None:
-        role = Role("role1").runs("sleep.sh", "10").on(self.test_container).replicas(1)
+        role = Role("role1", image=self.test_dir).runs("sleep.sh", "10").replicas(1)
         app = AppDef(name="test_app").of(role)
         cfg = RunConfig({"log_dir": self.test_dir})
         app_id = self.scheduler.submit(app, cfg)
@@ -530,8 +509,7 @@ class LocalSchedulerTest(unittest.TestCase):
 
     def test_cache_full(self) -> None:
         scheduler = LocalScheduler(session_name="test_session", cache_size=1)
-
-        role = Role("role1").runs("sleep.sh", "10").on(self.test_container).replicas(1)
+        role = Role("role1", image=self.test_dir).runs("sleep.sh", "10").replicas(1)
         app = AppDef(name="test_app").of(role)
         cfg = RunConfig({"log_dir": self.test_dir})
         scheduler.submit(app, cfg)
@@ -542,8 +520,9 @@ class LocalSchedulerTest(unittest.TestCase):
         scheduler = LocalScheduler(session_name="test_session", cache_size=1)
         test_file1 = join(self.test_dir, "test_file_1")
         test_file2 = join(self.test_dir, "test_file_2")
-        role1 = Role("role1").runs("touch.sh", test_file1).on(self.test_container)
-        role2 = Role("role2").runs("touch.sh", test_file2).on(self.test_container)
+
+        role1 = Role("role1", image=self.test_dir).runs("touch.sh", test_file1)
+        role2 = Role("role2", image=self.test_dir).runs("touch.sh", test_file2)
         app1 = AppDef(name="touch_test_file1").of(role1)
         app2 = AppDef(name="touch_test_file2").of(role2)
         cfg = RunConfig({"log_dir": self.test_dir})

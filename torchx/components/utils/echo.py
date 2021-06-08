@@ -20,9 +20,9 @@ def get_app_spec(msg: str = "hello world") -> specs.AppDef:
         roles=[
             specs.Role(
                 name="echo",
+                image="/tmp",
                 entrypoint="/bin/echo",
                 args=[msg],
-                container=specs.Container(image="/tmp"),
                 num_replicas=1,
             )
         ],

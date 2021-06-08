@@ -31,13 +31,14 @@ def classy_vision(
         load_path: path to load pretrained model from
         log_dir: path to save tensorboard logs to
     """
-    container = torchx.Container(image=image).require(
-        torchx.Resource(cpu=1, gpu=1, memMB=1024)
-    )
     entrypoint = "main"
 
     trainer_role = (
-        torchx.Role(name="trainer")
+        torchx.Role(
+            name="trainer",
+            image=image,
+            resource=torchx.Resource(cpu=1, gpu=1, memMB=1024),
+        )
         .runs(
             "main",
             "--output_path",
@@ -47,7 +48,6 @@ def classy_vision(
             "--log_dir",
             log_dir,
         )
-        .on(container)
         .replicas(1)
     )
 

@@ -353,7 +353,7 @@ class LocalScheduler(Scheduler):
     runs are ignored. Properties that are ignored:
 
     1. Resource requirements
-    2. Container limit enforcements
+    2. Resource limit enforcements
     3. Retry policies
     4. Retry counts (no retries supported)
     5. Deployment preferences
@@ -562,8 +562,7 @@ class LocalScheduler(Scheduler):
             replica_params = role_params.setdefault(role.name, [])
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
-            container = role.container
-            img_root = image_provider.fetch(container.image)
+            img_root = image_provider.fetch(role.image)
             cmd = os.path.join(img_root, role.entrypoint)
 
             for replica_id in range(role.num_replicas):
@@ -590,9 +589,7 @@ class LocalScheduler(Scheduler):
                     stdout = os.path.join(replica_log_dir, "stdout.log")
                     stderr = os.path.join(replica_log_dir, "stderr.log")
 
-                provider_cmd = image_provider.get_command(
-                    container.image, args, env_vars
-                )
+                provider_cmd = image_provider.get_command(role.image, args, env_vars)
 
                 replica_params.append(
                     ReplicaParam(provider_cmd, env_vars, stdout, stderr)
