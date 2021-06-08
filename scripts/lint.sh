@@ -12,9 +12,9 @@ then
     echo "Please install black."
     exit 1
 fi
-if [ ! "$(isort --version)" ]
+if [ ! "$(usort --version)" ]
 then
-    echo "Please install isort."
+    echo "Please install usort."
     exit 1
 fi
 if [ ! "$(flake8 --version)" ]
@@ -55,8 +55,7 @@ then
     for file in $CHANGED_FILES
     do
         echo "Checking $file"
-        isort "$file" --recursive --multi-line 3 --trailing-comma --force-grid-wrap 0 \
-            --line-width 88 --lines-after-imports 2 --combine-as --section-default THIRDPARTY -q
+        usort format "$file"
         black "$file" -q
         flake8 "$file" || LINT_ERRORS=1
         scripts/copyright.py "$file" || LINT_ERRORS=1
@@ -73,7 +72,7 @@ then
     exit 1
 fi
 
-# Check if any files were modified by running isort + black
+# Check if any files were modified by running usort + black
 # If so, then the files were formatted incorrectly (e.g. did not pass lint)
 CHANGED_FILES="$(git diff --name-only | grep '\.py$' | tr '\n' ' ')"
 if [ "$CHANGED_FILES" != "" ]

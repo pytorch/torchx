@@ -3,7 +3,7 @@ moto>=2.0.6
 kfp==1.6.2
 pyre-extensions>=0.0.21
 black>=21.5b1
-isort==4.3.21
+usort==0.6.4
 pytorch-lightning>=0.5.3
 torch>=1.8.1
 torchvision>=0.9.1
