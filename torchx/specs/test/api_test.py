@@ -6,9 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 
-import dataclasses
 import json
-import os
 import pathlib
 import sys
 import unittest
@@ -152,149 +150,6 @@ class RoleBuilderTest(unittest.TestCase):
         self.assertEqual(RetryPolicy.REPLICA, trainer.retry_policy)
 
 
-class ElasticRoleBuilderTest(unittest.TestCase):
-    def test_build_elastic_role(self) -> None:
-        # runs: python -m torchelastic.distributed.launch
-        #                    --nnodes 2:4
-        #                    --max_restarts 3
-        #                    --no_python True
-        #                    --rdzv_backend etcd
-        #                    --rdzv_id ${app_id}
-        #                    /bin/echo hello world
-        container = Container(image="test_image")
-        container.ports(foo=8080)
-        elastic_trainer = (
-            ElasticRole("elastic_trainer", nnodes="2:4", max_restarts=3, no_python=True)
-            .runs("/bin/echo", "hello", "world", ENV_VAR_1="FOOBAR")
-            .on(container)
-            .replicas(2)
-        )
-        self.assertEqual("elastic_trainer", elastic_trainer.name)
-        self.assertEqual("python", elastic_trainer.entrypoint)
-        self.assertEqual(
-            [
-                "-m",
-                "torchelastic.distributed.launch",
-                "--nnodes",
-                "2:4",
-                "--max_restarts",
-                "3",
-                "--no_python",
-                "--rdzv_backend",
-                "etcd",
-                "--rdzv_id",
-                macros.app_id,
-                "--role",
-                "elastic_trainer",
-                "/bin/echo",
-                "hello",
-                "world",
-            ],
-            elastic_trainer.args,
-        )
-        self.assertEqual({"ENV_VAR_1": "FOOBAR"}, elastic_trainer.env)
-        self.assertEqual(container, elastic_trainer.container)
-        self.assertEqual(2, elastic_trainer.num_replicas)
-
-    def test_build_elastic_role_override_rdzv_params(self) -> None:
-        role = ElasticRole(
-            "test_role", nnodes="2:4", rdzv_backend="etcd", rdzv_id="foobar"
-        ).runs("user_script.py", "--script_arg", "foo")
-        self.assertEqual(
-            [
-                "-m",
-                "torchelastic.distributed.launch",
-                "--nnodes",
-                "2:4",
-                "--rdzv_backend",
-                "etcd",
-                "--rdzv_id",
-                "foobar",
-                "--role",
-                "test_role",
-                os.path.join(macros.img_root, "user_script.py"),
-                "--script_arg",
-                "foo",
-            ],
-            role.args,
-        )
-
-    def test_build_elastic_role_flag_args(self) -> None:
-        role = ElasticRole("test_role", no_python=False).runs("user_script.py")
-        self.assertEqual(
-            [
-                "-m",
-                "torchelastic.distributed.launch",
-                "--rdzv_backend",
-                "etcd",
-                "--rdzv_id",
-                macros.app_id,
-                "--role",
-                "test_role",
-                os.path.join(macros.img_root, "user_script.py"),
-            ],
-            role.args,
-        )
-
-    def test_build_elastic_role_img_root_already_in_entrypoint(self) -> None:
-        role = ElasticRole("test_role", no_python=False).runs(
-            os.path.join(macros.img_root, "user_script.py")
-        )
-        self.assertEqual(
-            [
-                "-m",
-                "torchelastic.distributed.launch",
-                "--rdzv_backend",
-                "etcd",
-                "--rdzv_id",
-                macros.app_id,
-                "--role",
-                "test_role",
-                os.path.join(macros.img_root, "user_script.py"),
-            ],
-            role.args,
-        )
-
-    def test_json_serialization(self) -> None:
-        """
-        Tests that an ElasticRole can be serialized into json (dict)
-        then recreated as a Role. An ElasticRole is really just a builder
-        utility to make it easy for users to create a Role with the entrypoint
-        being ``torchelastic.distributed.launch``
-        """
-        resources = Resource(cpu=1, gpu=0, memMB=512)
-        container = Container(image="user_image", resources=resources).ports(
-            tensorboard=8080
-        )
-        elastic_role = (
-            ElasticRole(
-                "test_role", nnodes="2:4", rdzv_backend="etcd", rdzv_id="foobar"
-            )
-            .runs("user_script.py", "--script_arg", "foo")
-            .on(container)
-            .replicas(3)
-        )
-
-        # this is effectively JSON
-        elastic_json = dataclasses.asdict(elastic_role)
-        container_json = elastic_json.pop("container")
-        resource_json = container_json.pop("resources")
-        container_json["resources"] = Resource(**resource_json)
-
-        role = Role(
-            **elastic_json,
-            container=Container(**container_json),
-        )
-        self.assertEqual(container, role.container)
-        self.assertEqual(elastic_role.name, role.name)
-        self.assertEqual(elastic_role.entrypoint, role.entrypoint)
-        self.assertEqual(
-            elastic_role.args,
-            role.args,
-        )
-        self.assertEqual(dataclasses.asdict(elastic_role), dataclasses.asdict(role))
-
-
 class AppHandleTest(unittest.TestCase):
     def test_parse_malformed_app_handles(self) -> None:
         bad_app_handles = {
@@ -367,7 +222,7 @@ class RunConfigTest(unittest.TestCase):
         tests trivial serialization into dict then back
         """
         cfg = self.get_cfg()
-        ser = dataclasses.asdict(cfg)
+        ser = asdict(cfg)
         deser = RunConfig(**ser)
 
         self.assertEqual("root", deser.get("run_as"))
@@ -501,7 +356,7 @@ class MacrosTest(unittest.TestCase):
             replica_id="replica_id",
             base_img_root="base_img_root",
         )
-        for key, val in dataclasses.asdict(v).items():
+        for key, val in asdict(v).items():
             template = f"tmpl-{getattr(macros, key)}"
             self.assertEqual(v.substitute(template), f"tmpl-{val}")
 
@@ -686,3 +541,48 @@ class AppDefLoadTest(unittest.TestCase):
         filepath = str(pathlib.Path(__file__))
         actual_app = from_file(filepath, "test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
+
+
+class ElasticRoleBuilderTest(unittest.TestCase):
+    def test_build_elastic_role(self) -> None:
+        # runs: python -m torchelastic.distributed.launch
+        #                    --nnodes 2:4
+        #                    --max_restarts 3
+        #                    --no_python True
+        #                    --rdzv_backend etcd
+        #                    --rdzv_id ${app_id}
+        #                    /bin/echo hello world
+        container = Container(image="test_image")
+        container.ports(foo=8080)
+        elastic_trainer = (
+            ElasticRole("elastic_trainer", nnodes="2:4", max_restarts=3, no_python=True)
+            .runs("/bin/echo", "hello", "world", ENV_VAR_1="FOOBAR")
+            .on(container)
+            .replicas(2)
+        )
+        self.assertEqual("elastic_trainer", elastic_trainer.name)
+        self.assertEqual("python", elastic_trainer.entrypoint)
+        self.assertEqual(
+            [
+                "-m",
+                "torchelastic.distributed.launch",
+                "--nnodes",
+                "2:4",
+                "--max_restarts",
+                "3",
+                "--no_python",
+                "--rdzv_backend",
+                "etcd",
+                "--rdzv_id",
+                macros.app_id,
+                "--role",
+                "elastic_trainer",
+                "/bin/echo",
+                "hello",
+                "world",
+            ],
+            elastic_trainer.args,
+        )
+        self.assertEqual({"ENV_VAR_1": "FOOBAR"}, elastic_trainer.env)
+        self.assertEqual(container, elastic_trainer.container)
+        self.assertEqual(2, elastic_trainer.num_replicas)
