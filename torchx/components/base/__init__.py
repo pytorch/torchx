@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 from torchx.specs.api import NULL_RESOURCE, Resource, RetryPolicy, Role
 from torchx.util.entrypoints import load
 
-from .roles import create_torch_dist_role  # noqa: F401 F403
+from .roles import create_torch_dist_role
 
 
 def named_resource(name: str) -> Resource:
