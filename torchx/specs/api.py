@@ -761,12 +761,13 @@ def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], obj
 
 
 def _create_args_parser(
+    fn_name: str,
     parameters: Mapping[str, inspect.Parameter],
     function_desc: str,
     args_desc: Dict[str, str],
 ) -> argparse.ArgumentParser:
     script_parser = argparse.ArgumentParser(
-        prog="torchx run",
+        prog=f"torchx run ...torchx_params... {fn_name} ",
         description=f"App spec: {function_desc}",
     )
 
@@ -795,7 +796,9 @@ def _get_function_args(
     function_desc, args_desc = parse_fn_docstring(docstring)
 
     parameters = inspect.signature(app_fn).parameters
-    script_parser = _create_args_parser(parameters, function_desc, args_desc)
+    script_parser = _create_args_parser(
+        app_fn.__name__, parameters, function_desc, args_desc
+    )
 
     parsed_args = script_parser.parse_args(app_args)
 
