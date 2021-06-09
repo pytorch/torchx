@@ -16,9 +16,6 @@ Role
 .. autoclass:: Role
    :members:
 
-.. autoclass:: ElasticRole
-   :members:
-
 .. autoclass:: RetryPolicy
    :members:
 

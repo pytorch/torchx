@@ -43,7 +43,7 @@ def create_torch_dist_role(
     to fail and restart a maximum of 3 times.
 
     .. warning:: ``replicas`` MUST BE an integer between (inclusive) ``nnodes``. That is,
-                   ``ElasticRole("trainer", nnodes="2:4").replicas(5)`` is invalid and will
+                   ``Role("trainer", nnodes="2:4", num_replicas=5)`` is invalid and will
                    result in undefined behavior.
 
 
