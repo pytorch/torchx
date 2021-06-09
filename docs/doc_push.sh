@@ -29,6 +29,7 @@
 #   Makefile (redirect target)
 #  (on gh-pages branch) _layouts/docs_redirect.html
 
+set -ex
 dry_run=0
 for arg in "$@"; do
     shift
@@ -51,8 +52,8 @@ else
     redirects=(latest master)
 fi
 
-echo "Installing torchx from $repo_root/torchx..."
-cd "$repo_root/torchx" || exit
+echo "Installing torchx from $repo_root..."
+cd "$repo_root" || exit
 pip uninstall -y torchx
 python setup.py install
 
@@ -96,3 +97,4 @@ fi
 cd $gh_pages_dir || exit
 git add .
 git commit --quiet -m "[doc_push][$release_tag] built from $commit_id ($branch). Redirects: ${redirects[*]} -> $torchx_ver."
+git push
