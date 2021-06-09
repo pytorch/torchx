@@ -31,7 +31,7 @@ def to_list(arg: str) -> List[str]:
 
 
 # pyre-ignore-all-errors[3, 2]
-def decode_string_to_dict(
+def _decode_string_to_dict(
     encoded_value: str, param_type: Type[Dict[Any, Any]]
 ) -> Dict[Any, Any]:
     key_type, value_type = typing_inspect.get_args(param_type)
@@ -41,8 +41,12 @@ def decode_string_to_dict(
     return arg_values
 
 
-def decode_string_to_list(encoded_value: str, param_type: Type[List[Any]]) -> List[Any]:
+def _decode_string_to_list(
+    encoded_value: str, param_type: Type[List[Any]]
+) -> List[Any]:
     value_type = typing_inspect.get_args(param_type)[0]
+    if not is_primitive(value_type):
+        raise ValueError("List types support only primitives: int, str, float")
     arg_values = []
     for value in to_list(encoded_value):
         arg_values.append(value_type(value))
@@ -52,19 +56,67 @@ def decode_string_to_list(encoded_value: str, param_type: Type[List[Any]]) -> Li
 def decode_from_string(
     encoded_value: str, annotation: Any
 ) -> Union[Dict[Any, Any], List[Any], None]:
+    """Decodes string representation to the underlying type(Dict or List)
+
+    Given a string representation of the value, the method decodes it according
+    to the ``annotation`` type:
+
+    If ``annotation`` is list, the expected format of ``encoded_value`` is:
+    value1,value2,..
+
+    If ``annotation`` is dict, the expected format of ``encoded_value`` is:
+    key1=value,key2=value2
+
+    Args:
+        encoded_value: String encoded complex type, if empty value provided, method
+            will return None
+        annotation: Complex type. Currently supported list or dict
+
+    Returns:
+        List or Dict filled with decoded ``encoded_value``. The type of
+        elements in list or dict will be the same as the one in ``annotation``
+    """
+
     if not encoded_value:
         return None
     value_type = annotation
-    if value_type.__origin__ == Union:
-        value_type = annotation.__args__[0]
-    if value_type.__origin__ is dict:
-        return decode_string_to_dict(encoded_value, value_type)
-    elif value_type.__origin__ is list:
-        return decode_string_to_list(encoded_value, value_type)
+    value_origin = typing_inspect.get_origin(value_type)
+    if value_origin is dict:
+        return _decode_string_to_dict(encoded_value, value_type)
+    elif value_origin is list:
+        return _decode_string_to_list(encoded_value, value_type)
     else:
         raise ValueError("Unknown")
 
 
 def is_primitive(param_type: Any) -> bool:
+    """Check if the ``param_type`` primitive or not
+
+    Args:
+        param_type: Parameter type
+
+    Returns:
+        True if ``param_type`` is int, str or float, otherwise False
+    """
     TYPES = (int, str, float)
     return param_type in TYPES
+
+
+def decode_optional(param_type: Any) -> Any:
+    """Returns underlying type if optional
+
+    Args:
+        param_type: Parameter type
+
+    Returns:
+        If ``param_type`` is type Optional[INNER_TYPE], method returns INNER_TYPE
+        Otherwise returns ``param_type``
+    """
+    param_origin = typing_inspect.get_origin(param_type)
+    if param_origin is not Union:
+        return param_type
+    key_type, value_type = typing_inspect.get_args(param_type)
+    if value_type is type(None):
+        return key_type
+    else:
+        return param_type

@@ -390,6 +390,7 @@ def test_complex_fn(
     num_cpus: Optional[List[int]] = None,
     num_gpus: Optional[Dict[str, int]] = None,
     nnodes: int = 4,
+    first_arg: Optional[str] = None,
     *roles_args: str,
 ) -> AppDef:
     """Creates complex application, testing all possible complex types
@@ -401,6 +402,7 @@ def test_complex_fn(
         num_cpus: List of cpus per role
         num_gpus: Dict role_name -> gpus used for role
         nnodes: Num replicas per role
+        first_arg: First argument to the user script
         roles_args: Roles args
     """
     num_roles = len(roles_scripts)
@@ -415,9 +417,15 @@ def test_complex_fn(
         container_img = containers[idx]
         cpus = num_cpus[idx]
         gpus = num_gpus[role_name]
+        if first_arg:
+            args = [first_arg, *roles_args]
+        else:
+            args = [*roles_args]
         role = (
             Role(
-                role_name, container_img, resource=Resource(cpu=cpus, gpu=gpus, memMB=1)
+                role_name,
+                image=container_img,
+                resource=Resource(cpu=cpus, gpu=gpus, memMB=1),
             )
             .replicas(nnodes)
             .runs(role_script, *roles_args)
@@ -442,6 +450,7 @@ class AppDefLoadTest(unittest.TestCase):
             None,
             None,
             4,
+            None,
             *role_args,
         )
 
@@ -467,10 +476,11 @@ class AppDefLoadTest(unittest.TestCase):
             [1, 2],
             {"worker": 1, "master": 4},
             8,
+            "first_arg",
             *role_args,
         )
 
-    def _get_args_with_all_args(self) -> List[str]:
+    def _get_app_args(self) -> List[str]:
         role_args = self._get_role_args()
         return [
             "--app_name",
@@ -485,6 +495,8 @@ class AppDefLoadTest(unittest.TestCase):
             "worker=1,master=4",
             "--nnodes",
             "8",
+            "--first_arg",
+            "first_arg",
             "--",
             *role_args,
         ]
@@ -496,7 +508,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_load_from_fn_complex_all_args(self) -> None:
         expected_app = self._get_expected_app_with_all_args()
-        app_args = self._get_args_with_all_args()
+        app_args = self._get_app_args()
         actual_app = from_function(test_complex_fn, app_args)
         self.assert_apps(expected_app, actual_app)
 
@@ -508,7 +520,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_load_from_module_complex_all_args(self) -> None:
         expected_app = self._get_expected_app_with_all_args()
-        app_args = app_args = self._get_args_with_all_args()
+        app_args = app_args = self._get_app_args()
         curr_module = sys.modules[__name__]
         actual_app = from_module(curr_module, "test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
@@ -522,7 +534,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_load_from_file_complex_all_args(self) -> None:
         expected_app = self._get_expected_app_with_all_args()
-        app_args = app_args = self._get_args_with_all_args()
+        app_args = app_args = self._get_app_args()
         filepath = str(pathlib.Path(__file__))
         actual_app = from_file(filepath, "test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
