@@ -31,7 +31,7 @@ from typing import (
 from pyre_extensions import none_throws
 from torchx.specs.file_linter import parse_fn_docstring, validate
 from torchx.util.io import read_conf_file
-from torchx.util.types import decode_from_string, is_primitive
+from torchx.util.types import decode_from_string, is_primitive, decode_optional
 
 
 SchedulerBackend = str
@@ -804,8 +804,10 @@ def _get_function_args(
 
     for param_name, parameter in parameters.items():
         arg_value = getattr(parsed_args, param_name)
-        if not is_primitive(parameter.annotation):
-            arg_value = decode_from_string(arg_value, parameter.annotation)
+        parameter_type = parameter.annotation
+        parameter_type = decode_optional(parameter_type)
+        if not is_primitive(parameter_type):
+            arg_value = decode_from_string(arg_value, parameter_type)
         if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
             var_arg = arg_value
         else:
