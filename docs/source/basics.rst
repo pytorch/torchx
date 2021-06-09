@@ -44,8 +44,8 @@ Below is a simple example of an ``specs.AppDef`` that echos "hello world"
         specs.Role(
             name="echo",
             entrypoint="/bin/echo",
+            image="/tmp",
             args=["hello world"],
-            container=specs.Container(image="/tmp"),
             num_replicas=1
         )
     ]
@@ -90,15 +90,15 @@ of a homogeneous ``gang`` trainer app spec:
 
  def get_app_spec(jobname: str, nnodes: int, image: str, entrypoint: str, *script_args: str):
     single_gpu = specs.Resources(cpu=4, gpu=1, memMB=1024)
-    container = specs.Container(image=image, resources=single_gpu)
     return specs.AppDef(
             name=jobname,
             roles=[
                 specs.Role(
                     name="trainer",
                     entrypoint=entrypoint,
+                    image=image,
+                    resource=single_gpu,
                     args=script_args,
-                    container=container,
                     num_replicas=nnodes
                 )
             ]

@@ -244,8 +244,8 @@ class Scheduler(abc.ABC):
             ValueError: if application is not compatible with scheduler
         """
         for role in app.roles:
-            if role.container.resources == NULL_RESOURCE:
+            if role.resource == NULL_RESOURCE:
                 raise ValueError(
-                    f"No resources for container: {role.container.image}."
-                    f" Did you forget to call container.require(resources)"
+                    f"No resource for role: {role.image}."
+                    f" Did you forget to attach resource to the role"
                 )

@@ -128,20 +128,20 @@ class TorchXComponent:
         ...
 
 
-def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Container]:
+def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
     """
     component_spec_from_app takes in a TorchX component and generates the yaml
     spec for it. Notably this doesn't apply resources or port_maps since those
-    must be applied at runtime which is why it returns the container spec as well.
+    must be applied at runtime which is why it returns the role spec as well.
 
     >>> from torchx import specs
     >>> from torchx.pipelines.kfp.adapter import component_spec_from_app
     >>> app_def = specs.AppDef(
     ...     name="trainer",
-    ...     roles=[specs.Role("trainer", container=specs.Container(image="foo:latest"))],
+    ...     roles=[specs.Role("trainer", image="foo:latest")],
     ... )
     >>> component_spec_from_app(app_def)
-    ('description: ...', Container(...))
+    ('description: ...', Role(...))
     """
     assert len(app.roles) == 1, f"KFP adapter only support one role, got {app.roles}"
 
@@ -149,10 +149,8 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Container]:
     assert (
         role.num_replicas == 1
     ), f"KFP adapter only supports one replica, got {app.num_replicas}"
-    assert role.container != api.NULL_CONTAINER, "missing container for KFP"
 
-    container = role.container
-    assert container.base_image is None, "KFP adapter does not support base_image"
+    assert role.base_image is None, "KFP adapter does not support base_image"
 
     command = [role.entrypoint, *role.args]
 
@@ -161,13 +159,13 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Container]:
         "description": f"KFP wrapper for TorchX component {app.name}, role {role.name}",
         "implementation": {
             "container": {
-                "image": container.image,
+                "image": role.image,
                 "command": command,
                 "env": role.env,
             }
         },
     }
-    return yaml.dump(spec), container
+    return yaml.dump(spec), role
 
 
 class ContainerFactory(Protocol):
@@ -192,15 +190,15 @@ def component_from_app(app: api.AppDef) -> ContainerFactory:
     >>> from torchx.pipelines.kfp.adapter import component_from_app
     >>> app_def = specs.AppDef(
     ...     name="trainer",
-    ...     roles=[specs.Role("trainer", container=specs.Container(image="foo:latest"))],
+    ...     roles=[specs.Role("trainer", image="foo:latest")],
     ... )
     >>> component_from_app(app_def)
     <function component_from_app...>
     """
 
-    container_spec: api.Container
-    spec, container_spec = component_spec_from_app(app)
-    resources: api.Resource = container_spec.resources
+    role_spec: api.Role
+    spec, role_spec = component_spec_from_app(app)
+    resources: api.Resource = role_spec.resource
     assert (
         len(resources.capabilities) == 0
     ), f"KFP doesn't support capabilities, got {resources.capabilities}"
@@ -221,7 +219,7 @@ def component_from_app(app: api.AppDef) -> ContainerFactory:
         if (gpu := resources.gpu) >= 0:
             container.set_gpu_limit(str(gpu))
 
-        for name, port in container_spec.port_map.items():
+        for name, port in role_spec.port_map.items():
             container.add_port(
                 V1ContainerPort(
                     name=name,

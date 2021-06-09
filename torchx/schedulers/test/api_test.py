@@ -103,8 +103,7 @@ class SchedulerTest(unittest.TestCase):
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
         app_mock = MagicMock()
         app_mock.roles = [MagicMock()]
-        app_mock.roles[0].container = MagicMock()
-        app_mock.roles[0].container.resources = NULL_RESOURCE
+        app_mock.roles[0].resource = NULL_RESOURCE
 
         with self.assertRaises(ValueError):
             scheduler_mock._validate(app_mock, "local")

@@ -32,7 +32,8 @@ class MockRunner:
     def describe(self, app_handle: str) -> AppDef:
         scheduler_backend, session_name, app_id = parse_app_handle(app_handle)
         return AppDef(name=app_id).of(
-            Role(name="master").replicas(1), Role(name="trainer").replicas(3)
+            Role(name="master", image="test_image").replicas(1),
+            Role(name="trainer", image="test_image").replicas(3),
         )
 
     def log_lines(

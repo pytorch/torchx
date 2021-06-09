@@ -55,12 +55,10 @@ def torchserve(
         roles=[
             specs.Role(
                 name="torchx-serve-torchserve",
+                image=image,
                 entrypoint="python3",
                 args=args,
-                container=specs.Container(
-                    image=image,
-                    port_map={"model-download": 8222},
-                ),
+                port_map={"model-download": 8222},
             ),
         ],
     )

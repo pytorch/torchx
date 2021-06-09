@@ -17,12 +17,10 @@ class BinaryComponentTest(unittest.TestCase):
             roles=[
                 api.Role(
                     name="datapreproc",
+                    image="pytorch/pytorch:latest",
                     entrypoint="python3",
                     args=["--version"],
                     env={"FOO": "bar"},
-                    container=api.Container(
-                        image="pytorch/pytorch:latest",
-                    ),
                 ),
             ],
         )

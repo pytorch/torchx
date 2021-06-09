@@ -19,7 +19,6 @@ from torchx.runner.events import log_event
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import (
-    NULL_CONTAINER,
     AppDef,
     AppDryRunInfo,
     AppHandle,
@@ -251,11 +250,6 @@ class Runner:
                 raise ValueError(
                     f"Non-positive replicas for role: {role.name}."
                     f" Did you forget to call role.replicas(positive_number)?"
-                )
-            if role.container == NULL_CONTAINER:
-                raise ValueError(
-                    f"No container for role: {role.name}."
-                    f" Did you forget to call role.on(container)"
                 )
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)

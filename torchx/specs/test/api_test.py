@@ -17,12 +17,11 @@ from unittest.mock import MagicMock
 from torchx.specs.api import (
     _TERMINAL_STATES,
     MISSING,
-    NULL_CONTAINER,
+    NULL_RESOURCE,
     AppDef,
     AppDryRunInfo,
     AppState,
     AppStatus,
-    Container,
     ElasticRole,
     InvalidRunConfigException,
     MalformedAppHandleException,
@@ -103,48 +102,44 @@ class ResourceTest(unittest.TestCase):
         self.assertEqual(resource.capabilities["test_key"], "test_value")
 
 
-class ContainerBuilderTest(unittest.TestCase):
-    def test_create_container_with_resource(self) -> None:
-        res1 = Resource(cpu=1, gpu=2, memMB=128)
-        res2 = Resource(cpu=1, gpu=2, memMB=256)
-        container = Container("torch").require(res1).require(res2)
-        self.assertEqual(res2, container.resources)
-
-    def test_create_container_no_backend(self) -> None:
-        res1 = Resource(cpu=1, gpu=2, memMB=128)
-        container = Container("torch").require(res1)
-        self.assertEqual(res1, container.resources)
-
-
 class RoleBuilderTest(unittest.TestCase):
     def test_defaults(self) -> None:
-        default = Role("foobar")
+        default = Role("foobar", "torch")
         self.assertEqual("foobar", default.name)
+        self.assertEqual("torch", default.image)
+        self.assertIsNone(default.base_image)
         self.assertEqual(MISSING, default.entrypoint)
         self.assertEqual({}, default.env)
         self.assertEqual([], default.args)
-        self.assertEqual(NULL_CONTAINER, default.container)
+        self.assertEqual(NULL_RESOURCE, default.resource)
         self.assertEqual(1, default.num_replicas)
         self.assertEqual(0, default.max_retries)
         self.assertEqual(RetryPolicy.APPLICATION, default.retry_policy)
 
     def test_build_role(self) -> None:
         # runs: ENV_VAR_1=FOOBAR /bin/echo hello world
-        container = Container(image="test_image")
-        container.ports(foo=8080)
+        resource = Resource(cpu=1, gpu=2, memMB=128)
         trainer = (
-            Role("trainer")
+            Role(
+                "trainer",
+                "torch",
+                "base_image",
+                resource=resource,
+                port_map={"foo": 8080},
+            )
             .runs("/bin/echo", "hello", "world", ENV_VAR_1="FOOBAR")
-            .on(container)
             .replicas(2)
             .with_retry_policy(RetryPolicy.REPLICA, max_retries=5)
         )
 
         self.assertEqual("trainer", trainer.name)
+        self.assertEqual("torch", trainer.image)
+        self.assertEqual("base_image", trainer.base_image)
         self.assertEqual("/bin/echo", trainer.entrypoint)
         self.assertEqual({"ENV_VAR_1": "FOOBAR"}, trainer.env)
         self.assertEqual(["hello", "world"], trainer.args)
-        self.assertEqual(container, trainer.container)
+        self.assertDictEqual({"foo": 8080}, trainer.port_map)
+        self.assertEqual(resource, trainer.resource)
         self.assertEqual(2, trainer.num_replicas)
         self.assertEqual(5, trainer.max_retries)
         self.assertEqual(RetryPolicy.REPLICA, trainer.retry_policy)
@@ -182,8 +177,7 @@ class AppHandleTest(unittest.TestCase):
 
 class AppDefTest(unittest.TestCase):
     def test_application(self) -> None:
-        container = Container(image="test_image")
-        trainer = Role("trainer").runs("/bin/sleep", "10").on(container).replicas(2)
+        trainer = Role("trainer", "test_image").runs("/bin/sleep", "10").replicas(2)
         app = AppDef(name="test_app").of(trainer)
         self.assertEqual("test_app", app.name)
         self.assertEqual(1, len(app.roles))
@@ -361,7 +355,9 @@ class MacrosTest(unittest.TestCase):
             self.assertEqual(v.substitute(template), f"tmpl-{val}")
 
     def test_apply(self) -> None:
-        role = Role(name="test").runs("foo.py", macros.img_root, FOO=macros.app_id)
+        role = Role(name="test", image="test_image").runs(
+            "foo.py", macros.img_root, FOO=macros.app_id
+        )
         v = macros.Values(
             img_root="img_root",
             app_id="app_id",
@@ -375,8 +371,7 @@ class MacrosTest(unittest.TestCase):
 
 
 def get_dummy_application(role: str) -> AppDef:
-    container = Container(image="test_image")
-    trainer = Role(role).runs("main_script.py", "--train").on(container).replicas(2)
+    trainer = Role(role, "test_image").runs("main_script.py", "--train").replicas(2)
     return AppDef(name="test_app").of(trainer)
 
 
@@ -421,13 +416,11 @@ def test_complex_fn(
         container_img = containers[idx]
         cpus = num_cpus[idx]
         gpus = num_gpus[role_name]
-        container = Container(image=container_img).require(
-            Resource(cpu=cpus, gpu=gpus, memMB=1)
-        )
         role = (
-            Role(role_name)
+            Role(
+                role_name, container_img, resource=Resource(cpu=cpus, gpu=gpus, memMB=1)
+            )
             .replicas(nnodes)
-            .on(container)
             .runs(role_script, *roles_args)
         )
         roles.append(role)
@@ -552,12 +545,16 @@ class ElasticRoleBuilderTest(unittest.TestCase):
         #                    --rdzv_backend etcd
         #                    --rdzv_id ${app_id}
         #                    /bin/echo hello world
-        container = Container(image="test_image")
-        container.ports(foo=8080)
         elastic_trainer = (
-            ElasticRole("elastic_trainer", nnodes="2:4", max_restarts=3, no_python=True)
+            ElasticRole(
+                "elastic_trainer",
+                image="test_image",
+                port_map={"foo": 8080},
+                nnodes="2:4",
+                max_restarts=3,
+                no_python=True,
+            )
             .runs("/bin/echo", "hello", "world", ENV_VAR_1="FOOBAR")
-            .on(container)
             .replicas(2)
         )
         self.assertEqual("elastic_trainer", elastic_trainer.name)
@@ -584,5 +581,4 @@ class ElasticRoleBuilderTest(unittest.TestCase):
             elastic_trainer.args,
         )
         self.assertEqual({"ENV_VAR_1": "FOOBAR"}, elastic_trainer.env)
-        self.assertEqual(container, elastic_trainer.container)
         self.assertEqual(2, elastic_trainer.num_replicas)

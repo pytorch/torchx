@@ -5,19 +5,23 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+from dataclasses import field
 from typing import Any, Dict, List, Optional
 
-from torchx.specs.api import Container, RetryPolicy, Role, macros
+from torchx.specs.api import NULL_RESOURCE, Resource, RetryPolicy, Role, macros
 
 
 def create_torch_dist_role(
     name: str,
-    container: Container,
+    image: str,
     entrypoint: str,
+    resource: Resource = NULL_RESOURCE,
+    base_image: Optional[str] = None,
     script_args: Optional[List[str]] = None,
     script_envs: Optional[Dict[str, str]] = None,
     num_replicas: int = 1,
     max_retries: int = 0,
+    port_map: Dict[str, int] = field(default_factory=dict),
     retry_policy: RetryPolicy = RetryPolicy.APPLICATION,
     **launch_kwargs: Any,
 ) -> Role:
@@ -30,9 +34,9 @@ def create_torch_dist_role(
     `torchelastic quickstart docs <http://pytorch.org/elastic/0.2.0/quickstart.html>`__.
 
     .. important:: It is the responsibility of the user to ensure that the
-                   container's image includes torchelastic. Since Torchx has no
+                   role's image includes torchelastic. Since Torchx has no
                    control over the build process of the image, it cannot
-                   automatically include torchelastic in the container's image.
+                   automatically include torchelastic in the role's image.
 
     The following example launches 2 ``replicas`` (nodes) of an elastic ``my_train_script.py``
     that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed
@@ -44,10 +48,11 @@ def create_torch_dist_role(
 
 
     >>> from torchx.components.base.roles import create_torch_dist_role
-    >>> from torchx.specs.api import NULL_CONTAINER
+    >>> from torchx.specs.api import NULL_RESOURCE
     >>> elastic_trainer = create_torch_dist_role(
     ...     name="trainer",
-    ...     container=NULL_CONTAINER,
+    ...     image="<NONE>",
+    ...     resource=NULL_RESOURCE,
     ...     entrypoint="my_train_script.py",
     ...     script_args=["--script_arg", "foo", "--another_arg", "bar"],
     ...     num_replicas=4, max_retries=1,
@@ -61,13 +66,17 @@ def create_torch_dist_role(
     >>> elastic_trainer
     Role(name='trainer', ...)
 
+
     Args:
         name: Name of the role
         entrypoint: User binary or python script that will be launched.
+        resource: Resource that is requested by scheduler
+        base_image: Optional base image, if schedulers support image overlay
         script_args: User provided arguments
         script_envs: Env. variables that will be set on worker process that runs entrypoint
         num_replicas: Number of role replicas to run
         max_retries: Max number of retries
+        port_map: Port mapping for the role
         retry_policy: Retry policy that is applied to the role
         launch_kwargs: kwarg style launch arguments that will be used to launch torchelastic agent.
 
@@ -98,9 +107,14 @@ def create_torch_dist_role(
 
     args += [entrypoint, *script_args]
     return (
-        Role(name)
+        Role(
+            name,
+            image=image,
+            base_image=base_image,
+            resource=resource,
+            port_map=port_map,
+        )
         .runs(entrypoint_override, *args, **script_envs)
-        .on(container)
         .replicas(num_replicas)
         .with_retry_policy(retry_policy, max_retries)
     )

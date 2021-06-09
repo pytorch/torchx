@@ -12,7 +12,7 @@ TorchX's configurable extension points.
 """
 from typing import Any, Dict, List, Optional
 
-from torchx.specs.api import NULL_RESOURCE, Container, Resource, RetryPolicy, Role
+from torchx.specs.api import NULL_RESOURCE, Resource, RetryPolicy, Role
 from torchx.util.entrypoints import load
 
 from .roles import create_torch_dist_role  # noqa: F401 F403
@@ -25,12 +25,15 @@ def named_resource(name: str) -> Resource:
 
 def torch_dist_role(
     name: str,
-    container: Container,
+    image: str,
     entrypoint: str,
+    resource: Resource = NULL_RESOURCE,
+    base_image: Optional[str] = None,
     script_args: Optional[List[str]] = None,
     script_envs: Optional[Dict[str, str]] = None,
     num_replicas: int = 1,
     max_retries: int = 0,
+    port_map: Optional[Dict[str, int]] = None,
     retry_policy: RetryPolicy = RetryPolicy.APPLICATION,
     **launch_kwargs: Any,
 ) -> Role:
@@ -76,12 +79,15 @@ def torch_dist_role(
 
     return dist_role_factory(
         name,
-        container,
+        image,
         entrypoint,
+        resource,
+        base_image,
         script_args,
         script_envs,
         num_replicas,
         max_retries,
+        port_map or {},
         retry_policy,
         **launch_kwargs,
     )

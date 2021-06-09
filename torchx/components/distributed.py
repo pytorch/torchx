@@ -36,14 +36,15 @@ def ddp(
     app_env: Dict[str, str] = {}
     if env:
         app_env.update(env)
-    container = specs.Container(image="dummy_image").require(
-        resources=specs.Resource(cpu=1, gpu=0, memMB=1)
-    )
+
     entrypoint = os.path.join(specs.macros.img_root, script)
     ddp_role = (
-        specs.Role(name=role)
+        specs.Role(
+            name=role,
+            image="dummy_image",
+            resource=specs.Resource(cpu=1, gpu=0, memMB=1),
+        )
         .runs(entrypoint, *script_args, **app_env)
-        .on(container)
         .replicas(nnodes)
     )
 

@@ -18,9 +18,9 @@ def echo(msg: str = "hello world", image: str = "/tmp") -> specs.AppDef:
 
     echo = specs.Role(
         name="echo",
+        image=image,
         entrypoint="/bin/echo",
         args=[msg],
-        container=specs.Container(image=image),
         num_replicas=1,
     )
 
@@ -36,9 +36,9 @@ def touch(file: str) -> specs.AppDef:
 
     touch = specs.Role(
         name="touch",
+        image="/tmp",
         entrypoint="/bin/touch",
         args=[f"{file}"],
-        container=specs.Container(image="/tmp"),
         num_replicas=1,
     )
 
@@ -54,9 +54,9 @@ def touch_v2(file: str) -> specs.AppDef:
 
     touch = specs.Role(
         name="touch",
+        image="/tmp",
         entrypoint="/bin/touch",
         args=[f"{file}.testv2"],
-        container=specs.Container(image="/tmp"),
         num_replicas=1,
     )
 
@@ -73,30 +73,27 @@ def simple(
         trainer_image: The trainer image to use.
     """
 
-    trainer_container = specs.Container(image=trainer_image)
-    reader_container = specs.Container(image=trainer_image)
-
     trainer = specs.Role(
         name="trainer",
+        image=trainer_image,
         entrypoint="train_main.py",
         args=["--epochs", "50"],
         env={"MY_ENV_VAR": "foobar"},
-        container=trainer_container,
         num_replicas=num_trainers,
     )
 
     ps = specs.Role(
         name="parameter_server",
+        image=trainer_image,
         entrypoint="ps_main.py",
-        container=trainer_container,
         num_replicas=10,
     )
 
     reader = specs.Role(
         name="reader",
+        image=trainer_image,
         entrypoint="reader_main.py",
         args=["--buffer_size", "1024"],
-        container=reader_container,
         num_replicas=1,
     )
 
