@@ -5,6 +5,39 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+"""
+This file runs the KFP integration tests on KFP cluster. There's a number of
+environment variables that need to be setup as well as the cluster.
+
+See examples/pipelines/kfp/ for more information on how the cluster is used.
+
+Cluster setup:
+
+You'll need a KubeFlow Pipelines cluster with a torchserve instance with svc
+name torchserve on the default namespace.
+
+* https://www.kubeflow.org/docs/started/installing-kubeflow/
+* https://github.com/pytorch/serve/blob/master/kubernetes/README.md
+
+Environment variables:
+
+```
+export KFP_HOST=<kfp HTTP URL without any path>
+export KFP_USERNAME=<kfp username>
+export KFP_PASSWORD=<kfp password>
+export KFP_NAMESPACE=<kfp namespace>
+export INTEGRATION_TEST_STORAGE=<cloud storage path>
+export EXAMPLES_CONTAINER_REPO=<docker repo>
+export TORCHX_CONTAINER_REPO=<docker repo>
+```
+
+Once you have everything setup you can just run:
+
+scripts/kfpint.py
+
+
+"""
+
 import binascii
 import os
 import os.path
@@ -61,7 +94,7 @@ def build_examples_canary(id: str) -> str:
     examples_tag = f"{EXAMPLES_CONTAINER_REPO}:canary_{id}"
 
     print(f"building {examples_tag}")
-    run("docker", "build", "-t", examples_tag, "examples/")
+    run("docker", "build", "-t", examples_tag, "examples/apps/")
     run("docker", "push", examples_tag)
 
     return examples_tag
@@ -92,7 +125,7 @@ def run_test() -> None:
         print("generating pipeline spec")
         package = os.path.join(tmpdir, "pipeline.yml")
         run(
-            "examples/kfp_pipeline.py",
+            "examples/pipelines/kfp/kfp_pipeline.py",
             "--data_path",
             data,
             "--output_path",
