@@ -22,7 +22,6 @@ from torchx.specs.api import (
     AppDryRunInfo,
     AppState,
     AppStatus,
-    ElasticRole,
     InvalidRunConfigException,
     MalformedAppHandleException,
     Resource,
@@ -534,51 +533,3 @@ class AppDefLoadTest(unittest.TestCase):
         filepath = str(pathlib.Path(__file__))
         actual_app = from_file(filepath, "test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
-
-
-class ElasticRoleBuilderTest(unittest.TestCase):
-    def test_build_elastic_role(self) -> None:
-        # runs: python -m torchelastic.distributed.launch
-        #                    --nnodes 2:4
-        #                    --max_restarts 3
-        #                    --no_python True
-        #                    --rdzv_backend etcd
-        #                    --rdzv_id ${app_id}
-        #                    /bin/echo hello world
-        elastic_trainer = (
-            ElasticRole(
-                "elastic_trainer",
-                image="test_image",
-                port_map={"foo": 8080},
-                nnodes="2:4",
-                max_restarts=3,
-                no_python=True,
-            )
-            .runs("/bin/echo", "hello", "world", ENV_VAR_1="FOOBAR")
-            .replicas(2)
-        )
-        self.assertEqual("elastic_trainer", elastic_trainer.name)
-        self.assertEqual("python", elastic_trainer.entrypoint)
-        self.assertEqual(
-            [
-                "-m",
-                "torchelastic.distributed.launch",
-                "--nnodes",
-                "2:4",
-                "--max_restarts",
-                "3",
-                "--no_python",
-                "--rdzv_backend",
-                "etcd",
-                "--rdzv_id",
-                macros.app_id,
-                "--role",
-                "elastic_trainer",
-                "/bin/echo",
-                "hello",
-                "world",
-            ],
-            elastic_trainer.args,
-        )
-        self.assertEqual({"ENV_VAR_1": "FOOBAR"}, elastic_trainer.env)
-        self.assertEqual(2, elastic_trainer.num_replicas)

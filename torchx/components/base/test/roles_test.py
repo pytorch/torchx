@@ -91,7 +91,10 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
 
     def test_build_create_torch_dist_role_flag_args(self) -> None:
         role = create_torch_dist_role(
-            "test_role", "torch_image", "user_script.py", no_python=False
+            "test_role",
+            image="torch_image",
+            entrypoint="user_script.py",
+            no_python=False,
         )
         self.assertEqual(
             [
@@ -113,8 +116,8 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
     ) -> None:
         role = create_torch_dist_role(
             "test_role",
-            "torch_image",
-            os.path.join(macros.img_root, "user_script.py"),
+            image="torch_image",
+            entrypoint=os.path.join(macros.img_root, "user_script.py"),
             no_python=False,
         )
         self.assertEqual(
@@ -134,16 +137,16 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
 
     def test_json_serialization_factory(self) -> None:
         """
-        Tests that an ElasticRole can be serialized into json (dict)
-        then recreated as a Role. An ElasticRole is really just a builder
+        Tests that an Role with torchx dist run can be serialized into json (dict)
+        then recreated as a Role. It is really just a builder
         utility to make it easy for users to create a Role with the entrypoint
         being ``torch.distributed.launch``
         """
         resource = Resource(cpu=1, gpu=0, memMB=512)
         role = create_torch_dist_role(
             "test_role",
-            "user_image",
-            "user_script.py",
+            image="user_image",
+            entrypoint="user_script.py",
             resource=resource,
             script_args=["--script_arg", "foo"],
             port_map={"tensorboard": 8080},

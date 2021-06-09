@@ -10,8 +10,6 @@ import argparse
 import copy
 import inspect
 import json
-import os
-import warnings
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from string import Template
@@ -275,61 +273,6 @@ class Role:
         order that is defined by the ``AppDef.roles`` list.
         """
         return dryrun_info
-
-
-class ElasticRole(Role):
-    """
-    Deprecated, use ``torchx.components.base.torch_dist_role`` method.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        image: str,
-        base_image: Optional[str] = None,
-        resource: Resource = NULL_RESOURCE,
-        port_map: Optional[Dict[str, int]] = None,
-        **launch_kwargs: Any,
-    ) -> None:
-        port_map = port_map or {}
-        super().__init__(
-            name=name,
-            image=image,
-            base_image=base_image,
-            resource=resource,
-            port_map=port_map,
-        )
-
-        warnings.warn(
-            "ElasticRole is deprecated, use torchx.components.base.torch_dist_role factory method",
-            category=DeprecationWarning,
-        )
-        self.entrypoint = "python"
-        self.args: List[str] = []
-        self.args += ["-m", "torchelastic.distributed.launch"]
-        self.torchelastic_launch_args: List[str] = []
-
-        launch_kwargs.setdefault("rdzv_backend", "etcd")
-        launch_kwargs.setdefault("rdzv_id", macros.app_id)
-        launch_kwargs.setdefault("role", name)
-
-        for (arg, val) in launch_kwargs.items():
-            if isinstance(val, bool):
-                # treat boolean kwarg as a flag
-                if val:
-                    self.torchelastic_launch_args += [f"--{arg}"]
-            else:
-                self.torchelastic_launch_args += [f"--{arg}", str(val)]
-
-    def runs(self, entrypoint: str, *args: str, **kwargs: str) -> "ElasticRole":
-        if not os.path.isabs(entrypoint) and not entrypoint.startswith(macros.img_root):
-            # make entrypoint relative to {img_root} ONLY if it is not an absolute path
-            entrypoint = os.path.join(macros.img_root, entrypoint)
-
-        self.args += self.torchelastic_launch_args
-        self.args += [entrypoint, *args]
-        self.env.update({**kwargs})
-        return self
 
 
 @dataclass
