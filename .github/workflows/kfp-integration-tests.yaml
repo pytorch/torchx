@@ -1,13 +1,14 @@
 name: KFP Integration Tests
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
+  workflow_run:
+    workflows: ["KFP Pipeline Build"]
+    types:
+      - completed
 
 jobs:
-  kfp:
+  kfp-launch:
+    if: github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-18.04
     steps:
       - name: Setup Python
@@ -24,6 +25,12 @@ jobs:
         run: |
           set -eux
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
+      - name: Download kfp-build
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          run_id: ${{github.event.workflow_run.id }}
+          name: kfp-build
+          path: kfp-build/
       - name: Install dependencies
         run: |
           set -eux
@@ -38,4 +45,4 @@ jobs:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           EXAMPLES_CONTAINER_REPO: ${{ secrets.EXAMPLES_CONTAINER_REPO }}
           TORCHX_CONTAINER_REPO: ${{ secrets.TORCHX_CONTAINER_REPO }}
-        run: scripts/kfpint.py
+        run: scripts/kfpint.py --path kfp-build/ --load
