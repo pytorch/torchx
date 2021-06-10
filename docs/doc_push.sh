@@ -39,6 +39,7 @@ for arg in "$@"; do
     esac
 done
 
+repo_origin="$(git remote get-url origin)"
 repo_root=$(git rev-parse --show-toplevel)
 branch=$(git rev-parse --abbrev-ref HEAD)
 commit_id=$(git rev-parse --short HEAD)
@@ -55,6 +56,7 @@ fi
 echo "Installing torchx from $repo_root..."
 cd "$repo_root" || exit
 pip uninstall -y torchx
+pip install -r dev-requirements.txt
 python setup.py install
 
 torchx_ver=$(python -c "import torchx; print(torchx.__version__)")
@@ -77,7 +79,7 @@ rm -rf "${tmp_dir:?}"
 
 echo "Checking out gh-pages branch..."
 gh_pages_dir="$tmp_dir/torchx_gh_pages"
-git clone -b gh-pages --single-branch git@github.com:pytorch/torchx.git  $gh_pages_dir
+git clone -b gh-pages --single-branch "$repo_origin"  $gh_pages_dir
 
 echo "Copying doc pages for $torchx_ver into $gh_pages_dir..."
 rm -rf "${gh_pages_dir:?}/${torchx_ver:?}"
@@ -95,6 +97,17 @@ if [ "$release_tag" != "master" ]; then
 fi
 
 cd $gh_pages_dir || exit
+
+echo "Regenerating versions index"
+tree -L 1 -d -I '_*' -H "/torchx" -T "TorchX Versions" -v -r -o versions.html
+cat <<- EOF >> versions.html
+<style>
+.VERSION{
+  display: none;
+}
+</style>
+EOF
+
 git add .
 git commit --quiet -m "[doc_push][$release_tag] built from $commit_id ($branch). Redirects: ${redirects[*]} -> $torchx_ver."
 git push
