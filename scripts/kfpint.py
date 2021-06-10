@@ -61,9 +61,14 @@ class BuildInfo:
     examples_image: str
 
 
+class MissingEnvError(AssertionError):
+    pass
+
+
 def getenv_asserts(env: str) -> str:
     v = os.getenv(env)
-    assert v, f"must have {env} environment variable"
+    if not v:
+        raise MissingEnvError(f"must have {env} environment variable")
     return v
 
 
@@ -99,17 +104,17 @@ def rand_id() -> str:
 
 
 def torchx_container_tag(id: str) -> str:
-    TORCHX_CONTAINER_REPO = getenv_asserts("TORCHX_CONTAINER_REPO")
-    return f"{TORCHX_CONTAINER_REPO}:canary_{id}"
+    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
+    return f"{CONTAINER_REPO}:canary_{id}_torchx"
 
 
 def examples_container_tag(id: str) -> str:
-    EXAMPLES_CONTAINER_REPO = getenv_asserts("EXAMPLES_CONTAINER_REPO")
-    return f"{EXAMPLES_CONTAINER_REPO}:canary_{id}"
+    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
+    return f"{CONTAINER_REPO}:canary_{id}_examples"
 
 
 def build_examples_canary(id: str) -> str:
-    examples_tag = examples_container_tag(id)
+    examples_tag = "torchx_examples_canary"
 
     print(f"building {examples_tag}")
     run("docker", "build", "-t", examples_tag, "examples/apps/")
@@ -118,7 +123,7 @@ def build_examples_canary(id: str) -> str:
 
 
 def build_torchx_canary(id: str) -> str:
-    torchx_tag = torchx_container_tag(id)
+    torchx_tag = "torchx_canary"
 
     print(f"building {torchx_tag}")
     run("./torchx/runtime/container/build.sh")
@@ -147,31 +152,22 @@ def save_build(path: str, build: BuildInfo) -> None:
     with open(meta_path, "wt") as f:
         json.dump(dataclasses.asdict(build), f)
 
-    image_path = os.path.join(path, IMAGES_FILE)
-    run(
-        "sh",
-        "-c",
-        f"docker save {build.torchx_image} {build.examples_image} | zstd -f - -o {image_path}",
-    )
-
 
 def load_build(path: str) -> BuildInfo:
     meta_path = os.path.join(path, META_FILE)
     with open(meta_path, "rt") as f:
         data = json.load(f)
-    build = BuildInfo(*data)
-
-    image_path = os.path.join(path, IMAGES_FILE)
-    run("sh", "-c", f"zstd -f -d {image_path} -c | docker load")
-    return build
+    return BuildInfo(*data)
 
 
 def push_images(build: BuildInfo) -> None:
     examples_tag = examples_container_tag(build.id)
-    assert build.examples_image == examples_tag, "must have the same torchx image"
+    run("docker", "tag", build.examples_image, examples_tag)
+    build.examples_image = examples_tag
 
     torchx_tag = torchx_container_tag(build.id)
-    assert build.torchx_image == torchx_tag, "must have the same torchx image"
+    run("docker", "tag", build.torchx_image, torchx_tag)
+    build.torchx_image = torchx_tag
 
     run("docker", "push", examples_tag)
     run("docker", "push", torchx_tag)
@@ -187,8 +183,7 @@ def save_spec(path: str, build: BuildInfo) -> None:
     torchx_image = build.torchx_image
     examples_image = build.examples_image
 
-    STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE")
-    assert STORAGE_PATH, "must have INTEGRATION_TEST_STORAGE environment variable"
+    STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(STORAGE_PATH, id)
     data = os.path.join(root, "data")
     output = os.path.join(root, "output")
@@ -245,7 +240,13 @@ def main() -> None:
             build = load_build(path)
         else:
             build = build_pipeline()
-            save_spec(pipeline_file, build)
+            try:
+                push_images(build)
+            except MissingEnvError as e:
+                print(f"Missing environments, only building: {e}")
+                return
+            finally:
+                save_spec(pipeline_file, build)
 
         if args.save:
             save_build(path, build)
@@ -260,7 +261,7 @@ def main() -> None:
                 arguments={},
                 namespace=NAMESPACE,
                 experiment_name="integration-tests",
-                run_name=f"integration test {id}",
+                run_name=f"integration test {build.id}",
             )
             print("waiting for completion", resp)
             ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
