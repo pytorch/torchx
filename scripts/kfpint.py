@@ -38,15 +38,27 @@ scripts/kfpint.py
 
 """
 
+import argparse
 import binascii
+import dataclasses
+import json
 import os
 import os.path
 import subprocess
 import tempfile
+from contextlib import contextmanager
 from getpass import getuser
+from typing import Optional, Iterator
 
 import kfp
 import requests
+
+
+@dataclasses.dataclass
+class BuildInfo:
+    id: str
+    torchx_image: str
+    examples_image: str
 
 
 def getenv_asserts(env: str) -> str:
@@ -55,16 +67,12 @@ def getenv_asserts(env: str) -> str:
     return v
 
 
-NAMESPACE: str = getenv_asserts("KFP_NAMESPACE")
-HOST: str = getenv_asserts("KFP_HOST")
-
-
-def get_client() -> kfp.Client:
+def get_client(host: str, namespace: str) -> kfp.Client:
     USERNAME = getenv_asserts("KFP_USERNAME")
     PASSWORD = getenv_asserts("KFP_PASSWORD")
 
     session = requests.Session()
-    response = session.get(HOST)
+    response = session.get(host)
 
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -75,13 +83,14 @@ def get_client() -> kfp.Client:
     session_cookie = session.cookies.get_dict()["authservice_session"]
 
     return kfp.Client(
-        host=f"{HOST}/pipeline",
+        host=f"{host}/pipeline",
         cookies=f"authservice_session={session_cookie}",
-        namespace=NAMESPACE,
+        namespace=namespace,
     )
 
 
 def run(*args: str) -> None:
+    print(f"run {args}")
     subprocess.run(args, check=True)
 
 
@@ -89,74 +98,178 @@ def rand_id() -> str:
     return binascii.b2a_hex(os.urandom(8)).decode("utf-8")
 
 
-def build_examples_canary(id: str) -> str:
+def torchx_container_tag(id: str) -> str:
+    TORCHX_CONTAINER_REPO = getenv_asserts("TORCHX_CONTAINER_REPO")
+    return f"{TORCHX_CONTAINER_REPO}:canary_{id}"
+
+
+def examples_container_tag(id: str) -> str:
     EXAMPLES_CONTAINER_REPO = getenv_asserts("EXAMPLES_CONTAINER_REPO")
-    examples_tag = f"{EXAMPLES_CONTAINER_REPO}:canary_{id}"
+    return f"{EXAMPLES_CONTAINER_REPO}:canary_{id}"
+
+
+def build_examples_canary(id: str) -> str:
+    examples_tag = examples_container_tag(id)
 
     print(f"building {examples_tag}")
     run("docker", "build", "-t", examples_tag, "examples/apps/")
-    run("docker", "push", examples_tag)
 
     return examples_tag
 
 
 def build_torchx_canary(id: str) -> str:
-    TORCHX_CONTAINER_REPO = getenv_asserts("TORCHX_CONTAINER_REPO")
-    torchx_tag = f"{TORCHX_CONTAINER_REPO}:canary_{id}"
+    torchx_tag = torchx_container_tag(id)
 
     print(f"building {torchx_tag}")
     run("./torchx/runtime/container/build.sh")
     run("docker", "tag", "torchx", torchx_tag)
-    run("docker", "push", torchx_tag)
 
     return torchx_tag
 
 
-def run_test() -> None:
-    STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE")
-    assert STORAGE_PATH, "must have INTEGRATION_TEST_STORAGE environment variable"
+def build_pipeline() -> BuildInfo:
     id = f"{getuser()}_{rand_id()}"
     examples_image = build_examples_canary(id)
     torchx_image = build_torchx_canary(id)
+    return BuildInfo(
+        id=id,
+        torchx_image=torchx_image,
+        examples_image=examples_image,
+    )
+
+
+META_FILE = "meta"
+IMAGES_FILE = "images.tar.zst"
+
+
+def save_build(path: str, build: BuildInfo) -> None:
+    meta_path = os.path.join(path, META_FILE)
+    with open(meta_path, "wt") as f:
+        json.dump(dataclasses.asdict(build), f)
+
+    image_path = os.path.join(path, IMAGES_FILE)
+    run(
+        "sh",
+        "-c",
+        f"docker save {build.torchx_image} {build.examples_image} | zstd -f - -o {image_path}",
+    )
+
+
+def load_build(path: str) -> BuildInfo:
+    meta_path = os.path.join(path, META_FILE)
+    with open(meta_path, "rt") as f:
+        data = json.load(f)
+    build = BuildInfo(*data)
+
+    image_path = os.path.join(path, IMAGES_FILE)
+    run("sh", "-c", f"zstd -f -d {image_path} -c | docker load")
+    return build
+
+
+def push_images(build: BuildInfo) -> None:
+    examples_tag = examples_container_tag(build.id)
+    assert build.examples_image == examples_tag, "must have the same torchx image"
+
+    torchx_tag = torchx_container_tag(build.id)
+    assert build.torchx_image == torchx_tag, "must have the same torchx image"
+
+    run("docker", "push", examples_tag)
+    run("docker", "push", torchx_tag)
+
+
+PIPELINE_FILE = "pipeline.yaml"
+
+
+def save_spec(path: str, build: BuildInfo) -> None:
+    print("generating pipeline spec")
+
+    id = build.id
+    torchx_image = build.torchx_image
+    examples_image = build.examples_image
+
+    STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE")
+    assert STORAGE_PATH, "must have INTEGRATION_TEST_STORAGE environment variable"
     root = os.path.join(STORAGE_PATH, id)
     data = os.path.join(root, "data")
     output = os.path.join(root, "output")
-    with tempfile.TemporaryDirectory() as tmpdir:
-        print("generating pipeline spec")
-        package = os.path.join(tmpdir, "pipeline.yml")
-        run(
-            "examples/pipelines/kfp/kfp_pipeline.py",
-            "--data_path",
-            data,
-            "--output_path",
-            output,
-            "--image",
-            examples_image,
-            "--package_path",
-            package,
-            "--torchx_image",
-            torchx_image,
-            "--model_name",
-            f"tiny_image_net_{id}",
-        )
 
-        print("launching run")
-        client = get_client()
-        resp = client.create_run_from_pipeline_package(
-            package,
-            arguments={},
-            namespace=NAMESPACE,
-            experiment_name="integration-tests",
-            run_name=f"integration test {id}",
-        )
-        print("waiting for completion", resp)
-        ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
-        print(f"view run at {ui_url}")
-        result = resp.wait_for_run_completion(timeout=1 * 60 * 60)  # 1 hour
-        print("finished", result)
-        print(f"view run at {ui_url}")
-        assert result.run.status == "Succeeded", "run didn't succeed"
+    run(
+        "examples/pipelines/kfp/kfp_pipeline.py",
+        "--data_path",
+        data,
+        "--output_path",
+        output,
+        "--image",
+        examples_image,
+        "--package_path",
+        path,
+        "--torchx_image",
+        torchx_image,
+        "--model_name",
+        f"tiny_image_net_{id}",
+    )
+
+
+@contextmanager
+def path_or_tmp(path: Optional[str]) -> Iterator[str]:
+    if path:
+        os.makedirs(path, exist_ok=True)
+        yield path
+    else:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield tmpdir
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="kfp integration test runner")
+    parser.add_argument(
+        "--path",
+        type=str,
+        help="path to place the files",
+    )
+    parser.add_argument(
+        "--load",
+        help="if specified load the build from path instead of building",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--save",
+        help="if specified save the build to path and exit",
+        action="store_true",
+    )
+    args = parser.parse_args()
+
+    with path_or_tmp(args.path) as path:
+        pipeline_file = os.path.join(path, PIPELINE_FILE)
+        if args.load:
+            build = load_build(path)
+        else:
+            build = build_pipeline()
+            save_spec(pipeline_file, build)
+
+        if args.save:
+            save_build(path, build)
+        else:
+            print("launching run")
+            NAMESPACE: str = getenv_asserts("KFP_NAMESPACE")
+            HOST: str = getenv_asserts("KFP_HOST")
+
+            client = get_client(HOST, NAMESPACE)
+            resp = client.create_run_from_pipeline_package(
+                pipeline_file,
+                arguments={},
+                namespace=NAMESPACE,
+                experiment_name="integration-tests",
+                run_name=f"integration test {id}",
+            )
+            print("waiting for completion", resp)
+            ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
+            print(f"view run at {ui_url}")
+            result = resp.wait_for_run_completion(timeout=1 * 60 * 60)  # 1 hour
+            print("finished", result)
+            print(f"view run at {ui_url}")
+            assert result.run.status == "Succeeded", "run didn't succeed"
 
 
 if __name__ == "__main__":
-    run_test()
+    main()
