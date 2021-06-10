@@ -11,14 +11,14 @@ import tempfile
 import unittest
 
 
-class ExamplesTest(unittest.TestCase):
+class KFPPipelineTest(unittest.TestCase):
     def test_kfp_pipeline(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             orig_dir = os.getcwd()
             os.chdir(tmpdir)
 
             sys.argv = ["kfp_pipeline.py", "--data_path", "foo", "--output_path", "bar"]
-            from examples import kfp_pipeline  # noqa: F401
+            from examples.pipelines.kfp import kfp_pipeline  # noqa: F401
 
             self.assertTrue(os.path.exists("pipeline.yaml"))
 

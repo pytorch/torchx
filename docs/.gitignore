@@ -1,2 +1,2 @@
 src/pytorch-sphinx-theme
-source/auto_examples/
+source/examples_*/

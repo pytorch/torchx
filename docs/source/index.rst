@@ -32,10 +32,11 @@ Documentation
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Examples
 
-   auto_examples/index
+   examples_apps/index
+   examples_pipelines/index
 
 
 .. _torchx.api:

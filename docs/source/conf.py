@@ -295,6 +295,12 @@ TypedField.make_field = patched_make_field
 
 # -- Options for Sphinx-Gallery -----
 sphinx_gallery_conf = {
-    "examples_dirs": "../../examples",  # path to your example scripts
-    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
+    "examples_dirs": [
+        "../../examples/apps",
+        "../../examples/pipelines",
+    ],
+    "gallery_dirs": [
+        "examples_apps",
+        "examples_pipelines",
+    ],
 }
