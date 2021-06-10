@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -223,17 +232,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
@@ -333,13 +349,87 @@
 <span class="sd">for ``Role``, ``Container``, and ``Resources`` that are hooked up to</span>
 <span class="sd">TorchX&#39;s configurable extension points.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">NULL_RESOURCE</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">Role</span>
+<span class="kn">from</span> <span class="nn">torchx.util.entrypoints</span> <span class="kn">import</span> <span class="n">load</span>
+
+<span class="kn">from</span> <span class="nn">.roles</span> <span class="kn">import</span> <span class="n">create_torch_dist_role</span>
 
 
-<div class="viewcode-block" id="named_resource"><a class="viewcode-back" href="../../../components/base.html#torchx.components.base.named_resource">[docs]</a><span class="k">def</span> <span class="nf">named_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">:</span>
+<div class="viewcode-block" id="named_resource"><a class="viewcode-back" href="../../../components/base.html#torchx.components.base.named_resource">[docs]</a><span class="k">def</span> <span class="nf">named_resource</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="c1"># TODO &lt;PLACEHOLDER&gt; read instance types and resource mappings from entrypoints</span>
-    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">NULL_RESOURCE</span></div>
+    <span class="k">return</span> <span class="n">NULL_RESOURCE</span></div>
+
+
+<span class="k">def</span> <span class="nf">torch_dist_role</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span><span class="p">,</span>
+    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">script_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">script_envs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">port_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">retry_policy</span><span class="p">:</span> <span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">launch_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Role</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A ``Role`` for which the user provided ``entrypoint`` is executed with the</span>
+<span class="sd">        torchelastic agent (in the container). Note that the torchelastic agent</span>
+<span class="sd">        invokes multiple copies of ``entrypoint``.</span>
+
+<span class="sd">    The method will try to search factory method that is registerred via entrypoints.</span>
+<span class="sd">    If no group or role found, the default ``torchx.components.base.role.create_torch_dist_role``</span>
+<span class="sd">    will be used.</span>
+
+<span class="sd">    For more information see ``torchx.components.base.roles``</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # nnodes and nproc_per_node correspond to the ``torch.distributed.launch`` arguments. More</span>
+<span class="sd">     # info about available arguments: https://pytorch.org/docs/stable/distributed.html#launch-utility</span>
+<span class="sd">     trainer = torch_dist_role(&quot;trainer&quot;,container, entrypoint=&quot;trainer.py&quot;,.., nnodes=2, nproc_per_node=4)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Name of the role</span>
+<span class="sd">        container: Container</span>
+<span class="sd">        entrypoint: Script or binary to launch</span>
+<span class="sd">        script_args: Arguments to the script</span>
+<span class="sd">        script_envs: Env. variables to the worker</span>
+<span class="sd">        num_replicas: Number of replicas</span>
+<span class="sd">        max_retries: Number of retries</span>
+<span class="sd">        retry_policy: ``torchx.specs.api.RetryPolicy``</span>
+<span class="sd">        launch_kwargs: ``torch.distributed.launch`` arguments.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Torchx role</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dist_role_factory</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span>
+        <span class="s2">&quot;torchx.base&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dist_role&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">create_torch_dist_role</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dist_role_factory</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">,</span>
+        <span class="n">entrypoint</span><span class="p">,</span>
+        <span class="n">resource</span><span class="p">,</span>
+        <span class="n">base_image</span><span class="p">,</span>
+        <span class="n">script_args</span><span class="p">,</span>
+        <span class="n">script_envs</span><span class="p">,</span>
+        <span class="n">num_replicas</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">,</span>
+        <span class="n">port_map</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="n">retry_policy</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">launch_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 
              </article>
@@ -388,6 +478,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>

@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -223,17 +232,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
@@ -342,10 +358,9 @@
 <span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">get_schedulers</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">Scheduler</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">NULL_CONTAINER</span><span class="p">,</span>
+    <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">AppHandle</span><span class="p">,</span>
-    <span class="n">Application</span><span class="p">,</span>
     <span class="n">AppStatus</span><span class="p">,</span>
     <span class="n">RunConfig</span><span class="p">,</span>
     <span class="n">SchedulerBackend</span><span class="p">,</span>
@@ -366,7 +381,7 @@
 <div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Torchx individual component runner. Has the methods for the user to</span>
-<span class="sd">    act upon ``Applications``. The ``Runner`` is stateful and</span>
+<span class="sd">    act upon ``AppDefs``. The ``Runner`` is stateful and</span>
 <span class="sd">    represents a logical workspace of the user. It can be backed by a service</span>
 <span class="sd">    (e.g. Torchx server) for persistence or can be standalone with no persistence</span>
 <span class="sd">    meaning that the ``Runner`` lasts only during the duration of the hosting</span>
@@ -387,7 +402,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span> <span class="o">=</span> <span class="n">schedulers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wait_interval</span> <span class="o">=</span> <span class="n">wait_interval</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">Application</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="Runner.run_from_path"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_from_path">[docs]</a>    <span class="k">def</span> <span class="nf">run_from_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -470,7 +485,7 @@
 
 <div class="viewcode-block" id="Runner.run"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">app</span><span class="p">:</span> <span class="n">Application</span><span class="p">,</span>
+        <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
@@ -539,7 +554,7 @@
 
 <div class="viewcode-block" id="Runner.dryrun"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.dryrun">[docs]</a>    <span class="k">def</span> <span class="nf">dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">app</span><span class="p">:</span> <span class="n">Application</span><span class="p">,</span>
+        <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object</span>
@@ -574,11 +589,6 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Non-positive replicas for role: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="sa">f</span><span class="s2">&quot; Did you forget to call role.replicas(positive_number)?&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">container</span> <span class="o">==</span> <span class="n">NULL_CONTAINER</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;No container for role: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; Did you forget to call role.on(container)&quot;</span>
                 <span class="p">)</span>
         <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
         <span class="n">sched</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">)</span>
@@ -673,7 +683,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wait_interval</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Runner.list"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">Application</span><span class="p">]:</span>
+<div class="viewcode-block" id="Runner.list"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the applications that were run with this session mapped by the app handle.</span>
 <span class="sd">        The persistence of the session is implementation dependent.</span>
@@ -703,7 +713,7 @@
             <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">status</span><span class="o">.</span><span class="n">is_terminal</span><span class="p">():</span>
                 <span class="n">scheduler</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Runner.describe"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Application</span><span class="p">]:</span>
+<div class="viewcode-block" id="Runner.describe"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppDef</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstructs the application (to the best extent) given the app handle.</span>
 <span class="sd">        Note that the reconstructed application may not be the complete app as</span>
@@ -711,7 +721,7 @@
 <span class="sd">        is scheduler dependent.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Application or None if the app does not exist anymore or if the</span>
+<span class="sd">            AppDef or None if the app does not exist anymore or if the</span>
 <span class="sd">            scheduler does not support describing the app handle</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scheduler</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">app_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_app_id</span><span class="p">(</span>
@@ -724,7 +734,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">app</span><span class="p">:</span>
                 <span class="n">desc</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
-                    <span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">desc</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+                    <span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">desc</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">app</span></div>
 
 <div class="viewcode-block" id="Runner.log_lines"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.log_lines">[docs]</a>    <span class="k">def</span> <span class="nf">log_lines</span><span class="p">(</span>
@@ -888,6 +898,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>

@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <!-- Google Analytics -->
@@ -223,17 +232,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
 </ul>
@@ -320,8 +336,12 @@
               
   <h1>All modules for which code is available</h1>
 <ul><li><a href="torchx/components/base.html">torchx.components.base</a></li>
-<li><a href="torchx/components/dist/ddp.html">torchx.components.dist.ddp</a></li>
+<ul><li><a href="torchx/components/base/binary_component.html">torchx.components.base.binary_component</a></li>
+<li><a href="torchx/components/base/roles.html">torchx.components.base.roles</a></li>
+</ul><li><a href="torchx/components/dist/ddp.html">torchx.components.dist.ddp</a></li>
+<li><a href="torchx/components/serve/serve.html">torchx.components.serve.serve</a></li>
 <li><a href="torchx/components/utils/echo.html">torchx.components.utils.echo</a></li>
+<li><a href="torchx/pipelines/kfp/adapter.html">torchx.pipelines.kfp.adapter</a></li>
 <li><a href="torchx/runner/api.html">torchx.runner.api</a></li>
 <li><a href="torchx/schedulers.html">torchx.schedulers</a></li>
 <ul><li><a href="torchx/schedulers/api.html">torchx.schedulers.api</a></li>
@@ -375,6 +395,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
          <script src="../_static/doctools.js"></script>

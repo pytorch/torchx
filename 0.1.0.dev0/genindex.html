@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
   <!-- Google Analytics -->
@@ -223,17 +232,24 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
@@ -325,6 +341,7 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
@@ -346,9 +363,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.runopts.add">add() (torchx.specs.runopts method)</a>
 </li>
-      <li><a href="specs.html#torchx.specs.Application.add_metadata">add_metadata() (torchx.specs.Application method)</a>
+      <li><a href="specs.html#torchx.specs.AppDef.add_metadata">add_metadata() (torchx.specs.AppDef method)</a>
 </li>
-      <li><a href="specs.html#torchx.specs.Application">Application (class in torchx.specs)</a>
+      <li><a href="specs.html#torchx.specs.AppDef">AppDef (class in torchx.specs)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -361,16 +378,30 @@
   </ul></td>
 </tr></table>
 
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/base.html#torchx.components.base.binary_component.binary_component">binary_component() (in module torchx.components.base.binary_component)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers.html#torchx.schedulers.Scheduler.cancel">cancel() (torchx.schedulers.Scheduler method)</a>
 </li>
+      <li><a href="pipelines.html#torchx.pipelines.kfp.adapter.component_from_app">component_from_app() (in module torchx.pipelines.kfp.adapter)</a>
+</li>
+      <li><a href="pipelines.html#torchx.pipelines.kfp.adapter.component_spec_from_app">component_spec_from_app() (in module torchx.pipelines.kfp.adapter)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs.html#torchx.specs.Container">Container (class in torchx.specs)</a>
+      <li><a href="pipelines.html#torchx.pipelines.kfp.adapter.ContainerFactory">ContainerFactory (class in torchx.pipelines.kfp.adapter)</a>
 </li>
       <li><a href="specs.html#torchx.specs.Resource.copy">copy() (torchx.specs.Resource static method)</a>
+</li>
+      <li><a href="components/base.html#torchx.components.base.roles.create_torch_dist_role">create_torch_dist_role() (in module torchx.components.base.roles)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -395,10 +426,6 @@
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs.html#torchx.specs.ElasticRole">ElasticRole (class in torchx.specs)</a>
-</li>
-  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers.html#torchx.schedulers.Scheduler.exists">exists() (torchx.schedulers.Scheduler method)</a>
 </li>
@@ -492,11 +519,21 @@
 </li>
         <li><a href="components/base.html#module-torchx.components.base">torchx.components.base</a>
 </li>
+        <li><a href="components/base.html#module-torchx.components.base.binary_component">torchx.components.base.binary_component</a>
+</li>
+        <li><a href="components/base.html#module-torchx.components.base.roles">torchx.components.base.roles</a>
+</li>
         <li><a href="components/distributed.html#module-torchx.components.dist">torchx.components.dist</a>
 </li>
         <li><a href="components/hpo.html#module-torchx.components.hpo">torchx.components.hpo</a>
 </li>
+        <li><a href="components/serve.html#module-torchx.components.serve">torchx.components.serve</a>
+</li>
         <li><a href="components/utils.html#module-torchx.components.utils">torchx.components.utils</a>
+</li>
+        <li><a href="pipelines.html#module-torchx.pipelines">torchx.pipelines</a>
+</li>
+        <li><a href="pipelines.html#module-torchx.pipelines.kfp">torchx.pipelines.kfp</a>
 </li>
         <li><a href="runner.html#module-torchx.runner">torchx.runner</a>
 </li>
@@ -521,10 +558,6 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs.html#torchx.specs.Container.ports">ports() (torchx.specs.Container method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.Role.pre_proc">pre_proc() (torchx.specs.Role method)</a>
 </li>
   </ul></td>
@@ -534,8 +567,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.ReplicaState">ReplicaState (in module torchx.specs)</a>
-</li>
-      <li><a href="specs.html#torchx.specs.Container.require">require() (torchx.specs.Container method)</a>
 </li>
       <li><a href="specs.html#torchx.specs.runopts.resolve">resolve() (torchx.specs.runopts method)</a>
 </li>
@@ -601,6 +632,8 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/serve.html#torchx.components.serve.serve.torchserve">torchserve() (in module torchx.components.serve.serve)</a>
+</li>
       <li>
     torchx.cli
 
@@ -623,6 +656,20 @@
 </li>
       </ul></li>
       <li>
+    torchx.components.base.binary_component
+
+      <ul>
+        <li><a href="components/base.html#module-torchx.components.base.binary_component">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchx.components.base.roles
+
+      <ul>
+        <li><a href="components/base.html#module-torchx.components.base.roles">module</a>
+</li>
+      </ul></li>
+      <li>
     torchx.components.dist
 
       <ul>
@@ -639,10 +686,31 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
+    torchx.components.serve
+
+      <ul>
+        <li><a href="components/serve.html#module-torchx.components.serve">module</a>
+</li>
+      </ul></li>
+      <li>
     torchx.components.utils
 
       <ul>
         <li><a href="components/utils.html#module-torchx.components.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchx.pipelines
+
+      <ul>
+        <li><a href="pipelines.html#module-torchx.pipelines">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchx.pipelines.kfp
+
+      <ul>
+        <li><a href="pipelines.html#module-torchx.pipelines.kfp">module</a>
 </li>
       </ul></li>
       <li>
@@ -732,6 +800,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

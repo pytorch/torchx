@@ -5,10 +5,10 @@ torchx.specs
 .. currentmodule:: torchx.specs
 
 
-Application
+AppDef
 ------------
 
-.. autoclass:: Application
+.. autoclass:: AppDef
    :members:
 
 Role
@@ -16,15 +16,7 @@ Role
 .. autoclass:: Role
    :members:
 
-.. autoclass:: ElasticRole
-   :members:
-
 .. autoclass:: RetryPolicy
-   :members:
-
-Container
-------------
-.. autoclass:: Container
    :members:
 
 Resource

@@ -27,13 +27,22 @@
 
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Distributed" href="distributed.html" />
-    <link rel="prev" title="torchx.schedulers" href="../schedulers.html" />
+    <link rel="prev" title="torchx.pipelines" href="../pipelines.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -225,17 +234,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
@@ -331,9 +347,95 @@ other components. Many methods in the base component library are factory methods
 for <code class="docutils literal notranslate"><span class="pre">Role</span></code>, <code class="docutils literal notranslate"><span class="pre">Container</span></code>, and <code class="docutils literal notranslate"><span class="pre">Resources</span></code> that are hooked up to
 TorchX’s configurable extension points.</p>
 <dl class="py function">
-<dt id="torchx.components.base.named_resource">
-<code class="sig-prename descclassname"><span class="pre">torchx.components.base.</span></code><code class="sig-name descname"><span class="pre">named_resource</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">torchx.specs.api.Resource</span><a class="reference internal" href="../_modules/torchx/components/base.html#named_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.base.named_resource" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.components.base.named_resource">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.base.</span></span><span class="sig-name descname"><span class="pre">named_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">torchx.specs.api.Resource</span></a><a class="reference internal" href="../_modules/torchx/components/base.html#named_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.base.named_resource" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<span class="target" id="module-torchx.components.base.binary_component"></span><dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.base.binary_component.binary_component">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.base.binary_component.</span></span><span class="sig-name descname"><span class="pre">binary_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/base/binary_component.html#binary_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.base.binary_component.binary_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>binary_component creates a single binary component from the
+provided arguments.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.base.binary_component</span> <span class="kn">import</span> <span class="n">binary_component</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binary_component</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;datapreproc&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;pytorch/pytorch:latest&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--version&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">env</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;FOO&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">AppDef(name=&#39;datapreproc&#39;, ...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<span class="target" id="module-torchx.components.base.roles"></span><dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.base.roles.create_torch_dist_role">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.base.roles.</span></span><span class="sig-name descname"><span class="pre">create_torch_dist_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">image:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">entrypoint:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">resource:</span> <span class="pre">torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></em>, <em class="sig-param"><span class="pre">gpu=-1</span></em>, <em class="sig-param"><span class="pre">memMB=-1</span></em>, <em class="sig-param"><span class="pre">capabilities={})</span></em>, <em class="sig-param"><span class="pre">base_image:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">script_args:</span> <span class="pre">Optional[List[str]]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">script_envs:</span> <span class="pre">Optional[Dict[str</span></em>, <em class="sig-param"><span class="pre">str]]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">port_map:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">Field(name=None</span></em>, <em class="sig-param"><span class="pre">type=None</span></em>, <em class="sig-param"><span class="pre">default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">default_factory=&lt;class</span> <span class="pre">'dict'&gt;</span></em>, <em class="sig-param"><span class="pre">init=True</span></em>, <em class="sig-param"><span class="pre">repr=True</span></em>, <em class="sig-param"><span class="pre">hash=None</span></em>, <em class="sig-param"><span class="pre">compare=True</span></em>, <em class="sig-param"><span class="pre">metadata=mappingproxy({})</span></em>, <em class="sig-param"><span class="pre">_field_type=None)</span></em>, <em class="sig-param"><span class="pre">retry_policy:</span> <span class="pre">torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">&lt;RetryPolicy.APPLICATION:</span> <span class="pre">'APPLICATION'&gt;</span></em>, <em class="sig-param"><span class="pre">**launch_kwargs:</span> <span class="pre">Any</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">torchx.specs.api.Role</span></a><a class="reference internal" href="../_modules/torchx/components/base/roles.html#create_torch_dist_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.base.roles.create_torch_dist_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="docutils literal notranslate"><span class="pre">Role</span></code> for which the user provided <code class="docutils literal notranslate"><span class="pre">entrypoint</span></code> is executed with the
+torchelastic agent (in the container). Note that the torchelastic agent
+invokes multiple copies of <code class="docutils literal notranslate"><span class="pre">entrypoint</span></code>.</p>
+<p>For more information about torchelastic see
+<a class="reference external" href="http://pytorch.org/elastic/0.2.0/quickstart.html">torchelastic quickstart docs</a>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>It is the responsibility of the user to ensure that the
+role’s image includes torchelastic. Since Torchx has no
+control over the build process of the image, it cannot
+automatically include torchelastic in the role’s image.</p>
+</div>
+<p>The following example launches 2 <code class="docutils literal notranslate"><span class="pre">replicas</span></code> (nodes) of an elastic <code class="docutils literal notranslate"><span class="pre">my_train_script.py</span></code>
+that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed
+to fail and restart a maximum of 3 times.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">replicas</span></code> MUST BE an integer between (inclusive) <code class="docutils literal notranslate"><span class="pre">nnodes</span></code>. That is,
+<code class="docutils literal notranslate"><span class="pre">Role(&quot;trainer&quot;,</span> <span class="pre">nnodes=&quot;2:4&quot;,</span> <span class="pre">num_replicas=5)</span></code> is invalid and will
+result in undefined behavior.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.base.roles</span> <span class="kn">import</span> <span class="n">create_torch_dist_role</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">NULL_RESOURCE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elastic_trainer</span> <span class="o">=</span> <span class="n">create_torch_dist_role</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&lt;NONE&gt;&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">resource</span><span class="o">=</span><span class="n">NULL_RESOURCE</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;my_train_script.py&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">script_args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--script_arg&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;--another_arg&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">num_replicas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="s2">&quot;2:4&quot;</span><span class="p">,</span> <span class="n">max_restarts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">... </span><span class="c1"># effectively runs:</span>
+<span class="gp">... </span><span class="c1">#    python -m torch.distributed.launch</span>
+<span class="gp">... </span><span class="c1">#        --nproc_per_node 8</span>
+<span class="gp">... </span><span class="c1">#        --nnodes 2:4</span>
+<span class="gp">... </span><span class="c1">#        --max_restarts 3</span>
+<span class="gp">... </span><span class="c1">#        my_train_script.py --script_arg foo --another_arg bar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elastic_trainer</span>
+<span class="go">Role(name=&#39;trainer&#39;, ...)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the role</p></li>
+<li><p><strong>entrypoint</strong> – User binary or python script that will be launched.</p></li>
+<li><p><strong>resource</strong> – Resource that is requested by scheduler</p></li>
+<li><p><strong>base_image</strong> – Optional base image, if schedulers support image overlay</p></li>
+<li><p><strong>script_args</strong> – User provided arguments</p></li>
+<li><p><strong>script_envs</strong> – Env. variables that will be set on worker process that runs entrypoint</p></li>
+<li><p><strong>num_replicas</strong> – Number of role replicas to run</p></li>
+<li><p><strong>max_retries</strong> – Max number of retries</p></li>
+<li><p><strong>port_map</strong> – Port mapping for the role</p></li>
+<li><p><strong>retry_policy</strong> – Retry policy that is applied to the role</p></li>
+<li><p><strong>launch_kwargs</strong> – kwarg style launch arguments that will be used to launch torchelastic agent.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Role object that launches user entrypoint via the torchelastic as proxy</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 
@@ -348,7 +450,7 @@ TorchX’s configurable extension points.</p>
         <a href="distributed.html" class="btn btn-neutral float-right" title="Distributed" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../schedulers.html" class="btn btn-neutral" title="torchx.schedulers" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../pipelines.html" class="btn btn-neutral" title="torchx.pipelines" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -396,6 +498,7 @@ TorchX’s configurable extension points.</p>
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
          <script src="../_static/doctools.js"></script>

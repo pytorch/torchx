@@ -27,12 +27,21 @@
 
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="HPO" href="hpo.html" />
+    <link rel="next" title="Serve" href="serve.html" />
     <link rel="prev" title="Base" href="base.html" />
   <!-- Google Analytics -->
   
@@ -225,17 +234,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
@@ -331,8 +347,8 @@ components in this section are simply topological, meaning that they define
 the layout of the nodes in a distributed setting and take the actual
 binaries that each group of nodes (<code class="docutils literal notranslate"><span class="pre">specs.Role</span></code>) runs.</p>
 <dl class="py function">
-<dt id="torchx.components.dist.ddp.get_app_spec">
-<code class="sig-prename descclassname"><span class="pre">torchx.components.dist.ddp.</span></code><code class="sig-name descname"><span class="pre">get_app_spec</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixme</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">torchx.specs.api.Application</span><a class="reference internal" href="../_modules/torchx/components/dist/ddp.html#get_app_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.dist.ddp.get_app_spec" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.components.dist.ddp.get_app_spec">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.dist.ddp.</span></span><span class="sig-name descname"><span class="pre">get_app_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixme</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/dist/ddp.html#get_app_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.dist.ddp.get_app_spec" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -345,7 +361,7 @@ binaries that each group of nodes (<code class="docutils literal notranslate"><s
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="hpo.html" class="btn btn-neutral float-right" title="HPO" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="serve.html" class="btn btn-neutral float-right" title="Serve" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="base.html" class="btn btn-neutral" title="Base" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -396,6 +412,7 @@ binaries that each group of nodes (<code class="docutils literal notranslate"><s
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
          <script src="../_static/doctools.js"></script>

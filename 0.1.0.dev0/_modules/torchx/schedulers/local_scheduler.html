@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -223,17 +232,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
@@ -351,7 +367,7 @@
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">AppDryRunInfo</span><span class="p">,</span> <span class="n">DescribeAppResponse</span><span class="p">,</span> <span class="n">Scheduler</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">NONE</span><span class="p">,</span>
-    <span class="n">Application</span><span class="p">,</span>
+    <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
     <span class="n">InvalidRunConfigException</span><span class="p">,</span>
     <span class="n">RunConfig</span><span class="p">,</span>
@@ -513,7 +529,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span>
 
 
-<span class="k">class</span> <span class="nc">_LocalApplication</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">_LocalAppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Container object used by ``LocalhostScheduler`` to group the pids that</span>
 <span class="sd">    form an application. Each replica of a role in the application is a</span>
@@ -678,7 +694,7 @@
 <span class="sd">    runs are ignored. Properties that are ignored:</span>
 
 <span class="sd">    1. Resource requirements</span>
-<span class="sd">    2. Container limit enforcements</span>
+<span class="sd">    2. Resource limit enforcements</span>
 <span class="sd">    3. Retry policies</span>
 <span class="sd">    4. Retry counts (no retries supported)</span>
 <span class="sd">    5. Deployment preferences</span>
@@ -693,7 +709,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
 
         <span class="c1"># TODO T72035686 replace dict with a proper LRUCache data structure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppId</span><span class="p">,</span> <span class="n">_LocalApplication</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppId</span><span class="p">,</span> <span class="n">_LocalAppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="n">cache_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cache size must be greater than zero&quot;</span><span class="p">)</span>
@@ -710,7 +726,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">Application</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Skip validation step for local application</span>
         <span class="k">pass</span>
 
@@ -847,7 +863,7 @@
         <span class="p">),</span> <span class="s2">&quot;no app_id collisons expected since uuid4 suffix is used&quot;</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">app_log_dir</span><span class="p">)</span>
-        <span class="n">local_app</span> <span class="o">=</span> <span class="n">_LocalApplication</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_log_dir</span><span class="p">)</span>
+        <span class="n">local_app</span> <span class="o">=</span> <span class="n">_LocalAppDef</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_log_dir</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">role_name</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">role_params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">role_params</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">role_params</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span>
@@ -863,14 +879,14 @@
         <span class="k">return</span> <span class="n">app_id</span></div>
 
     <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">Application</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">]:</span>
         <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_popen_request</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_to_popen_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">app</span><span class="p">:</span> <span class="n">Application</span><span class="p">,</span>
+        <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PopenRequest</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -887,8 +903,7 @@
             <span class="n">replica_params</span> <span class="o">=</span> <span class="n">role_params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">replica_log_dirs</span> <span class="o">=</span> <span class="n">role_log_dirs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
 
-            <span class="n">container</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">container</span>
-            <span class="n">img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
@@ -915,9 +930,7 @@
                     <span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;stdout.log&quot;</span><span class="p">)</span>
                     <span class="n">stderr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;stderr.log&quot;</span><span class="p">)</span>
 
-                <span class="n">provider_cmd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span>
-                    <span class="n">container</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">env_vars</span>
-                <span class="p">)</span>
+                <span class="n">provider_cmd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">)</span>
 
                 <span class="n">replica_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">ReplicaParam</span><span class="p">(</span><span class="n">provider_cmd</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span>
@@ -1115,6 +1128,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>

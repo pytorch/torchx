@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Quickstart" href="quickstart.html" />
@@ -225,17 +234,24 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
@@ -343,34 +359,34 @@
 </div>
 <div class="section" id="concepts">
 <h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="applications">
-<h3>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h3>
-<p>In TorchX an <code class="docutils literal notranslate"><span class="pre">Application</span></code> is simply a struct with the <em>definition</em> of
+<div class="section" id="appdefs">
+<h3>AppDefs<a class="headerlink" href="#appdefs" title="Permalink to this headline">¶</a></h3>
+<p>In TorchX an <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> is simply a struct with the <em>definition</em> of
 the actual application. In scheduler lingo, this is a <code class="docutils literal notranslate"><span class="pre">JobDefinition</span></code> and a
 similar concept in Kubernetes is the <code class="docutils literal notranslate"><span class="pre">spec.yaml</span></code>. To disambiguate between the
 application binary (logic) and the spec, we typically refer to a TorchX
-<code class="docutils literal notranslate"><span class="pre">Application</span></code> as an “app spec” or <code class="docutils literal notranslate"><span class="pre">specs.Application</span></code>. <code class="docutils literal notranslate"><span class="pre">specs.Application</span></code>
+<code class="docutils literal notranslate"><span class="pre">AppDef</span></code> as an “app spec” or <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>. <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>
 is the common interface understood by <code class="docutils literal notranslate"><span class="pre">torchx.runner</span></code>
 and <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code> allowing you to run your app as a standalone job
 or as a stage in an ML pipeline.</p>
-<p>Below is a simple example of an <code class="docutils literal notranslate"><span class="pre">specs.Application</span></code> that echos “hello world”</p>
+<p>Below is a simple example of an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> that echos “hello world”</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 
-<span class="n">specs</span><span class="o">.</span><span class="n">Application</span><span class="p">(</span>
+<span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
    <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
        <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
            <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;/bin/echo&quot;</span><span class="p">,</span>
+           <span class="n">image</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
            <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hello world&quot;</span><span class="p">],</span>
-           <span class="n">container</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">),</span>
            <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span>
        <span class="p">)</span>
    <span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>As you can see, <code class="docutils literal notranslate"><span class="pre">specs.Application</span></code> is a pure python dataclass that
+<p>As you can see, <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> is a pure python dataclass that
 simply encodes the name of the main binary (entrypoint), arguments to
 pass to it, and a few other runtime parameters such as <code class="docutils literal notranslate"><span class="pre">num_replicas</span></code> and
 information about the container in which to run (<code class="docutils literal notranslate"><span class="pre">entrypoint=/bin/echo</span></code>).</p>
@@ -386,12 +402,12 @@ Rather you would use a templetized app spec called <code class="docutils literal
 </div>
 <div class="section" id="components">
 <h3>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h3>
-<p>A component in TorchX is simply a templetized <code class="docutils literal notranslate"><span class="pre">spec.Application</span></code>. You can
-think of them as convenient “factory methods” for <code class="docutils literal notranslate"><span class="pre">spec.Application</span></code>.</p>
+<p>A component in TorchX is simply a templetized <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>. You can
+think of them as convenient “factory methods” for <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Unlike applications, components don’t map to an actual python dataclass.
-Rather a factory function that returns an <code class="docutils literal notranslate"><span class="pre">spec.Application</span></code>
+Rather a factory function that returns an <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>
 is called a component.</p>
 </div>
 <p>The granularity at which the app spec is templetized varies. Some components
@@ -403,15 +419,15 @@ of a homogeneous <code class="docutils literal notranslate"><span class="pre">ga
 
 <span class="k">def</span> <span class="nf">get_app_spec</span><span class="p">(</span><span class="n">jobname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
    <span class="n">single_gpu</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">Resources</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
-   <span class="n">container</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">Container</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="n">single_gpu</span><span class="p">)</span>
-   <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">Appplication</span><span class="p">(</span>
+   <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
            <span class="n">name</span><span class="o">=</span><span class="n">jobname</span><span class="p">,</span>
            <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
                <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
                    <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
+                   <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                   <span class="n">resource</span><span class="o">=</span><span class="n">single_gpu</span><span class="p">,</span>
                    <span class="n">args</span><span class="o">=</span><span class="n">script_args</span><span class="p">,</span>
-                   <span class="n">container</span><span class="o">=</span><span class="n">container</span><span class="p">,</span>
                    <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span>
                <span class="p">)</span>
            <span class="p">]</span>
@@ -574,7 +590,7 @@ through the <code class="docutils literal notranslate"><span class="pre">torchx.
 <li><a class="reference internal" href="#">Basics</a><ul>
 <li><a class="reference internal" href="#project-structure">Project Structure</a></li>
 <li><a class="reference internal" href="#concepts">Concepts</a><ul>
-<li><a class="reference internal" href="#applications">Applications</a></li>
+<li><a class="reference internal" href="#appdefs">AppDefs</a></li>
 <li><a class="reference internal" href="#components">Components</a></li>
 <li><a class="reference internal" href="#runner-and-schedulers">Runner and Schedulers</a></li>
 <li><a class="reference internal" href="#pipeline-adapters">Pipeline Adapters</a></li>
@@ -598,6 +614,7 @@ through the <code class="docutils literal notranslate"><span class="pre">torchx.
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Configuring" href="configure.html" />
@@ -225,17 +234,24 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
@@ -327,7 +343,7 @@
   <div class="section" id="module-torchx.cli">
 <span id="cli"></span><h1>CLI<a class="headerlink" href="#module-torchx.cli" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI is a commandline tool around <a class="reference internal" href="runner.html#torchx.runner.Runner" title="torchx.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.runner.Runner</span></code></a>.
-It allows users to launch <a class="reference internal" href="specs.html#torchx.specs.Application" title="torchx.specs.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.Application</span></code></a> directly onto
+It allows users to launch <a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.AppDef</span></code></a> directly onto
 one of the supported schedulers without authoring a pipeline (aka workflow).
 This is convenient for quickly iterating on the application logic without
 incurring both the technical and cognitive overhead of learning, writing, and
@@ -377,7 +393,7 @@ along with the component function name in that file.</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat ~/my_trainer_spec.py
 <span class="go">import torchx.specs as specs</span>
 
-<span class="go">def get_spec(foo: int, bar: str) -&gt; specs.Application:</span>
+<span class="go">def get_spec(foo: int, bar: str) -&gt; specs.AppDef:</span>
 <span class="go">  &lt;...spec file details omitted for brevity...&gt;</span>
 
 <span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; ~/my_trainer_spec.py get_spec
@@ -570,6 +586,7 @@ the local host. Please use your best judgement when using the logs API.</p>
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

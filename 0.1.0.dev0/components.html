@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="torchx.runner" href="runner.html" />
@@ -225,17 +234,24 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
@@ -329,7 +345,7 @@
 <p>This module contains a collection of builtin TorchX components. The directory
 structure is organized by component category. Components are simply
 templetized app specs. Think of them as a factory methods for different types
-of job definitions. The functions that return <code class="docutils literal notranslate"><span class="pre">specs.Application</span></code> in this
+of job definitions. The functions that return <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> in this
 module are what we refer to as components.</p>
 <p>You can browse the library of components in the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> module
 or on our <a class="reference internal" href="index.html#components-library"><span class="std std-ref">docs page</span></a>.</p>
@@ -357,7 +373,7 @@ or on our <a class="reference internal" href="index.html#components-library"><sp
 and should be located accordingly. E.g. the definition of distributed components
 should be located in <code class="docutils literal notranslate"><span class="pre">distributed.py</span></code> file.</p>
 <dl class="simple">
-<dt>Create component as function. Each component represents a function that accepts</dt><dd><p>arbitrary arguments and returns <code class="docutils literal notranslate"><span class="pre">specs.Application</span></code>.</p>
+<dt>Create component as function. Each component represents a function that accepts</dt><dd><p>arbitrary arguments and returns <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>.</p>
 </dd>
 </dl>
 <p>Unit tests. Write unit tests that use <code class="docutils literal notranslate"><span class="pre">torchx.specs.file_linter</span></code> to validate
@@ -429,6 +445,7 @@ are currently available out-of-the-box.</p>
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
          <script src="_static/doctools.js"></script>

@@ -30,6 +30,15 @@ Documentation
    cli
    configure
 
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Examples
+
+   examples_apps/index
+   examples_pipelines/index
+
+
 .. _torchx.api:
 .. toctree::
    :maxdepth: 1
@@ -39,6 +48,7 @@ Documentation
    components
    runner
    schedulers
+   pipelines
 
 
 Components Library
@@ -49,6 +59,7 @@ Components Library
 
    components/base
    components/distributed
+   components/serve
    components/hpo
    components/utils
 

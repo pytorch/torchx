@@ -27,9 +27,18 @@
 
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
@@ -223,17 +232,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configure.html">Configuring</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
@@ -329,12 +345,10 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="c1"># TODO(aivanou): Update documentation</span>
-
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
@@ -356,19 +370,18 @@
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">parse_fn_docstring</span><span class="p">,</span> <span class="n">validate</span>
 <span class="kn">from</span> <span class="nn">torchx.util.io</span> <span class="kn">import</span> <span class="n">read_conf_file</span>
-<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">is_primitive</span>
+<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">is_primitive</span><span class="p">,</span> <span class="n">decode_optional</span>
 
 
 <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="nb">str</span>
 
-
 <span class="c1"># ========================================</span>
-<span class="c1"># ==== Distributed Application API =======</span>
+<span class="c1"># ==== Distributed AppDef API =======</span>
 <span class="c1"># ========================================</span>
 <div class="viewcode-block" id="Resource"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Resource">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Resource</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Represents resource requirements for a ``Container``.</span>
+<span class="sd">    Represents resource requirements for a ``Role``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cpu: number of cpu cores (note: not hyper threads)</span>
@@ -406,82 +419,11 @@
 <span class="c1"># used as &quot;*&quot; scheduler backend</span>
 <span class="n">ALL</span><span class="p">:</span> <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
 
-
-<div class="viewcode-block" id="Container"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Container">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Container</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Represents the specifications of the container that instances of ``Roles``</span>
-<span class="sd">    run on. Maps to the container abstraction that the underlying scheduler</span>
-<span class="sd">    supports. This could be an actual container (e.g. Docker) or a physical</span>
-<span class="sd">    instance depending on the scheduler.</span>
-
-<span class="sd">    An ``image`` is a software bundle that is installed on a ``Container``.</span>
-<span class="sd">    The container on the scheduler dictates what an image actually is.</span>
-<span class="sd">    An image could be as simple as a tar-ball or map to a docker image.</span>
-<span class="sd">    The scheduler typically knows how to &quot;pull&quot; the image given an</span>
-<span class="sd">    image name (str), which could be a simple name (e.g. docker image) or a url</span>
-<span class="sd">    (e.g. ``s3://path/my_image.tar``).</span>
-
-<span class="sd">    A ``Resource`` can be bound to a specific scheduler backend or ``SchedulerBackend.ALL`` (default)</span>
-<span class="sd">    to specify that the same ``Resource`` is to be used for all schedulers.</span>
-
-<span class="sd">    An optional ``base_image`` can be specified if the scheduler supports a</span>
-<span class="sd">    concept of base images. For schedulers that run Docker containers the</span>
-<span class="sd">    base image is not useful since the application image itself can be</span>
-<span class="sd">    built from a base image (using the ``FROM base/image:latest`` construct in</span>
-<span class="sd">    the Dockerfile). However the base image is useful for schedulers that</span>
-<span class="sd">    work with simple image artifacts (e.g. ``*.tar.gz``) that do not have a built-in</span>
-<span class="sd">    concept of base images. For these schedulers, specifying a base image that</span>
-<span class="sd">    includes dependencies while the main image is the actual application code</span>
-<span class="sd">    makes it possible to make changes to the application code without incurring</span>
-<span class="sd">    the cost of re-building the uber artifact.</span>
-
-<span class="sd">    Usage:</span>
-
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">     my_container = Container(</span>
-<span class="sd">        image=&quot;pytorch/torch:1&quot;,</span>
-<span class="sd">        resources=Resource(cpu=1, gpu=1, memMB=500),</span>
-<span class="sd">        port_map={&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081}</span>
-<span class="sd">     )</span>
-
-<span class="sd">     # for schedulers that support base_images</span>
-<span class="sd">     my_container = Container(</span>
-<span class="sd">        image=&quot;my/trainer:1&quot;,</span>
-<span class="sd">        base_image=&quot;common/ml-tools:latest&quot;</span>
-<span class="sd">     )</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">resources</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
-    <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-
-<div class="viewcode-block" id="Container.require"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Container.require">[docs]</a>    <span class="k">def</span> <span class="nf">require</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resources</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Container&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sets resource requirements on the container.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="n">resources</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-<div class="viewcode-block" id="Container.ports"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Container.ports">[docs]</a>    <span class="k">def</span> <span class="nf">ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Container&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adds a port mapping for the container</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">port_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="o">**</span><span class="n">kwargs</span><span class="p">})</span>
-        <span class="k">return</span> <span class="bp">self</span></div></div>
-
-
 <span class="c1"># sentinel value used to represent missing string attributes, such as image or entrypoint</span>
 <span class="n">MISSING</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;MISSING&gt;&quot;</span>
 
 <span class="c1"># sentinel value used to represent &quot;unset&quot; optional string attributes</span>
 <span class="n">NONE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;NONE&gt;&quot;</span>
-
-<span class="c1"># sentinel value used as the &quot;zero&quot; element in the container group</span>
-<span class="n">NULL_CONTAINER</span><span class="p">:</span> <span class="n">Container</span> <span class="o">=</span> <span class="n">Container</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">MISSING</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="macros"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros">[docs]</a><span class="k">class</span> <span class="nc">macros</span><span class="p">:</span>
@@ -492,7 +434,7 @@
 <span class="sd">    Available macros:</span>
 
 <span class="sd">    1. ``img_root`` - root directory of the pulled conatiner.image</span>
-<span class="sd">    2. ``base_img_root`` - root directory of the pulled container.base_image</span>
+<span class="sd">    2. ``base_img_root`` - root directory of the pulled role.base_image</span>
 <span class="sd">                           (resolves to &quot;&lt;NONE&gt;&quot; if no base_image set)</span>
 <span class="sd">    3. ``app_id`` - application id as assigned by the scheduler</span>
 <span class="sd">    4. ``replica_id`` - unique id for each instance of a replica of a Role,</span>
@@ -509,7 +451,7 @@
 
 <span class="sd">     # runs: hello_world.py --app_id ${app_id}</span>
 <span class="sd">     trainer = Role(name=&quot;trainer&quot;).runs(&quot;hello_world.py&quot;, &quot;--app_id&quot;, macros.app_id)</span>
-<span class="sd">     app = Application(&quot;train_app&quot;).of(trainer)</span>
+<span class="sd">     app = AppDef(&quot;train_app&quot;).of(trainer)</span>
 <span class="sd">     app_handle = session.run(app, scheduler=&quot;local&quot;, cfg=RunConfig())</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -544,7 +486,7 @@
 
 <div class="viewcode-block" id="RetryPolicy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.RetryPolicy">[docs]</a><span class="k">class</span> <span class="nc">RetryPolicy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Defines the retry policy for the ``Roles`` in the ``Application``.</span>
+<span class="sd">    Defines the retry policy for the ``Roles`` in the ``AppDef``.</span>
 <span class="sd">    The policy defines the behavior when the role replica encounters a failure:</span>
 
 <span class="sd">    1. unsuccessful (non zero) exit code</span>
@@ -558,7 +500,7 @@
 <span class="sd">              on the retry policies they support and behavior caveats (if any).</span>
 
 <span class="sd">    1. REPLICA: Replaces the replica instance. Surviving replicas are untouched.</span>
-<span class="sd">                Use with ``ElasticRole`` to have torchelastic coordinate restarts</span>
+<span class="sd">                Use with ``torch_dist_role`` to have torch coordinate restarts</span>
 <span class="sd">                and membership changes. Otherwise, it is up to the application to</span>
 <span class="sd">                deal with failed replica departures and replacement replica admittance.</span>
 <span class="sd">    2. APPLICATION: Restarts the entire application.</span>
@@ -572,51 +514,79 @@
 <div class="viewcode-block" id="Role"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Role</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A set of nodes that perform a specific duty within the ``Application``.</span>
+<span class="sd">    A set of nodes that perform a specific duty within the ``AppDef``.</span>
 <span class="sd">    Examples:</span>
 
 <span class="sd">    1. Distributed data parallel app - made up of a single role (trainer).</span>
 
 <span class="sd">    2. App with parameter server - made up of multiple roles (trainer, ps).</span>
 
+<span class="sd">    .. note:: An ``image`` is a software bundle that is installed on the container</span>
+<span class="sd">              scheduled by the scheduler. The container on the scheduler dictates</span>
+<span class="sd">              what an image actually is. An image could be as simple as a tar-ball</span>
+<span class="sd">              or map to a docker image. The scheduler typically knows how to &quot;pull&quot;</span>
+<span class="sd">              the image given an image name (str), which could be a simple name</span>
+<span class="sd">              (e.g. docker image) or a url e.g. ``s3://path/my_image.tar``).</span>
+
+
+<span class="sd">    .. note:: An optional ``base_image`` can be specified if the scheduler supports a</span>
+<span class="sd">              concept of base images. For schedulers that run Docker containers the</span>
+<span class="sd">              base image is not useful since the application image itself can be</span>
+<span class="sd">              built from a base image (using the ``FROM base/image:latest`` construct in</span>
+<span class="sd">              the Dockerfile). However the base image is useful for schedulers that</span>
+<span class="sd">              work with simple image artifacts (e.g. ``*.tar.gz``) that do not have a built-in</span>
+<span class="sd">              concept of base images. For these schedulers, specifying a base image that</span>
+<span class="sd">              includes dependencies while the main image is the actual application code</span>
+<span class="sd">              makes it possible to make changes to the application code without incurring</span>
+<span class="sd">              the cost of re-building the uber artifact.</span>
+
 <span class="sd">    Usage:</span>
 
 <span class="sd">    ::</span>
 
-<span class="sd">     trainer = Role(name=&quot;trainer&quot;)</span>
+<span class="sd">     trainer = Role(name=&quot;trainer&quot;, &quot;pytorch/torch:1&quot;)</span>
 <span class="sd">                 .runs(&quot;my_trainer.py&quot;, &quot;--arg&quot;, &quot;foo&quot;, ENV_VAR=&quot;FOOBAR&quot;)</span>
-<span class="sd">                 .on(container)</span>
 <span class="sd">                 .replicas(4)</span>
+<span class="sd">                 .require(Resource(cpu=1, gpu=1, memMB=500))</span>
+<span class="sd">                 .ports({&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081})</span>
+
+
+<span class="sd">     # for schedulers that support base_images</span>
+<span class="sd">     trainer = Role(name=&quot;trainer&quot;, image=&quot;pytorch/torch:1&quot;, base_image=&quot;common/ml-tools:latest&quot;)...</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">            name: name of the role</span>
+<span class="sd">            image: a software bundle that is installed on a container.</span>
+<span class="sd">            base_image: Optional base image, if schedulers support image overlay</span>
 <span class="sd">            entrypoint: command (within the container) to invoke the role</span>
 <span class="sd">            args: commandline arguments to the entrypoint cmd</span>
 <span class="sd">            env: environment variable mappings</span>
-<span class="sd">            container: container to run in</span>
 <span class="sd">            replicas: number of container replicas to run</span>
 <span class="sd">            max_retries: max number of retries before giving up</span>
 <span class="sd">            retry_policy: retry behavior upon replica failures</span>
-
+<span class="sd">            resource: Resource requirement for the role. The role should be scheduled</span>
+<span class="sd">                by the scheduler on ``num_replicas`` container, each of them should have at</span>
+<span class="sd">                least ``resource`` guarantees.</span>
+<span class="sd">            port_map: Port mapping for the role. The key is the unique identifier of the port</span>
+<span class="sd">                e.g. &quot;tensorboard&quot;: 9090</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-    <span class="n">container</span><span class="p">:</span> <span class="n">Container</span> <span class="o">=</span> <span class="n">NULL_CONTAINER</span>
     <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">retry_policy</span><span class="p">:</span> <span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
+    <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entrypoint</span> <span class="o">=</span> <span class="n">entrypoint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="o">*</span><span class="n">args</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="o">**</span><span class="n">kwargs</span><span class="p">})</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">:</span> <span class="n">Container</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">container</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">replicas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
@@ -639,80 +609,13 @@
 <span class="sd">        Modifies the scheduler request based on the role specific configuration.</span>
 <span class="sd">        The method is invoked for each role during scheduler ``submit_dryrun``.</span>
 <span class="sd">        If there are multiple roles, the method is invoked for each role in</span>
-<span class="sd">        order that is defined by the ``Application.roles`` list.</span>
+<span class="sd">        order that is defined by the ``AppDef.roles`` list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">dryrun_info</span></div></div>
 
 
-<div class="viewcode-block" id="ElasticRole"><a class="viewcode-back" href="../../../specs.html#torchx.specs.ElasticRole">[docs]</a><span class="k">class</span> <span class="nc">ElasticRole</span><span class="p">(</span><span class="n">Role</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A ``Role`` for which the user provided ``entrypoint`` is executed with the</span>
-<span class="sd">    torchelastic agent (in the container). Note that the torchelastic agent</span>
-<span class="sd">    invokes multiple copies of ``entrypoint``.</span>
-
-<span class="sd">    For more information about torchelastic see</span>
-<span class="sd">    `torchelastic quickstart docs &lt;http://pytorch.org/elastic/0.2.0/quickstart.html&gt;`__.</span>
-
-<span class="sd">    .. important:: It is the responsibility of the user to ensure that the</span>
-<span class="sd">                   container&#39;s image includes torchelastic. Since Torchx has no</span>
-<span class="sd">                   control over the build process of the image, it cannot</span>
-<span class="sd">                   automatically include torchelastic in the container&#39;s image.</span>
-
-<span class="sd">    The following example launches 2 ``replicas`` (nodes) of an elastic ``my_train_script.py``</span>
-<span class="sd">    that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed</span>
-<span class="sd">    to fail and restart a maximum of 3 times.</span>
-
-<span class="sd">    .. warning:: ``replicas`` MUST BE an integer between (inclusive) ``nnodes``. That is,</span>
-<span class="sd">                   ``ElasticRole(&quot;trainer&quot;, nnodes=&quot;2:4&quot;).replicas(5)`` is invalid and will</span>
-<span class="sd">                   result in undefined behavior.</span>
-
-<span class="sd">    ::</span>
-
-<span class="sd">     elastic_trainer = ElasticRole(&quot;trainer&quot;, nproc_per_node=8, nnodes=&quot;2:4&quot;, max_restarts=3)</span>
-<span class="sd">                        .runs(&quot;my_train_script.py&quot;, &quot;--script_arg&quot;, &quot;foo&quot;, &quot;--another_arg&quot;, &quot;bar&quot;)</span>
-<span class="sd">                        .on(container)</span>
-<span class="sd">                        .replicas(2)</span>
-<span class="sd">     # effectively runs:</span>
-<span class="sd">     #    python -m torchelastic.distributed.launch</span>
-<span class="sd">     #        --nproc_per_node 8</span>
-<span class="sd">     #        --nnodes 2:4</span>
-<span class="sd">     #        --max_restarts 3</span>
-<span class="sd">     #        my_train_script.py --script_arg foo --another_arg bar</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">launch_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entrypoint</span> <span class="o">=</span> <span class="s2">&quot;python&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;torchelastic.distributed.launch&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">torchelastic_launch_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;etcd&quot;</span><span class="p">)</span>
-        <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">)</span>
-        <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-                <span class="c1"># treat boolean kwarg as a flag</span>
-                <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">torchelastic_launch_args</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">torchelastic_launch_args</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)]</span>
-
-    <span class="k">def</span> <span class="nf">runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ElasticRole&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">entrypoint</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entrypoint</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">):</span>
-            <span class="c1"># make entrypoint relative to {img_root} ONLY if it is not an absolute path</span>
-            <span class="n">entrypoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">torchelastic_launch_args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="n">entrypoint</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="o">**</span><span class="n">kwargs</span><span class="p">})</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-
-<div class="viewcode-block" id="Application"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Application">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Application</span><span class="p">:</span>
+<div class="viewcode-block" id="AppDef"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppDef">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a distributed application made up of multiple ``Roles``</span>
 <span class="sd">    and metadata. Contains the necessary information for the driver</span>
@@ -721,7 +624,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        name: Name of application</span>
 <span class="sd">        roles: List of roles</span>
-<span class="sd">        metadata: Application specific configuration, in comparison</span>
+<span class="sd">        metadata: AppDef specific configuration, in comparison</span>
 <span class="sd">            ``RunConfig`` is runtime specific configuration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -729,11 +632,11 @@
     <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Role</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">roles</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Application&quot;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">roles</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AppDef&quot;</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">+=</span> <span class="p">[</span><span class="o">*</span><span class="n">roles</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-<div class="viewcode-block" id="Application.add_metadata"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Application.add_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">add_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Application&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AppDef.add_metadata"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppDef.add_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">add_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AppDef&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds metadata to the application.</span>
 <span class="sd">        .. note:: If the key already exists, this method overwrites the metadata value.</span>
@@ -836,7 +739,7 @@
 <div class="viewcode-block" id="AppStatus"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AppStatus</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The runtime status of the ``Application``. The scheduler can</span>
+<span class="sd">    The runtime status of the ``AppDef``. The scheduler can</span>
 <span class="sd">    return an arbitrary text message (msg field).</span>
 <span class="sd">    If any error occurs, scheduler can populate ``structured_error_msg``</span>
 <span class="sd">    with json response.</span>
@@ -883,7 +786,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Additional run configs for the app. These are typically</span>
 <span class="sd">    scheduler runtime configs/arguments that do not bind</span>
-<span class="sd">    to ``Application`` nor the ``Scheduler``. For example</span>
+<span class="sd">    to ``AppDef`` nor the ``Scheduler``. For example</span>
 <span class="sd">    a particular cluster (within the scheduler) the application</span>
 <span class="sd">    should be submitted to. Since the same app can be launched</span>
 <span class="sd">    into multiple types of clusters (devo, prod) the</span>
@@ -960,7 +863,7 @@
         <span class="c1"># manually rather than through constructor arguments</span>
         <span class="c1"># DO NOT create getters or make these public</span>
         <span class="c1"># unless there is a good reason to</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Application</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1197,12 +1100,13 @@
 
 
 <span class="k">def</span> <span class="nf">_create_args_parser</span><span class="p">(</span>
+    <span class="n">fn_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">parameters</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">],</span>
     <span class="n">function_desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">args_desc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
     <span class="n">script_parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;torchx run&quot;</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;torchx run ...torchx_params... </span><span class="si">{</span><span class="n">fn_name</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;App spec: </span><span class="si">{</span><span class="n">function_desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -1225,13 +1129,15 @@
 
 <span class="c1"># pyre-ignore[3]: Ignore, and make return List[Any]</span>
 <span class="k">def</span> <span class="nf">_get_function_args</span><span class="p">(</span>
-    <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Application</span><span class="p">],</span> <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span> <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
     <span class="n">docstring</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">app_fn</span><span class="p">))</span>
     <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span> <span class="o">=</span> <span class="n">parse_fn_docstring</span><span class="p">(</span><span class="n">docstring</span><span class="p">)</span>
 
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="n">script_parser</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span><span class="p">)</span>
+    <span class="n">script_parser</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span>
+        <span class="n">app_fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span>
+    <span class="p">)</span>
 
     <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">script_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">app_args</span><span class="p">)</span>
 
@@ -1240,8 +1146,10 @@
 
     <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">arg_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_primitive</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span><span class="p">):</span>
-            <span class="n">arg_value</span> <span class="o">=</span> <span class="n">decode_from_string</span><span class="p">(</span><span class="n">arg_value</span><span class="p">,</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span><span class="p">)</span>
+        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span>
+        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">decode_optional</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_primitive</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">):</span>
+            <span class="n">arg_value</span> <span class="o">=</span> <span class="n">decode_from_string</span><span class="p">(</span><span class="n">arg_value</span><span class="p">,</span> <span class="n">parameter_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_ParameterKind</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
             <span class="n">var_arg</span> <span class="o">=</span> <span class="n">arg_value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1264,10 +1172,10 @@
 
 
 <span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span>
-    <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Application</span><span class="p">],</span>
+    <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span>
     <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">should_validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Application</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">should_validate</span><span class="p">:</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span>
         <span class="n">_validate_and_raise</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">app_fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1280,7 +1188,7 @@
     <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">should_validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Application</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an application by extracing user defined ``function_name`` and running it.</span>
 
@@ -1297,7 +1205,7 @@
 <span class="sd">        * There should be a docstring for the function that defines</span>
 <span class="sd">            All arguments in a google-style format</span>
 <span class="sd">        * There can be default values for the function arguments.</span>
-<span class="sd">        * The return object must be ``Application``</span>
+<span class="sd">        * The return object must be ``AppDef``</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file_path: The path to the torchx file, mainly used for validation info.</span>
@@ -1327,7 +1235,7 @@
     <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">should_validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Application</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an application by extracing user defined ``function_name`` and running it.</span>
 
@@ -1344,7 +1252,7 @@
 <span class="sd">        * There should be a docstring for the function that defines</span>
 <span class="sd">            All arguments in a google-style format</span>
 <span class="sd">        * There can be default values for the function arguments.</span>
-<span class="sd">        * The return object must be ``Application``</span>
+<span class="sd">        * The return object must be ``AppDef``</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file_path: The path to the torchx file, mainly used for validation info.</span>
@@ -1409,6 +1317,7 @@
 
      
        <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
          <script src="../../../_static/jquery.js"></script>
          <script src="../../../_static/underscore.js"></script>
          <script src="../../../_static/doctools.js"></script>
