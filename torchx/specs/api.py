@@ -772,7 +772,7 @@ def _create_args_parser(
     )
 
     for param_name, parameter in parameters.items():
-        script_args = {
+        script_args: Dict[str, Any] = {
             "help": args_desc[param_name],
             "type": get_argparse_param_type(parameter),
         }
@@ -783,7 +783,8 @@ def _create_args_parser(
             arg_name = param_name
         else:
             arg_name = f"--{param_name}"
-        # pyre-ignore[6]: Ignore explicit casting of type from Callable to argparse.Action
+            if "default" not in script_args:
+                script_args["required"] = True
         script_parser.add_argument(arg_name, **script_args)
     return script_parser
 

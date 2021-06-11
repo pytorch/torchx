@@ -12,7 +12,7 @@ import sys
 import unittest
 from dataclasses import asdict
 from typing import Dict, List, Optional, Union
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from torchx.specs.api import (
     _TERMINAL_STATES,
@@ -511,6 +511,15 @@ class AppDefLoadTest(unittest.TestCase):
         app_args = self._get_app_args()
         actual_app = from_function(test_complex_fn, app_args)
         self.assert_apps(expected_app, actual_app)
+
+    def test_required_args(self) -> None:
+        with patch.object(sys, "exit") as exit_mock:
+            try:
+                from_function(test_complex_fn, [])
+            except Exception:
+                # ignore any errors, since function should fail
+                pass
+        exit_mock.assert_called_once()
 
     def test_load_from_fn_with_default(self) -> None:
         expected_app = self._get_expected_app_with_default()
