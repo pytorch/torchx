@@ -141,7 +141,7 @@ datapreproc_comp: ContainerFactory = component_from_app(datapreproc_app)
 
 trainer_app: specs.AppDef = binary_component(
     name="examples-lightning_classy_vision-trainer",
-    entrypoint="lightning_classy_vision/main.py",
+    entrypoint="lightning_classy_vision/train.py",
     args=[
         "--output_path",
         args.output_path,
@@ -178,6 +178,24 @@ serve_app: specs.AppDef = torchserve(
 serve_comp: ContainerFactory = component_from_app(serve_app)
 
 # %%
+# For model interpretability we're leveraging a custom component stored in it's
+# own component file. This component takes in the output from datapreproc and
+# train components and produces images with integrated gradient results.
+
+# make sure examples is on the path
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+from examples.apps.lightning_classy_vision.component import interpret
+
+interpret_app: specs.AppDef = interpret(
+    load_path=os.path.join(args.output_path, "last.ckpt"),
+    data_path=args.data_path,
+    output_path=args.output_path,
+    image=args.image,
+)
+interpret_comp: ContainerFactory = component_from_app(interpret_app)
+
+# %%
 # Pipeline Definition
 # ###################
 # The last step is to define the actual pipeline using the adapted KFP
@@ -204,6 +222,12 @@ def pipeline() -> None:
     serve = serve_comp()
     serve.container.set_tty()
     serve.after(trainer)
+
+    # Serve and interpret only require the trained model so we can run them
+    # in parallel to each other.
+    interpret = interpret_comp()
+    interpret.container.set_tty()
+    interpret.after(trainer)
 
 
 kfp.compiler.Compiler().compile(

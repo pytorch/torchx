@@ -216,7 +216,7 @@ def component_from_app(app: api.AppDef) -> ContainerFactory:
             mem_str = f"{int(mem)}M"
             container.set_memory_request(mem_str)
             container.set_memory_limit(mem_str)
-        if (gpu := resources.gpu) >= 0:
+        if (gpu := resources.gpu) > 0:
             container.set_gpu_limit(str(gpu))
 
         for name, port in role_spec.port_map.items():

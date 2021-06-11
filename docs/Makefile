@@ -19,6 +19,7 @@ help:
 clean:
 	@echo "Deleting build directory"
 	rm -rf "$(BUILDDIR)"
+	rm -rf "$(SOURCEDIR)/examples_apps" "$(SOURCEDIR)/examples_pipelines"
 
 .PHONY: help Makefile clean livehtml
 
