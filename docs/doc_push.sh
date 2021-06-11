@@ -87,15 +87,7 @@ for redirect in "${redirects[@]}"; do
   ln -s "$torchx_ver" "$redirect"
 done
 
-echo "Regenerating versions index"
-tree -L 1 -d -I '_*' -H "/torchx" -T "TorchX Versions" -v -r -o versions.html
-cat <<- EOF >> versions.html
-<style>
-.VERSION{
-  display: none;
-}
-</style>
-EOF
+"$docs_dir"/versions_html.py
 
 git add .
 git commit --quiet -m "[doc_push][$release_tag] built from $commit_id ($branch). Redirects: ${redirects[*]} -> $torchx_ver."
