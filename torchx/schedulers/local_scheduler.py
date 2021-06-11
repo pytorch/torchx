@@ -129,8 +129,11 @@ class DockerImageProvider(ImageProvider):
         pass
 
     def fetch(self, image: str) -> str:
-        subprocess.run(["docker", "pull", image], check=True)
-        return image
+        try:
+            subprocess.run(["docker", "pull", image], check=True)
+        except Exception as e:
+            print(f"failed to fetch image {image}, falling back to local: {e}")
+        return ""
 
     def get_command(
         self, image: str, args: List[str], env_vars: Dict[str, str]
@@ -138,7 +141,7 @@ class DockerImageProvider(ImageProvider):
         env = []
         for k, v in env_vars.items():
             env += ["--env", f"{k}={v}"]
-        return ["docker", "run", "-it", "--rm"] + env + [image] + args
+        return ["docker", "run", "-i", "--rm"] + env + [image] + args
 
 
 # aliases to make clear what the mappings are
@@ -376,7 +379,12 @@ class LocalScheduler(Scheduler):
 
     def run_opts(self) -> runopts:
         opts = runopts()
-        opts.add("image_type", type_=str, help="image type", default="dir")
+        opts.add(
+            "image_type",
+            type_=str,
+            help="image type. One of [dir, docker]",
+            default="dir",
+        )
         opts.add(
             "log_dir",
             type_=str,
@@ -590,7 +598,6 @@ class LocalScheduler(Scheduler):
                     stderr = os.path.join(replica_log_dir, "stderr.log")
 
                 provider_cmd = image_provider.get_command(role.image, args, env_vars)
-
                 replica_params.append(
                     ReplicaParam(provider_cmd, env_vars, stdout, stderr)
                 )

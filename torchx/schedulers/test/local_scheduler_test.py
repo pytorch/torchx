@@ -8,6 +8,7 @@
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import time
 import unittest
@@ -17,6 +18,7 @@ from typing import Optional
 from unittest import mock
 from unittest.mock import MagicMock, call, patch
 
+from torchx.components.base.binary_component import binary_component
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     DockerImageProvider,
@@ -81,7 +83,7 @@ class DockerImageProviderTest(unittest.TestCase):
         cfg = RunConfig()
         provider = DockerImageProvider(cfg)
         img = "pytorch/pytorch:latest"
-        self.assertEqual(provider.fetch(img), img)
+        self.assertEqual(provider.fetch(img), "")
         self.assertEqual(run.call_count, 1)
         self.assertEqual(run.call_args, call(["docker", "pull", img], check=True))
 
@@ -101,7 +103,7 @@ class DockerImageProviderTest(unittest.TestCase):
             [
                 "docker",
                 "run",
-                "-it",
+                "-i",
                 "--rm",
                 "--env",
                 "FOO=bar",
@@ -543,3 +545,37 @@ class LocalSchedulerTest(unittest.TestCase):
 
         self.assertIsNotNone(scheduler.describe(app_id2))
         self.assertIsNotNone(self.wait(app_id2, scheduler))
+
+    def _docker_app(self, entrypoint: str, *args: str) -> AppDef:
+        return binary_component(
+            name="test-app",
+            image="busybox",
+            entrypoint=entrypoint,
+            args=list(args),
+        )
+
+    def _skip_unless_docker(self) -> None:
+        if subprocess.run(["docker", "version"]).returncode != 0:
+            self.skipTest("test requires docker")
+
+    def test_docker_submit(self) -> None:
+        self._skip_unless_docker()
+
+        app = self._docker_app("echo", "foo")
+        cfg = RunConfig({"image_type": "docker"})
+        app_id = self.scheduler.submit(app, cfg)
+
+        desc = self.wait(app_id)
+        assert desc is not None
+        self.assertEqual(AppState.SUCCEEDED, desc.state)
+
+    def test_docker_submit_error(self) -> None:
+        self._skip_unless_docker()
+
+        app = self._docker_app("sh", "-c", "exit 1")
+        cfg = RunConfig({"image_type": "docker"})
+        app_id = self.scheduler.submit(app, cfg)
+
+        desc = self.wait(app_id)
+        assert desc is not None
+        self.assertEqual(AppState.FAILED, desc.state)
