@@ -29,7 +29,6 @@
 #   Makefile (redirect target)
 #  (on gh-pages branch) _layouts/docs_redirect.html
 
-set -ex
 dry_run=0
 for arg in "$@"; do
     shift
@@ -69,11 +68,6 @@ pip install -r requirements.txt
 make clean html
 echo "Doc build complete"
 
-if [ $dry_run -eq 1 ]; then
-    echo "*** dry-run mode, building only. See build artifacts in: $build_dir"
-    exit
-fi
-
 tmp_dir=/tmp/torchx_docs_tmp
 rm -rf "${tmp_dir:?}"
 
@@ -85,18 +79,13 @@ echo "Copying doc pages for $torchx_ver into $gh_pages_dir..."
 rm -rf "${gh_pages_dir:?}/${torchx_ver:?}"
 cp -R "$build_dir/$torchx_ver/html" "$gh_pages_dir/$torchx_ver"
 
-for redirect in "${redirects[@]}"; do
-  echo "Copying redirects for $redirect -> $torchx_ver..."
-  rm -rf "${gh_pages_dir:?}/${redirect:?}"
-  cp -R "$build_dir/redirects" "$gh_pages_dir/$redirect"
-done
-
-if [ "$release_tag" != "master" ]; then
-    echo "Copying redirects for default(latest) -> $torchx_ver..."
-    cp -R "$build_dir/redirects/." "$gh_pages_dir"
-fi
-
 cd $gh_pages_dir || exit
+
+for redirect in "${redirects[@]}"; do
+  echo "Creating redirect symlinks for: $redirect -> $torchx_ver..."
+  rm -rf "${gh_pages_dir:?}/${redirect:?}"
+  ln -s "$torchx_ver" "$redirect"
+done
 
 echo "Regenerating versions index"
 tree -L 1 -d -I '_*' -H "/torchx" -T "TorchX Versions" -v -r -o versions.html
@@ -110,4 +99,10 @@ EOF
 
 git add .
 git commit --quiet -m "[doc_push][$release_tag] built from $commit_id ($branch). Redirects: ${redirects[*]} -> $torchx_ver."
+
+if [ $dry_run -eq 1 ]; then
+    echo "*** --dry-run mode, skipping push to gh-pages branch. To publish run: cd ${gh_pages_dir} && git push"
+    exit
+fi
+
 git push
