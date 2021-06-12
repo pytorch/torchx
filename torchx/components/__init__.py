@@ -43,6 +43,20 @@ should be located in ``distributed.py`` file.
 Create component as function. Each component represents a function that accepts
  arbitrary arguments and returns ``specs.AppDef``.
 
+The function should
+have the following properties:
+
+* All arguments of the function must be annotated
+* Current supported types:
+    + Primitives: int, float, str
+    + Optional primitives: Optional[int], Optional[float], Optional[str]
+    + Dict: Dict[Primitive_key, Primitive_value]
+    + List: List[Primitive_value]
+    + Optional[List], Optional[Dict]
+* The function should have well defined description in
+    https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html format
+
+
 Unit tests. Write unit tests that use ``torchx.specs.file_linter`` to validate
 the component's structure,  similar to ``torchx.components.tests.distributed_test.py``.
 
