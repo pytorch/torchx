@@ -65,7 +65,25 @@ enumerate t-shirt sized resource specs for the containers as:
 
 And refer to the resources by their string names.
 
-<COMING SOON>
+Torchx supports custom resource definition and reference by string
+representation:
+
+::
+
+ [torchx.schedulers]
+ gpu_x_2 = my_module.resources:gpu_x_2
+
+
+The named resource after that can be used in the following manner:
+
+.. code-block:: python
+
+  # my_module.component
+  from torchx.specs import AppDef, Role
+  from torchx.components.base import torch_dist_role
+
+  app = AppDef(name="test_app", roles=[torch_dist_role(.., resource="gpu_x_2", ...)])
+
 
 Registering Custom Components
 -------------------------------
@@ -79,4 +97,16 @@ when they run
 
  $ torchx builtins
 
-<COMING SOON>
+Custom components can be registered via the following endpoint:
+
+::
+
+ [torchx.components]
+ custom_component = my_module.components:my_component
+
+
+Custom components can be executed in the following manner:
+
+.. code-block:: shell-session
+
+ $ torchx run --scheduler local --scheduler_args image_fetcher=...,root_dir=/tmp custom_component -- --name "test app"
