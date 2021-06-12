@@ -25,6 +25,7 @@ class CmdRunopts(SubCommand):
         run_opts = get_runner().run_opts()
 
         if not scheduler:
-            print(run_opts)
+            for scheduler, opts in run_opts.items():
+                print(f"{scheduler}:\n{repr(opts)}")
         else:
-            print(run_opts[scheduler])
+            print(repr(run_opts[scheduler]))
