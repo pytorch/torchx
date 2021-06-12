@@ -10,24 +10,27 @@ other components. Many methods in the base component library are factory methods
 for ``Role``, ``Container``, and ``Resources`` that are hooked up to
 TorchX's configurable extension points.
 """
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
+from torchx.specs import named_resource
 from torchx.specs.api import NULL_RESOURCE, Resource, RetryPolicy, Role
 from torchx.util.entrypoints import load
 
 from .roles import create_torch_dist_role
 
 
-def named_resource(name: str) -> Resource:
-    # TODO <PLACEHOLDER> read instance types and resource mappings from entrypoints
-    return NULL_RESOURCE
+def _resolve_resource(resource: Union[str, Resource]) -> Resource:
+    if isinstance(resource, Resource):
+        return resource
+    else:
+        return named_resource(resource.lower())
 
 
 def torch_dist_role(
     name: str,
     image: str,
     entrypoint: str,
-    resource: Resource = NULL_RESOURCE,
+    resource: Union[str, Resource] = NULL_RESOURCE,
     base_image: Optional[str] = None,
     script_args: Optional[List[str]] = None,
     script_envs: Optional[Dict[str, str]] = None,
@@ -58,8 +61,10 @@ def torch_dist_role(
 
     Args:
         name: Name of the role
-        container: Container
+        image: Image of the role
         entrypoint: Script or binary to launch
+        resource: Resource specs that define the container properties. Predefined resources
+            are supported as str arguments.
         script_args: Arguments to the script
         script_envs: Env. variables to the worker
         num_replicas: Number of replicas
@@ -76,6 +81,8 @@ def torch_dist_role(
         "dist_role",
         default=create_torch_dist_role,
     )
+
+    resource = _resolve_resource(resource)
 
     return dist_role_factory(
         name,
