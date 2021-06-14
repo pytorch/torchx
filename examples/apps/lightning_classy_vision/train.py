@@ -53,7 +53,10 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         required=True,
     )
     parser.add_argument(
-        "--log_dir", type=str, help="directory to place the logs", default="/tmp"
+        "--log_path",
+        type=str,
+        help="path to place the tensorboard logs",
+        default="/tmp",
     )
 
     return parser.parse_args(argv)
@@ -84,7 +87,7 @@ def main(argv: List[str]) -> None:
             model.load_from_checkpoint(checkpoint_path=args.load_path)
 
         logger = TensorBoardLogger(
-            save_dir=args.log_dir, version=1, name="lightning_logs"
+            save_dir=args.log_path, version=1, name="lightning_logs"
         )
 
         # Initialize a trainer

@@ -187,6 +187,7 @@ def save_spec(path: str, build: BuildInfo) -> None:
     root = os.path.join(STORAGE_PATH, id)
     data = os.path.join(root, "data")
     output = os.path.join(root, "output")
+    logs = os.path.join(root, "logs")
 
     run(
         "examples/pipelines/kfp/kfp_pipeline.py",
@@ -196,6 +197,8 @@ def save_spec(path: str, build: BuildInfo) -> None:
         output,
         "--image",
         examples_image,
+        "--log_path",
+        logs,
         "--package_path",
         path,
         "--torchx_image",

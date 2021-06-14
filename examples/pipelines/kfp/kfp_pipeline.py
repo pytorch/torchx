@@ -64,7 +64,7 @@ parser.add_argument(
     required=True,
 )
 parser.add_argument(
-    "--log_dir", type=str, help="directory to place the logs", default="/tmp"
+    "--log_path", type=str, help="path to place the tensorboard logs", default="/tmp"
 )
 
 # %%
@@ -147,8 +147,8 @@ trainer_app: specs.AppDef = binary_component(
         args.output_path,
         "--load_path",
         args.load_path or "",
-        "--log_dir",
-        args.log_dir,
+        "--log_path",
+        args.log_path,
         "--data_path",
         args.data_path,
     ],
