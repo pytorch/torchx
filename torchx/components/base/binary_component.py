@@ -15,6 +15,7 @@ def binary_component(
     entrypoint: str,
     args: Optional[List[str]] = None,
     env: Optional[Dict[str, str]] = None,
+    resource: api.Resource = api.NULL_RESOURCE,
 ) -> api.AppDef:
     """
     binary_component creates a single binary component from the
@@ -42,6 +43,7 @@ def binary_component(
                 entrypoint=entrypoint,
                 args=args or [],
                 env=env or {},
+                resource=resource,
             ),
         ],
     )
