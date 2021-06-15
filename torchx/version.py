@@ -15,3 +15,8 @@
 # 0.1.0rcN  # Release Candidate
 # 0.1.0  # Final release
 __version__ = "0.1.0.dev0"
+
+# Use the github container registry images corresponding to the current package
+# version.
+TORCHX_IMAGE = f"ghcr.io/pytorch/torchx:{__version__}"
+EXAMPLES_IMAGE = f"ghcr.io/pytorch/torchx-examples:{__version__}"
