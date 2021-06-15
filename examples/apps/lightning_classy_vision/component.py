@@ -23,7 +23,7 @@ def trainer(
     output_path: str,
     data_path: str,
     load_path: str = "",
-    log_dir: str = "/logs",
+    log_path: str = "/logs",
     resource: Optional[str] = None,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
@@ -33,7 +33,7 @@ def trainer(
         output_path: output path for model checkpoints (e.g. file:///foo/bar)
         load_path: path to load pretrained model from
         data_path: path to the data to load
-        log_dir: path to save tensorboard logs to
+        log_path: path to save tensorboard logs to
         resource: the resources to use
     """
     return binary_component(
@@ -44,8 +44,8 @@ def trainer(
             output_path,
             "--load_path",
             load_path,
-            "--log_dir",
-            log_dir,
+            "--log_pat",
+            log_path,
             "--data_path",
             data_path,
         ],
