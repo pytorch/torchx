@@ -10,7 +10,7 @@ Model Interpretability App Example
 =============================================
 
 This is an example TorchX app that uses captum to analyze inputs to for model
-intepretability purposes. It consumes the trained model from the trainer app
+interpretability purposes. It consumes the trained model from the trainer app
 example and the preprocessed examples from the datapreproc app example. The
 output is a series of images with integrated gradient attributions overlayed on
 them.

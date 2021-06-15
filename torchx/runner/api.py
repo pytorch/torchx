@@ -78,7 +78,7 @@ class Runner:
         Retrieves application based on ``component_path`` and runs it in the specified mode.
 
         The ``component_path`` has the following resolution order(from high-pri to low-pri):
-            * User-registerred components. Users can register components via
+            * User-registered components. Users can register components via
                 https://packaging.python.org/specifications/entry-points/. Method looks for
                 entrypoints in the group ``torchx.components``.
             * File-based components in format: ``$FILE_PATH:FUNCTION_NAME``. Both relative and
@@ -175,11 +175,11 @@ class Runner:
 
         .. warning:: Use sparingly since abusing this method to overwrite
                      many parameters in the raw scheduler request may
-                     lead to your usage of TSM going out of compliance
+                     lead to your usage of TorchX going out of compliance
                      in the long term. This method is intended to
                      unblock the user from experimenting with certain
                      scheduler-specific features in the short term without
-                     having to wait until TSM exposes scheduler features
+                     having to wait until TorchX exposes scheduler features
                      in its APIs.
 
         .. note:: It is recommended that sub-classes of ``Session`` implement

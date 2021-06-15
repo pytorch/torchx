@@ -79,7 +79,7 @@ class Scheduler(abc.ABC):
     # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
     def schedule(self, dryrun_info: AppDryRunInfo) -> str:
         """
-        Same as ``submit`` except that it takes an ``AppDryrunInfo``.
+        Same as ``submit`` except that it takes an ``AppDryRunInfo``.
         Implementors are encouraged to implement this method rather than
         directly implementing ``submit`` since ``submit`` can be trivially
         implemented by:

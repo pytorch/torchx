@@ -200,7 +200,7 @@ class _LocalAppDef:
 
     def __init__(self, id: str, log_dir: str) -> None:
         self.id = id
-        # cfg.get("log_dir")/<session_name>/<app_id> or /tmp/tsm/<session_name>/<app_id>
+        # cfg.get("log_dir")/<session_name>/<app_id> or /tmp/torchx/<session_name>/<app_id>
         self.log_dir = log_dir
         # role name -> [replicas, ...]
         self.role_replicas: Dict[RoleName, List[_LocalReplica]] = {}
@@ -341,7 +341,7 @@ class PopenRequest:
     app_id: AppId
     log_dir: str
     # maps role_name -> List[ReplicaSpec]
-    # role_params["trainer"][0] -> holds trainer's 0^th replica (NOT rank!) parameters
+    # role_params["trainer"][0] -> holds trainer's 0^th replica's (NOT rank!) parameters
     role_params: Dict[RoleName, List[ReplicaParam]]
     # maps role_name -> List[replica_log_dir]
     # role_log_dirs["trainer"][0] -> holds trainer's 0^th replica's log directory path
@@ -510,7 +510,7 @@ class LocalScheduler(Scheduler):
         base_log_dir = cfg.get("log_dir")
         redirect_std = True
         if not base_log_dir:
-            base_log_dir = tempfile.mkdtemp(prefix="tsm_")
+            base_log_dir = tempfile.mkdtemp(prefix="torchx_")
             redirect_std = False
 
         return os.path.join(str(base_log_dir), self.session_name, app_id), redirect_std
@@ -527,7 +527,7 @@ class LocalScheduler(Scheduler):
         app_log_dir = request.log_dir
         assert (
             app_id not in self._apps
-        ), "no app_id collisons expected since uuid4 suffix is used"
+        ), "no app_id collisions expected since uuid4 suffix is used"
 
         os.makedirs(app_log_dir)
         local_app = _LocalAppDef(app_id, app_log_dir)

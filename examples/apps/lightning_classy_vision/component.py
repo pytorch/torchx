@@ -63,7 +63,7 @@ def interpret(
     output_path: str,
     resource: Optional[str] = None,
 ) -> torchx.AppDef:
-    """Runs the model intepretability app on the model outputted by the training
+    """Runs the model interpretability app on the model outputted by the training
     component.
 
     Args:
@@ -74,7 +74,7 @@ def interpret(
         resource: the resources to use
     """
     return binary_component(
-        name="examples-lightning_classy_vision-intepret",
+        name="examples-lightning_classy_vision-interpret",
         entrypoint="lightning_classy_vision/interpret.py",
         args=[
             "--load_path",

@@ -85,7 +85,7 @@ class TorchxDocstringValidator(TorchxFunctionValidator):
 
     def validate(self, app_specs_func_def: ast.FunctionDef) -> List[LinterMessage]:
         """
-        Validates the docstring of the `get_app_spec` function. Criterias:
+        Validates the docstring of the `get_app_spec` function. Criteria:
         * There mast be google-style docstring
         * If there are more than zero arguments, there mast be a `Args:` section defined
             with all arguments included.
@@ -227,17 +227,17 @@ class TorchxReturnValidator(TorchxFunctionValidator):
 
 class TorchFunctionVisitor(ast.NodeVisitor):
     """
-    Visitor that finds the torchx_function and runs registerred validators on it.
-    Current registerred validators:
+    Visitor that finds the torchx_function and runs registered validators on it.
+    Current registered validators:
 
     * TorchxDocstringValidator - validates the docstring of the function.
-        Criterias:
+        Criteria:
           * There format should be google-python
           * If there are more than zero arguments defined, there
             should be obligatory `Args:` section that describes each argument on a new line.
 
     * TorchxFunctionArgsValidator - validates arguments of the function.
-        Criterias:
+        Criteria:
           * Each argument should be annotated with the type
           * The following types are supported:
                 - primitive_types: {int, str, float},
