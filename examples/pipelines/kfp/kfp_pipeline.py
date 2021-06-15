@@ -46,7 +46,7 @@ parser.add_argument(
 )
 
 # %%
-# Most TorchX compnents use
+# Most TorchX components use
 # `fsspec <https://filesystem-spec.readthedocs.io/en/latest/>`_ to abstract
 # away dealing with remote filesystems. This allows the components to take
 # paths like `s3://` to make it easy to use cloud storage providers.

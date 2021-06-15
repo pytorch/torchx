@@ -147,7 +147,7 @@ class CmdStatus(SubCommand):
         subparser.add_argument(
             "app_handle",
             type=str,
-            help="tsm app handle (e.g. local://session-name/app-id)",
+            help="torchx app handle (e.g. local://session-name/app-id)",
         )
         subparser.add_argument(
             "--roles", type=str, default="", help="comma separated roles to filter"

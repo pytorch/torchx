@@ -198,7 +198,7 @@ class RunConfigTest(unittest.TestCase):
         cfg.set("run_as", "root")
         cfg.set("cluster_id", 123)
         cfg.set("priority", 0.5)
-        cfg.set("preemtible", True)
+        cfg.set("preemptible", True)
         return cfg
 
     def test_valid_values(self) -> None:
@@ -207,7 +207,7 @@ class RunConfigTest(unittest.TestCase):
         self.assertEqual("root", cfg.get("run_as"))
         self.assertEqual(123, cfg.get("cluster_id"))
         self.assertEqual(0.5, cfg.get("priority"))
-        self.assertTrue(cfg.get("preemtible"))
+        self.assertTrue(cfg.get("preemptible"))
         self.assertIsNone(cfg.get("unknown"))
 
     def test_serde(self) -> None:
@@ -221,7 +221,7 @@ class RunConfigTest(unittest.TestCase):
         self.assertEqual("root", deser.get("run_as"))
         self.assertEqual(123, deser.get("cluster_id"))
         self.assertEqual(0.5, deser.get("priority"))
-        self.assertTrue(deser.get("preemtible"))
+        self.assertTrue(deser.get("preemptible"))
 
     def test_runopts_add(self) -> None:
         """

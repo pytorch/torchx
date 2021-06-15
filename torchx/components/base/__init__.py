@@ -45,7 +45,7 @@ def torch_dist_role(
         torchelastic agent (in the container). Note that the torchelastic agent
         invokes multiple copies of ``entrypoint``.
 
-    The method will try to search factory method that is registerred via entrypoints.
+    The method will try to search factory method that is registered via entrypoints.
     If no group or role found, the default ``torchx.components.base.role.create_torch_dist_role``
     will be used.
 

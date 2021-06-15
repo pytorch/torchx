@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-These modules are adapters used to run TorchX components as part of a pipline to allow
+These modules are adapters used to run TorchX components as part of a pipeline to allow
 for more complex behaviors as well as for continuous deployment.
 
 The runner and schedulers are designed to launch a single component quickly

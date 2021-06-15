@@ -193,6 +193,6 @@ patterns that are useful and self explanatory
 .. note:: Some schedulers do not support server-side regex filters. In this case
           the regex filter is applied on the client-side, meaning the full logs
           will have to be passed through the client. This may be very taxing to
-          the local host. Please use your best judgement when using the logs API.
+          the local host. Please use your best judgment when using the logs API.
 
 """

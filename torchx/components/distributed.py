@@ -48,6 +48,4 @@ def ddp(
         .replicas(nnodes)
     )
 
-    # get app name from cli or extract from fbpkg. Note that fbpkg name can has "."
-    # but not allowed in app name.
     return specs.AppDef(name).of(ddp_role)

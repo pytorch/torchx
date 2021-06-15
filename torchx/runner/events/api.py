@@ -28,7 +28,7 @@ class TorchxEvent:
         api: Api name
         app_id: Unique id that is set by the underlying scheduler
         runcfg: Run config that was used to schedule app.
-        source: Type of source the event is genereated.
+        source: Type of source the event is generated.
     """
 
     session: str

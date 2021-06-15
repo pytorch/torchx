@@ -94,7 +94,7 @@ class macros:
 
     Available macros:
 
-    1. ``img_root`` - root directory of the pulled conatiner.image
+    1. ``img_root`` - root directory of the pulled container.image
     2. ``base_img_root`` - root directory of the pulled role.base_image
                            (resolves to "<NONE>" if no base_image set)
     3. ``app_id`` - application id as assigned by the scheduler
@@ -408,7 +408,7 @@ class AppStatus:
     ``replicas`` represent the statuses of the replicas in the job. If the job
     runs with multiple retries, the parameter will contain the statuses of the
     most recent retry. Note: if the previous retries failed, but the most recent
-    retry succeeded or in progress, ``replicas`` will not contain ocurred errors.
+    retry succeeded or in progress, ``replicas`` will not contain occurred errors.
     """
 
     state: AppState
@@ -450,7 +450,7 @@ class RunConfig:
     to ``AppDef`` nor the ``Scheduler``. For example
     a particular cluster (within the scheduler) the application
     should be submitted to. Since the same app can be launched
-    into multiple types of clusters (devo, prod) the
+    into multiple types of clusters (dev, prod) the
     cluster id config does not bind to the app. Neither
     does this bind to the scheduler since the cluster can
     be partitioned by size of the instances (S, M, L) or by
@@ -537,7 +537,7 @@ def get_type_name(tp: Type[ConfigValue]) -> str:
     Gets the type's name as a string. If ``tp` is a primitive class like int, str, etc, then
     uses its attribute ``__name__``. Otherwise, use ``str(tp)``.
 
-    Note: we use this mothod to print out generic typing like List[str].
+    Note: we use this method to print out generic typing like List[str].
     """
     if hasattr(tp, "__name__"):
         return tp.__name__
@@ -829,7 +829,7 @@ def _validate_and_raise(file_path: str, function_name: str) -> None:
             linter_error.description for linter_error in linter_errors
         )
         raise ValueError(
-            f"Encounterred linter errors while processing {file_path}:{function_name}: \n {error_msg}"
+            f"Encountered linter errors while processing {file_path}:{function_name}: \n {error_msg}"
         )
 
 
@@ -852,7 +852,7 @@ def from_file(
     should_validate: bool = True,
 ) -> AppDef:
     """
-    Creates an application by extracing user defined ``function_name`` and running it.
+    Creates an application by extracting user defined ``function_name`` and running it.
 
     ``function_name`` has the following restrictions:
         * Name must be ``function_name``
@@ -872,7 +872,7 @@ def from_file(
     Args:
         file_path: The path to the torchx file, mainly used for validation info.
         function_name: Function name
-        app_args: Applciation arguments that will be decoded based on the
+        app_args: Application arguments that will be decoded based on the
             ``function_name`` arguments types and passed to ``function_name``
 
     Returns:
@@ -899,7 +899,7 @@ def from_module(
     should_validate: bool = True,
 ) -> AppDef:
     """
-    Creates an application by extracing user defined ``function_name`` and running it.
+    Creates an application by extracting user defined ``function_name`` and running it.
 
     ``function_name`` has the following restrictions:
         * Name must be ``function_name``
@@ -919,7 +919,7 @@ def from_module(
     Args:
         file_path: The path to the torchx file, mainly used for validation info.
         function_name: Function name
-        app_args: Applciation arguments that will be decoded based on the
+        app_args: Application arguments that will be decoded based on the
             ``function_name`` arguments types and passed to ``function_name``
 
     Returns:

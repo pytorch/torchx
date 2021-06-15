@@ -19,7 +19,7 @@ class CmdDescribe(SubCommand):
         subparser.add_argument(
             "app_handle",
             type=str,
-            help="tsm app handle (e.g. local://session-name/app-id)",
+            help="torchx app handle (e.g. local://session-name/app-id)",
         )
 
     def run(self, args: argparse.Namespace) -> None:
