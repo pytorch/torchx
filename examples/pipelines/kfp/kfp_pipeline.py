@@ -32,17 +32,20 @@ parser = argparse.ArgumentParser(description="example kfp pipeline")
 # docker containers. We have one container for the example apps and one for
 # the standard built in apps. If you modify the torchx example code you'll
 # need to rebuild the container before launching it on KFP
+
+from torchx.version import TORCHX_IMAGE, EXAMPLES_IMAGE
+
 parser.add_argument(
     "--image",
     type=str,
-    help="docker image to use",
-    default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/examples:latest",
+    help="docker image to use for the examples apps",
+    default=EXAMPLES_IMAGE,
 )
 parser.add_argument(
     "--torchx_image",
     type=str,
-    help="docker image to use",
-    default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest",
+    help="docker image to use for the builtin torchx apps",
+    default=TORCHX_IMAGE,
 )
 
 # %%

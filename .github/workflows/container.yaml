@@ -1,4 +1,4 @@
-name: Docker Container
+name: Publish Docker Containers
 
 on:
   push:
@@ -10,18 +10,33 @@ jobs:
   build:
     runs-on: ubuntu-18.04
     steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
-      - name: Configure Docker
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Get TorchX version
         run: |
           set -eux
-          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
-      - name: Build container
-        run: torchx/runtime/container/build.sh
-      - name: Tag container
-        run: docker tag torchx ${{secrets.TORCHX_CONTAINER_REPO}}:latest
-      - name: Push container
-        run: docker push ${{secrets.TORCHX_CONTAINER_REPO}}:latest
+          python setup.py install
+          echo "VERSION=$(python -c 'import torchx; print(torchx.__version__)')" >> $GITHUB_ENV
+      - name: Configure Docker
+        run: |
+          set -eux
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - name: Build torchx container
+        run: |
+          set -eux
+          torchx/runtime/container/build.sh
+          docker tag torchx "ghcr.io/pytorch/torchx:$VERSION"
+      - name: Build examples container
+        run: |
+          set -eux
+          docker build -t "ghcr.io/pytorch/torchx-examples:$VERSION" examples/apps/
+      - name: Push containers
+        run: |
+          set -eux
+          docker push "ghcr.io/pytorch/torchx-examples:$VERSION"
+          docker push "ghcr.io/pytorch/torchx:$VERSION"

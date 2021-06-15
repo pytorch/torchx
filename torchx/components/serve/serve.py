@@ -7,12 +7,13 @@
 from typing import Dict, Optional
 
 import torchx.specs as specs
+from torchx.version import TORCHX_IMAGE
 
 
 def torchserve(
     model_path: str,
     management_api: str,
-    image: str = "495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest",
+    image: str = TORCHX_IMAGE,
     params: Optional[Dict[str, object]] = None,
 ) -> specs.AppDef:
     """Deploys the provided model to the given torchserve management API
