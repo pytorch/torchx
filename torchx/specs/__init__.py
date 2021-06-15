@@ -8,6 +8,8 @@
 from .api import *  # noqa: F401 F403
 from torchx.util.entrypoints import load
 
+GiB: int = 1024
+
 
 def named_resource(resource: str) -> Resource:
     """
