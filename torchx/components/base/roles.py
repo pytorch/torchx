@@ -17,8 +17,8 @@ def create_torch_dist_role(
     entrypoint: str,
     resource: Resource = NULL_RESOURCE,
     base_image: Optional[str] = None,
-    script_args: Optional[List[str]] = None,
-    script_envs: Optional[Dict[str, str]] = None,
+    args: Optional[List[str]] = None,
+    env: Optional[Dict[str, str]] = None,
     num_replicas: int = 1,
     max_retries: int = 0,
     port_map: Dict[str, int] = field(default_factory=dict),
@@ -54,7 +54,7 @@ def create_torch_dist_role(
     ...     image="<NONE>",
     ...     resource=NULL_RESOURCE,
     ...     entrypoint="my_train_script.py",
-    ...     script_args=["--script_arg", "foo", "--another_arg", "bar"],
+    ...     args=["--script_arg", "foo", "--another_arg", "bar"],
     ...     num_replicas=4, max_retries=1,
     ...     nproc_per_node=8, nnodes="2:4", max_restarts=3)
     ... # effectively runs:
@@ -72,8 +72,8 @@ def create_torch_dist_role(
         entrypoint: User binary or python script that will be launched.
         resource: Resource that is requested by scheduler
         base_image: Optional base image, if schedulers support image overlay
-        script_args: User provided arguments
-        script_envs: Env. variables that will be set on worker process that runs entrypoint
+        args: User provided arguments
+        env: Env. variables that will be set on worker process that runs entrypoint
         num_replicas: Number of role replicas to run
         max_retries: Max number of retries
         port_map: Port mapping for the role
@@ -84,11 +84,11 @@ def create_torch_dist_role(
         Role object that launches user entrypoint via the torchelastic as proxy
 
     """
-    script_args = script_args or []
-    script_envs = script_envs or {}
+    args = args or []
+    env = env or {}
 
     entrypoint_override = "python"
-    args: List[str] = ["-m", "torch.distributed.launch"]
+    torch_run_args: List[str] = ["-m", "torch.distributed.launch"]
 
     launch_kwargs.setdefault("rdzv_backend", "etcd")
     launch_kwargs.setdefault("rdzv_id", macros.app_id)
@@ -98,14 +98,14 @@ def create_torch_dist_role(
         if isinstance(val, bool):
             # treat boolean kwarg as a flag
             if val:
-                args += [f"--{arg}"]
+                torch_run_args += [f"--{arg}"]
         else:
-            args += [f"--{arg}", str(val)]
+            torch_run_args += [f"--{arg}", str(val)]
     if not os.path.isabs(entrypoint) and not entrypoint.startswith(macros.img_root):
         # make entrypoint relative to {img_root} ONLY if it is not an absolute path
         entrypoint = os.path.join(macros.img_root, entrypoint)
 
-    args += [entrypoint, *script_args]
+    args = [*torch_run_args, entrypoint, *args]
     return (
         Role(
             name,
@@ -114,7 +114,7 @@ def create_torch_dist_role(
             resource=resource,
             port_map=port_map,
         )
-        .runs(entrypoint_override, *args, **script_envs)
+        .runs(entrypoint_override, *args, **env)
         .replicas(num_replicas)
         .with_retry_policy(retry_policy, max_retries)
     )

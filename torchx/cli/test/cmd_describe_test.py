@@ -21,7 +21,7 @@ class CmdDescribeTest(unittest.TestCase):
             "elastic_trainer",
             image="trainer_fbpkg",
             entrypoint="trainer.par",
-            script_args=["--arg1", "foo"],
+            args=["--arg1", "foo"],
             resource=resource,
             num_replicas=2,
             nnodes="2:3",
