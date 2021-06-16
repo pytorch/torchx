@@ -4,6 +4,11 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+"""
+These components aim to make it easier to interact with inference and serving
+tools such as `torchserve <https://pytorch.org/serve/>`_.
+"""
+
 from typing import Dict, Optional
 
 import torchx.specs as specs
@@ -19,7 +24,7 @@ def torchserve(
     """Deploys the provided model to the given torchserve management API
     endpoint.
 
-    >>> from torchx.components.serve.serve import torchserve
+    >>> from torchx.components.serve import torchserve
     >>> torchserve(
     ...     model_path="s3://your-bucket/your-model.pt",
     ...     management_api="http://torchserve:8081",

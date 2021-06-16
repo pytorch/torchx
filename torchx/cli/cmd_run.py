@@ -195,6 +195,7 @@ class CmdRun(SubCommand):
             "--scheduler",
             type=str,
             help="Name of the scheduler to use",
+            default="default",
         )
         subparser.add_argument(
             "--scheduler_args",

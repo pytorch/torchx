@@ -8,7 +8,7 @@
 import unittest
 
 import torchx.specs as specs
-from torchx.components.serve.serve import torchserve
+from torchx.components.serve import torchserve
 
 
 class ServeTest(unittest.TestCase):
