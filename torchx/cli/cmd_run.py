@@ -5,13 +5,12 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
-import ast
 import glob
 import importlib
 import os
 from dataclasses import dataclass
 from inspect import getmembers, isfunction
-from typing import Dict, Iterable, List, Optional, Type, Union
+from typing import Dict, List, Optional, Union
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
@@ -30,63 +29,6 @@ def parse_args_children(arg: str) -> Dict[str, Union[str, List[str]]]:
             value = value.split(";")
         conf[key] = value
     return conf
-
-
-class UnsupportFeatureError(Exception):
-    def __init__(self, name: str) -> None:
-        super().__init__(f"Using unsupported feature {name} in config.")
-
-
-class ConfValidator(ast.NodeVisitor):
-    IMPORT_ALLOWLIST: Iterable[str] = (
-        "torchx",
-        "torchelastic.tsm",
-        "os.path",
-        "pytorch.elastic.torchelastic.tsm",
-    )
-
-    FEATURE_BLOCKLIST: Iterable[Type[object]] = (
-        # statements
-        ast.FunctionDef,
-        ast.ClassDef,
-        ast.Return,
-        ast.Delete,
-        ast.For,
-        ast.AsyncFor,
-        ast.While,
-        ast.If,
-        ast.With,
-        ast.AsyncWith,
-        ast.Raise,
-        ast.Try,
-        ast.Global,
-        ast.Nonlocal,
-        # expressions
-        ast.ListComp,
-        ast.SetComp,
-        ast.DictComp,
-        # ast.GeneratorExp,
-    )
-
-    def visit(self, node: ast.AST) -> None:
-        if node.__class__ in self.FEATURE_BLOCKLIST:
-            raise UnsupportFeatureError(node.__class__.__name__)
-
-        super().visit(node)
-
-    def _validate_import_path(self, names: List[str]) -> None:
-        for name in names:
-            if not any(name.startswith(prefix) for prefix in self.IMPORT_ALLOWLIST):
-                raise ImportError(
-                    f"import {name} not in allowed import prefixes {self.IMPORT_ALLOWLIST}"
-                )
-
-    def visit_Import(self, node: ast.Import) -> None:
-        self._validate_import_path([alias.name for alias in node.names])
-
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        if module := node.module:
-            self._validate_import_path([module])
 
 
 def _parse_run_config(arg: str) -> specs.RunConfig:
@@ -122,18 +64,17 @@ def _get_component_definition(module: str, function_name: str) -> str:
     return f"{module}.{function_name}"
 
 
-def _get_components_from_file(filepath: str) -> List[BuiltinComponent]:
-    if filepath.endswith("__init__.py"):
-        return []
+def _to_relative(filepath: str) -> str:
     if os.path.isabs(filepath):
-        if str(COMPONENTS_DIR) not in filepath:
-            return []
+        # make path torchx/components/$suffix out of the abs
         rel_path = filepath.split(str(COMPONENTS_DIR))[1]
-        if rel_path[1:].startswith("test"):
-            return []
-        components_path = f"{str(COMPONENTS_DIR)}{rel_path}"
+        return f"{str(COMPONENTS_DIR)}{rel_path}"
     else:
-        components_path = os.path.join(str(COMPONENTS_DIR), filepath)
+        return os.path.join(str(COMPONENTS_DIR), filepath)
+
+
+def _get_components_from_file(filepath: str) -> List[BuiltinComponent]:
+    components_path = _to_relative(filepath)
     components_module_path = _to_module(components_path)
     module = importlib.import_module(components_module_path)
     functions = getmembers(module, isfunction)

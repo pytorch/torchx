@@ -107,7 +107,6 @@ class Runner:
             AppNotReRunnableException: if the session/scheduler does not support re-running attached apps
             ValueError: if the ``component_path`` is failed to resolve.
         """
-
         app_fn = entrypoints.load("torchx.components", component_path, default=NONE)
         if app_fn != NONE:
             app = from_function(app_fn, app_args)

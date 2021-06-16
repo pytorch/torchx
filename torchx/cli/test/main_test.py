@@ -15,7 +15,7 @@ from torchx.specs import api
 
 _root: Path = Path(__file__).parent
 
-_SIMPLE_CONF: str = "tests.simple"
+_SIMPLE_CONF: str = str(Path(__file__).parent / "components.py:simple")
 
 
 class CLITest(unittest.TestCase):
@@ -25,11 +25,11 @@ class CLITest(unittest.TestCase):
                 "run",
                 "--scheduler",
                 "local",
-                str(_root / "examples" / "test.py:simple"),
+                str(_root / "components.py:simple"),
                 "--num_trainers",
                 "2",
                 "--trainer_image",
-                str(_root / "examples" / "container"),
+                str(_root / "container"),
             ]
         )
 
@@ -43,7 +43,7 @@ class CLITest(unittest.TestCase):
                 "--num_trainers",
                 "2",
                 "--trainer_image",
-                str(_root / "examples" / "container"),
+                str(_root / "container"),
             ]
         )
 
