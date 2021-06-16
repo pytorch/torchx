@@ -24,6 +24,8 @@ Resource
 .. autoclass:: Resource
    :members:
 
+.. autofunction:: get_named_resources
+
 Macros
 ------------
 .. autoclass:: macros

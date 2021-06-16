@@ -12,7 +12,7 @@ TorchX's configurable extension points.
 """
 from typing import Any, Dict, List, Optional, Union
 
-from torchx.specs import named_resource
+from torchx.specs import named_resources
 from torchx.specs.api import NULL_RESOURCE, Resource, RetryPolicy, Role
 from torchx.util.entrypoints import load
 
@@ -23,7 +23,7 @@ def _resolve_resource(resource: Union[str, Resource]) -> Resource:
     if isinstance(resource, Resource):
         return resource
     else:
-        return named_resource(resource.lower())
+        return named_resources[resource.upper()]
 
 
 def torch_dist_role(

@@ -70,11 +70,21 @@ representation:
 
 ::
 
- [torchx.schedulers]
+ [torchx.named_resources]
  gpu_x_2 = my_module.resources:gpu_x_2
 
 
 The named resource after that can be used in the following manner:
+
+.. code-block:: python
+
+  # my_module.component
+  from torchx.specs import AppDef, Role, named_resources
+  from torchx.components.base import torch_dist_role
+
+  app = AppDef(name="test_app", roles=[Role(.., resource=named_resources("gpu_x_2"))])
+
+or using ``torch.distributed.run``:
 
 .. code-block:: python
 
