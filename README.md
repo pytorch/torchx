@@ -4,6 +4,9 @@
 # TorchX
 
 
+TorchX is a library containing standard DSLs for authoring and running PyTorch
+related components for an E2E production ML pipeline.
+
 For the latest documentation, please refer to our [website](https://pytorch.org/torchx).
 
 
@@ -18,19 +21,21 @@ TorchX Kubeflow Pipelines Support (torchx-kfp):
 
 ## Installation
 ```bash
-# install torchx sdk
+# install torchx sdk and CLI
 pip install torchx
 
 # install torchx kubeflow pipelines (kfp) support
-pip intall torchx-kfp
+pip intall torchx[kfp]
 ```
 
 ## Quickstart
-<TODO PLACEHOLDER>
+
+See the [quickstart guide](https://pytorch.org/torchx/latest/quickstart.html).
 
 ## Contributing
 
 We welcome PRs! See the [CONTRIBUTING](CONTRIBUTING.md) file.
 
 ## License
+
 TorchX is BSD licensed, as found in the [LICENSE](LICENSE) file.
