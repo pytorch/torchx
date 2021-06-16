@@ -16,7 +16,6 @@ KFP adapters can be used transform the TorchX components directly into
 something that can be used within KFP.
 """
 
-
 # %%
 # Input Arguments
 # ###############
@@ -105,7 +104,6 @@ import sys
 
 args: argparse.Namespace = parser.parse_args(sys.argv[1:])
 
-
 # %%
 # Creating the Components
 # #######################
@@ -166,7 +164,7 @@ trainer_comp: ContainerFactory = component_from_app(trainer_app)
 
 import os.path
 
-from torchx.components.serve.serve import torchserve
+from torchx.components.serve import torchserve
 
 serve_app: specs.AppDef = torchserve(
     model_path=os.path.join(args.output_path, "model.mar"),

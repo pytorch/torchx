@@ -318,21 +318,15 @@ class RunnerTest(unittest.TestCase):
         schedulers = {"default": local_sched_mock, "local": local_sched_mock}
         runner = Runner(name="test_session", schedulers=schedulers)
 
-        app_args = ["--script", "test.py"]
+        app_args = ["--image", "dummy_image", "--entrypoint", "test.py"]
         with patch.object(runner, "run") as run_mock:
-            app_handle = runner.run_from_path("distributed.ddp", app_args, "local")
+            app_handle = runner.run_from_path("dist.ddp", app_args, "local")
             args, kwargs = run_mock.call_args
             actual_app = args[0]
-        entrypoint = "${img_root}/test.py"
-        expected_app = AppDef(
-            "ddp_app",
-            roles=[
-                Role("worker", image="dummy_image", resource=Resource(1, 0, 1)).runs(
-                    entrypoint
-                )
-            ],
-        )
-        self.assertDictEqual(asdict(expected_app), asdict(actual_app))
+
+        self.assertEqual(actual_app.name, "test_name")
+        self.assertEqual(1, len(actual_app.roles))
+        self.assertEqual("worker", actual_app.roles[0].name)
 
     def test_run_from_module_unknown_module(self, _) -> None:
         local_sched_mock = MagicMock()

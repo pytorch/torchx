@@ -5,5 +5,5 @@ Serve
 .. currentmodule:: torchx.components.serve
 
 
-.. currentmodule:: torchx.components.serve.serve
+.. currentmodule:: torchx.components.serve
 .. autofunction:: torchserve

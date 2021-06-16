@@ -4,4 +4,5 @@ Utils
 .. automodule:: torchx.components.utils
 .. currentmodule:: torchx.components.utils
 
-.. autofunction:: torchx.components.utils.echo.get_app_spec
+.. autofunction:: torchx.components.utils.echo
+.. autofunction:: torchx.components.utils.touch
