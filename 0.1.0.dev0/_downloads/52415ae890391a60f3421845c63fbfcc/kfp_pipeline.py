@@ -16,7 +16,6 @@ KFP adapters can be used transform the TorchX components directly into
 something that can be used within KFP.
 """
 
-
 # %%
 # Input Arguments
 # ###############
@@ -32,21 +31,24 @@ parser = argparse.ArgumentParser(description="example kfp pipeline")
 # docker containers. We have one container for the example apps and one for
 # the standard built in apps. If you modify the torchx example code you'll
 # need to rebuild the container before launching it on KFP
+
+from torchx.version import TORCHX_IMAGE, EXAMPLES_IMAGE
+
 parser.add_argument(
     "--image",
     type=str,
-    help="docker image to use",
-    default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/examples:latest",
+    help="docker image to use for the examples apps",
+    default=EXAMPLES_IMAGE,
 )
 parser.add_argument(
     "--torchx_image",
     type=str,
-    help="docker image to use",
-    default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest",
+    help="docker image to use for the builtin torchx apps",
+    default=TORCHX_IMAGE,
 )
 
 # %%
-# Most TorchX compnents use
+# Most TorchX components use
 # `fsspec <https://filesystem-spec.readthedocs.io/en/latest/>`_ to abstract
 # away dealing with remote filesystems. This allows the components to take
 # paths like `s3://` to make it easy to use cloud storage providers.
@@ -64,7 +66,7 @@ parser.add_argument(
     required=True,
 )
 parser.add_argument(
-    "--log_dir", type=str, help="directory to place the logs", default="/tmp"
+    "--log_path", type=str, help="path to place the tensorboard logs", default="/tmp"
 )
 
 # %%
@@ -101,7 +103,6 @@ parser.add_argument(
 import sys
 
 args: argparse.Namespace = parser.parse_args(sys.argv[1:])
-
 
 # %%
 # Creating the Components
@@ -141,14 +142,14 @@ datapreproc_comp: ContainerFactory = component_from_app(datapreproc_app)
 
 trainer_app: specs.AppDef = binary_component(
     name="examples-lightning_classy_vision-trainer",
-    entrypoint="lightning_classy_vision/main.py",
+    entrypoint="lightning_classy_vision/train.py",
     args=[
         "--output_path",
         args.output_path,
         "--load_path",
         args.load_path or "",
-        "--log_dir",
-        args.log_dir,
+        "--log_path",
+        args.log_path,
         "--data_path",
         args.data_path,
     ],
@@ -163,7 +164,7 @@ trainer_comp: ContainerFactory = component_from_app(trainer_app)
 
 import os.path
 
-from torchx.components.serve.serve import torchserve
+from torchx.components.serve import torchserve
 
 serve_app: specs.AppDef = torchserve(
     model_path=os.path.join(args.output_path, "model.mar"),
@@ -176,6 +177,24 @@ serve_app: specs.AppDef = torchserve(
     },
 )
 serve_comp: ContainerFactory = component_from_app(serve_app)
+
+# %%
+# For model interpretability we're leveraging a custom component stored in it's
+# own component file. This component takes in the output from datapreproc and
+# train components and produces images with integrated gradient results.
+
+# make sure examples is on the path
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+from examples.apps.lightning_classy_vision.component import interpret
+
+interpret_app: specs.AppDef = interpret(
+    load_path=os.path.join(args.output_path, "last.ckpt"),
+    data_path=args.data_path,
+    output_path=args.output_path,
+    image=args.image,
+)
+interpret_comp: ContainerFactory = component_from_app(interpret_app)
 
 # %%
 # Pipeline Definition
@@ -204,6 +223,12 @@ def pipeline() -> None:
     serve = serve_comp()
     serve.container.set_tty()
     serve.after(trainer)
+
+    # Serve and interpret only require the trained model so we can run them
+    # in parallel to each other.
+    interpret = interpret_comp()
+    interpret.container.set_tty()
+    interpret.after(trainer)
 
 
 kfp.compiler.Compiler().compile(

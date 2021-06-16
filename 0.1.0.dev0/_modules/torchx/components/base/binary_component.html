@@ -300,8 +300,6 @@
         
           <li><a href="../../../index.html">Module code</a> &gt;</li>
         
-          <li><a href="../base.html">torchx.components.base</a> &gt;</li>
-        
       <li>torchx.components.base.binary_component</li>
     
     
@@ -348,6 +346,7 @@
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">Resource</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">NULL_RESOURCE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    binary_component creates a single binary component from the</span>
@@ -375,6 +374,7 @@
                 <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="n">args</span> <span class="ow">or</span> <span class="p">[],</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{},</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">],</span>
     <span class="p">)</span></div>

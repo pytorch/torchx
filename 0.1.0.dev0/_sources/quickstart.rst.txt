@@ -17,15 +17,16 @@ For now lets take a look at the builtins
 
  $ torchx builtins
  Found <n> builtin configs:
-   1. echo
-   2. touch
+   ...
+   i. utils.echo
+   j. utils.touch
    ...
 
-Echo looks familiar and simple. Lets understand how to run ``echo``.
+Echo looks familiar and simple. Lets understand how to run ``utils.echo``.
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local echo --help
+ $ torchx run --scheduler local utils.echo --help
  usage: torchx run echo [-h] [--msg MSG]
 
  Echos a message
@@ -38,7 +39,7 @@ We can see that it takes a ``--msg`` argument. Lets try running it locally
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local echo --msg "hello world"
+ $ torchx run --scheduler local utils.echo --msg "hello world"
 
 .. note:: ``echo`` in this context is just an app spec. It is not the application
           logic itself but rather just the "job definition" for running `/bin/echo`.
@@ -58,16 +59,16 @@ This is just a regular python file where we define the app spec.
 
 .. code-block:: shell-session
 
- $ touch ~/echo_torchx.py
+ $ touch ~/test.py
 
-Now copy paste the following into echo_torchx.py
+Now copy paste the following into test.py
 
 ::
 
  import torchx.specs as specs
 
 
- def get_app_spec(num_replicas: int, msg: str = "hello world") -> specs.AppDef:
+ def echo(num_replicas: int, msg: str = "hello world") -> specs.AppDef:
      """
      Echos a message to stdout (calls /bin/echo)
 
@@ -83,8 +84,8 @@ Now copy paste the following into echo_torchx.py
                  name="echo",
                  entrypoint="/bin/echo",
                  image="/tmp",
-                 args=[f"replica #{specs.macros.replica_id}: msg"],
-                 num_replicas=1,
+                 args=[f"replica #{specs.macros.replica_id}: {msg}"],
+                 num_replicas=num_replicas,
              )
          ],
      )
@@ -103,12 +104,85 @@ Now lets try running our custom ``echo``
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local ~/echo_torchx.py --num_replicas 4 --msg "foobar"
+ $ torchx run --scheduler local ~/test.py:echo --num_replicas 4 --msg "foobar"
 
  replica #0: foobar
  replica #1: foobar
  replica #2: foobar
  replica #3: foobar
+
+Running on Other Images
+-----------------------------
+So far we've run ``utils.echo`` with ``image=/tmp``. This means that the
+``entrypoint`` we specified is relative to ``/tmp``. That did not matter for us
+since we specified an absolute path as the entrypoint (``entrypoint=/bin/echo``).
+Had we specified ``entrypoint=echo`` the local scheduler would have tried to invoke
+``/tmp/echo``.
+
+If you have a pre-built application binary, setting the image to a local directory is a
+quick way to validate the application and the ``specs.AppDef``. But its not all
+that useful if you want to run the application on a remote scheduler
+(see :ref:`Running On Other Schedulers`).
+
+.. note:: The ``image`` string in ``specs.Role`` is an identifier to a container image
+          supported by the scheduler. Refer to the scheduler documentation to find out
+          what container image is supported by the scheduler you want to use.
+
+For ``local`` scheduler we can see that it supports both a local directory
+and docker as the image:
+
+.. code-block:: shell-session
+
+ $ torchx runopts local
+
+ { 'image_type': { 'default': 'dir',
+                  'help': 'image type. One of [dir, docker]',
+                  'type': 'str'},
+ ... <omitted for brevity> ...
+
+
+.. note:: Before proceeding, you will need docker installed. If you have not done so already
+          follow the install instructions on: https://docs.docker.com/get-docker/
+
+Now lets try running ``echo`` from a docker container. Modify echo's ``AppDef``
+in ``~/test.py`` you created in the previous section to make the ``image="ubuntu:latest"``.
+
+::
+
+ import torchx.specs as specs
+
+
+ def echo(num_replicas: int, msg: str = "hello world") -> specs.AppDef:
+     """
+     Echos a message to stdout (calls /bin/echo)
+
+     Args:
+        num_replicas: number of copies (in parallel) to run
+        msg: message to echo
+
+     """
+     return specs.AppDef(
+         name="echo",
+         roles=[
+             specs.Role(
+                 name="echo",
+                 entrypoint="/bin/echo",
+                 image="ubuntu:latest", # IMAGE NOW POINTS TO THE UBUNTU DOCKER IMAGE
+                 args=[f"replica #{specs.macros.replica_id}: {msg}"],
+                 num_replicas=num_replicas,
+             )
+         ],
+     )
+
+Try running the echo app
+
+.. code-block:: shell-session
+
+ $ torchx run --scheduler local \
+              --scheduler_args image_type=docker \
+              ~/test.py:echo \
+              --num_replicas 4 \
+              --msg "foobar from docker!"
 
 Running On Other Schedulers
 -----------------------------

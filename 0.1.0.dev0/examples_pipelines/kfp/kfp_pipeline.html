@@ -358,21 +358,23 @@ you’re using this can vary but for KFP these images are specified as
 docker containers. We have one container for the example apps and one for
 the standard built in apps. If you modify the torchx example code you’ll
 need to rebuild the container before launching it on KFP</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span> <span class="n">EXAMPLES_IMAGE</span>
+
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
     <span class="s2">&quot;--image&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;docker image to use&quot;</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/examples:latest&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;docker image to use for the examples apps&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">EXAMPLES_IMAGE</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
     <span class="s2">&quot;--torchx_image&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;docker image to use&quot;</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;docker image to use for the builtin torchx apps&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">TORCHX_IMAGE</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Most TorchX compnents use
+<p>Most TorchX components use
 <a class="reference external" href="https://filesystem-spec.readthedocs.io/en/latest/">fsspec</a> to abstract
 away dealing with remote filesystems. This allows the components to take
 paths like <cite>s3://</cite> to make it easy to use cloud storage providers.</p>
@@ -390,7 +392,7 @@ paths like <cite>s3://</cite> to make it easy to use cloud storage providers.</p
     <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-    <span class="s2">&quot;--log_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;directory to place the logs&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span>
+    <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place the tensorboard logs&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -463,14 +465,14 @@ returns a KFP component.</p>
 previous datapreproc component.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trainer_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">binary_component</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-lightning_classy_vision-trainer&quot;</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;lightning_classy_vision/main.py&quot;</span><span class="p">,</span>
+    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;lightning_classy_vision/train.py&quot;</span><span class="p">,</span>
     <span class="n">args</span><span class="o">=</span><span class="p">[</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
         <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">load_path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--log_dir&quot;</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">log_dir</span><span class="p">,</span>
+        <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span>
         <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span>
     <span class="p">],</span>
@@ -484,7 +486,7 @@ component takes in a model and uploads it to the TorchServe management API
 endpoints.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
 
-<span class="kn">from</span> <span class="nn">torchx.components.serve.serve</span> <span class="kn">import</span> <span class="n">torchserve</span>
+<span class="kn">from</span> <span class="nn">torchx.components.serve</span> <span class="kn">import</span> <span class="n">torchserve</span>
 
 <span class="n">serve_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">torchserve</span><span class="p">(</span>
     <span class="n">model_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;model.mar&quot;</span><span class="p">),</span>
@@ -497,6 +499,23 @@ endpoints.</p>
     <span class="p">},</span>
 <span class="p">)</span>
 <span class="n">serve_comp</span><span class="p">:</span> <span class="n">ContainerFactory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">serve_app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For model interpretability we’re leveraging a custom component stored in it’s
+own component file. This component takes in the output from datapreproc and
+train components and produces images with integrated gradient results.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># make sure examples is on the path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">interpret</span>
+
+<span class="n">interpret_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">interpret</span><span class="p">(</span>
+    <span class="n">load_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;last.ckpt&quot;</span><span class="p">),</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+    <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">interpret_comp</span><span class="p">:</span> <span class="n">ContainerFactory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">interpret_app</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -523,6 +542,12 @@ example purposes.</p>
     <span class="n">serve</span> <span class="o">=</span> <span class="n">serve_comp</span><span class="p">()</span>
     <span class="n">serve</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
     <span class="n">serve</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
+
+    <span class="c1"># Serve and interpret only require the trained model so we can run them</span>
+    <span class="c1"># in parallel to each other.</span>
+    <span class="n">interpret</span> <span class="o">=</span> <span class="n">interpret_comp</span><span class="p">()</span>
+    <span class="n">interpret</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
+    <span class="n">interpret</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 
 
 <span class="n">kfp</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">Compiler</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>

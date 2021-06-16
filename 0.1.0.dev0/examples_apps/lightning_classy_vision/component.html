@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Trainer App Example" href="main.html" />
-    <link rel="prev" title="Data Preprocessing App Example" href="../datapreproc/datapreproc.html" />
+    <link rel="next" title="Trainer App Example" href="train.html" />
+    <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -342,47 +342,84 @@ to download the full example code</p>
 <div class="sphx-glr-example-title section" id="trainer-component-example">
 <span id="sphx-glr-examples-apps-lightning-classy-vision-component-py"></span><h1>Trainer Component Example<a class="headerlink" href="#trainer-component-example" title="Permalink to this headline">¶</a></h1>
 <p>This is a component definition that runs the example lightning_classy_vision app.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs.api</span> <span class="k">as</span> <span class="nn">torchx</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
+
+<span class="kn">import</span> <span class="nn">torchx.specs.api</span> <span class="k">as</span> <span class="nn">torchx</span>
+<span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">named_resource</span>
+<span class="kn">from</span> <span class="nn">torchx.components.base.binary_component</span> <span class="kn">import</span> <span class="n">binary_component</span>
 
 
-<span class="k">def</span> <span class="nf">classy_vision</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">log_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/logs&quot;</span><span class="p">,</span>
+    <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/logs&quot;</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Runs the example lightning_classy_vision app.</span>
 
-<span class="sd">    Runs the example lightning_classy_vision app.</span>
-
 <span class="sd">    Args:</span>
 <span class="sd">        image: image to run (e.g. foobar:latest)</span>
-<span class="sd">        resource: resource spec</span>
 <span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
 <span class="sd">        load_path: path to load pretrained model from</span>
-<span class="sd">        log_dir: path to save tensorboard logs to</span>
+<span class="sd">        data_path: path to the data to load</span>
+<span class="sd">        log_path: path to save tensorboard logs to</span>
+<span class="sd">        resource: the resources to use</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">entrypoint</span> <span class="o">=</span> <span class="s2">&quot;main&quot;</span>
-
-    <span class="n">trainer_role</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
-            <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-            <span class="n">resource</span><span class="o">=</span><span class="n">torchx</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">runs</span><span class="p">(</span>
-            <span class="s2">&quot;main&quot;</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">binary_component</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-lightning_classy_vision-trainer&quot;</span><span class="p">,</span>
+        <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;lightning_classy_vision/train.py&quot;</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">[</span>
             <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
             <span class="n">output_path</span><span class="p">,</span>
             <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
             <span class="n">load_path</span><span class="p">,</span>
-            <span class="s2">&quot;--log_dir&quot;</span><span class="p">,</span>
-            <span class="n">log_dir</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">replicas</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="s2">&quot;--log_pat&quot;</span><span class="p">,</span>
+            <span class="n">log_path</span><span class="p">,</span>
+            <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+            <span class="n">data_path</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="n">named_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resource</span>
+        <span class="k">else</span> <span class="n">torchx</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span><span class="s2">&quot;examples-lightning_classy_vision&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">trainer_role</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">interpret</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Runs the model interpretability app on the model outputted by the training</span>
+<span class="sd">    component.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: image to run (e.g. foobar:latest)</span>
+<span class="sd">        load_path: path to load pretrained model from</span>
+<span class="sd">        data_path: path to the data to load</span>
+<span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
+<span class="sd">        resource: the resources to use</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">binary_component</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-lightning_classy_vision-interpret&quot;</span><span class="p">,</span>
+        <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;lightning_classy_vision/interpret.py&quot;</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
+            <span class="n">load_path</span><span class="p">,</span>
+            <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+            <span class="n">data_path</span><span class="p">,</span>
+            <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="n">named_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resource</span>
+        <span class="k">else</span> <span class="n">torchx</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 <p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
@@ -405,10 +442,10 @@ to download the full example code</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="main.html" class="btn btn-neutral float-right" title="Trainer App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="train.html" class="btn btn-neutral float-right" title="Trainer App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../datapreproc/datapreproc.html" class="btn btn-neutral" title="Data Preprocessing App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

@@ -339,12 +339,23 @@ components that simply execute well known binaries (e.g. <code class="docutils l
 and are meant to be used as tutorial materials or glue operations between
 meaningful stages in a workflow.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.echo.get_app_spec">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.echo.</span></span><span class="sig-name descname"><span class="pre">get_app_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'hello</span> <span class="pre">world'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils/echo.html#get_app_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.echo.get_app_spec" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.components.utils.echo">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">echo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'hello</span> <span class="pre">world'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#echo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.echo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Echos a message to stdout (calls /bin/echo)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>msg</strong> – message to echo</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.utils.touch">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">touch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#touch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.touch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Touches a file (calls /bin/touch)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> – file to create</p>
 </dd>
 </dl>
 </dd></dl>

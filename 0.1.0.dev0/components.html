@@ -344,11 +344,11 @@ or on our <a class="reference internal" href="index.html#components-library"><sp
 <p>Components can be used out of the box by either torchx cli or torchx sdk.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># using via sdk</span>
 <span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">get_runner</span>
-<span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run_from_path</span><span class="p">(</span><span class="s2">&quot;distributed.ddb&quot;</span><span class="p">,</span> <span class="n">app_args</span><span class="o">=</span><span class="p">[],</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run_from_path</span><span class="p">(</span><span class="s2">&quot;distributed.ddp&quot;</span><span class="p">,</span> <span class="n">app_args</span><span class="o">=</span><span class="p">[],</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 
 <span class="c1"># using via torchx-cli</span>
 
-<span class="o">&gt;&gt;</span> <span class="n">torchx</span> <span class="n">run</span> <span class="o">--</span><span class="n">scheduler</span> <span class="n">local</span> <span class="n">distributed</span><span class="o">.</span><span class="n">ddb</span> <span class="o">--</span><span class="n">param1</span> <span class="o">--</span><span class="n">param2</span>
+<span class="o">&gt;&gt;</span> <span class="n">torchx</span> <span class="n">run</span> <span class="o">--</span><span class="n">scheduler</span> <span class="n">local</span> <span class="n">distributed</span><span class="o">.</span><span class="n">ddp</span> <span class="o">--</span><span class="n">param1</span> <span class="o">--</span><span class="n">param2</span>
 </pre></div>
 </div>
 <p>Components development</p>
@@ -368,6 +368,27 @@ should be located in <code class="docutils literal notranslate"><span class="pre
 <dt>Create component as function. Each component represents a function that accepts</dt><dd><p>arbitrary arguments and returns <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>.</p>
 </dd>
 </dl>
+<p>The function should
+have the following properties:</p>
+<ul class="simple">
+<li><p>All arguments of the function must be annotated</p></li>
+<li><dl class="simple">
+<dt>Current supported types:</dt><dd><ul>
+<li><p>Primitives: int, float, str</p></li>
+<li><p>Optional primitives: Optional[int], Optional[float], Optional[str]</p></li>
+<li><p>Dict: Dict[Primitive_key, Primitive_value]</p></li>
+<li><p>List: List[Primitive_value]</p></li>
+<li><p>Optional[List], Optional[Dict]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The function should have well defined description in</dt><dd><p><a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html</a> format</p>
+</dd>
+</dl>
+</li>
+</ul>
 <p>Unit tests. Write unit tests that use <code class="docutils literal notranslate"><span class="pre">torchx.specs.file_linter</span></code> to validate
 the component’s structure,  similar to <code class="docutils literal notranslate"><span class="pre">torchx.components.tests.distributed_test.py</span></code>.</p>
 <img alt="_images/components_diagram.jpg" src="_images/components_diagram.jpg" />

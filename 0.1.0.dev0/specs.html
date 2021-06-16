@@ -505,7 +505,7 @@ will be used.</p>
 The macros will be substituted at runtime to their actual values.</p>
 <p>Available macros:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">img_root</span></code> - root directory of the pulled conatiner.image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">img_root</span></code> - root directory of the pulled container.image</p></li>
 <li><dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">base_img_root</span></code> - root directory of the pulled role.base_image</dt><dd><p>(resolves to “&lt;NONE&gt;” if no base_image set)</p>
 </dd>
@@ -560,7 +560,7 @@ scheduler runtime configs/arguments that do not bind
 to <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> nor the <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code>. For example
 a particular cluster (within the scheduler) the application
 should be submitted to. Since the same app can be launched
-into multiple types of clusters (devo, prod) the
+into multiple types of clusters (dev, prod) the
 cluster id config does not bind to the app. Neither
 does this bind to the scheduler since the cluster can
 be partitioned by size of the instances (S, M, L) or by
@@ -664,7 +664,7 @@ with json response.</p>
 <p><code class="docutils literal notranslate"><span class="pre">replicas</span></code> represent the statuses of the replicas in the job. If the job
 runs with multiple retries, the parameter will contain the statuses of the
 most recent retry. Note: if the previous retries failed, but the most recent
-retry succeeded or in progress, <code class="docutils literal notranslate"><span class="pre">replicas</span></code> will not contain ocurred errors.</p>
+retry succeeded or in progress, <code class="docutils literal notranslate"><span class="pre">replicas</span></code> will not contain occurred errors.</p>
 </dd></dl>
 
 <dl class="py class">

@@ -385,7 +385,20 @@ enumerate t-shirt sized resource specs for the containers as:</p>
 </pre></div>
 </div>
 <p>And refer to the resources by their string names.</p>
-<p>&lt;COMING SOON&gt;</p>
+<p>Torchx supports custom resource definition and reference by string
+representation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">torchx</span><span class="o">.</span><span class="n">schedulers</span><span class="p">]</span>
+<span class="n">gpu_x_2</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span><span class="n">gpu_x_2</span>
+</pre></div>
+</div>
+<p>The named resource after that can be used in the following manner:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_module.component</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">Role</span>
+<span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">torch_dist_role</span><span class="p">(</span><span class="o">..</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;gpu_x_2&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)])</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="registering-custom-components">
 <h2>Registering Custom Components<a class="headerlink" href="#registering-custom-components" title="Permalink to this headline">¶</a></h2>
@@ -397,7 +410,15 @@ when they run</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 </pre></div>
 </div>
-<p>&lt;COMING SOON&gt;</p>
+<p>Custom components can be registered via the following endpoint:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">torchx</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>
+<span class="n">custom_component</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">components</span><span class="p">:</span><span class="n">my_component</span>
+</pre></div>
+</div>
+<p>Custom components can be executed in the following manner:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>...,root_dir<span class="o">=</span>/tmp custom_component -- --name <span class="s2">&quot;test app&quot;</span>
+</pre></div>
+</div>
 </div>
 </div>
 

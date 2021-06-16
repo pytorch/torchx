@@ -477,7 +477,7 @@ rather than overriding this method directly.</p>
 <dl class="simple">
 <dt>The <code class="docutils literal notranslate"><span class="pre">component_path</span></code> has the following resolution order(from high-pri to low-pri):</dt><dd><ul class="simple">
 <li><dl class="simple">
-<dt>User-registerred components. Users can register components via</dt><dd><p><a class="reference external" href="https://packaging.python.org/specifications/entry-points/">https://packaging.python.org/specifications/entry-points/</a>. Method looks for
+<dt>User-registered components. Users can register components via</dt><dd><p><a class="reference external" href="https://packaging.python.org/specifications/entry-points/">https://packaging.python.org/specifications/entry-points/</a>. Method looks for
 entrypoints in the group <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code>.</p>
 </dd>
 </dl>
@@ -545,11 +545,11 @@ request that is not configurable from one of the object APIs.</p>
 <p class="admonition-title">Warning</p>
 <p>Use sparingly since abusing this method to overwrite
 many parameters in the raw scheduler request may
-lead to your usage of TSM going out of compliance
+lead to your usage of TorchX going out of compliance
 in the long term. This method is intended to
 unblock the user from experimenting with certain
 scheduler-specific features in the short term without
-having to wait until TSM exposes scheduler features
+having to wait until TorchX exposes scheduler features
 in its APIs.</p>
 </div>
 <div class="admonition note">

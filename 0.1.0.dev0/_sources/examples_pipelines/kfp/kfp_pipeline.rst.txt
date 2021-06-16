@@ -27,13 +27,13 @@ components.
 KFP adapters can be used transform the TorchX components directly into
 something that can be used within KFP.
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-24
+.. GENERATED FROM PYTHON SOURCE LINES 20-23
 
 Input Arguments
 ###############
 Lets first define some arguments for the pipeline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-29
+.. GENERATED FROM PYTHON SOURCE LINES 23-28
 
 .. code-block:: default
 
@@ -43,7 +43,7 @@ Lets first define some arguments for the pipeline.
     parser = argparse.ArgumentParser(description="example kfp pipeline")
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-35
+.. GENERATED FROM PYTHON SOURCE LINES 29-34
 
 TorchX components are built around images. Depending on what scheduler
 you're using this can vary but for KFP these images are specified as
@@ -51,32 +51,35 @@ docker containers. We have one container for the example apps and one for
 the standard built in apps. If you modify the torchx example code you'll
 need to rebuild the container before launching it on KFP
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-48
+.. GENERATED FROM PYTHON SOURCE LINES 34-50
 
 .. code-block:: default
+
+
+    from torchx.version import TORCHX_IMAGE, EXAMPLES_IMAGE
 
     parser.add_argument(
         "--image",
         type=str,
-        help="docker image to use",
-        default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/examples:latest",
+        help="docker image to use for the examples apps",
+        default=EXAMPLES_IMAGE,
     )
     parser.add_argument(
         "--torchx_image",
         type=str,
-        help="docker image to use",
-        default="495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx:latest",
+        help="docker image to use for the builtin torchx apps",
+        default=TORCHX_IMAGE,
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-53
+.. GENERATED FROM PYTHON SOURCE LINES 51-55
 
-Most TorchX compnents use
+Most TorchX components use
 `fsspec <https://filesystem-spec.readthedocs.io/en/latest/>`_ to abstract
 away dealing with remote filesystems. This allows the components to take
 paths like `s3://` to make it easy to use cloud storage providers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-70
+.. GENERATED FROM PYTHON SOURCE LINES 55-72
 
 .. code-block:: default
 
@@ -94,11 +97,11 @@ paths like `s3://` to make it easy to use cloud storage providers.
         required=True,
     )
     parser.add_argument(
-        "--log_dir", type=str, help="directory to place the logs", default="/tmp"
+        "--log_path", type=str, help="path to place the tensorboard logs", default="/tmp"
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-78
+.. GENERATED FROM PYTHON SOURCE LINES 73-80
 
 This example uses the torchserve for inference so we need to specify some
 options. This assumes you have a TorchServe instance running in the same
@@ -108,7 +111,7 @@ namespace.
 See https://github.com/pytorch/serve/blob/master/kubernetes/README.md for info
 on how to setup TorchServe.
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-91
+.. GENERATED FROM PYTHON SOURCE LINES 80-93
 
 .. code-block:: default
 
@@ -126,12 +129,12 @@ on how to setup TorchServe.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-94
+.. GENERATED FROM PYTHON SOURCE LINES 94-96
 
 Finally, set the output path for the exported KFP pipeline package. This can either be
 .yaml or .zip.
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-106
+.. GENERATED FROM PYTHON SOURCE LINES 96-107
 
 .. code-block:: default
 
@@ -147,8 +150,7 @@ Finally, set the output path for the exported KFP pipeline package. This can eit
     args: argparse.Namespace = parser.parse_args(sys.argv[1:])
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 107-116
+.. GENERATED FROM PYTHON SOURCE LINES 108-117
 
 Creating the Components
 #######################
@@ -160,7 +162,7 @@ execute the datapreproc app.
 datapreproc outputs the data to a specified fsspec path. These paths are all
 specified ahead of time so we have a fully static pipeline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-130
+.. GENERATED FROM PYTHON SOURCE LINES 117-131
 
 .. code-block:: default
 
@@ -179,13 +181,13 @@ specified ahead of time so we have a fully static pipeline.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-134
+.. GENERATED FROM PYTHON SOURCE LINES 132-135
 
 Now that we have the TorchX component we need to adapt it so it can run in KFP
 via our KFP adapter. component_from_app takes in a TorchX component and
 returns a KFP component.
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-138
+.. GENERATED FROM PYTHON SOURCE LINES 135-139
 
 .. code-block:: default
 
@@ -194,26 +196,26 @@ returns a KFP component.
     datapreproc_comp: ContainerFactory = component_from_app(datapreproc_app)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-141
+.. GENERATED FROM PYTHON SOURCE LINES 140-142
 
 Next we'll create the trainer component that takes in the training data from the
 previous datapreproc component.
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-159
+.. GENERATED FROM PYTHON SOURCE LINES 142-160
 
 .. code-block:: default
 
 
     trainer_app: specs.AppDef = binary_component(
         name="examples-lightning_classy_vision-trainer",
-        entrypoint="lightning_classy_vision/main.py",
+        entrypoint="lightning_classy_vision/train.py",
         args=[
             "--output_path",
             args.output_path,
             "--load_path",
             args.load_path or "",
-            "--log_dir",
-            args.log_dir,
+            "--log_path",
+            args.log_path,
             "--data_path",
             args.data_path,
         ],
@@ -222,20 +224,20 @@ previous datapreproc component.
     trainer_comp: ContainerFactory = component_from_app(trainer_app)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-163
+.. GENERATED FROM PYTHON SOURCE LINES 161-164
 
 For the inference, we're leveraging one of the builtin TorchX components. This
 component takes in a model and uploads it to the TorchServe management API
 endpoints.
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-180
+.. GENERATED FROM PYTHON SOURCE LINES 164-181
 
 .. code-block:: default
 
 
     import os.path
 
-    from torchx.components.serve.serve import torchserve
+    from torchx.components.serve import torchserve
 
     serve_app: specs.AppDef = torchserve(
         model_path=os.path.join(args.output_path, "model.mar"),
@@ -250,7 +252,32 @@ endpoints.
     serve_comp: ContainerFactory = component_from_app(serve_app)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-192
+.. GENERATED FROM PYTHON SOURCE LINES 182-185
+
+For model interpretability we're leveraging a custom component stored in it's
+own component file. This component takes in the output from datapreproc and
+train components and produces images with integrated gradient results.
+
+.. GENERATED FROM PYTHON SOURCE LINES 185-199
+
+.. code-block:: default
+
+
+    # make sure examples is on the path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+    from examples.apps.lightning_classy_vision.component import interpret
+
+    interpret_app: specs.AppDef = interpret(
+        load_path=os.path.join(args.output_path, "last.ckpt"),
+        data_path=args.data_path,
+        output_path=args.output_path,
+        image=args.image,
+    )
+    interpret_comp: ContainerFactory = component_from_app(interpret_app)
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 200-211
 
 Pipeline Definition
 ###################
@@ -264,7 +291,7 @@ containers need to have their dependencies specified via `.after()`.
 We call `.set_tty()` to make the logs from the components more responsive for
 example purposes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 192-214
+.. GENERATED FROM PYTHON SOURCE LINES 211-239
 
 .. code-block:: default
 
@@ -284,6 +311,12 @@ example purposes.
         serve.container.set_tty()
         serve.after(trainer)
 
+        # Serve and interpret only require the trained model so we can run them
+        # in parallel to each other.
+        interpret = interpret_comp()
+        interpret.container.set_tty()
+        interpret.after(trainer)
+
 
     kfp.compiler.Compiler().compile(
         pipeline_func=pipeline,
@@ -291,7 +324,7 @@ example purposes.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 215-218
+.. GENERATED FROM PYTHON SOURCE LINES 240-243
 
 Once this has all run you should have a pipeline file (typically
 pipeline.yaml) that you can upload to your KFP cluster via the UI or

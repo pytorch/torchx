@@ -409,7 +409,7 @@
 <span class="sd">        Retrieves application based on ``component_path`` and runs it in the specified mode.</span>
 
 <span class="sd">        The ``component_path`` has the following resolution order(from high-pri to low-pri):</span>
-<span class="sd">            * User-registerred components. Users can register components via</span>
+<span class="sd">            * User-registered components. Users can register components via</span>
 <span class="sd">                https://packaging.python.org/specifications/entry-points/. Method looks for</span>
 <span class="sd">                entrypoints in the group ``torchx.components``.</span>
 <span class="sd">            * File-based components in format: ``$FILE_PATH:FUNCTION_NAME``. Both relative and</span>
@@ -506,11 +506,11 @@
 
 <span class="sd">        .. warning:: Use sparingly since abusing this method to overwrite</span>
 <span class="sd">                     many parameters in the raw scheduler request may</span>
-<span class="sd">                     lead to your usage of TSM going out of compliance</span>
+<span class="sd">                     lead to your usage of TorchX going out of compliance</span>
 <span class="sd">                     in the long term. This method is intended to</span>
 <span class="sd">                     unblock the user from experimenting with certain</span>
 <span class="sd">                     scheduler-specific features in the short term without</span>
-<span class="sd">                     having to wait until TSM exposes scheduler features</span>
+<span class="sd">                     having to wait until TorchX exposes scheduler features</span>
 <span class="sd">                     in its APIs.</span>
 
 <span class="sd">        .. note:: It is recommended that sub-classes of ``Session`` implement</span>

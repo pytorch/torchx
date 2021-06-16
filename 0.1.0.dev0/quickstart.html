@@ -345,13 +345,14 @@
 For now lets take a look at the builtins</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 <span class="go">Found &lt;n&gt; builtin configs:</span>
-<span class="go">  1. echo</span>
-<span class="go">  2. touch</span>
+<span class="go">  ...</span>
+<span class="go">  i. utils.echo</span>
+<span class="go">  j. utils.touch</span>
 <span class="go">  ...</span>
 </pre></div>
 </div>
-<p>Echo looks familiar and simple. Lets understand how to run <code class="docutils literal notranslate"><span class="pre">echo</span></code>.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> <span class="nb">echo</span> --help
+<p>Echo looks familiar and simple. Lets understand how to run <code class="docutils literal notranslate"><span class="pre">utils.echo</span></code>.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> utils.echo --help
 <span class="go">usage: torchx run echo [-h] [--msg MSG]</span>
 
 <span class="go">Echos a message</span>
@@ -362,7 +363,7 @@ For now lets take a look at the builtins</p>
 </pre></div>
 </div>
 <p>We can see that it takes a <code class="docutils literal notranslate"><span class="pre">--msg</span></code> argument. Lets try running it locally</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> <span class="nb">echo</span> --msg <span class="s2">&quot;hello world&quot;</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> utils.echo --msg <span class="s2">&quot;hello world&quot;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -383,14 +384,14 @@ we’ll add two more parameters to our version of <code class="docutils literal 
 </ol>
 <p>First we create an app spec file.
 This is just a regular python file where we define the app spec.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>touch ~/echo_torchx.py
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>touch ~/test.py
 </pre></div>
 </div>
-<p>Now copy paste the following into echo_torchx.py</p>
+<p>Now copy paste the following into test.py</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 
 
-<span class="k">def</span> <span class="nf">get_app_spec</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Echos a message to stdout (calls /bin/echo)</span>
 
@@ -406,8 +407,8 @@ This is just a regular python file where we define the app spec.</p>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;/bin/echo&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;replica #</span><span class="si">{</span><span class="n">specs</span><span class="o">.</span><span class="n">macros</span><span class="o">.</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">: msg&quot;</span><span class="p">],</span>
-                <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;replica #</span><span class="si">{</span><span class="n">specs</span><span class="o">.</span><span class="n">macros</span><span class="o">.</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span>
@@ -423,12 +424,81 @@ the identifier of the package (e.g. Docker image) that the scheduler supports.</
 simply a job definition.</p></li>
 </ol>
 <p>Now lets try running our custom <code class="docutils literal notranslate"><span class="pre">echo</span></code></p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> ~/echo_torchx.py --num_replicas <span class="m">4</span> --msg <span class="s2">&quot;foobar&quot;</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> ~/test.py:echo --num_replicas <span class="m">4</span> --msg <span class="s2">&quot;foobar&quot;</span>
 
 <span class="go">replica #0: foobar</span>
 <span class="go">replica #1: foobar</span>
 <span class="go">replica #2: foobar</span>
 <span class="go">replica #3: foobar</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-on-other-images">
+<h2>Running on Other Images<a class="headerlink" href="#running-on-other-images" title="Permalink to this headline">¶</a></h2>
+<p>So far we’ve run <code class="docutils literal notranslate"><span class="pre">utils.echo</span></code> with <code class="docutils literal notranslate"><span class="pre">image=/tmp</span></code>. This means that the
+<code class="docutils literal notranslate"><span class="pre">entrypoint</span></code> we specified is relative to <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>. That did not matter for us
+since we specified an absolute path as the entrypoint (<code class="docutils literal notranslate"><span class="pre">entrypoint=/bin/echo</span></code>).
+Had we specified <code class="docutils literal notranslate"><span class="pre">entrypoint=echo</span></code> the local scheduler would have tried to invoke
+<code class="docutils literal notranslate"><span class="pre">/tmp/echo</span></code>.</p>
+<p>If you have a pre-built application binary, setting the image to a local directory is a
+quick way to validate the application and the <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>. But its not all
+that useful if you want to run the application on a remote scheduler
+(see <a class="reference internal" href="#running-on-other-schedulers"><span class="std std-ref">Running On Other Schedulers</span></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">image</span></code> string in <code class="docutils literal notranslate"><span class="pre">specs.Role</span></code> is an identifier to a container image
+supported by the scheduler. Refer to the scheduler documentation to find out
+what container image is supported by the scheduler you want to use.</p>
+</div>
+<p>For <code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler we can see that it supports both a local directory
+and docker as the image:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts <span class="nb">local</span>
+
+<span class="go">{ &#39;image_type&#39;: { &#39;default&#39;: &#39;dir&#39;,</span>
+<span class="go">                 &#39;help&#39;: &#39;image type. One of [dir, docker]&#39;,</span>
+<span class="go">                 &#39;type&#39;: &#39;str&#39;},</span>
+<span class="go">... &lt;omitted for brevity&gt; ...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before proceeding, you will need docker installed. If you have not done so already
+follow the install instructions on: <a class="reference external" href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a></p>
+</div>
+<p>Now lets try running <code class="docutils literal notranslate"><span class="pre">echo</span></code> from a docker container. Modify echo’s <code class="docutils literal notranslate"><span class="pre">AppDef</span></code>
+in <code class="docutils literal notranslate"><span class="pre">~/test.py</span></code> you created in the previous section to make the <code class="docutils literal notranslate"><span class="pre">image=&quot;ubuntu:latest&quot;</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+
+
+<span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Echos a message to stdout (calls /bin/echo)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">       num_replicas: number of copies (in parallel) to run</span>
+<span class="sd">       msg: message to echo</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;/bin/echo&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="s2">&quot;ubuntu:latest&quot;</span><span class="p">,</span> <span class="c1"># IMAGE NOW POINTS TO THE UBUNTU DOCKER IMAGE</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;replica #</span><span class="si">{</span><span class="n">specs</span><span class="o">.</span><span class="n">macros</span><span class="o">.</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Try running the echo app</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> <span class="se">\</span>
+<span class="go">             --scheduler_args image_type=docker \</span>
+<span class="go">             ~/test.py:echo \</span>
+<span class="go">             --num_replicas 4 \</span>
+<span class="go">             --msg &quot;foobar from docker!&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -532,6 +602,7 @@ run it as shown below.</p>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
 <li><a class="reference internal" href="#running-a-builtin-component">Running a Builtin Component</a></li>
 <li><a class="reference internal" href="#defining-your-own-component">Defining Your Own Component</a></li>
+<li><a class="reference internal" href="#running-on-other-images">Running on Other Images</a></li>
 <li><a class="reference internal" href="#running-on-other-schedulers">Running On Other Schedulers</a></li>
 <li><a class="reference internal" href="#next-steps">Next Steps</a></li>
 </ul>
