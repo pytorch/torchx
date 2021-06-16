@@ -38,21 +38,12 @@ class CmdRunTest(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
 
-    def test_run_with_builtin(self) -> None:
-        foobar_txt = str(self.tmpdir / "foobar.txt")
-        args = self.parser.parse_args(
-            ["--scheduler", "local", "tests.touch", "--file", foobar_txt]
-        )
-
-        self.cmd_run.run(args)
-        self.assertTrue(os.path.isfile(foobar_txt))
-
     def test_run_with_user_conf_abs_path(self) -> None:
         args = self.parser.parse_args(
             [
                 "--scheduler",
                 "local",
-                str(Path(__file__).parent / "examples/test.py:touch"),
+                str(Path(__file__).parent / "components.py:touch"),
                 "--file",
                 str(self.tmpdir / "foobar.txt"),
             ]
@@ -62,12 +53,12 @@ class CmdRunTest(unittest.TestCase):
 
     def test_run_with_relpath(self) -> None:
         # should pick up test/examples/touch.torchx (not the builtin)
-        with cwd(str(Path(__file__).parent / "examples")):
+        with cwd(str(Path(__file__).parent)):
             args = self.parser.parse_args(
                 [
                     "--scheduler",
                     "local",
-                    "tests.touch_v2",
+                    str(Path(__file__).parent / "components.py:touch_v2"),
                     "--file",
                     str(self.tmpdir / "foobar.txt"),
                 ]
@@ -95,7 +86,7 @@ class CmdRunTest(unittest.TestCase):
                 "--verbose",
                 "--scheduler",
                 "local",
-                "tests.echo",
+                "utils.echo",
             ]
         )
         self.cmd_run.run(args)

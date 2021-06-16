@@ -8,25 +8,6 @@
 import torchx.specs as specs
 
 
-def echo(msg: str = "hello world", image: str = "/tmp") -> specs.AppDef:
-    """Echos a message
-
-    Args:
-        msg: Message to echo
-        image: Image to run
-    """
-
-    echo = specs.Role(
-        name="echo",
-        image=image,
-        entrypoint="/bin/echo",
-        args=[msg],
-        num_replicas=1,
-    )
-
-    return specs.AppDef(name="echo", roles=[echo])
-
-
 def touch(file: str) -> specs.AppDef:
     """Echos a message
 
