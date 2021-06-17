@@ -18,7 +18,7 @@ class TorchxBaseLibTest(unittest.TestCase):
         expected_resources = {}
         with patch.object(metadata, "entry_points") as entry_points_mock:
             entry_points_mock.return_value = {}
-            with self.assertRaises(ValueError):
+            with self.assertRaises(KeyError):
                 torch_dist_role(
                     name="dist_role",
                     image="test_image",

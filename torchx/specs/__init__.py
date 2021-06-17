@@ -6,16 +6,28 @@
 # LICENSE file in the root directory of this source tree.
 
 from .api import *  # noqa: F401 F403
-from torchx.util.entrypoints import load
+from torchx.util.entrypoints import load_group
 
 GiB: int = 1024
 
 
-def named_resource(resource: str) -> Resource:
-    """
-    Gets resource object based on the string definition registered via entrypoints.txt.
+def _load_named_resources() -> Dict[str, Resource]:
+    resource_methods = load_group("torchx.named_resources", default={})
+    materialized_resources = {}
+    for resource_name, resource_method in resource_methods.items():
+        materialized_resources[resource_name] = resource_method()
+    materialized_resources["NULL"] = NULL_RESOURCE
+    return materialized_resources
 
-    Torchx implements named resource registration mechanism, which consists of
+
+named_resources: Dict[str, Resource] = _load_named_resources()
+
+
+def get_named_resources(res: str) -> Resource:
+    """
+    Get resource object based on the string definition registered via entrypoints.txt.
+
+    Torchx implements ``named_resource`` registration mechanism, which consists of
     the following steps:
 
     1. Create a module and define your resource retrieval function:
@@ -33,20 +45,15 @@ def named_resource(resource: str) -> Resource:
 
     ::
 
-     [torchx.schedulers]
+     [torchx.named_resources]
      gpu_x_1 = my_module.resources:gpu_x_1
 
     The ``gpu_x_1`` can be used as string argument to this function:
 
     ::
 
-     resource = named_resource("gpu_x_1")
+     from torchx.specs import named_resources
+     resource = named_resources["gpu_x_1"]
 
     """
-    try:
-        resource_fn = load("torchx.resources", name=resource.lower())
-    except KeyError:
-        raise ValueError(
-            f"Resource: {resource} is not registered, check entrypoints.txt file."
-        )
-    return resource_fn()
+    return named_resources[res]
