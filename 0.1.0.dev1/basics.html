@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Basics &mdash; PyTorch/TorchX master documentation</title>
@@ -332,9 +333,9 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="basics">
+  <section id="basics">
 <h1>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="project-structure">
+<section id="project-structure">
 <h2>Project Structure<a class="headerlink" href="#project-structure" title="Permalink to this headline">¶</a></h2>
 <p>The top level modules in TorchX are:</p>
 <ol class="arabic simple">
@@ -348,10 +349,10 @@
 </ol>
 <p>Below is a UML diagram</p>
 <img alt="_images/torchx_module_uml.jpg" src="_images/torchx_module_uml.jpg" />
-</div>
-<div class="section" id="concepts">
+</section>
+<section id="concepts">
 <h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="appdefs">
+<section id="appdefs">
 <h3>AppDefs<a class="headerlink" href="#appdefs" title="Permalink to this headline">¶</a></h3>
 <p>In TorchX an <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> is simply a struct with the <em>definition</em> of
 the actual application. In scheduler lingo, this is a <code class="docutils literal notranslate"><span class="pre">JobDefinition</span></code> and a
@@ -391,8 +392,8 @@ non-homogeneous distributed application, such as those that require a single
 <p>What makes app specs flexible also makes it have many fields. The good
 news is that in most cases you don’t have to build an app spec from scratch.
 Rather you would use a templetized app spec called <code class="docutils literal notranslate"><span class="pre">components</span></code>.</p>
-</div>
-<div class="section" id="components">
+</section>
+<section id="components">
 <h3>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h3>
 <p>A component in TorchX is simply a templetized <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>. You can
 think of them as convenient “factory methods” for <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>.</p>
@@ -438,8 +439,8 @@ purposes.</p>
 <p>Before authoring your own component, browse through the library of
 <a class="reference internal" href="components.html#module-torchx.components"><span class="std std-ref">Builtin Components</span></a> that are included with TorchX
 to see if one fits your needs.</p>
-</div>
-<div class="section" id="runner-and-schedulers">
+</section>
+<section id="runner-and-schedulers">
 <h3>Runner and Schedulers<a class="headerlink" href="#runner-and-schedulers" title="Permalink to this headline">¶</a></h3>
 <p>A <code class="docutils literal notranslate"><span class="pre">Runner</span></code> does exactly what you would expect – given an app spec it
 launches the application as a job onto a cluster through a job scheduler.</p>
@@ -450,8 +451,8 @@ launches the application as a job onto a cluster through a job scheduler.</p>
 </ol>
 <p>See <a class="reference internal" href="schedulers.html#module-torchx.schedulers"><span class="std std-ref">torchx.schedulers</span></a> for a list of schedulers that the runner can
 launch apps to.</p>
-</div>
-<div class="section" id="pipeline-adapters">
+</section>
+<section id="pipeline-adapters">
 <h3>Pipeline Adapters<a class="headerlink" href="#pipeline-adapters" title="Permalink to this headline">¶</a></h3>
 <p>While runners launch components as standalone jobs, <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code>
 makes it possible to plug components into an ML pipeline/workflow. For a
@@ -470,8 +471,8 @@ stage, then TorchX may take advantage of such feature to “inline” the
 sub-pipeline to the main pipeline. TorchX generally tries its best to adapt
 app specs to the <strong>most canonical</strong> representation in the target pipeline platform.</p>
 <p>See <a class="reference internal" href="index.html#pipelines"><span class="std std-ref">Pipeline Adapters</span></a> for a list of supported pipeline platforms.</p>
-</div>
-<div class="section" id="runtime">
+</section>
+<section id="runtime">
 <h3>Runtime<a class="headerlink" href="#runtime" title="Permalink to this headline">¶</a></h3>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -532,9 +533,9 @@ author your application. But finding a proper permanent home for these abstracti
 may take time or even require an entirely new OSS project to be created.
 Until this happens the features can mature and be accessible to users
 through the <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> module.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
              </article>

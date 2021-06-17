@@ -337,16 +337,28 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F401 F403</span>
-<span class="kn">from</span> <span class="nn">torchx.util.entrypoints</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="kn">from</span> <span class="nn">torchx.util.entrypoints</span> <span class="kn">import</span> <span class="n">load_group</span>
 
 <span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
 
 
-<div class="viewcode-block" id="named_resource"><a class="viewcode-back" href="../../components/base.html#torchx.components.base.named_resource">[docs]</a><span class="k">def</span> <span class="nf">named_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Gets resource object based on the string definition registered via entrypoints.txt.</span>
+<span class="k">def</span> <span class="nf">_load_named_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]:</span>
+    <span class="n">resource_methods</span> <span class="o">=</span> <span class="n">load_group</span><span class="p">(</span><span class="s2">&quot;torchx.named_resources&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">materialized_resources</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">resource_name</span><span class="p">,</span> <span class="n">resource_method</span> <span class="ow">in</span> <span class="n">resource_methods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">materialized_resources</span><span class="p">[</span><span class="n">resource_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource_method</span><span class="p">()</span>
+    <span class="n">materialized_resources</span><span class="p">[</span><span class="s2">&quot;NULL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
+    <span class="k">return</span> <span class="n">materialized_resources</span>
 
-<span class="sd">    Torchx implements named resource registration mechanism, which consists of</span>
+
+<span class="n">named_resources</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]</span> <span class="o">=</span> <span class="n">_load_named_resources</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_named_resources"><a class="viewcode-back" href="../../specs.html#torchx.specs.get_named_resources">[docs]</a><span class="k">def</span> <span class="nf">get_named_resources</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get resource object based on the string definition registered via entrypoints.txt.</span>
+
+<span class="sd">    Torchx implements ``named_resource`` registration mechanism, which consists of</span>
 <span class="sd">    the following steps:</span>
 
 <span class="sd">    1. Create a module and define your resource retrieval function:</span>
@@ -364,23 +376,18 @@
 
 <span class="sd">    ::</span>
 
-<span class="sd">     [torchx.schedulers]</span>
+<span class="sd">     [torchx.named_resources]</span>
 <span class="sd">     gpu_x_1 = my_module.resources:gpu_x_1</span>
 
 <span class="sd">    The ``gpu_x_1`` can be used as string argument to this function:</span>
 
 <span class="sd">    ::</span>
 
-<span class="sd">     resource = named_resource(&quot;gpu_x_1&quot;)</span>
+<span class="sd">     from torchx.specs import named_resources</span>
+<span class="sd">     resource = named_resources[&quot;gpu_x_1&quot;]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">resource_fn</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">&quot;torchx.resources&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Resource: </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> is not registered, check entrypoints.txt file.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">resource_fn</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">named_resources</span><span class="p">[</span><span class="n">res</span><span class="p">]</span></div>
 </pre></div>
 
              </article>

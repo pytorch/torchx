@@ -14,7 +14,7 @@ This is a component definition that runs the example lightning_classy_vision app
 from typing import Optional
 
 import torchx.specs.api as torchx
-from torchx.components.base import named_resource
+from torchx.components.base import named_resources
 from torchx.components.base.binary_component import binary_component
 
 
@@ -50,7 +50,7 @@ def trainer(
             data_path,
         ],
         image=image,
-        resource=named_resource(resource)
+        resource=named_resources[resource]
         if resource
         else torchx.Resource(cpu=1, gpu=0, memMB=1024),
     )
@@ -85,7 +85,7 @@ def interpret(
             output_path,
         ],
         image=image,
-        resource=named_resource(resource)
+        resource=named_resources[resource]
         if resource
         else torchx.Resource(cpu=1, gpu=0, memMB=1024),
     )

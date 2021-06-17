@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Quickstart &mdash; PyTorch/TorchX master documentation</title>
@@ -332,9 +333,9 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <div class="section" id="quickstart">
+  <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="running-a-builtin-component">
+<section id="running-a-builtin-component">
 <h2>Running a Builtin Component<a class="headerlink" href="#running-a-builtin-component" title="Permalink to this headline">¶</a></h2>
 <p>Easiest way to get started with TorchX is through the provided CLI.</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install torchx
@@ -373,8 +374,8 @@ logic itself but rather just the “job definition” for running <cite>/bin/ech
 If you haven’t done so already, this is a good time to read through the
 <a class="reference internal" href="basics.html#basics"><span class="std std-ref">Basic Concepts</span></a> familiarize yourself with the basic concepts.</p>
 </div>
-</div>
-<div class="section" id="defining-your-own-component">
+</section>
+<section id="defining-your-own-component">
 <h2>Defining Your Own Component<a class="headerlink" href="#defining-your-own-component" title="Permalink to this headline">¶</a></h2>
 <p>Now lets try to implement <code class="docutils literal notranslate"><span class="pre">echo</span></code> ourselves. To make things more interesting
 we’ll add two more parameters to our version of <code class="docutils literal notranslate"><span class="pre">echo</span></code>:</p>
@@ -432,8 +433,8 @@ simply a job definition.</p></li>
 <span class="go">replica #3: foobar</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-on-other-images">
+</section>
+<section id="running-on-other-images">
 <h2>Running on Other Images<a class="headerlink" href="#running-on-other-images" title="Permalink to this headline">¶</a></h2>
 <p>So far we’ve run <code class="docutils literal notranslate"><span class="pre">utils.echo</span></code> with <code class="docutils literal notranslate"><span class="pre">image=/tmp</span></code>. This means that the
 <code class="docutils literal notranslate"><span class="pre">entrypoint</span></code> we specified is relative to <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>. That did not matter for us
@@ -501,8 +502,8 @@ in <code class="docutils literal notranslate"><span class="pre">~/test.py</span>
 <span class="go">             --msg &quot;foobar from docker!&quot;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-on-other-schedulers">
+</section>
+<section id="running-on-other-schedulers">
 <h2>Running On Other Schedulers<a class="headerlink" href="#running-on-other-schedulers" title="Permalink to this headline">¶</a></h2>
 <p>So far we’ve launched components locally. Lets take a look at how to run this on
 real schedulers.</p>
@@ -543,8 +544,8 @@ run it as shown below.</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> ~/my_app.py -- --scheduler foobar
 </pre></div>
 </div>
-</div>
-<div class="section" id="next-steps">
+</section>
+<section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li><p>Checkout other features of the <a class="reference internal" href="cli.html#module-torchx.cli"><span class="std std-ref">torchx CLI</span></a></p></li>
@@ -553,8 +554,8 @@ run it as shown below.</p>
 <li><p>Take a look at the <a class="reference internal" href="index.html#schedulers"><span class="std std-ref">list of schedulers</span></a> supported by the runner</p></li>
 <li><p>See which <a class="reference internal" href="index.html#pipelines"><span class="std std-ref">ML pipeline platforms</span></a> you can run components on</p></li>
 </ol>
-</div>
-</div>
+</section>
+</section>
 
 
              </article>
