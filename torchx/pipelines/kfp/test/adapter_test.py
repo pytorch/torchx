@@ -8,7 +8,7 @@
 import os.path
 import tempfile
 import unittest
-from typing import Callable, List, Optional, TypedDict
+from typing import List, Optional, TypedDict
 
 from kfp import compiler, components, dsl
 from kubernetes.client.models import V1ContainerPort, V1ResourceRequirements
@@ -18,6 +18,7 @@ from torchx.pipelines.kfp.adapter import (
     component_from_app,
     component_spec,
     component_spec_from_app,
+    ContainerFactory,
 )
 from torchx.runtime.component import Component
 from torchx.specs import api
@@ -159,15 +160,15 @@ implementation:
       FOO: bar
     image: pytorch/torchx:latest
 name: test-trainer
+outputs: []
 """,
         )
 
     def test_pipeline(self) -> None:
         app = self._test_app()
-        # pyre-fixme[24]: Generic type `Callable` expects 2 type parameters.
-        kfp_copy: Callable = component_from_app(app)
+        kfp_copy: ContainerFactory = component_from_app(app)
 
-        def pipeline() -> dsl.PipelineParam:
+        def pipeline() -> None:
             a = kfp_copy()
             resources: V1ResourceRequirements = a.container.resources
             self.assertEqual(
@@ -192,7 +193,24 @@ name: test-trainer
 
             b = kfp_copy()
             b.after(a)
-            return b
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            compiler.Compiler().compile(pipeline, os.path.join(tmpdir, "pipeline.zip"))
+            compiler.Compiler().compile(pipeline, os.path.join(tmpdir, "pipeline.yaml"))
+
+    def test_pipeline_metadata(self) -> None:
+        app = self._test_app()
+        metadata = {}
+        kfp_copy: ContainerFactory = component_from_app(app, metadata)
+
+        def pipeline() -> None:
+            a = kfp_copy()
+            self.assertEqual(len(a.volumes), 1)
+            self.assertEqual(len(a.container.volume_mounts), 1)
+            self.assertEqual(len(a.sidecars), 1)
+            self.assertEqual(
+                a.output_artifact_paths["mlpipeline-ui-metadata"],
+                "/tmp/outputs/mlpipeline-ui-metadata/data.json",
+            )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            compiler.Compiler().compile(pipeline, os.path.join(tmpdir, "pipeline.yaml"))

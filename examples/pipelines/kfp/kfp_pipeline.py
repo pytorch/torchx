@@ -152,17 +152,34 @@ trainer_app: specs.AppDef = binary_component(
         args.log_path,
         "--data_path",
         args.data_path,
+        "--epochs",
+        "1",
     ],
     image=args.image,
 )
-trainer_comp: ContainerFactory = component_from_app(trainer_app)
+
+# %%
+# To have the tensorboard path show up in KFPs UI we need to some metadata so
+# KFP knows where to consume the metrics from.
+
+import os.path
+from typing import Dict
+
+ui_metadata: Dict[str, object] = {
+    "outputs": [
+        {
+            "type": "tensorboard",
+            "source": os.path.join(args.log_path, "lightning_logs"),
+        }
+    ]
+}
+trainer_comp: ContainerFactory = component_from_app(trainer_app, ui_metadata)
 
 # %%
 # For the inference, we're leveraging one of the builtin TorchX components. This
 # component takes in a model and uploads it to the TorchServe management API
 # endpoints.
 
-import os.path
 
 from torchx.components.serve import torchserve
 

@@ -6,12 +6,23 @@
 # LICENSE file in the root directory of this source tree.
 
 import copy
+import json
 import os
-from typing import Callable, Dict, List, Optional, Protocol, Tuple, Type
+import os.path
+import shlex
+from typing import Dict, List, Optional, Protocol, Tuple, Type, Mapping, Callable
 
 import yaml
 from kfp import components, dsl
-from kubernetes.client.models import V1ContainerPort
+
+# @manual=fbsource//third-party/pypi/kfp:kfp
+from kfp.components.structures import OutputSpec, ComponentSpec
+from kubernetes.client.models import (
+    V1ContainerPort,
+    V1Volume,
+    V1VolumeMount,
+    V1EmptyDirVolumeSource,
+)
 from torchx.runtime.component import Component, is_optional
 from torchx.specs import api
 
@@ -164,6 +175,7 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
                 "env": role.env,
             }
         },
+        "outputs": [],
     }
     return yaml.dump(spec), role
 
@@ -178,13 +190,34 @@ class ContainerFactory(Protocol):
         ...
 
 
-def component_from_app(app: api.AppDef) -> ContainerFactory:
+class KFPContainerFactory(ContainerFactory, Protocol):
+    """
+    KFPContainerFactory is a ContainerFactory that also has some KFP metadata
+    attached to it.
+    """
+
+    component_spec: ComponentSpec
+
+
+METADATA_FILE = "/tmp/outputs/mlpipeline-ui-metadata/data.json"
+
+
+def component_from_app(
+    app: api.AppDef, ui_metadata: Optional[Mapping[str, object]] = None
+) -> ContainerFactory:
     """
     component_from_app takes in a TorchX component/AppDef and returns a KFP
     ContainerOp factory. This is equivalent to the
     `kfp.components.load_component_from_*
     <https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.load_component_from_text>`_
     methods.
+
+    Args:
+        app: The AppDef to generate a KFP container factory for.
+        ui_metadata: KFP UI Metadata to output so you can have model results show
+            up in the UI. See
+            https://www.kubeflow.org/docs/components/pipelines/sdk/output-viewer/
+            for more info on the format.
 
     >>> from torchx import specs
     >>> from torchx.pipelines.kfp.adapter import component_from_app
@@ -202,11 +235,35 @@ def component_from_app(app: api.AppDef) -> ContainerFactory:
     assert (
         len(resources.capabilities) == 0
     ), f"KFP doesn't support capabilities, got {resources.capabilities}"
-    component_factory: ContainerFactory = components.load_component_from_text(spec)
+    component_factory: KFPContainerFactory = components.load_component_from_text(spec)
+
+    if ui_metadata is not None:
+        # pyre-fixme[16]: `ComponentSpec` has no attribute `outputs`
+        component_factory.component_spec.outputs.append(
+            OutputSpec(
+                name="mlpipeline-ui-metadata",
+                type="MLPipeline UI Metadata",
+                description="ui metadata",
+            )
+        )
 
     def factory_wrapper(*args: object, **kwargs: object) -> dsl.ContainerOp:
         c = component_factory(*args, **kwargs)
         container = c.container
+
+        if ui_metadata is not None:
+            # We generate the UI metadata from the sidecar so we need to make
+            # both the container and the sidecar share the same tmp directory so
+            # the outputs appear in the original container.
+            c.add_volume(V1Volume(name="tmp", empty_dir=V1EmptyDirVolumeSource()))
+            container.add_volume_mount(
+                V1VolumeMount(
+                    name="tmp",
+                    mount_path="/tmp/",
+                )
+            )
+            c.output_artifact_paths["mlpipeline-ui-metadata"] = METADATA_FILE
+            c.add_sidecar(_ui_metadata_sidecar(ui_metadata))
 
         if (cpu := resources.cpu) >= 0:
             cpu_str = f"{int(cpu*1000)}m"
@@ -230,3 +287,20 @@ def component_from_app(app: api.AppDef) -> ContainerFactory:
         return c
 
     return factory_wrapper
+
+
+def _ui_metadata_sidecar(
+    ui_metadata: Mapping[str, object], image: str = "alpine"
+) -> dsl.Sidecar:
+    shell_encoded = shlex.quote(json.dumps(ui_metadata))
+    dirname = os.path.dirname(METADATA_FILE)
+    return dsl.Sidecar(
+        name="ui-metadata-sidecar",
+        image=image,
+        command=[
+            "sh",
+            "-c",
+            f"mkdir -p {dirname}; echo {shell_encoded} > {METADATA_FILE}",
+        ],
+        mirror_volume_mounts=True,
+    )
