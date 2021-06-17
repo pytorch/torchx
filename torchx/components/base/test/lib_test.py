@@ -36,8 +36,8 @@ class TorchxBaseLibTest(unittest.TestCase):
                 entrypoint="test_entry.py",
                 base_image="test_base_image",
                 resource=Resource(1, 1, 10),
-                script_args=["arg1", "arg2"],
-                script_envs={"FOO": "BAR"},
+                args=["arg1", "arg2"],
+                env={"FOO": "BAR"},
                 nnodes=2,
             )
 

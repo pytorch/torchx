@@ -772,20 +772,20 @@ def _create_args_parser(
     )
 
     for param_name, parameter in parameters.items():
-        script_args: Dict[str, Any] = {
+        args: Dict[str, Any] = {
             "help": args_desc[param_name],
             "type": get_argparse_param_type(parameter),
         }
         if parameter.default != inspect.Parameter.empty:
-            script_args["default"] = parameter.default
+            args["default"] = parameter.default
         if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
-            script_args["nargs"] = argparse.REMAINDER
+            args["nargs"] = argparse.REMAINDER
             arg_name = param_name
         else:
             arg_name = f"--{param_name}"
-            if "default" not in script_args:
-                script_args["required"] = True
-        script_parser.add_argument(arg_name, **script_args)
+            if "default" not in args:
+                args["required"] = True
+        script_parser.add_argument(arg_name, **args)
     return script_parser
 
 

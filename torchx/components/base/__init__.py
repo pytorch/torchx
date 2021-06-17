@@ -32,8 +32,8 @@ def torch_dist_role(
     entrypoint: str,
     resource: Union[str, Resource] = NULL_RESOURCE,
     base_image: Optional[str] = None,
-    script_args: Optional[List[str]] = None,
-    script_envs: Optional[Dict[str, str]] = None,
+    args: Optional[List[str]] = None,
+    env: Optional[Dict[str, str]] = None,
     num_replicas: int = 1,
     max_retries: int = 0,
     port_map: Optional[Dict[str, int]] = None,
@@ -65,8 +65,8 @@ def torch_dist_role(
         entrypoint: Script or binary to launch
         resource: Resource specs that define the container properties. Predefined resources
             are supported as str arguments.
-        script_args: Arguments to the script
-        script_envs: Env. variables to the worker
+        args: Arguments to the script
+        env: Env. variables to the worker
         num_replicas: Number of replicas
         max_retries: Number of retries
         retry_policy: ``torchx.specs.api.RetryPolicy``
@@ -90,8 +90,8 @@ def torch_dist_role(
         entrypoint,
         resource,
         base_image,
-        script_args,
-        script_envs,
+        args,
+        env,
         num_replicas,
         max_retries,
         port_map or {},
