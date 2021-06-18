@@ -17,8 +17,26 @@ class KFPPipelineTest(unittest.TestCase):
             orig_dir = os.getcwd()
             os.chdir(tmpdir)
 
-            sys.argv = ["kfp_pipeline.py", "--data_path", "foo", "--output_path", "bar"]
-            from examples.pipelines.kfp import kfp_pipeline  # noqa: F401
+            sys.argv = [
+                "advanced_pipeline.py",
+                "--data_path",
+                "foo",
+                "--output_path",
+                "bar",
+            ]
+            from examples.pipelines.kfp import advanced_pipeline  # noqa: F401
+
+            self.assertTrue(os.path.exists("pipeline.yaml"))
+
+            os.chdir(orig_dir)
+
+    def test_intro_pipeline(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            orig_dir = os.getcwd()
+            os.chdir(tmpdir)
+
+            sys.argv = ["intro_pipeline.py"]
+            from examples.pipelines.kfp import intro_pipeline  # noqa: F401
 
             self.assertTrue(os.path.exists("pipeline.yaml"))
 

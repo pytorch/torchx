@@ -192,3 +192,36 @@ def _ui_metadata_sidecar(
         ],
         mirror_volume_mounts=True,
     )
+
+
+def container_from_app(
+    app: api.AppDef,
+    *args: object,
+    ui_metadata: Optional[Mapping[str, object]] = None,
+    **kwargs: object,
+) -> dsl.ContainerOp:
+    """
+    container_from_app transforms the app into a KFP component and returns a
+    corresponding ContainerOp instance.
+
+    See component_from_app for description on the arguments. Any unspecified
+    arguments are passed through to the KFP container factory method.
+
+    >>> import kfp
+    >>> from torchx import specs
+    >>> from torchx.pipelines.kfp.adapter import container_from_app
+    >>> app_def = specs.AppDef(
+    ...     name="trainer",
+    ...     roles=[specs.Role("trainer", image="foo:latest")],
+    ... )
+    >>> def pipeline():
+    ...     trainer = container_from_app(app_def)
+    ...     print(trainer)
+    >>> kfp.compiler.Compiler().compile(
+    ...     pipeline_func=pipeline,
+    ...     package_path="/tmp/pipeline.yaml",
+    ... )
+    {'ContainerOp': {... 'name': 'trainer-trainer', ...}}
+    """
+    factory = component_from_app(app, ui_metadata)
+    return factory(*args, **kwargs)
