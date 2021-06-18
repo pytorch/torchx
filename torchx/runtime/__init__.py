@@ -24,5 +24,3 @@ that TorchX uses to implement the out-of-the-box:
 Refer to the implementations of these out of the box functionalities
 as examples when implementing custom functionalities.
 """
-
-from torchx.runtime.component import *  # noqa F401
