@@ -8,13 +8,15 @@
 import os.path
 import tempfile
 import unittest
-from typing import List
+from typing import List, Callable
 
-from kfp import compiler, components
+import yaml
+from kfp import compiler, components, dsl
 from kubernetes.client.models import V1ContainerPort, V1ResourceRequirements
 from torchx.pipelines.kfp.adapter import (
     component_from_app,
     component_spec_from_app,
+    container_from_app,
     ContainerFactory,
 )
 from torchx.specs import api
@@ -47,6 +49,17 @@ class KFPSpecsTest(unittest.TestCase):
         )
 
         return api.AppDef("test").of(trainer_role)
+
+    def _compile_pipeline(self, pipeline: Callable[[], None]) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pipeline_file = os.path.join(tmpdir, "pipeline.yaml")
+            compiler.Compiler().compile(pipeline, pipeline_file)
+            with open(pipeline_file, "r") as f:
+                data = yaml.safe_load(f)
+
+        spec = data["spec"]
+        templates = spec["templates"]
+        self.assertGreaterEqual(len(templates), 2)
 
     def test_component_spec_from_app(self) -> None:
         app = self._test_app()
@@ -101,8 +114,7 @@ outputs: []
             b = kfp_copy()
             b.after(a)
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            compiler.Compiler().compile(pipeline, os.path.join(tmpdir, "pipeline.yaml"))
+        self._compile_pipeline(pipeline)
 
     def test_pipeline_metadata(self) -> None:
         app = self._test_app()
@@ -119,5 +131,14 @@ outputs: []
                 "/tmp/outputs/mlpipeline-ui-metadata/data.json",
             )
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            compiler.Compiler().compile(pipeline, os.path.join(tmpdir, "pipeline.yaml"))
+        self._compile_pipeline(pipeline)
+
+    def test_container_from_app(self) -> None:
+        app: api.AppDef = self._test_app()
+
+        def pipeline() -> None:
+            a: dsl.ContainerOp = container_from_app(app)
+            b: dsl.ContainerOp = container_from_app(app)
+            b.after(a)
+
+        self._compile_pipeline(pipeline)

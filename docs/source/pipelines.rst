@@ -12,6 +12,7 @@ torchx.pipelines.kfp
 
 .. currentmodule:: torchx.pipelines.kfp.adapter
 
+.. autofunction:: container_from_app
 .. autofunction:: component_from_app
 .. autofunction:: component_spec_from_app
 

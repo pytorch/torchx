@@ -190,7 +190,7 @@ def save_spec(path: str, build: BuildInfo) -> None:
     logs = os.path.join(root, "logs")
 
     run(
-        "examples/pipelines/kfp/kfp_pipeline.py",
+        "examples/pipelines/kfp/advanced_pipeline.py",
         "--data_path",
         data,
         "--output_path",

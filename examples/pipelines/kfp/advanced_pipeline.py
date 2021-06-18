@@ -6,8 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-KubeFlow Pipelines Example
-==========================
+Advanced KubeFlow Pipelines Example
+===================================
 
 This is an example pipeline using KubeFlow Pipelines built with only TorchX
 components.
