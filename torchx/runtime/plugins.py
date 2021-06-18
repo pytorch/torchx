@@ -76,7 +76,8 @@ def init_plugins_from_config(config: Dict[str, object]) -> None:
     """
     init_plugins_from_config imports all of the plugins listed in provided config.
     """
-    if plugins := config.get("plugins"):
+    plugins = config.get("plugins")
+    if plugins:
         if not isinstance(plugins, dict):
             raise TypeError(f"plugins must be a dict: {plugins}")
 

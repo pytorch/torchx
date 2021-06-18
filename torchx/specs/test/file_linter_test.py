@@ -193,6 +193,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         linter_errors = validate(
             self._file_content, self._path, torchx_function="_test_args_no_type_defs"
         )
+        print(linter_errors)
         self.assertEqual(2, len(linter_errors))
         self.assertEqual(
             "Arg arg0 missing type annotation", linter_errors[0].description

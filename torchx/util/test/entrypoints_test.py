@@ -5,11 +5,33 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
-from importlib.metadata import EntryPoint
+
+try:
+    from importlib.metadata import EntryPoint
+except ImportError:
+    from importlib_metadata import EntryPoint
+from configparser import ConfigParser
 from typing import Dict
+from typing import List
 from unittest.mock import MagicMock, patch
 
 from torchx.util.entrypoints import load, load_group
+
+
+def EntryPoint_from_config(config: ConfigParser) -> List[EntryPoint]:
+    # from stdlib, Copyright (c) Python Authors
+    return [
+        EntryPoint(name, value, group)
+        for group in config.sections()
+        for name, value in config.items(group)
+    ]
+
+
+def EntryPoint_from_text(text: str) -> List[EntryPoint]:
+    # from stdlib, Copyright (c) Python Authors
+    config = ConfigParser(delimiters="=")
+    config.read_string(text)
+    return EntryPoint_from_config(config)
 
 
 def foobar() -> str:
@@ -40,12 +62,11 @@ _EP_GRP_IGN_MOD_TXT: str = """
 [ep.grp.missing.mod.test]
 baz = torchx.util.test.entrypoints_test.missing_module
 """
-_ENTRY_POINTS: Dict[str, EntryPoint] = {
-    # pyre-ignore[16]
-    "entrypoints.test": EntryPoint._from_text(_EP_TXT),
-    "ep.grp.test": EntryPoint._from_text(_EP_GRP_TXT),
-    "ep.grp.missing.attr.test": EntryPoint._from_text(_EP_GRP_IGN_ATTR_TXT),
-    "ep.grp.missing.mod.test": EntryPoint._from_text(_EP_GRP_IGN_MOD_TXT),
+_ENTRY_POINTS: Dict[str, List[EntryPoint]] = {
+    "entrypoints.test": EntryPoint_from_text(_EP_TXT),
+    "ep.grp.test": EntryPoint_from_text(_EP_GRP_TXT),
+    "ep.grp.missing.attr.test": EntryPoint_from_text(_EP_GRP_IGN_ATTR_TXT),
+    "ep.grp.missing.mod.test": EntryPoint_from_text(_EP_GRP_IGN_MOD_TXT),
 }
 
 _METADATA_EPS: str = "torchx.util.entrypoints.metadata.entry_points"

@@ -6,7 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
-from importlib import metadata
+
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
+
 from unittest.mock import patch
 
 from torchx.components.base import torch_dist_role
