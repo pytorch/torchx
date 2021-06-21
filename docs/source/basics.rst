@@ -80,15 +80,15 @@ think of them as convenient "factory methods" for ``spec.AppDef``.
 
 The granularity at which the app spec is templetized varies. Some components
 such as the ``echo`` example above are *ready-to-run*, meaning that they
-have hardcoded application binaries. Others such as ``gang`` specs only
-specify the topology of the application. Below is one possible templetization
-of a homogeneous ``gang`` trainer app spec:
+have hardcoded application binaries. Others such as ``ddp`` (distributed data parallel)
+specs only specify the topology of the application. Below is one possible templetization
+of a ddp style trainer app spec that specifies a homogeneous node topology:
 
 .. code-block:: python
 
  import torchx.specs as specs
 
- def get_app_spec(jobname: str, nnodes: int, image: str, entrypoint: str, *script_args: str):
+ def ddp(jobname: str, nnodes: int, image: str, entrypoint: str, *script_args: str):
     single_gpu = specs.Resources(cpu=4, gpu=1, memMB=1024)
     return specs.AppDef(
             name=jobname,
@@ -110,10 +110,14 @@ writing a python function. Don't try to over generalize components by
 parameterizing everything. Components are easy and cheap to create,
 create as many as you want based on repetitive use cases.
 
-**PROTIP:** Since components are python functions, component composition
+**PROTIP 1:** Since components are python functions, component composition
 can be achieved through python function composition rather than object composition.
 However **we do not recommend component composition** for maintainability
 purposes.
+
+**PROTIP 2:** To define dependencies between components, use a pipelining DSL.
+See :ref:`Pipeline Adapters` section below to understand how TorchX components
+are used in the context of pipelines.
 
 Before authoring your own component, browse through the library of
 :ref:`Builtin Components<torchx.components>` that are included with TorchX
