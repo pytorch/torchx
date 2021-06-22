@@ -68,23 +68,24 @@ class RunnerTest(unittest.TestCase):
     def test_validate_no_resource(self, _) -> None:
         runner = Runner("test", schedulers={"default": self.scheduler})
         with self.assertRaises(ValueError):
-            role = Role("no resource", image="no_image").runs("echo", "hello_world")
-            app = AppDef("no resource").of(role)
+            role = Role(
+                "no resource", image="no_image", entrypoint="echo", args=["hello_world"]
+            )
+            app = AppDef("no resource", roles=[role])
             runner.run(app)
 
     def test_validate_invalid_replicas(self, _) -> None:
         runner = Runner("test", schedulers={"default": self.scheduler})
         with self.assertRaises(ValueError):
-            role = (
-                Role(
-                    "invalid replicas",
-                    image="torch",
-                    resource=Resource(cpu=1, gpu=0, memMB=500),
-                )
-                .runs("echo", "hello_world")
-                .replicas(0)
+            role = Role(
+                "invalid replicas",
+                image="torch",
+                entrypoint="echo",
+                args=["hello_world"],
+                num_replicas=0,
+                resource=Resource(cpu=1, gpu=0, memMB=500),
             )
-            app = AppDef("invalid replicas").of(role)
+            app = AppDef("invalid replicas", roles=[role])
             runner.run(app)
 
     def test_run(self, _) -> None:
@@ -95,10 +96,14 @@ class RunnerTest(unittest.TestCase):
             wait_interval=1,
         )
         self.assertEqual(1, len(session.scheduler_backends()))
-        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
-            "touch.sh", test_file
+        role = Role(
+            name="touch",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="touch.sh",
+            args=[test_file],
         )
-        app = AppDef("name").of(role)
+        app = AppDef("name", roles=[role])
 
         app_handle = session.run(app, cfg=self.cfg)
         app_status = none_throws(session.wait(app_handle))
@@ -109,20 +114,28 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
         )
-        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
-            "echo", "hello world"
+        role = Role(
+            name="touch",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="echo",
+            args=["hello world"],
         )
-        app = AppDef("name").of(role)
+        app = AppDef("name", roles=[role])
         session.dryrun(app, "default", cfg=self.cfg)
         scheduler_mock.submit_dryrun.assert_called_once_with(app, self.cfg)
         scheduler_mock._validate.assert_called_once()
 
     def test_describe(self, _) -> None:
         session = Runner(name=SESSION_NAME, schedulers={"default": self.scheduler})
-        role = Role(name="sleep", image=self.test_dir, resource=resource.SMALL).runs(
-            "sleep.sh", "60"
+        role = Role(
+            name="sleep",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="sleep.sh",
+            args=["60"],
         )
-        app = AppDef("sleeper").of(role)
+        app = AppDef("sleeper", roles=[role])
 
         app_handle = session.run(app, cfg=self.cfg)
         self.assertEqual(app, session.describe(app_handle))
@@ -133,10 +146,14 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
-        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
-            "sleep.sh", "1"
+        role = Role(
+            name="touch",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="sleep.sh",
+            args=["1"],
         )
-        app = AppDef("sleeper").of(role)
+        app = AppDef("sleeper", roles=[role])
 
         num_apps = 4
 
@@ -159,10 +176,14 @@ class RunnerTest(unittest.TestCase):
             name=SESSION_NAME, schedulers={"default": scheduler}, wait_interval=1
         )
         test_file = os.path.join(self.test_dir, "test_file")
-        role = Role(name="touch", image=self.test_dir, resource=resource.SMALL).runs(
-            "touch.sh", test_file
+        role = Role(
+            name="touch",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="touch.sh",
+            args=[test_file],
         )
-        app = AppDef("touch_test_file").of(role)
+        app = AppDef("touch_test_file", roles=[role])
 
         # local scheduler was setup with a cache size of 1
         # run the same app twice (the first will be removed from the scheduler's cache)
@@ -183,10 +204,14 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
         )
-        role = Role(name="sleep", image=self.test_dir, resource=resource.SMALL).runs(
-            "sleep.sh", "60"
+        role = Role(
+            name="sleep",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="sleep.sh",
+            args=["60"],
         )
-        app = AppDef("sleeper").of(role)
+        app = AppDef("sleeper", roles=[role])
         app_handle = session.run(app, cfg=self.cfg)
         app_status = none_throws(session.status(app_handle))
         self.assertEqual(AppState.RUNNING, app_status.state)
@@ -213,10 +238,13 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name="test_ui_url_session", schedulers={"default": mock_scheduler}
         )
-        role = Role("ignored", image=self.test_dir, resource=resource.SMALL).runs(
-            "/bin/echo"
+        role = Role(
+            "ignored",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="/bin/echo",
         )
-        app_handle = session.run(AppDef(app_id).of(role))
+        app_handle = session.run(AppDef(app_id, roles=[role]))
         status = none_throws(session.status(app_handle))
         self.assertEquals(resp.ui_url, status.ui_url)
 
@@ -233,10 +261,13 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name="test_structured_msg", schedulers={"default": mock_scheduler}
         )
-        role = Role("ignored", image=self.test_dir, resource=resource.SMALL).runs(
-            "/bin/echo"
+        role = Role(
+            "ignored",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="/bin/echo",
         )
-        app_handle = session.run(AppDef(app_id).of(role))
+        app_handle = session.run(AppDef(app_id, roles=[role]))
         status = none_throws(session.status(app_handle))
         self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
 
@@ -305,10 +336,14 @@ class RunnerTest(unittest.TestCase):
         schedulers = {"default": default_sched_mock, "local": local_sched_mock}
         session = Runner(name="test_session", schedulers=schedulers)
 
-        role = Role(name="sleep", image=self.test_dir, resource=resource.SMALL).runs(
-            "sleep.sh", "60"
+        role = Role(
+            name="sleep",
+            image=self.test_dir,
+            resource=resource.SMALL,
+            entrypoint="sleep.sh",
+            args=["60"],
         )
-        app = AppDef("sleeper").of(role)
+        app = AppDef("sleeper", roles=[role])
         cfg = RunConfig()
         session.run(app, scheduler="local", cfg=cfg)
         local_sched_mock.submit.called_once_with(app, cfg)
@@ -353,8 +388,11 @@ class RunnerTest(unittest.TestCase):
         expected_app = AppDef(
             "ddp_app",
             roles=[
-                Role("worker", image="dummy_image", resource=Resource(1, 0, 1)).runs(
-                    entrypoint
+                Role(
+                    "worker",
+                    image="dummy_image",
+                    resource=Resource(1, 0, 1),
+                    entrypoint=entrypoint,
                 )
             ],
         )

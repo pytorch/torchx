@@ -55,11 +55,12 @@ def ddp(
         base_image=base_image,
         entrypoint=entrypoint,
         resource=resource or specs.NULL_RESOURCE,
+        num_replicas=nnodes,
         script_args=list(script_args),
         script_envs=env,
         nproc_per_node=nproc_per_node,
         nnodes=nnodes,
         max_restarts=0,
-    ).replicas(nnodes)
+    )
 
     return specs.AppDef(name).of(ddp_role)
