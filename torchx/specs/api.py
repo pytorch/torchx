@@ -111,8 +111,8 @@ class macros:
     ::
 
      # runs: hello_world.py --app_id ${app_id}
-     trainer = Role(name="trainer").runs("hello_world.py", "--app_id", macros.app_id)
-     app = AppDef("train_app").of(trainer)
+     trainer = Role(name="trainer", entrypoint="hello_world.py", args=["--app_id", macros.app_id])
+     app = AppDef("train_app", roles=[trainer])
      app_handle = session.run(app, scheduler="local", cfg=RunConfig())
 
     """
@@ -205,11 +205,13 @@ class Role:
 
     ::
 
-     trainer = Role(name="trainer", "pytorch/torch:1")
-                 .runs("my_trainer.py", "--arg", "foo", ENV_VAR="FOOBAR")
-                 .replicas(4)
-                 .require(Resource(cpu=1, gpu=1, memMB=500))
-                 .ports({"tcp_store":8080, "tensorboard": 8081})
+     trainer = Role(name="trainer",
+                    image = "pytorch/torch:1",
+                    entrypoint = "my_trainer.py"
+                    args = ["--arg", "foo", ENV_VAR="FOOBAR"],
+                    num_replicas = 4,
+                    resource = Resource(cpu=1, gpu=1, memMB=500),
+                    port_map={"tcp_store":8080, "tensorboard": 8081})
 
 
      # for schedulers that support base_images
@@ -243,21 +245,6 @@ class Role:
     retry_policy: RetryPolicy = RetryPolicy.APPLICATION
     resource: Resource = NULL_RESOURCE
     port_map: Dict[str, int] = field(default_factory=dict)
-
-    def runs(self, entrypoint: str, *args: str, **kwargs: str) -> "Role":
-        self.entrypoint = entrypoint
-        self.args += [*args]
-        self.env.update({**kwargs})
-        return self
-
-    def replicas(self, replicas: int) -> "Role":
-        self.num_replicas = replicas
-        return self
-
-    def with_retry_policy(self, retry_policy: RetryPolicy, max_retries: int) -> "Role":
-        self.retry_policy = retry_policy
-        self.max_retries = max_retries
-        return self
 
     def pre_proc(
         self,

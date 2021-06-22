@@ -28,27 +28,22 @@ class KFPSpecsTest(unittest.TestCase):
     """
 
     def _test_app(self) -> api.AppDef:
-        trainer_role = (
-            api.Role(
-                name="trainer",
-                image="pytorch/torchx:latest",
-                resource=api.Resource(
-                    cpu=2,
-                    memMB=3000,
-                    gpu=4,
-                ),
-                port_map={"foo": 1234},
-            )
-            .runs(
-                "main",
-                "--output-path",
-                "blah",
-                FOO="bar",
-            )
-            .replicas(1)
+        trainer_role = api.Role(
+            name="trainer",
+            image="pytorch/torchx:latest",
+            entrypoint="main",
+            args=["--output-path", "blah"],
+            env={"FOO": "bar"},
+            resource=api.Resource(
+                cpu=2,
+                memMB=3000,
+                gpu=4,
+            ),
+            port_map={"foo": 1234},
+            num_replicas=1,
         )
 
-        return api.AppDef("test").of(trainer_role)
+        return api.AppDef("test", roles=[trainer_role])
 
     def _compile_pipeline(self, pipeline: Callable[[], None]) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

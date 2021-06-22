@@ -33,7 +33,8 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
             nnodes="2:4",
             max_restarts=3,
             no_python=True,
-        ).replicas(2)
+            num_replicas=2,
+        )
         self.assertEqual("elastic_trainer", elastic_trainer.name)
         self.assertEqual("python", elastic_trainer.entrypoint)
         self.assertEqual(
@@ -153,7 +154,8 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
             nnodes="2:4",
             rdzv_backend="etcd",
             rdzv_id="foobar",
-        ).replicas(3)
+            num_replicas=3,
+        )
 
         # this is effectively JSON
         elastic_json = asdict(role)

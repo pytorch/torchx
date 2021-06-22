@@ -118,17 +118,18 @@ class RoleBuilderTest(unittest.TestCase):
     def test_build_role(self) -> None:
         # runs: ENV_VAR_1=FOOBAR /bin/echo hello world
         resource = Resource(cpu=1, gpu=2, memMB=128)
-        trainer = (
-            Role(
-                "trainer",
-                "torch",
-                "base_image",
-                resource=resource,
-                port_map={"foo": 8080},
-            )
-            .runs("/bin/echo", "hello", "world", ENV_VAR_1="FOOBAR")
-            .replicas(2)
-            .with_retry_policy(RetryPolicy.REPLICA, max_retries=5)
+        trainer = Role(
+            "trainer",
+            image="torch",
+            base_image="base_image",
+            entrypoint="/bin/echo",
+            args=["hello", "world"],
+            env={"ENV_VAR_1": "FOOBAR"},
+            num_replicas=2,
+            retry_policy=RetryPolicy.REPLICA,
+            max_retries=5,
+            resource=resource,
+            port_map={"foo": 8080},
         )
 
         self.assertEqual("trainer", trainer.name)
@@ -176,8 +177,14 @@ class AppHandleTest(unittest.TestCase):
 
 class AppDefTest(unittest.TestCase):
     def test_application(self) -> None:
-        trainer = Role("trainer", "test_image").runs("/bin/sleep", "10").replicas(2)
-        app = AppDef(name="test_app").of(trainer)
+        trainer = Role(
+            "trainer",
+            "test_image",
+            entrypoint="/bin/sleep",
+            args=["10"],
+            num_replicas=2,
+        )
+        app = AppDef(name="test_app", roles=[trainer])
         self.assertEqual("test_app", app.name)
         self.assertEqual(1, len(app.roles))
         self.assertEqual(trainer, app.roles[0])
@@ -354,8 +361,12 @@ class MacrosTest(unittest.TestCase):
             self.assertEqual(v.substitute(template), f"tmpl-{val}")
 
     def test_apply(self) -> None:
-        role = Role(name="test", image="test_image").runs(
-            "foo.py", macros.img_root, FOO=macros.app_id
+        role = Role(
+            name="test",
+            image="test_image",
+            entrypoint="foo.py",
+            args=[macros.img_root],
+            env={"FOO": macros.app_id},
         )
         v = macros.Values(
             img_root="img_root",
@@ -370,8 +381,14 @@ class MacrosTest(unittest.TestCase):
 
 
 def get_dummy_application(role: str) -> AppDef:
-    trainer = Role(role, "test_image").runs("main_script.py", "--train").replicas(2)
-    return AppDef(name="test_app").of(trainer)
+    trainer = Role(
+        role,
+        "test_image",
+        entrypoint="main_script.py",
+        args=["--train"],
+        num_replicas=2,
+    )
+    return AppDef(name="test_app", roles=[trainer])
 
 
 def test_empty_fn() -> AppDef:
@@ -421,14 +438,13 @@ def test_complex_fn(
             args = [first_arg, *roles_args]
         else:
             args = [*roles_args]
-        role = (
-            Role(
-                role_name,
-                image=container_img,
-                resource=Resource(cpu=cpus, gpu=gpus, memMB=1),
-            )
-            .replicas(nnodes)
-            .runs(role_script, *roles_args)
+        role = Role(
+            role_name,
+            image=container_img,
+            entrypoint=role_script,
+            args=args,
+            resource=Resource(cpu=cpus, gpu=gpus, memMB=1),
+            num_replicas=nnodes,
         )
         roles.append(role)
     return AppDef(app_name, roles)

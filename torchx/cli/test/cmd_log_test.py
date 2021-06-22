@@ -11,7 +11,7 @@ from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_log import ENDC, GREEN, get_logs
-from torchx.specs.api import AppDef, Role, parse_app_handle
+from torchx.specs import AppDef, Role, parse_app_handle
 
 
 class SentinelError(Exception):
@@ -31,9 +31,12 @@ class MockRunner:
 
     def describe(self, app_handle: str) -> AppDef:
         scheduler_backend, session_name, app_id = parse_app_handle(app_handle)
-        return AppDef(name=app_id).of(
-            Role(name="master", image="test_image").replicas(1),
-            Role(name="trainer", image="test_image").replicas(3),
+        return AppDef(
+            name=app_id,
+            roles=[
+                Role(name="master", image="test_image", num_replicas=1),
+                Role(name="trainer", image="test_image", num_replicas=3),
+            ],
         )
 
     def log_lines(

@@ -106,15 +106,16 @@ def create_torch_dist_role(
         entrypoint = os.path.join(macros.img_root, entrypoint)
 
     args = [*torch_run_args, entrypoint, *args]
-    return (
-        Role(
-            name,
-            image=image,
-            base_image=base_image,
-            resource=resource,
-            port_map=port_map,
-        )
-        .runs(entrypoint_override, *args, **env)
-        .replicas(num_replicas)
-        .with_retry_policy(retry_policy, max_retries)
+    return Role(
+        name,
+        image=image,
+        base_image=base_image,
+        entrypoint=entrypoint_override,
+        args=args,
+        env=env,
+        num_replicas=num_replicas,
+        retry_policy=retry_policy,
+        max_retries=max_retries,
+        resource=resource,
+        port_map=port_map,
     )
