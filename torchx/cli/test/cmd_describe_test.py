@@ -26,7 +26,7 @@ class CmdDescribeTest(unittest.TestCase):
             num_replicas=2,
             nnodes="2:3",
         )
-        return AppDef("my_train_job").of(trainer)
+        return AppDef("my_train_job", roles=[trainer])
 
     def test_run(self) -> None:
         parser = argparse.ArgumentParser()

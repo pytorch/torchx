@@ -63,4 +63,4 @@ def ddp(
         max_restarts=0,
     )
 
-    return specs.AppDef(name).of(ddp_role)
+    return specs.AppDef(name, roles=[ddp_role])
