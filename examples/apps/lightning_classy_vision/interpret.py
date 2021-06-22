@@ -63,7 +63,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def convert_to_rgb(arr: torch.Tensor) -> np.ndarray:
+def convert_to_rgb(arr: torch.Tensor) -> np.ndarray:  # pyre-ignore[24]
     """
     This converts the image from a torch tensor with size (1, 1, 64, 64) to
     numpy array with size (64, 64, 3).
