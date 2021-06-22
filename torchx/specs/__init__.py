@@ -5,8 +5,44 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from .api import *  # noqa: F401 F403
+from typing import Dict
+
 from torchx.util.entrypoints import load_group
+
+from .api import (  # noqa: F401 F403
+    SchedulerBackend,
+    Resource,
+    NULL_RESOURCE,
+    ALL,
+    MISSING,
+    NONE,
+    macros,
+    RetryPolicy,
+    Role,
+    AppDef,
+    AppState,
+    is_terminal,
+    ReplicaStatus,
+    ReplicaState,
+    RoleStatus,
+    AppStatus,
+    ConfigValue,
+    RunConfig,
+    AppDryRunInfo,
+    get_type_name,
+    runopts,
+    InvalidRunConfigException,
+    MalformedAppHandleException,
+    UnknownSchedulerException,
+    AppHandle,
+    UnknownAppException,
+    make_app_handle,
+    parse_app_handle,
+    get_argparse_param_type,
+    from_function,
+    from_file,
+    from_module,
+)
 
 GiB: int = 1024
 
