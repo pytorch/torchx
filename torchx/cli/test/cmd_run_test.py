@@ -83,7 +83,6 @@ class CmdRunTest(unittest.TestCase):
         args = self.parser.parse_args(
             [
                 "--dryrun",
-                "--verbose",
                 "--scheduler",
                 "local",
                 "utils.echo",

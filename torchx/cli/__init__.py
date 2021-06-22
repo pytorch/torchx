@@ -39,8 +39,8 @@ To get a list of supported schedulers that you can launch your job into run:
 
  $ torchx schedulers
 
-Running an app as a job
----------------------------
+Running a component as a job
+---------------------------------
 The ``run``  subcommand takes either one of:
 
 1. name of the builtin
@@ -63,13 +63,13 @@ The ``run``  subcommand takes either one of:
      $ cat ~/my_trainer_spec.py
      import torchx.specs as specs
 
-     def get_spec(foo: int, bar: str) -> specs.AppDef:
+     def my_trainer(foo: int, bar: str) -> specs.AppDef:
        <...spec file details omitted for brevity...>
 
-     $ torchx run --scheduler <sched_name> ~/my_trainer_spec.py get_spec
+     $ torchx run --scheduler <sched_name> ~/my_trainer_spec.py:my_trainer
 
-Now that you have understood how to chose which app to launch, now its time
-to see what the parameters need to be passed. There are three sets of
+Now that you have understood how to chose which app to launch, now it is time
+to see what parameters need to be passed. There are three sets of
 parameters:
 
 1. arguments to the ``run`` subcommand, see a list of them by running:
@@ -92,6 +92,7 @@ parameters:
                'help': 'dir to write stdout/stderr log files of replicas',
                'type': 'str'}}
 
+    # pass run options as comma-delimited k=v pairs
     $ torchx run --scheduler local --scheduler_args image_fetcher=dir,log_dir=/tmp ...
 
 3. arguments to the component (the app args are included here), this also depends on the
@@ -99,7 +100,7 @@ parameters:
 
    .. code-block:: shell-session
 
-    $ torchx run --scheduler local echo --help
+    $ torchx run --scheduler local utils.echo --help
     usage: torchx run echo.torchx [-h] [--msg MSG]
 
     Echos a message
@@ -112,19 +113,69 @@ Putting everything together, running ``echo`` with the ``local`` scheduler:
 
 .. code-block:: shell-session
 
- $ torchx run \
-     --scheduler local \
-     --scheduler_args image_fetcher=dir,log_dir=/tmp \
-     echo \
-     --msg "hello $USER"
+ $ torchx run --scheduler local --scheduler_args image_fetcher=dir,log_dir=/tmp utils.echo --msg "hello $USER"
  === RUN RESULT ===
  Launched app: local://torchx_kiuk/echo_ecd30f74
 
-The ``run`` subcommand does not block for the job to finish, instead it simply
+By default the ``run`` subcommand does not block for the job to finish, instead it simply
 schedules the job on the specified scheduler and prints an ``app handle``
 which is a URL of the form: ``$scheduler_name://torchx_$user/$job_id``.
 Keep note of this handle since this is what you'll need to provide to other
 subcommands to identify your job.
+
+.. note:: If the ``--scheduler`` option is not provided, then it defaults to
+          the scheduler backend ``default`` which points to ``local``. To change
+          the default scheduler, see: :ref:`Registering Custom Schedulers`.
+
+
+Inspecting what will run (dryrun)
+----------------------------------------------
+When you are authoring or debugging a component, you may want to find out and
+inspect both the scheduler request object that the runner submits as well as
+the ``AppDef`` object that is created by the component function. To do this,
+use the ``--dryrun`` option to the ``run`` subcommand:
+
+.. code-block:: shell-session
+
+ $ torchx run --dryrun utils.echo --msg  hello_world
+ === APPLICATION ===
+ { 'metadata': {},
+   'name': 'echo',
+   'roles': [ { 'args': ['hello_world'],
+                'base_image': None,
+                'entrypoint': '/bin/echo',
+                'env': {},
+                'image': '/tmp',
+                'max_retries': 0,
+                'name': 'echo',
+                'num_replicas': 1,
+                'port_map': {},
+                'resource': { 'capabilities': {},
+                              'cpu': -1,
+                              'gpu': -1,
+                              'memMB': -1},
+                'retry_policy': <RetryPolicy.APPLICATION: 'APPLICATION'>}]}
+ === SCHEDULER REQUEST ===
+ PopenRequest(
+     app_id='echo_c944ffb2',
+     log_dir='/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2',
+     role_params={
+         'echo': [
+             ReplicaParam(
+                 args=['/bin/echo', 'hello_world'],
+                 env={'TORCHELASTIC_ERROR_FILE': '/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2/echo/0/error.json'},
+                 stdout=None,
+                 stderr=None)
+             ]
+         },
+     role_log_dirs={'echo': ['/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2/echo/0']})
+
+
+.. note:: The scheduler request print out will look different based on the scheduler
+          type. The example above is a faux request since the scheduler is a local scheduler
+          which simply uses ``subprocess.Popen`` to simulate replicas as a POSIX process.
+          Nevertheless the scheduler request contains valuable insight into what the runner
+          translates the ``AppDef`` to for a particular scheduler backend.
 
 Describing and querying the status of a job
 ---------------------------------------------

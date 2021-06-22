@@ -153,12 +153,6 @@ class CmdRun(SubCommand):
             " just prints the scheduler request",
         )
         subparser.add_argument(
-            "--verbose",
-            action="store_true",
-            default=False,
-            help="Verbose mode, pretty print the app spec",
-        )
-        subparser.add_argument(
             "conf_file",
             type=str,
             help="Name of builtin conf or path of the *.torchx.conf file."
