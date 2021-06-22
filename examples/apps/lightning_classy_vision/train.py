@@ -45,6 +45,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="path to load the training data from",
         required=True,
     )
+    parser.add_argument("--skip_export", action="store_true")
     parser.add_argument("--load_path", type=str, help="checkpoint path to load from")
     parser.add_argument(
         "--output_path",
@@ -100,8 +101,9 @@ def main(argv: List[str]) -> None:
         # Train the model ⚡
         trainer.fit(model, data)
 
-        # Export the inference model
-        export_inference_model(model, args.output_path, tmpdir)
+        if not args.skip_export:
+            # Export the inference model
+            export_inference_model(model, args.output_path, tmpdir)
 
 
 if __name__ == "__main__":

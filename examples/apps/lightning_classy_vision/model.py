@@ -18,6 +18,7 @@ from typing import Tuple
 
 import fsspec
 import pytorch_lightning as pl
+import torch
 import torch.jit
 from torch.nn import functional as F
 
@@ -43,7 +44,8 @@ class TinyImageNetModel(pl.LightningModule):
         loss = F.cross_entropy(self(x), y)
         return loss
 
-    def configure_optimizers(self) -> torch.optim.Adam:
+    # pyre-fixme[3]: TODO(aivanou): Figure out why oss pyre can identify type but fb cannot.
+    def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=0.02)
 
 

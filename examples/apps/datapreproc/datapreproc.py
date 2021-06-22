@@ -18,13 +18,14 @@ import os
 import sys
 import tarfile
 import tempfile
+import zipfile
 from typing import List
 
 import fsspec
+import requests
 from PIL import Image
 from torchvision import transforms
 from torchvision.datasets.folder import is_image_file
-from torchvision.datasets.utils import download_and_extract_archive
 from tqdm import tqdm
 
 
@@ -53,11 +54,26 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def download_and_extract_zip_archive(url: str, path: str) -> None:
+    temp_file = os.path.join(path, "dest.zip")
+    chunk_size_bytes: int = 1024 * 1024 * 32  # 32 MB
+    with requests.get(url, allow_redirects=True, stream=True) as r:
+        r.raise_for_status()
+        with open(temp_file, "wb") as fp:
+            for chunk in r.iter_content(chunk_size=chunk_size_bytes):
+                fp.write(chunk)
+
+    with zipfile.ZipFile(temp_file, "r") as zip_ref:
+        zip_ref.extractall(path)
+
+    os.remove(temp_file)
+
+
 def main(argv: List[str]) -> None:
     args = parse_args(argv)
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"downloading {args.input_path} to {tmpdir}...")
-        download_and_extract_archive(args.input_path, tmpdir, md5=args.input_md5)
+        download_and_extract_zip_archive(args.input_path, tmpdir)
 
         img_root = os.path.join(
             tmpdir,
@@ -81,8 +97,7 @@ def main(argv: List[str]) -> None:
                 if not is_image_file(path):
                     continue
                 image_files.append(path)
-
-        for path in tqdm(image_files):
+        for path in tqdm(image_files, miniters=int(len(image_files) / 2000)):
             f = Image.open(path)
             f = transform(f)
             f.save(path)
@@ -95,6 +110,8 @@ def main(argv: List[str]) -> None:
         print(f"uploading dataset to {args.output_path}...")
         fs, _, rpaths = fsspec.get_fs_token_paths(args.output_path)
         assert len(rpaths) == 1, "must have single output path"
+        if fs.exists(rpaths[0]):
+            fs.rm(rpaths[0])
         fs.put(tar_path, rpaths[0])
 
 
