@@ -27,7 +27,7 @@ def ddp(
     name: str = "test_name",
     role: str = "worker",
     env: Optional[Dict[str, str]] = None,
-    *script_args: str,
+    *args: str,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -43,7 +43,7 @@ def ddp(
         role: Name of the ddp role.
         script: Main script.
         env: Env variables.
-        script_args: Script arguments.
+        args: Script arguments.
 
     Returns:
         specs.AppDef: Torchx AppDef
@@ -55,8 +55,8 @@ def ddp(
         base_image=base_image,
         entrypoint=entrypoint,
         resource=resource or specs.NULL_RESOURCE,
-        script_args=list(script_args),
-        script_envs=env,
+        args=list(args),
+        env=env,
         nproc_per_node=nproc_per_node,
         nnodes=nnodes,
         max_restarts=0,
