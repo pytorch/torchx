@@ -194,9 +194,9 @@ class AppDefTest(unittest.TestCase):
         self.assertEqual(0, len(app.roles))
 
     def test_getset_metadata(self) -> None:
-        app = AppDef(name="test_app").add_metadata("test_key", "test_value")
-        self.assertEqual("test_value", app.get_metadata("test_key"))
-        self.assertEqual(None, app.get_metadata("non_existent"))
+        app = AppDef(name="test_app", metadata={"test_key": "test_value"})
+        self.assertEqual("test_value", app.metadata["test_key"])
+        self.assertEqual(None, app.metadata.get("non_existent"))
 
 
 class RunConfigTest(unittest.TestCase):

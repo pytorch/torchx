@@ -280,21 +280,6 @@ class AppDef:
     roles: List[Role] = field(default_factory=list)
     metadata: Dict[str, str] = field(default_factory=dict)
 
-    def of(self, *roles: Role) -> "AppDef":
-        self.roles += [*roles]
-        return self
-
-    def add_metadata(self, key: str, value: str) -> "AppDef":
-        """
-        Adds metadata to the application.
-        .. note:: If the key already exists, this method overwrites the metadata value.
-        """
-        self.metadata[key] = value
-        return self
-
-    def get_metadata(self, key: str) -> Optional[str]:
-        return self.metadata.get(key)
-
 
 class AppState(int, Enum):
     """

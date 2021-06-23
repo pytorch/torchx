@@ -236,7 +236,7 @@ class Runner:
         # input validation
         if not app.roles:
             raise ValueError(
-                f"No roles for app: {app.name}. Did you forget to call app.of(roles..)?"
+                f"No roles for app: {app.name}. Did you forget to add roles to AppDef?"
             )
 
         for role in app.roles:
@@ -394,7 +394,7 @@ class Runner:
             if not app:
                 desc = scheduler.describe(app_id)
                 if desc:
-                    app = AppDef(name=app_id).of(*desc.roles)
+                    app = AppDef(name=app_id, roles=desc.roles)
             return app
 
     def log_lines(
