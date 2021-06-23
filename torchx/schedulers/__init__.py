@@ -8,6 +8,7 @@
 from typing import Dict
 
 import torchx.schedulers.local_scheduler as local_scheduler
+import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import SchedulerBackend
 from torchx.util.entrypoints import load_group
@@ -24,6 +25,7 @@ def get_schedulers(
         default={
             "local": local_scheduler.create_scheduler,
             "default": local_scheduler.create_scheduler,
+            "slurm": slurm_scheduler.create_scheduler,
         },
         ignore_missing=True,
     )
