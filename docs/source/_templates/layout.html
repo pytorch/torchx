@@ -6,3 +6,48 @@
     </div>
     {% include "searchbox.html" %}
 {% endblock %}
+
+{%- block content %}
+  {% if pagename.startswith("examples") %}
+  <div class="pytorch-call-to-action-links">
+    <div id="tutorial-type">{{ pagename }}</div>
+
+    <div id="torchx-google-colab-link">
+      <img class="call-to-action-img" src="{{ pathto('_static/images/pytorch-colab.svg', 1) }}"/>
+      <div class="call-to-action-desktop-view">Run in Google Colab</div>
+      <div class="call-to-action-mobile-view">Colab</div>
+    </div>
+    <div id="torchx-download-notebook-link">
+      <img class="call-to-action-notebook-img" src="{{ pathto('_static/images/pytorch-download.svg', 1) }}"/>
+      <div class="call-to-action-desktop-view">Download Notebook</div>
+      <div class="call-to-action-mobile-view">Notebook</div>
+    </div>
+    <div id="torchx-github-view-link">
+      <img class="call-to-action-img" src="{{ pathto('_static/images/pytorch-github.svg', 1) }}"/>
+      <div class="call-to-action-desktop-view">View on GitHub</div>
+      <div class="call-to-action-mobile-view">GitHub</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- copied from pytorch_sphinx_theme -->
+  {% if theme_style_external_links|tobool %}
+  <div class="rst-content style-external-links">
+  {% else %}
+  <div class="rst-content">
+  {% endif %}
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+    {%- block document %}
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      {% block body %}{% endblock %}
+     </article>
+     {% if self.comments()|trim %}
+     <div class="articleComments">
+      {% block comments %}{% endblock %}
+     </div>
+     {% endif%}
+    </div>
+    {%- endblock %}
+    {% include "footer.html" %}
+  </div>
+{%- endblock %}

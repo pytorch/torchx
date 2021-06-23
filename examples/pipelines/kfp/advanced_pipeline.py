@@ -100,9 +100,22 @@ parser.add_argument(
     default="pipeline.yaml",
 )
 
+# %% Parse the arguments, you'll need to set these accordingly if running from a
+# notebook.
+
 import sys
 
-args: argparse.Namespace = parser.parse_args(sys.argv[1:])
+if "NOTEBOOK" in globals():
+    argv = [
+        "--data_path",
+        "/tmp/data",
+        "--output_path",
+        "/tmp/output",
+    ]
+else:
+    argv = sys.argv[1:]
+
+args: argparse.Namespace = parser.parse_args(argv)
 
 # %%
 # Creating the Components
@@ -201,7 +214,8 @@ serve_comp: ContainerFactory = component_from_app(serve_app)
 # train components and produces images with integrated gradient results.
 
 # make sure examples is on the path
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if "__file__" in globals():
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from examples.apps.lightning_classy_vision.component import interpret
 

@@ -24,6 +24,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import subprocess
 import sys
 
 import pytorch_sphinx_theme
@@ -151,6 +152,9 @@ html_static_path = ["_static"]
 html_css_files = [
     "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css",
     "css/torchx.css",
+]
+html_js_files = [
+    "js/torchx.js",
 ]
 
 
@@ -294,6 +298,27 @@ TypedField.make_field = patched_make_field
 
 
 # -- Options for Sphinx-Gallery -----
+
+tags_raw = subprocess.check_output(["git", "tag", "-l"])
+tags = set(tags_raw.decode("utf-8").strip().split("\n"))
+
+if version in tags:
+    notebook_version = version
+    code_url = (
+        f"https://github.com/pytorch/torchx/archive/refs/tags/{notebook_version}.tar.gz"
+    )
+else:
+    notebook_version = "master"
+    code_url = "https://github.com/pytorch/torchx/archive/refs/heads/master.tar.gz"
+
+first_notebook_cell = f"""
+!pip install torchx
+!wget --no-clobber {code_url}
+!tar xvf {notebook_version}.tar.gz torchx-{notebook_version} --strip-components=1
+
+NOTEBOOK = True
+""".strip()
+
 sphinx_gallery_conf = {
     "examples_dirs": [
         "../../examples/apps",
@@ -303,4 +328,5 @@ sphinx_gallery_conf = {
         "examples_apps",
         "examples_pipelines",
     ],
+    "first_notebook_cell": first_notebook_cell,
 }

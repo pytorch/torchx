@@ -37,3 +37,7 @@ jobs:
         run: |
           cd docs
           make html
+      - name: Papermill
+        run: |
+          cd docs
+          make papermill
