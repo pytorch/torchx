@@ -328,12 +328,35 @@
         <div class="pytorch-content-left">
 
         
-          
-          <div class="rst-content">
-          
-            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
-             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
-              
+  
+  <div class="pytorch-call-to-action-links">
+    <div id="tutorial-type">examples_pipelines/kfp/advanced_pipeline</div>
+
+    <div id="torchx-google-colab-link">
+      <img class="call-to-action-img" src="../../_static/images/pytorch-colab.svg"/>
+      <div class="call-to-action-desktop-view">Run in Google Colab</div>
+      <div class="call-to-action-mobile-view">Colab</div>
+    </div>
+    <div id="torchx-download-notebook-link">
+      <img class="call-to-action-notebook-img" src="../../_static/images/pytorch-download.svg"/>
+      <div class="call-to-action-desktop-view">Download Notebook</div>
+      <div class="call-to-action-mobile-view">Notebook</div>
+    </div>
+    <div id="torchx-github-view-link">
+      <img class="call-to-action-img" src="../../_static/images/pytorch-github.svg"/>
+      <div class="call-to-action-desktop-view">View on GitHub</div>
+      <div class="call-to-action-mobile-view">GitHub</div>
+    </div>
+  </div>
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
 <p>Click <a class="reference internal" href="#sphx-glr-download-examples-pipelines-kfp-advanced-pipeline-py"><span class="std std-ref">here</span></a>
@@ -424,10 +447,22 @@ on how to setup TorchServe.</p>
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place the compiled pipeline package&quot;</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="s2">&quot;pipeline.yaml&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+<p>notebook.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="s2">&quot;NOTEBOOK&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/tmp/data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/tmp/output&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">argv</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/sys.html#sys.argv" title="sys.argv" class="sphx-glr-backref-module-sys sphx-glr-backref-type-py-data"><span class="n">sys</span><span class="o">.</span><span class="n">argv</span></a><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
-<span class="n">args</span><span class="p">:</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><a href="https://docs.python.org/3/library/sys.html#sys.argv" title="sys.argv" class="sphx-glr-backref-module-sys sphx-glr-backref-type-py-data"><span class="n">sys</span><span class="o">.</span><span class="n">argv</span></a><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="n">args</span><span class="p">:</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -520,7 +555,8 @@ endpoints.</p>
 own component file. This component takes in the output from datapreproc and
 train components and produces images with integrated gradient results.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># make sure examples is on the path</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+<span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
 
 <span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">interpret</span>
 
@@ -588,10 +624,10 @@ a kfp.Client.</p>
 </div>
 
 
-             </article>
-             
-            </div>
-            <footer>
+     </article>
+     
+    </div>
+    <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
@@ -623,7 +659,7 @@ a kfp.Client.</p>
 
 </footer>
 
-          </div>
+  </div>
         </div>
 
         <div class="pytorch-content-right" id="pytorch-content-right">
@@ -658,6 +694,7 @@ a kfp.Client.</p>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../_static/katex_autorenderer.js"></script>
+         <script src="../../_static/js/torchx.js"></script>
      
 
   

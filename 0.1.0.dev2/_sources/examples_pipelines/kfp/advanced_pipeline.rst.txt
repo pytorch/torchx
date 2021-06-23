@@ -134,7 +134,7 @@ on how to setup TorchServe.
 Finally, set the output path for the exported KFP pipeline package. This can either be
 .yaml or .zip.
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-107
+.. GENERATED FROM PYTHON SOURCE LINES 96-103
 
 .. code-block:: default
 
@@ -145,12 +145,32 @@ Finally, set the output path for the exported KFP pipeline package. This can eit
         default="pipeline.yaml",
     )
 
+
+.. GENERATED FROM PYTHON SOURCE LINES 104-105
+
+notebook.
+
+.. GENERATED FROM PYTHON SOURCE LINES 105-120
+
+.. code-block:: default
+
+
     import sys
 
-    args: argparse.Namespace = parser.parse_args(sys.argv[1:])
+    if "NOTEBOOK" in globals():
+        argv = [
+            "--data_path",
+            "/tmp/data",
+            "--output_path",
+            "/tmp/output",
+        ]
+    else:
+        argv = sys.argv[1:]
+
+    args: argparse.Namespace = parser.parse_args(argv)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 108-117
+.. GENERATED FROM PYTHON SOURCE LINES 121-130
 
 Creating the Components
 #######################
@@ -162,7 +182,7 @@ execute the datapreproc app.
 datapreproc outputs the data to a specified fsspec path. These paths are all
 specified ahead of time so we have a fully static pipeline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-131
+.. GENERATED FROM PYTHON SOURCE LINES 130-144
 
 .. code-block:: default
 
@@ -181,13 +201,13 @@ specified ahead of time so we have a fully static pipeline.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-135
+.. GENERATED FROM PYTHON SOURCE LINES 145-148
 
 Now that we have the TorchX component we need to adapt it so it can run in KFP
 via our KFP adapter. component_from_app takes in a TorchX component and
 returns a KFP component.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-139
+.. GENERATED FROM PYTHON SOURCE LINES 148-152
 
 .. code-block:: default
 
@@ -196,12 +216,12 @@ returns a KFP component.
     datapreproc_comp: ContainerFactory = component_from_app(datapreproc_app)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 140-142
+.. GENERATED FROM PYTHON SOURCE LINES 153-155
 
 Next we'll create the trainer component that takes in the training data from the
 previous datapreproc component.
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-161
+.. GENERATED FROM PYTHON SOURCE LINES 155-174
 
 .. code-block:: default
 
@@ -225,12 +245,12 @@ previous datapreproc component.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 162-164
+.. GENERATED FROM PYTHON SOURCE LINES 175-177
 
 To have the tensorboard path show up in KFPs UI we need to some metadata so
 KFP knows where to consume the metrics from.
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-178
+.. GENERATED FROM PYTHON SOURCE LINES 177-191
 
 .. code-block:: default
 
@@ -249,13 +269,13 @@ KFP knows where to consume the metrics from.
     trainer_comp: ContainerFactory = component_from_app(trainer_app, ui_metadata)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-182
+.. GENERATED FROM PYTHON SOURCE LINES 192-195
 
 For the inference, we're leveraging one of the builtin TorchX components. This
 component takes in a model and uploads it to the TorchServe management API
 endpoints.
 
-.. GENERATED FROM PYTHON SOURCE LINES 182-198
+.. GENERATED FROM PYTHON SOURCE LINES 195-211
 
 .. code-block:: default
 
@@ -276,19 +296,20 @@ endpoints.
     serve_comp: ContainerFactory = component_from_app(serve_app)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-202
+.. GENERATED FROM PYTHON SOURCE LINES 212-215
 
 For model interpretability we're leveraging a custom component stored in it's
 own component file. This component takes in the output from datapreproc and
 train components and produces images with integrated gradient results.
 
-.. GENERATED FROM PYTHON SOURCE LINES 202-216
+.. GENERATED FROM PYTHON SOURCE LINES 215-230
 
 .. code-block:: default
 
 
     # make sure examples is on the path
-    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    if "__file__" in globals():
+        sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
     from examples.apps.lightning_classy_vision.component import interpret
 
@@ -301,7 +322,7 @@ train components and produces images with integrated gradient results.
     interpret_comp: ContainerFactory = component_from_app(interpret_app)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 217-228
+.. GENERATED FROM PYTHON SOURCE LINES 231-242
 
 Pipeline Definition
 ###################
@@ -315,7 +336,7 @@ containers need to have their dependencies specified via `.after()`.
 We call `.set_tty()` to make the logs from the components more responsive for
 example purposes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 228-256
+.. GENERATED FROM PYTHON SOURCE LINES 242-270
 
 .. code-block:: default
 
@@ -348,7 +369,7 @@ example purposes.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 257-260
+.. GENERATED FROM PYTHON SOURCE LINES 271-274
 
 Once this has all run you should have a pipeline file (typically
 pipeline.yaml) that you can upload to your KFP cluster via the UI or

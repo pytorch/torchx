@@ -115,5 +115,5 @@ def main(argv: List[str]) -> None:
         fs.put(tar_path, rpaths[0])
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "NOTEBOOK" not in globals():
     main(sys.argv[1:])

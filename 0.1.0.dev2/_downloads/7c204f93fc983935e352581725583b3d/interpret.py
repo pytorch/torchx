@@ -28,6 +28,10 @@ from typing import List
 
 import fsspec
 import torch
+
+# ensure data and module are on the path
+sys.path.append("examples/apps/lightning_classy_vision")
+
 from data import TinyImageNetDataModule, download_data
 from model import TinyImageNetModel
 
@@ -63,7 +67,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def convert_to_rgb(arr: torch.Tensor) -> np.ndarray:
+def convert_to_rgb(arr: torch.Tensor) -> np.ndarray:  # pyre-ignore[24]
     """
     This converts the image from a torch tensor with size (1, 1, 64, 64) to
     numpy array with size (64, 64, 3).
@@ -126,5 +130,5 @@ def main(argv: List[str]) -> None:
                 fig.savefig(f)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "NOTEBOOK" not in globals():
     main(sys.argv[1:])

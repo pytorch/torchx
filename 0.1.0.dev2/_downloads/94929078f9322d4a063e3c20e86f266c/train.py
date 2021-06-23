@@ -23,10 +23,13 @@ import tempfile
 from typing import List
 
 import pytorch_lightning as pl
-from data import TinyImageNetDataModule, download_data
-from model import TinyImageNetModel, export_inference_model
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
+
+# ensure data and module are on the path
+sys.path.append("examples/apps/lightning_classy_vision")
+from data import TinyImageNetDataModule, download_data
+from model import TinyImageNetModel, export_inference_model
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -106,5 +109,5 @@ def main(argv: List[str]) -> None:
             export_inference_model(model, args.output_path, tmpdir)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "NOTEBOOK" not in globals():
     main(sys.argv[1:])

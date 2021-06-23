@@ -328,12 +328,35 @@
         <div class="pytorch-content-left">
 
         
-          
-          <div class="rst-content">
-          
-            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
-             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
-              
+  
+  <div class="pytorch-call-to-action-links">
+    <div id="tutorial-type">examples_apps/datapreproc/datapreproc</div>
+
+    <div id="torchx-google-colab-link">
+      <img class="call-to-action-img" src="../../_static/images/pytorch-colab.svg"/>
+      <div class="call-to-action-desktop-view">Run in Google Colab</div>
+      <div class="call-to-action-mobile-view">Colab</div>
+    </div>
+    <div id="torchx-download-notebook-link">
+      <img class="call-to-action-notebook-img" src="../../_static/images/pytorch-download.svg"/>
+      <div class="call-to-action-desktop-view">Download Notebook</div>
+      <div class="call-to-action-mobile-view">Notebook</div>
+    </div>
+    <div id="torchx-github-view-link">
+      <img class="call-to-action-img" src="../../_static/images/pytorch-github.svg"/>
+      <div class="call-to-action-desktop-view">View on GitHub</div>
+      <div class="call-to-action-mobile-view">GitHub</div>
+    </div>
+  </div>
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
 <p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-datapreproc-datapreproc-py"><span class="std std-ref">here</span></a>
@@ -445,7 +468,7 @@ images via torchvision and then reuploads it via fsspec.</p>
         <span class="n">fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">tar_path</span><span class="p">,</span> <span class="n">rpaths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span> <span class="ow">and</span> <span class="s2">&quot;NOTEBOOK&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
     <span class="n">main</span><span class="p">(</span><a href="https://docs.python.org/3/library/sys.html#sys.argv" title="sys.argv" class="sphx-glr-backref-module-sys sphx-glr-backref-type-py-data"><span class="n">sys</span><span class="o">.</span><span class="n">argv</span></a><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 </pre></div>
 </div>
@@ -462,10 +485,10 @@ images via torchvision and then reuploads it via fsspec.</p>
 </div>
 
 
-             </article>
-             
-            </div>
-            <footer>
+     </article>
+     
+    </div>
+    <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
@@ -497,7 +520,7 @@ images via torchvision and then reuploads it via fsspec.</p>
 
 </footer>
 
-          </div>
+  </div>
         </div>
 
         <div class="pytorch-content-right" id="pytorch-content-right">
@@ -527,6 +550,7 @@ images via torchvision and then reuploads it via fsspec.</p>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../_static/katex_autorenderer.js"></script>
+         <script src="../../_static/js/torchx.js"></script>
      
 
   

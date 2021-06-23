@@ -13,3 +13,17 @@ article.pytorch-article .py dt a[title] {
 article.pytorch-article .py dt span.pre {
   padding: 0;
 }
+
+#torchx-google-colab-link, #torchx-download-notebook-link,
+#torchx-github-view-link {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f3f4f7;
+  padding-right: 40px;
+  display: flex;
+  align-items: center;
+}
+#torchx-google-colab-link:hover, #torchx-download-notebook-link:hover,
+#torchx-github-view-link:hover {
+  border-bottom-color: #e44c2c;
+  color: #e44c2c;
+}

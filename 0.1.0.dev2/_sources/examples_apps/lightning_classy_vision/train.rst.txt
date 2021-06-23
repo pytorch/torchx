@@ -28,7 +28,7 @@ This app only uses standard OSS libraries and has no runtime torchx
 dependencies. For saving and loading data and models it uses fsspec which makes
 the app agnostic to the environment it's running in.
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-111
+.. GENERATED FROM PYTHON SOURCE LINES 19-114
 
 .. code-block:: default
 
@@ -39,10 +39,13 @@ the app agnostic to the environment it's running in.
     from typing import List
 
     import pytorch_lightning as pl
-    from data import TinyImageNetDataModule, download_data
-    from model import TinyImageNetModel, export_inference_model
     from pytorch_lightning.callbacks import ModelCheckpoint
     from pytorch_lightning.loggers import TensorBoardLogger
+
+    # ensure data and module are on the path
+    sys.path.append("examples/apps/lightning_classy_vision")
+    from data import TinyImageNetDataModule, download_data
+    from model import TinyImageNetModel, export_inference_model
 
 
     def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -122,7 +125,7 @@ the app agnostic to the environment it's running in.
                 export_inference_model(model, args.output_path, tmpdir)
 
 
-    if __name__ == "__main__":
+    if __name__ == "__main__" and "NOTEBOOK" not in globals():
         main(sys.argv[1:])
 
 
