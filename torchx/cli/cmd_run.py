@@ -153,6 +153,12 @@ class CmdRun(SubCommand):
             " just prints the scheduler request",
         )
         subparser.add_argument(
+            "--wait",
+            action="store_true",
+            default=False,
+            help="Wait for the app to finish before exiting.",
+        )
+        subparser.add_argument(
             "conf_file",
             type=str,
             help="Name of builtin conf or path of the *.torchx.conf file."
@@ -179,7 +185,7 @@ class CmdRun(SubCommand):
             print(f"Launched app: {app_handle}")
             status = runner.status(app_handle)
             print(f"App status: {status}")
-            if args.scheduler == "local":
+            if args.scheduler == "local" or args.wait:
                 runner.wait(app_handle)
             else:
                 print(f"Job URL: {none_throws(status).ui_url}")
