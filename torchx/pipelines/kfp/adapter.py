@@ -9,7 +9,7 @@ import json
 import os
 import os.path
 import shlex
-from typing import Protocol, Tuple, Optional, Mapping
+from typing import Tuple, Optional, Mapping
 
 import yaml
 from kfp import components, dsl
@@ -23,6 +23,7 @@ from kubernetes.client.models import (
     V1EmptyDirVolumeSource,
 )
 from torchx.specs import api
+from typing_extensions import Protocol
 
 from .version import __version__ as __version__  # noqa F401
 
@@ -153,15 +154,18 @@ def component_from_app(
             c.output_artifact_paths["mlpipeline-ui-metadata"] = METADATA_FILE
             c.add_sidecar(_ui_metadata_sidecar(ui_metadata))
 
-        if (cpu := resources.cpu) >= 0:
+        cpu = resources.cpu
+        if cpu >= 0:
             cpu_str = f"{int(cpu*1000)}m"
             container.set_cpu_request(cpu_str)
             container.set_cpu_limit(cpu_str)
-        if (mem := resources.memMB) >= 0:
+        mem = resources.memMB
+        if mem >= 0:
             mem_str = f"{int(mem)}M"
             container.set_memory_request(mem_str)
             container.set_memory_limit(mem_str)
-        if (gpu := resources.gpu) > 0:
+        gpu = resources.gpu
+        if gpu > 0:
             container.set_gpu_limit(str(gpu))
 
         for name, port in role_spec.port_map.items():

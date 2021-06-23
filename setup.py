@@ -23,8 +23,8 @@ def get_version():
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 8):
-        sys.exit("python >= 3.8 required for torchx-sdk")
+    if sys.version_info < (3, 7):
+        sys.exit("python >= 3.7 required for torchx-sdk")
 
     with open("README.md", encoding="utf8") as f:
         readme = f.read()
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         url="https://github.com/pytorch/torchx",
         license="BSD-3",
         keywords=["pytorch", "machine learning"],
-        python_requires=">=3.8",
+        python_requires=">=3.7",
         install_requires=reqs.strip().split("\n"),
         include_package_data=True,
         packages=find_packages(exclude=("examples", "*.test", "aws*", "*.fb")),
@@ -63,6 +63,9 @@ if __name__ == "__main__":
         extras_require={
             "kfp": ["kfp==1.6.2"],
             "dev": dev_reqs,
+            ':python_version < "3.8"': [
+                "importlib-metadata",
+            ],
         },
         # PyPI package information.
         classifiers=[
