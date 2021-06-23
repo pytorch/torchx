@@ -28,6 +28,10 @@ from typing import List
 
 import fsspec
 import torch
+
+# ensure data and module are on the path
+sys.path.append("examples/apps/lightning_classy_vision")
+
 from data import TinyImageNetDataModule, download_data
 from model import TinyImageNetModel
 
@@ -126,5 +130,5 @@ def main(argv: List[str]) -> None:
                 fig.savefig(f)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "NOTEBOOK" not in globals():
     main(sys.argv[1:])

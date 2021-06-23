@@ -3,3 +3,5 @@ sphinx==4.0.2
 sphinx-gallery
 sphinxcontrib.katex
 matplotlib
+papermill
+ipykernel
