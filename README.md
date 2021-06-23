@@ -25,7 +25,7 @@ TorchX Kubeflow Pipelines Support (torchx-kfp):
 pip install torchx
 
 # install torchx kubeflow pipelines (kfp) support
-pip intall torchx[kfp]
+pip install "torchx[kfp]"
 ```
 
 ## Quickstart
