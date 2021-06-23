@@ -248,7 +248,7 @@ class Runner:
             if role.num_replicas <= 0:
                 raise ValueError(
                     f"Non-positive replicas for role: {role.name}."
-                    f" Did you forget to call role.replicas(positive_number)?"
+                    f" Did you forget to set role.num_replicas?"
                 )
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)

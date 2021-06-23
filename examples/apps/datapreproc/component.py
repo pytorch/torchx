@@ -54,6 +54,7 @@ def data_preproc(
         ],
         env=env,
         resource=resource,
-    ).replicas(1)
+        num_replicas=1,
+    )
 
-    return specs.AppDef(name).of(ddp_role)
+    return specs.AppDef(name, roles=[ddp_role])
