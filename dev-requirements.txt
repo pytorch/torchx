@@ -16,3 +16,4 @@ flake8==3.9.0
 ts>=0.5.1
 torchserve>=0.4.0
 captum>=0.3.1
+importlib-metadata

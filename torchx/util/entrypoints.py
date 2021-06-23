@@ -5,8 +5,13 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from importlib import metadata
-from importlib.metadata import EntryPoint
+
+try:
+    from importlib import metadata
+    from importlib.metadata import EntryPoint
+except ImportError:
+    import importlib_metadata as metadata
+    from importlib_metadata import EntryPoint
 from typing import Any, Dict, Optional
 
 

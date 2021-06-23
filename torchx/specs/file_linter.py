@@ -184,15 +184,14 @@ class TorchxReturnValidator(TorchxFunctionValidator):
         return_def = app_specs_func_def.returns
         if not return_def:
             return None
-        if type(return_def) == ast.Attribute:
-            return_def_attr = cast(ast.Attribute, return_def)
-            return return_def_attr.attr
-        elif type(return_def) == ast.Name:
-            return_def_name = cast(ast.Name, return_def)
-            return return_def_name.id
-        elif type(return_def) == ast.Constant:
-            return_def_constant = cast(ast.Constant, return_def)
-            return return_def_constant.value
+        if isinstance(return_def, ast.Attribute):
+            return return_def.attr
+        elif isinstance(return_def, ast.Name):
+            return return_def.id
+        elif isinstance(return_def, ast.Str):
+            return return_def.s
+        elif isinstance(return_def, ast.Constant):
+            return return_def.value
         else:
             return None
 
