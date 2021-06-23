@@ -175,11 +175,11 @@ class CmdRun(SubCommand):
         )
 
         if not args.dryrun:
-            print("=== RUN RESULT ===")
-            print(f"Launched app: {app_handle}")
-            status = runner.status(app_handle)
-            print(f"App status: {status}")
             if args.scheduler == "local":
                 runner.wait(app_handle)
             else:
+                print("=== RUN RESULT ===")
+                print(f"Launched app: {app_handle}")
+                status = runner.status(app_handle)
+                print(f"App status: {status}")
                 print(f"Job URL: {none_throws(status).ui_url}")
