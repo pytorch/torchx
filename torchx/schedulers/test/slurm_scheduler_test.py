@@ -138,10 +138,9 @@ srun --chdir=/some/path echo 'hello slurm' test
         self.assertEqual(app_id, "1234")
 
         self.assertEqual(run.call_count, 1)
-        self.assertEqual(
-            run.call_args.kwargs, {"stdout": subprocess.PIPE, "check": True}
-        )
-        (args,) = run.call_args.args
+        args, kwargs = run.call_args
+        self.assertEqual(kwargs, {"stdout": subprocess.PIPE, "check": True})
+        (args,) = args
         self.assertEqual(len(args), 9)
         self.assertEqual(args[:4], ["sbatch", "--parsable", "--job-name", "foo"])
         self.assertTrue(args[4].endswith("role-0-a-0.sh"))
