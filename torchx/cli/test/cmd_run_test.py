@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _builtins, _parse_run_config
+from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_run_config
 
 
 @contextmanager
@@ -109,7 +109,8 @@ class CmdBuiltinTest(unittest.TestCase):
         cmd_builtins.run(args)
 
     def test_builtins(self) -> None:
-        builtins = _builtins()
+        cmd_builtins = CmdBuiltins()
+        builtins = cmd_builtins._builtins()
         # make sure there's at least one
         # there will always be one (example.torchx)
         self.assertTrue(len(builtins) > 0)

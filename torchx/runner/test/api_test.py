@@ -355,7 +355,7 @@ class RunnerTest(unittest.TestCase):
 
         app_args = ["--image", "dummy_image", "--entrypoint", "test.py"]
         with patch.object(runner, "run") as run_mock:
-            app_handle = runner.run_from_path("dist.ddp", app_args, "local")
+            app_handle = runner.run_component("dist.ddp", app_args, "local")
             args, kwargs = run_mock.call_args
             actual_app = args[0]
 
@@ -369,7 +369,7 @@ class RunnerTest(unittest.TestCase):
         runner = Runner(name="test_session", schedulers=schedulers)
         with patch.object(runner, "run") as run_mock:
             with self.assertRaises(ValueError):
-                runner.run_from_path("distributed.unknown_module.ddp", [], "local")
+                runner.run_component("distributed.unknown_module.ddp", [], "local")
 
     def test_run_from_file(self, _) -> None:
         local_sched_mock = MagicMock()
@@ -379,7 +379,7 @@ class RunnerTest(unittest.TestCase):
         app_args = ["--script", "test.py"]
         component_path = get_full_path("distributed.py")
         with patch.object(runner, "run") as run_mock:
-            app_handle = runner.run_from_path(
+            app_handle = runner.run_component(
                 f"{component_path}:ddp", app_args, "local"
             )
             args, kwargs = run_mock.call_args
@@ -404,7 +404,7 @@ class RunnerTest(unittest.TestCase):
         runner = Runner(name="test_session", schedulers=schedulers)
         with patch.object(runner, "run") as run_mock:
             with self.assertRaises(ValueError):
-                app_handle = runner.run_from_path("file_path/dir:", [], "local")
+                app_handle = runner.run_component("file_path/dir:", [], "local")
 
     def test_run_from_file_no_function_found(self, _) -> None:
         local_sched_mock = MagicMock()
@@ -413,4 +413,4 @@ class RunnerTest(unittest.TestCase):
         component_path = get_full_path("distributed.py")
         with patch.object(runner, "run") as run_mock:
             with self.assertRaises(ValueError):
-                runner.run_from_path(f"{component_path}:unknown_function", [], "local")
+                runner.run_component(f"{component_path}:unknown_function", [], "local")
