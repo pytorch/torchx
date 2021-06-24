@@ -335,9 +335,57 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <div class="section" id="slurm">
-<h1>Slurm<a class="headerlink" href="#slurm" title="Permalink to this headline">¶</a></h1>
-<p>&lt;COMING SOON&gt;</p>
+  <div class="section" id="module-torchx.schedulers.slurm_scheduler">
+<span id="slurm"></span><h1>Slurm<a class="headerlink" href="#module-torchx.schedulers.slurm_scheduler" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects
+that slurm CLI tools are locally installed and job accounting is enabled.</p>
+<p>Each app def is scheduled using a heterogenous job via sbatch.
+Each replica of each role has a unique shell script generated with it’s
+resource allocations and args and then sbatch is used to launch all of them
+together.</p>
+<p>Logs are written to the default slurm log file.</p>
+<p>Any scheduler options passed to it are added as SBATCH arguments to each replica.</p>
+<p>For more info see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://slurm.schedmd.com/sbatch.html">https://slurm.schedmd.com/sbatch.html</a></p></li>
+<li><p><a class="reference external" href="https://slurm.schedmd.com/heterogeneous_jobs.html">https://slurm.schedmd.com/heterogeneous_jobs.html</a></p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchx run --scheduler slurm utils.echo --msg hello
+slurm://torchx_user/1234
+$ torchx status slurm://torchx_user/1234
+$ less slurm-1234.out
+...
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.DescribeAppResponse</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.describe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describes the specified application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>AppDef description or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the app does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.schedule">
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.slurm_scheduler.SlurmBatchRequest</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
+Implementors are encouraged to implement this method rather than
+directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
+implemented by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+<span class="k">return</span> <span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

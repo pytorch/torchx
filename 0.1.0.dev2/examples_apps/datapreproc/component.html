@@ -407,9 +407,10 @@ to download the full example code</p>
         <span class="p">],</span>
         <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
         <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">replicas</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">ddp_role</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">ddp_role</span><span class="p">])</span>
 </pre></div>
 </div>
 <p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>

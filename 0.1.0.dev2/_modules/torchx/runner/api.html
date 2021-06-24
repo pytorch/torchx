@@ -570,7 +570,7 @@
         <span class="c1"># input validation</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No roles for app: </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. Did you forget to call app.of(roles..)?&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;No roles for app: </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. Did you forget to add roles to AppDef?&quot;</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
@@ -582,7 +582,7 @@
             <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Non-positive replicas for role: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; Did you forget to call role.replicas(positive_number)?&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; Did you forget to set role.num_replicas?&quot;</span>
                 <span class="p">)</span>
         <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
         <span class="n">sched</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">)</span>
@@ -728,7 +728,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">app</span><span class="p">:</span>
                 <span class="n">desc</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
-                    <span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">desc</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+                    <span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="n">desc</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">app</span></div>
 
 <div class="viewcode-block" id="Runner.log_lines"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.log_lines">[docs]</a>    <span class="k">def</span> <span class="nf">log_lines</span><span class="p">(</span>

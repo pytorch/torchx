@@ -447,8 +447,8 @@
 <span class="sd">    ::</span>
 
 <span class="sd">     # runs: hello_world.py --app_id ${app_id}</span>
-<span class="sd">     trainer = Role(name=&quot;trainer&quot;).runs(&quot;hello_world.py&quot;, &quot;--app_id&quot;, macros.app_id)</span>
-<span class="sd">     app = AppDef(&quot;train_app&quot;).of(trainer)</span>
+<span class="sd">     trainer = Role(name=&quot;trainer&quot;, entrypoint=&quot;hello_world.py&quot;, args=[&quot;--app_id&quot;, macros.app_id])</span>
+<span class="sd">     app = AppDef(&quot;train_app&quot;, roles=[trainer])</span>
 <span class="sd">     app_handle = session.run(app, scheduler=&quot;local&quot;, cfg=RunConfig())</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -541,11 +541,13 @@
 
 <span class="sd">    ::</span>
 
-<span class="sd">     trainer = Role(name=&quot;trainer&quot;, &quot;pytorch/torch:1&quot;)</span>
-<span class="sd">                 .runs(&quot;my_trainer.py&quot;, &quot;--arg&quot;, &quot;foo&quot;, ENV_VAR=&quot;FOOBAR&quot;)</span>
-<span class="sd">                 .replicas(4)</span>
-<span class="sd">                 .require(Resource(cpu=1, gpu=1, memMB=500))</span>
-<span class="sd">                 .ports({&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081})</span>
+<span class="sd">     trainer = Role(name=&quot;trainer&quot;,</span>
+<span class="sd">                    image = &quot;pytorch/torch:1&quot;,</span>
+<span class="sd">                    entrypoint = &quot;my_trainer.py&quot;</span>
+<span class="sd">                    args = [&quot;--arg&quot;, &quot;foo&quot;, ENV_VAR=&quot;FOOBAR&quot;],</span>
+<span class="sd">                    num_replicas = 4,</span>
+<span class="sd">                    resource = Resource(cpu=1, gpu=1, memMB=500),</span>
+<span class="sd">                    port_map={&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081})</span>
 
 
 <span class="sd">     # for schedulers that support base_images</span>
@@ -580,21 +582,6 @@
     <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
     <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entrypoint</span> <span class="o">=</span> <span class="n">entrypoint</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="o">*</span><span class="n">args</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="o">**</span><span class="n">kwargs</span><span class="p">})</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">replicas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">=</span> <span class="n">replicas</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">with_retry_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">retry_policy</span><span class="p">:</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">retry_policy</span> <span class="o">=</span> <span class="n">retry_policy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
 <div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span>
@@ -627,22 +614,7 @@
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Role</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">roles</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AppDef&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">+=</span> <span class="p">[</span><span class="o">*</span><span class="n">roles</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-<div class="viewcode-block" id="AppDef.add_metadata"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppDef.add_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">add_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AppDef&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adds metadata to the application.</span>
-<span class="sd">        .. note:: If the key already exists, this method overwrites the metadata value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AppState"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppState">[docs]</a><span class="k">class</span> <span class="nc">AppState</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>

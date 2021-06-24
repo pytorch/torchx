@@ -355,13 +355,6 @@ to submit this app to the scheduler.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="torchx.specs.AppDef.add_metadata">
-<span class="sig-name descname"><span class="pre">add_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="_modules/torchx/specs/api.html#AppDef.add_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.AppDef.add_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds metadata to the application.
-.. note:: If the key already exists, this method overwrites the metadata value.</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -399,11 +392,13 @@ makes it possible to make changes to the application code without incurring
 the cost of re-building the uber artifact.</p>
 </div>
 <p>Usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="s2">&quot;pytorch/torch:1&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">&quot;my_trainer.py&quot;</span><span class="p">,</span> <span class="s2">&quot;--arg&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">ENV_VAR</span><span class="o">=</span><span class="s2">&quot;FOOBAR&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">replicas</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">500</span><span class="p">))</span>
-            <span class="o">.</span><span class="n">ports</span><span class="p">({</span><span class="s2">&quot;tcp_store&quot;</span><span class="p">:</span><span class="mi">8080</span><span class="p">,</span> <span class="s2">&quot;tensorboard&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">})</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+               <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;pytorch/torch:1&quot;</span><span class="p">,</span>
+               <span class="n">entrypoint</span> <span class="o">=</span> <span class="s2">&quot;my_trainer.py&quot;</span>
+               <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--arg&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">ENV_VAR</span><span class="o">=</span><span class="s2">&quot;FOOBAR&quot;</span><span class="p">],</span>
+               <span class="n">num_replicas</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+               <span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span>
+               <span class="n">port_map</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tcp_store&quot;</span><span class="p">:</span><span class="mi">8080</span><span class="p">,</span> <span class="s2">&quot;tensorboard&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">})</span>
 
 
 <span class="c1"># for schedulers that support base_images</span>
@@ -559,8 +554,8 @@ have <code class="docutils literal notranslate"><span class="pre">replica_id=1</
 </ol>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># runs: hello_world.py --app_id ${app_id}</span>
-<span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">&quot;hello_world.py&quot;</span><span class="p">,</span> <span class="s2">&quot;--app_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">)</span>
-<span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="s2">&quot;train_app&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;hello_world.py&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--app_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">])</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="s2">&quot;train_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">trainer</span><span class="p">])</span>
 <span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">())</span>
 </pre></div>
 </div>

@@ -23,7 +23,7 @@ Datapreproc Component Example
 
 This is a component definition that runs the example datapreproc app.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-60
+.. GENERATED FROM PYTHON SOURCE LINES 14-61
 
 .. code-block:: default
 
@@ -70,9 +70,10 @@ This is a component definition that runs the example datapreproc app.
             ],
             env=env,
             resource=resource,
-        ).replicas(1)
+            num_replicas=1,
+        )
 
-        return specs.AppDef(name).of(ddp_role)
+        return specs.AppDef(name, roles=[ddp_role])
 
 
 .. rst-class:: sphx-glr-timing

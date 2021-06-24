@@ -440,17 +440,18 @@
         <span class="n">entrypoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">torch_run_args</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">Role</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-            <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
-            <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
-            <span class="n">port_map</span><span class="o">=</span><span class="n">port_map</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="n">entrypoint_override</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">env</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">replicas</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">with_retry_policy</span><span class="p">(</span><span class="n">retry_policy</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Role</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+        <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
+        <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint_override</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+        <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
+        <span class="n">retry_policy</span><span class="o">=</span><span class="n">retry_policy</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="o">=</span><span class="n">max_retries</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
+        <span class="n">port_map</span><span class="o">=</span><span class="n">port_map</span><span class="p">,</span>
     <span class="p">)</span></div>
 </pre></div>
 
