@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Configuring &mdash; PyTorch/TorchX master documentation</title>
@@ -335,7 +336,7 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <div class="section" id="configuring">
+  <section id="configuring">
 <h1>Configuring<a class="headerlink" href="#configuring" title="Permalink to this headline">¶</a></h1>
 <p>TorchX defines plugin points for you to configure TorchX to best support
 your infrastructure setup. Most of the configuration is done through
@@ -354,7 +355,7 @@ file as</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<div class="section" id="registering-custom-schedulers">
+<section id="registering-custom-schedulers">
 <h2>Registering Custom Schedulers<a class="headerlink" href="#registering-custom-schedulers" title="Permalink to this headline">¶</a></h2>
 <p>You may implement a custom scheduler by implementing the
 .. py::class torchx.schedulers.Scheduler interface. Once you do you can
@@ -370,8 +371,8 @@ $sched_name = my.custom.scheduler:create_scheduler
     <span class="k">return</span> <span class="n">MyScheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="registering-named-resources">
+</section>
+<section id="registering-named-resources">
 <h2>Registering Named Resources<a class="headerlink" href="#registering-named-resources" title="Permalink to this headline">¶</a></h2>
 <p>A Named Resource is a set of predefined resource specs that are given a
 string name. This is particularly useful
@@ -410,8 +411,8 @@ representation:</p>
 <span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">torch_dist_role</span><span class="p">(</span><span class="o">..</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;gpu_x_2&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)])</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="registering-custom-components">
+</section>
+<section id="registering-custom-components">
 <h2>Registering Custom Components<a class="headerlink" href="#registering-custom-components" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to author and register a custom set of components with the
 <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI as builtins to the CLI. This makes it possible to customize
@@ -421,17 +422,34 @@ when they run</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 </pre></div>
 </div>
-<p>Custom components can be registered via the following endpoint:</p>
+<p>Custom components can be registered via the following modification of the <code class="docutils literal notranslate"><span class="pre">entry_points.txt</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">torchx</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>
-<span class="n">custom_component</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">components</span><span class="p">:</span><span class="n">my_component</span>
+<span class="n">foo</span> <span class="o">=</span> <span class="n">my_project</span><span class="o">.</span><span class="n">bar</span>
 </pre></div>
 </div>
-<p>Custom components can be executed in the following manner:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>...,root_dir<span class="o">=</span>/tmp custom_component -- --name <span class="s2">&quot;test app&quot;</span>
+<p>The line above registers a group <code class="docutils literal notranslate"><span class="pre">foo</span></code> that is associated with the module <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code>.
+Torchx will recursively traverse lowest level dir associated with the <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> and will find
+all defined components.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If there are two registry entries, e.g. <code class="docutils literal notranslate"><span class="pre">foo</span> <span class="pre">=</span> <span class="pre">my_project.bar</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span> <span class="pre">=</span> <span class="pre">my_project</span></code>
+there will be two sets of overlapping components with different aliases.</p>
+</div>
+<p>After registration, torchx cli will display registered components via:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 </pre></div>
 </div>
+<p>If <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> had the following directory structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$PROJECT_ROOT/my_project/bar/
+    |- baz.py
+</pre></div>
 </div>
+<p>And <cite>baz.py</cite> defines a component (function) called <cite>trainer</cite>. Then the component can be run as a job in the following manner:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run foo.baz.trainer -- --name <span class="s2">&quot;test app&quot;</span>
+</pre></div>
 </div>
+</section>
+</section>
 
 
      </article>

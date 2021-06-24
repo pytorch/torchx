@@ -107,16 +107,36 @@ when they run
 
  $ torchx builtins
 
-Custom components can be registered via the following endpoint:
+Custom components can be registered via the following modification of the ``entry_points.txt``:
 
 ::
 
  [torchx.components]
- custom_component = my_module.components:my_component
+ foo = my_project.bar
+
+The line above registers a group ``foo`` that is associated with the module ``my_project.bar``.
+Torchx will recursively traverse lowest level dir associated with the ``my_project.bar`` and will find
+all defined components.
+
+.. note:: If there are two registry entries, e.g. ``foo = my_project.bar`` and ``test = my_project``
+          there will be two sets of overlapping components with different aliases.
 
 
-Custom components can be executed in the following manner:
+After registration, torchx cli will display registered components via:
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local --scheduler_args image_fetcher=...,root_dir=/tmp custom_component -- --name "test app"
+ $ torchx builtins
+
+If ``my_project.bar`` had the following directory structure:
+
+::
+
+ $PROJECT_ROOT/my_project/bar/
+     |- baz.py
+
+And `baz.py` defines a component (function) called `trainer`. Then the component can be run as a job in the following manner:
+
+.. code-block:: shell-session
+
+ $ torchx run foo.baz.trainer -- --name "test app"

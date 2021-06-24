@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>torchx.runner &mdash; PyTorch/TorchX master documentation</title>
@@ -335,7 +336,7 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <div class="section" id="module-torchx.runner">
+  <section id="module-torchx.runner">
 <span id="torchx-runner"></span><h1>torchx.runner<a class="headerlink" href="#module-torchx.runner" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.runner.get_runner">
@@ -473,20 +474,15 @@ rather than overriding this method directly.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.runner.Runner.run_from_path">
-<span class="sig-name descname"><span class="pre">run_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduler</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="specs.html#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><a class="reference internal" href="_modules/torchx/runner/api.html#Runner.run_from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.Runner.run_from_path" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.runner.Runner.run_component">
+<span class="sig-name descname"><span class="pre">run_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduler</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="specs.html#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/torchx/runner/api.html#Runner.run_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.Runner.run_component" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolves and runs the application in the specified mode.</p>
-<p>Retrieves application based on <code class="docutils literal notranslate"><span class="pre">component_path</span></code> and runs it in the specified mode.</p>
+<p>Retrieves application based on <code class="docutils literal notranslate"><span class="pre">component_name</span></code> and runs it in the specified mode.</p>
 <dl class="simple">
-<dt>The <code class="docutils literal notranslate"><span class="pre">component_path</span></code> has the following resolution order(from high-pri to low-pri):</dt><dd><ul class="simple">
+<dt>The <code class="docutils literal notranslate"><span class="pre">component_name</span></code> has the following resolution order(from high-pri to low-pri):</dt><dd><ul class="simple">
 <li><dl class="simple">
 <dt>User-registered components. Users can register components via</dt><dd><p><a class="reference external" href="https://packaging.python.org/specifications/entry-points/">https://packaging.python.org/specifications/entry-points/</a>. Method looks for
 entrypoints in the group <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code>.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>File-based components in format: <code class="docutils literal notranslate"><span class="pre">$FILE_PATH:FUNCTION_NAME</span></code>. Both relative and</dt><dd><p>absolute paths supported.</p>
 </dd>
 </dl>
 </li>
@@ -496,27 +492,41 @@ entrypoints in the group <code class="docutils literal notranslate"><span class=
 </dd>
 </dl>
 </li>
+<li><dl class="simple">
+<dt>File-based components in format: <code class="docutils literal notranslate"><span class="pre">$FILE_PATH:FUNCTION_NAME</span></code>. Both relative and</dt><dd><p>absolute paths supported.</p>
+</dd>
+</dl>
+</li>
 </ul>
 </dd>
 </dl>
 <p>Usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>runner.run_from_path(&quot;distributed.ddp&quot;, ...) - will be resolved to
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>runner.run_component(&quot;distributed.ddp&quot;, ...) - will be resolved to
    ``torchx.components.distributed`` module and ``ddp`` function.
 
 
-runner.run_from_path(&quot;~/home/components.py:my_component&quot;, ...) - will be resolved to
+runner.run_component(&quot;~/home/components.py:my_component&quot;, ...) - will be resolved to
    ``~/home/components.py`` file and ``my_component`` function.
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>An application handle that is used to call other action APIs on the app, or <code class="docutils literal notranslate"><span class="pre">&lt;NONE&gt;</span></code>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component_name</strong> – The name of the component to lookup</p></li>
+<li><p><strong>app_args</strong> – Arguments of the component function</p></li>
+<li><p><strong>scheduler</strong> – Scheduler to execute component</p></li>
+<li><p><strong>cfg</strong> – Scheduler run configuration</p></li>
+<li><p><strong>dryrun</strong> – If True, the will return <code class="docutils literal notranslate"><span class="pre">torchx.specs.AppDryRunInfo</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An application handle that is used to call other action APIs on the app, or <code class="docutils literal notranslate"><span class="pre">&lt;NONE&gt;</span></code>
 if it dryrun specified.</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p><strong>AppNotReRunnableException</strong> – if the session/scheduler does not support re-running attached apps</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – if the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> is failed to resolve.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – if the <code class="docutils literal notranslate"><span class="pre">component_name</span></code> is failed to resolve.</p></li>
 </ul>
 </dd>
 </dl>
@@ -628,7 +638,7 @@ Possible implementation:</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
      </article>

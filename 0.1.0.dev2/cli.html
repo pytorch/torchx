@@ -6,7 +6,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>CLI &mdash; PyTorch/TorchX master documentation</title>
@@ -335,7 +336,7 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <div class="section" id="module-torchx.cli">
+  <section id="module-torchx.cli">
 <span id="cli"></span><h1>CLI<a class="headerlink" href="#module-torchx.cli" title="Permalink to this headline">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI is a commandline tool around <a class="reference internal" href="runner.html#torchx.runner.Runner" title="torchx.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.runner.Runner</span></code></a>.
 It allows users to launch <a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.AppDef</span></code></a> directly onto
@@ -347,7 +348,7 @@ dealing with pipelines.</p>
 <p class="admonition-title">Note</p>
 <p>When in doubt use <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">--help</span></code>.</p>
 </div>
-<div class="section" id="listing-the-builtin-components">
+<section id="listing-the-builtin-components">
 <h2>Listing the builtin components<a class="headerlink" href="#listing-the-builtin-components" title="Permalink to this headline">¶</a></h2>
 <p>Most of the components under the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> module are what the CLI
 considers “built-in” apps. Before you write your own component you should
@@ -361,15 +362,15 @@ If so, no need to even author an app spec!</p>
 <span class="go"> ... &lt;omitted for brevity&gt;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="listing-the-supported-schedulers">
+</section>
+<section id="listing-the-supported-schedulers">
 <h2>Listing the supported schedulers<a class="headerlink" href="#listing-the-supported-schedulers" title="Permalink to this headline">¶</a></h2>
 <p>To get a list of supported schedulers that you can launch your job into run:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx schedulers
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-a-component-as-a-job">
+</section>
+<section id="running-a-component-as-a-job">
 <h2>Running a component as a job<a class="headerlink" href="#running-a-component-as-a-job" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">run</span></code>  subcommand takes either one of:</p>
 <ol class="arabic">
@@ -452,8 +453,8 @@ subcommands to identify your job.</p>
 the scheduler backend <code class="docutils literal notranslate"><span class="pre">default</span></code> which points to <code class="docutils literal notranslate"><span class="pre">local</span></code>. To change
 the default scheduler, see: <a class="reference internal" href="configure.html#registering-custom-schedulers"><span class="std std-ref">Registering Custom Schedulers</span></a>.</p>
 </div>
-</div>
-<div class="section" id="inspecting-what-will-run-dryrun">
+</section>
+<section id="inspecting-what-will-run-dryrun">
 <h2>Inspecting what will run (dryrun)<a class="headerlink" href="#inspecting-what-will-run-dryrun" title="Permalink to this headline">¶</a></h2>
 <p>When you are authoring or debugging a component, you may want to find out and
 inspect both the scheduler request object that the runner submits as well as
@@ -501,8 +502,8 @@ which simply uses <code class="docutils literal notranslate"><span class="pre">s
 Nevertheless the scheduler request contains valuable insight into what the runner
 translates the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> to for a particular scheduler backend.</p>
 </div>
-</div>
-<div class="section" id="describing-and-querying-the-status-of-a-job">
+</section>
+<section id="describing-and-querying-the-status-of-a-job">
 <h2>Describing and querying the status of a job<a class="headerlink" href="#describing-and-querying-the-status-of-a-job" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">describe</span></code> subcommand is essentially the inverse of the <code class="docutils literal notranslate"><span class="pre">run</span></code> command.
 That is, it prints the app spec given an <code class="docutils literal notranslate"><span class="pre">app_handle</span></code>.</p>
@@ -529,8 +530,8 @@ your app spec. It is simply there to help you spot check things.</p>
 </pre></div>
 </div>
 <p>Filtering by <code class="docutils literal notranslate"><span class="pre">--role</span></code> is useful for large jobs that have multiple roles.</p>
-</div>
-<div class="section" id="viewing-logs">
+</section>
+<section id="viewing-logs">
 <h2>Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permalink to this headline">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -568,8 +569,8 @@ the regex filter is applied on the client-side, meaning the full logs
 will have to be passed through the client. This may be very taxing to
 the local host. Please use your best judgment when using the logs API.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
      </article>

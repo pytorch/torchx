@@ -340,13 +340,11 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">getpass</span>
-<span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pformat</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.runner.events</span> <span class="kn">import</span> <span class="n">log_event</span>
@@ -362,15 +360,21 @@
     <span class="n">UnknownAppException</span><span class="p">,</span>
     <span class="n">from_file</span><span class="p">,</span>
     <span class="n">from_function</span><span class="p">,</span>
-    <span class="n">from_module</span><span class="p">,</span>
     <span class="n">make_app_handle</span><span class="p">,</span>
     <span class="n">parse_app_handle</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.util</span> <span class="kn">import</span> <span class="n">entrypoints</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.finder</span> <span class="kn">import</span> <span class="n">get_component</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="n">NONE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;NONE&gt;&quot;</span>
+
+<span class="c1"># Unique identifier of the component, can be either</span>
+<span class="c1"># component name, e.g.: utils.echo or path to component function:</span>
+<span class="c1"># /tmp/foobar.py:component</span>
+<span class="n">ComponentId</span> <span class="o">=</span> <span class="nb">str</span>
 
 
 <div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">:</span>
@@ -399,38 +403,46 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_wait_interval</span> <span class="o">=</span> <span class="n">wait_interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="Runner.run_from_path"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_from_path">[docs]</a>    <span class="k">def</span> <span class="nf">run_from_path</span><span class="p">(</span>
+<div class="viewcode-block" id="Runner.run_component"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_component">[docs]</a>    <span class="k">def</span> <span class="nf">run_component</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">component_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">component_name</span><span class="p">:</span> <span class="n">ComponentId</span><span class="p">,</span>
         <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">dryrun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
+        <span class="c1"># pyre-ignore[24]: Allow generic AppDryRunInfo</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDryRunInfo</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Resolves and runs the application in the specified mode.</span>
 
-<span class="sd">        Retrieves application based on ``component_path`` and runs it in the specified mode.</span>
+<span class="sd">        Retrieves application based on ``component_name`` and runs it in the specified mode.</span>
 
-<span class="sd">        The ``component_path`` has the following resolution order(from high-pri to low-pri):</span>
+<span class="sd">        The ``component_name`` has the following resolution order(from high-pri to low-pri):</span>
 <span class="sd">            * User-registered components. Users can register components via</span>
 <span class="sd">                https://packaging.python.org/specifications/entry-points/. Method looks for</span>
 <span class="sd">                entrypoints in the group ``torchx.components``.</span>
-<span class="sd">            * File-based components in format: ``$FILE_PATH:FUNCTION_NAME``. Both relative and</span>
-<span class="sd">                absolute paths supported.</span>
 <span class="sd">            * Builtin components relative to `torchx.components`. The path to the component should</span>
 <span class="sd">                be module name relative to `torchx.components` and function name in a format:</span>
 <span class="sd">                ``$module.$function``.</span>
+<span class="sd">            * File-based components in format: ``$FILE_PATH:FUNCTION_NAME``. Both relative and</span>
+<span class="sd">                absolute paths supported.</span>
 
 <span class="sd">        Usage:</span>
 
 <span class="sd">        ::</span>
 
-<span class="sd">         runner.run_from_path(&quot;distributed.ddp&quot;, ...) - will be resolved to</span>
+<span class="sd">         runner.run_component(&quot;distributed.ddp&quot;, ...) - will be resolved to</span>
 <span class="sd">            ``torchx.components.distributed`` module and ``ddp`` function.</span>
 
 
-<span class="sd">         runner.run_from_path(&quot;~/home/components.py:my_component&quot;, ...) - will be resolved to</span>
+<span class="sd">         runner.run_component(&quot;~/home/components.py:my_component&quot;, ...) - will be resolved to</span>
 <span class="sd">            ``~/home/components.py`` file and ``my_component`` function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            component_name: The name of the component to lookup</span>
+<span class="sd">            app_args: Arguments of the component function</span>
+<span class="sd">            scheduler: Scheduler to execute component</span>
+<span class="sd">            cfg: Scheduler run configuration</span>
+<span class="sd">            dryrun: If True, the will return ``torchx.specs.AppDryRunInfo``</span>
 
 
 <span class="sd">        Returns:</span>
@@ -439,41 +451,27 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AppNotReRunnableException: if the session/scheduler does not support re-running attached apps</span>
-<span class="sd">            ValueError: if the ``component_path`` is failed to resolve.</span>
+<span class="sd">            ValueError: if the ``component_name`` is failed to resolve.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">app_fn</span> <span class="o">=</span> <span class="n">entrypoints</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;torchx.components&quot;</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">NONE</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">app_fn</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
-            <span class="n">app</span> <span class="o">=</span> <span class="n">from_function</span><span class="p">(</span><span class="n">app_fn</span><span class="p">,</span> <span class="n">app_args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">component_path</span><span class="p">:</span>
-            <span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span> <span class="o">=</span> <span class="n">component_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">component_def</span> <span class="o">=</span> <span class="n">get_component</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">component_def</span><span class="p">:</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="n">from_function</span><span class="p">(</span><span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span> <span class="n">app_args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">component_name</span><span class="p">:</span>
+            <span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span> <span class="o">=</span> <span class="n">component_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">function_name</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Incorrect path: </span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s2">. Missing function name after `:`&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Incorrect path: </span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2">. Missing function name after `:`&quot;</span>
                 <span class="p">)</span>
             <span class="n">app</span> <span class="o">=</span> <span class="n">from_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">app_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">function_name</span> <span class="o">=</span> <span class="n">component_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">component_module</span> <span class="o">=</span> <span class="n">component_path</span><span class="p">[</span>
-                <span class="mi">0</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">function_name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="p">]</span>
-            <span class="n">full_module</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;torchx.components.</span><span class="si">{</span><span class="n">component_module</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">app_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">full_module</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Incorrect component path: </span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s2">. Valid values: </span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;* $file_path:function_name, Example: ~/home/file.py:my_component </span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;* Module and function name to the builtin components, e.g. : distributed.ddp&quot;</span>
-                <span class="p">)</span>
-            <span class="n">app</span> <span class="o">=</span> <span class="n">from_module</span><span class="p">(</span><span class="n">app_module</span><span class="p">,</span> <span class="n">function_name</span><span class="p">,</span> <span class="n">app_args</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Component `</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2">` not found. Please make sure it is one of the &quot;</span>
+                <span class="s2">&quot;builtins: `torchx builtins`. Or registered via `[torchx.components]` &quot;</span>
+                <span class="s2">&quot;entry point (see: https://pytorch.org/torchx/latest/configure.html)&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dryrun</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== APPLICATION ===&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">pformat</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">app</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">))</span>
-
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== SCHEDULER REQUEST ===&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="p">))</span>
-            <span class="k">return</span> <span class="s2">&quot;&lt;NONE&gt;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span></div>
 
