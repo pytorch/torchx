@@ -68,14 +68,15 @@ class SlurmReplicaRequest:
     @classmethod
     def from_role(cls, role: Role, cfg: RunConfig) -> "SlurmReplicaRequest":
         opts = {k: str(v) for k, v in cfg.cfgs.items()}
+        resource = role.resource
 
-        if (resource := role.resource) != NONE:
-            if (cpu := resource.cpu) > 0:
-                opts["cpus-per-task"] = str(cpu)
-            if (memMB := resource.memMB) > 0:
-                opts["mem"] = str(memMB)
-            if (gpu := resource.gpu) > 0:
-                opts["gpus-per-task"] = str(gpu)
+        if resource != NONE:
+            if resource.cpu > 0:
+                opts["cpus-per-task"] = str(resource.cpu)
+            if resource.memMB > 0:
+                opts["mem"] = str(resource.memMB)
+            if resource.gpu > 0:
+                opts["gpus-per-task"] = str(resource.gpu)
 
         return cls(
             dir=role.image,
