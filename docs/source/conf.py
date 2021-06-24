@@ -312,9 +312,9 @@ else:
     code_url = "https://github.com/pytorch/torchx/archive/refs/heads/master.tar.gz"
 
 first_notebook_cell = f"""
-!pip install torchx
+!pip install torchx[kfp]
 !wget --no-clobber {code_url}
-!tar xvf {notebook_version}.tar.gz torchx-{notebook_version} --strip-components=1
+!tar xf {notebook_version}.tar.gz --strip-components=1
 
 NOTEBOOK = True
 """.strip()
