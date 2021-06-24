@@ -267,6 +267,9 @@ kfp.compiler.Compiler().compile(
     package_path=args.package_path,
 )
 
+with open(args.package_path, "rt") as f:
+    print(f.read())
+
 # %%
 # Once this has all run you should have a pipeline file (typically
 # pipeline.yaml) that you can upload to your KFP cluster via the UI or
