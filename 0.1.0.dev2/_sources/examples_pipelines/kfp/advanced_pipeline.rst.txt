@@ -336,7 +336,7 @@ containers need to have their dependencies specified via `.after()`.
 We call `.set_tty()` to make the logs from the components more responsive for
 example purposes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-270
+.. GENERATED FROM PYTHON SOURCE LINES 242-273
 
 .. code-block:: default
 
@@ -368,8 +368,11 @@ example purposes.
         package_path=args.package_path,
     )
 
+    with open("pipeline.yaml", 'rt') as f:
+        print(f.read())
 
-.. GENERATED FROM PYTHON SOURCE LINES 271-274
+
+.. GENERATED FROM PYTHON SOURCE LINES 274-277
 
 Once this has all run you should have a pipeline file (typically
 pipeline.yaml) that you can upload to your KFP cluster via the UI or

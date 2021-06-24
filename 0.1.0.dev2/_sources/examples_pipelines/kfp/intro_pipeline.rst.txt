@@ -72,7 +72,7 @@ AppDef inline.
 To generate the pipeline definition file we need to call into the KFP compiler
 with our pipeline function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-62
+.. GENERATED FROM PYTHON SOURCE LINES 56-65
 
 .. code-block:: default
 
@@ -82,8 +82,11 @@ with our pipeline function.
         package_path="pipeline.yaml",
     )
 
+    with open("pipeline.yaml", 'rt') as f:
+        print(f.read())
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-70
+
+.. GENERATED FROM PYTHON SOURCE LINES 66-73
 
 Once this has all run you should have a pipeline file (typically
 pipeline.yaml) that you can upload to your KFP cluster via the UI or
@@ -93,7 +96,7 @@ See the
 `KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/tutorials/sdk-examples/#examples>`_
 for more info on launching KFP pipelines.
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-74
+.. GENERATED FROM PYTHON SOURCE LINES 75-77
 
 See the :ref:`Advanced KubeFlow Pipelines Example` for how to chain multiple
 components together and use builtin components.

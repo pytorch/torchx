@@ -606,6 +606,9 @@ example purposes.</p>
     <span class="n">pipeline_func</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
     <span class="n">package_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">package_path</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;pipeline.yaml&quot;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </pre></div>
 </div>
 <p>Once this has all run you should have a pipeline file (typically
