@@ -61,7 +61,7 @@ This is just a regular python file where we define the app spec.
 
  $ touch ~/test.py
 
-Now copy paste the following into test.py
+Now copy paste the following into ``test.py``
 
 ::
 
@@ -96,7 +96,7 @@ Notice that
    indicating that it is a required argument.
 2. We use a local dir (``/tmp``) as the ``image``. In practice this will be
    the identifier of the package (e.g. Docker image) that the scheduler supports.
-3. ``echo_torchx.py`` does **not** contain the logic of the app and is
+3. ``test.py`` does **not** contain the logic of the app and is
    simply a job definition.
 
 
