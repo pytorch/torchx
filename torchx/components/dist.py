@@ -35,7 +35,8 @@ def ddp(
     Args:
         image: container image.
         entrypoint: script or binary to run within the image.
-        resource: Registered named resource.
+        resource: Optional resource identifier. The resource parameter
+            gets ignored when running on the local scheduler.
         nnodes: Number of nodes.
         nproc_per_node: Number of processes per node.
         name: Name of the application.
@@ -56,8 +57,8 @@ def ddp(
         entrypoint=entrypoint,
         resource=resource or specs.NULL_RESOURCE,
         num_replicas=nnodes,
-        script_args=list(script_args),
-        script_envs=env,
+        args=list(script_args),
+        env=env,
         nproc_per_node=nproc_per_node,
         nnodes=nnodes,
         max_restarts=0,
