@@ -55,6 +55,7 @@ class TorchxEvent:
                 except ValueError:
                     data_dict.pop("source", None)
 
+        # pyre-fixme[61]: `data_dict` may not be initialized here.
         return TorchxEvent(**data_dict)
 
     def serialize(self) -> str:
