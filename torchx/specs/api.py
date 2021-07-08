@@ -302,6 +302,7 @@ class AppState(int, Enum):
     5. SUCCEEDED - app has successfully completed
     6. FAILED - app has unsuccessfully completed
     7. CANCELLED - app was cancelled before completing
+    8. UNKNOWN - app state is unknown
     """
 
     UNSUBMITTED = 0
@@ -311,6 +312,7 @@ class AppState(int, Enum):
     SUCCEEDED = 4
     FAILED = 5
     CANCELLED = 6
+    UNKNOWN = 7
 
     def __str__(self) -> str:
         return self.name
