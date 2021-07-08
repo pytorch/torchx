@@ -12,21 +12,34 @@ import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import SchedulerBackend
 from torchx.util.entrypoints import load_group
+from typing_extensions import Protocol
+
+try:
+    # load Kubernetes scheduler if available
+    import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
+except ImportError:
+    kubernetes_scheduler = None
+
+
+class SchedulerFactory(Protocol):
+    def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
+        ...
 
 
 def get_schedulers(
-    session_name: str,
-    # pyre-ignore[2]
-    **scheduler_params
+    session_name: str, **scheduler_params: object
 ) -> Dict[SchedulerBackend, Scheduler]:
+    default_schedulers: Dict[str, SchedulerFactory] = {
+        "local": local_scheduler.create_scheduler,
+        "default": local_scheduler.create_scheduler,
+        "slurm": slurm_scheduler.create_scheduler,
+    }
+    if kubernetes_scheduler is not None:
+        default_schedulers["kubernetes"] = kubernetes_scheduler.create_scheduler
 
     schedulers = load_group(
         "torchx.schedulers",
-        default={
-            "local": local_scheduler.create_scheduler,
-            "default": local_scheduler.create_scheduler,
-            "slurm": slurm_scheduler.create_scheduler,
-        },
+        default=default_schedulers,
         ignore_missing=True,
     )
 

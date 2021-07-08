@@ -14,12 +14,16 @@ meaningful stages in a workflow.
 import torchx.specs as specs
 
 
-def echo(msg: str = "hello world") -> specs.AppDef:
+def echo(
+    msg: str = "hello world", image: str = "/tmp", num_replicas: int = 1
+) -> specs.AppDef:
     """
     Echos a message to stdout (calls /bin/echo)
 
     Args:
         msg: message to echo
+        image: image to use
+        num_replicas: number of replicas to run
 
     """
     return specs.AppDef(
@@ -27,10 +31,10 @@ def echo(msg: str = "hello world") -> specs.AppDef:
         roles=[
             specs.Role(
                 name="echo",
-                image="/tmp",
+                image=image,
                 entrypoint="/bin/echo",
                 args=[msg],
-                num_replicas=1,
+                num_replicas=num_replicas,
             )
         ],
     )
