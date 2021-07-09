@@ -596,6 +596,8 @@ class LocalScheduler(Scheduler):
                 if redirect_std:
                     stdout = os.path.join(replica_log_dir, "stdout.log")
                     stderr = os.path.join(replica_log_dir, "stderr.log")
+                    log.info(f"Setting stdout log dir: {stdout}")
+                    log.info(f"Setting stderr log dir: {stderr}")
 
                 provider_cmd = image_provider.get_command(role.image, args, env_vars)
                 replica_params.append(
