@@ -5,13 +5,9 @@ pyre-extensions>=0.0.21
 black>=21.5b1
 usort==0.6.4
 pytorch-lightning>=0.5.3
-# TODO update to 1.9.0 once classy-vision is 1.9 compliant
-# see: https://github.com/facebookresearch/ClassyVision/issues/749
-# torch and torch vision versions need to be updated simultaneously
-# see: https://github.com/pytorch/vision#installation
-torch==1.8.1
-torchvision==0.9.1
-classy-vision>=0.5.0
+torch>=1.9.0
+torchvision>=0.10.0
+classy-vision>=0.6.0
 flake8==3.9.0
 ts>=0.5.1
 torchserve>=0.4.0
