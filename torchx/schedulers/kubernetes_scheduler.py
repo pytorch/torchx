@@ -166,6 +166,7 @@ class KubernetesScheduler(Scheduler):
 
     .. code-block:: bash
 
+        $ pip install torchx[kubernetes]
         $ torchx run --scheduler kubernetes --scheduler_opts namespace=default,queue=test utils.echo --msg hello
         kubernetes://torchx_user/1234
         $ torchx status kubernetes://torchx_user/1234
