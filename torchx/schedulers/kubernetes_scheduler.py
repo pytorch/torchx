@@ -7,18 +7,21 @@
 
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, Mapping, Optional, Iterable
+from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Iterable
 
 import yaml
-from kubernetes import client, config
-from kubernetes.client.models import (
-    V1Pod,
-    V1PodSpec,
-    V1Container,
-    V1EnvVar,
-    V1ResourceRequirements,
-    V1ContainerPort,
-)
+
+if TYPE_CHECKING:
+    from kubernetes.client import ApiClient, CustomObjectsApi
+    from kubernetes.client.models import (  # noqa: F401 imported but unused
+        V1Pod,
+        V1PodSpec,
+        V1Container,
+        V1EnvVar,
+        V1ResourceRequirements,
+        V1ContainerPort,
+    )
+
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
 from torchx.specs.api import (
     AppState,
@@ -94,11 +97,22 @@ TASK_STATE: Dict[str, ReplicaState] = {
 
 
 def sanitize_for_serialization(obj: object) -> object:
+    from kubernetes import client
+
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
 
 
-def role_to_pod(name: str, role: Role) -> V1Pod:
+def role_to_pod(name: str, role: Role) -> "V1Pod":
+    from kubernetes.client.models import (  # noqa: F811 redefinition of unused
+        V1Pod,
+        V1PodSpec,
+        V1Container,
+        V1EnvVar,
+        V1ResourceRequirements,
+        V1ContainerPort,
+    )
+
     assert role.base_image is None, "base_image is not supported by Kubernetes"
 
     requests = {}
@@ -173,14 +187,14 @@ class KubernetesScheduler(Scheduler):
         ...
     """
 
-    def __init__(
-        self, session_name: str, client: Optional[client.ApiClient] = None
-    ) -> None:
+    def __init__(self, session_name: str, client: Optional["ApiClient"] = None) -> None:
         super().__init__("kubernetes", session_name)
 
         self._client = client
 
-    def _custom_objects_api(self) -> client.CustomObjectsApi:
+    def _custom_objects_api(self) -> "CustomObjectsApi":
+        from kubernetes import client, config
+
         if self._client is None:
             configuration = client.Configuration()
             try:
