@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import sys
 from argparse import ArgumentParser
 from typing import List
@@ -13,7 +14,6 @@ from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
 from torchx.cli.cmd_status import CmdStatus
-
 
 sub_parser_description = """Use the following commands to run operations, e.g.:
 torchx run ${JOB_NAME}
@@ -49,6 +49,11 @@ def create_parser() -> ArgumentParser:
 
 
 def main(argv: List[str] = sys.argv[1:]) -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+    )
+
     parser = create_parser()
     args = parser.parse_args(argv)
     if "func" not in args:

@@ -43,6 +43,9 @@ jobs:
             ARGS=
           fi
 
-          torchx run --wait $ARGS --scheduler kubernetes \
+          torchx runopts kubernetes
+          APP_ID="$(torchx run --wait $ARGS --scheduler kubernetes \
             --scheduler_args queue=test utils.echo \
-            --image alpine:latest --num_replicas 3
+            --image alpine:latest --num_replicas 3)"
+          torchx status "$APP_ID"
+          torchx describe "$APP_ID"
