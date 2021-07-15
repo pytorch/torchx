@@ -4,52 +4,59 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import importlib
+import sys
 import unittest
 from unittest.mock import patch, MagicMock
 
-from kubernetes.client.models import (
-    V1Pod,
-    V1PodSpec,
-    V1Container,
-    V1EnvVar,
-    V1ResourceRequirements,
-    V1ContainerPort,
-)
+from torchx import schedulers
 from torchx import specs
+
+# @manual=//torchx/schedulers:kubernetes_scheduler
+from torchx.schedulers import kubernetes_scheduler
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.kubernetes_scheduler import (
     create_scheduler,
-    KubernetesScheduler,
     role_to_pod,
 )
+
+
+def _test_app() -> specs.AppDef:
+    trainer_role = specs.Role(
+        name="trainer",
+        image="pytorch/torchx:latest",
+        entrypoint="main",
+        args=["--output-path", specs.macros.img_root],
+        env={"FOO": "bar"},
+        resource=specs.Resource(
+            cpu=2,
+            memMB=3000,
+            gpu=4,
+        ),
+        port_map={"foo": 1234},
+        num_replicas=1,
+        max_retries=3,
+    )
+
+    return specs.AppDef("test", roles=[trainer_role])
 
 
 class KubernetesSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         scheduler = create_scheduler("foo")
-        self.assertIsInstance(scheduler, KubernetesScheduler)
-
-    def _test_app(self) -> specs.AppDef:
-        trainer_role = specs.Role(
-            name="trainer",
-            image="pytorch/torchx:latest",
-            entrypoint="main",
-            args=["--output-path", specs.macros.img_root],
-            env={"FOO": "bar"},
-            resource=specs.Resource(
-                cpu=2,
-                memMB=3000,
-                gpu=4,
-            ),
-            port_map={"foo": 1234},
-            num_replicas=1,
-            max_retries=3,
-        )
-
-        return specs.AppDef("test", roles=[trainer_role])
+        self.assertIsInstance(scheduler, kubernetes_scheduler.KubernetesScheduler)
 
     def test_role_to_pod(self) -> None:
-        app = self._test_app()
+        from kubernetes.client.models import (
+            V1Pod,
+            V1PodSpec,
+            V1Container,
+            V1EnvVar,
+            V1ResourceRequirements,
+            V1ContainerPort,
+        )
+
+        app = _test_app()
         pod = role_to_pod("name", app.roles[0])
 
         requests = {
@@ -83,12 +90,12 @@ class KubernetesSchedulerTest(unittest.TestCase):
 
     def test_validate(self) -> None:
         scheduler = create_scheduler("test")
-        app = self._test_app()
+        app = _test_app()
         scheduler._validate(app, "kubernetes")
 
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
-        app = self._test_app()
+        app = _test_app()
         cfg = specs.RunConfig()
         cfg.set("queue", "testqueue")
         info = scheduler._submit_dryrun(app, cfg)
@@ -148,7 +155,7 @@ spec:
             "metadata": {"name": "testid"},
         }
         scheduler = create_scheduler("test")
-        app = self._test_app()
+        app = _test_app()
         cfg = specs.RunConfig()
         cfg.set("namespace", "testnamespace")
         cfg.set("queue", "testqueue")
@@ -207,3 +214,52 @@ spec:
                 ],
             ),
         )
+
+    def test_runopts(self) -> None:
+        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        runopts = scheduler.run_opts()
+        self.assertEqual(set(runopts._opts.keys()), {"queue", "namespace"})
+
+
+class KubernetesSchedulerNoImportTest(unittest.TestCase):
+    """
+    KubernetesSchedulerNoImportTest tests the kubernetes scheduler behavior when
+    Kubernetes is not available.
+    """
+
+    def setUp(self) -> None:
+        # make all kubernetes modules unable to be imported
+        for mod in list(sys.modules.keys()) + ["kubernetes"]:
+            if mod.startswith("kubernetes"):
+                sys.modules[mod] = None  # pyre-ignore
+
+        # reload to ensure kubernetes_scheduler doesn't depend on them at import
+        # time
+        importlib.reload(kubernetes_scheduler)
+        importlib.reload(schedulers)
+
+    def tearDown(self) -> None:
+        # reset all kubernetes modules we patched
+        for mod in list(sys.modules.keys()):
+            if mod.startswith("kubernetes"):
+                del sys.modules[mod]
+        # reimport kubernetes_scheduler to get to a clean state
+        importlib.reload(kubernetes_scheduler)
+
+    def test_runopts(self) -> None:
+        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        self.assertIsNotNone(scheduler.run_opts())
+
+    def test_describe(self) -> None:
+        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        with self.assertRaises(ModuleNotFoundError):
+            scheduler.describe("foo:bar")
+
+    def test_dryrun(self) -> None:
+        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        app = _test_app()
+        cfg = specs.RunConfig()
+        cfg.set("namespace", "testnamespace")
+        cfg.set("queue", "testqueue")
+        with self.assertRaises(ModuleNotFoundError):
+            scheduler._submit_dryrun(app, cfg)

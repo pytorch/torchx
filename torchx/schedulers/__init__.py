@@ -7,18 +7,13 @@
 
 from typing import Dict
 
+import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
 import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import SchedulerBackend
 from torchx.util.entrypoints import load_group
 from typing_extensions import Protocol
-
-try:
-    # load Kubernetes scheduler if available
-    import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
-except ImportError:
-    kubernetes_scheduler = None
 
 
 class SchedulerFactory(Protocol):
@@ -33,9 +28,8 @@ def get_schedulers(
         "local": local_scheduler.create_scheduler,
         "default": local_scheduler.create_scheduler,
         "slurm": slurm_scheduler.create_scheduler,
+        "kubernetes": kubernetes_scheduler.create_scheduler,
     }
-    if kubernetes_scheduler is not None:
-        default_schedulers["kubernetes"] = kubernetes_scheduler.create_scheduler
 
     schedulers = load_group(
         "torchx.schedulers",
