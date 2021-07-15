@@ -56,7 +56,7 @@ def _get_or_create_logger(destination: str = "null") -> logging.Logger:
     return _events_logger
 
 
-def record(event: TorchxEvent, destination: str = "console") -> None:
+def record(event: TorchxEvent, destination: str = "null") -> None:
     _get_or_create_logger(destination).info(event.serialize())
 
 
