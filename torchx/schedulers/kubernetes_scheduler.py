@@ -7,6 +7,7 @@
 
 import warnings
 from dataclasses import dataclass
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Iterable
 
 import yaml
@@ -22,7 +23,12 @@ if TYPE_CHECKING:
         V1ContainerPort,
     )
 
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    DescribeAppResponse,
+    Scheduler,
+    filter_regex,
+)
 from torchx.specs.api import (
     AppState,
     ReplicaState,
@@ -192,19 +198,25 @@ class KubernetesScheduler(Scheduler):
 
         self._client = client
 
-    def _custom_objects_api(self) -> "CustomObjectsApi":
+    def _api_client(self) -> "ApiClient":
         from kubernetes import client, config
 
-        if self._client is None:
+        c = self._client
+        if c is None:
             configuration = client.Configuration()
             try:
                 config.load_kube_config(client_configuration=configuration)
             except config.ConfigException as e:
                 warnings.warn(f"failed to load kube config: {e}")
 
-            self._client = client.ApiClient(configuration)
+            c = self._client = client.ApiClient(configuration)
 
-        return client.CustomObjectsApi(self._client)
+        return c
+
+    def _custom_objects_api(self) -> "CustomObjectsApi":
+        from kubernetes import client
+
+        return client.CustomObjectsApi(self._api_client())
 
     def schedule(self, dryrun_info: AppDryRunInfo[KubernetesJob]) -> str:
         cfg = dryrun_info._cfg
@@ -269,7 +281,14 @@ class KubernetesScheduler(Scheduler):
         pass
 
     def _cancel_existing(self, app_id: str) -> None:
-        pass
+        namespace, name = app_id.split(":")
+        self._custom_objects_api().delete_namespaced_custom_object(
+            group="batch.volcano.sh",
+            version="v1alpha1",
+            namespace=namespace,
+            plural="jobs",
+            name=name,
+        )
 
     def run_opts(self) -> runopts:
         opts = runopts()
@@ -287,6 +306,7 @@ class KubernetesScheduler(Scheduler):
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         namespace, name = app_id.split(":")
         roles = {}
+        roles_statuses = {}
         resp = self._custom_objects_api().get_namespaced_custom_object_status(
             group="batch.volcano.sh",
             version="v1alpha1",
@@ -309,15 +329,57 @@ class KubernetesScheduler(Scheduler):
                 state = TASK_STATE[state_str]
 
                 if role not in roles:
-                    roles[role] = RoleStatus(role, [])
-                roles[role].replicas.append(
+                    roles[role] = Role(name=role, num_replicas=0, image="")
+                    roles_statuses[role] = RoleStatus(role, [])
+                roles[role].num_replicas += 1
+                roles_statuses[role].replicas.append(
                     ReplicaStatus(id=int(idx), role=role, state=state, hostname="")
                 )
         return DescribeAppResponse(
             app_id=app_id,
-            roles_statuses=list(roles.values()),
+            roles=list(roles.values()),
+            roles_statuses=list(roles_statuses.values()),
             state=app_state,
         )
+
+    def log_iter(
+        self,
+        app_id: str,
+        role_name: str,
+        k: int = 0,
+        regex: Optional[str] = None,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+        should_tail: bool = False,
+    ) -> Iterable[str]:
+        assert until is None, "kubernetes API doesn't support until"
+
+        from kubernetes import client, watch
+
+        namespace, name = app_id.split(":")
+
+        pod_name = f"{name}-{role_name}-{k}-0"
+
+        args: Dict[str, object] = {
+            "name": pod_name,
+            "namespace": namespace,
+            "timestamps": True,
+        }
+        if since is not None:
+            args["since_seconds"] = (datetime.now() - since).total_seconds()
+
+        core_api = client.CoreV1Api(self._api_client())
+        if should_tail:
+            w = watch.Watch()
+            iterator = w.stream(core_api.read_namespaced_pod_log, **args)
+        else:
+            resp = core_api.read_namespaced_pod_log(**args)
+            iterator = resp.strip().split("\n")
+
+        if regex:
+            return filter_regex(regex, iterator)
+        else:
+            return iterator
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
