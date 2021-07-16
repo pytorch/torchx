@@ -7,6 +7,7 @@
 import importlib
 import sys
 import unittest
+from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from torchx import schedulers
@@ -212,6 +213,9 @@ spec:
                         ],
                     ),
                 ],
+                roles=[
+                    specs.Role(name="echo", image="", num_replicas=1),
+                ],
             ),
         )
 
@@ -219,6 +223,54 @@ spec:
         scheduler = kubernetes_scheduler.create_scheduler("foo")
         runopts = scheduler.run_opts()
         self.assertEqual(set(runopts._opts.keys()), {"queue", "namespace"})
+
+    @patch("kubernetes.client.CustomObjectsApi.delete_namespaced_custom_object")
+    def test_cancel_existing(self, delete_namespaced_custom_object: MagicMock) -> None:
+        scheduler = create_scheduler("test")
+        scheduler._cancel_existing("testnamespace:testjob")
+        call = delete_namespaced_custom_object.call_args
+        args, kwargs = call
+        self.assertEqual(
+            kwargs,
+            {
+                "group": "batch.volcano.sh",
+                "version": "v1alpha1",
+                "namespace": "testnamespace",
+                "plural": "jobs",
+                "name": "testjob",
+            },
+        )
+
+    @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
+    def test_log_iter(self, read_namespaced_pod_log: MagicMock) -> None:
+        scheduler = create_scheduler("test")
+        read_namespaced_pod_log.return_value = "foo reg\nfoo\nbar reg\n"
+        lines = scheduler.log_iter(
+            app_id="testnamespace:testjob",
+            role_name="role",
+            k=1,
+            regex="reg",
+            since=datetime.now(),
+        )
+        self.assertEqual(
+            list(lines),
+            [
+                "foo reg",
+                "bar reg",
+            ],
+        )
+        call = read_namespaced_pod_log.call_args
+        args, kwargs = call
+        self.assertGreaterEqual(kwargs["since_seconds"], 0)
+        del kwargs["since_seconds"]
+        self.assertEqual(
+            kwargs,
+            {
+                "namespace": "testnamespace",
+                "name": "testjob-role-1-0",
+                "timestamps": True,
+            },
+        )
 
 
 class KubernetesSchedulerNoImportTest(unittest.TestCase):

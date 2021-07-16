@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import abc
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Iterable, List, Optional
@@ -249,3 +250,13 @@ class Scheduler(abc.ABC):
                     f"No resource for role: {role.image}."
                     f" Did you forget to attach resource to the role"
                 )
+
+
+def filter_regex(regex: str, data: Iterable[str]) -> Iterable[str]:
+    """
+    filter_regex takes a string iterator and returns an iterator that only has
+    values that match the regex.
+    """
+
+    r = re.compile(regex)
+    return filter(lambda datum: r.search(datum), data)
