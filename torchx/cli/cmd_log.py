@@ -20,18 +20,21 @@ from torchx.cli.cmd_base import SubCommand
 from torchx.runner import Runner, get_runner
 from torchx.specs.api import make_app_handle
 
-
-GREEN = "\033[32m"
-ENDC = "\033[0m"
-
 logger: logging.Logger = logging.getLogger(__name__)
+
+# only print colors if outputting directly to a terminal
+if sys.stdout.isatty():
+    GREEN = "\033[32m"
+    ENDC = "\033[0m"
+else:
+    GREEN = ""
+    ENDC = ""
 
 
 def validate(job_identifier: str) -> None:
     if not re.match(r"^\w+://[^/.]*/[^/.]+/[^/.]+(/(\d+,?)+)?$", job_identifier):
-        print(
+        logger.error(
             f"{job_identifier} is not of the form SCHEDULER://[SESSION_NAME]/APP_ID/ROLE_NAME/[REPLICA_IDS,...]",
-            file=sys.stderr,
         )
         sys.exit(1)
 
@@ -85,10 +88,9 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
                 ]
             )
 
-            print(
+            logger.error(
                 f"No role [{role_name}] found for app: {app.name}."
                 f" Did you mean one of the following:\n{valid_ids}",
-                file=sys.stderr,
             )
             sys.exit(1)
 

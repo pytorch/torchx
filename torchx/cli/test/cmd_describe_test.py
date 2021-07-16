@@ -40,5 +40,15 @@ class CmdDescribeTest(unittest.TestCase):
                     "torchx.runner.api.Runner.describe",
                     return_value=app,
                 ) as desc_mock:
-                    cmd_describe.run(args)
+                    try:
+                        cmd_describe.run(args)
+                        exit_code = None
+                    except SystemExit as e:
+                        exit_code = e.code
+
                     desc_mock.assert_called_once_with(args.app_handle)
+
+                    if app is None:
+                        self.assertEqual(exit_code, 1)
+                    else:
+                        self.assertIsNone(exit_code)

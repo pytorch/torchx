@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import logging
 from dataclasses import asdict
 from pprint import pformat
 from typing import Dict, List, Union, cast
@@ -15,6 +16,8 @@ from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
 from torchx.specs.finder import get_components, _Component
 from torchx.util.types import to_dict
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def parse_args_children(arg: str) -> Dict[str, Union[str, List[str]]]:
@@ -43,9 +46,9 @@ class CmdBuiltins(SubCommand):
     def run(self, args: argparse.Namespace) -> None:
         builtin_components = self._builtins()
         num_builtins = len(builtin_components)
-        print(f"Found {num_builtins} builtin configs:")
+        logger.info(f"Found {num_builtins} builtin configs:")
         for i, component in enumerate(builtin_components.values()):
-            print(f" {i + 1:2d}. {component.name}")
+            logger.info(f" {i + 1:2d}. {component.name}")
 
 
 class CmdRun(SubCommand):
@@ -100,22 +103,23 @@ class CmdRun(SubCommand):
 
         if args.dryrun:
             app_dryrun_info = cast(specs.AppDryRunInfo, result)
-            print("=== APPLICATION ===")
-            print(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
+            logger.info("=== APPLICATION ===")
+            logger.info(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
 
-            print("=== SCHEDULER REQUEST ===")
-            print(app_dryrun_info)
+            logger.info("=== SCHEDULER REQUEST ===")
+            logger.info(app_dryrun_info)
         else:
             app_handle = cast(specs.AppHandle, result)
             if args.scheduler == "local":
                 runner.wait(app_handle)
             else:
-                print("=== RUN RESULT ===")
-                print(f"Launched app: {app_handle}")
+                logger.info("=== RUN RESULT ===")
+                logger.info(f"Launched app: {app_handle}")
                 status = runner.status(app_handle)
-                print(f"App status: {status}")
-                print(f"Job URL: {none_throws(status).ui_url}")
+                logger.info(f"App status: {status}")
+                logger.info(f"Job URL: {none_throws(status).ui_url}")
 
                 if args.wait:
-                    print("Waiting for the app to finish...")
+                    logger.info("Waiting for the app to finish...")
                     runner.wait(app_handle)
+            print(app_handle)

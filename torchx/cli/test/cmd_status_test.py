@@ -27,8 +27,18 @@ class CmdStatusTest(unittest.TestCase):
                 with patch("torchx.runner.api.Runner.status") as status_mock:
                     status_mock.return_value = app_status
 
-                    cmd_status.run(args)
+                    try:
+                        cmd_status.run(args)
+                        exit_code = None
+                    except SystemExit as e:
+                        exit_code = e.code
+
                     status_mock.assert_called_once_with(args.app_handle)
+
+                    if app_status is None:
+                        self.assertEqual(exit_code, 1)
+                    else:
+                        self.assertIsNone(exit_code)
 
     def test_format_error_message(self) -> None:
         rpc_error_message = """RuntimeError('On WorkerInfo(id=1, name=trainer:0:0):

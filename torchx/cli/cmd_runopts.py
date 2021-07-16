@@ -6,9 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import logging
 
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner.api import get_runner
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class CmdRunopts(SubCommand):
@@ -26,6 +29,6 @@ class CmdRunopts(SubCommand):
 
         if not scheduler:
             for scheduler, opts in run_opts.items():
-                print(f"{scheduler}:\n{repr(opts)}")
+                logger.info(f"{scheduler}:\n{repr(opts)}")
         else:
-            print(repr(run_opts[scheduler]))
+            logger.info(repr(run_opts[scheduler]))

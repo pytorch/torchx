@@ -7,7 +7,9 @@
 
 import argparse
 import json
+import logging
 import re
+import sys
 from datetime import datetime
 from string import Template
 from typing import List, Optional, Pattern
@@ -16,6 +18,8 @@ from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
 from torchx.specs import api
 from torchx.specs.api import NONE
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 _APP_STATUS_FORMAT_TEMPLATE = """AppDef:
@@ -160,9 +164,10 @@ class CmdStatus(SubCommand):
         app_status = runner.status(app_handle)
         filter_roles = parse_list_arg(args.roles)
         if app_status:
-            print(format_app_status(app_status, filter_roles))
+            logger.info(format_app_status(app_status, filter_roles))
         else:
-            print(
+            logger.error(
                 f"AppDef: {app_id} on session: {session_name},"
                 f" does not exist or has been removed from {scheduler}'s data plane"
             )
+            sys.exit(1)
