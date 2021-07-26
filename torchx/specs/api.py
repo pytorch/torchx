@@ -727,7 +727,7 @@ def parse_app_handle(app_handle: AppHandle) -> Tuple[SchedulerBackend, str, str]
     return gd["scheduler_backend"], gd["session_name"], gd["app_id"]
 
 
-def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], object]:
+def _get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], object]:
     if is_primitive(parameter.annotation):
         return parameter.annotation
     else:
@@ -748,9 +748,12 @@ def _create_args_parser(
     for param_name, parameter in parameters.items():
         args: Dict[str, Any] = {
             "help": args_desc[param_name],
-            "type": get_argparse_param_type(parameter),
+            "type": _get_argparse_param_type(parameter),
         }
-        if parameter.default != inspect.Parameter.empty:
+        if parameter.kind == inspect._ParameterKind.VAR_KEYWORD:
+            # Ignore kwarg, since all additional arguments will be passed as positional
+            continue
+        elif parameter.default != inspect.Parameter.empty:
             args["default"] = parameter.default
         if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
             args["nargs"] = argparse.REMAINDER
@@ -763,7 +766,7 @@ def _create_args_parser(
     return script_parser
 
 
-# pyre-ignore[3]: Ignore, and make return List[Any]
+# pyre-ignore[3]: Ignore return List[Any]
 def _get_function_args(
     app_fn: Callable[..., AppDef], app_args: List[str]
 ) -> Tuple[List[Any], List[str]]:
@@ -781,6 +784,9 @@ def _get_function_args(
     var_arg = []
 
     for param_name, parameter in parameters.items():
+        if parameter.kind == inspect._ParameterKind.VAR_KEYWORD:
+            # Ignore kwarg, since all additional arguments will be passed as positional
+            continue
         arg_value = getattr(parsed_args, param_name)
         parameter_type = parameter.annotation
         parameter_type = decode_optional(parameter_type)

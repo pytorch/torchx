@@ -10,7 +10,12 @@ import unittest
 from typing import Dict, List, Optional, cast
 
 from pyre_extensions import none_throws
-from torchx.specs.file_linter import get_fn_docstring, parse_fn_docstring, validate
+from torchx.specs.file_linter import (
+    get_fn_docstring,
+    parse_fn_docstring,
+    validate,
+    get_arg_names,
+)
 
 
 # Note if the function is moved, the tests need to be updated with new lineno
@@ -101,6 +106,27 @@ def _test_args_dict_list_complex_types(
     pass
 
 
+def _test_get_arg_names(
+    # pyre-ignore[2]: Omit return value for testing purposes
+    arg0,
+    arg1: str,
+    arg2: Optional[Optional[str]],
+    *arg3: str,
+    **arg4: int,
+) -> "AppDef":
+    """
+    Test description
+
+    Args:
+        arg0: arg0 desc
+        arg1: arg1 desc
+        arg2: arg2 desc
+        arg3: arg3 desc
+        arg4: arg4 desc
+    """
+    pass
+
+
 def current_file_path() -> str:
     return os.path.join(os.path.dirname(__file__), __file__)
 
@@ -154,7 +180,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
             "https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html"
         )
         self.assertEquals(expected_desc, linter_error.description)
-        self.assertEqual(18, linter_error.line)
+        self.assertEqual(23, linter_error.line)
 
     def test_validate_docstring_empty(self) -> None:
         linter_errors = validate(
@@ -267,3 +293,9 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(
             "Function unknown_function not found", linter_errors[0].description
         )
+
+    def test_get_arg_names(self) -> None:
+        func_def = self._get_function_def("_test_get_arg_names")
+        args = get_arg_names(func_def)
+        expected_args = ["arg0", "arg1", "arg2", "arg3", "arg4"]
+        self.assertListEqual(expected_args, args)
