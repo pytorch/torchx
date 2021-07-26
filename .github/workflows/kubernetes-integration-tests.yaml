@@ -47,5 +47,7 @@ jobs:
           APP_ID="$(torchx run --wait $ARGS --scheduler kubernetes \
             --scheduler_args queue=test utils.echo \
             --image alpine:latest --num_replicas 3)"
-          torchx status "$APP_ID"
-          torchx describe "$APP_ID"
+          if [ "$ARGS" != "--dryrun" ]; then
+            torchx status "$APP_ID"
+            torchx describe "$APP_ID"
+          fi
