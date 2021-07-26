@@ -31,10 +31,10 @@ class DescribeAppResponse:
     Response object returned by ``Scheduler.describe(app)`` API. Contains
     the status and description of the application as known by the scheduler.
     For some schedulers implementations this response object has necessary
-    and sufficient information to recreate an ``AppDef`` object in the
-    absence of the hosting ``Session``. For these types of schedulers,
-    the user can re-``run()`` the attached application. Otherwise the user
-    can only call non-creating methods (e.g. ``wait()``, ``status()``, etc).
+    and sufficient information to recreate an ``AppDef`` object. For these types
+    of schedulers, the user can re-``run()`` the recreted application. Otherwise
+    the user can only call non-creating methods (e.g. ``wait()``, ``status()``,
+    etc).
 
     Since this class is a data class and contains many member variables we
     keep the usage simple and provide a no-args constructor and chose to

@@ -46,12 +46,9 @@ ComponentId = str
 class Runner:
     """
     Torchx individual component runner. Has the methods for the user to
-    act upon ``AppDefs``. The ``Runner`` is stateful and
-    represents a logical workspace of the user. It can be backed by a service
-    (e.g. Torchx server) for persistence or can be standalone with no persistence
-    meaning that the ``Runner`` lasts only during the duration of the hosting
-    process (see the ``attach()`` API for instructions on re-parenting apps
-    between sessions).
+    act upon ``AppDefs``. The ``Runner`` will cache information about the
+    launched apps if they were launched locally otherwise it's up to the
+    specific scheduler implementation.
     """
 
     def __init__(
@@ -60,6 +57,15 @@ class Runner:
         schedulers: Dict[SchedulerBackend, Scheduler],
         wait_interval: int = 10,
     ) -> None:
+        """
+        Creates a new runner instance.
+
+        Args:
+            name: the human readable name for this session. Jobs launched will
+                inherit this name.
+            schedulers: a list of schedulers the runner can use.
+            wait_interval: how long to sleep between polls when waiting for app completion
+        """
         if "default" not in schedulers:
             raise ValueError(
                 f"A default scheduler is required. Provided schedulers: {schedulers.keys()}"
@@ -116,8 +122,7 @@ class Runner:
             if it dryrun specified.
 
         Raises:
-            AppNotReRunnableException: if the session/scheduler does not support re-running attached apps
-            ValueError: if the ``component_name`` is failed to resolve.
+            ValueError: if the ``component_path`` is failed to resolve.
         """
         component_def = get_component(component_name)
         if component_def:
@@ -150,14 +155,11 @@ class Runner:
         """
         Runs the given application in the specified mode.
 
-        .. note:: sub-classes of ``Session`` should implement ``schedule`` method
+        .. note:: sub-classes of ``Runner`` should implement ``schedule`` method
                   rather than overriding this method directly.
 
         Returns:
             An application handle that is used to call other action APIs on the app.
-
-        Raises:
-            AppNotReRunnableException: if the session/scheduler does not support re-running attached apps
         """
 
         dryrun_info = self.dryrun(app, scheduler, cfg)
@@ -498,10 +500,23 @@ class Runner:
         scheduler = self._scheduler(scheduler_backend)
         return scheduler, scheduler_backend, app_id
 
+    def __repr__(self) -> str:
+        return f"Runner(name={self._name}, schedulers={self._schedulers}, apps={self._apps}, wait_interval={self._wait_interval})"
+
 
 def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
     """
     Convenience method to construct and get a Runner object.
+
+    Args:
+        name: human readable name that will be included as part of all launched
+            jobs.
+        scheduler_params: extra arguments that will be passed to the constructor
+            of all available schedulers.
+
+    >>> from torchx.runner import get_runner
+    >>> get_runner(name="torchx-docs", queue="default")
+    Runner(name=torchx-docs, ...)
     """
     if not name:
         name = f"torchx_{getpass.getuser()}"
