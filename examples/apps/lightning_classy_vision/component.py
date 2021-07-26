@@ -15,6 +15,7 @@ from typing import Optional, Dict
 
 import torchx.specs.api as torchx
 from torchx.components.base.binary_component import binary_component
+from torchx.components.base.torch_dist_component import torch_dist_component
 from torchx.specs import named_resources
 
 
@@ -51,7 +52,7 @@ def trainer(
         output_path,
         "--load_path",
         load_path,
-        "--log_pat",
+        "--log_path",
         log_path,
         "--data_path",
         data_path,
@@ -67,6 +68,57 @@ def trainer(
         resource=named_resources[resource]
         if resource
         else torchx.Resource(cpu=1, gpu=0, memMB=1024),
+    )
+
+
+def dist_trainer(
+    image: str,
+    output_path: str,
+    data_path: str,
+    entrypoint: str,
+    base_image: Optional[str] = None,
+    log_path: str = "/tmp/logs",
+    resource: Optional[str] = None,
+    env: Optional[Dict[str, str]] = None,
+    nnodes: int = 1,
+    nproc_per_node: int = 1,
+) -> torchx.AppDef:
+    """Runs the example lightning_classy_vision app via ``torch.distirbuted.run`` command.
+    The component requires installation of pytorch: https://pytorch.org/
+
+    Args:
+        image: image to run (e.g. foobar:latest)
+        output_path: output path for model checkpoints (e.g. file:///foo/bar)
+        data_path: path to the data to load
+        entrypoint: main script to run
+        base_image: base image
+        log_path: path to save tensorboard logs to
+        resource: the resources to use
+        nnodes: number of nodes
+        env: env variables for the app
+        nproc_per_node: number of processes per node
+    """
+    env = env or {}
+    args = [
+        "--output_path",
+        output_path,
+        "--log_path",
+        log_path,
+        "--data_path",
+        data_path,
+    ]
+    args.append("--skip_export")
+
+    return torch_dist_component(
+        name="trainer",
+        image=image,
+        entrypoint=entrypoint,
+        nnodes=nnodes,
+        nproc_per_node=nproc_per_node,
+        base_image=base_image,
+        args=args,
+        env=env,
+        resource=resource or torchx.NULL_RESOURCE,
     )
 
 

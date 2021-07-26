@@ -14,7 +14,7 @@ binaries that each group of nodes (``specs.Role``) runs.
 from typing import Dict, Optional
 
 import torchx.specs as specs
-from torchx.components.base import torch_dist_role
+from torchx.components.base.torch_dist_component import torch_dist_component
 
 
 def ddp(
@@ -32,6 +32,7 @@ def ddp(
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
+    The component is mostly used for running ddp-style applications via torchx cmd.
 
     Args:
         image: container image.
@@ -57,18 +58,15 @@ def ddp(
         args.append(f"--{k}")
         args.append(v)
 
-    ddp_role = torch_dist_role(
-        name=role,
+    return torch_dist_component(
+        name=name,
+        role_name=role,
         image=image,
         base_image=base_image,
         entrypoint=entrypoint,
         resource=resource or specs.NULL_RESOURCE,
-        num_replicas=nnodes,
         args=args,
         env=env,
         nproc_per_node=nproc_per_node,
         nnodes=nnodes,
-        max_restarts=0,
     )
-
-    return specs.AppDef(name, roles=[ddp_role])
