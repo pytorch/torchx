@@ -409,6 +409,7 @@ def test_complex_fn(
     nnodes: int = 4,
     first_arg: Optional[str] = None,
     *roles_args: str,
+    **roles_kwargs: str,
 ) -> AppDef:
     """Creates complex application, testing all possible complex types
 
@@ -421,6 +422,7 @@ def test_complex_fn(
         nnodes: Num replicas per role
         first_arg: First argument to the user script
         roles_args: Roles args
+        roles_kwargs: Roles kwargs
     """
     num_roles = len(roles_scripts)
     if not num_cpus:
@@ -438,6 +440,9 @@ def test_complex_fn(
             args = [first_arg, *roles_args]
         else:
             args = [*roles_args]
+        for k, v in roles_kwargs.items():
+            args.append(k)
+            args.append(v)
         role = Role(
             role_name,
             image=container_img,

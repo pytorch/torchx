@@ -18,6 +18,12 @@ def get_arg_names(app_specs_func_def: ast.FunctionDef) -> List[str]:
     arg_names = []
     for arg_def in app_specs_func_def.args.args:
         arg_names.append(arg_def.arg)
+    vararg = app_specs_func_def.args.vararg
+    if vararg:
+        arg_names.append(vararg.arg)
+    kwarg = app_specs_func_def.args.kwarg
+    if kwarg:
+        arg_names.append(kwarg.arg)
     return arg_names
 
 

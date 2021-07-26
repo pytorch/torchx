@@ -13,7 +13,7 @@ from torchx.specs.file_linter import validate
 
 class ComponentTestCase(unittest.TestCase):
     def _validate(self, module: ModuleType, function_name: str) -> None:
-        file_path = path = os.path.abspath(module.__file__)
+        file_path = os.path.abspath(module.__file__)
         with open(file_path, "r") as fp:
             file_content = fp.read()
         linter_errors = validate(file_content, file_path, function_name)

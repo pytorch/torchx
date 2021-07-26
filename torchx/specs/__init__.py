@@ -38,7 +38,6 @@ from .api import (  # noqa: F401 F403
     UnknownAppException,
     make_app_handle,
     parse_app_handle,
-    get_argparse_param_type,
     from_function,
     from_file,
     from_module,
