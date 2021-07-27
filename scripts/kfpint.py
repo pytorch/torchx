@@ -39,16 +39,18 @@ scripts/kfpint.py
 """
 
 import argparse
+import asyncio
 import binascii
 import dataclasses
 import json
 import os
 import os.path
+import shutil
 import subprocess
 import tempfile
 from contextlib import contextmanager
 from getpass import getuser
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Any
 
 import kfp
 import requests
@@ -132,7 +134,7 @@ def build_torchx_canary(id: str) -> str:
     return torchx_tag
 
 
-def build_pipeline() -> BuildInfo:
+def build_images() -> BuildInfo:
     id = f"{getuser()}_{rand_id()}"
     examples_image = build_examples_canary(id)
     torchx_image = build_torchx_canary(id)
@@ -153,13 +155,6 @@ def save_build(path: str, build: BuildInfo) -> None:
         json.dump(dataclasses.asdict(build), f)
 
 
-def load_build(path: str) -> BuildInfo:
-    meta_path = os.path.join(path, META_FILE)
-    with open(meta_path, "rt") as f:
-        data = json.load(f)
-    return BuildInfo(*data)
-
-
 def push_images(build: BuildInfo) -> None:
     examples_tag = examples_container_tag(build.id)
     run("docker", "tag", build.examples_image, examples_tag)
@@ -173,11 +168,8 @@ def push_images(build: BuildInfo) -> None:
     run("docker", "push", torchx_tag)
 
 
-PIPELINE_FILE = "pipeline.yaml"
-
-
-def save_spec(path: str, build: BuildInfo) -> None:
-    print("generating pipeline spec")
+def save_advanced_pipeline_spec(path: str, build: BuildInfo) -> None:
+    print("generating advanced_pipeline spec")
 
     id = build.id
     torchx_image = build.torchx_image
@@ -189,8 +181,9 @@ def save_spec(path: str, build: BuildInfo) -> None:
     output = os.path.join(root, "output")
     logs = os.path.join(root, "logs")
 
-    run(
-        "examples/pipelines/kfp/advanced_pipeline.py",
+    save_pipeline_spec(
+        path,
+        "advanced_pipeline.py",
         "--data_path",
         data,
         "--output_path",
@@ -199,13 +192,19 @@ def save_spec(path: str, build: BuildInfo) -> None:
         examples_image,
         "--log_path",
         logs,
-        "--package_path",
-        path,
         "--torchx_image",
         torchx_image,
         "--model_name",
         f"tiny_image_net_{id}",
     )
+
+
+def save_pipeline_spec(path: str, pipeline_file: str, *args: str) -> None:
+    print(f"generating pipeline spec for {pipeline_file}")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        run(os.path.join("examples/pipelines/kfp", pipeline_file), *args)
+        shutil.copy("pipeline.yaml", path)
 
 
 @contextmanager
@@ -218,7 +217,36 @@ def path_or_tmp(path: Optional[str]) -> Iterator[str]:
             yield tmpdir
 
 
-def main() -> None:
+def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
+    print(f"launching pipeline {pipeline_file}")
+    NAMESPACE: str = getenv_asserts("KFP_NAMESPACE")
+    HOST: str = getenv_asserts("KFP_HOST")
+
+    client = get_client(HOST, NAMESPACE)
+    resp = client.create_run_from_pipeline_package(
+        pipeline_file,
+        arguments={},
+        namespace=NAMESPACE,
+        experiment_name="integration-tests",
+        run_name=f"integration test {build.id} - {os.path.basename(pipeline_file)}",
+    )
+    ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
+    print(f"{resp.run_id} - launched! view run at {ui_url}")
+    return resp
+
+
+def wait_for_pipeline(
+    resp: Any,  # pyre-fixme: KFP doesn't have a response type
+) -> None:
+    print(f"{resp.run_id} - waiting for completion")
+    result = resp.wait_for_run_completion(
+        timeout=1 * 60 * 60,
+    )  # 1 hour
+    print(f"{resp.run_id} - finished: {result}")
+    assert result.run.status == "Succeeded", "run didn't succeed"
+
+
+async def main() -> None:
     parser = argparse.ArgumentParser(description="kfp integration test runner")
     parser.add_argument(
         "--path",
@@ -238,42 +266,29 @@ def main() -> None:
     args = parser.parse_args()
 
     with path_or_tmp(args.path) as path:
-        pipeline_file = os.path.join(path, PIPELINE_FILE)
-        if args.load:
-            build = load_build(path)
-        else:
-            build = build_pipeline()
-            try:
-                push_images(build)
-            except MissingEnvError as e:
-                print(f"Missing environments, only building: {e}")
-                return
-            finally:
-                save_spec(pipeline_file, build)
+        advanced_pipeline_file = os.path.join(path, "advanced_pipeline.yaml")
+        intro_pipeline_file = os.path.join(path, "intro_pipeline.yaml")
+        dist_pipeline_file = os.path.join(path, "dist_pipeline.yaml")
+        build = build_images()
+        try:
+            push_images(build)
+        except MissingEnvError as e:
+            print(f"Missing environments, only building: {e}")
+            return
+        finally:
+            save_advanced_pipeline_spec(advanced_pipeline_file, build)
+            save_pipeline_spec(intro_pipeline_file, "intro_pipeline.py")
+            save_pipeline_spec(dist_pipeline_file, "dist_pipeline.py")
 
-        if args.save:
-            save_build(path, build)
-        else:
-            print("launching run")
-            NAMESPACE: str = getenv_asserts("KFP_NAMESPACE")
-            HOST: str = getenv_asserts("KFP_HOST")
-
-            client = get_client(HOST, NAMESPACE)
-            resp = client.create_run_from_pipeline_package(
-                pipeline_file,
-                arguments={},
-                namespace=NAMESPACE,
-                experiment_name="integration-tests",
-                run_name=f"integration test {build.id}",
-            )
-            print("waiting for completion", resp)
-            ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
-            print(f"view run at {ui_url}")
-            result = resp.wait_for_run_completion(timeout=1 * 60 * 60)  # 1 hour
-            print("finished", result)
-            print(f"view run at {ui_url}")
-            assert result.run.status == "Succeeded", "run didn't succeed"
+        pipeline_files = [
+            advanced_pipeline_file,
+            intro_pipeline_file,
+            dist_pipeline_file,
+        ]
+        runs = [run_pipeline(build, pipeline_file) for pipeline_file in pipeline_files]
+        for run in runs:
+            wait_for_pipeline(run)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

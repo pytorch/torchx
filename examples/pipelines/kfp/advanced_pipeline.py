@@ -90,16 +90,6 @@ parser.add_argument(
     default="tiny_image_net",
 )
 
-# %%
-# Finally, set the output path for the exported KFP pipeline package. This can either be
-# .yaml or .zip.
-parser.add_argument(
-    "--package_path",
-    type=str,
-    help="path to place the compiled pipeline package",
-    default="pipeline.yaml",
-)
-
 # %% Parse the arguments, you'll need to set these accordingly if running from a
 # notebook.
 
@@ -264,10 +254,10 @@ def pipeline() -> None:
 
 kfp.compiler.Compiler().compile(
     pipeline_func=pipeline,
-    package_path=args.package_path,
+    package_path="pipeline.yaml",
 )
 
-with open(args.package_path, "rt") as f:
+with open("pipeline.yaml", "rt") as f:
     print(f.read())
 
 # %%
