@@ -164,6 +164,56 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
     )
 
 
+def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
+    """
+    app_to_resource creates a volcano job kubernetes resource definition from
+    the provided AppDef. The resource definition can be used to launch the
+    app on Kubernetes.
+
+    To support macros we generate one task per replica instead of using the
+    volcano `replicas` field since macros change the arguments on a per
+    replica basis.
+
+    Volcano has two levels of retries: one at the task level and one at the
+    job level. When using the APPLICATION retry policy, the job level retry
+    count is set to the minimum of the max_retries of the roles.
+    """
+    tasks = []
+    for i, role in enumerate(app.roles):
+        for replica_id in range(role.num_replicas):
+            values = macros.Values(
+                img_root="",
+                app_id=macros.app_id,
+                replica_id=str(replica_id),
+            )
+            name = f"{role.name}-{replica_id}"
+            replica_role = values.apply(role)
+            pod = role_to_pod(name, replica_role)
+            tasks.append(
+                {
+                    "replicas": 1,
+                    "name": name,
+                    "template": pod,
+                    "maxRetry": role.max_retries,
+                    "policies": RETRY_POLICIES[role.retry_policy],
+                }
+            )
+
+    job_retries = min(role.max_retries for role in app.roles)
+    resource: Dict[str, object] = {
+        "apiVersion": "batch.volcano.sh/v1alpha1",
+        "kind": "Job",
+        "metadata": {"generateName": f"{app.name}-"},
+        "spec": {
+            "schedulerName": "volcano",
+            "queue": queue,
+            "tasks": tasks,
+            "maxRetry": job_retries,
+        },
+    }
+    return resource
+
+
 @dataclass
 class KubernetesJob:
     resource: Dict[str, object]
@@ -237,39 +287,9 @@ class KubernetesScheduler(Scheduler):
         self, app: AppDef, cfg: RunConfig
     ) -> AppDryRunInfo[KubernetesJob]:
         queue = cfg.get("queue")
-        tasks = []
-        for i, role in enumerate(app.roles):
-            for replica_id in range(role.num_replicas):
-                values = macros.Values(
-                    img_root="",
-                    app_id=macros.app_id,
-                    replica_id=str(replica_id),
-                )
-                name = f"{role.name}-{replica_id}"
-                replica_role = values.apply(role)
-                pod = role_to_pod(name, replica_role)
-                tasks.append(
-                    {
-                        "replicas": 1,
-                        "name": name,
-                        "template": pod,
-                        "maxRetry": role.max_retries,
-                        "policies": RETRY_POLICIES[role.retry_policy],
-                    }
-                )
-
-        job_retries = min(role.max_retries for role in app.roles)
-        resource: Dict[str, object] = {
-            "apiVersion": "batch.volcano.sh/v1alpha1",
-            "kind": "Job",
-            "metadata": {"generateName": f"{app.name}-"},
-            "spec": {
-                "schedulerName": "volcano",
-                "queue": queue,
-                "tasks": tasks,
-                "maxRetry": job_retries,
-            },
-        }
+        if not isinstance(queue, str):
+            raise TypeError(f"config value 'queue' must be a string, got {queue}")
+        resource = app_to_resource(app, queue)
         req = KubernetesJob(resource=resource)
         info = AppDryRunInfo(req, repr)
         info._app = app

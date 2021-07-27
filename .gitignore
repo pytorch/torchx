@@ -138,3 +138,4 @@ dmypy.json
 cython_debug/
 
 wordlist.dic
+pipeline.yaml
