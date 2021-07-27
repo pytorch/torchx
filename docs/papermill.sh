@@ -7,8 +7,15 @@
 
 WORK_DIR=/tmp/papermill
 
-set -e
+set -ex
 mkdir -p "$WORK_DIR"
+
+# create empty master.tar.gz file and setup symlinks instead of pulling from
+# master so we can handle local changes
+tar -cJf "$WORK_DIR/master.tar.gz" -T /dev/null
+ROOT="$(pwd)/.."
+(cd "$WORK_DIR" && ln -s "$ROOT/torchx" . && ln -s "$ROOT/examples" .)
+
 files="$(find "$(pwd)"/build -name '*.ipynb')"
 for file in $files
 do

@@ -22,6 +22,7 @@ from kubernetes.client.models import (
     V1VolumeMount,
     V1EmptyDirVolumeSource,
 )
+from torchx.schedulers.kubernetes_scheduler import app_to_resource
 from torchx.specs import api
 from typing_extensions import Protocol
 
@@ -229,3 +230,41 @@ def container_from_app(
     """
     factory = component_from_app(app, ui_metadata)
     return factory(*args, **kwargs)
+
+
+def resource_from_app(
+    app: api.AppDef,
+    queue: str,
+) -> dsl.ResourceOp:
+    """
+    resource_from_app generates a KFP ResourceOp from the provided app that uses
+    the Volcano job scheduler on Kubernetes to run distributed apps. See
+    https://volcano.sh/en/docs/ for more info on Volcano and how to install.
+
+    Args:
+        app: The torchx AppDef to adapt.
+        queue: the Volcano queue to schedule the operator in.
+
+    >>> import kfp
+    >>> from torchx import specs
+    >>> from torchx.pipelines.kfp.adapter import resource_from_app
+    >>> app_def = specs.AppDef(
+    ...     name="trainer",
+    ...     roles=[specs.Role("trainer", image="foo:latest", num_replicas=3)],
+    ... )
+    >>> def pipeline():
+    ...     trainer = resource_from_app(app_def, queue="test")
+    ...     print(trainer)
+    >>> kfp.compiler.Compiler().compile(
+    ...     pipeline_func=pipeline,
+    ...     package_path="/tmp/pipeline.yaml",
+    ... )
+    {'ResourceOp': {... 'name': 'trainer-0', ... 'name': 'trainer-1', ... 'name': 'trainer-2', ...}}
+    """
+    return dsl.ResourceOp(
+        name=app.name,
+        action="create",
+        success_condition="status.state.phase = Completed",
+        failure_condition="status.state.phase = Failed",
+        k8s_resource=app_to_resource(app, queue),
+    )
