@@ -763,10 +763,9 @@ def _create_args_parser(
     return script_parser
 
 
-# pyre-ignore[3]: Ignore, and make return List[Any]
 def _get_function_args(
     app_fn: Callable[..., AppDef], app_args: List[str]
-) -> Tuple[List[Any], List[str]]:
+) -> Tuple[List[object], List[str], Dict[str, object]]:
     docstring = none_throws(inspect.getdoc(app_fn))
     function_desc, args_desc = parse_fn_docstring(docstring)
 
@@ -779,6 +778,7 @@ def _get_function_args(
 
     function_args = []
     var_arg = []
+    kwargs = {}
 
     for param_name, parameter in parameters.items():
         arg_value = getattr(parsed_args, param_name)
@@ -786,13 +786,17 @@ def _get_function_args(
         parameter_type = decode_optional(parameter_type)
         if not is_primitive(parameter_type):
             arg_value = decode_from_string(arg_value, parameter_type)
-        if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
+        if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
             var_arg = arg_value
+        elif parameter.kind == inspect.Parameter.KEYWORD_ONLY:
+            kwargs[param_name] = arg_value
+        elif parameter.kind == inspect.Parameter.VAR_KEYWORD:
+            raise TypeError("**kwargs are not supported for component definitions")
         else:
             function_args.append(arg_value)
     if len(var_arg) > 0 and var_arg[0] == "--":
         var_arg = var_arg[1:]
-    return function_args, var_arg
+    return function_args, var_arg, kwargs
 
 
 def _validate_and_raise(file_path: str, function_name: str) -> None:
@@ -815,8 +819,8 @@ def from_function(
     if should_validate:
         file_path = inspect.getfile(app_fn)
         _validate_and_raise(file_path, app_fn.__name__)
-    function_args, var_arg = _get_function_args(app_fn, app_args)
-    return app_fn(*function_args, *var_arg)
+    function_args, var_arg, kwargs = _get_function_args(app_fn, app_args)
+    return app_fn(*function_args, *var_arg, **kwargs)
 
 
 def from_file(

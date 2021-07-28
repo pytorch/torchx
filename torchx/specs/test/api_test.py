@@ -11,7 +11,7 @@ import pathlib
 import sys
 import unittest
 from dataclasses import asdict
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
 from unittest.mock import MagicMock, patch
 
 from torchx.specs.api import (
@@ -400,7 +400,7 @@ def test_empty_fn_no_docstring() -> AppDef:
     return get_dummy_application("trainer")
 
 
-def test_complex_fn(
+def _test_complex_fn(
     app_name: str,
     containers: List[str],
     roles_scripts: Dict[str, str],
@@ -450,6 +450,22 @@ def test_complex_fn(
     return AppDef(app_name, roles)
 
 
+_TEST_VAR_ARGS: Optional[Tuple[object, ...]] = None
+
+
+def _test_var_args(foo: str, *args: str, bar: str = "asdf") -> AppDef:
+    """
+    test component for mixing var args with kwargs.
+    Args:
+        foo: arg
+        args: varargs
+        bar: kwarg
+    """
+    global _TEST_VAR_ARGS
+    _TEST_VAR_ARGS = (foo, args, bar)
+    return AppDef(name="varargs")
+
+
 class AppDefLoadTest(unittest.TestCase):
     def assert_apps(self, expected_app: AppDef, actual_app: AppDef) -> None:
         self.assertDictEqual(asdict(expected_app), asdict(actual_app))
@@ -459,7 +475,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def _get_expected_app_with_default(self) -> AppDef:
         role_args = self._get_role_args()
-        return test_complex_fn(
+        return _test_complex_fn(
             "test_app",
             ["img1", "img2"],
             {"worker": "worker.py", "master": "master.py"},
@@ -485,7 +501,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def _get_expected_app_with_all_args(self) -> AppDef:
         role_args = self._get_role_args()
-        return test_complex_fn(
+        return _test_complex_fn(
             "test_app",
             ["img1", "img2"],
             {"worker": "worker.py", "master": "master.py"},
@@ -525,13 +541,13 @@ class AppDefLoadTest(unittest.TestCase):
     def test_load_from_fn_complex_all_args(self) -> None:
         expected_app = self._get_expected_app_with_all_args()
         app_args = self._get_app_args()
-        actual_app = from_function(test_complex_fn, app_args)
+        actual_app = from_function(_test_complex_fn, app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_required_args(self) -> None:
         with patch.object(sys, "exit") as exit_mock:
             try:
-                from_function(test_complex_fn, [])
+                from_function(_test_complex_fn, [])
             except Exception:
                 # ignore any errors, since function should fail
                 pass
@@ -540,33 +556,47 @@ class AppDefLoadTest(unittest.TestCase):
     def test_load_from_fn_with_default(self) -> None:
         expected_app = self._get_expected_app_with_default()
         app_args = self._get_args_with_default()
-        actual_app = from_function(test_complex_fn, app_args)
+        actual_app = from_function(_test_complex_fn, app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_load_from_module_complex_all_args(self) -> None:
         expected_app = self._get_expected_app_with_all_args()
         app_args = app_args = self._get_app_args()
         curr_module = sys.modules[__name__]
-        actual_app = from_module(curr_module, "test_complex_fn", app_args)
+        actual_app = from_module(curr_module, "_test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_load_from_module_with_default(self) -> None:
         expected_app = self._get_expected_app_with_default()
         app_args = self._get_args_with_default()
         curr_module = sys.modules[__name__]
-        actual_app = from_module(curr_module, "test_complex_fn", app_args)
+        actual_app = from_module(curr_module, "_test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_load_from_file_complex_all_args(self) -> None:
         expected_app = self._get_expected_app_with_all_args()
         app_args = app_args = self._get_app_args()
         filepath = str(pathlib.Path(__file__))
-        actual_app = from_file(filepath, "test_complex_fn", app_args)
+        actual_app = from_file(filepath, "_test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_load_from_file_with_default(self) -> None:
         expected_app = self._get_expected_app_with_default()
         app_args = self._get_args_with_default()
         filepath = str(pathlib.Path(__file__))
-        actual_app = from_file(filepath, "test_complex_fn", app_args)
+        actual_app = from_file(filepath, "_test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
+
+    def test_varargs(self) -> None:
+        from_function(
+            _test_var_args,
+            [
+                "--foo",
+                "fooval",
+                "--bar",
+                "barval",
+                "arg1",
+                "arg2",
+            ],
+        )
+        self.assertEqual(_TEST_VAR_ARGS, ("fooval", ("arg1", "arg2"), "barval"))
