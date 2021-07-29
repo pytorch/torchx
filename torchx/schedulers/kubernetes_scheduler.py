@@ -71,6 +71,7 @@ JOB_STATE: Dict[str, AppState] = {
     "Terminating": AppState.RUNNING,
     # Teriminated is the phase that the job is finished unexpected, e.g. events
     "Terminated": AppState.FAILED,
+    "Failed": ReplicaState.FAILED,
 }
 
 TASK_STATE: Dict[str, ReplicaState] = {
@@ -209,6 +210,10 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
             "queue": queue,
             "tasks": tasks,
             "maxRetry": job_retries,
+            "plugins": {
+                "svc": [],
+                "env": [],
+            },
         },
     }
     return resource

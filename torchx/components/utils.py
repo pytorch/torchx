@@ -11,6 +11,8 @@ and are meant to be used as tutorial materials or glue operations between
 meaningful stages in a workflow.
 """
 
+import shlex
+
 import torchx.specs as specs
 
 
@@ -57,6 +59,30 @@ def touch(file: str) -> specs.AppDef:
                 entrypoint="/bin/touch",
                 args=[file],
                 num_replicas=1,
+            )
+        ],
+    )
+
+
+def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
+    """
+    Runs the provided command via sh.
+
+    Args:
+        args: bash arguments
+        image: image to use
+        num_replicas: number of replicas to run
+
+    """
+    return specs.AppDef(
+        name="sh",
+        roles=[
+            specs.Role(
+                name="sh",
+                image=image,
+                entrypoint="/bin/sh",
+                args=["-c", shlex.join(args)],
+                num_replicas=num_replicas,
             )
         ],
     )
