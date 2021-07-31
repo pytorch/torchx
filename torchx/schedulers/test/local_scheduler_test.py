@@ -154,7 +154,7 @@ class LocalSchedulerTest(unittest.TestCase):
         """
         scheduler_ = scheduler or self.scheduler
 
-        interval = timeout / 100
+        interval = 0.1
         expiry = time.time() + timeout
         while expiry > time.time():
             desc = scheduler_.describe(app_id)

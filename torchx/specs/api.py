@@ -28,6 +28,7 @@ from typing import (
     Union,
 )
 
+import yaml
 from pyre_extensions import none_throws
 from torchx.specs.file_linter import parse_fn_docstring, validate
 from torchx.util.io import read_conf_file
@@ -317,6 +318,9 @@ class AppState(int, Enum):
     def __str__(self) -> str:
         return self.name
 
+    def __repr__(self) -> str:
+        return f"{self.name} ({self.value})"
+
 
 _TERMINAL_STATES: List[AppState] = [
     AppState.SUCCEEDED,
@@ -403,7 +407,8 @@ class AppStatus:
         else:
             structured_error_msg_parsed = NONE
         app_status_dict["structured_error_msg"] = structured_error_msg_parsed
-        return json.dumps(app_status_dict, indent=2)
+        app_status_dict["state"] = repr(app_status_dict["state"])
+        return yaml.dump({"AppStatus": app_status_dict})
 
 
 # valid ``RunConfig`` values; only support primitives (str, int, float, bool, List[str])

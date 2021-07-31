@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 
-import json
 import pathlib
 import sys
 import unittest
@@ -61,26 +60,36 @@ class AppDefStatusTest(unittest.TestCase):
 
     def test_serialize(self) -> None:
         status = AppStatus(AppState.FAILED)
-        serialized = status.__repr__()
-        deser_status_dict = json.loads(serialized)
-        deser_status = AppStatus(**deser_status_dict)
-        self.assertEqual(status.state, deser_status.state)
-        self.assertEqual(status.msg, deser_status.msg)
-        self.assertEqual(status.structured_error_msg, deser_status.structured_error_msg)
+        serialized = repr(status)
+        self.assertEqual(
+            serialized,
+            """AppStatus:
+  msg: ''
+  num_restarts: 0
+  roles: []
+  state: FAILED (5)
+  structured_error_msg: <NONE>
+  ui_url: null
+""",
+        )
 
     def test_serialize_embed_json(self) -> None:
         status = AppStatus(
             AppState.FAILED, structured_error_msg='{"message": "test error"}'
         )
-        serialized = status.__repr__()
-        deser_status_dict = json.loads(serialized)
-        scheduler_msg = deser_status_dict.pop("structured_error_msg")
-        scheduler_msg_json = json.dumps(scheduler_msg)
-        deser_status_dict["structured_error_msg"] = scheduler_msg_json
-        deser_status = AppStatus(**deser_status_dict)
-        self.assertEqual(status.state, deser_status.state)
-        self.assertEqual(status.msg, deser_status.msg)
-        self.assertEqual(status.structured_error_msg, deser_status.structured_error_msg)
+        serialized = repr(status)
+        self.assertEqual(
+            serialized,
+            """AppStatus:
+  msg: ''
+  num_restarts: 0
+  roles: []
+  state: FAILED (5)
+  structured_error_msg:
+    message: test error
+  ui_url: null
+""",
+        )
 
 
 class ResourceTest(unittest.TestCase):

@@ -55,7 +55,6 @@ class Runner:
         self,
         name: str,
         schedulers: Dict[SchedulerBackend, Scheduler],
-        wait_interval: int = 10,
     ) -> None:
         """
         Creates a new runner instance.
@@ -64,7 +63,6 @@ class Runner:
             name: the human readable name for this session. Jobs launched will
                 inherit this name.
             schedulers: a list of schedulers the runner can use.
-            wait_interval: how long to sleep between polls when waiting for app completion
         """
         if "default" not in schedulers:
             raise ValueError(
@@ -72,7 +70,6 @@ class Runner:
             )
         self._name: str = name
         self._schedulers = schedulers
-        self._wait_interval = wait_interval
         self._apps: Dict[AppHandle, AppDef] = {}
 
     def run_component(
@@ -313,7 +310,9 @@ class Runner:
                 app_status.ui_url = desc.ui_url
             return app_status
 
-    def wait(self, app_handle: AppHandle) -> Optional[AppStatus]:
+    def wait(
+        self, app_handle: AppHandle, wait_interval: float = 10
+    ) -> Optional[AppStatus]:
         """
         Block waits (indefinitely) for the application to complete.
         Possible implementation:
@@ -325,6 +324,10 @@ class Runner:
              if app_status.is_terminal():
                  return
              sleep(10)
+
+        Args:
+            app_handle: the app handle to wait for completion
+            wait_interval: the minimum interval to wait before polling for status
 
         Returns:
             The terminal status of the application, or ``None`` if the app does not exist anymore
@@ -341,7 +344,7 @@ class Runner:
                 if app_status.is_terminal():
                     return app_status
                 else:
-                    time.sleep(self._wait_interval)
+                    time.sleep(wait_interval)
 
     def list(self) -> Dict[AppHandle, AppDef]:
         """
@@ -501,7 +504,7 @@ class Runner:
         return scheduler, scheduler_backend, app_id
 
     def __repr__(self) -> str:
-        return f"Runner(name={self._name}, schedulers={self._schedulers}, apps={self._apps}, wait_interval={self._wait_interval})"
+        return f"Runner(name={self._name}, schedulers={self._schedulers}, apps={self._apps})"
 
 
 def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:

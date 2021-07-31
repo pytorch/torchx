@@ -93,7 +93,6 @@ class RunnerTest(unittest.TestCase):
         session = Runner(
             name=SESSION_NAME,
             schedulers={"default": self.scheduler},
-            wait_interval=1,
         )
         self.assertEqual(1, len(session.scheduler_backends()))
         role = Role(
@@ -106,13 +105,14 @@ class RunnerTest(unittest.TestCase):
         app = AppDef("name", roles=[role])
 
         app_handle = session.run(app, cfg=self.cfg)
-        app_status = none_throws(session.wait(app_handle))
+        app_status = none_throws(session.wait(app_handle, wait_interval=0.1))
         self.assertEqual(AppState.SUCCEEDED, app_status.state)
 
     def test_dryrun(self, _) -> None:
         scheduler_mock = MagicMock()
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": scheduler_mock},
         )
         role = Role(
             name="touch",
@@ -144,7 +144,8 @@ class RunnerTest(unittest.TestCase):
 
     def test_list(self, _) -> None:
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": self.scheduler},
         )
         role = Role(
             name="touch",
@@ -173,7 +174,8 @@ class RunnerTest(unittest.TestCase):
 
         scheduler = LocalScheduler(session_name=SESSION_NAME, cache_size=1)
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": scheduler},
         )
         test_file = os.path.join(self.test_dir, "test_file")
         role = Role(
@@ -189,10 +191,10 @@ class RunnerTest(unittest.TestCase):
         # run the same app twice (the first will be removed from the scheduler's cache)
         # then validate that the first one will drop from the session's app cache as well
         app_id1 = session.run(app, cfg=self.cfg)
-        session.wait(app_id1)
+        session.wait(app_id1, wait_interval=0.1)
 
         app_id2 = session.run(app, cfg=self.cfg)
-        session.wait(app_id2)
+        session.wait(app_id2, wait_interval=0.1)
 
         apps = session.list()
 
@@ -202,7 +204,8 @@ class RunnerTest(unittest.TestCase):
 
     def test_status(self, _) -> None:
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": self.scheduler},
         )
         role = Role(
             name="sleep",
@@ -221,7 +224,8 @@ class RunnerTest(unittest.TestCase):
 
     def test_status_unknown_app(self, _) -> None:
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": self.scheduler},
         )
         self.assertIsNone(session.status("default://test_session/unknown_app_id"))
 
@@ -273,20 +277,27 @@ class RunnerTest(unittest.TestCase):
 
     def test_wait_unknown_app(self, _) -> None:
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": self.scheduler},
         )
-        self.assertIsNone(session.wait("default://test_session/unknown_app_id"))
-        self.assertIsNone(session.wait("default://another_session/some_app"))
+        self.assertIsNone(
+            session.wait("default://test_session/unknown_app_id", wait_interval=0.1)
+        )
+        self.assertIsNone(
+            session.wait("default://another_session/some_app", wait_interval=0.1)
+        )
 
     def test_stop(self, _) -> None:
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": self.scheduler},
         )
         self.assertIsNone(session.stop("default://test_session/unknown_app_id"))
 
     def test_log_lines_unknown_app(self, _) -> None:
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": self.scheduler}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": self.scheduler},
         )
         with self.assertRaises(UnknownAppException):
             session.log_lines("default://test_session/unknown", "trainer")
@@ -300,7 +311,8 @@ class RunnerTest(unittest.TestCase):
         )
         scheduler_mock.log_iter.return_value = iter(["hello", "world"])
         session = Runner(
-            name=SESSION_NAME, schedulers={"default": scheduler_mock}, wait_interval=1
+            name=SESSION_NAME,
+            schedulers={"default": scheduler_mock},
         )
 
         role_name = "trainer"

@@ -6,6 +6,7 @@
 
 import argparse
 import logging
+import sys
 from dataclasses import asdict
 from pprint import pformat
 from typing import Dict, List, Union, cast
@@ -13,7 +14,7 @@ from typing import Dict, List, Union, cast
 import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
-from torchx.runner import get_runner
+from torchx.runner import get_runner, Runner
 from torchx.specs.finder import get_components, _Component
 from torchx.util.types import to_dict
 
@@ -110,16 +111,24 @@ class CmdRun(SubCommand):
             logger.info(app_dryrun_info)
         else:
             app_handle = cast(specs.AppHandle, result)
+            print(app_handle)
             if args.scheduler == "local":
-                runner.wait(app_handle)
+                self._wait_and_exit(runner, app_handle)
             else:
                 logger.info("=== RUN RESULT ===")
                 logger.info(f"Launched app: {app_handle}")
                 status = runner.status(app_handle)
-                logger.info(f"App status: {status}")
+                logger.info(status)
                 logger.info(f"Job URL: {none_throws(status).ui_url}")
 
                 if args.wait:
-                    logger.info("Waiting for the app to finish...")
-                    runner.wait(app_handle)
-            print(app_handle)
+                    self._wait_and_exit(runner, app_handle)
+
+    def _wait_and_exit(self, runner: Runner, app_handle: str) -> None:
+        logger.info("Waiting for the app to finish...")
+        status = runner.wait(app_handle, wait_interval=1)
+        logger.info(status)
+        if not status:
+            raise RuntimeError(f"unknown status, wait returned {status}")
+        if status.state != specs.AppState.SUCCEEDED:
+            sys.exit(1)
