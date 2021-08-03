@@ -111,6 +111,9 @@ metadata:
   generateName: test-
 spec:
   maxRetry: 3
+  plugins:
+    env: []
+    svc: []
   queue: testqueue
   schedulerName: volcano
   tasks:
