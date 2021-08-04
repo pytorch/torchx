@@ -1,4 +1,0 @@
-CLI
-==============
-
-.. automodule:: torchx.cli
