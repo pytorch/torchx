@@ -29,6 +29,8 @@
 #   Makefile (redirect target)
 #  (on gh-pages branch) _layouts/docs_redirect.html
 
+set -ex
+
 dry_run=0
 for arg in "$@"; do
     shift
