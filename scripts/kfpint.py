@@ -74,7 +74,7 @@ def getenv_asserts(env: str) -> str:
     return v
 
 
-def get_client(host: str, namespace: str) -> kfp.Client:
+def get_client(host: str) -> kfp.Client:
     USERNAME = getenv_asserts("KFP_USERNAME")
     PASSWORD = getenv_asserts("KFP_PASSWORD")
 
@@ -92,7 +92,6 @@ def get_client(host: str, namespace: str) -> kfp.Client:
     return kfp.Client(
         host=f"{host}/pipeline",
         cookies=f"authservice_session={session_cookie}",
-        namespace=namespace,
     )
 
 
@@ -219,14 +218,12 @@ def path_or_tmp(path: Optional[str]) -> Iterator[str]:
 
 def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
     print(f"launching pipeline {pipeline_file}")
-    NAMESPACE: str = getenv_asserts("KFP_NAMESPACE")
     HOST: str = getenv_asserts("KFP_HOST")
 
-    client = get_client(HOST, NAMESPACE)
+    client = get_client(HOST)
     resp = client.create_run_from_pipeline_package(
         pipeline_file,
         arguments={},
-        namespace=NAMESPACE,
         experiment_name="integration-tests",
         run_name=f"integration test {build.id} - {os.path.basename(pipeline_file)}",
     )
