@@ -1,0 +1,38 @@
+name: Slurm Integration Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  slurm:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run:
+          set -ex
+
+          pip install wheel
+      - name: Run Slurm Integration Tests
+        env:
+          SLURM_SSH: ${{ secrets.SLURM_SSH }}
+          SLURM_MASTER: ${{ secrets.SLURM_MASTER }}
+          SLURM_KNOWN_HOST: ${{ secrets.SLURM_KNOWN_HOST }}
+          SLURM_IDENT: id_rsa
+        run: |
+          set -e
+          echo "$SLURM_SSH" > "$SLURM_IDENT"
+          chmod 600 "$SLURM_IDENT"
+          mkdir -p ~/.ssh
+          echo "$SLURM_KNOWN_HOST" >> ~/.ssh/known_hosts
+
+          scripts/slurmint.sh
