@@ -51,7 +51,7 @@ def trainer(
         output_path,
         "--load_path",
         load_path,
-        "--log_pat",
+        "--log_path",
         log_path,
         "--data_path",
         data_path,
