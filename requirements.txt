@@ -1,2 +1,3 @@
 pyre-extensions
 docstring-parser==0.8.1
+pyyaml
