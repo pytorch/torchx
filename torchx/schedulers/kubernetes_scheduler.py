@@ -239,10 +239,14 @@ class KubernetesScheduler(Scheduler):
     and Volcano is currently the only supported scheduler with Kubernetes.
     For installation instructions see: https://github.com/volcano-sh/volcano
 
+    This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions
+    v1.18-1.21. See https://github.com/pytorch/torchx/issues/120 which is
+    tracking Volcano support for Kubernetes v1.22.
+
     .. code-block:: bash
 
         $ pip install torchx[kubernetes]
-        $ torchx run --scheduler kubernetes --scheduler_opts namespace=default,queue=test utils.echo --msg hello
+        $ torchx run --scheduler kubernetes --scheduler_args namespace=default,queue=test utils.echo --image alpine:latest --msg hello
         kubernetes://torchx_user/1234
         $ torchx status kubernetes://torchx_user/1234
         ...
@@ -339,27 +343,29 @@ class KubernetesScheduler(Scheduler):
             plural="jobs",
             name=name,
         )
-        status = resp["status"]
+        status = resp.get("status")
+        if status:
+            state_str = status["state"]["phase"]
+            app_state = JOB_STATE[state_str]
 
-        state_str = status["state"]["phase"]
-        app_state = JOB_STATE[state_str]
+            TASK_STATUS_COUNT = "taskStatusCount"
 
-        TASK_STATUS_COUNT = "taskStatusCount"
+            if TASK_STATUS_COUNT in status:
+                for name, status in status[TASK_STATUS_COUNT].items():
+                    role, idx = name.split("-")
 
-        if TASK_STATUS_COUNT in status:
-            for name, status in status[TASK_STATUS_COUNT].items():
-                role, idx = name.split("-")
+                    state_str = next(iter(status["phase"].keys()))
+                    state = TASK_STATE[state_str]
 
-                state_str = next(iter(status["phase"].keys()))
-                state = TASK_STATE[state_str]
-
-                if role not in roles:
-                    roles[role] = Role(name=role, num_replicas=0, image="")
-                    roles_statuses[role] = RoleStatus(role, [])
-                roles[role].num_replicas += 1
-                roles_statuses[role].replicas.append(
-                    ReplicaStatus(id=int(idx), role=role, state=state, hostname="")
-                )
+                    if role not in roles:
+                        roles[role] = Role(name=role, num_replicas=0, image="")
+                        roles_statuses[role] = RoleStatus(role, [])
+                    roles[role].num_replicas += 1
+                    roles_statuses[role].replicas.append(
+                        ReplicaStatus(id=int(idx), role=role, state=state, hostname="")
+                    )
+        else:
+            app_state = AppState.UNKNOWN
         return DescribeAppResponse(
             app_id=app_id,
             roles=list(roles.values()),
