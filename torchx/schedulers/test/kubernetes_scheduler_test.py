@@ -222,6 +222,34 @@ spec:
             ),
         )
 
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object_status")
+    def test_describe_unknown(
+        self, get_namespaced_custom_object_status: MagicMock
+    ) -> None:
+        get_namespaced_custom_object_status.return_value = {}
+        app_id = "testnamespace:testid"
+        scheduler = create_scheduler("test")
+        info = scheduler.describe(app_id)
+        call = get_namespaced_custom_object_status.call_args
+        args, kwargs = call
+        self.assertEqual(
+            kwargs,
+            {
+                "group": "batch.volcano.sh",
+                "version": "v1alpha1",
+                "namespace": "testnamespace",
+                "plural": "jobs",
+                "name": "testid",
+            },
+        )
+        self.assertEqual(
+            info,
+            DescribeAppResponse(
+                app_id=app_id,
+                state=specs.AppState.UNKNOWN,
+            ),
+        )
+
     def test_runopts(self) -> None:
         scheduler = kubernetes_scheduler.create_scheduler("foo")
         runopts = scheduler.run_opts()
