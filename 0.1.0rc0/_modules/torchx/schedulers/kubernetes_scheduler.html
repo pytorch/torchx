@@ -575,10 +575,14 @@
 <span class="sd">    and Volcano is currently the only supported scheduler with Kubernetes.</span>
 <span class="sd">    For installation instructions see: https://github.com/volcano-sh/volcano</span>
 
+<span class="sd">    This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions</span>
+<span class="sd">    v1.18-1.21. See https://github.com/pytorch/torchx/issues/120 which is</span>
+<span class="sd">    tracking Volcano support for Kubernetes v1.22.</span>
+
 <span class="sd">    .. code-block:: bash</span>
 
 <span class="sd">        $ pip install torchx[kubernetes]</span>
-<span class="sd">        $ torchx run --scheduler kubernetes --scheduler_opts namespace=default,queue=test utils.echo --msg hello</span>
+<span class="sd">        $ torchx run --scheduler kubernetes --scheduler_args namespace=default,queue=test utils.echo --image alpine:latest --msg hello</span>
 <span class="sd">        kubernetes://torchx_user/1234</span>
 <span class="sd">        $ torchx status kubernetes://torchx_user/1234</span>
 <span class="sd">        ...</span>
@@ -675,27 +679,29 @@
             <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">state_str</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span>
+            <span class="n">app_state</span> <span class="o">=</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
 
-        <span class="n">state_str</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span>
-        <span class="n">app_state</span> <span class="o">=</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
+            <span class="n">TASK_STATUS_COUNT</span> <span class="o">=</span> <span class="s2">&quot;taskStatusCount&quot;</span>
 
-        <span class="n">TASK_STATUS_COUNT</span> <span class="o">=</span> <span class="s2">&quot;taskStatusCount&quot;</span>
+            <span class="k">if</span> <span class="n">TASK_STATUS_COUNT</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">status</span><span class="p">[</span><span class="n">TASK_STATUS_COUNT</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">role</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">TASK_STATUS_COUNT</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">status</span><span class="p">[</span><span class="n">TASK_STATUS_COUNT</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">role</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                    <span class="n">state_str</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+                    <span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
 
-                <span class="n">state_str</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-                <span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
-                    <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-                    <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleStatus</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span>
-                <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">ReplicaStatus</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+                        <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleStatus</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span>
+                    <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">ReplicaStatus</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">app_state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">UNKNOWN</span>
         <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
             <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
             <span class="n">roles</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>

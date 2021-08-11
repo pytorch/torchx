@@ -346,8 +346,11 @@
 TorchX requires gang scheduling for multi-replica/multi-role execution
 and Volcano is currently the only supported scheduler with Kubernetes.
 For installation instructions see: <a class="reference external" href="https://github.com/volcano-sh/volcano">https://github.com/volcano-sh/volcano</a></p>
+<p>This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions
+v1.18-1.21. See <a class="reference external" href="https://github.com/pytorch/torchx/issues/120">https://github.com/pytorch/torchx/issues/120</a> which is
+tracking Volcano support for Kubernetes v1.22.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install torchx<span class="o">[</span>kubernetes<span class="o">]</span>
-$ torchx run --scheduler kubernetes --scheduler_opts <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span><span class="nb">test</span> utils.echo --msg hello
+$ torchx run --scheduler kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span><span class="nb">test</span> utils.echo --image alpine:latest --msg hello
 kubernetes://torchx_user/1234
 $ torchx status kubernetes://torchx_user/1234
 ...
