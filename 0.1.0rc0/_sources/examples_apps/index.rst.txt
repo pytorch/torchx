@@ -120,27 +120,6 @@ Lightning + Classy Vision Trainer Example
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses PyTorch Lightning and ClassyVision to train a model.">
-
-.. only:: html
-
- .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_train_thumb.png
-     :alt: Trainer App Example
-
-     :ref:`sphx_glr_examples_apps_lightning_classy_vision_train.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples_apps/lightning_classy_vision/train
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses captum to analyze inputs to for model interpretability ...">
 
 .. only:: html
@@ -159,6 +138,27 @@ Lightning + Classy Vision Trainer Example
    :hidden:
 
    /examples_apps/lightning_classy_vision/interpret
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses PyTorch Lightning and ClassyVision to train a model.">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_train_thumb.png
+     :alt: Trainer App Example
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_train.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/train
 
 .. raw:: html
 

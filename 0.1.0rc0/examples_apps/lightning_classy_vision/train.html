@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model Interpretability App Example" href="interpret.html" />
-    <link rel="prev" title="Trainer Component Example" href="component.html" />
+    <link rel="next" title="Trainer Datasets Example" href="data.html" />
+    <link rel="prev" title="Model Interpretability App Example" href="interpret.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -371,6 +371,7 @@ train a model.</p>
 dependencies. For saving and loading data and models it uses fsspec which makes
 the app agnostic to the environment it’s running in.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
@@ -381,7 +382,7 @@ the app agnostic to the environment it’s running in.</p>
 
 <span class="c1"># ensure data and module are on the path</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;examples/apps/lightning_classy_vision&quot;</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">data</span> <span class="kn">import</span> <span class="n">TinyImageNetDataModule</span><span class="p">,</span> <span class="n">download_data</span>
+<span class="kn">from</span> <span class="nn">data</span> <span class="kn">import</span> <span class="n">TinyImageNetDataModule</span><span class="p">,</span> <span class="n">download_data</span><span class="p">,</span> <span class="n">create_random_data</span>
 <span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span><span class="p">,</span> <span class="n">export_inference_model</span>
 
 
@@ -396,10 +397,14 @@ the app agnostic to the environment it’s running in.</p>
         <span class="s2">&quot;--batch_size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;batch size to use for training&quot;</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--test&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Sets to test mode, training on a much smaller set of randomly generated images&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to load the training data from&quot;</span><span class="p">,</span>
-        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--skip_export&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--load_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;checkpoint path to load from&quot;</span><span class="p">)</span>
@@ -427,10 +432,22 @@ the app agnostic to the environment it’s running in.</p>
         <span class="n">model</span> <span class="o">=</span> <span class="n">TinyImageNetModel</span><span class="p">()</span>
 
         <span class="c1"># Download and setup the data module</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="n">download_data</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+            <span class="n">data_path</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+            <a href="https://docs.python.org/3/library/os.html#os.makedirs" title="os.makedirs" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">makedirs</span></a><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+            <span class="n">create_random_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;&#39;--data_path&#39; flag is not set. Please set it to the path to your data. &quot;</span>
+                    <span class="s2">&quot;If you meant to run in test mode, add the &#39;--test&#39; flag instead.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">data_path</span> <span class="o">=</span> <span class="n">download_data</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="n">TinyImageNetDataModule</span><span class="p">(</span>
             <span class="n">data_dir</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
             <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span> <span class="k">else</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Setup model checkpointing</span>
@@ -486,10 +503,10 @@ the app agnostic to the environment it’s running in.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="interpret.html" class="btn btn-neutral float-right" title="Model Interpretability App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="data.html" class="btn btn-neutral float-right" title="Trainer Datasets Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="component.html" class="btn btn-neutral" title="Trainer Component Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="interpret.html" class="btn btn-neutral" title="Model Interpretability App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
