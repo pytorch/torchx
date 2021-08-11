@@ -17,10 +17,15 @@ import tarfile
 from typing import Optional, Callable
 
 import fsspec
+import numpy
 import pytorch_lightning as pl
 from classy_vision.dataset.classy_dataset import ClassyDataset
+from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from torchvision.datasets.folder import is_image_file
+from tqdm import tqdm
+
 
 # %%
 # This uses classy vision to define a dataset that we will then later use in our
@@ -32,10 +37,14 @@ class TinyImageNetDataset(ClassyDataset):
     TinyImageNetDataset is a ClassyDataset for the tiny imagenet dataset.
     """
 
-    def __init__(self, data_path: str, transform: Callable[[object], object]) -> None:
+    def __init__(
+        self,
+        data_path: str,
+        transform: Callable[[object], object],
+        num_samples: int = 1000,
+    ) -> None:
         batchsize_per_replica = 16
         shuffle = False
-        num_samples = 1000
         dataset = datasets.ImageFolder(data_path)
         super().__init__(
             # pyre-fixme[6]
@@ -64,10 +73,13 @@ class TinyImageNetDataModule(pl.LightningDataModule):
     val_ds: TinyImageNetDataset
     test_ds: TinyImageNetDataset
 
-    def __init__(self, data_dir: str, batch_size: int = 16) -> None:
+    def __init__(
+        self, data_dir: str, batch_size: int = 16, num_samples: int = 1000
+    ) -> None:
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
+        self.num_samples = num_samples
 
     def setup(self, stage: Optional[str] = None) -> None:
         # Setup data loader and transforms
@@ -80,14 +92,17 @@ class TinyImageNetDataModule(pl.LightningDataModule):
         self.train_ds = TinyImageNetDataset(
             data_path=os.path.join(self.data_dir, "train"),
             transform=lambda x: (img_transform(x[0]), x[1]),
+            num_samples=self.num_samples,
         )
         self.val_ds = TinyImageNetDataset(
             data_path=os.path.join(self.data_dir, "val"),
             transform=lambda x: (img_transform(x[0]), x[1]),
+            num_samples=self.num_samples,
         )
         self.test_ds = TinyImageNetDataset(
             data_path=os.path.join(self.data_dir, "test"),
             transform=lambda x: (img_transform(x[0]), x[1]),
+            num_samples=self.num_samples,
         )
 
     def train_dataloader(self) -> DataLoader:
@@ -128,3 +143,67 @@ def download_data(remote_path: str, tmpdir: str) -> str:
         f.extractall(data_path)
 
     return data_path
+
+
+def create_random_data(output_path: str, num_images: int = 5) -> None:
+    """
+    Fills the given path with randomly generated 64x64 images.
+    This can be used for quick testing of the workflow of the model.
+    Does NOT pack the files into a tar, but does preprocess them.
+    """
+    train_path = os.path.join(output_path, "train")
+    class1_train_path = os.path.join(train_path, "class1")
+    class2_train_path = os.path.join(train_path, "class2")
+
+    val_path = os.path.join(output_path, "val")
+    class1_val_path = os.path.join(val_path, "class1")
+    class2_val_path = os.path.join(val_path, "class2")
+
+    test_path = os.path.join(output_path, "test")
+    class1_test_path = os.path.join(test_path, "class1")
+    class2_test_path = os.path.join(test_path, "class2")
+
+    paths = [
+        class1_train_path,
+        class1_val_path,
+        class1_test_path,
+        class2_train_path,
+        class2_val_path,
+        class2_test_path,
+    ]
+
+    for path in paths:
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+
+        for i in range(num_images):
+            pixels = numpy.random.rand(64, 64, 3) * 255
+            im = Image.fromarray(pixels.astype("uint8")).convert("RGB")
+            im.save(os.path.join(path, f"rand_image_{i}.jpeg"))
+
+    process_images(output_path)
+
+
+def process_images(img_root: str) -> None:
+    print("transforming images...")
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)),
+            transforms.ToPILImage(),
+        ]
+    )
+
+    image_files = []
+    for root, _, fnames in os.walk(img_root):
+        for fname in fnames:
+            path = os.path.join(root, fname)
+            if not is_image_file(path):
+                continue
+            image_files.append(path)
+    for path in tqdm(image_files, miniters=int(len(image_files) / 2000)):
+        f = Image.open(path)
+        f = transform(f)
+        f.save(path)
