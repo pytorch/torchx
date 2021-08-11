@@ -1,4 +1,4 @@
-name: DocBuild
+name: Docs Build
 
 on:
   push:
@@ -41,3 +41,31 @@ jobs:
         run: |
           cd docs
           make papermill
+
+  docpush:
+    runs-on: ubuntu-18.04
+    needs: docbuild
+    if: ${{ github.ref == 'refs/heads/master' }}
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Set Identity
+        run: |
+          set -ex
+          git config --global user.email "runner@github.com"
+          git config --global user.name "TorchX CI Runner"
+      - name: Build
+        run: |
+          set -ex
+          docs/doc_push.sh --dry-run
+      - name: Push
+        run: |
+          set -ex
+          cd /tmp/torchx_docs_tmp/torchx_gh_pages
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push
