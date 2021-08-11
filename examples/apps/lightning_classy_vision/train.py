@@ -18,6 +18,7 @@ the app agnostic to the environment it's running in.
 """
 
 import argparse
+import os
 import sys
 import tempfile
 from typing import List
@@ -28,7 +29,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 # ensure data and module are on the path
 sys.path.append("examples/apps/lightning_classy_vision")
-from data import TinyImageNetDataModule, download_data
+from data import TinyImageNetDataModule, download_data, create_random_data
 from model import TinyImageNetModel, export_inference_model
 
 
@@ -43,10 +44,14 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         "--batch_size", type=int, default=32, help="batch size to use for training"
     )
     parser.add_argument(
+        "--test",
+        help="Sets to test mode, training on a much smaller set of randomly generated images",
+        action="store_true",
+    )
+    parser.add_argument(
         "--data_path",
         type=str,
         help="path to load the training data from",
-        required=True,
     )
     parser.add_argument("--skip_export", action="store_true")
     parser.add_argument("--load_path", type=str, help="checkpoint path to load from")
@@ -74,10 +79,22 @@ def main(argv: List[str]) -> None:
         model = TinyImageNetModel()
 
         # Download and setup the data module
-        data_path = download_data(args.data_path, tmpdir)
+        if args.test:
+            data_path = os.path.join(tmpdir, "data")
+            os.makedirs(data_path)
+            create_random_data(data_path)
+        else:
+            if not args.data_path:
+                raise ValueError(
+                    "'--data_path' flag is not set. Please set it to the path to your data. "
+                    "If you meant to run in test mode, add the '--test' flag instead."
+                )
+            data_path = download_data(args.data_path, tmpdir)
+
         data = TinyImageNetDataModule(
             data_dir=data_path,
             batch_size=args.batch_size,
+            num_samples=5 if args.test else 1000,
         )
 
         # Setup model checkpointing
