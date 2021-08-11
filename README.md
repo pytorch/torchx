@@ -20,12 +20,28 @@ TorchX Kubeflow Pipelines Support (torchx-kfp):
 * kfp
 
 ## Installation
+
+### Release
+
 ```bash
 # install torchx sdk and CLI
 pip install torchx
 
 # install torchx kubeflow pipelines (kfp) support
 pip install "torchx[kfp]"
+
+# install torchx Kubernetes / Volcano support
+pip install "torchx[kubernetes]"
+```
+
+### Source
+
+```bash
+# install torchx sdk and CLI from source
+$ pip install -e git+https://github.com/pytorch/torchx.git
+
+# install extra dependencies
+$ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx[kubernetes]
 ```
 
 ## Quickstart
