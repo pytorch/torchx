@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Trainer Component Example" href="component.html" />
-    <link rel="prev" title="Data Preprocessing App Example" href="../datapreproc/datapreproc.html" />
+    <link rel="next" title="Model Interpretability App Example" href="interpret.html" />
+    <link rel="prev" title="Trainer Component Example" href="component.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -376,6 +376,7 @@ by the apps in the same folder.</p>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.jit</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">functional</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">torchmetrics</span> <span class="kn">import</span> <span class="n">Accuracy</span>
 
 
 <span class="k">class</span> <span class="nc">TinyImageNetModel</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
@@ -386,6 +387,8 @@ by the apps in the same folder.</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <a href="https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear" title="torch.nn.Linear" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span></a><span class="p">(</span><span class="mi">64</span> <span class="o">*</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">4096</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_acc</span> <span class="o">=</span> <span class="n">Accuracy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_acc</span> <span class="o">=</span> <span class="n">Accuracy</span><span class="p">()</span>
 
     <span class="c1"># pyre-fixme[14]</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">:</span>
@@ -393,10 +396,30 @@ by the apps in the same folder.</p>
 
     <span class="c1"># pyre-fixme[14]</span>
     <span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Tuple</span></a><span class="p">[</span><a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">,</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">],</span> <span class="n">batch_nb</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Tuple</span></a><span class="p">[</span><a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">,</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">],</span> <span class="n">batch_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_acc</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">)</span>
+
+    <span class="c1"># pyre-fixme[14]</span>
+    <span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">val_batch</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Tuple</span></a><span class="p">[</span><a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">,</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">],</span> <span class="n">batch_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_acc</span><span class="p">,</span> <span class="n">val_batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">acc_metric</span><span class="p">:</span> <span class="n">Accuracy</span><span class="p">,</span>
+        <span class="n">batch</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Tuple</span></a><span class="p">[</span><a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">,</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">],</span>
+        <span class="n">batch_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">:</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">batch</span>
-        <span class="n">loss</span> <span class="o">=</span> <a href="https://pytorch.org/docs/stable/generated/torch.nn.functional.cross_entropy.html#torch.nn.functional.cross_entropy" title="torch.nn.functional.cross_entropy" class="sphx-glr-backref-module-torch-nn-functional sphx-glr-backref-type-py-function"><span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span></a><span class="p">(</span><span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">y_pred</span> <span class="o">=</span> <a href="https://pytorch.org/docs/stable/generated/torch.max.html#torch.max" title="torch.max" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-function"><span class="n">torch</span><span class="o">.</span><span class="n">max</span></a><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <a href="https://pytorch.org/docs/stable/generated/torch.nn.functional.cross_entropy.html#torch.nn.functional.cross_entropy" title="torch.nn.functional.cross_entropy" class="sphx-glr-backref-module-torch-nn-functional sphx-glr-backref-type-py-function"><span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span></a><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2">_loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+        <span class="n">acc_metric</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s2">_acc&quot;</span><span class="p">,</span> <span class="n">acc_metric</span><span class="o">.</span><span class="n">compute</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">loss</span>
 
     <span class="c1"># pyre-fixme[3]: TODO(aivanou): Figure out why oss pyre can identify type but fb cannot.</span>
@@ -468,10 +491,10 @@ by the apps in the same folder.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="component.html" class="btn btn-neutral float-right" title="Trainer Component Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="interpret.html" class="btn btn-neutral float-right" title="Model Interpretability App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../datapreproc/datapreproc.html" class="btn btn-neutral" title="Data Preprocessing App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="component.html" class="btn btn-neutral" title="Trainer Component Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
