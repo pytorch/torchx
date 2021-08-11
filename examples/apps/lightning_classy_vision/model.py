@@ -21,6 +21,7 @@ import pytorch_lightning as pl
 import torch
 import torch.jit
 from torch.nn import functional as F
+from torchmetrics import Accuracy
 
 
 class TinyImageNetModel(pl.LightningModule):
@@ -31,6 +32,8 @@ class TinyImageNetModel(pl.LightningModule):
     def __init__(self) -> None:
         super().__init__()
         self.l1 = torch.nn.Linear(64 * 64, 4096)
+        self.train_acc = Accuracy()
+        self.val_acc = Accuracy()
 
     # pyre-fixme[14]
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -38,10 +41,30 @@ class TinyImageNetModel(pl.LightningModule):
 
     # pyre-fixme[14]
     def training_step(
-        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
+        return self._step("train", self.train_acc, batch, batch_idx)
+
+    # pyre-fixme[14]
+    def validation_step(
+        self, val_batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
+        return self._step("val", self.val_acc, val_batch, batch_idx)
+
+    def _step(
+        self,
+        step_name: str,
+        acc_metric: Accuracy,
+        batch: Tuple[torch.Tensor, torch.Tensor],
+        batch_idx: int,
     ) -> torch.Tensor:
         x, y = batch
-        loss = F.cross_entropy(self(x), y)
+        output = self(x)
+        _, y_pred = torch.max(output, dim=1)
+        loss = F.cross_entropy(output, y)
+        self.log(f"{step_name}_loss", loss)
+        acc_metric(y_pred, y)
+        self.log(f"{step_name}_acc", acc_metric.compute())
         return loss
 
     # pyre-fixme[3]: TODO(aivanou): Figure out why oss pyre can identify type but fb cannot.
