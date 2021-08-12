@@ -98,11 +98,6 @@ class LocalDirectoryImageProvider(ImageProvider):
                          and if it does not exist or is not a directory
 
         """
-        if not os.path.isabs(image):
-            raise ValueError(
-                f"Invalid image name: {image}, image name must be an absolute path"
-            )
-
         if not os.path.isdir(image):
             raise ValueError(
                 f"Invalid image name: {image}, does not exist or is not a directory"
