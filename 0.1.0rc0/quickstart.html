@@ -532,9 +532,9 @@ required by the scheduler you are planning to use</p>
 </div>
 <p>Now that you’ve figured out what scheduler args are required, launch your app</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; --scheduler_args &lt;<span class="nv">k1</span><span class="o">=</span>v1,k2<span class="o">=</span>v2,...&gt; <span class="se">\</span>
-<span class="go">    ~/my_app.py &lt;app_args...&gt;</span>
+<span class="go">    utils.sh ~/my_app.py &lt;app_args...&gt;</span>
 <span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_type</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp <span class="se">\</span>
-<span class="go">    ~/my_app.py --foo=bar</span>
+<span class="go">    utils.sh ~/my_app.py --foo=bar</span>
 </pre></div>
 </div>
 <div class="admonition note">

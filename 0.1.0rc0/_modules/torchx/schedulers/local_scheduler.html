@@ -434,11 +434,6 @@
 <span class="sd">                         and if it does not exist or is not a directory</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid image name: </span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">, image name must be an absolute path&quot;</span>
-            <span class="p">)</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Invalid image name: </span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">, does not exist or is not a directory&quot;</span>
