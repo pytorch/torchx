@@ -66,7 +66,8 @@ def touch(file: str) -> specs.AppDef:
 
 def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
     """
-    Runs the provided command via sh.
+    Runs the provided command via sh. Currently sh does not support
+    environment vairable substitution.
 
     Args:
         args: bash arguments
@@ -74,6 +75,9 @@ def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
         num_replicas: number of replicas to run
 
     """
+
+    escaped_args = " ".join(shlex.quote(arg) for arg in args)
+
     return specs.AppDef(
         name="sh",
         roles=[
@@ -81,7 +85,7 @@ def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
                 name="sh",
                 image=image,
                 entrypoint="/bin/sh",
-                args=["-c", shlex.join(args)],
+                args=["-c", escaped_args],
                 num_replicas=num_replicas,
             )
         ],
