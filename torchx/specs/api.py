@@ -46,11 +46,15 @@ class Resource:
     Represents resource requirements for a ``Role``.
 
     Args:
-        cpu: number of cpu cores (note: not hyper threads)
+        cpu: number of logical cpu cores. The definition of a CPU core depends
+            on the scheduler. See your scheduler documentation for how a logical
+            CPU core maps to physical cores and threads.
         gpu: number of gpus
         memMB: MB of ram
         capabilities: additional hardware specs (interpreted by scheduler)
 
+    Note: you should prefer to use named_resources instead of specifying the raw
+    resource requirement directly.
     """
 
     cpu: int
