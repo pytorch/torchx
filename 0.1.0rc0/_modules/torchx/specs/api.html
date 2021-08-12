@@ -382,11 +382,15 @@
 <span class="sd">    Represents resource requirements for a ``Role``.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        cpu: number of cpu cores (note: not hyper threads)</span>
+<span class="sd">        cpu: number of logical cpu cores. The definition of a CPU core depends</span>
+<span class="sd">            on the scheduler. See your scheduler documentation for how a logical</span>
+<span class="sd">            CPU core maps to physical cores and threads.</span>
 <span class="sd">        gpu: number of gpus</span>
 <span class="sd">        memMB: MB of ram</span>
 <span class="sd">        capabilities: additional hardware specs (interpreted by scheduler)</span>
 
+<span class="sd">    Note: you should prefer to use named_resources instead of specifying the raw</span>
+<span class="sd">    resource requirement directly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span>
