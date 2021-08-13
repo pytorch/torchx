@@ -6,4 +6,8 @@
 
 """
 <COMING SOON>
+
+Hyperparameter optimization support is not yet available.
+
+For progress and more info see: https://github.com/pytorch/torchx/issues/71
 """

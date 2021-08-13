@@ -44,7 +44,7 @@ We can see that it takes a ``--msg`` argument. Lets try running it locally
 .. note:: ``echo`` in this context is just an app spec. It is not the application
           logic itself but rather just the "job definition" for running `/bin/echo`.
           If you haven't done so already, this is a good time to read through the
-          :ref:`Basic Concepts<Basics>` familiarize yourself with the basic concepts.
+          :ref:`Basic Concepts<basics:Basics>` familiarize yourself with the basic concepts.
 
 Defining Your Own Component
 ----------------------------
@@ -122,7 +122,7 @@ Had we specified ``entrypoint=echo`` the local scheduler would have tried to inv
 If you have a pre-built application binary, setting the image to a local directory is a
 quick way to validate the application and the ``specs.AppDef``. But its not all
 that useful if you want to run the application on a remote scheduler
-(see :ref:`Running On Other Schedulers`).
+(see :ref:`quickstart:Running On Other Schedulers`).
 
 .. note:: The ``image`` string in ``specs.Role`` is an identifier to a container image
           supported by the scheduler. Refer to the scheduler documentation to find out
@@ -232,8 +232,8 @@ Now that you've figured out what scheduler args are required, launch your app
 
 Next Steps
 ------------
-1. Checkout other features of the :ref:`torchx CLI<CLI>`
-2. Learn how to author more complex app specs by referencing :ref:`torchx.specs`
-3. Browse through the collection of :ref:`builtin components<Components Library>`
+1. Checkout other features of the :ref:`torchx CLI<cli:CLI>`
+2. Learn how to author more complex app specs by referencing :ref:`specs:torchx.specs`
+3. Browse through the collection of :ref:`builtin components<index:Components Library>`
 4. Take a look at the :ref:`list of schedulers<Schedulers>` supported by the runner
 5. See which :ref:`ML pipeline platforms<Pipelines>` you can run components on

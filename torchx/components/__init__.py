@@ -12,7 +12,7 @@ of job definitions. The functions that return ``specs.AppDef`` in this
 module are what we refer to as components.
 
 You can browse the library of components in the ``torchx.components`` module
-or on our :ref:`docs page<Components Library>`.
+or on our :ref:`docs page<index:Components Library>`.
 
 Components can be used out of the box by either torchx cli or torchx sdk.
 

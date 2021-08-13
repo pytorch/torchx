@@ -32,6 +32,10 @@ def ddp(
     """
     Distributed data parallel style application (one role, multi-replica).
 
+    This uses `Torch Elastic
+    <https://pytorch.org/docs/stable/distributed.elastic.html>`_ to manage the
+    distributed workers.
+
     Args:
         image: container image.
         entrypoint: script or binary to run within the image.
