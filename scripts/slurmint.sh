@@ -38,20 +38,14 @@ function cleanup {
 }
 trap cleanup EXIT
 
+
 REMOTE_WHEEL="$DIR/$(basename "$WHEEL")"
+
+SCRIPT="scripts/slurmtest.sh"
+REMOTE_SCRIPT="$DIR/$(basename "$SCRIPT")"
 
 run_cmd mkdir "$DIR"
 run_cmd virtualenv -p /usr/bin/python3.8 "$VENV"
 run_scp "$WHEEL" "$REMOTE_WHEEL"
-run_cmd "\
-    set -ex && \
-    source /opt/slurm/etc/slurm.sh && \
-    sbatch --version && \
-    source $VENV/bin/activate && \
-    python --version && \
-    pip install $REMOTE_WHEEL && \
-    APP_ID=\"\$(torchx run --wait --scheduler slurm  utils.echo --num_replicas 3)\" && \
-    torchx status \"\$APP_ID\" && \
-    torchx describe \"\$APP_ID\" && \
-    cat \"slurm-\$(basename \$APP_ID).out\" \
-"
+run_scp "$SCRIPT" "$REMOTE_SCRIPT"
+run_cmd "$REMOTE_SCRIPT" "$REMOTE_WHEEL" "$VENV"
