@@ -29,6 +29,9 @@ class SlurmSchedulerTest(unittest.TestCase):
             image="/some/path",
             entrypoint="echo",
             args=["hello slurm", "test"],
+            env={
+                "FOO": "bar",
+            },
             num_replicas=5,
             resource=specs.Resource(
                 cpu=2,
@@ -36,19 +39,22 @@ class SlurmSchedulerTest(unittest.TestCase):
                 gpu=3,
             ),
         )
-        script = SlurmReplicaRequest.from_role(role, specs.RunConfig()).materialize()
+        sbatch, srun = SlurmReplicaRequest.from_role(
+            "role-name", role, specs.RunConfig()
+        ).materialize()
         self.assertEqual(
-            script,
-            """#!/bin/sh
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=10
-#SBATCH --gpus-per-task=3
-
-# exit on error
-set -e
-
-srun --chdir=/some/path echo 'hello slurm' test
-""",
+            sbatch,
+            [
+                "--job-name=role-name",
+                "--ntasks-per-node=1",
+                "--cpus-per-task=2",
+                "--mem=10",
+                "--gpus-per-task=3",
+            ],
+        )
+        self.assertEqual(
+            srun,
+            ["--chdir=/some/path", "--export=FOO=bar", "echo", "'hello slurm'", "test"],
         )
 
     def test_replica_request_app_id(self) -> None:
@@ -58,10 +64,12 @@ srun --chdir=/some/path echo 'hello slurm' test
             entrypoint="echo",
             args=[f"hello {specs.macros.app_id}"],
         )
-        script = SlurmReplicaRequest.from_role(role, specs.RunConfig()).materialize()
+        _, srun = SlurmReplicaRequest.from_role(
+            "role-name", role, specs.RunConfig()
+        ).materialize()
         self.assertIn(
             "echo 'hello '\"$SLURM_JOB_ID\"''",
-            script,
+            " ".join(srun),
         )
 
     def test_replica_request_run_config(self) -> None:
@@ -73,10 +81,10 @@ srun --chdir=/some/path echo 'hello slurm' test
         )
         cfg = specs.RunConfig()
         cfg.set("foo", "bar")
-        script = SlurmReplicaRequest.from_role(role, cfg).materialize()
+        sbatch, _ = SlurmReplicaRequest.from_role("role-name", role, cfg).materialize()
         self.assertIn(
-            "#SBATCH --foo=bar",
-            script,
+            "--foo=bar",
+            sbatch,
         )
 
     def test_dryrun_multi_role(self) -> None:
@@ -101,16 +109,18 @@ srun --chdir=/some/path echo 'hello slurm' test
         info = scheduler.submit_dryrun(app, specs.RunConfig())
         req = info.request
         self.assertIsInstance(req, SlurmBatchRequest)
-        self.assertEqual(req.cmd, ["sbatch", "--parsable", "--job-name", "foo"])
+        self.assertEqual(req.cmd, ["sbatch", "--parsable"])
         self.assertEqual(
             set(req.replicas.keys()),
-            {"role-0-a-0.sh", "role-0-a-1.sh", "role-1-b-0.sh"},
+            {"foo-a-0", "foo-a-1", "foo-b-0"},
         )
+
+        cmd, script = req.materialize()
 
         # check macro substitution
         self.assertIn(
             "echo 1 'hello '\"$SLURM_JOB_ID\"''",
-            req.replicas["role-0-a-1.sh"].materialize(),
+            script,
         )
 
     @patch("subprocess.run")
@@ -141,13 +151,21 @@ srun --chdir=/some/path echo 'hello slurm' test
         args, kwargs = run.call_args
         self.assertEqual(kwargs, {"stdout": subprocess.PIPE, "check": True})
         (args,) = args
-        self.assertEqual(len(args), 9)
-        self.assertEqual(args[:4], ["sbatch", "--parsable", "--job-name", "foo"])
-        self.assertTrue(args[4].endswith("role-0-a-0.sh"))
-        self.assertEqual(args[5], ":")
-        self.assertTrue(args[6].endswith("role-0-a-1.sh"))
-        self.assertEqual(args[7], ":")
-        self.assertTrue(args[8].endswith("role-1-b-0.sh"))
+        self.assertEqual(
+            args[:-1],
+            [
+                "sbatch",
+                "--parsable",
+                "--job-name=foo-a-0",
+                "--ntasks-per-node=1",
+                ":",
+                "--job-name=foo-a-1",
+                "--ntasks-per-node=1",
+                ":",
+                "--job-name=foo-b-0",
+                "--ntasks-per-node=1",
+            ],
+        )
 
     @patch("torchx.schedulers.slurm_scheduler.SlurmScheduler.describe")
     @patch("subprocess.run")
@@ -162,31 +180,39 @@ srun --chdir=/some/path echo 'hello slurm' test
 
     @patch("subprocess.run")
     def test_describe_completed(self, run: MagicMock) -> None:
-        run.return_value.stdout = b"""JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
-53|echo|compute||1|COMPLETED|0:0
-53.batch|batch|||1|COMPLETED|0:0
-53.0|echo|||1|COMPLETED|0:0"""
+        run.return_value.stdout = b"""
+JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode|
+176+0|echo-echo-0|compute||1|COMPLETED|0:0|
+176+0.batch|batch|||1|COMPLETED|0:0|
+176+0.0|echo|||1|COMPLETED|0:0|
+176+1|echo-echo-1|compute||1|COMPLETED|0:0|
+176+1.0|echo|||1|COMPLETED|0:0|
+176+2|echo-echo-2|compute||1|COMPLETED|0:0|
+176+2.0|echo|||1|COMPLETED|0:0|
+""".strip()
 
         scheduler = create_scheduler("foo")
-        out = scheduler.describe("53")
+        out = scheduler.describe(app_id="176")
 
         self.assertEqual(run.call_count, 1)
         self.assertEqual(
             run.call_args,
             call(
-                ["sacct", "--parsable2", "-j", "53"], stdout=subprocess.PIPE, check=True
+                ["sacct", "--parsable2", "-j", "176"],
+                stdout=subprocess.PIPE,
+                check=True,
             ),
         )
 
         self.assertIsNotNone(out)
-        self.assertEqual(out.app_id, "53")
+        self.assertEqual(out.app_id, "176")
         self.assertEqual(out.msg, "COMPLETED")
         self.assertEqual(out.state, specs.AppState.SUCCEEDED)
 
     @patch("subprocess.run")
     def test_describe_running(self, run: MagicMock) -> None:
         run.return_value.stdout = b"""JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
-54|echo|compute||1|RUNNING|0:0"""
+54|echo-echo-0|compute||1|RUNNING|0:0"""
 
         scheduler = create_scheduler("foo")
         out = scheduler.describe("54")
