@@ -14,7 +14,7 @@ if (downloadNote.length >= 1) {
 
     var version = $(".version").text().trim().split(" ")[0].substr(1);
 
-    var githubLink = "https://github.com/pytorch/torchx/blob/master/examples/" + tutorialUrlArray.join("/") + ".py",
+    var githubLink = "https://github.com/pytorch/torchx/blob/main/examples/" + tutorialUrlArray.join("/") + ".py",
         notebookLink = $(".reference.download")[1].href,
         notebookDownloadPath = notebookLink.split('_downloads')[1],
         colabLink = "https://colab.research.google.com/github/pytorch/torchx/blob/gh-pages/" + version + "/_downloads" + notebookDownloadPath;

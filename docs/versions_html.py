@@ -34,10 +34,10 @@ VERSIONS_HTML_TEMPLATE = Template(
     <meta charset="utf-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="master/_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="main/_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" type="text/css" />
-    <link rel="stylesheet" href="master/_static/css/pytorch_theme.css" type="text/css" />
-    <script src="master/_static/js/modernizr.min.js"></script>
+    <link rel="stylesheet" href="main/_static/css/pytorch_theme.css" type="text/css" />
+    <script src="main/_static/js/modernizr.min.js"></script>
 
 
   </head>
@@ -65,14 +65,14 @@ VERSION_TEMPLATE = Template("""
 # fmt: on
 
 TAGS = {
-    "master": "(unstable)",
+    "main": "(unstable)",
     "latest": "(pre-release)",
     "stable": "(stable release)",
 }
 
 # map tags to faux versions for sorting
 TAGS_VER_PROXY = {
-    "master": Version("0.0.0.dev2"),
+    "main": Version("0.0.0.dev2"),
     "latest": Version("0.0.0.dev1"),
     "stable": Version("0.0.0.dev0"),
 }

@@ -11,17 +11,17 @@
 #
 # 1. sphinx generated docs are copied to <repo-root>/<version>
 # 2. if a release tag is found on HEAD then redirects are copied to <repo-root>/latest
-# 3. if no release tag is found on HEAD then redirects are copied to <repo-root>/master
+# 3. if no release tag is found on HEAD then redirects are copied to <repo-root>/main
 #
 # gh-pages branch should look as follows:
 # <repo-root>
 #           |- 0.1.0rc2
 #           |- 0.1.0rc3
 #           |- <versions...>
-#           |- master (redirects to the most recent ver in trunk, including release)
+#           |- main (redirects to the most recent ver in trunk, including release)
 #           |- latest (redirects to the most recent release)
-# If the most recent  release is 0.1.0 and master is at 0.1.1rc1 then,
-# https://pytorch.org/torchx/master -> https://pytorch.org/torchx/0.1.1rc1
+# If the most recent  release is 0.1.0 and main is at 0.1.1rc1 then,
+# https://pytorch.org/torchx/main -> https://pytorch.org/torchx/0.1.1rc1
 # https://pytorch.org/torchx/latest -> https://pytorch.org/torchx/0.1.0
 #
 # Redirects are done via Jekyll redirect-from  plugin. See:
@@ -46,12 +46,12 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 commit_id=$(git rev-parse --short HEAD)
 
 if ! release_tag=$(git describe --tags --exact-match HEAD 2>/dev/null); then
-    echo "No release tag found, building docs for master..."
-    redirects=(master)
-    release_tag="master"
+    echo "No release tag found, building docs for main..."
+    redirects=(main)
+    release_tag="main"
 else
     echo "Release tag $release_tag found, building docs for release..."
-    redirects=(latest master)
+    redirects=(latest main)
 fi
 
 echo "Installing torchx from $repo_root..."
