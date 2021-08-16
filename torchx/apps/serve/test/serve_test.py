@@ -55,5 +55,8 @@ class ServeTest(unittest.TestCase):
                     "modelname",
                     "--initial_workers",
                     "2",
+                    # use ephemeral port to avoid stress test collisions
+                    "--port",
+                    "0",
                 ]
             )
