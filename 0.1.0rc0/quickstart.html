@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; PyTorch/TorchX master documentation</title>
+  <title>Quickstart &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -499,10 +499,10 @@ in <code class="docutils literal notranslate"><span class="pre">~/test.py</span>
 </div>
 <p>Try running the echo app</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> <span class="se">\</span>
-<span class="go">             --scheduler_args image_type=docker \</span>
-<span class="go">             ~/test.py:echo \</span>
-<span class="go">             --num_replicas 4 \</span>
-<span class="go">             --msg &quot;foobar from docker!&quot;</span>
+             --scheduler_args <span class="nv">image_type</span><span class="o">=</span>docker <span class="se">\</span>
+             ~/test.py:echo <span class="se">\</span>
+             --num_replicas <span class="m">4</span> <span class="se">\</span>
+             --msg <span class="s2">&quot;foobar from docker!&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -532,9 +532,9 @@ required by the scheduler you are planning to use</p>
 </div>
 <p>Now that you’ve figured out what scheduler args are required, launch your app</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; --scheduler_args &lt;<span class="nv">k1</span><span class="o">=</span>v1,k2<span class="o">=</span>v2,...&gt; <span class="se">\</span>
-<span class="go">    utils.sh ~/my_app.py &lt;app_args...&gt;</span>
+    utils.sh ~/my_app.py &lt;app_args...&gt;
 <span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_type</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp <span class="se">\</span>
-<span class="go">    utils.sh ~/my_app.py --foo=bar</span>
+    utils.sh ~/my_app.py --foo<span class="o">=</span>bar
 </pre></div>
 </div>
 <div class="admonition note">
