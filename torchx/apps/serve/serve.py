@@ -56,6 +56,13 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="timeout for requests to management api",
         default=60,
     )
+    parser.add_argument(
+        "--port",
+        type=int,
+        help="""port for the HTTP file server to listen on when torchserve is loading the model.
+          This must be accessible from the torchserve instance.""",
+        default=8222,
+    )
 
     # arguments from https://pytorch.org/serve/management_api.html#register-a-model
     for param in TORCHSERVE_PARAMS:
@@ -98,7 +105,7 @@ def main(argv: List[str]) -> None:
         assert len(rpaths) == 1, "must have single path"
         fs.get(rpaths[0], model_path)
 
-        addr = ("", 8222)
+        addr = ("", args.port)
         print(f"starting HTTP server at {addr}...")
 
         handler_class = partial(SimpleHTTPRequestHandler, directory=tmpdir)
@@ -113,7 +120,7 @@ def main(argv: List[str]) -> None:
             t.start()
 
             ip_address = get_routable_ip_to(args.management_api)
-            model_url = f"http://{ip_address}:{addr[1]}/{model_file}"
+            model_url = f"http://{ip_address}:{server.server_port}/{model_file}"
             print(f"serving file at {model_url}")
 
             url = f"{args.management_api}/models"
