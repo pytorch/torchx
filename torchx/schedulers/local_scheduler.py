@@ -29,6 +29,7 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     InvalidRunConfigException,
+    Role,
     RunConfig,
     SchedulerBackend,
     is_terminal,
@@ -546,6 +547,23 @@ class LocalScheduler(Scheduler):
         request = self._to_popen_request(app, cfg)
         return AppDryRunInfo(request, lambda p: pprint.pformat(p, indent=2, width=80))
 
+    def _get_base_image_runner_cmd(self, cfg: RunConfig, role: Role) -> str:
+        """
+        Returns the command (in absolute path, e.g. /bin/foobar) that is
+        used to run the image + base_image when base_image is specified on
+        the role. If you are not sure what a base_image is, then its a good
+        sign that the concept of a base_image is not applicable to your
+        infrastructure, hence this method should not be overridden and
+        users should be discouraged from setting the base_image parameter
+        in their role specs.
+        """
+        raise NotImplementedError(
+            f"This scheduler does not support base_images."
+            f" Role <{role.name}> specifies base_image={role.base_image}."
+            f" Either use a scheduler that supports base_image"
+            f" or remove the base_image from the role."
+        )
+
     def _to_popen_request(
         self,
         app: AppDef,
@@ -566,11 +584,18 @@ class LocalScheduler(Scheduler):
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
             img_root = image_provider.fetch(role.image)
-            cmd = os.path.join(img_root, role.entrypoint)
+            base_image = role.base_image
+            if base_image:
+                cmd = self._get_base_image_runner_cmd(cfg, role)
+                base_img_root = image_provider.fetch(base_image)
+            else:
+                cmd = os.path.join(img_root, role.entrypoint)
+                base_img_root = NONE
 
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
                     img_root=img_root,
+                    base_img_root=base_img_root,
                     app_id=app_id,
                     replica_id=str(replica_id),
                 )

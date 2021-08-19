@@ -26,14 +26,7 @@ from torchx.schedulers.local_scheduler import (
     LocalScheduler,
     make_unique,
 )
-from torchx.specs.api import (
-    AppDef,
-    AppState,
-    Role,
-    RunConfig,
-    is_terminal,
-    macros,
-)
+from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
 
 from .test_util import write_shell_script
 
@@ -639,3 +632,21 @@ class LocalSchedulerTest(unittest.TestCase):
         desc = self.wait(app_id)
         assert desc is not None
         self.assertEqual(AppState.FAILED, desc.state)
+
+    def test_dryrun_base_image_should_throw(self) -> None:
+        # base_image for vanilla local_scheduler shouldn't work
+        app = AppDef(
+            name="base_image_test_app",
+            roles=[
+                Role(
+                    name="base_image_test_role",
+                    image=self.test_dir,
+                    base_image=self.test_dir,
+                    entrypoint="touch.sh",
+                    args=[join(self.test_dir, "testfile1")],
+                ),
+            ],
+        )
+
+        with self.assertRaises(NotImplementedError):
+            self.scheduler.submit_dryrun(app, RunConfig())
