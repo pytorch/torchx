@@ -365,6 +365,7 @@
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
     <span class="n">InvalidRunConfigException</span><span class="p">,</span>
+    <span class="n">Role</span><span class="p">,</span>
     <span class="n">RunConfig</span><span class="p">,</span>
     <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">is_terminal</span><span class="p">,</span>
@@ -882,6 +883,23 @@
         <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_popen_request</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">))</span>
 
+    <span class="k">def</span> <span class="nf">_get_base_image_runner_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the command (in absolute path, e.g. /bin/foobar) that is</span>
+<span class="sd">        used to run the image + base_image when base_image is specified on</span>
+<span class="sd">        the role. If you are not sure what a base_image is, then its a good</span>
+<span class="sd">        sign that the concept of a base_image is not applicable to your</span>
+<span class="sd">        infrastructure, hence this method should not be overridden and</span>
+<span class="sd">        users should be discouraged from setting the base_image parameter</span>
+<span class="sd">        in their role specs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;This scheduler does not support base_images.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Role &lt;</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt; specifies base_image=</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">base_image</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Either use a scheduler that supports base_image&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; or remove the base_image from the role.&quot;</span>
+        <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_to_popen_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
@@ -902,11 +920,18 @@
             <span class="n">replica_log_dirs</span> <span class="o">=</span> <span class="n">role_log_dirs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
 
             <span class="n">img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span>
+            <span class="n">base_image</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">base_image</span>
+            <span class="k">if</span> <span class="n">base_image</span><span class="p">:</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_base_image_runner_cmd</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+                <span class="n">base_img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">base_image</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span>
+                <span class="n">base_img_root</span> <span class="o">=</span> <span class="n">NONE</span>
 
             <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
                     <span class="n">img_root</span><span class="o">=</span><span class="n">img_root</span><span class="p">,</span>
+                    <span class="n">base_img_root</span><span class="o">=</span><span class="n">base_img_root</span><span class="p">,</span>
                     <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
                     <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
                 <span class="p">)</span>
