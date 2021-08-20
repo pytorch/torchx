@@ -6,8 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import json
+import multiprocessing as mp
 import os
 import shutil
+import signal
 import subprocess
 import tempfile
 import time
@@ -18,10 +20,12 @@ from typing import Optional
 from unittest import mock
 from unittest.mock import MagicMock, call, patch
 
+from pyre_extensions import none_throws
 from torchx.components.base.binary_component import binary_component
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     DockerImageProvider,
+    SignalException,
     LocalDirectoryImageProvider,
     LocalScheduler,
     make_unique,
@@ -34,6 +38,48 @@ from .test_util import write_shell_script
 LOCAL_DIR_IMAGE_PROVIDER_FETCH = (
     "torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch"
 )
+
+
+def start_sleep_processes(
+    test_dir: str,
+    mp_queue: mp.Queue,
+    num_replicas: int = 2,
+) -> None:
+    """
+    Starts processes
+    """
+
+    print("starting start_sleep_processes")
+    role = Role(
+        "role1",
+        image=test_dir,
+        entrypoint="sleep.sh",
+        args=["600"],  # seconds
+        num_replicas=num_replicas,
+    )
+
+    app = AppDef(name="test_app", roles=[role])
+    cfg = RunConfig({"log_dir": test_dir})
+
+    scheduler = LocalScheduler(session_name="test_session")
+    app_id = scheduler.submit(app, cfg)
+
+    my_pid = os.getpid()
+    mp_queue.put(my_pid)
+    for app in scheduler._apps.values():
+        for replicas in app.role_replicas.values():
+            for replica in replicas:
+                mp_queue.put(replica.proc.pid)
+
+    while True:
+        try:
+            app_status = scheduler.describe(app_id)
+            if none_throws(app_status).state == AppState.SUCCEEDED:
+                raise RuntimeError("Child processes should not succeed in this test")
+            time.sleep(2)  # 2 seconds
+        except SignalException as e:
+            scheduler._cancel_existing(app_id)
+            break
 
 
 class LocalDirImageProviderTest(unittest.TestCase):
@@ -650,3 +696,32 @@ class LocalSchedulerTest(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             self.scheduler.submit_dryrun(app, RunConfig())
+
+    def test_no_orphan_process_function(self) -> None:
+        signals = [signal.SIGTERM]
+        for s in signals:
+            self._test_orphan_workflow(s)
+
+    def _test_orphan_workflow(self, signal_to_send: signal.Signals) -> None:
+        mp_queue = mp.get_context("spawn").Queue()
+        child_nproc = 2
+
+        proc = mp.get_context("spawn").Process(
+            target=start_sleep_processes, args=(self.test_dir, mp_queue, child_nproc)
+        )
+        proc.start()
+        total_processes = child_nproc + 1
+        pids = []
+        for _ in range(total_processes):
+            pids.append(mp_queue.get(timeout=5))
+        parent_pid = pids[0]
+        child_pids = pids[1:]
+
+        os.kill(parent_pid, signal.SIGTERM)
+        # Wait to give time for signal handlers to finish work
+        time.sleep(5)
+        for child_pid in child_pids:
+            # Killing parent should kill all children, we expect that each call to
+            # os.kill would raise OSError
+            with self.assertRaises(OSError):
+                os.kill(child_pid, 0)
