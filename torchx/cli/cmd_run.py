@@ -111,18 +111,21 @@ class CmdRun(SubCommand):
             logger.info(app_dryrun_info)
         else:
             app_handle = cast(specs.AppHandle, result)
-            print(app_handle)
-            if args.scheduler == "local":
-                self._wait_and_exit(runner, app_handle)
-            else:
-                logger.info("=== RUN RESULT ===")
-                logger.info(f"Launched app: {app_handle}")
-                status = runner.status(app_handle)
-                logger.info(status)
-                logger.info(f"Job URL: {none_throws(status).ui_url}")
-
-                if args.wait:
+            try:
+                print(app_handle)
+                if args.scheduler == "local":
                     self._wait_and_exit(runner, app_handle)
+                else:
+                    logger.info("=== RUN RESULT ===")
+                    logger.info(f"Launched app: {app_handle}")
+                    status = runner.status(app_handle)
+                    logger.info(status)
+                    logger.info(f"Job URL: {none_throws(status).ui_url}")
+
+                    if args.wait:
+                        self._wait_and_exit(runner, app_handle)
+            finally:
+                runner.stop(app_handle)
 
     def _wait_and_exit(self, runner: Runner, app_handle: str) -> None:
         logger.info("Waiting for the app to finish...")

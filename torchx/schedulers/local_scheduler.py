@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import abc
-import ctypes
 import json
 import logging
 import os
@@ -20,6 +19,7 @@ import time
 import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
+from types import FrameType
 from typing import Any, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
 from uuid import uuid4
 
@@ -46,6 +46,30 @@ def make_unique(app_name: str) -> str:
 
 
 NA: str = "<N/A>"
+
+
+class SignalException(Exception):
+    """
+    Exception is raised during the runtime when the torchx local scheduler process
+    got termination signal.
+    """
+
+    def __init__(self, msg: str, sigval: signal.Signals) -> None:
+        super().__init__(msg)
+        self.sigval = sigval
+
+
+def _terminate_process_handler(signum: int, frame: FrameType) -> None:
+    """Termination handler that raises exceptions on the main process.
+
+    When the process receives death signal(SIGTERM, SIGINT), this termination handler will
+    be invoked. It raises the ``SignalException`` exception that should be processed by the
+    user code. Python does not terminate process after the termination handler is finished,
+    so the exception should not be silently ignored, otherwise the process will never
+    be terminated.
+    """
+    sigval = signal.Signals(signum)
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
 
 
 class ImageProvider(abc.ABC):
@@ -167,8 +191,10 @@ class _LocalReplica:
         safe to call multiple times
         """
         # safe to call terminate on a process that already died
-        self.proc.terminate()
-        self.proc.wait()
+        try:
+            os.killpg(self.proc.pid, signal.SIGTERM)
+        except ProcessLookupError as e:
+            log.info(f"Process {self.proc.pid} already got terminated")
 
         # close stdout and stderr log file handles
         if self.stdout:
@@ -212,16 +238,40 @@ class _LocalAppDef:
         self.last_updated = time.time()
         self.state = state
 
-    def terminate(self) -> None:
+    def kill(self) -> None:
         """
         terminates all procs associated with this app,
         and closes any resources (e.g. log file handles)
         safe to call multiple times
+
+        The termination consists of two stages:
+        1. Send SIGTERM signal to the child processes and wait for them to terminate.
+        2. If timeout passed and child processes are still alive, terminate them via SIGKILL.
         """
         # terminate all replica processes
         for replicas in self.role_replicas.values():
             for r in replicas:
                 r.terminate()
+        timeout = 10  # seconds
+        end = time.monotonic() + timeout
+        for replicas in self.role_replicas.values():
+            for r in replicas:
+                time_to_wait = end - time.monotonic()
+                if time_to_wait <= 0:
+                    break
+                try:
+                    r.proc.wait(time_to_wait)
+                except subprocess.TimeoutExpired:
+                    # Ignore the timeout expired exception, since
+                    # the child process will be forcefully terminated via SIGKILL
+                    pass
+        for replicas in self.role_replicas.values():
+            for r in replicas:
+                if r.proc.poll() is None:
+                    r.proc.kill()
+        for replicas in self.role_replicas.values():
+            for r in replicas:
+                r.proc.wait()
 
     def _get_error_file(self) -> Optional[str]:
         error_file = None
@@ -253,7 +303,7 @@ class _LocalAppDef:
         have been flushed and closed and ready to read.
         NOT safe to call multiple times!
         """
-        self.terminate()
+        self.kill()
 
         def _fmt_io_filename(std_io: Optional[TextIO]) -> str:
             if std_io:
@@ -300,19 +350,6 @@ class _LocalAppDef:
                 pids.append(r.proc.pid)
 
         return f"{{app_id:{self.id}, state:{self.state}, pid_map:{role_to_pid}}}"
-
-
-def _pr_set_pdeathsig() -> None:
-    """
-    Sets PR_SET_PDEATHSIG to ensure a child process is
-    terminated appropriately.
-
-    See http://stackoverflow.com/questions/1884941/ for more information.
-    For libc.so.6 read http://www.linux-m68k.org/faq/glibcinfo.html
-    """
-    libc = ctypes.CDLL("libc.so.6")
-    PR_SET_PDEATHSIG = 1
-    libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
 
 
 @dataclass
@@ -372,6 +409,10 @@ class LocalScheduler(Scheduler):
         if cache_size <= 0:
             raise ValueError("cache size must be greater than zero")
         self._cache_size = cache_size
+
+        # Register termination handlers for SIGTERM and SIGINT
+        signal.signal(signal.SIGTERM, _terminate_process_handler)
+        signal.signal(signal.SIGINT, _terminate_process_handler)
 
     def run_opts(self) -> runopts:
         opts = runopts()
@@ -483,7 +524,7 @@ class LocalScheduler(Scheduler):
             env=env,
             stdout=stdout_,
             stderr=stderr_,
-            preexec_fn=_pr_set_pdeathsig,
+            start_new_session=True,
         )
         return _LocalReplica(
             role_name,
@@ -701,7 +742,7 @@ class LocalScheduler(Scheduler):
         # terminate all apps
         for (app_id, app) in self._apps.items():
             log.info(f"Terminating app: {app_id}")
-            app.terminate()
+            app.kill()
 
 
 class LogIterator:
