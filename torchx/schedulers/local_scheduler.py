@@ -411,8 +411,9 @@ class LocalScheduler(Scheduler):
         self._cache_size = cache_size
 
         # Register termination handlers for SIGTERM and SIGINT
-        signal.signal(signal.SIGTERM, _terminate_process_handler)
-        signal.signal(signal.SIGINT, _terminate_process_handler)
+        # Temporary disable signal handler registration
+        # signal.signal(signal.SIGTERM, _terminate_process_handler)
+        # signal.signal(signal.SIGINT, _terminate_process_handler)
 
     def run_opts(self) -> runopts:
         opts = runopts()
