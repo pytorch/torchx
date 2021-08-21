@@ -747,8 +747,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span> <span class="o">=</span> <span class="n">cache_size</span>
 
         <span class="c1"># Register termination handlers for SIGTERM and SIGINT</span>
-        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">_terminate_process_handler</span><span class="p">)</span>
-        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">_terminate_process_handler</span><span class="p">)</span>
+        <span class="c1"># Temporary disable signal handler registration</span>
+        <span class="c1"># signal.signal(signal.SIGTERM, _terminate_process_handler)</span>
+        <span class="c1"># signal.signal(signal.SIGINT, _terminate_process_handler)</span>
 
 <div class="viewcode-block" id="LocalScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
