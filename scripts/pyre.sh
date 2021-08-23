@@ -8,4 +8,5 @@
 set -eux
 
 SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
+pyre --version
 pyre --search-path "${SITE_PACKAGES}" check
