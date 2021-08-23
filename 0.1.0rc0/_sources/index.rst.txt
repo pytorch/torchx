@@ -12,8 +12,8 @@ as a stage in an ML pipeline/workflow. TorchX works with several mainstream
 job schedulers and ML pipeline platforms so chances are you are already familiar
 with one that works with TorchX.
 
-Just getting started? First learn the :ref:`basic concepts<Basics>` and
-take a look at the :ref:`builtin components<Components Library>` library.
+Just getting started? First learn the :ref:`basic concepts<basics:Basics>` and
+take a look at the :ref:`builtin components<index:Components Library>` library.
 
 Not finding the component or adapter you are looking for? Write a custom one
 that fits your needs by using our :ref:`SDK<torchx.api>`.
@@ -57,10 +57,13 @@ Components Library
    :maxdepth: 1
    :caption: Components
 
+   components/train
+   components/serve
+   components/interpret
+   components/metrics
+   components/hpo
    components/base
    components/distributed
-   components/serve
-   components/hpo
    components/utils
 
 Works With

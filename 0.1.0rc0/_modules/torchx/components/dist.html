@@ -239,10 +239,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">Hyperparameter Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -365,6 +368,10 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Distributed data parallel style application (one role, multi-replica).</span>
+
+<span class="sd">    This uses `Torch Elastic</span>
+<span class="sd">    &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_ to manage the</span>
+<span class="sd">    distributed workers.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: container image.</span>

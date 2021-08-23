@@ -43,7 +43,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Localhost" href="../schedulers/local.html" />
-    <link rel="prev" title="HPO" href="hpo.html" />
+    <link rel="prev" title="Distributed" href="distributed.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -242,10 +242,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpo.html">Hyperparameter Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hpo.html">HPO</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -368,6 +371,22 @@ meaningful stages in a workflow.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.utils.sh">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">sh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'/tmp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#sh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.sh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the provided command via sh. Currently sh does not support
+environment vairable substitution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – bash arguments</p></li>
+<li><p><strong>image</strong> – image to use</p></li>
+<li><p><strong>num_replicas</strong> – number of replicas to run</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -381,7 +400,7 @@ meaningful stages in a workflow.</p>
         <a href="../schedulers/local.html" class="btn btn-neutral float-right" title="Localhost" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="hpo.html" class="btn btn-neutral" title="HPO" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="distributed.html" class="btn btn-neutral" title="Distributed" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

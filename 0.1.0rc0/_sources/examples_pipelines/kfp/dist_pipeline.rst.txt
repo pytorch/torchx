@@ -88,7 +88,7 @@ for more info on launching KFP pipelines.
 
 .. GENERATED FROM PYTHON SOURCE LINES 65-67
 
-See the :ref:`Advanced KubeFlow Pipelines Example` for how to chain multiple
+See the :ref:`examples_pipelines/kfp/advanced_pipeline:Advanced KubeFlow Pipelines Example` for how to chain multiple
 components together and use builtin components.
 
 
