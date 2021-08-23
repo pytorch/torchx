@@ -5,13 +5,13 @@ Project Structure
 -------------------
 The top level modules in TorchX are:
 
-1. ``torchx.specs``: application spec (job definition) APIs
-2. ``torchx.components``: predefined (builtin) app specs
-3. ``torchx.runner``: given an app spec, submits the app as a job on a scheduler
-4. ``torchx.schedulers``: backend job schedulers that the runner supports
-5. ``torchx.pipelines``: adapters that convert the given app spec to a "stage" in an ML pipeline platform
-6. ``torchx.runtime``: util and abstraction libraries you can use in authoring apps (not app spec)
-7. ``torchx.cli``: CLI tool
+1. :mod:`torchx.specs`: application spec (job definition) APIs
+2. :mod:`torchx.components`: predefined (builtin) app specs
+3. :mod:`torchx.runner`: given an app spec, submits the app as a job on a scheduler
+4. :mod:`torchx.schedulers`: backend job schedulers that the runner supports
+5. :mod:`torchx.pipelines`: adapters that convert the given app spec to a "stage" in an ML pipeline platform
+6. :mod:`torchx.runtime`: util and abstraction libraries you can use in authoring apps (not app spec)
+7. :mod:`torchx.cli`: CLI tool
 
 Below is a UML diagram
 
@@ -62,7 +62,7 @@ Specifying multiple ``specs.Roles`` makes it possible to represent a
 non-homogeneous distributed application, such as those that require a single
 "coordinator" and many "workers".
 
-Refer to ``torchx.specs`` :ref:`API Docs<torchx.specs>` to learn more.
+Refer to ``torchx.specs`` :ref:`API Docs<specs:torchx.specs>` to learn more.
 
 What makes app specs flexible also makes it have many fields. The good
 news is that in most cases you don't have to build an app spec from scratch.
@@ -116,11 +116,11 @@ However **we do not recommend component composition** for maintainability
 purposes.
 
 **PROTIP 2:** To define dependencies between components, use a pipelining DSL.
-See :ref:`Pipeline Adapters` section below to understand how TorchX components
+See :ref:`basics:Pipeline Adapters` section below to understand how TorchX components
 are used in the context of pipelines.
 
 Before authoring your own component, browse through the library of
-:ref:`Builtin Components<torchx.components>` that are included with TorchX
+:ref:`Builtin Components<components:torchx.components>` that are included with TorchX
 to see if one fits your needs.
 
 
@@ -134,7 +134,7 @@ There are two ways to access runners in TorchX:
 1. CLI: ``torchx run ~/app_spec.py``
 2. Programmatically: ``torchx.runner.get_runner().run(appspec)``
 
-See :ref:`torchx.schedulers` for a list of schedulers that the runner can
+See :ref:`schedulers:torchx.schedulers` for a list of schedulers that the runner can
 launch apps to.
 
 Pipeline Adapters
@@ -198,7 +198,7 @@ The binary above makes an implicit assumption that the ``input_path``
 is an AWS S3 path. One way to make this trainer storage agnostic is to introduce
 a ``FileSystem`` abstraction layer. For file systems, frameworks like
 `PyTorch Lightning <https://www.pytorchlightning.ai/>`_  already define ``io``
-layers (lightning uses `FSSPEC <https://filesystem-spec.readthedocs.io/en/latest/index.html>`_
+layers (lightning uses `fsspec <https://filesystem-spec.readthedocs.io/en/latest/index.html>`_
 under the hood). The binary above can be rewritten to be storage agnostic with
 lightning.
 

@@ -62,5 +62,5 @@ with open("pipeline.yaml", "rt") as f:
 # for more info on launching KFP pipelines.
 
 # %%
-# See the :ref:`Advanced KubeFlow Pipelines Example` for how to chain multiple
+# See the :ref:`examples_pipelines/kfp/advanced_pipeline:Advanced KubeFlow Pipelines Example` for how to chain multiple
 # components together and use builtin components.

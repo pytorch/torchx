@@ -330,3 +330,8 @@ sphinx_gallery_conf = {
     ],
     "first_notebook_cell": first_notebook_cell,
 }
+
+# -- Options for autosectionlabel
+
+# add the document to avoid collisions for common titles
+autosectionlabel_prefix_document = True
