@@ -198,7 +198,6 @@ class _LocalReplica:
 
         # close stdout and stderr log file handles
         if self.stdout:
-            # pyre-ignore [16] already null checked
             self.stdout.close()
         if self.stderr:
             self.stderr.close()
