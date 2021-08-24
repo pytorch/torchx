@@ -38,6 +38,7 @@ def trainer(
         output_path: output path for model checkpoints (e.g. file:///foo/bar)
         load_path: path to load pretrained model from
         data_path: path to the data to load
+        entrypoint: user script to launch.
         log_path: path to save tensorboard logs to
         resource: the resources to use
         nnodes: number of nodes
