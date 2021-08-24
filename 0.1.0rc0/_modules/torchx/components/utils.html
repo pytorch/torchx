@@ -351,6 +351,7 @@
 <span class="kn">import</span> <span class="nn">shlex</span>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+<span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span>
 
 
 <div class="viewcode-block" id="echo"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.echo">[docs]</a><span class="k">def</span> <span class="nf">echo</span><span class="p">(</span>
@@ -404,7 +405,7 @@
 <div class="viewcode-block" id="sh"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.sh">[docs]</a><span class="k">def</span> <span class="nf">sh</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">,</span> <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Runs the provided command via sh. Currently sh does not support</span>
-<span class="sd">    environment vairable substitution.</span>
+<span class="sd">    environment variable substitution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        args: bash arguments</span>
@@ -425,6 +426,38 @@
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">escaped_args</span><span class="p">],</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="copy"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.copy">[docs]</a><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    copy copies the file from src to dst. src and dst can be any valid fsspec</span>
+<span class="sd">    url.</span>
+
+<span class="sd">    This does not support recursive copies or directories.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src: the source fsspec file location</span>
+<span class="sd">        dst: the destination fsspec file location</span>
+<span class="sd">        image: the image that contains the copy app</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-utils-copy&quot;</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-utils-copy&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;torchx/apps/utils/copy.py&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--src&quot;</span><span class="p">,</span>
+                    <span class="n">src</span><span class="p">,</span>
+                    <span class="s2">&quot;--dst&quot;</span><span class="p">,</span>
+                    <span class="n">dst</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
 </pre></div>

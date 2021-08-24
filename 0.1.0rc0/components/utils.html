@@ -375,13 +375,30 @@ meaningful stages in a workflow.</p>
 <dt class="sig sig-object py" id="torchx.components.utils.sh">
 <span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">sh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'/tmp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#sh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.sh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the provided command via sh. Currently sh does not support
-environment vairable substitution.</p>
+environment variable substitution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>args</strong> – bash arguments</p></li>
 <li><p><strong>image</strong> – image to use</p></li>
 <li><p><strong>num_replicas</strong> – number of replicas to run</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.utils.copy">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.0rc0'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>copy copies the file from src to dst. src and dst can be any valid fsspec
+url.</p>
+<p>This does not support recursive copies or directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> – the source fsspec file location</p></li>
+<li><p><strong>dst</strong> – the destination fsspec file location</p></li>
+<li><p><strong>image</strong> – the image that contains the copy app</p></li>
 </ul>
 </dd>
 </dl>
