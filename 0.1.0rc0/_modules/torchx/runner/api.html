@@ -347,7 +347,8 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">TracebackType</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.runner.events</span> <span class="kn">import</span> <span class="n">log_event</span>
@@ -368,6 +369,7 @@
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.finder</span> <span class="kn">import</span> <span class="n">get_component</span>
+
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -403,11 +405,41 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;default&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schedulers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;A default scheduler is required. Provided schedulers: </span><span class="si">{</span><span class="n">schedulers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;A `default` scheduler is required. Provided schedulers: </span><span class="si">{</span><span class="n">schedulers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span> <span class="o">=</span> <span class="n">schedulers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Runner&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]],</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span>
+        <span class="n">traceback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># This method returns False so that if an error is raise within the</span>
+        <span class="c1"># ``with`` statement, it is reraised properly</span>
+        <span class="c1"># see: https://docs.python.org/3/reference/compound_stmts.html#with</span>
+        <span class="c1"># see also: torchx/runner/test/api_test.py#test_context_manager_with_error</span>
+        <span class="c1">#</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Runner.close"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Closes this runner and frees/cleans up any allocated resources.</span>
+<span class="sd">        Transitively calls the ``close()`` method on all the schedulers.</span>
+<span class="sd">        Once this method is called on the runner, the runner object is deemed</span>
+<span class="sd">        invalid and any methods called on the runner object as well as</span>
+<span class="sd">        the schedulers associated with this runner have undefined behavior.</span>
+<span class="sd">        It is ok to call this method multiple times on the same runner object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scheduler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">scheduler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Runner.run_component"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_component">[docs]</a>    <span class="k">def</span> <span class="nf">run_component</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -846,7 +878,24 @@
 
 <div class="viewcode-block" id="get_runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.get_runner">[docs]</a><span class="k">def</span> <span class="nf">get_runner</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Runner</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convenience method to construct and get a Runner object.</span>
+<span class="sd">    Convenience method to construct and get a Runner object. Usage:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      with get_runner() as runner:</span>
+<span class="sd">        app_handle = runner.run(component(args), scheduler=&quot;kubernetes&quot;, runcfg)</span>
+<span class="sd">        print(runner.status(app_handle))</span>
+
+<span class="sd">    Alternatively,</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">     runner = get_runner()</span>
+<span class="sd">     try:</span>
+<span class="sd">        app_handle = runner.run(component(args), scheduler=&quot;kubernetes&quot;, runcfg)</span>
+<span class="sd">        print(runner.status(app_handle))</span>
+<span class="sd">     finally:</span>
+<span class="sd">        runner.close()</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        name: human readable name that will be included as part of all launched</span>
@@ -854,9 +903,7 @@
 <span class="sd">        scheduler_params: extra arguments that will be passed to the constructor</span>
 <span class="sd">            of all available schedulers.</span>
 
-<span class="sd">    &gt;&gt;&gt; from torchx.runner import get_runner</span>
-<span class="sd">    &gt;&gt;&gt; get_runner(name=&quot;torchx-docs&quot;, queue=&quot;default&quot;)</span>
-<span class="sd">    Runner(name=torchx-docs, ...)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;torchx_</span><span class="si">{</span><span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>

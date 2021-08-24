@@ -533,7 +533,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">killpg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ProcessLookupError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s2"> already got terminated&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s2"> already got terminated&quot;</span><span class="p">)</span>
 
         <span class="c1"># close stdout and stderr log file handles</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
@@ -587,10 +587,12 @@
 <span class="sd">        1. Send SIGTERM signal to the child processes and wait for them to terminate.</span>
 <span class="sd">        2. If timeout passed and child processes are still alive, terminate them via SIGKILL.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># terminate all replica processes</span>
+
+        <span class="c1"># Stage #1: SIGTERM</span>
         <span class="k">for</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replicas</span><span class="p">:</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+
         <span class="n">timeout</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># seconds</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
         <span class="k">for</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -604,10 +606,13 @@
                     <span class="c1"># Ignore the timeout expired exception, since</span>
                     <span class="c1"># the child process will be forcefully terminated via SIGKILL</span>
                     <span class="k">pass</span>
+
+        <span class="c1"># Stage #2: SIGKILL</span>
         <span class="k">for</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replicas</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+
         <span class="k">for</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replicas</span><span class="p">:</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
@@ -1078,11 +1083,14 @@
         <span class="n">local_app</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">local_app</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">CANCELLED</span>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="LocalScheduler.close"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># terminate all apps</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Terminating app: </span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Terminating app: </span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">app</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 <span class="k">class</span> <span class="nc">LogIterator</span><span class="p">:</span>

@@ -405,6 +405,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session_name</span> <span class="o">=</span> <span class="n">session_name</span>
 
+<div class="viewcode-block" id="Scheduler.close"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Only for schedulers that have local state! Closes the scheduler</span>
+<span class="sd">        freeing any allocated resources. Once closed, the scheduler object</span>
+<span class="sd">        is deemed to no longer be valid and any method called on the object</span>
+<span class="sd">        results in undefined behavior.</span>
+
+<span class="sd">        This method should not raise exceptions and is allowed to be called</span>
+<span class="sd">        multiple times on the same object.</span>
+
+<span class="sd">        .. note:: Override only for scheduler implementations that have local state</span>
+<span class="sd">                  (``torchx/schedulers/local_scheduler.py``).</span>
+<span class="sd">                  Schedulers simply wrapping a remote scheduler&#39;s client need not</span>
+<span class="sd">                  implement this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
 <div class="viewcode-block" id="Scheduler.submit"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit">[docs]</a>    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Submits the application to be run by the scheduler.</span>
