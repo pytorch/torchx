@@ -14,6 +14,7 @@ meaningful stages in a workflow.
 import shlex
 
 import torchx.specs as specs
+from torchx.version import TORCHX_IMAGE
 
 
 def echo(
@@ -67,7 +68,7 @@ def touch(file: str) -> specs.AppDef:
 def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
     """
     Runs the provided command via sh. Currently sh does not support
-    environment vairable substitution.
+    environment variable substitution.
 
     Args:
         args: bash arguments
@@ -88,5 +89,37 @@ def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
             )
+        ],
+    )
+
+
+def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
+    """
+    copy copies the file from src to dst. src and dst can be any valid fsspec
+    url.
+
+    This does not support recursive copies or directories.
+
+    Args:
+        src: the source fsspec file location
+        dst: the destination fsspec file location
+        image: the image that contains the copy app
+    """
+
+    return specs.AppDef(
+        name="torchx-utils-copy",
+        roles=[
+            specs.Role(
+                name="torchx-utils-copy",
+                image=image,
+                entrypoint="python3",
+                args=[
+                    "torchx/apps/utils/copy.py",
+                    "--src",
+                    src,
+                    "--dst",
+                    dst,
+                ],
+            ),
         ],
     )

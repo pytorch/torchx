@@ -17,3 +17,6 @@ class UtilsComponentTest(ComponentTestCase):
 
     def test_echo(self) -> None:
         self._validate(utils, "echo")
+
+    def test_copy(self) -> None:
+        self._validate(utils, "copy")
