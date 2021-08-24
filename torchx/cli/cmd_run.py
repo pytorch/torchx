@@ -14,9 +14,10 @@ from typing import Dict, List, Union, cast
 import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
-from torchx.runner import get_runner, Runner
-from torchx.specs.finder import get_components, _Component
+from torchx.runner import Runner, get_runner
+from torchx.specs.finder import _Component, get_components
 from torchx.util.types import to_dict
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -93,26 +94,26 @@ class CmdRun(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         # TODO: T91790598 - remove the if condition when all apps are migrated to pure python
-        runner = get_runner()
-        result = runner.run_component(
-            args.conf_file,
-            args.conf_args,
-            args.scheduler,
-            args.scheduler_args,
-            dryrun=args.dryrun,
-        )
+        with get_runner() as runner:
+            result = runner.run_component(
+                args.conf_file,
+                args.conf_args,
+                args.scheduler,
+                args.scheduler_args,
+                dryrun=args.dryrun,
+            )
 
-        if args.dryrun:
-            app_dryrun_info = cast(specs.AppDryRunInfo, result)
-            logger.info("=== APPLICATION ===")
-            logger.info(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
+            if args.dryrun:
+                app_dryrun_info = cast(specs.AppDryRunInfo, result)
+                logger.info("=== APPLICATION ===")
+                logger.info(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
 
-            logger.info("=== SCHEDULER REQUEST ===")
-            logger.info(app_dryrun_info)
-        else:
-            app_handle = cast(specs.AppHandle, result)
-            try:
+                logger.info("=== SCHEDULER REQUEST ===")
+                logger.info(app_dryrun_info)
+            else:
+                app_handle = cast(specs.AppHandle, result)
                 print(app_handle)
+
                 if args.scheduler == "local":
                     self._wait_and_exit(runner, app_handle)
                 else:
@@ -124,8 +125,6 @@ class CmdRun(SubCommand):
 
                     if args.wait:
                         self._wait_and_exit(runner, app_handle)
-            finally:
-                runner.stop(app_handle)
 
     def _wait_and_exit(self, runner: Runner, app_handle: str) -> None:
         logger.info("Waiting for the app to finish...")

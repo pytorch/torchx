@@ -10,7 +10,8 @@ import json
 import logging
 import time
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from types import TracebackType
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
@@ -31,6 +32,7 @@ from torchx.specs.api import (
     runopts,
 )
 from torchx.specs.finder import get_component
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -66,11 +68,41 @@ class Runner:
         """
         if "default" not in schedulers:
             raise ValueError(
-                f"A default scheduler is required. Provided schedulers: {schedulers.keys()}"
+                f"A `default` scheduler is required. Provided schedulers: {schedulers.keys()}"
             )
         self._name: str = name
         self._schedulers = schedulers
         self._apps: Dict[AppHandle, AppDef] = {}
+
+    def __enter__(self) -> "Runner":
+        return self
+
+    def __exit__(
+        self,
+        type: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> bool:
+        # This method returns False so that if an error is raise within the
+        # ``with`` statement, it is reraised properly
+        # see: https://docs.python.org/3/reference/compound_stmts.html#with
+        # see also: torchx/runner/test/api_test.py#test_context_manager_with_error
+        #
+        self.close()
+        return False
+
+    def close(self) -> None:
+        """
+        Closes this runner and frees/cleans up any allocated resources.
+        Transitively calls the ``close()`` method on all the schedulers.
+        Once this method is called on the runner, the runner object is deemed
+        invalid and any methods called on the runner object as well as
+        the schedulers associated with this runner have undefined behavior.
+        It is ok to call this method multiple times on the same runner object.
+        """
+
+        for name, scheduler in self._schedulers.items():
+            scheduler.close()
 
     def run_component(
         self,
@@ -509,7 +541,24 @@ class Runner:
 
 def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
     """
-    Convenience method to construct and get a Runner object.
+    Convenience method to construct and get a Runner object. Usage:
+
+    .. code-block:: python
+
+      with get_runner() as runner:
+        app_handle = runner.run(component(args), scheduler="kubernetes", runcfg)
+        print(runner.status(app_handle))
+
+    Alternatively,
+
+    .. code-block:: python
+
+     runner = get_runner()
+     try:
+        app_handle = runner.run(component(args), scheduler="kubernetes", runcfg)
+        print(runner.status(app_handle))
+     finally:
+        runner.close()
 
     Args:
         name: human readable name that will be included as part of all launched
@@ -517,9 +566,7 @@ def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
         scheduler_params: extra arguments that will be passed to the constructor
             of all available schedulers.
 
-    >>> from torchx.runner import get_runner
-    >>> get_runner(name="torchx-docs", queue="default")
-    Runner(name=torchx-docs, ...)
+
     """
     if not name:
         name = f"torchx_{getpass.getuser()}"

@@ -25,9 +25,9 @@ from torchx.components.base.binary_component import binary_component
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     DockerImageProvider,
-    SignalException,
     LocalDirectoryImageProvider,
     LocalScheduler,
+    SignalException,
     make_unique,
 )
 from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
@@ -51,7 +51,7 @@ def start_sleep_processes(
 
     print("starting start_sleep_processes")
     role = Role(
-        "role1",
+        name="sleep",
         image=test_dir,
         entrypoint="sleep.sh",
         args=["600"],  # seconds
@@ -71,15 +71,26 @@ def start_sleep_processes(
             for replica in replicas:
                 mp_queue.put(replica.proc.pid)
 
-    while True:
+    elapsed = 0
+    interval = 0.5
+    while elapsed < 300:  # 5min timeout
         try:
             app_status = scheduler.describe(app_id)
             if none_throws(app_status).state == AppState.SUCCEEDED:
                 raise RuntimeError("Child processes should not succeed in this test")
-            time.sleep(2)  # 2 seconds
-        except SignalException as e:
-            scheduler._cancel_existing(app_id)
+            time.sleep(interval)
+            elapsed += interval
+        finally:
+            scheduler.close()
             break
+
+
+def pid_exists(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
 
 
 class LocalDirImageProviderTest(unittest.TestCase):
@@ -678,6 +689,58 @@ class LocalSchedulerTest(unittest.TestCase):
         desc = self.wait(app_id)
         assert desc is not None
         self.assertEqual(AppState.FAILED, desc.state)
+
+    def test_close(self) -> None:
+        # 2 apps each with 4 replicas == 8 total pids
+        # make sure they all exist after submission
+        # validate they do not exist after calling the close() method
+        sleep_60sec = AppDef(
+            name="sleep",
+            roles=[
+                Role(
+                    name="sleep",
+                    image=self.test_dir,
+                    entrypoint="sleep.sh",
+                    args=["60"],
+                    num_replicas=4,
+                )
+            ],
+        )
+
+        self.scheduler.submit(sleep_60sec, RunConfig())
+        self.scheduler.submit(sleep_60sec, RunConfig())
+
+        pids = []
+        for app_id, app in self.scheduler._apps.items():
+            for role_name, replicas in app.role_replicas.items():
+                for replica in replicas:
+                    pid = replica.proc.pid
+                    self.assertTrue(pid_exists(pid))
+                    pids.append(pid)
+
+        self.scheduler.close()
+
+        for pid in pids:
+            self.assertFalse(pid_exists(pid))
+
+    def test_close_twice(self) -> None:
+        sleep_60sec = AppDef(
+            name="sleep",
+            roles=[
+                Role(
+                    name="sleep",
+                    image=self.test_dir,
+                    entrypoint="sleep.sh",
+                    args=["60"],
+                    num_replicas=4,
+                )
+            ],
+        )
+
+        self.scheduler.submit(sleep_60sec, RunConfig())
+        self.scheduler.close()
+        self.scheduler.close()
+        # nothing to validate just make sure no errors are raised
 
     def test_dryrun_base_image_should_throw(self) -> None:
         # base_image for vanilla local_scheduler shouldn't work

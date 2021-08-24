@@ -123,3 +123,9 @@ class SchedulerTest(unittest.TestCase):
                 exists_mock.return_value = False
                 scheduler_mock.cancel("test_id")
                 cancel_mock.assert_not_called()
+
+    def test_close_twice(self) -> None:
+        scheduler_mock = SchedulerTest.MockScheduler("test")
+        scheduler_mock.close()
+        scheduler_mock.close()
+        # nothing to validate explicitly, just that no errors are raised

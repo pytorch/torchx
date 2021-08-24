@@ -69,7 +69,15 @@ class CmdRunTest(unittest.TestCase):
             self.cmd_run.run(args)
             self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.testv2")))
 
-    def test_run_terminate_on_received_signal(self) -> None:
+    @patch(
+        "torchx.runner.Runner.wait", side_effect=SignalException("msg", signal.SIGTERM)
+    )
+    @patch("torchx.schedulers.local_scheduler.LocalScheduler.close")
+    def test_run_terminate_on_received_signal(
+        self,
+        mock_scheduler_close: MagicMock,
+        _,
+    ) -> None:
         with cwd(str(Path(__file__).parent)):
             args = self.parser.parse_args(
                 [
@@ -80,15 +88,11 @@ class CmdRunTest(unittest.TestCase):
                     str(self.tmpdir / "foobar.txt"),
                 ]
             )
-            with patch("torchx.cli.cmd_run.get_runner") as get_runner_ctx:
-                runner_mock = MagicMock()
-                get_runner_ctx.return_value = runner_mock
-                runner_mock.wait.side_effect = SignalException(
-                    "test_exception", signal.SIGTERM
-                )
-                with self.assertRaises(SignalException):
-                    self.cmd_run.run(args)
-                runner_mock.stop.assert_called_once()
+
+            with self.assertRaises(SignalException):
+                self.cmd_run.run(args)
+
+            mock_scheduler_close.assert_called()
 
     def test_run_missing(self) -> None:
         with self.assertRaises(ValueError):

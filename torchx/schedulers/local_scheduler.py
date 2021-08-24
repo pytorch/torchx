@@ -194,7 +194,7 @@ class _LocalReplica:
         try:
             os.killpg(self.proc.pid, signal.SIGTERM)
         except ProcessLookupError as e:
-            log.info(f"Process {self.proc.pid} already got terminated")
+            log.debug(f"Process {self.proc.pid} already got terminated")
 
         # close stdout and stderr log file handles
         if self.stdout:
@@ -248,10 +248,12 @@ class _LocalAppDef:
         1. Send SIGTERM signal to the child processes and wait for them to terminate.
         2. If timeout passed and child processes are still alive, terminate them via SIGKILL.
         """
-        # terminate all replica processes
+
+        # Stage #1: SIGTERM
         for replicas in self.role_replicas.values():
             for r in replicas:
                 r.terminate()
+
         timeout = 10  # seconds
         end = time.monotonic() + timeout
         for replicas in self.role_replicas.values():
@@ -265,10 +267,13 @@ class _LocalAppDef:
                     # Ignore the timeout expired exception, since
                     # the child process will be forcefully terminated via SIGKILL
                     pass
+
+        # Stage #2: SIGKILL
         for replicas in self.role_replicas.values():
             for r in replicas:
                 if r.proc.poll() is None:
                     r.proc.kill()
+
         for replicas in self.role_replicas.values():
             for r in replicas:
                 r.proc.wait()
@@ -739,11 +744,14 @@ class LocalScheduler(Scheduler):
         local_app.close()
         local_app.state = AppState.CANCELLED
 
-    def __del__(self) -> None:
+    def close(self) -> None:
         # terminate all apps
         for (app_id, app) in self._apps.items():
-            log.info(f"Terminating app: {app_id}")
+            log.debug(f"Terminating app: {app_id}")
             app.kill()
+
+    def __del__(self) -> None:
+        self.close()
 
 
 class LogIterator:

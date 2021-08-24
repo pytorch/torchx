@@ -66,6 +66,23 @@ class Scheduler(abc.ABC):
         self.backend = backend
         self.session_name = session_name
 
+    def close(self) -> None:
+        """
+        Only for schedulers that have local state! Closes the scheduler
+        freeing any allocated resources. Once closed, the scheduler object
+        is deemed to no longer be valid and any method called on the object
+        results in undefined behavior.
+
+        This method should not raise exceptions and is allowed to be called
+        multiple times on the same object.
+
+        .. note:: Override only for scheduler implementations that have local state
+                  (``torchx/schedulers/local_scheduler.py``).
+                  Schedulers simply wrapping a remote scheduler's client need not
+                  implement this method.
+        """
+        pass
+
     def submit(self, app: AppDef, cfg: RunConfig) -> str:
         """
         Submits the application to be run by the scheduler.
