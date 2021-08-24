@@ -537,7 +537,6 @@
 
         <span class="c1"># close stdout and stderr log file handles</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
-            <span class="c1"># pyre-ignore [16] already null checked</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
