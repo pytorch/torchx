@@ -1,4 +1,4 @@
-name: Kubernetes Integration Tests
+name: Kubernetes Dist Train Integration Test
 
 on:
   push:
