@@ -20,6 +20,8 @@ from torchx.components.base import torch_dist_role
 def ddp(
     image: str,
     entrypoint: str,
+    rdzv_backend: str = "c10d",
+    rdzv_endpoint: str = "localhost:29400",
     resource: Optional[str] = None,
     nnodes: int = 1,
     nproc_per_node: int = 1,
@@ -39,7 +41,11 @@ def ddp(
     Args:
         image: container image.
         entrypoint: script or binary to run within the image.
-        resource: Optional resource identifier. The resource parameter
+        rdzv_backend: rendezvous backend to use, allowed values can be found at
+            https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py
+        rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd
+            endpoint, in case of c10d, this is the endpoint of one of the hosts.
+        resource: Optional named resource identifier. The resource parameter
             gets ignored when running on the local scheduler.
         nnodes: Number of nodes.
         nproc_per_node: Number of processes per node.
@@ -54,18 +60,29 @@ def ddp(
         specs.AppDef: Torchx AppDef
     """
 
+    launch_kwargs = {
+        "rdzv_backend": rdzv_backend,
+        "rdzv_endpoint": rdzv_endpoint,
+        "nnodes": nnodes,
+        "nproc_per_node": nproc_per_node,
+        "max_restarts": 0,
+    }
+
+    retry_policy: specs.RetryPolicy = specs.RetryPolicy.APPLICATION
+
     ddp_role = torch_dist_role(
         name=role,
         image=image,
-        base_image=base_image,
         entrypoint=entrypoint,
         resource=resource or specs.NULL_RESOURCE,
-        num_replicas=nnodes,
+        base_image=base_image,
         args=list(script_args),
         env=env,
-        nproc_per_node=nproc_per_node,
-        nnodes=nnodes,
-        max_restarts=0,
+        num_replicas=nnodes,
+        max_retries=0,
+        retry_policy=retry_policy,
+        port_map=None,
+        **launch_kwargs,
     )
 
     return specs.AppDef(name, roles=[ddp_role])

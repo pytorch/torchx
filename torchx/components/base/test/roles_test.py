@@ -16,7 +16,7 @@ from torchx.specs.api import Resource, Role, macros
 
 class TorchDistRoleBuilderTest(unittest.TestCase):
     def test_build_create_torch_dist_role(self) -> None:
-        # runs: python -m torch.distributed.launch
+        # runs: python -m torch.distributed.run
         #                    --nnodes 2:4
         #                    --max_restarts 3
         #                    --no_python True
@@ -40,7 +40,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         self.assertEqual(
             [
                 "-m",
-                "torch.distributed.launch",
+                "torch.distributed.run",
                 "--nnodes",
                 "2:4",
                 "--max_restarts",
@@ -74,7 +74,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         self.assertEqual(
             [
                 "-m",
-                "torch.distributed.launch",
+                "torch.distributed.run",
                 "--nnodes",
                 "2:4",
                 "--rdzv_backend",
@@ -83,7 +83,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
                 "foobar",
                 "--role",
                 "test_role",
-                os.path.join(macros.img_root, "user_script.py"),
+                "user_script.py",
                 "--script_arg",
                 "foo",
             ],
@@ -100,14 +100,14 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         self.assertEqual(
             [
                 "-m",
-                "torch.distributed.launch",
+                "torch.distributed.run",
                 "--rdzv_backend",
                 "etcd",
                 "--rdzv_id",
                 macros.app_id,
                 "--role",
                 "test_role",
-                os.path.join(macros.img_root, "user_script.py"),
+                "user_script.py",
             ],
             role.args,
         )
@@ -124,7 +124,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         self.assertEqual(
             [
                 "-m",
-                "torch.distributed.launch",
+                "torch.distributed.run",
                 "--rdzv_backend",
                 "etcd",
                 "--rdzv_id",
@@ -141,7 +141,7 @@ class TorchDistRoleBuilderTest(unittest.TestCase):
         Tests that an Role with torchx dist run can be serialized into json (dict)
         then recreated as a Role. It is really just a builder
         utility to make it easy for users to create a Role with the entrypoint
-        being ``torch.distributed.launch``
+        being ``torch.distributed.run``
         """
         resource = Resource(cpu=1, gpu=0, memMB=512)
         role = create_torch_dist_role(

@@ -49,7 +49,7 @@ class TorchxBaseLibTest(unittest.TestCase):
         self.assertEqual("python", role.entrypoint)
         expected_args = [
             "-m",
-            "torch.distributed.launch",
+            "torch.distributed.run",
             "--nnodes",
             "2",
             "--rdzv_backend",
@@ -58,7 +58,7 @@ class TorchxBaseLibTest(unittest.TestCase):
             "${app_id}",
             "--role",
             "dist_role",
-            "${img_root}/test_entry.py",
+            "test_entry.py",
             "arg1",
             "arg2",
         ]
