@@ -23,7 +23,7 @@ Datapreproc Component Example
 
 This is a component definition that runs the example datapreproc app.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-69
+.. GENERATED FROM PYTHON SOURCE LINES 14-71
 
 .. code-block:: default
 
@@ -31,6 +31,7 @@ This is a component definition that runs the example datapreproc app.
     from typing import Dict, Optional
 
     import torchx.specs as specs
+    from torchx.components.base.binary_component import binary_component
 
 
     def data_preproc(
@@ -62,26 +63,27 @@ This is a component definition that runs the example datapreproc app.
         """
 
         env = env or {}
-        ddp_role = specs.Role(
-            name="datapreproc_role",
-            image=image,
-            entrypoint=entrypoint,
-            args=[
-                "--input_path",
-                input_path,
-                "--input_md5",
-                input_md5,
-                "--output_path",
-                output_path,
-            ],
-            env=env,
-            resource=specs.named_resources[resource]
-            if resource
-            else specs.Resource(cpu=1, gpu=0, memMB=1024),
-            num_replicas=1,
-        )
+        args = [
+            "--input_path",
+            input_path,
+            "--input_md5",
+            input_md5,
+            "--output_path",
+            output_path,
+        ]
+        if resource:
+            resource_def = specs.named_resources[resource]
+        else:
+            resource_def = specs.Resource(cpu=1, gpu=0, memMB=1024)
 
-        return specs.AppDef(name, roles=[ddp_role])
+        return binary_component(
+            name="datapreproc_role",
+            entrypoint=entrypoint,
+            args=args,
+            env=env,
+            image=image,
+            resource=resource_def,
+        )
 
 
 .. rst-class:: sphx-glr-timing

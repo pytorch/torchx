@@ -357,6 +357,8 @@
 <div class="viewcode-block" id="ddp"><a class="viewcode-back" href="../../../components/distributed.html#torchx.components.dist.ddp">[docs]</a><span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">rdzv_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span><span class="p">,</span>
+    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost:29400&quot;</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nproc_per_node</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -376,7 +378,11 @@
 <span class="sd">    Args:</span>
 <span class="sd">        image: container image.</span>
 <span class="sd">        entrypoint: script or binary to run within the image.</span>
-<span class="sd">        resource: Optional resource identifier. The resource parameter</span>
+<span class="sd">        rdzv_backend: rendezvous backend to use, allowed values can be found at</span>
+<span class="sd">            https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py</span>
+<span class="sd">        rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd</span>
+<span class="sd">            endpoint, in case of c10d, this is the endpoint of one of the hosts.</span>
+<span class="sd">        resource: Optional named resource identifier. The resource parameter</span>
 <span class="sd">            gets ignored when running on the local scheduler.</span>
 <span class="sd">        nnodes: Number of nodes.</span>
 <span class="sd">        nproc_per_node: Number of processes per node.</span>
@@ -391,18 +397,29 @@
 <span class="sd">        specs.AppDef: Torchx AppDef</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">launch_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;rdzv_backend&quot;</span><span class="p">:</span> <span class="n">rdzv_backend</span><span class="p">,</span>
+        <span class="s2">&quot;rdzv_endpoint&quot;</span><span class="p">:</span> <span class="n">rdzv_endpoint</span><span class="p">,</span>
+        <span class="s2">&quot;nnodes&quot;</span><span class="p">:</span> <span class="n">nnodes</span><span class="p">,</span>
+        <span class="s2">&quot;nproc_per_node&quot;</span><span class="p">:</span> <span class="n">nproc_per_node</span><span class="p">,</span>
+        <span class="s2">&quot;max_restarts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">retry_policy</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span>
+
     <span class="n">ddp_role</span> <span class="o">=</span> <span class="n">torch_dist_role</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-        <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
         <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
         <span class="n">resource</span><span class="o">=</span><span class="n">resource</span> <span class="ow">or</span> <span class="n">specs</span><span class="o">.</span><span class="n">NULL_RESOURCE</span><span class="p">,</span>
-        <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
+        <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
         <span class="n">args</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">script_args</span><span class="p">),</span>
         <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
-        <span class="n">nproc_per_node</span><span class="o">=</span><span class="n">nproc_per_node</span><span class="p">,</span>
-        <span class="n">nnodes</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
-        <span class="n">max_restarts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">retry_policy</span><span class="o">=</span><span class="n">retry_policy</span><span class="p">,</span>
+        <span class="n">port_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">launch_kwargs</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">ddp_role</span><span class="p">])</span></div>

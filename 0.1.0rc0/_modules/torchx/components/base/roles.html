@@ -341,7 +341,6 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -425,7 +424,7 @@
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="n">entrypoint_override</span> <span class="o">=</span> <span class="s2">&quot;python&quot;</span>
-    <span class="n">torch_run_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;torch.distributed.launch&quot;</span><span class="p">]</span>
+    <span class="n">torch_run_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">]</span>
 
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;etcd&quot;</span><span class="p">)</span>
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">)</span>
@@ -438,9 +437,6 @@
                 <span class="n">torch_run_args</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">torch_run_args</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)]</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">entrypoint</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">entrypoint</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">):</span>
-        <span class="c1"># make entrypoint relative to {img_root} ONLY if it is not an absolute path</span>
-        <span class="n">entrypoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">torch_run_args</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">Role</span><span class="p">(</span>

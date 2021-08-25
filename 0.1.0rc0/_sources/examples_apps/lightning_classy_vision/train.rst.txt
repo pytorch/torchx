@@ -28,7 +28,7 @@ This app only uses standard OSS libraries and has no runtime torchx
 dependencies. For saving and loading data and models it uses fsspec which makes
 the app agnostic to the environment it's running in.
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-131
+.. GENERATED FROM PYTHON SOURCE LINES 19-130
 
 .. code-block:: default
 
@@ -83,7 +83,6 @@ the app agnostic to the environment it's running in.
             help="path to place the tensorboard logs",
             default="/tmp",
         )
-
         return parser.parse_args(argv)
 
 

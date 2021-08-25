@@ -23,7 +23,7 @@ Trainer Component Example
 
 This is a component definition that runs the example lightning_classy_vision app.
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-107
+.. GENERATED FROM PYTHON SOURCE LINES 13-103
 
 .. code-block:: default
 
@@ -43,9 +43,7 @@ This is a component definition that runs the example lightning_classy_vision app
         load_path: str = "",
         log_path: str = "/logs",
         resource: Optional[str] = None,
-        nnodes: int = 1,
         env: Optional[Dict[str, str]] = None,
-        nproc_per_node: int = 1,
         skip_export: bool = False,
     ) -> torchx.AppDef:
         """Runs the example lightning_classy_vision app.
@@ -58,9 +56,7 @@ This is a component definition that runs the example lightning_classy_vision app
             entrypoint: user script to launch.
             log_path: path to save tensorboard logs to
             resource: the resources to use
-            nnodes: number of nodes
             env: env variables for the app
-            nproc_per_node: number of processes per node
             skip_export: disable model export
         """
         env = env or {}
