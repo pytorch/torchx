@@ -348,7 +348,7 @@
 <span class="sd">binaries that each group of nodes (``specs.Role``) runs.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 <span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
@@ -357,8 +357,8 @@
 <div class="viewcode-block" id="ddp"><a class="viewcode-back" href="../../../components/distributed.html#torchx.components.dist.ddp">[docs]</a><span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">rdzv_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span><span class="p">,</span>
-    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost:29400&quot;</span><span class="p">,</span>
+    <span class="n">rdzv_backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nproc_per_node</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -397,13 +397,15 @@
 <span class="sd">        specs.AppDef: Torchx AppDef</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">launch_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;rdzv_backend&quot;</span><span class="p">:</span> <span class="n">rdzv_backend</span><span class="p">,</span>
-        <span class="s2">&quot;rdzv_endpoint&quot;</span><span class="p">:</span> <span class="n">rdzv_endpoint</span><span class="p">,</span>
+    <span class="n">launch_kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;nnodes&quot;</span><span class="p">:</span> <span class="n">nnodes</span><span class="p">,</span>
         <span class="s2">&quot;nproc_per_node&quot;</span><span class="p">:</span> <span class="n">nproc_per_node</span><span class="p">,</span>
         <span class="s2">&quot;max_restarts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">rdzv_backend</span><span class="p">:</span>
+        <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;rdzv_backend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdzv_backend</span>
+    <span class="k">if</span> <span class="n">rdzv_endpoint</span><span class="p">:</span>
+        <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;rdzv_endpoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdzv_endpoint</span>
 
     <span class="n">retry_policy</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span>
 
