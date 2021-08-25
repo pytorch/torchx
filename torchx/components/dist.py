@@ -11,7 +11,7 @@ the layout of the nodes in a distributed setting and take the actual
 binaries that each group of nodes (``specs.Role``) runs.
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 import torchx.specs as specs
 from torchx.components.base import torch_dist_role
@@ -20,8 +20,8 @@ from torchx.components.base import torch_dist_role
 def ddp(
     image: str,
     entrypoint: str,
-    rdzv_backend: str = "c10d",
-    rdzv_endpoint: str = "localhost:29400",
+    rdzv_backend: Optional[str] = None,
+    rdzv_endpoint: Optional[str] = None,
     resource: Optional[str] = None,
     nnodes: int = 1,
     nproc_per_node: int = 1,
@@ -60,13 +60,15 @@ def ddp(
         specs.AppDef: Torchx AppDef
     """
 
-    launch_kwargs = {
-        "rdzv_backend": rdzv_backend,
-        "rdzv_endpoint": rdzv_endpoint,
+    launch_kwargs: Dict[str, Any] = {
         "nnodes": nnodes,
         "nproc_per_node": nproc_per_node,
         "max_restarts": 0,
     }
+    if rdzv_backend:
+        launch_kwargs["rdzv_backend"] = rdzv_backend
+    if rdzv_endpoint:
+        launch_kwargs["rdzv_endpoint"] = rdzv_endpoint
 
     retry_policy: specs.RetryPolicy = specs.RetryPolicy.APPLICATION
 
