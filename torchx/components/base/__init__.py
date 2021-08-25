@@ -23,7 +23,7 @@ def _resolve_resource(resource: Union[str, Resource]) -> Resource:
     if isinstance(resource, Resource):
         return resource
     else:
-        return named_resources[resource.upper()]
+        return named_resources[resource]
 
 
 def torch_dist_role(
