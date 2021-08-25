@@ -20,14 +20,15 @@ from torchx.components.dist import ddp
 
 
 def trainer(
+    *script_args: str,
     image: str,
     resource: Optional[str] = None,
+    base_image: Optional[str] = None,
     nnodes: int = 1,
     nproc_per_node: int = 1,
     rdzv_backend: str = "c10d",
     rdzv_endpoint: str = "localhost:29400",
     env: Optional[Dict[str, str]] = None,
-    *script_args: str,
 ) -> torchx.AppDef:
     """Defines the component for cifar10 distributed trainer.
 
@@ -36,6 +37,7 @@ def trainer(
         resource: string representation of the resource, registerred via entry_point.
             More info: https://pytorch.org/torchx/latest/configure.html
             Default is torchx.NULL_RESOURCE
+        base_image: specifies the base image
         nnodes: number of nodes to run train on, default 1
         nproc_per_node: number of processes per node. Each process
             is assumed to use a separate GPU, default 1
@@ -51,7 +53,6 @@ def trainer(
     Returns:
         specs.AppDef: Torchx AppDef
     """
-
     return ddp(
         image,
         "dist_cifar/train.py",
@@ -60,7 +61,7 @@ def trainer(
         resource,
         nnodes,
         nproc_per_node,
-        None,
+        base_image,
         "cifar-trainer",
         "worker",
         env,

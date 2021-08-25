@@ -160,7 +160,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--output_path",
         type=str,
-        help="path to place checkpoints and model outputs",
+        help="path to place checkpoints",
         required=True,
     )
 

@@ -26,9 +26,7 @@ def trainer(
     load_path: str = "",
     log_path: str = "/logs",
     resource: Optional[str] = None,
-    nnodes: int = 1,
     env: Optional[Dict[str, str]] = None,
-    nproc_per_node: int = 1,
     skip_export: bool = False,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
@@ -41,9 +39,7 @@ def trainer(
         entrypoint: user script to launch.
         log_path: path to save tensorboard logs to
         resource: the resources to use
-        nnodes: number of nodes
         env: env variables for the app
-        nproc_per_node: number of processes per node
         skip_export: disable model export
     """
     env = env or {}

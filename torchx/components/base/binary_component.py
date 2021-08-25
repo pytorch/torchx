@@ -15,7 +15,7 @@ def binary_component(
     entrypoint: str,
     args: Optional[List[str]] = None,
     env: Optional[Dict[str, str]] = None,
-    resource: api.Resource = api.NULL_RESOURCE,
+    resource: Optional[api.Resource] = None,
 ) -> api.AppDef:
     """
     binary_component creates a single binary component from the
@@ -33,6 +33,9 @@ def binary_component(
     ... )
     AppDef(name='datapreproc', ...)
     """
+
+    if not resource:
+        resource = api.NULL_RESOURCE
 
     return api.AppDef(
         name=name,
