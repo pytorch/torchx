@@ -13,6 +13,8 @@ from typing import Dict, List, Optional, Tuple, cast
 from docstring_parser import parse
 from pyre_extensions import none_throws
 
+# pyre-ignore-all-errors[16]
+
 
 def get_arg_names(app_specs_func_def: ast.FunctionDef) -> List[str]:
     arg_names = []
@@ -137,7 +139,6 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
             # TODO(aivanou): add support for primitive type check
             return []
         complex_type_def = cast(ast.Subscript, none_throws(arg_def.annotation))
-        # pyre-fixme[16]: # TODO(aivanou) remove fixme
         if complex_type_def.value.id == "Optional":
             # ast module in python3.9 does not have ast.Index wrapper
             if isinstance(complex_type_def.slice, ast.Index):
@@ -148,7 +149,6 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
             if isinstance(complex_type_def, ast.Name):
                 return []
         # Check if type is Union[Dict,List]
-        # pyre-fixme[16]: `expr` has no attribute `value`.
         type_name = complex_type_def.value.id
         if type_name != "Dict" and type_name != "List":
             desc = (
@@ -158,7 +158,6 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
             return [self._gen_linter_message(desc, arg_def.lineno)]
         linter_errors = []
         # ast module in python3.9 does not have objects wrapped in ast.Index
-        # pyre-fixme[16]: `expr` has no attribute `slice`.
         if isinstance(complex_type_def.slice, ast.Index):
             sub_type = complex_type_def.slice.value
         else:

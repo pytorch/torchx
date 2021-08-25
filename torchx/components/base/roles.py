@@ -4,7 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import os
 from dataclasses import field
 from typing import Any, Dict, List, Optional
 
@@ -88,7 +87,7 @@ def create_torch_dist_role(
     env = env or {}
 
     entrypoint_override = "python"
-    torch_run_args: List[str] = ["-m", "torch.distributed.launch"]
+    torch_run_args: List[str] = ["-m", "torch.distributed.run"]
 
     launch_kwargs.setdefault("rdzv_backend", "etcd")
     launch_kwargs.setdefault("rdzv_id", macros.app_id)
@@ -101,9 +100,6 @@ def create_torch_dist_role(
                 torch_run_args += [f"--{arg}"]
         else:
             torch_run_args += [f"--{arg}", str(val)]
-    if not os.path.isabs(entrypoint) and not entrypoint.startswith(macros.img_root):
-        # make entrypoint relative to {img_root} ONLY if it is not an absolute path
-        entrypoint = os.path.join(macros.img_root, entrypoint)
 
     args = [*torch_run_args, entrypoint, *args]
     return Role(

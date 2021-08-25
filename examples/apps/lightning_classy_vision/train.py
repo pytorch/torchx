@@ -67,7 +67,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="path to place the tensorboard logs",
         default="/tmp",
     )
-
     return parser.parse_args(argv)
 
 

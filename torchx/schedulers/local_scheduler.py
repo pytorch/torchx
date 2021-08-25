@@ -23,6 +23,7 @@ from types import FrameType
 from typing import Any, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
 from uuid import uuid4
 
+from pyre_extensions import none_throws
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
 from torchx.specs.api import (
     NONE,
@@ -198,9 +199,9 @@ class _LocalReplica:
 
         # close stdout and stderr log file handles
         if self.stdout:
-            self.stdout.close()
+            none_throws(self.stdout).close()
         if self.stderr:
-            self.stderr.close()
+            none_throws(self.stderr).close()
 
     def is_alive(self) -> bool:
         return self.proc.poll() is None
