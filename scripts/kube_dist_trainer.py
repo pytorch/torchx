@@ -13,6 +13,7 @@
 from torchx.runner import get_runner
 from torchx.specs import Resource
 from torchx.specs import named_resources
+from examples.apps.dist_cifar.component import trainer
 
 GiB: int = 1024
 
