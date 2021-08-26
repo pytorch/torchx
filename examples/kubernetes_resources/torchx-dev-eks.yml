@@ -1,0 +1,108 @@
+# Source: https://raw.githubusercontent.com/weaveworks/eksctl/main/examples/23-kubeflow-spot-instance.yaml
+#
+# Kubeflow with GPU instances
+# This spec creates a cluster on EKS with the following active nodes
+# - 2x m5.2xlarge - Accommodates all pods of Kubeflow
+# - m5.2xlarge   -- Max Allowed 1 worker nodes
+# - p3.2xlarge    -- Max Allowed 4 worker nodes
+
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: torchx-dev-1-18
+  region: us-west-2
+  # https://www.kubeflow.org/docs/distributions/aws/deploy/install-kubeflow/
+  # although k8s 1.19 is available on eks,
+  # 1.18 is officially documented as "compatible" with kf
+  version: '1.18'
+  tags:
+    environment: dev
+
+availabilityZones: [ "us-west-2a", "us-west-2b",  "us-west-2c",  "us-west-2d" ]
+
+managedNodeGroups:
+  - name: kfp-workers
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 4
+    # Set one nodegroup with 100GB volumes for Kubeflow to get deployed.
+    # Kubeflow requirement states 1-2 Nodes with 100GB volume attached to the node.
+    volumeSize: 200
+    volumeType: gp2
+    instanceType: m5.2xlarge
+    availabilityZones: [ "us-west-2a", "us-west-2b" ]
+    labels:
+      lifecycle: OnDemand
+      aws.amazon.com/spot: "false"
+      node-class: "worker-node"
+    tags:
+      # EC2 tags required for cluster-autoscaler auto-discovery
+      k8s.io/cluster-autoscaler/node-template/label/lifecycle: OnDemand
+      k8s.io/cluster-autoscaler/node-template/label/aws.amazon.com/spot: "false"
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/torchx-dev: "owned"
+      k8s.io/cluster-autoscaler/node-template/label/node-class: "worker-node"
+    iam:
+      withAddonPolicies:
+        albIngress: true
+        autoScaler: true
+        cloudWatch: true
+    ssh:
+      publicKeyName: torchx-dev-v1
+      allow: true
+
+  - name: workers
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 4
+    volumeType: gp2
+    instanceType: m5.2xlarge
+    availabilityZones: [ "us-west-2a", "us-west-2b" ]
+    labels:
+      lifecycle: OnDemand
+      aws.amazon.com/spot: "false"
+      node-class: "worker-node"
+    tags:
+      # EC2 tags required for cluster-autoscaler auto-discovery
+      k8s.io/cluster-autoscaler/node-template/label/lifecycle: OnDemand
+      k8s.io/cluster-autoscaler/node-template/label/aws.amazon.com/spot: "false"
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/torchx-dev: "owned"
+      k8s.io/cluster-autoscaler/node-template/label/node-class: "worker-node"
+    iam:
+      withAddonPolicies:
+        albIngress: true
+        autoScaler: true
+        cloudWatch: true
+    ssh:
+      publicKeyName: torchx-dev-v1
+      allow: true
+
+  - name: gpu-workers
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 4
+    volumeType: gp2
+    instanceType: p3.2xlarge
+    availabilityZones: [ "us-west-2a", "us-west-2b" ]
+    labels:
+      lifecycle: OnDemand
+      aws.amazon.com/spot: "false"
+      node-class: "worker-node"
+    tags:
+      # EC2 tags required for cluster-autoscaler auto-discovery
+      k8s.io/cluster-autoscaler/node-template/label/lifecycle: OnDemand
+      k8s.io/cluster-autoscaler/node-template/label/aws.amazon.com/spot: "false"
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/torchx-dev: "owned"
+      k8s.io/cluster-autoscaler/node-template/label/node-class: "worker-node"
+    iam:
+      withAddonPolicies:
+        albIngress: true
+        autoScaler: true
+        cloudWatch: true
+    ssh:
+      publicKeyName: torchx-dev-v1
+      allow: true
