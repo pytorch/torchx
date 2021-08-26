@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from typing import List, Callable
 
+import torchx
 import yaml
 from kfp import compiler, components, dsl
 from kubernetes.client.models import V1ContainerPort, V1ResourceRequirements
@@ -124,6 +125,16 @@ outputs: []
             self.assertEqual(
                 a.output_artifact_paths["mlpipeline-ui-metadata"],
                 "/tmp/outputs/mlpipeline-ui-metadata/data.json",
+            )
+            self.assertEqual(
+                a.pod_labels,
+                {
+                    "torchx.pytorch.org/version": torchx.__version__,
+                    "torchx.pytorch.org/app-name": "test",
+                    "torchx.pytorch.org/role-index": "0",
+                    "torchx.pytorch.org/role-name": "trainer",
+                    "torchx.pytorch.org/replica-id": "0",
+                },
             )
 
         self._compile_pipeline(pipeline)

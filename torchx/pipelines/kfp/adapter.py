@@ -22,7 +22,10 @@ from kubernetes.client.models import (
     V1VolumeMount,
     V1EmptyDirVolumeSource,
 )
-from torchx.schedulers.kubernetes_scheduler import app_to_resource
+from torchx.schedulers.kubernetes_scheduler import (
+    app_to_resource,
+    pod_labels,
+)
 from torchx.specs import api
 from typing_extensions import Protocol
 
@@ -176,6 +179,8 @@ def component_from_app(
                     container_port=port,
                 ),
             )
+
+        c.pod_labels.update(pod_labels(app, 0, role_spec, 0))
 
         return c
 

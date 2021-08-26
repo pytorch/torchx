@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         V1ContainerPort,
     )
 
+import torchx
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -102,6 +103,14 @@ TASK_STATE: Dict[str, ReplicaState] = {
     "Unknown": ReplicaState.UNKNOWN,
 }
 
+LABEL_VERSION = "torchx.pytorch.org/version"
+LABEL_APP_NAME = "torchx.pytorch.org/app-name"
+LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
+LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
+LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
+
+ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
+
 
 def sanitize_for_serialization(obj: object) -> object:
     from kubernetes import client
@@ -118,6 +127,7 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
         V1EnvVar,
         V1ResourceRequirements,
         V1ContainerPort,
+        V1ObjectMeta,
     )
 
     assert role.base_image is None, "base_image is not supported by Kubernetes"
@@ -162,6 +172,14 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
             containers=[container],
             restart_policy="Never",
         ),
+        metadata=V1ObjectMeta(
+            annotations={
+                # Disable the istio sidecar as it prevents the containers from
+                # exiting once finished.
+                ANNOTATION_ISTIO_SIDECAR: "false",
+            },
+            labels={},
+        ),
     )
 
 
@@ -180,7 +198,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     count is set to the minimum of the max_retries of the roles.
     """
     tasks = []
-    for i, role in enumerate(app.roles):
+    for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
                 img_root="",
@@ -189,7 +207,10 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
             )
             name = f"{role.name}-{replica_id}"
             replica_role = values.apply(role)
+
             pod = role_to_pod(name, replica_role)
+            pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
+
             tasks.append(
                 {
                     "replicas": 1,
@@ -417,3 +438,15 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
     return KubernetesScheduler(
         session_name=session_name,
     )
+
+
+def pod_labels(
+    app: AppDef, role_idx: int, role: Role, replica_id: int
+) -> Dict[str, str]:
+    return {
+        LABEL_VERSION: torchx.__version__,
+        LABEL_APP_NAME: app.name,
+        LABEL_ROLE_INDEX: str(role_idx),
+        LABEL_ROLE_NAME: role.name,
+        LABEL_REPLICA_ID: str(replica_id),
+    }

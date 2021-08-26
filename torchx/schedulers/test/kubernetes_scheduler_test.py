@@ -10,6 +10,7 @@ import unittest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
+import torchx
 from torchx import schedulers
 from torchx import specs
 
@@ -55,6 +56,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             V1EnvVar,
             V1ResourceRequirements,
             V1ContainerPort,
+            V1ObjectMeta,
         )
 
         app = _test_app()
@@ -82,6 +84,12 @@ class KubernetesSchedulerTest(unittest.TestCase):
                 containers=[container],
                 restart_policy="Never",
             ),
+            metadata=V1ObjectMeta(
+                annotations={
+                    "sidecar.istio.io/inject": "false",
+                },
+                labels={},
+            ),
         )
 
         self.assertEqual(
@@ -105,7 +113,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
 
         self.assertEqual(
             resource,
-            """apiVersion: batch.volcano.sh/v1alpha1
+            f"""apiVersion: batch.volcano.sh/v1alpha1
 kind: Job
 metadata:
   generateName: test-
@@ -126,6 +134,15 @@ spec:
       event: PodFailed
     replicas: 1
     template:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: 'false'
+        labels:
+          torchx.pytorch.org/app-name: test
+          torchx.pytorch.org/replica-id: '0'
+          torchx.pytorch.org/role-index: '0'
+          torchx.pytorch.org/role-name: trainer
+          torchx.pytorch.org/version: {torchx.__version__}
       spec:
         containers:
         - command:
