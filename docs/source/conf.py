@@ -32,6 +32,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.util.docfields import TypedField
 
+sys.path.append(os.path.abspath("./ext"))
 
 if True:  # stop isort from reordering
     sys.path.append(os.path.abspath("../.."))
@@ -59,6 +60,7 @@ extensions = [
     "sphinxcontrib.katex",
     "sphinx.ext.autosectionlabel",
     "sphinx_gallery.gen_gallery",
+    "compatibility",
 ]
 
 # katex options

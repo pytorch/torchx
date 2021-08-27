@@ -171,6 +171,18 @@ class SlurmScheduler(Scheduler):
         $ torchx status slurm://torchx_user/1234
         $ less slurm-1234.out
         ...
+
+    .. compatibility::
+        type: scheduler
+        features:
+            cancel: true
+            logs: |
+                Logs are accessible via the default slurm log file but not the
+                programmatic API.
+            distributed: true
+            describe: |
+                Partial support. SlurmScheduler will return job and replica
+                status but does not provide the complete original AppSpec.
     """
 
     def __init__(self, session_name: str) -> None:

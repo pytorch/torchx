@@ -399,10 +399,20 @@ class LocalScheduler(Scheduler):
     4. Retry counts (no retries supported)
     5. Deployment preferences
 
-    ..note:: Use this scheduler sparingly since an application
-             that runs successfully on a session backed by this
-             scheduler may not work on an actual production cluster
-             using a different scheduler.
+    .. note::
+        Use this scheduler sparingly since an application that runs successfully
+        on a session backed by this scheduler may not work on an actual
+        production cluster using a different scheduler.
+
+    .. compatibility::
+        type: scheduler
+        features:
+            cancel: true
+            logs: true
+            distributed: |
+                LocalScheduler supports multiple replicas but all replicas will
+                execute on the local host.
+            describe: true
     """
 
     def __init__(self, session_name: str, cache_size: int = 100) -> None:

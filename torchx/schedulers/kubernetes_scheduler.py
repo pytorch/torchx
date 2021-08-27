@@ -271,6 +271,16 @@ class KubernetesScheduler(Scheduler):
         kubernetes://torchx_user/1234
         $ torchx status kubernetes://torchx_user/1234
         ...
+
+    .. compatibility::
+        type: scheduler
+        features:
+            cancel: true
+            logs: true
+            distributed: true
+            describe: |
+                Partial support. KubernetesScheduler will return job and replica
+                status but does not provide the complete original AppSpec.
     """
 
     def __init__(self, session_name: str, client: Optional["ApiClient"] = None) -> None:
