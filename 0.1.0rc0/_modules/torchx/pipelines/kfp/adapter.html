@@ -359,7 +359,10 @@
     <span class="n">V1VolumeMount</span><span class="p">,</span>
     <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="kn">import</span> <span class="n">app_to_resource</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">app_to_resource</span><span class="p">,</span>
+    <span class="n">pod_labels</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">api</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span>
 
@@ -513,6 +516,8 @@
                     <span class="n">container_port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">)</span>
+
+        <span class="n">c</span><span class="o">.</span><span class="n">pod_labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">role_spec</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">c</span>
 
