@@ -738,10 +738,20 @@
 <span class="sd">    4. Retry counts (no retries supported)</span>
 <span class="sd">    5. Deployment preferences</span>
 
-<span class="sd">    ..note:: Use this scheduler sparingly since an application</span>
-<span class="sd">             that runs successfully on a session backed by this</span>
-<span class="sd">             scheduler may not work on an actual production cluster</span>
-<span class="sd">             using a different scheduler.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Use this scheduler sparingly since an application that runs successfully</span>
+<span class="sd">        on a session backed by this scheduler may not work on an actual</span>
+<span class="sd">        production cluster using a different scheduler.</span>
+
+<span class="sd">    .. compatibility::</span>
+<span class="sd">        type: scheduler</span>
+<span class="sd">        features:</span>
+<span class="sd">            cancel: true</span>
+<span class="sd">            logs: true</span>
+<span class="sd">            distributed: |</span>
+<span class="sd">                LocalScheduler supports multiple replicas but all replicas will</span>
+<span class="sd">                execute on the local host.</span>
+<span class="sd">            describe: true</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

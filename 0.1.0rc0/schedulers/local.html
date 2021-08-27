@@ -355,12 +355,39 @@ runs are ignored. Properties that are ignored:</p>
 <li><p>Retry counts (no retries supported)</p></li>
 <li><p>Deployment preferences</p></li>
 </ol>
-<dl class="simple">
-<dt>..note:: Use this scheduler sparingly since an application</dt><dd><p>that runs successfully on a session backed by this
-scheduler may not work on an actual production cluster
-using a different scheduler.</p>
-</dd>
-</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use this scheduler sparingly since an application that runs successfully
+on a session backed by this scheduler may not work on an actual
+production cluster using a different scheduler.</p>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Scheduler Support</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Fetch Logs</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-odd"><td><p>Distributed Jobs</p></td>
+<td><p>LocalScheduler supports multiple replicas but all replicas will
+execute on the local host.
+</p></td>
+</tr>
+<tr class="row-even"><td><p>Cancel Job</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-odd"><td><p>Describe Job</p></td>
+<td><p>✔️</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.local_scheduler.LocalScheduler.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference internal" href="../_modules/torchx/schedulers/local_scheduler.html#LocalScheduler.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.local_scheduler.LocalScheduler.close" title="Permalink to this definition">¶</a></dt>
