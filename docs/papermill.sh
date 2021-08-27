@@ -5,9 +5,11 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+set -ex
+
 WORK_DIR=/tmp/papermill
 
-set -ex
+rm -r "$WORK_DIR" || true
 mkdir -p "$WORK_DIR"
 
 # create empty main.tar.gz file and setup symlinks instead of pulling from
