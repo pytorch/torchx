@@ -16,7 +16,7 @@ jobs:
           chmod +x kubectl
           mkdir -p ~/.local/bin/kubectl
           mv ./kubectl ~/.local/bin/kubectl
-          export PATH=$PATH:~/.local/bin/
+          export PATH=$PATH:~/.local/bin/kubectl
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
