@@ -53,15 +53,13 @@ jobs:
           set -eux
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
             aws eks update-kubeconfig --region=us-west-2 --name=torchx-dev-1-18
-            kubectl get pods
           fi
-
-#      - name: Run KFP Integration Tests
-#        env:
-#          KFP_HOST: ${{ secrets.KFP_HOST }}
-#          KFP_USERNAME: ${{ secrets.KFP_USERNAME }}
-#          KFP_PASSWORD: ${{ secrets.KFP_PASSWORD }}
-#          KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
-#          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
-#          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
-#        run: scripts/kfpint.py
+      - name: Run KFP Integration Tests
+        env:
+          KFP_HOST: ${{ secrets.KFP_HOST }}
+          KFP_USERNAME: ${{ secrets.KFP_USERNAME }}
+          KFP_PASSWORD: ${{ secrets.KFP_PASSWORD }}
+          KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
+          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
+          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
+        run: scripts/kfpint.py
