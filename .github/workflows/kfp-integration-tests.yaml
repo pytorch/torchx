@@ -50,7 +50,12 @@ jobs:
           set -eux
           pip install -r dev-requirements.txt
           python setup.py install
-          kubectl get pods
+          set -eux
+          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+            aws eks update-kubeconfig --region=us-west-2 --name=torchx-dev-1-18
+            kubectl get pods
+          fi
+
 #      - name: Run KFP Integration Tests
 #        env:
 #          KFP_HOST: ${{ secrets.KFP_HOST }}
