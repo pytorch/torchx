@@ -38,12 +38,13 @@ jobs:
           set -eux
           pip install -r dev-requirements.txt
           python setup.py install
-      - name: Run KFP Integration Tests
-        env:
-          KFP_HOST: ${{ secrets.KFP_HOST }}
-          KFP_USERNAME: ${{ secrets.KFP_USERNAME }}
-          KFP_PASSWORD: ${{ secrets.KFP_PASSWORD }}
-          KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
-          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
-          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
-        run: scripts/kfpint.py
+          kubectl get pods
+#      - name: Run KFP Integration Tests
+#        env:
+#          KFP_HOST: ${{ secrets.KFP_HOST }}
+#          KFP_USERNAME: ${{ secrets.KFP_USERNAME }}
+#          KFP_PASSWORD: ${{ secrets.KFP_PASSWORD }}
+#          KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
+#          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
+#          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
+#        run: scripts/kfpint.py
