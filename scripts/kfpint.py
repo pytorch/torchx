@@ -50,10 +50,34 @@ import subprocess
 import tempfile
 from contextlib import contextmanager
 from getpass import getuser
-from typing import Optional, Iterator, Any
+from typing import Optional, Iterator, Any, TypeVar, Callable
 
 import kfp
-import requests
+
+T = TypeVar("T")
+
+
+def retryer(f: Callable[..., T]) -> Callable[..., T]:
+    retries: int = 5
+    backoff: int = 3
+
+    def wrapper(*args, **kwargs):
+        curr_retries = 0
+        while True:
+            try:
+                return f(*args, **kwargs)
+            except:
+                if curr_retries == retries:
+                    raise
+                else:
+                    sleep = backoff * 2 ** curr_retries
+                    fn_name = f.__qualname__
+                    print(f"retrying `{fn_name}` request after {sleep} seconds")
+                    time.sleep(sleep)
+                    curr_retries += 1
+                    continue
+
+    return wrapper
 
 
 @dataclasses.dataclass
@@ -74,25 +98,38 @@ def getenv_asserts(env: str) -> str:
     return v
 
 
-def get_client(host: str) -> kfp.Client:
-    USERNAME = getenv_asserts("KFP_USERNAME")
-    PASSWORD = getenv_asserts("KFP_PASSWORD")
+def run_in_bg(*args: str) -> subprocess.Popen:
+    print(f"run {args}")
+    return subprocess.Popen(args)
 
-    session = requests.Session()
-    response = session.get(host)
 
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
+def get_free_port() -> int:
+    return 8080
 
-    data = {"login": USERNAME, "password": PASSWORD}
-    session.post(response.url, headers=headers, data=data)
-    session_cookie = session.cookies.get_dict()["authservice_session"]
 
-    return kfp.Client(
-        host=f"{host}/pipeline",
-        cookies=f"authservice_session={session_cookie}",
+def enable_port_forward() -> subprocess.Popen:
+    # Enable port forward via running background process.
+    # Kubernetes python does not support a clean way of
+    # Kubernetes python cli provides a socket, more info:
+    # https://github.com/kubernetes-client/python/blob/master/examples/pod_portforward.py
+    # The drawback of this method is that we have to monkey patch
+    # the urllib, which is used by the kfp client.
+    # This approach is more cleaner than to use the python cli directly.
+    namespace = getenv_asserts("KFP_NAMESPACE")
+    local_port = get_free_port()
+    return run_in_bg(
+        "kubectl",
+        "port-forward",
+        "-n",
+        namespace,
+        "svc/ml-pipeline-ui",
+        f"{local_port}:80",
     )
+
+
+@retryer
+def get_client(host: str) -> kfp.Client:
+    return kfp.Client(host=f"{host}/pipeline")
 
 
 def run(*args: str) -> None:
@@ -219,6 +256,7 @@ def path_or_tmp(path: Optional[str]) -> Iterator[str]:
 def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
     print(f"launching pipeline {pipeline_file}")
     HOST: str = getenv_asserts("KFP_HOST")
+    HOST: str = "http://localhost:8080"
 
     client = get_client(HOST)
     resp = client.create_run_from_pipeline_package(
@@ -233,7 +271,7 @@ def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
 
 
 def wait_for_pipeline(
-    resp: Any,  # pyre-fixme: KFP doesn't have a response type
+        resp: Any,  # pyre-fixme: KFP doesn't have a response type
 ) -> None:
     print(f"{resp.run_id} - waiting for completion")
     result = resp.wait_for_run_completion(
@@ -287,5 +325,11 @@ async def main() -> None:
             wait_for_pipeline(run)
 
 
+import time
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    port_forward_proc = enable_port_forward()
+    try:
+        asyncio.run(main())
+    finally:
+        port_forward_proc.kill()
