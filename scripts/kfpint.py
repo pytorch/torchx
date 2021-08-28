@@ -328,8 +328,10 @@ async def main() -> None:
 import time
 
 if __name__ == "__main__":
-    port_forward_proc = enable_port_forward()
-    try:
-        asyncio.run(main())
-    finally:
-        port_forward_proc.kill()
+    run("kubectl", "get", "pods")
+
+    # port_forward_proc = enable_port_forward()
+    # try:
+    #     asyncio.run(main())
+    # finally:
+    #     port_forward_proc.kill()
