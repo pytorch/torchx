@@ -121,7 +121,7 @@ def enable_port_forward() -> subprocess.Popen:
         "kubectl",
         "port-forward",
         "-n",
-        namespace,
+        "torchx-dev",
         "svc/ml-pipeline-ui",
         f"{local_port}:80",
     )
