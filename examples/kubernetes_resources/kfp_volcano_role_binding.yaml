@@ -1,0 +1,25 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kfp-volcano
+rules:
+- apiGroups:
+  - "*"
+  resources:
+  - jobs
+  verbs:
+  - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kfp-volcano
+  namespace: torchx-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kfp-volcano
+subjects:
+- kind: ServiceAccount
+  name: pipeline-runner
+  namespace: torchx-dev

@@ -24,7 +24,7 @@ jobs:
         run: |
           set -eux
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
-            aws eks update-kubeconfig --region=us-west-2 --name=torchx-dev
+            aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
           fi
       - name: Install dependencies
         run: |
@@ -45,7 +45,7 @@ jobs:
 
           torchx runopts kubernetes
           APP_ID="$(torchx run --wait $ARGS --scheduler kubernetes \
-            --scheduler_args queue=test utils.echo \
+            --scheduler_args queue=default utils.echo \
             --image alpine:latest --num_replicas 3)"
           if [ "$ARGS" != "--dryrun" ]; then
             torchx status "$APP_ID"
