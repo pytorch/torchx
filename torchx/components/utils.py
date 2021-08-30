@@ -114,7 +114,7 @@ def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
                 image=image,
                 entrypoint="python3",
                 args=[
-                    "torchx/apps/utils/copy.py",
+                    "torchx/apps/utils/copy_main.py",
                     "--src",
                     src,
                     "--dst",
