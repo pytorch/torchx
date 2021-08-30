@@ -226,21 +226,15 @@ def save_advanced_pipeline_spec(path: str, build: BuildInfo) -> None:
 
     STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(STORAGE_PATH, id)
-    data = os.path.join(root, "data")
     output = os.path.join(root, "output")
-    logs = os.path.join(root, "logs")
 
     save_pipeline_spec(
         path,
         "advanced_pipeline.py",
-        "--data_path",
-        data,
         "--output_path",
         output,
         "--image",
         examples_image,
-        "--log_path",
-        logs,
         "--torchx_image",
         torchx_image,
         "--model_name",

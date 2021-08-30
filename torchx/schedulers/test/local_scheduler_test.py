@@ -24,10 +24,10 @@ from pyre_extensions import none_throws
 from torchx.components.base.binary_component import binary_component
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
+    ReplicaParam,
     DockerImageProvider,
     LocalDirectoryImageProvider,
     LocalScheduler,
-    SignalException,
     make_unique,
 )
 from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
@@ -304,6 +304,20 @@ class LocalSchedulerTest(unittest.TestCase):
         desc = self.wait(app_id, self.scheduler)
         assert desc is not None
         self.assertEqual(AppState.SUCCEEDED, desc.state)
+
+    def test_child_process_env(self) -> None:
+        dir_path = "/tmp/users"
+        replica_params = ReplicaParam([], {}, None, None, dir_path)
+        child_env = self.scheduler._get_child_process_env(replica_params)
+        path = child_env["PATH"]
+        self.assertTrue(dir_path in path)
+
+    def test_child_process_env_none(self) -> None:
+        replica_params = ReplicaParam([], {}, None, None, None)
+        parent_proc_path = os.environ["PATH"]
+        child_env = self.scheduler._get_child_process_env(replica_params)
+        child_proc_path = child_env["PATH"]
+        self.assertEqual(parent_proc_path, child_proc_path)
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_override_parent_env(self) -> None:

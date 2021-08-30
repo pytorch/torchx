@@ -84,7 +84,7 @@ class ImageProvider(abc.ABC):
     def fetch(self, image: str) -> str:
         """
         Pulls the given image and returns a path to the pulled image on
-        the local host.
+        the local host or empty string if no op
         """
         raise NotImplementedError()
 
@@ -96,6 +96,19 @@ class ImageProvider(abc.ABC):
         Returns the command line required to run the specified image.
         """
         raise NotImplementedError()
+
+    def get_cwd(self, image: str) -> Optional[str]:
+        """
+        Returns the absolute path of the mounted img directory. Used as a working
+        directory for starting child processes.
+        """
+        return None
+
+    def get_entrypoint(self, img_root: str, role: Role) -> str:
+        """
+        Returns the location of the entrypoint.
+        """
+        return os.path.join(img_root, role.entrypoint)
 
 
 class LocalDirectoryImageProvider(ImageProvider):
@@ -136,6 +149,23 @@ class LocalDirectoryImageProvider(ImageProvider):
     ) -> List[str]:
         return args
 
+    def get_cwd(self, image: str) -> Optional[str]:
+        """
+        Returns the absolute working directory. Used as a working
+        directory for the child process.
+        """
+        return image
+
+    def get_entrypoint(self, img_root: str, role: Role) -> str:
+        """
+        Returns the role entrypoint. When local scheduler is executed with
+        image_type=dir, the childprocess working directory will be set to the
+        img_root. If `role.entrypoint` is relative path, it would be resolved
+        as `img_root/role.entrypoint`, if `role.entrypoint` is absolute path,
+        it will be executed as provided.
+        """
+        return role.entrypoint
+
 
 class DockerImageProvider(ImageProvider):
     """
@@ -143,8 +173,8 @@ class DockerImageProvider(ImageProvider):
 
     Example:
 
-    1. ``fetch(Image(name="pytorch/pytorch:latest"))`` returns ``pytorch/pytorch:latest``
-    """
+       ``fetch(Image(name="pytorch/pytorch:latest"))`` pulls docker image, returns ""
+       ``get_command(image="pytorch/pytorch:latest", ..)`` return ``docker run ...``"""
 
     def __init__(self, cfg: RunConfig) -> None:
         pass
@@ -367,6 +397,7 @@ class ReplicaParam:
     env: Dict[str, str]
     stdout: Optional[str]
     stderr: Optional[str]
+    cwd: Optional[str] = None
 
 
 @dataclass
@@ -514,6 +545,26 @@ class LocalScheduler(Scheduler):
         os.makedirs(os.path.dirname(file), exist_ok=True)
         return open(file, mode="w")
 
+    def _get_child_process_env(self, replica_params: ReplicaParam) -> Dict[str, str]:
+        # inherit parent's env vars since 99.9% of the time we want this behavior
+        # just make sure we override the parent's env vars with the user_defined ones
+        env = os.environ.copy()
+        env.update(replica_params.env)
+
+        # Add img root to the end of the path to be able to access executables
+        # using relative path, e.g.: `--img_root /users --entrypoint test.sh`
+        # will be resolved to /users/test.sh
+        # The path is attached to the end, giving it the lowest priority
+        if replica_params.cwd:
+            child_cwd = none_throws(replica_params.cwd)
+            path = env.get("PATH", "")
+            if path == "":
+                path = child_cwd
+            else:
+                path = f"{path}:{child_cwd}"
+            env["PATH"] = path
+        return env
+
     def _popen(
         self, role_name: RoleName, replica_id: int, replica_params: ReplicaParam
     ) -> _LocalReplica:
@@ -524,11 +575,7 @@ class LocalScheduler(Scheduler):
 
         stdout_ = self._get_file_io(replica_params.stdout)
         stderr_ = self._get_file_io(replica_params.stderr)
-
-        # inherit parent's env vars since 99.9% of the time we want this behavior
-        # just make sure we override the parent's env vars with the user_defined ones
-        env = os.environ.copy()
-        env.update(replica_params.env)
+        env = self._get_child_process_env(replica_params)
 
         error_file = env["TORCHELASTIC_ERROR_FILE"]
 
@@ -541,6 +588,7 @@ class LocalScheduler(Scheduler):
             stdout=stdout_,
             stderr=stderr_,
             start_new_session=True,
+            cwd=replica_params.cwd,
         )
         return _LocalReplica(
             role_name,
@@ -646,9 +694,10 @@ class LocalScheduler(Scheduler):
                 cmd = self._get_base_image_runner_cmd(cfg, role)
                 base_img_root = image_provider.fetch(base_image)
             else:
-                cmd = os.path.join(img_root, role.entrypoint)
+                cmd = image_provider.get_entrypoint(img_root, role)
                 base_img_root = NONE
 
+            cwd = image_provider.get_cwd(role.image)
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
                     img_root=img_root,
@@ -678,7 +727,7 @@ class LocalScheduler(Scheduler):
 
                 provider_cmd = image_provider.get_command(role.image, args, env_vars)
                 replica_params.append(
-                    ReplicaParam(provider_cmd, env_vars, stdout, stderr)
+                    ReplicaParam(provider_cmd, env_vars, stdout, stderr, cwd)
                 )
                 replica_log_dirs.append(replica_log_dir)
 
