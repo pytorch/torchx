@@ -1,5 +1,11 @@
 # Source: https://raw.githubusercontent.com/weaveworks/eksctl/main/examples/23-kubeflow-spot-instance.yaml
-#
+
+# Running script:
+# export CLUSTER_NAME="torchx-dev"
+# export KFP_VERSION="1.18"
+# envsubst < torchx-dev-eks-template.yml > torchx-dev-eks.yml
+# eksctl create cluster -f torchx-dev-eks.yml
+
 # Kubeflow with GPU instances
 # This spec creates a cluster on EKS with the following active nodes
 # - 2x m5.2xlarge - Accommodates all pods of Kubeflow
@@ -11,7 +17,7 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: torchx-dev-1-18
+  name: ${CLUSTER_NAME}
   region: us-west-2
   # https://www.kubeflow.org/docs/distributions/aws/deploy/install-kubeflow/
   version: '${KFP_VERSION}'

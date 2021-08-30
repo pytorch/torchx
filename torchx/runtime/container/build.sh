@@ -7,4 +7,4 @@
 
 set -ex
 
-tar -czh --exclude docs --exclude .git . | docker build -t torchx - -f torchx/runtime/container/Dockerfile
+gtar -czh --exclude docs --exclude .git . | docker build -t torchx - -f torchx/runtime/container/Dockerfile

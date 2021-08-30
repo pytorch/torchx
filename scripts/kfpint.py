@@ -279,7 +279,6 @@ def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
         arguments={},
         experiment_name="integration-tests",
         run_name=f"integration test {build.id} - {os.path.basename(pipeline_file)}",
-        namespace=namespace,
     )
     ui_url = f"{HOST}/_/pipeline/#/runs/details/{resp.run_id}"
     print(f"{resp.run_id} - launched! view run at {ui_url}")
