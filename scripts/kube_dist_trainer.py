@@ -39,7 +39,7 @@ def run(*args: str) -> None:
 
 
 def build_examples_canary(id: str) -> str:
-    examples_tag = "torchx_examples_canary"
+    examples_tag = f"torchx_{id}"
 
     print(f"building {examples_tag}")
     run("docker", "build", "-t", examples_tag, "examples/apps/")
@@ -78,8 +78,10 @@ def build_and_push_image():
     print(f"Pushing docker image: {img_tag}")
     return img_tag
 
-def get_dryrun_option()->bool:
-    return os.environ.get("EXEC_MODE", "run") =="dryrun"
+
+def get_dryrun_option() -> bool:
+    return os.environ.get("EXEC_MODE", "run") == "dryrun"
+
 
 def run_job(tmp_dir: str) -> None:
     register_gpu_resource()
@@ -99,7 +101,7 @@ def run_job(tmp_dir: str) -> None:
     cfg.set("queue", "default")
     print("Submitting pods")
     dryrun = get_dryrun_option()
-    app_handle = runner.run(train_app, "kubernetes", cfg,dryrun)
+    app_handle = runner.run(train_app, "kubernetes", cfg, dryrun)
     print(app_handle)
     runner.wait(app_handle)
     final_status = runner.status(app_handle)
