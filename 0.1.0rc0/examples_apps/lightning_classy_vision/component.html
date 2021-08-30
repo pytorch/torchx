@@ -386,6 +386,7 @@ to download the full example code</p>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">skip_export</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Runs the example lightning_classy_vision app.</span>
 
@@ -399,6 +400,7 @@ to download the full example code</p>
 <span class="sd">        resource: the resources to use</span>
 <span class="sd">        env: env variables for the app</span>
 <span class="sd">        skip_export: disable model export</span>
+<span class="sd">        epochs: number of epochs to run</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
@@ -410,6 +412,8 @@ to download the full example code</p>
         <span class="n">log_path</span><span class="p">,</span>
         <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
         <span class="n">data_path</span><span class="p">,</span>
+        <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">epochs</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">skip_export</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--skip_export&quot;</span><span class="p">)</span>

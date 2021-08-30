@@ -406,21 +406,12 @@ need to rebuild the container before launching it on KFP</p>
 away dealing with remote filesystems. This allows the components to take
 paths like <cite>s3://</cite> to make it easy to use cloud storage providers.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-    <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place the data&quot;</span><span class="p">,</span>
     <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--load_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;checkpoint path to load from&quot;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-    <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place checkpoints and model outputs&quot;</span><span class="p">,</span>
-    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-    <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place the tensorboard logs&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span>
-<span class="p">)</span>
 </pre></div>
 </div>
 <p>This example uses the torchserve for inference so we need to specify some
@@ -448,8 +439,6 @@ on how to setup TorchServe.</p>
 
 <span class="k">if</span> <span class="s2">&quot;NOTEBOOK&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
     <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;/tmp/data&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="s2">&quot;/tmp/output&quot;</span><span class="p">,</span>
     <span class="p">]</span>
@@ -462,69 +451,76 @@ on how to setup TorchServe.</p>
 </section>
 <section id="creating-the-components">
 <h2>Creating the Components<a class="headerlink" href="#creating-the-components" title="Permalink to this headline">¶</a></h2>
-<p>The first component we’re creating is a data preprocessor. TorchX
-separates the definitions (component) from the implementation (app) so in our
-pipeline we just need to define a simple component so TorchX knows how to
-execute the datapreproc app.</p>
+<p>The first step is downloading the data to somewhere we can work on it. For
+this we can just the builtin copy component. This component takes two valid
+fsspec paths and copies them from one to another. In this case we’re using
+http as the source and a file under the output_path as the output.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
+
+<span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
+<span class="kn">from</span> <span class="nn">torchx.components.utils</span> <span class="kn">import</span> <span class="n">copy</span>
+
+<span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;tiny-imagenet-200.zip&quot;</span><span class="p">)</span>
+<span class="n">copy_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span>
+    <span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">,</span>
+    <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">torchx_image</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The next component is for data preprocessing. This takes in the raw data from
+the previous operator and runs some transforms on it for use with the trainer.</p>
 <p>datapreproc outputs the data to a specified fsspec path. These paths are all
 specified ahead of time so we have a fully static pipeline.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
-<span class="kn">from</span> <span class="nn">torchx.components.base.binary_component</span> <span class="kn">import</span> <span class="n">binary_component</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.components.base.binary_component</span> <span class="kn">import</span> <span class="n">binary_component</span>
 
+<span class="n">processed_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;processed&quot;</span><span class="p">)</span>
 <span class="n">datapreproc_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">binary_component</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-datapreproc&quot;</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;datapreproc/datapreproc.py&quot;</span><span class="p">,</span>
-    <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span>
-    <span class="p">],</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--input_path&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span> <span class="n">processed_data_path</span><span class="p">],</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Now that we have the TorchX component we need to adapt it so it can run in KFP
-via our KFP adapter. component_from_app takes in a TorchX component and
-returns a KFP component.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">ContainerFactory</span><span class="p">,</span> <span class="n">component_from_app</span>
-
-<span class="n">datapreproc_comp</span><span class="p">:</span> <span class="n">ContainerFactory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">datapreproc_app</span><span class="p">)</span>
-</pre></div>
-</div>
 <p>Next we’ll create the trainer component that takes in the training data from the
-previous datapreproc component.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trainer_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">binary_component</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-lightning_classy_vision-trainer&quot;</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;lightning_classy_vision/train.py&quot;</span><span class="p">,</span>
-    <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
-        <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">load_path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span>
-        <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span>
-        <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-    <span class="p">],</span>
+previous datapreproc component. We’ve defined this in a separate component
+file as you normally would.</p>
+<p>Having a separate component file allows you to launch your trainer from the
+TorchX CLI via <cite>torchx run</cite> for fast iteration as well as run it from a
+pipeline in an automated fashion.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># make sure examples is on the path</span>
+<span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">trainer</span>
+
+<span class="n">logs_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;logs&quot;</span><span class="p">)</span>
+<span class="n">models_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">)</span>
+
+<span class="n">trainer_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">trainer</span><span class="p">(</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">models_path</span><span class="p">,</span>
+    <span class="n">load_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">load_path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">log_path</span><span class="o">=</span><span class="n">logs_path</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">processed_data_path</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>To have the tensorboard path show up in KFPs UI we need to some metadata so
 KFP knows where to consume the metrics from.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
+<p>This will get used when we create the KFP container.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
 
 <span class="n">ui_metadata</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;lightning_logs&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">logs_path</span><span class="p">,</span> <span class="s2">&quot;lightning_logs&quot;</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="p">]</span>
 <span class="p">}</span>
-<span class="n">trainer_comp</span><span class="p">:</span> <span class="n">ContainerFactory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">trainer_app</span><span class="p">,</span> <span class="n">ui_metadata</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For the inference, we’re leveraging one of the builtin TorchX components. This
@@ -533,7 +529,7 @@ endpoints.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.components.serve</span> <span class="kn">import</span> <span class="n">torchserve</span>
 
 <span class="n">serve_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">torchserve</span><span class="p">(</span>
-    <span class="n">model_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;model.mar&quot;</span><span class="p">),</span>
+    <span class="n">model_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">models_path</span><span class="p">,</span> <span class="s2">&quot;model.mar&quot;</span><span class="p">),</span>
     <span class="n">management_api</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">management_api</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">torchx_image</span><span class="p">,</span>
     <span class="n">params</span><span class="o">=</span><span class="p">{</span>
@@ -542,55 +538,59 @@ endpoints.</p>
         <span class="c1"># &quot;initial_workers&quot;: 1,</span>
     <span class="p">},</span>
 <span class="p">)</span>
-<span class="n">serve_comp</span><span class="p">:</span> <span class="n">ContainerFactory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">serve_app</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For model interpretability we’re leveraging a custom component stored in it’s
 own component file. This component takes in the output from datapreproc and
 train components and produces images with integrated gradient results.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># make sure examples is on the path</span>
-<span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">interpret</span>
 
-<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">interpret</span>
-
+<span class="n">interpret_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;interpret&quot;</span><span class="p">)</span>
 <span class="n">interpret_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">interpret</span><span class="p">(</span>
-    <span class="n">load_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;last.ckpt&quot;</span><span class="p">),</span>
-    <span class="n">data_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span>
-    <span class="n">output_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+    <span class="n">load_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">models_path</span><span class="p">,</span> <span class="s2">&quot;last.ckpt&quot;</span><span class="p">),</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="n">processed_data_path</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">interpret_path</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">interpret_comp</span><span class="p">:</span> <span class="n">ContainerFactory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">interpret_app</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="pipeline-definition">
 <h2>Pipeline Definition<a class="headerlink" href="#pipeline-definition" title="Permalink to this headline">¶</a></h2>
-<p>The last step is to define the actual pipeline using the adapted KFP
-components and export the pipeline package that can be uploaded to a KFP
+<p>The last step is to define the actual pipeline using the torchx components via
+the KFP adapter and export the pipeline package that can be uploaded to a KFP
 cluster.</p>
 <p>The KFP adapter currently doesn’t track the input and outputs so the
 containers need to have their dependencies specified via <cite>.after()</cite>.</p>
 <p>We call <cite>.set_tty()</cite> to make the logs from the components more responsive for
 example purposes.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">kfp</span>
+<span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">container_from_app</span>
 
 
 <span class="k">def</span> <span class="nf">pipeline</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">datapreproc</span> <span class="o">=</span> <span class="n">datapreproc_comp</span><span class="p">()</span>
-    <span class="n">datapreproc</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
+    <span class="c1"># container_from_app creates a KFP container from the TorchX app</span>
+    <span class="c1"># definition.</span>
+    <span class="n">copy</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">copy_app</span><span class="p">)</span>
+    <span class="n">copy</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
 
-    <span class="n">trainer</span> <span class="o">=</span> <span class="n">trainer_comp</span><span class="p">()</span>
+    <span class="n">datapreproc</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">datapreproc_app</span><span class="p">)</span>
+    <span class="n">datapreproc</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
+    <span class="n">datapreproc</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">copy</span><span class="p">)</span>
+
+    <span class="c1"># For the trainer we want to log that UI metadata so you can access</span>
+    <span class="c1"># tensorboard from the UI.</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">trainer_app</span><span class="p">,</span> <span class="n">ui_metadata</span><span class="o">=</span><span class="n">ui_metadata</span><span class="p">)</span>
     <span class="n">trainer</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
     <span class="n">trainer</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">datapreproc</span><span class="p">)</span>
 
-    <span class="n">serve</span> <span class="o">=</span> <span class="n">serve_comp</span><span class="p">()</span>
+    <span class="n">serve</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">serve_app</span><span class="p">)</span>
     <span class="n">serve</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
     <span class="n">serve</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 
     <span class="c1"># Serve and interpret only require the trained model so we can run them</span>
     <span class="c1"># in parallel to each other.</span>
-    <span class="n">interpret</span> <span class="o">=</span> <span class="n">interpret_comp</span><span class="p">()</span>
+    <span class="n">interpret</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">interpret_app</span><span class="p">)</span>
     <span class="n">interpret</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
     <span class="n">interpret</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 

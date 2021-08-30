@@ -22,7 +22,6 @@ import zipfile
 from typing import List
 
 import fsspec
-import requests
 from PIL import Image
 from torchvision import transforms
 from torchvision.datasets.folder import is_image_file
@@ -40,12 +39,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         default="http://cs231n.stanford.edu/tiny-imagenet-200.zip",
     )
     parser.add_argument(
-        "--input_md5",
-        type=str,
-        help="dataset to download",
-        default="90528d7ca1a48142e341f4ef8d21d0de",
-    )
-    parser.add_argument(
         "--output_path",
         type=str,
         help="remote path to save the .tar.gz data to",
@@ -55,18 +48,9 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 
 
 def download_and_extract_zip_archive(url: str, path: str) -> None:
-    temp_file = os.path.join(path, "dest.zip")
-    chunk_size_bytes: int = 1024 * 1024 * 32  # 32 MB
-    with requests.get(url, allow_redirects=True, stream=True) as r:
-        r.raise_for_status()
-        with open(temp_file, "wb") as fp:
-            for chunk in r.iter_content(chunk_size=chunk_size_bytes):
-                fp.write(chunk)
-
-    with zipfile.ZipFile(temp_file, "r") as zip_ref:
-        zip_ref.extractall(path)
-
-    os.remove(temp_file)
+    with fsspec.open(url, "rb") as f:
+        with zipfile.ZipFile(f, "r") as zip_ref:
+            zip_ref.extractall(path)
 
 
 def main(argv: List[str]) -> None:

@@ -28,6 +28,7 @@ def trainer(
     resource: Optional[str] = None,
     env: Optional[Dict[str, str]] = None,
     skip_export: bool = False,
+    epochs: int = 1,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -41,6 +42,7 @@ def trainer(
         resource: the resources to use
         env: env variables for the app
         skip_export: disable model export
+        epochs: number of epochs to run
     """
     env = env or {}
     args = [
@@ -52,6 +54,8 @@ def trainer(
         log_path,
         "--data_path",
         data_path,
+        "--epochs",
+        str(epochs),
     ]
     if skip_export:
         args.append("--skip_export")
