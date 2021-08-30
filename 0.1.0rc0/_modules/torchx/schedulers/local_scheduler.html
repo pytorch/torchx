@@ -423,7 +423,7 @@
     <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pulls the given image and returns a path to the pulled image on</span>
-<span class="sd">        the local host.</span>
+<span class="sd">        the local host or empty string if no op</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -434,7 +434,20 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the command line required to run the specified image.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the absolute path of the mounted img directory. Used as a working</span>
+<span class="sd">        directory for starting child processes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the location of the entrypoint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="LocalDirectoryImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider">[docs]</a><span class="k">class</span> <span class="nc">LocalDirectoryImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
@@ -473,7 +486,24 @@
 <div class="viewcode-block" id="LocalDirectoryImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">args</span></div></div>
+        <span class="k">return</span> <span class="n">args</span></div>
+
+<div class="viewcode-block" id="LocalDirectoryImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the absolute working directory. Used as a working</span>
+<span class="sd">        directory for the child process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="LocalDirectoryImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the role entrypoint. When local scheduler is executed with</span>
+<span class="sd">        image_type=dir, the childprocess working directory will be set to the</span>
+<span class="sd">        img_root. If `role.entrypoint` is relative path, it would be resolved</span>
+<span class="sd">        as `img_root/role.entrypoint`, if `role.entrypoint` is absolute path,</span>
+<span class="sd">        it will be executed as provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">DockerImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
@@ -482,8 +512,8 @@
 
 <span class="sd">    Example:</span>
 
-<span class="sd">    1. ``fetch(Image(name=&quot;pytorch/pytorch:latest&quot;))`` returns ``pytorch/pytorch:latest``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">       ``fetch(Image(name=&quot;pytorch/pytorch:latest&quot;))`` pulls docker image, returns &quot;&quot;</span>
+<span class="sd">       ``get_command(image=&quot;pytorch/pytorch:latest&quot;, ..)`` return ``docker run ...``&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
@@ -706,6 +736,7 @@
     <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <span class="nd">@dataclass</span>
@@ -853,6 +884,26 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_get_child_process_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
+        <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+
+        <span class="c1"># Add img root to the end of the path to be able to access executables</span>
+        <span class="c1"># using relative path, e.g.: `--img_root /users --entrypoint test.sh`</span>
+        <span class="c1"># will be resolved to /users/test.sh</span>
+        <span class="c1"># The path is attached to the end, giving it the lowest priority</span>
+        <span class="k">if</span> <span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span><span class="p">:</span>
+            <span class="n">child_cwd</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">child_cwd</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">child_cwd</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">return</span> <span class="n">env</span>
+
     <span class="k">def</span> <span class="nf">_popen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="n">RoleName</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LocalReplica</span><span class="p">:</span>
@@ -863,11 +914,7 @@
 
         <span class="n">stdout_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
         <span class="n">stderr_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-
-        <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
-        <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_child_process_env</span><span class="p">(</span><span class="n">replica_params</span><span class="p">)</span>
 
         <span class="n">error_file</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">]</span>
 
@@ -880,6 +927,7 @@
             <span class="n">stdout</span><span class="o">=</span><span class="n">stdout_</span><span class="p">,</span>
             <span class="n">stderr</span><span class="o">=</span><span class="n">stderr_</span><span class="p">,</span>
             <span class="n">start_new_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">_LocalReplica</span><span class="p">(</span>
             <span class="n">role_name</span><span class="p">,</span>
@@ -985,9 +1033,10 @@
                 <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_base_image_runner_cmd</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
                 <span class="n">base_img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">base_image</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">cmd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_entrypoint</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
                 <span class="n">base_img_root</span> <span class="o">=</span> <span class="n">NONE</span>
 
+            <span class="n">cwd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
                     <span class="n">img_root</span><span class="o">=</span><span class="n">img_root</span><span class="p">,</span>
@@ -1017,7 +1066,7 @@
 
                 <span class="n">provider_cmd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">)</span>
                 <span class="n">replica_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">ReplicaParam</span><span class="p">(</span><span class="n">provider_cmd</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span>
+                    <span class="n">ReplicaParam</span><span class="p">(</span><span class="n">provider_cmd</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">replica_log_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">)</span>
 
