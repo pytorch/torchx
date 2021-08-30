@@ -22,8 +22,6 @@ name torchserve on the default namespace.
 Environment variables:
 
 ```
-export KFP_USERNAME=<kfp username>
-export KFP_PASSWORD=<kfp password>
 export KFP_NAMESPACE=<kfp namespace>
 export INTEGRATION_TEST_STORAGE=<cloud storage path>
 export EXAMPLES_CONTAINER_REPO=<docker repo>

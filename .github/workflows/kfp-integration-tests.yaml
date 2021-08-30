@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - name: Install kubectl
+        # More info: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
@@ -43,19 +44,12 @@ jobs:
             aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
           fi
       - name: Install dependencies
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
           pip install -r dev-requirements.txt
           python setup.py install
       - name: Run KFP Integration Tests
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          KFP_USERNAME: ${{ secrets.KFP_USERNAME }}
-          KFP_PASSWORD: ${{ secrets.KFP_PASSWORD }}
           KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
