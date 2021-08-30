@@ -1,0 +1,31 @@
+# The file defines permissions for torchx-integration-tests IAM role
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: torchx-dev-port-forward
+rules:
+- apiGroups: [""]
+  resources: ["pods/portforward"]
+  verbs: ["get", "list", "create"]
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list"]
+- apiGroups:
+  - "*"
+  resources: ["jobs","jobs/status"]
+  verbs:
+  - "*"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: torchx-dev-port-forward
+  namespace: torchx-dev
+subjects:
+- kind: User
+  name: torchx-integration-tests
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: torchx-dev-port-forward
+  apiGroup: rbac.authorization.k8s.io

@@ -10,6 +10,23 @@ jobs:
   kfp-launch:
     runs-on: ubuntu-18.04
     steps:
+      - name: Install kubectl
+        # More info: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          mkdir -p ~/.local/bin/kubectl
+          mv ./kubectl ~/.local/bin/kubectl
+          export PATH=$PATH:~/.local/bin/kubectl
+      - name: Configure Kube Config
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          set -eux
+          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+            aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
+          fi
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -33,9 +50,8 @@ jobs:
           python setup.py install
       - name: Run KFP Integration Tests
         env:
-          KFP_HOST: ${{ secrets.KFP_HOST }}
-          KFP_USERNAME: ${{ secrets.KFP_USERNAME }}
-          KFP_PASSWORD: ${{ secrets.KFP_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
