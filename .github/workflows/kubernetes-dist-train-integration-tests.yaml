@@ -1,0 +1,48 @@
+name: Kubernetes Dist Train Integration Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  kubernetes-launch:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Configure Kube Config
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          set -eux
+          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+            aws eks update-kubeconfig --region=us-west-2 --name=torchx-dev
+          fi
+      - name: Install dependencies
+        run: |
+          set -eux
+          pip install -e .[kubernetes]
+      - name: Run Kubernetes Integration Tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
+          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
+          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            # only dryrun if no secrets
+            export EXEC_MODE="dryrun"
+          else
+            export EXEC_MODE="run"
+          fi
+          scripts/kube_dist_trainer.py
+

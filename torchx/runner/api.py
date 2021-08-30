@@ -170,17 +170,15 @@ class Runner:
                 "entry point (see: https://pytorch.org/torchx/latest/configure.html)"
             )
 
-        if dryrun:
-            return self.dryrun(app, scheduler, cfg)
-        else:
-            return self.run(app, scheduler, cfg)
+        return self.run(app, scheduler, cfg, dryrun)
 
     def run(
         self,
         app: AppDef,
         scheduler: SchedulerBackend = "default",
         cfg: Optional[RunConfig] = None,
-    ) -> AppHandle:
+        drynrun:bool=False,
+    ) -> Union[AppHandle, AppDryRunInfo]:
         """
         Runs the given application in the specified mode.
 
@@ -192,7 +190,10 @@ class Runner:
         """
 
         dryrun_info = self.dryrun(app, scheduler, cfg)
-        return self.schedule(dryrun_info)
+        if not drynrun:
+            return self.schedule(dryrun_info)
+        else:
+            return dryrun_info
 
     # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:

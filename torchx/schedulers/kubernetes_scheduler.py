@@ -182,6 +182,10 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
         ),
     )
 
+import random
+def unique(name):
+    num = random.randint(0,1000000)
+    return f"{name}-{num}"
 
 def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     """
@@ -198,11 +202,12 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     count is set to the minimum of the max_retries of the roles.
     """
     tasks = []
+    app_id = unique(app.name)
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
                 img_root="",
-                app_id=macros.app_id,
+                app_id=app_id,
                 replica_id=str(replica_id),
             )
             name = f"{role.name}-{replica_id}"
@@ -217,7 +222,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
                     "name": name,
                     "template": pod,
                     "maxRetry": role.max_retries,
-                    "policies": RETRY_POLICIES[role.retry_policy],
+                    # "policies": RETRY_POLICIES[role.retry_policy],
                 }
             )
 
@@ -225,7 +230,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     resource: Dict[str, object] = {
         "apiVersion": "batch.volcano.sh/v1alpha1",
         "kind": "Job",
-        "metadata": {"generateName": f"{app.name}-"},
+        "metadata": {"name": f"{app_id}"},
         "spec": {
             "schedulerName": "volcano",
             "queue": queue,
