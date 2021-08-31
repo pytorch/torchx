@@ -197,8 +197,8 @@ For example the following application is **NOT** infra agnostic
 The binary above makes an implicit assumption that the ``input_path``
 is an AWS S3 path. One way to make this trainer storage agnostic is to introduce
 a ``FileSystem`` abstraction layer. For file systems, frameworks like
-`PyTorch Lightning <https://www.pytorchlightning.ai/>`_  already define ``io``
-layers (lightning uses `fsspec <https://filesystem-spec.readthedocs.io/en/latest/index.html>`_
+`PyTorch Lightning <https://www.pytorchlightning.ai/>`__  already define ``io``
+layers (lightning uses `fsspec <https://filesystem-spec.readthedocs.io/en/latest/index.html>`__
 under the hood). The binary above can be rewritten to be storage agnostic with
 lightning.
 

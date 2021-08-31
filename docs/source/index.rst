@@ -29,6 +29,8 @@ Documentation
    quickstart
    cli
    configure
+   app_best_practices
+   component_best_practices
 
 
 .. toctree::
