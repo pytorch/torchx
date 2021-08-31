@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eux
-          pip install -r dev-requirements.txt
+          pip install -e .[dev]
           VERSION=$(grep "version" .pyre_configuration | sed -n -e 's/.*\(0\.0\.[0-9]*\).*/\1/p')
           pip install pyre-check-nightly==$VERSION
       - name: Run Pyre

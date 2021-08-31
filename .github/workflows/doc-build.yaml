@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eux
-          pip install -r dev-requirements.txt
+          pip install -e .[dev]
           pip install -r docs/requirements.txt
       - name: Install TorchX
         run: |

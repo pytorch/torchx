@@ -24,6 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -eux
-          pip install -r dev-requirements.txt
+          pip install -e .[dev]
       - name: Run tests
+
         run: python -m unittest discover --verbose --start-directory . --pattern "*_test.py"
