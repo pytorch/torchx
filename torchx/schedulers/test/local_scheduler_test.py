@@ -774,11 +774,8 @@ class LocalSchedulerTest(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             self.scheduler.submit_dryrun(app, RunConfig())
 
-    # TODO(aivanou): enable test
-    # def test_no_orphan_process_function(self) -> None:
-    # signals = [signal.SIGTERM]
-    # for s in signals:
-    #     self._test_orphan_workflow(s)
+    def test_no_orphan_process_function(self) -> None:
+        self._test_orphan_workflow(signal.SIGTERM)
 
     def _test_orphan_workflow(self, signal_to_send: signal.Signals) -> None:
         mp_queue = mp.get_context("spawn").Queue()
