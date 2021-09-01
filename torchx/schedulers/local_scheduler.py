@@ -15,6 +15,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import warnings
 from dataclasses import asdict, dataclass
@@ -417,6 +418,17 @@ class PopenRequest:
     role_log_dirs: Dict[RoleName, List[str]]
 
 
+def register_termination_signals() -> None:
+    """
+    Register SIGTERM and SIGINT handlers only for the main thread.
+    """
+    if threading.current_thread() is threading.main_thread():
+        # Register termination handlers for SIGTERM and SIGINT
+        # Temporary disable signal handler registration
+        signal.signal(signal.SIGTERM, _terminate_process_handler)
+        signal.signal(signal.SIGINT, _terminate_process_handler)
+
+
 class LocalScheduler(Scheduler):
     """
     Schedules on localhost. Containers are modeled as processes and
@@ -429,6 +441,13 @@ class LocalScheduler(Scheduler):
     3. Retry policies
     4. Retry counts (no retries supported)
     5. Deployment preferences
+
+    Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.
+    The scheduler will terminate the spawned processes.
+
+    .. note::
+        The orphan cleanup only works if `LocalScheduler` is instantiated from the main thread.
+
 
     .. note::
         Use this scheduler sparingly since an application that runs successfully
@@ -455,11 +474,7 @@ class LocalScheduler(Scheduler):
         if cache_size <= 0:
             raise ValueError("cache size must be greater than zero")
         self._cache_size = cache_size
-
-        # Register termination handlers for SIGTERM and SIGINT
-        # Temporary disable signal handler registration
-        # signal.signal(signal.SIGTERM, _terminate_process_handler)
-        # signal.signal(signal.SIGINT, _terminate_process_handler)
+        register_termination_signals()
 
     def run_opts(self) -> runopts:
         opts = runopts()
