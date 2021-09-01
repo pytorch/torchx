@@ -13,7 +13,6 @@ import json
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from string import Template
-from types import ModuleType
 from typing import (
     Any,
     Callable,
@@ -30,8 +29,7 @@ from typing import (
 
 import yaml
 from pyre_extensions import none_throws
-from torchx.specs.file_linter import parse_fn_docstring, validate
-from torchx.util.io import read_conf_file
+from torchx.specs.file_linter import parse_fn_docstring
 from torchx.util.types import decode_from_string, is_primitive, decode_optional
 
 
@@ -808,113 +806,31 @@ def _get_function_args(
     return function_args, var_arg, kwargs
 
 
-def _validate_and_raise(file_path: str, function_name: str) -> None:
-    file_content = read_conf_file(file_path)
-    linter_errors = validate(file_content, file_path, function_name)
-    if len(linter_errors) > 0:
-        error_msg = "\n".join(
-            linter_error.description for linter_error in linter_errors
-        )
-        raise ValueError(
-            f"Encountered linter errors while processing {file_path}:{function_name}: \n {error_msg}"
-        )
+def from_function(app_fn: Callable[..., AppDef], app_args: List[str]) -> AppDef:
+    """
+    Creates an application by running user defined ``app_fn``.
 
+    ``app_fn`` has the following restrictions:
+        * Name must be ``app_fn``
+        * All arguments should be annotated
+        * Supported argument types:
+            - primitive: int, str, float
+            - Dict[primitive, primitive]
+            - List[primitive]
+            - Optional[Dict[primitive, primitive]]
+            - Optional[List[primitive]]
+        * ``app_fn`` can define a vararg (*arg) at the end
+        * There should be a docstring for the function that defines
+            All arguments in a google-style format
+        * There can be default values for the function arguments.
+        * The return object must be ``AppDef``
 
-def from_function(
-    app_fn: Callable[..., AppDef],
-    app_args: List[str],
-    should_validate: bool = True,
-) -> AppDef:
-    if should_validate:
-        file_path = inspect.getfile(app_fn)
-        _validate_and_raise(file_path, app_fn.__name__)
+    Args:
+        app_fn: Component function
+        app_args: Function args
+
+    Returns:
+        An application spec
+    """
     function_args, var_arg, kwargs = _get_function_args(app_fn, app_args)
     return app_fn(*function_args, *var_arg, **kwargs)
-
-
-def from_file(
-    file_path: str,
-    function_name: str,
-    app_args: List[str],
-    should_validate: bool = True,
-) -> AppDef:
-    """
-    Creates an application by extracting user defined ``function_name`` and running it.
-
-    ``function_name`` has the following restrictions:
-        * Name must be ``function_name``
-        * All arguments should be annotated
-        * Supported argument types:
-            - primitive: int, str, float
-            - Dict[primitive, primitive]
-            - List[primitive]
-            - Optional[Dict[primitive, primitive]]
-            - Optional[List[primitive]]
-        * ``function_name`` can define a vararg (*arg) at the end
-        * There should be a docstring for the function that defines
-            All arguments in a google-style format
-        * There can be default values for the function arguments.
-        * The return object must be ``AppDef``
-
-    Args:
-        file_path: The path to the torchx file, mainly used for validation info.
-        function_name: Function name
-        app_args: Application arguments that will be decoded based on the
-            ``function_name`` arguments types and passed to ``function_name``
-
-    Returns:
-        An application spec
-    """
-
-    if should_validate:
-        _validate_and_raise(file_path, function_name)
-
-    file_content = read_conf_file(file_path)
-
-    namespace = globals()
-    exec(file_content, namespace)  # noqa: P204
-    if function_name not in namespace:
-        raise ValueError(f"Function {function_name} does not exist in file {file_path}")
-    app_fn = namespace[function_name]
-    return from_function(app_fn, app_args, should_validate=False)
-
-
-def from_module(
-    module: ModuleType,
-    function_name: str,
-    app_args: List[str],
-    should_validate: bool = True,
-) -> AppDef:
-    """
-    Creates an application by extracting user defined ``function_name`` and running it.
-
-    ``function_name`` has the following restrictions:
-        * Name must be ``function_name``
-        * All arguments should be annotated
-        * Supported argument types:
-            - primitive: int, str, float
-            - Dict[primitive, primitive]
-            - List[primitive]
-            - Optional[Dict[primitive, primitive]]
-            - Optional[List[primitive]]
-        * ``function_name`` can define a vararg (*arg) at the end
-        * There should be a docstring for the function that defines
-            All arguments in a google-style format
-        * There can be default values for the function arguments.
-        * The return object must be ``AppDef``
-
-    Args:
-        file_path: The path to the torchx file, mainly used for validation info.
-        function_name: Function name
-        app_args: Application arguments that will be decoded based on the
-            ``function_name`` arguments types and passed to ``function_name``
-
-    Returns:
-        An application spec
-    """
-
-    if not hasattr(module, function_name):
-        raise ValueError(f"Module {module.__name__} has no function: {function_name}")
-
-    app_fn = getattr(module, function_name)
-    return from_function(app_fn, app_args, should_validate=should_validate)

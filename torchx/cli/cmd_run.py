@@ -15,7 +15,12 @@ import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import Runner, get_runner
-from torchx.specs.finder import _Component, get_components
+from torchx.specs.finder import (
+    _Component,
+    get_components,
+    ComponentValidationException,
+    ComponentNotFoundException,
+)
 from torchx.util.types import to_dict
 
 
@@ -92,9 +97,8 @@ class CmdRun(SubCommand):
             nargs=argparse.REMAINDER,
         )
 
-    def run(self, args: argparse.Namespace) -> None:
-        # TODO: T91790598 - remove the if condition when all apps are migrated to pure python
-        with get_runner() as runner:
+    def _run(self, runner: Runner, args: argparse.Namespace) -> None:
+        try:
             result = runner.run_component(
                 args.conf_file,
                 args.conf_args,
@@ -102,29 +106,39 @@ class CmdRun(SubCommand):
                 args.scheduler_args,
                 dryrun=args.dryrun,
             )
+        except (ComponentValidationException, ComponentNotFoundException) as e:
+            error_msg = (
+                f"\nFailed to run component `{args.conf_file}` got errors: \n {e}"
+            )
+            print(error_msg)
+            return
 
-            if args.dryrun:
-                app_dryrun_info = cast(specs.AppDryRunInfo, result)
-                logger.info("=== APPLICATION ===")
-                logger.info(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
+        if args.dryrun:
+            app_dryrun_info = cast(specs.AppDryRunInfo, result)
+            logger.info("=== APPLICATION ===")
+            logger.info(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
 
-                logger.info("=== SCHEDULER REQUEST ===")
-                logger.info(app_dryrun_info)
+            logger.info("=== SCHEDULER REQUEST ===")
+            logger.info(app_dryrun_info)
+        else:
+            app_handle = cast(specs.AppHandle, result)
+            print(app_handle)
+
+            if args.scheduler == "local":
+                self._wait_and_exit(runner, app_handle)
             else:
-                app_handle = cast(specs.AppHandle, result)
-                print(app_handle)
+                logger.info("=== RUN RESULT ===")
+                logger.info(f"Launched app: {app_handle}")
+                status = runner.status(app_handle)
+                logger.info(status)
+                logger.info(f"Job URL: {none_throws(status).ui_url}")
 
-                if args.scheduler == "local":
+                if args.wait:
                     self._wait_and_exit(runner, app_handle)
-                else:
-                    logger.info("=== RUN RESULT ===")
-                    logger.info(f"Launched app: {app_handle}")
-                    status = runner.status(app_handle)
-                    logger.info(status)
-                    logger.info(f"Job URL: {none_throws(status).ui_url}")
 
-                    if args.wait:
-                        self._wait_and_exit(runner, app_handle)
+    def run(self, args: argparse.Namespace) -> None:
+        with get_runner() as runner:
+            self._run(runner, args)
 
     def _wait_and_exit(self, runner: Runner, app_handle: str) -> None:
         logger.info("Waiting for the app to finish...")
