@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import json
+import logging
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
@@ -14,6 +16,7 @@ import yaml
 
 if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
+    from kubernetes.client.exceptions import ApiException
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Pod,
         V1PodSpec,
@@ -30,6 +33,7 @@ from torchx.schedulers.api import (
     Scheduler,
     filter_regex,
 )
+from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppState,
     ReplicaState,
@@ -43,6 +47,9 @@ from torchx.specs.api import (
     ReplicaStatus,
     runopts,
 )
+
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 RETRY_POLICIES: Mapping[str, Iterable[Mapping[str, str]]] = {
     RetryPolicy.REPLICA: [],
@@ -198,11 +205,12 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     count is set to the minimum of the max_retries of the roles.
     """
     tasks = []
+    unique_app_id = make_unique(app.name)
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
                 img_root="",
-                app_id=macros.app_id,
+                app_id=unique_app_id,
                 replica_id=str(replica_id),
             )
             name = f"{role.name}-{replica_id}"
@@ -225,7 +233,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     resource: Dict[str, object] = {
         "apiVersion": "batch.volcano.sh/v1alpha1",
         "kind": "Job",
-        "metadata": {"generateName": f"{app.name}-"},
+        "metadata": {"name": f"{unique_app_id}"},
         "spec": {
             "schedulerName": "volcano",
             "queue": queue,
@@ -308,19 +316,37 @@ class KubernetesScheduler(Scheduler):
 
         return client.CustomObjectsApi(self._api_client())
 
+    def _get_job_name_from_exception(self, e: "ApiException") -> Optional[str]:
+        try:
+            return json.loads(e.body)["details"]["name"]
+        except Exception as e:
+            logger.exception("Unable to retrieve job name, got exception", e)
+            return None
+
     def schedule(self, dryrun_info: AppDryRunInfo[KubernetesJob]) -> str:
+        from kubernetes.client.exceptions import ApiException
+
         cfg = dryrun_info._cfg
         assert cfg is not None, f"{dryrun_info} missing cfg"
         namespace = cfg.get("namespace") or "default"
         resource = dryrun_info.request.resource
+        try:
+            resp = self._custom_objects_api().create_namespaced_custom_object(
+                group="batch.volcano.sh",
+                version="v1alpha1",
+                namespace=namespace,
+                plural="jobs",
+                body=resource,
+            )
+        except ApiException as e:
+            if e.status == 409 and e.reason == "Conflict":
+                job_name = self._get_job_name_from_exception(e)
+                raise ValueError(
+                    f"Job `{job_name}` already exists. This seems like a transient exception, try resubmitting job"
+                ) from e
+            else:
+                raise
 
-        resp = self._custom_objects_api().create_namespaced_custom_object(
-            group="batch.volcano.sh",
-            version="v1alpha1",
-            namespace=namespace,
-            plural="jobs",
-            body=resource,
-        )
         return f'{namespace}:{resp["metadata"]["name"]}'
 
     def _submit_dryrun(

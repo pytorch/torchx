@@ -20,6 +20,7 @@ from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.kubernetes_scheduler import (
     create_scheduler,
     role_to_pod,
+    app_to_resource,
 )
 
 
@@ -28,7 +29,7 @@ def _test_app() -> specs.AppDef:
         name="trainer",
         image="pytorch/torchx:latest",
         entrypoint="main",
-        args=["--output-path", specs.macros.img_root],
+        args=["--output-path", specs.macros.img_root, "--app-id", specs.macros.app_id],
         env={"FOO": "bar"},
         resource=specs.Resource(
             cpu=2,
@@ -47,6 +48,18 @@ class KubernetesSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         scheduler = create_scheduler("foo")
         self.assertIsInstance(scheduler, kubernetes_scheduler.KubernetesScheduler)
+
+    def test_app_to_resource_resolved_macros(self) -> None:
+        app = _test_app()
+        unique_app_name = "app_name_42"
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.make_unique"
+        ) as make_unique_ctx:
+            make_unique_ctx.return_value = unique_app_name
+        resource = app_to_resource(app, "test_queue")
+        # pyre-ignore [16]
+        actual_cmd = resource["spec"]["tasks"][0]["template"].spec.containers[0].command
+        expected_cmd = ["main", "--output-path", "", "--app-id", unique_app_name]
 
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
@@ -72,7 +85,13 @@ class KubernetesSchedulerTest(unittest.TestCase):
             requests=requests,
         )
         container = V1Container(
-            command=["main", "--output-path", specs.macros.img_root],
+            command=[
+                "main",
+                "--output-path",
+                specs.macros.img_root,
+                "--app-id",
+                specs.macros.app_id,
+            ],
             image="pytorch/torchx:latest",
             name="name",
             env=[V1EnvVar(name="FOO", value="bar")],
@@ -107,7 +126,11 @@ class KubernetesSchedulerTest(unittest.TestCase):
         app = _test_app()
         cfg = specs.RunConfig()
         cfg.set("queue", "testqueue")
-        info = scheduler._submit_dryrun(app, cfg)
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.make_unique"
+        ) as make_unique_ctx:
+            make_unique_ctx.return_value = "app_name_42"
+            info = scheduler._submit_dryrun(app, cfg)
 
         resource = str(info.request)
 
@@ -116,7 +139,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             f"""apiVersion: batch.volcano.sh/v1alpha1
 kind: Job
 metadata:
-  generateName: test-
+  name: app_name_42
 spec:
   maxRetry: 3
   plugins:
@@ -149,6 +172,8 @@ spec:
           - main
           - --output-path
           - ''
+          - --app-id
+          - app_name_42
           env:
           - name: FOO
             value: bar
@@ -190,6 +215,25 @@ spec:
         self.assertEqual(kwargs["namespace"], "testnamespace")
         self.assertEqual(kwargs["plural"], "jobs")
         self.assertEqual(kwargs["body"], info.request.resource)
+
+    @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
+    def test_submit_job_name_conflict(
+        self, create_namespaced_custom_object: MagicMock
+    ) -> None:
+        from kubernetes.client.exceptions import ApiException
+
+        api_exc = ApiException(status=409, reason="Conflict")
+        api_exc.body = "{'details':{'name': 'test_job'}}"
+        create_namespaced_custom_object.side_effect = api_exc
+
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        cfg = specs.RunConfig()
+        cfg.set("namespace", "testnamespace")
+        cfg.set("queue", "testqueue")
+        info = scheduler._submit_dryrun(app, cfg)
+        with self.assertRaises(ValueError):
+            scheduler.schedule(info)
 
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object_status")
     def test_describe(self, get_namespaced_custom_object_status: MagicMock) -> None:

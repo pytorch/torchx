@@ -12,6 +12,7 @@ from typing import Iterable, Optional, Union
 from unittest.mock import MagicMock, patch
 
 from torchx.schedulers.api import DescribeAppResponse, Scheduler
+from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     NULL_RESOURCE,
     AppDef,
@@ -129,3 +130,14 @@ class SchedulerTest(unittest.TestCase):
         scheduler_mock.close()
         scheduler_mock.close()
         # nothing to validate explicitly, just that no errors are raised
+
+
+class TorchxIdsTest(unittest.TestCase):
+    def test_unique(self) -> None:
+        name = "test"
+        self.assertNotEqual(make_unique(name), make_unique(name))
+
+    def test_unique_min_len(self) -> None:
+        unique_name = make_unique("test")
+        # 16 chars in hex is 64 bits
+        self.assertTrue(len(unique_name) >= len("test") + 16)
