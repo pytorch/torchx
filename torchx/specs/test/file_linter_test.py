@@ -10,7 +10,12 @@ import unittest
 from typing import Dict, List, Optional, cast
 
 from pyre_extensions import none_throws
-from torchx.specs.file_linter import get_fn_docstring, parse_fn_docstring, validate
+from torchx.specs.file_linter import (
+    get_short_fn_description,
+    get_fn_docstring,
+    parse_fn_docstring,
+    validate,
+)
 
 
 # Note if the function is moved, the tests need to be updated with new lineno
@@ -101,6 +106,17 @@ def _test_args_dict_list_complex_types(
     pass
 
 
+# pyre-ignore[2]
+def _test_invalid_fn_with_varags_and_kwargs(*args, id: int) -> "AppDef":
+    """
+    Test description
+
+    Args:
+        args: args desc
+    """
+    pass
+
+
 def current_file_path() -> str:
     return os.path.join(os.path.dirname(__file__), __file__)
 
@@ -117,6 +133,18 @@ class SpecsFileValidatorTest(unittest.TestCase):
             self._file_content, self._path, torchx_function="_test_docstring_func_desc"
         )
         self.assertEqual(0, len(linter_errors))
+
+    def test_validate_varargs_kwargs_fn(self) -> None:
+        linter_errors = validate(
+            self._file_content,
+            self._path,
+            torchx_function="_test_invalid_fn_with_varags_and_kwargs",
+        )
+        self.assertEqual(2, len(linter_errors))
+        self.assertTrue("Missing args: ['id']" in linter_errors[0].description)
+        self.assertTrue(
+            "Arg args missing type annotation", linter_errors[1].description
+        )
 
     def test_validate_no_return(self) -> None:
         linter_errors = validate(
@@ -154,7 +182,9 @@ class SpecsFileValidatorTest(unittest.TestCase):
             "https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html"
         )
         self.assertEquals(expected_desc, linter_error.description)
-        self.assertEqual(18, linter_error.line)
+        # TODO(aivanou): change this test to validate fn from another file to avoid changing lineno
+        # on each file change
+        self.assertEqual(23, linter_error.line)
 
     def test_validate_docstring_empty(self) -> None:
         linter_errors = validate(
@@ -267,3 +297,11 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(
             "Function unknown_function not found", linter_errors[0].description
         )
+
+    def test_get_short_fn_description(self) -> None:
+        fn_short_desc = none_throws(
+            get_short_fn_description(
+                self._file_content, "_test_args_dict_list_complex_types"
+            )
+        )
+        self.assertEqual("Test description", fn_short_desc)

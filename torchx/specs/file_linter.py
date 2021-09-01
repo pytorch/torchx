@@ -18,8 +18,13 @@ from pyre_extensions import none_throws
 
 def get_arg_names(app_specs_func_def: ast.FunctionDef) -> List[str]:
     arg_names = []
-    for arg_def in app_specs_func_def.args.args:
+    fn_args = app_specs_func_def.args
+    for arg_def in fn_args.args:
         arg_names.append(arg_def.arg)
+    if fn_args.vararg:
+        arg_names.append(fn_args.vararg.arg)
+    for arg in fn_args.kwonlyargs:
+        arg_names.append(arg.arg)
     return arg_names
 
 
@@ -50,6 +55,13 @@ def get_fn_docstring(
                     return None
                 return parse_fn_docstring(docstring)
     return None
+
+
+def get_short_fn_description(source: str, function_name: str) -> Optional[str]:
+    docstring = get_fn_docstring(source, function_name)
+    if not docstring:
+        return None
+    return docstring[0]
 
 
 @dataclass
@@ -101,6 +113,7 @@ class TorchxDocstringValidator(TorchxFunctionValidator):
                 "https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html"
             )
             return [self._gen_linter_message(desc, lineno)]
+
         arg_names = get_arg_names(app_specs_func_def)
         _, docstring_arg_defs = parse_fn_docstring(docsting)
         missing_args = [
@@ -123,6 +136,14 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
         linter_errors = []
         for arg_def in app_specs_func_def.args.args:
             arg_linter_errors = self._validate_arg_def(app_specs_func_def.name, arg_def)
+            linter_errors += arg_linter_errors
+        if app_specs_func_def.args.vararg:
+            arg_linter_errors = self._validate_arg_def(
+                app_specs_func_def.name, none_throws(app_specs_func_def.args.vararg)
+            )
+            linter_errors += arg_linter_errors
+        for arg in app_specs_func_def.args.kwonlyargs:
+            arg_linter_errors = self._validate_arg_def(app_specs_func_def.name, arg)
             linter_errors += arg_linter_errors
         return linter_errors
 

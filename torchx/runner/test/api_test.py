@@ -10,7 +10,6 @@ import os
 import shutil
 import tempfile
 import unittest
-from dataclasses import asdict
 from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
@@ -26,6 +25,7 @@ from torchx.specs.api import (
     RunConfig,
     UnknownAppException,
 )
+from torchx.specs.finder import ComponentNotFoundException
 
 GET_SCHEDULERS = "torchx.runner.api.get_schedulers"
 
@@ -380,55 +380,13 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(1, len(actual_app.roles))
             self.assertEqual("worker", actual_app.roles[0].name)
 
-    def test_run_from_module_unknown_module(self, _) -> None:
-        local_sched_mock = MagicMock()
-        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
-        with Runner(name="test_session", schedulers=schedulers) as runner:
-            with patch.object(runner, "run") as run_mock:
-                with self.assertRaises(ValueError):
-                    runner.run_component("distributed.unknown_module.ddp", [], "local")
-
-    def test_run_from_file(self, _) -> None:
-        local_sched_mock = MagicMock()
-        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
-        with Runner(name="test_session", schedulers=schedulers) as runner:
-            app_args = ["--script", "test.py"]
-            component_path = get_full_path("distributed.py")
-            with patch.object(runner, "run") as run_mock:
-                app_handle = runner.run_component(
-                    f"{component_path}:ddp", app_args, "local"
-                )
-                args, kwargs = run_mock.call_args
-                actual_app = args[0]
-            entrypoint = "${img_root}/test.py"
-            expected_app = AppDef(
-                "ddp_app",
-                roles=[
-                    Role(
-                        "worker",
-                        image="dummy_image",
-                        resource=Resource(1, 0, 1),
-                        entrypoint=entrypoint,
-                    )
-                ],
-            )
-            self.assertDictEqual(asdict(expected_app), asdict(actual_app))
-
-    def test_run_from_file_no_function_provided(self, _) -> None:
-        local_sched_mock = MagicMock()
-        schedulers = {"default": local_sched_mock, "local": local_sched_mock}
-        with Runner(name="test_session", schedulers=schedulers) as runner:
-            with patch.object(runner, "run") as run_mock:
-                with self.assertRaises(ValueError):
-                    app_handle = runner.run_component("file_path/dir:", [], "local")
-
     def test_run_from_file_no_function_found(self, _) -> None:
         local_sched_mock = MagicMock()
         schedulers = {"default": local_sched_mock, "local": local_sched_mock}
         with Runner(name="test_session", schedulers=schedulers) as runner:
             component_path = get_full_path("distributed.py")
             with patch.object(runner, "run") as run_mock:
-                with self.assertRaises(ValueError):
+                with self.assertRaises(ComponentNotFoundException):
                     runner.run_component(
                         f"{component_path}:unknown_function", [], "local"
                     )

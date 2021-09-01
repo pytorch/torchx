@@ -5,8 +5,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
-import pathlib
 import sys
 import unittest
 from dataclasses import asdict
@@ -27,9 +25,7 @@ from torchx.specs.api import (
     RetryPolicy,
     Role,
     RunConfig,
-    from_file,
     from_function,
-    from_module,
     get_type_name,
     macros,
     make_app_handle,
@@ -566,34 +562,6 @@ class AppDefLoadTest(unittest.TestCase):
         expected_app = self._get_expected_app_with_default()
         app_args = self._get_args_with_default()
         actual_app = from_function(_test_complex_fn, app_args)
-        self.assert_apps(expected_app, actual_app)
-
-    def test_load_from_module_complex_all_args(self) -> None:
-        expected_app = self._get_expected_app_with_all_args()
-        app_args = app_args = self._get_app_args()
-        curr_module = sys.modules[__name__]
-        actual_app = from_module(curr_module, "_test_complex_fn", app_args)
-        self.assert_apps(expected_app, actual_app)
-
-    def test_load_from_module_with_default(self) -> None:
-        expected_app = self._get_expected_app_with_default()
-        app_args = self._get_args_with_default()
-        curr_module = sys.modules[__name__]
-        actual_app = from_module(curr_module, "_test_complex_fn", app_args)
-        self.assert_apps(expected_app, actual_app)
-
-    def test_load_from_file_complex_all_args(self) -> None:
-        expected_app = self._get_expected_app_with_all_args()
-        app_args = app_args = self._get_app_args()
-        filepath = str(pathlib.Path(__file__))
-        actual_app = from_file(filepath, "_test_complex_fn", app_args)
-        self.assert_apps(expected_app, actual_app)
-
-    def test_load_from_file_with_default(self) -> None:
-        expected_app = self._get_expected_app_with_default()
-        app_args = self._get_args_with_default()
-        filepath = str(pathlib.Path(__file__))
-        actual_app = from_file(filepath, "_test_complex_fn", app_args)
         self.assert_apps(expected_app, actual_app)
 
     def test_varargs(self) -> None:

@@ -95,15 +95,14 @@ class CmdRunTest(unittest.TestCase):
             mock_scheduler_close.assert_called()
 
     def test_run_missing(self) -> None:
-        with self.assertRaises(ValueError):
-            args = self.parser.parse_args(
-                [
-                    "--scheduler",
-                    "local",
-                    "1234_does_not_exist.torchx",
-                ]
-            )
-            self.cmd_run.run(args)
+        args = self.parser.parse_args(
+            [
+                "--scheduler",
+                "local",
+                "1234_does_not_exist.torchx",
+            ]
+        )
+        self.cmd_run.run(args)
 
     @patch("torchx.runner.Runner.run")
     def test_run_dryrun(self, mock_runner_run: MagicMock) -> None:

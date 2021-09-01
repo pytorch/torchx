@@ -25,7 +25,6 @@ from torchx.specs.api import (
     RunConfig,
     SchedulerBackend,
     UnknownAppException,
-    from_file,
     from_function,
     make_app_handle,
     parse_app_handle,
@@ -151,25 +150,11 @@ class Runner:
             if it dryrun specified.
 
         Raises:
-            ValueError: if the ``component_path`` is failed to resolve.
+            `ComponentValidationException`: if component is invalid.
+            `ComponentNotFoundException`: if the ``component_path`` is failed to resolve.
         """
         component_def = get_component(component_name)
-        if component_def:
-            app = from_function(component_def.fn, app_args)
-        elif ":" in component_name:
-            file_path, function_name = component_name.split(":")
-            if not function_name:
-                raise ValueError(
-                    f"Incorrect path: {component_name}. Missing function name after `:`"
-                )
-            app = from_file(file_path, function_name, app_args)
-        else:
-            raise ValueError(
-                f"Component `{component_name}` not found. Please make sure it is one of the "
-                "builtins: `torchx builtins`. Or registered via `[torchx.components]` "
-                "entry point (see: https://pytorch.org/torchx/latest/configure.html)"
-            )
-
+        app = from_function(component_def.fn, app_args)
         if dryrun:
             return self.dryrun(app, scheduler, cfg)
         else:

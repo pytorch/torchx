@@ -17,11 +17,19 @@ from typing import Dict, List, Optional, Union, Callable
 
 from pyre_extensions import none_throws
 from torchx.specs import AppDef
-from torchx.specs.file_linter import get_fn_docstring, validate
+from torchx.specs.file_linter import get_short_fn_description, validate
 from torchx.util import entrypoints
 from torchx.util.io import read_conf_file
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+class ComponentValidationException(Exception):
+    pass
+
+
+class ComponentNotFoundException(Exception):
+    pass
 
 
 @dataclass
@@ -31,20 +39,18 @@ class _Component:
 
     Args:
         name: The name of the component, which usually MODULE_PATH.FN_NAME
-        module_name: Full module name, equivalent to ``module.__name__``
         description: The description of the component, taken from the desrciption
             of the function that creates component
-        group: Logic group of the component
         fn_name: Function name that creates component
         fn: Function that creates component
+        validation_errors: Validation errors
     """
 
     name: str
-    module_name: str
-    description: str
-    group: str
+    description: Optional[str]
     fn_name: str
     fn: Callable[..., AppDef]
+    validation_errors: List[str]
 
 
 class ComponentsFinder(abc.ABC):
@@ -58,15 +64,9 @@ class ComponentsFinder(abc.ABC):
             List of components
         """
 
-    def _validate_and_get_description(
-        self, module: ModuleType, function_name: str
-    ) -> Optional[str]:
+    def _get_module_source(self, module: ModuleType) -> str:
         module_path = os.path.abspath(module.__file__)
-        source = read_conf_file(module_path)
-        if len(validate(source, torchx_function=function_name)) != 0:
-            return None
-        func_definition, _ = none_throws(get_fn_docstring(source, function_name))
-        return func_definition
+        return read_conf_file(module_path)
 
 
 class ModuleComponentsFinder(ComponentsFinder):
@@ -84,7 +84,7 @@ class ModuleComponentsFinder(ComponentsFinder):
     ::
      module = "main.foo.bar" # resolves to main/foo/bar.py
      # main.foo will be replaced by the "trainer" in component.name
-     components = ModuleComponentsFinder(module, alias = "trainer").find()
+     components = ModuleComponentsFinder(module, group = "trainer").find()
 
 
     """
@@ -143,19 +143,20 @@ class ModuleComponentsFinder(ComponentsFinder):
     ) -> List[_Component]:
         functions = getmembers(module, isfunction)
         component_defs = []
+        module_source = self._get_module_source(module)
         for function_name, function in functions:
-            component_desc = self._validate_and_get_description(module, function_name)
-            if self._is_private_function(function_name) or not component_desc:
-                continue
+            linter_errors = validate(module_source, torchx_function=function_name)
+            component_desc = get_short_fn_description(module_source, function_name)
             component_def = _Component(
                 name=self._get_component_name(
                     base_module, module.__name__, function_name
                 ),
-                module_name=module.__name__,
                 description=component_desc,
-                group=self._group,
                 fn_name=function_name,
                 fn=function,
+                validation_errors=[
+                    linter_error.description for linter_error in linter_errors
+                ],
             )
             component_defs.append(component_def)
         return component_defs
@@ -177,6 +178,45 @@ class ModuleComponentsFinder(ComponentsFinder):
             return base_module
         else:
             return f"{base_module}.{module_name}"
+
+
+class CustomComponentsFinder(ComponentsFinder):
+    def __init__(self, filepath: str, function_name: str) -> None:
+        self._filepath = filepath
+        self._function_name = function_name
+
+    def _get_validation_errors(self, file_source: str, function_name: str) -> List[str]:
+        linter_errors = validate(file_source, torchx_function=function_name)
+        return [linter_error.description for linter_error in linter_errors]
+
+    def _get_fn_description(
+        self, file_source: str, function_name: str
+    ) -> Optional[str]:
+        return get_short_fn_description(file_source, function_name)
+
+    def find(self) -> List[_Component]:
+        file_source = read_conf_file(self._filepath)
+        validation_errors = self._get_validation_errors(
+            file_source, self._function_name
+        )
+        fn_desc = self._get_fn_description(file_source, self._function_name)
+
+        namespace = globals()
+        exec(file_source, namespace)  # noqa: P204
+        if self._function_name not in namespace:
+            raise ComponentNotFoundException(
+                f"Function {self._function_name} does not exist in file {self._filepath}"
+            )
+        app_fn = namespace[self._function_name]
+        return [
+            _Component(
+                name=f"{self._filepath}:{self._function_name}",
+                description=fn_desc,
+                fn_name=self._function_name,
+                fn=app_fn,
+                validation_errors=validation_errors,
+            )
+        ]
 
 
 def _load_components() -> Dict[str, _Component]:
@@ -217,12 +257,42 @@ def get_components() -> Dict[str, _Component]:
     return none_throws(_components)
 
 
-def get_component(name: str) -> Optional[_Component]:
+def _is_custom_component(component_name: str) -> bool:
+    return ":" in component_name
+
+
+def get_custom_components(name: str) -> Dict[str, _Component]:
+    if ":" not in name:
+        raise ValueError(
+            f"Invalid custom component: {name}, valid template : `FILEPATH`:`FUNCTION_NAME`"
+        )
+    filepath, component_name = name.split(":")
+    components = CustomComponentsFinder(filepath, component_name).find()
+    return {component.name: component for component in components}
+
+
+def get_component(name: str) -> _Component:
     """
     Retrieves components by the provided name.
 
     Returns:
         Component or None if no component with ``name`` exists
     """
-    components = get_components()
-    return components.get(name, None)
+    if _is_custom_component(name):
+        components = get_custom_components(name)
+    else:
+        components = get_components()
+    if name not in components:
+        raise ComponentNotFoundException(
+            f"Component `{name}` not found. Please make sure it is one of the "
+            "builtins: `torchx builtins`. Or registered via `[torchx.components]` "
+            "entry point (see: https://pytorch.org/torchx/latest/configure.html)"
+        )
+
+    component = components[name]
+    if len(component.validation_errors) > 0:
+        validation_msg = "\n".join(component.validation_errors)
+        raise ComponentValidationException(
+            f"Component {name} has validation errors: \n {validation_msg}"
+        )
+    return component
