@@ -37,7 +37,6 @@ scripts/kfpint.py
 
 import argparse
 import asyncio
-import binascii
 import dataclasses
 import json
 import os
@@ -47,10 +46,21 @@ import subprocess
 import tempfile
 import time
 from contextlib import contextmanager
-from getpass import getuser
 from typing import Optional, Iterator, Any, TypeVar, Callable
 
 import kfp
+
+# pyre-ignore-all-errors[21] # Cannot find module utils
+# pyre-ignore-all-errors[11]
+from integ_test_utils import (
+    MissingEnvError,
+    getenv_asserts,
+    run,
+    run_in_bg,
+    BuildInfo,
+    build_images,
+    push_images,
+)
 from pyre_extensions import none_throws
 from urllib3.exceptions import MaxRetryError
 
@@ -90,37 +100,9 @@ def retry(f: Callable[..., T]) -> Callable[..., T]:
     return wrapper
 
 
-@dataclasses.dataclass
-class BuildInfo:
-    id: str
-    torchx_image: str
-    examples_image: str
-
-
-class MissingEnvError(AssertionError):
-    pass
-
-
-def getenv_asserts(env: str) -> str:
-    v = os.getenv(env)
-    if not v:
-        raise MissingEnvError(f"must have {env} environment variable")
-    return v
-
-
 @retry
 def get_client(host: str) -> kfp.Client:
     return kfp.Client(host=f"{host}/pipeline")
-
-
-def run(*args: str) -> None:
-    print(f"run {args}")
-    subprocess.run(args, check=True)
-
-
-def run_in_bg(*args: str) -> "subprocess.Popen[str]":
-    print(f"run {args}")
-    return subprocess.Popen(args)
 
 
 def get_free_port() -> int:
@@ -150,71 +132,8 @@ def enable_port_forward(local_port: int) -> "Optional[subprocess.Popen[str]]":
     )
 
 
-def rand_id() -> str:
-    return binascii.b2a_hex(os.urandom(8)).decode("utf-8")
-
-
-def torchx_container_tag(id: str) -> str:
-    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
-    return f"{CONTAINER_REPO}:canary_{id}_torchx"
-
-
-def examples_container_tag(id: str) -> str:
-    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
-    return f"{CONTAINER_REPO}:canary_{id}_examples"
-
-
-def build_examples_canary(id: str) -> str:
-    examples_tag = "torchx_examples_canary"
-
-    print(f"building {examples_tag}")
-    run("docker", "build", "-t", examples_tag, "examples/apps/")
-
-    return examples_tag
-
-
-def build_torchx_canary(id: str) -> str:
-    torchx_tag = "torchx_canary"
-
-    print(f"building {torchx_tag}")
-    run("./torchx/runtime/container/build.sh")
-    run("docker", "tag", "torchx", torchx_tag)
-
-    return torchx_tag
-
-
-def build_images() -> BuildInfo:
-    id = f"{getuser()}_{rand_id()}"
-    examples_image = build_examples_canary(id)
-    torchx_image = build_torchx_canary(id)
-    return BuildInfo(
-        id=id,
-        torchx_image=torchx_image,
-        examples_image=examples_image,
-    )
-
-
 META_FILE = "meta"
 IMAGES_FILE = "images.tar.zst"
-
-
-def save_build(path: str, build: BuildInfo) -> None:
-    meta_path = os.path.join(path, META_FILE)
-    with open(meta_path, "wt") as f:
-        json.dump(dataclasses.asdict(build), f)
-
-
-def push_images(build: BuildInfo) -> None:
-    examples_tag = examples_container_tag(build.id)
-    run("docker", "tag", build.examples_image, examples_tag)
-    build.examples_image = examples_tag
-
-    torchx_tag = torchx_container_tag(build.id)
-    run("docker", "tag", build.torchx_image, torchx_tag)
-    build.torchx_image = torchx_tag
-
-    run("docker", "push", examples_tag)
-    run("docker", "push", torchx_tag)
 
 
 def save_advanced_pipeline_spec(path: str, build: BuildInfo) -> None:
@@ -266,6 +185,12 @@ def _connection_error_message() -> str:
     Unable to connect to kfp cluster using {kfp_host}.
     Check that `kubectl` has proper credentials to execute port forward
     """
+
+
+def save_build(path: str, build: BuildInfo) -> None:
+    meta_path = os.path.join(path, META_FILE)
+    with open(meta_path, "wt") as f:
+        json.dump(dataclasses.asdict(build), f)
 
 
 def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
@@ -339,9 +264,11 @@ async def exec_job() -> None:
             intro_pipeline_file,
             dist_pipeline_file,
         ]
-        runs = [run_pipeline(build, pipeline_file) for pipeline_file in pipeline_files]
-        for run in runs:
-            wait_for_pipeline(run)
+        responses = [
+            run_pipeline(build, pipeline_file) for pipeline_file in pipeline_files
+        ]
+        for response in responses:
+            wait_for_pipeline(response)
 
 
 def main() -> None:
