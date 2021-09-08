@@ -235,6 +235,8 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -565,7 +567,10 @@ runner.run_component(&quot;~/home/components.py:my_component&quot;, ...) - will 
 if it dryrun specified.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – if the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> is failed to resolve.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ComponentValidationException</strong> – if component is invalid.</p></li>
+<li><p><strong>ComponentNotFoundException</strong> – if the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> is failed to resolve.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

@@ -232,6 +232,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configure.html">Configuring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -363,6 +365,7 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
@@ -765,6 +768,17 @@
     <span class="n">role_log_dirs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">RoleName</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
 
+<span class="k">def</span> <span class="nf">register_termination_signals</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Register SIGTERM and SIGINT handlers only for the main thread.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span> <span class="ow">is</span> <span class="n">threading</span><span class="o">.</span><span class="n">main_thread</span><span class="p">():</span>
+        <span class="c1"># Register termination handlers for SIGTERM and SIGINT</span>
+        <span class="c1"># Temporary disable signal handler registration</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">_terminate_process_handler</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">_terminate_process_handler</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="LocalScheduler"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler">[docs]</a><span class="k">class</span> <span class="nc">LocalScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Schedules on localhost. Containers are modeled as processes and</span>
@@ -777,6 +791,13 @@
 <span class="sd">    3. Retry policies</span>
 <span class="sd">    4. Retry counts (no retries supported)</span>
 <span class="sd">    5. Deployment preferences</span>
+
+<span class="sd">    Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.</span>
+<span class="sd">    The scheduler will terminate the spawned processes.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        The orphan cleanup only works if `LocalScheduler` is instantiated from the main thread.</span>
+
 
 <span class="sd">    .. note::</span>
 <span class="sd">        Use this scheduler sparingly since an application that runs successfully</span>
@@ -803,11 +824,7 @@
         <span class="k">if</span> <span class="n">cache_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cache size must be greater than zero&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span> <span class="o">=</span> <span class="n">cache_size</span>
-
-        <span class="c1"># Register termination handlers for SIGTERM and SIGINT</span>
-        <span class="c1"># Temporary disable signal handler registration</span>
-        <span class="c1"># signal.signal(signal.SIGTERM, _terminate_process_handler)</span>
-        <span class="c1"># signal.signal(signal.SIGINT, _terminate_process_handler)</span>
+        <span class="n">register_termination_signals</span><span class="p">()</span>
 
 <div class="viewcode-block" id="LocalScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>

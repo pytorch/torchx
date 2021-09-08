@@ -235,6 +235,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configure.html">Configuring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -364,6 +366,12 @@ runs are ignored. Properties that are ignored:</p>
 <li><p>Retry counts (no retries supported)</p></li>
 <li><p>Deployment preferences</p></li>
 </ol>
+<p>Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.
+The scheduler will terminate the spawned processes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The orphan cleanup only works if <cite>LocalScheduler</cite> is instantiated from the main thread.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Use this scheduler sparingly since an application that runs successfully

@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>CLI &mdash; PyTorch/TorchX main documentation</title>
+  <title>Component Best Practices &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Configuring" href="configure.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" />
+    <link rel="next" title="Application Examples" href="examples_apps/index.html" />
+    <link rel="prev" title="App Best Practices" href="app_best_practices.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -233,10 +233,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -315,13 +315,13 @@
       </li>
 
         
-      <li>CLI</li>
+      <li>Component Best Practices</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/cli.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/component_best_practices.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -350,239 +350,156 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.cli">
-<span id="cli"></span><h1>CLI<a class="headerlink" href="#module-torchx.cli" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI is a commandline tool around <a class="reference internal" href="runner.html#torchx.runner.Runner" title="torchx.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.runner.Runner</span></code></a>.
-It allows users to launch <a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.AppDef</span></code></a> directly onto
-one of the supported schedulers without authoring a pipeline (aka workflow).
-This is convenient for quickly iterating on the application logic without
-incurring both the technical and cognitive overhead of learning, writing, and
-dealing with pipelines.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When in doubt use <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">--help</span></code>.</p>
-</div>
-<section id="listing-the-builtin-components">
-<h2>Listing the builtin components<a class="headerlink" href="#listing-the-builtin-components" title="Permalink to this headline">¶</a></h2>
-<p>Most of the components under the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> module are what the CLI
-considers “built-in” apps. Before you write your own component you should
-browse through the builtins to see if there is one that fits your needs already.
-If so, no need to even author an app spec!</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
-<span class="go">Found &lt;n&gt; builtin configs:</span>
-<span class="go"> 1. echo</span>
-<span class="go"> 2. simple_example</span>
-<span class="go"> 3. touch</span>
-<span class="go"> ... &lt;omitted for brevity&gt;</span>
+  <section id="component-best-practices">
+<h1>Component Best Practices<a class="headerlink" href="#component-best-practices" title="Permalink to this headline">¶</a></h1>
+<p>This has a list of common things you might want to do with a component and best
+practices for them. Components are designed to be flexible so you can deviate
+from these practices if necessary however these are the best practices we use
+for the builtin TorchX components.</p>
+<p>See <a class="reference internal" href="app_best_practices.html#app-best-practices"><span class="std std-ref">App Best Practices</span></a> for information how to write
+apps using TorchX.</p>
+<section id="simplify">
+<h2>Simplify<a class="headerlink" href="#simplify" title="Permalink to this headline">¶</a></h2>
+<p>When writing a component generally you want to keep it as simple as possible and
+make it so it just passes the arguments around.</p>
+<p>Avoiding complex processing makes it easier to use the component in different
+environments and easier for others to understand what the component does.</p>
+<section id="argument-processing">
+<h3>Argument Processing<a class="headerlink" href="#argument-processing" title="Permalink to this headline">¶</a></h3>
+<p>Argument processing makes it hard to use the component in other environments. In
+this example we concatenate the image name which makes it impossible to use in
+other environments which have a different format for images.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># avoid</span>
+<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">img_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">img_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">img_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">img_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># recommended</span>
+<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="listing-the-supported-schedulers">
-<h2>Listing the supported schedulers<a class="headerlink" href="#listing-the-supported-schedulers" title="Permalink to this headline">¶</a></h2>
-<p>To get a list of supported schedulers that you can launch your job into run:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx schedulers
+<section id="branching-logic">
+<h3>Branching Logic<a class="headerlink" href="#branching-logic" title="Permalink to this headline">¶</a></h3>
+<p>If the component has lots of branching logic it can make it hard for others to
+understand how the component maps to the underlying app and how they should
+configure the arguments.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># avoid</span>
+<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+        <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="s2">&quot;prod&quot;</span><span class="p">:</span>
+        <span class="n">num_replicas</span><span class="o">=</span><span class="mi">10</span>
+    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)])</span>
+
+<span class="c1"># recommended</span>
+<span class="k">def</span> <span class="nf">trainer_test</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">trainer_prod</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># not a component just a function</span>
+<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+     <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)])</span>
 </pre></div>
 </div>
 </section>
-<section id="running-a-component-as-a-job">
-<h2>Running a component as a job<a class="headerlink" href="#running-a-component-as-a-job" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code>  subcommand takes either one of:</p>
-<ol class="arabic">
-<li><p>name of the builtin</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; <span class="nb">echo</span>
-</pre></div>
-</div>
-</li>
-<li><p>full python module path of the component function</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; torchx.components.utils.echo
-</pre></div>
-</div>
-</li>
-<li><p>file path of the <code class="docutils literal notranslate"><span class="pre">*.py</span></code> file the defines the component
-along with the component function name in that file.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat ~/my_trainer_spec.py
-<span class="go">import torchx.specs as specs</span>
-
-<span class="go">def my_trainer(foo: int, bar: str) -&gt; specs.AppDef:</span>
-<span class="go">  &lt;...spec file details omitted for brevity...&gt;</span>
-
-<span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; ~/my_trainer_spec.py:my_trainer
-</pre></div>
-</div>
-</li>
-</ol>
-<p>Now that you have understood how to chose which app to launch, now it is time
-to see what parameters need to be passed. There are three sets of
-parameters:</p>
-<ol class="arabic">
-<li><p>arguments to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand, see a list of them by running:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --help
-</pre></div>
-</div>
-</li>
-<li><p>arguments to the scheduler (<code class="docutils literal notranslate"><span class="pre">--scheduler_args</span></code>, also known as <code class="docutils literal notranslate"><span class="pre">run_options</span></code> or <code class="docutils literal notranslate"><span class="pre">run_configs</span></code>),
-each scheduler takes different args, to find out the args for a specific scheduler run (command for
-<code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler shown below:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts <span class="nb">local</span>
-<span class="go">{ &#39;image_fetcher&#39;: { &#39;default&#39;: &#39;dir&#39;,</span>
-<span class="go">                 &#39;help&#39;: &#39;image fetcher type&#39;,</span>
-<span class="go">                 &#39;type&#39;: &#39;str&#39;},</span>
-<span class="go">&#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
-<span class="go">           &#39;help&#39;: &#39;dir to write stdout/stderr log files of replicas&#39;,</span>
-<span class="go">           &#39;type&#39;: &#39;str&#39;}}</span>
-
-<span class="gp"># </span>pass run options as comma-delimited <span class="nv">k</span><span class="o">=</span>v pairs
-<span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp ...
-</pre></div>
-</div>
-</li>
-<li><p>arguments to the component (the app args are included here), this also depends on the
-component and can be seen with the <code class="docutils literal notranslate"><span class="pre">--help</span></code> string on the component</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> utils.echo --help
-<span class="go">usage: torchx run echo.torchx [-h] [--msg MSG]</span>
-
-<span class="go">Echos a message</span>
-
-<span class="go">optional arguments:</span>
-<span class="go">-h, --help  show this help message and exit</span>
-<span class="go">--msg MSG   Message to echo</span>
-</pre></div>
-</div>
-</li>
-</ol>
-<p>Putting everything together, running <code class="docutils literal notranslate"><span class="pre">echo</span></code> with the <code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp utils.echo --msg <span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
-<span class="go">=== RUN RESULT ===</span>
-<span class="go">Launched app: local://torchx_kiuk/echo_ecd30f74</span>
-</pre></div>
-</div>
-<p>By default the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand does not block for the job to finish, instead it simply
-schedules the job on the specified scheduler and prints an <code class="docutils literal notranslate"><span class="pre">app</span> <span class="pre">handle</span></code>
-which is a URL of the form: <code class="docutils literal notranslate"><span class="pre">$scheduler_name://torchx_$user/$job_id</span></code>.
-Keep note of this handle since this is what you’ll need to provide to other
-subcommands to identify your job.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If the <code class="docutils literal notranslate"><span class="pre">--scheduler</span></code> option is not provided, then it defaults to
-the scheduler backend <code class="docutils literal notranslate"><span class="pre">default</span></code> which points to <code class="docutils literal notranslate"><span class="pre">local</span></code>. To change
-the default scheduler, see: <a class="reference internal" href="configure.html#registering-custom-schedulers"><span class="std std-ref">Registering Custom Schedulers</span></a>.</p>
-</div>
 </section>
-<section id="inspecting-what-will-run-dryrun">
-<h2>Inspecting what will run (dryrun)<a class="headerlink" href="#inspecting-what-will-run-dryrun" title="Permalink to this headline">¶</a></h2>
-<p>When you are authoring or debugging a component, you may want to find out and
-inspect both the scheduler request object that the runner submits as well as
-the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> object that is created by the component function. To do this,
-use the <code class="docutils literal notranslate"><span class="pre">--dryrun</span></code> option to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --dryrun utils.echo --msg  hello_world
-<span class="go">=== APPLICATION ===</span>
-<span class="go">{ &#39;metadata&#39;: {},</span>
-<span class="go">  &#39;name&#39;: &#39;echo&#39;,</span>
-<span class="go">  &#39;roles&#39;: [ { &#39;args&#39;: [&#39;hello_world&#39;],</span>
-<span class="go">               &#39;base_image&#39;: None,</span>
-<span class="go">               &#39;entrypoint&#39;: &#39;/bin/echo&#39;,</span>
-<span class="go">               &#39;env&#39;: {},</span>
-<span class="go">               &#39;image&#39;: &#39;/tmp&#39;,</span>
-<span class="go">               &#39;max_retries&#39;: 0,</span>
-<span class="go">               &#39;name&#39;: &#39;echo&#39;,</span>
-<span class="go">               &#39;num_replicas&#39;: 1,</span>
-<span class="go">               &#39;port_map&#39;: {},</span>
-<span class="go">               &#39;resource&#39;: { &#39;capabilities&#39;: {},</span>
-<span class="go">                             &#39;cpu&#39;: -1,</span>
-<span class="go">                             &#39;gpu&#39;: -1,</span>
-<span class="go">                             &#39;memMB&#39;: -1},</span>
-<span class="go">               &#39;retry_policy&#39;: &lt;RetryPolicy.APPLICATION: &#39;APPLICATION&#39;&gt;}]}</span>
-<span class="go">=== SCHEDULER REQUEST ===</span>
-<span class="go">PopenRequest(</span>
-<span class="go">    app_id=&#39;echo_c944ffb2&#39;,</span>
-<span class="go">    log_dir=&#39;/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2&#39;,</span>
-<span class="go">    role_params={</span>
-<span class="go">        &#39;echo&#39;: [</span>
-<span class="go">            ReplicaParam(</span>
-<span class="go">                args=[&#39;/bin/echo&#39;, &#39;hello_world&#39;],</span>
-<span class="go">                env={&#39;TORCHELASTIC_ERROR_FILE&#39;: &#39;/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2/echo/0/error.json&#39;},</span>
-<span class="go">                stdout=None,</span>
-<span class="go">                stderr=None)</span>
-<span class="go">            ]</span>
-<span class="go">        },</span>
-<span class="go">    role_log_dirs={&#39;echo&#39;: [&#39;/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2/echo/0&#39;]})</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The scheduler request print out will look different based on the scheduler
-type. The example above is a faux request since the scheduler is a local scheduler
-which simply uses <code class="docutils literal notranslate"><span class="pre">subprocess.Popen</span></code> to simulate replicas as a POSIX process.
-Nevertheless the scheduler request contains valuable insight into what the runner
-translates the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> to for a particular scheduler backend.</p>
-</div>
+<section id="named-resources">
+<h2>Named Resources<a class="headerlink" href="#named-resources" title="Permalink to this headline">¶</a></h2>
+<p>Generally when writing components it’s best to use TorchX’s named resources
+support instead of manually specifying cpu and memory allocations. Named
+resources allow your component to be environment independent and allow for
+better scheduling behavior by using t-shirt sizes.</p>
+<p>See <a class="reference internal" href="specs.html#torchx.specs.get_named_resources" title="torchx.specs.get_named_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.specs.get_named_resources()</span></code></a> for more info.</p>
 </section>
-<section id="describing-and-querying-the-status-of-a-job">
-<h2>Describing and querying the status of a job<a class="headerlink" href="#describing-and-querying-the-status-of-a-job" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">describe</span></code> subcommand is essentially the inverse of the <code class="docutils literal notranslate"><span class="pre">run</span></code> command.
-That is, it prints the app spec given an <code class="docutils literal notranslate"><span class="pre">app_handle</span></code>.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx describe &lt;app handle&gt;
-</pre></div>
-</div>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">describe</span></code> command attempts to recreate an app spec
-by querying the scheduler for the job description. So what you
-see printed is not always 100% the exact same app spec that was
-given to the <code class="docutils literal notranslate"><span class="pre">run</span></code>. The extent to which the runner can
-recreate the app spec depends on numerous factors such as
-how descriptive the scheduler’s <code class="docutils literal notranslate"><span class="pre">describe_job</span></code> API is as well
-as whether there were fields in the app spec that were ignored
-when submitting the job to the scheduler because the scheduler
-does not have support for such a parameter/functionality.
-NEVER rely on the <code class="docutils literal notranslate"><span class="pre">describe</span></code> API as a storage function for
-your app spec. It is simply there to help you spot check things.</p>
-</div>
-<p>To get the status of a running job:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx status &lt;app_handle&gt; <span class="c1"># prints status for all replicas and roles</span>
-<span class="gp">$ </span>torchx status --role trainer &lt;app_handle&gt; <span class="c1"># filters it down to the trainer role</span>
-</pre></div>
-</div>
-<p>Filtering by <code class="docutils literal notranslate"><span class="pre">--role</span></code> is useful for large jobs that have multiple roles.</p>
+<section id="composing-components">
+<h2>Composing Components<a class="headerlink" href="#composing-components" title="Permalink to this headline">¶</a></h2>
+<p>For common component styles we provide base component definitions. These can be
+called from your custom component definition and are generally easier to use
+than creating a full AppDef from scratch.</p>
+<p>See:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="components/base.html#module-torchx.components.base" title="torchx.components.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.base</span></code></a> for simple single node components.</p></li>
+<li><p><a class="reference internal" href="components/distributed.html#torchx.components.dist.ddp" title="torchx.components.dist.ddp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.components.dist.ddp()</span></code></a> for distributed components.</p></li>
+</ul>
+<p>For even more complex components it’s possible to merge multiple existing
+components into a single one. For instance you could use a metrics UI component
+and merge the roles from it into training component roles to have a sidecar
+service to your main training job.</p>
 </section>
-<section id="viewing-logs">
-<h2>Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This functionality depends on how long your scheduler setup retains logs
-TorchX DOES NOT archive logs on your behalf, but rather relies on the scheduler’s
-<code class="docutils literal notranslate"><span class="pre">get_log</span></code> API to obtain the logs. Refer to your scheduler’s user manual
-to setup log retention properly.</p>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">log</span></code> subcommand is a simple wrapper around the scheduler’s <code class="docutils literal notranslate"><span class="pre">get_log</span></code> API
-to let you pull/print the logs for all replicas and roles from one place.
-It also lets you pull replica or role specific logs. Below are a few log access
-patterns that are useful and self explanatory</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx log &lt;app_handle&gt;
-<span class="go">Prints all logs from all replicas and roles (each log line is prefixed with role name and replica id)</span>
-
-<span class="gp">$ </span>torchx log --tail &lt;app_handle&gt;
-<span class="go">If the job is still running tail the logs</span>
-
-<span class="gp">$ </span>torchx log --regex <span class="s2">&quot;.*Exception.*&quot;</span> &lt;app_handle&gt;
-<span class="go">regex filter to exceptions</span>
-
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/&lt;role&gt;
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/trainer
-<span class="go">pulls all logs for the role trainer</span>
-
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/&lt;role_name&gt;/&lt;replica_id&gt;
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/trainer/0,1
-<span class="go">only pulls trainer 0 and trainer 1 (node not rank) logs</span>
+<section id="distributed-components">
+<h2>Distributed Components<a class="headerlink" href="#distributed-components" title="Permalink to this headline">¶</a></h2>
+<p>If you’re writing a component for distributed training or other similar
+distributed computation, we recommend using the
+<a class="reference internal" href="components/distributed.html#torchx.components.dist.ddp" title="torchx.components.dist.ddp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.components.dist.ddp()</span></code></a> component since it provides out of the box
+support for <cite>torch.distributed.elastic</cite> jobs.</p>
+<p>You can extend the <cite>ddp</cite> component by writing a custom component that simple
+imports the <cite>ddp</cite> component and calls it with your app configuration.</p>
+</section>
+<section id="define-all-arguments">
+<h2>Define All Arguments<a class="headerlink" href="#define-all-arguments" title="Permalink to this headline">¶</a></h2>
+<p>It’s generally preferable to define all component arguments as function
+arguments instead of consuming a dictionary of arguments. This makes it easier
+for users to figure out the options as well as can provide static typing when
+used with <a class="reference external" href="https://pyre-check.org/">pyre</a> or <a class="reference external" href="http://mypy-lang.org/">mypy</a>.</p>
+</section>
+<section id="module-torchx.components.test.component_test_base">
+<span id="unit-tests"></span><h2>Unit Tests<a class="headerlink" href="#module-torchx.components.test.component_test_base" title="Permalink to this headline">¶</a></h2>
+<p>You can unit test the component definitions as you would normal Python code
+since they are valid Python definitions.</p>
+<p>We do recommend using <a class="reference internal" href="#torchx.components.test.component_test_base.ComponentTestCase" title="torchx.components.test.component_test_base.ComponentTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentTestCase</span></code></a> to ensure that your
+component can be parsed by the TorchX CLI. The CLI requires stricter formatting
+on the doc string than pure Python as the doc string is used for parsing CLI
+args.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.components.test.component_test_base.ComponentTestCase">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.components.test.component_test_base.</span></span><span class="sig-name descname"><span class="pre">ComponentTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/components/test/component_test_base.html#ComponentTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.test.component_test_base.ComponentTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>ComponentTestCase is an extension of TestCase with helper methods for use
+with testing component definitions.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.test.component_test_base</span> <span class="kn">import</span> <span class="n">ComponentTestCase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyComponentTest</span><span class="p">(</span><span class="n">ComponentTestCase</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">test_my_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">utils</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MyComponentTest</span><span class="p">(</span><span class="s2">&quot;test_my_comp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="go">&lt;unittest.result.TestResult run=1 errors=0 failures=0&gt;</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some schedulers do not support server-side regex filters. In this case
-the regex filter is applied on the client-side, meaning the full logs
-will have to be passed through the client. This may be very taxing to
-the local host. Please use your best judgment when using the logs API.</p>
-</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.components.test.component_test_base.ComponentTestCase._validate">
+<span class="sig-name descname"><span class="pre">_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/components/test/component_test_base.html#ComponentTestCase._validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.test.component_test_base.ComponentTestCase._validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>_validate takes in a module and the name of a component function
+definition defined in that module and validates that it is a valid
+component def.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="integration-tests">
+<h2>Integration Tests<a class="headerlink" href="#integration-tests" title="Permalink to this headline">¶</a></h2>
+<p>You can setup integration tests with your components by either using the
+programmatic runner API or write a bash script to call the CLI.</p>
+<p>You can see both styles in use in the core
+<a class="reference external" href="https://github.com/pytorch/torchx/tree/main/.github/workflows">TorchX scheduler integration tests</a>.</p>
 </section>
 </section>
 
@@ -594,10 +511,10 @@ the local host. Please use your best judgment when using the logs API.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="configure.html" class="btn btn-neutral float-right" title="Configuring" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="examples_apps/index.html" class="btn btn-neutral float-right" title="Application Examples" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral" title="Quickstart" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="app_best_practices.html" class="btn btn-neutral" title="App Best Practices" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -629,13 +546,18 @@ the local host. Please use your best judgment when using the logs API.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">CLI</a><ul>
-<li><a class="reference internal" href="#listing-the-builtin-components">Listing the builtin components</a></li>
-<li><a class="reference internal" href="#listing-the-supported-schedulers">Listing the supported schedulers</a></li>
-<li><a class="reference internal" href="#running-a-component-as-a-job">Running a component as a job</a></li>
-<li><a class="reference internal" href="#inspecting-what-will-run-dryrun">Inspecting what will run (dryrun)</a></li>
-<li><a class="reference internal" href="#describing-and-querying-the-status-of-a-job">Describing and querying the status of a job</a></li>
-<li><a class="reference internal" href="#viewing-logs">Viewing Logs</a></li>
+<li><a class="reference internal" href="#">Component Best Practices</a><ul>
+<li><a class="reference internal" href="#simplify">Simplify</a><ul>
+<li><a class="reference internal" href="#argument-processing">Argument Processing</a></li>
+<li><a class="reference internal" href="#branching-logic">Branching Logic</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#named-resources">Named Resources</a></li>
+<li><a class="reference internal" href="#composing-components">Composing Components</a></li>
+<li><a class="reference internal" href="#distributed-components">Distributed Components</a></li>
+<li><a class="reference internal" href="#define-all-arguments">Define All Arguments</a></li>
+<li><a class="reference internal" href="#module-torchx.components.test.component_test_base">Unit Tests</a></li>
+<li><a class="reference internal" href="#integration-tests">Integration Tests</a></li>
 </ul>
 </li>
 </ul>

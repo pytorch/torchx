@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>CLI &mdash; PyTorch/TorchX main documentation</title>
+  <title>App Best Practices &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Configuring" href="configure.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" />
+    <link rel="next" title="Component Best Practices" href="component_best_practices.html" />
+    <link rel="prev" title="Configuring" href="configure.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -233,9 +233,9 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
@@ -315,13 +315,13 @@
       </li>
 
         
-      <li>CLI</li>
+      <li>App Best Practices</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/cli.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/app_best_practices.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -350,238 +350,153 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.cli">
-<span id="cli"></span><h1>CLI<a class="headerlink" href="#module-torchx.cli" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI is a commandline tool around <a class="reference internal" href="runner.html#torchx.runner.Runner" title="torchx.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.runner.Runner</span></code></a>.
-It allows users to launch <a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.AppDef</span></code></a> directly onto
-one of the supported schedulers without authoring a pipeline (aka workflow).
-This is convenient for quickly iterating on the application logic without
-incurring both the technical and cognitive overhead of learning, writing, and
-dealing with pipelines.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When in doubt use <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">--help</span></code>.</p>
-</div>
-<section id="listing-the-builtin-components">
-<h2>Listing the builtin components<a class="headerlink" href="#listing-the-builtin-components" title="Permalink to this headline">¶</a></h2>
-<p>Most of the components under the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> module are what the CLI
-considers “built-in” apps. Before you write your own component you should
-browse through the builtins to see if there is one that fits your needs already.
-If so, no need to even author an app spec!</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
-<span class="go">Found &lt;n&gt; builtin configs:</span>
-<span class="go"> 1. echo</span>
-<span class="go"> 2. simple_example</span>
-<span class="go"> 3. touch</span>
-<span class="go"> ... &lt;omitted for brevity&gt;</span>
-</pre></div>
-</div>
+  <section id="app-best-practices">
+<h1>App Best Practices<a class="headerlink" href="#app-best-practices" title="Permalink to this headline">¶</a></h1>
+<p>TorchX apps can be written using any language as well as with any set of
+libraries to allow for maximum flexibility. However, we do have a standard set
+of recommended libraries and practices to have a starting point for users and to
+provide consistency across the built in components and applications.</p>
+<p>See <a class="reference internal" href="component_best_practices.html#component-best-practices"><span class="std std-ref">Component Best Practices</span></a> for information how to handle component
+management and AppDefs.</p>
+<section id="data-passing-and-storage">
+<h2>Data Passing and Storage<a class="headerlink" href="#data-passing-and-storage" title="Permalink to this headline">¶</a></h2>
+<p>We recommend
+<a class="reference external" href="https://filesystem-spec.readthedocs.io/en/latest/index.html">fsspec</a>. fsspec
+allows pluggable filesystems so apps can be written once and run on most
+infrastructures just by changing the input and output paths.</p>
+<p>TorchX builtin components use fsspec for all storage access to make it possible
+to run in new environments by using a different fsspec backend or by adding a
+new one.</p>
+<p>Pytorch Lightning supports fsspec out of the box so using fsspec elsewhere makes
+it seamless to integrate in with your trainer.</p>
+<p>Using remote storage also makes it easier to transition your apps to running
+with distributed support via libraries such as
+<a class="reference external" href="https://pytorch.org/docs/stable/distributed.elastic.html">torch.distributed.elastic</a>.</p>
 </section>
-<section id="listing-the-supported-schedulers">
-<h2>Listing the supported schedulers<a class="headerlink" href="#listing-the-supported-schedulers" title="Permalink to this headline">¶</a></h2>
-<p>To get a list of supported schedulers that you can launch your job into run:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx schedulers
-</pre></div>
-</div>
+<section id="train-loops">
+<h2>Train Loops<a class="headerlink" href="#train-loops" title="Permalink to this headline">¶</a></h2>
+<p>There are lots of ways to structure a training loop and it depends a lot on your
+model type and architecture which is why we don’t provide one out of the box.</p>
+<p>Some common choices are:</p>
+<ul class="simple">
+<li><p>Pure Pytorch</p></li>
+<li><dl class="simple">
+<dt>Use a managed train loop</dt><dd><ul>
+<li><p><a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/">Pytorch Lighting</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/ignite">Pytorch Ignite</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>See <a class="reference internal" href="components/train.html#module-torchx.components.train"><span class="std std-ref">Train</span></a> for more information.</p>
 </section>
-<section id="running-a-component-as-a-job">
-<h2>Running a component as a job<a class="headerlink" href="#running-a-component-as-a-job" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code>  subcommand takes either one of:</p>
-<ol class="arabic">
-<li><p>name of the builtin</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; <span class="nb">echo</span>
-</pre></div>
-</div>
-</li>
-<li><p>full python module path of the component function</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; torchx.components.utils.echo
-</pre></div>
-</div>
-</li>
-<li><p>file path of the <code class="docutils literal notranslate"><span class="pre">*.py</span></code> file the defines the component
-along with the component function name in that file.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat ~/my_trainer_spec.py
-<span class="go">import torchx.specs as specs</span>
-
-<span class="go">def my_trainer(foo: int, bar: str) -&gt; specs.AppDef:</span>
-<span class="go">  &lt;...spec file details omitted for brevity...&gt;</span>
-
-<span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; ~/my_trainer_spec.py:my_trainer
-</pre></div>
-</div>
-</li>
-</ol>
-<p>Now that you have understood how to chose which app to launch, now it is time
-to see what parameters need to be passed. There are three sets of
-parameters:</p>
-<ol class="arabic">
-<li><p>arguments to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand, see a list of them by running:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --help
-</pre></div>
-</div>
-</li>
-<li><p>arguments to the scheduler (<code class="docutils literal notranslate"><span class="pre">--scheduler_args</span></code>, also known as <code class="docutils literal notranslate"><span class="pre">run_options</span></code> or <code class="docutils literal notranslate"><span class="pre">run_configs</span></code>),
-each scheduler takes different args, to find out the args for a specific scheduler run (command for
-<code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler shown below:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts <span class="nb">local</span>
-<span class="go">{ &#39;image_fetcher&#39;: { &#39;default&#39;: &#39;dir&#39;,</span>
-<span class="go">                 &#39;help&#39;: &#39;image fetcher type&#39;,</span>
-<span class="go">                 &#39;type&#39;: &#39;str&#39;},</span>
-<span class="go">&#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
-<span class="go">           &#39;help&#39;: &#39;dir to write stdout/stderr log files of replicas&#39;,</span>
-<span class="go">           &#39;type&#39;: &#39;str&#39;}}</span>
-
-<span class="gp"># </span>pass run options as comma-delimited <span class="nv">k</span><span class="o">=</span>v pairs
-<span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp ...
-</pre></div>
-</div>
-</li>
-<li><p>arguments to the component (the app args are included here), this also depends on the
-component and can be seen with the <code class="docutils literal notranslate"><span class="pre">--help</span></code> string on the component</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> utils.echo --help
-<span class="go">usage: torchx run echo.torchx [-h] [--msg MSG]</span>
-
-<span class="go">Echos a message</span>
-
-<span class="go">optional arguments:</span>
-<span class="go">-h, --help  show this help message and exit</span>
-<span class="go">--msg MSG   Message to echo</span>
-</pre></div>
-</div>
-</li>
-</ol>
-<p>Putting everything together, running <code class="docutils literal notranslate"><span class="pre">echo</span></code> with the <code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp utils.echo --msg <span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
-<span class="go">=== RUN RESULT ===</span>
-<span class="go">Launched app: local://torchx_kiuk/echo_ecd30f74</span>
-</pre></div>
-</div>
-<p>By default the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand does not block for the job to finish, instead it simply
-schedules the job on the specified scheduler and prints an <code class="docutils literal notranslate"><span class="pre">app</span> <span class="pre">handle</span></code>
-which is a URL of the form: <code class="docutils literal notranslate"><span class="pre">$scheduler_name://torchx_$user/$job_id</span></code>.
-Keep note of this handle since this is what you’ll need to provide to other
-subcommands to identify your job.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If the <code class="docutils literal notranslate"><span class="pre">--scheduler</span></code> option is not provided, then it defaults to
-the scheduler backend <code class="docutils literal notranslate"><span class="pre">default</span></code> which points to <code class="docutils literal notranslate"><span class="pre">local</span></code>. To change
-the default scheduler, see: <a class="reference internal" href="configure.html#registering-custom-schedulers"><span class="std std-ref">Registering Custom Schedulers</span></a>.</p>
-</div>
+<section id="metrics">
+<h2>Metrics<a class="headerlink" href="#metrics" title="Permalink to this headline">¶</a></h2>
+<p>For logging metrics and monitoring your job we recommend using standalone
+Tensorboard since it’s supported natively by
+<a class="reference external" href="https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html">Pytorch tensorboard integrations</a>
+and
+<a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html">Pytorch Lightning logging</a>.</p>
+<p>Since Tensorboard can log to remote storage like s3 or gcs you can view complex
+information about your model while it’s training.</p>
+<p>See <a class="reference internal" href="components/metrics.html#module-torchx.components.metrics"><span class="std std-ref">Metrics</span></a> for more information on metric handling
+within TorchX.</p>
 </section>
-<section id="inspecting-what-will-run-dryrun">
-<h2>Inspecting what will run (dryrun)<a class="headerlink" href="#inspecting-what-will-run-dryrun" title="Permalink to this headline">¶</a></h2>
-<p>When you are authoring or debugging a component, you may want to find out and
-inspect both the scheduler request object that the runner submits as well as
-the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> object that is created by the component function. To do this,
-use the <code class="docutils literal notranslate"><span class="pre">--dryrun</span></code> option to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --dryrun utils.echo --msg  hello_world
-<span class="go">=== APPLICATION ===</span>
-<span class="go">{ &#39;metadata&#39;: {},</span>
-<span class="go">  &#39;name&#39;: &#39;echo&#39;,</span>
-<span class="go">  &#39;roles&#39;: [ { &#39;args&#39;: [&#39;hello_world&#39;],</span>
-<span class="go">               &#39;base_image&#39;: None,</span>
-<span class="go">               &#39;entrypoint&#39;: &#39;/bin/echo&#39;,</span>
-<span class="go">               &#39;env&#39;: {},</span>
-<span class="go">               &#39;image&#39;: &#39;/tmp&#39;,</span>
-<span class="go">               &#39;max_retries&#39;: 0,</span>
-<span class="go">               &#39;name&#39;: &#39;echo&#39;,</span>
-<span class="go">               &#39;num_replicas&#39;: 1,</span>
-<span class="go">               &#39;port_map&#39;: {},</span>
-<span class="go">               &#39;resource&#39;: { &#39;capabilities&#39;: {},</span>
-<span class="go">                             &#39;cpu&#39;: -1,</span>
-<span class="go">                             &#39;gpu&#39;: -1,</span>
-<span class="go">                             &#39;memMB&#39;: -1},</span>
-<span class="go">               &#39;retry_policy&#39;: &lt;RetryPolicy.APPLICATION: &#39;APPLICATION&#39;&gt;}]}</span>
-<span class="go">=== SCHEDULER REQUEST ===</span>
-<span class="go">PopenRequest(</span>
-<span class="go">    app_id=&#39;echo_c944ffb2&#39;,</span>
-<span class="go">    log_dir=&#39;/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2&#39;,</span>
-<span class="go">    role_params={</span>
-<span class="go">        &#39;echo&#39;: [</span>
-<span class="go">            ReplicaParam(</span>
-<span class="go">                args=[&#39;/bin/echo&#39;, &#39;hello_world&#39;],</span>
-<span class="go">                env={&#39;TORCHELASTIC_ERROR_FILE&#39;: &#39;/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2/echo/0/error.json&#39;},</span>
-<span class="go">                stdout=None,</span>
-<span class="go">                stderr=None)</span>
-<span class="go">            ]</span>
-<span class="go">        },</span>
-<span class="go">    role_log_dirs={&#39;echo&#39;: [&#39;/tmp/torchx_asmtmyqj/torchx_kiuk/echo_c944ffb2/echo/0&#39;]})</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The scheduler request print out will look different based on the scheduler
-type. The example above is a faux request since the scheduler is a local scheduler
-which simply uses <code class="docutils literal notranslate"><span class="pre">subprocess.Popen</span></code> to simulate replicas as a POSIX process.
-Nevertheless the scheduler request contains valuable insight into what the runner
-translates the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> to for a particular scheduler backend.</p>
-</div>
+<section id="checkpointing">
+<h2>Checkpointing<a class="headerlink" href="#checkpointing" title="Permalink to this headline">¶</a></h2>
+<p>Periodic checkpoints allow your application to recover from failures and in some
+cases allow you to restart your trainer with different parameters without losing
+training progress.</p>
+<p><a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/common/weights_loading.html#checkpoint-saving">Pytorch Lighting</a>
+provides a standardized way to checkpoint your models to an fsspec remote path.</p>
 </section>
-<section id="describing-and-querying-the-status-of-a-job">
-<h2>Describing and querying the status of a job<a class="headerlink" href="#describing-and-querying-the-status-of-a-job" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">describe</span></code> subcommand is essentially the inverse of the <code class="docutils literal notranslate"><span class="pre">run</span></code> command.
-That is, it prints the app spec given an <code class="docutils literal notranslate"><span class="pre">app_handle</span></code>.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx describe &lt;app handle&gt;
-</pre></div>
-</div>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">describe</span></code> command attempts to recreate an app spec
-by querying the scheduler for the job description. So what you
-see printed is not always 100% the exact same app spec that was
-given to the <code class="docutils literal notranslate"><span class="pre">run</span></code>. The extent to which the runner can
-recreate the app spec depends on numerous factors such as
-how descriptive the scheduler’s <code class="docutils literal notranslate"><span class="pre">describe_job</span></code> API is as well
-as whether there were fields in the app spec that were ignored
-when submitting the job to the scheduler because the scheduler
-does not have support for such a parameter/functionality.
-NEVER rely on the <code class="docutils literal notranslate"><span class="pre">describe</span></code> API as a storage function for
-your app spec. It is simply there to help you spot check things.</p>
-</div>
-<p>To get the status of a running job:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx status &lt;app_handle&gt; <span class="c1"># prints status for all replicas and roles</span>
-<span class="gp">$ </span>torchx status --role trainer &lt;app_handle&gt; <span class="c1"># filters it down to the trainer role</span>
-</pre></div>
-</div>
-<p>Filtering by <code class="docutils literal notranslate"><span class="pre">--role</span></code> is useful for large jobs that have multiple roles.</p>
+<section id="fine-tuning">
+<h2>Fine Tuning<a class="headerlink" href="#fine-tuning" title="Permalink to this headline">¶</a></h2>
+<p>To support things like transfer learning, fine tuning and resuming from
+checkpoints we recommend having a command line argument to your app that will
+resume from a checkpoint file.</p>
+<p>This will allow you to recover from transient errors, continue train on new
+data, or later adjust the learning rate without losing training progress.</p>
+<p>Having load support allows for less code and better maintainability since you
+can have one app doing a number of similar tasks.</p>
 </section>
-<section id="viewing-logs">
-<h2>Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This functionality depends on how long your scheduler setup retains logs
-TorchX DOES NOT archive logs on your behalf, but rather relies on the scheduler’s
-<code class="docutils literal notranslate"><span class="pre">get_log</span></code> API to obtain the logs. Refer to your scheduler’s user manual
-to setup log retention properly.</p>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">log</span></code> subcommand is a simple wrapper around the scheduler’s <code class="docutils literal notranslate"><span class="pre">get_log</span></code> API
-to let you pull/print the logs for all replicas and roles from one place.
-It also lets you pull replica or role specific logs. Below are a few log access
-patterns that are useful and self explanatory</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx log &lt;app_handle&gt;
-<span class="go">Prints all logs from all replicas and roles (each log line is prefixed with role name and replica id)</span>
+<section id="interpretability">
+<h2>Interpretability<a class="headerlink" href="#interpretability" title="Permalink to this headline">¶</a></h2>
+<p>We recommend <a class="reference external" href="https://captum.ai/">captum</a> for model interpretability and
+analysing model results. This can be used interactively from a Jupyter notebook
+or from a component.</p>
+<p>See <a class="reference internal" href="components/interpret.html#module-torchx.components.interpret"><span class="std std-ref">Interpret</span></a> for more information.</p>
+</section>
+<section id="hyper-parameter-optimization">
+<h2>Hyper Parameter Optimization<a class="headerlink" href="#hyper-parameter-optimization" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="components/hpo.html#module-torchx.components.hpo"><span class="std std-ref">Hyperparameter Optimization</span></a> for more information.</p>
+</section>
+<section id="model-packaging">
+<h2>Model Packaging<a class="headerlink" href="#model-packaging" title="Permalink to this headline">¶</a></h2>
+<p>The pytorch community hasn’t standardized on one package format. Here’s a couple
+of options and when you might need to use them.</p>
+<section id="python-saved-weights">
+<h3>Python + Saved Weights<a class="headerlink" href="#python-saved-weights" title="Permalink to this headline">¶</a></h3>
+<p>This is the most common format for packaging models. To use you’ll load your
+model definition from a python file and then you’ll load the weights and state
+dict from a <cite>.ckpt</cite> or <cite>.pt</cite> file.</p>
+<p>This is how Pytorch Lightning’s
+<a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.ModelCheckpoint.html">ModelCheckpoint</a> hook works.</p>
+<p>This is generally the most common but makes it harder to make a reusable app
+since your trainer app needs to include the model definition code.</p>
+</section>
+<section id="torchscript-models">
+<h3>TorchScript Models<a class="headerlink" href="#torchscript-models" title="Permalink to this headline">¶</a></h3>
+<p>TorchScript is a way to create serializable and optimized Pytorch models that
+can be executed without Python. This can be used for inference or training in a
+performant way without relying on Python’s GIL.</p>
+<p>These model files are completely self described but not all pytorch models can
+be automatically converted to TorchScript.</p>
+<p>See the <a class="reference external" href="https://pytorch.org/docs/stable/jit.html">TorchScript documentation</a>.</p>
+</section>
+<section id="torchserve-model-archiver-mar">
+<h3>TorchServe Model Archiver (<cite>.mar</cite>)<a class="headerlink" href="#torchserve-model-archiver-mar" title="Permalink to this headline">¶</a></h3>
+<p>If you want to use TorchServe for inference you’ll need to export your model to
+this format. For inference you’ll generally use a quantized version of the model
+so it’s best to have your trainer export both a full precision model for fine
+tuning as well as a quantized <cite>.mar</cite> file for TorchServe to consume.</p>
+<p>See the
+<a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README.md">Model Archiver documentation</a>.</p>
+</section>
+<section id="torch-package">
+<h3>torch.package<a class="headerlink" href="#torch-package" title="Permalink to this headline">¶</a></h3>
+<p>This is a new format as of pytorch 1.9.0 and can be used to save and load model
+definitions and their weights so you don’t need to manage the model definition
+separately.</p>
+<p>See the <a class="reference external" href="https://pytorch.org/docs/stable/package.html">torch.package documentation</a>.</p>
+<p>It’s quite new and doesn’t have widespread adoption or support.</p>
+</section>
+</section>
+<section id="serving-inference">
+<h2>Serving / Inference<a class="headerlink" href="#serving-inference" title="Permalink to this headline">¶</a></h2>
+<p>For serving and inference we recommend using
+<a class="reference external" href="https://github.com/pytorch/serve">TorchServe</a>
+for common use cases.
+We provide a component that allows you to upload your model to TorchServe via
+the management API.</p>
+<p>See the <a class="reference internal" href="components/serve.html#module-torchx.components.serve"><span class="std std-ref">Serve</span></a> built in components for more information.</p>
+<p>For more complex serving and performance reasons you may need to write your own
+custom inference logic. Torchscript and torch::deploy are some standard
+utilities you can use to build your own inference server.</p>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>Since TorchX apps are typically standard python you can write unit tests for
+them like you would with any other Python code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">your.custom.app</span> <span class="kn">import</span> <span class="n">main</span>
 
-<span class="gp">$ </span>torchx log --tail &lt;app_handle&gt;
-<span class="go">If the job is still running tail the logs</span>
-
-<span class="gp">$ </span>torchx log --regex <span class="s2">&quot;.*Exception.*&quot;</span> &lt;app_handle&gt;
-<span class="go">regex filter to exceptions</span>
-
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/&lt;role&gt;
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/trainer
-<span class="go">pulls all logs for the role trainer</span>
-
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/&lt;role_name&gt;/&lt;replica_id&gt;
-<span class="gp">$ </span>torchx log &lt;app_handle&gt;/trainer/0,1
-<span class="go">only pulls trainer 0 and trainer 1 (node not rank) logs</span>
+<span class="k">class</span> <span class="nc">CustomAppTest</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_main</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">main</span><span class="p">([</span><span class="s2">&quot;--src&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;--dst&quot;</span><span class="p">,</span> <span class="s2">&quot;dst&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some schedulers do not support server-side regex filters. In this case
-the regex filter is applied on the client-side, meaning the full logs
-will have to be passed through the client. This may be very taxing to
-the local host. Please use your best judgment when using the logs API.</p>
 </div>
 </section>
 </section>
@@ -594,10 +509,10 @@ the local host. Please use your best judgment when using the logs API.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="configure.html" class="btn btn-neutral float-right" title="Configuring" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="component_best_practices.html" class="btn btn-neutral float-right" title="Component Best Practices" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral" title="Quickstart" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="configure.html" class="btn btn-neutral" title="Configuring" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -629,13 +544,23 @@ the local host. Please use your best judgment when using the logs API.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">CLI</a><ul>
-<li><a class="reference internal" href="#listing-the-builtin-components">Listing the builtin components</a></li>
-<li><a class="reference internal" href="#listing-the-supported-schedulers">Listing the supported schedulers</a></li>
-<li><a class="reference internal" href="#running-a-component-as-a-job">Running a component as a job</a></li>
-<li><a class="reference internal" href="#inspecting-what-will-run-dryrun">Inspecting what will run (dryrun)</a></li>
-<li><a class="reference internal" href="#describing-and-querying-the-status-of-a-job">Describing and querying the status of a job</a></li>
-<li><a class="reference internal" href="#viewing-logs">Viewing Logs</a></li>
+<li><a class="reference internal" href="#">App Best Practices</a><ul>
+<li><a class="reference internal" href="#data-passing-and-storage">Data Passing and Storage</a></li>
+<li><a class="reference internal" href="#train-loops">Train Loops</a></li>
+<li><a class="reference internal" href="#metrics">Metrics</a></li>
+<li><a class="reference internal" href="#checkpointing">Checkpointing</a></li>
+<li><a class="reference internal" href="#fine-tuning">Fine Tuning</a></li>
+<li><a class="reference internal" href="#interpretability">Interpretability</a></li>
+<li><a class="reference internal" href="#hyper-parameter-optimization">Hyper Parameter Optimization</a></li>
+<li><a class="reference internal" href="#model-packaging">Model Packaging</a><ul>
+<li><a class="reference internal" href="#python-saved-weights">Python + Saved Weights</a></li>
+<li><a class="reference internal" href="#torchscript-models">TorchScript Models</a></li>
+<li><a class="reference internal" href="#torchserve-model-archiver-mar">TorchServe Model Archiver (<cite>.mar</cite>)</a></li>
+<li><a class="reference internal" href="#torch-package">torch.package</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#serving-inference">Serving / Inference</a></li>
+<li><a class="reference internal" href="#testing">Testing</a></li>
 </ul>
 </li>
 </ul>

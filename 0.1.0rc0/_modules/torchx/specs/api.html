@@ -232,6 +232,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configure.html">Configuring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -361,7 +363,6 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -378,8 +379,7 @@
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">parse_fn_docstring</span><span class="p">,</span> <span class="n">validate</span>
-<span class="kn">from</span> <span class="nn">torchx.util.io</span> <span class="kn">import</span> <span class="n">read_conf_file</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">parse_fn_docstring</span>
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">is_primitive</span><span class="p">,</span> <span class="n">decode_optional</span>
 
 
@@ -1156,116 +1156,34 @@
     <span class="k">return</span> <span class="n">function_args</span><span class="p">,</span> <span class="n">var_arg</span><span class="p">,</span> <span class="n">kwargs</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_and_raise</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">file_content</span> <span class="o">=</span> <span class="n">read_conf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-    <span class="n">linter_errors</span> <span class="o">=</span> <span class="n">validate</span><span class="p">(</span><span class="n">file_content</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">linter_errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">linter_error</span><span class="o">.</span><span class="n">description</span> <span class="k">for</span> <span class="n">linter_error</span> <span class="ow">in</span> <span class="n">linter_errors</span>
-        <span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Encountered linter errors while processing </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+<span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span><span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span> <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an application by running user defined ``app_fn``.</span>
 
+<span class="sd">    ``app_fn`` has the following restrictions:</span>
+<span class="sd">        * Name must be ``app_fn``</span>
+<span class="sd">        * All arguments should be annotated</span>
+<span class="sd">        * Supported argument types:</span>
+<span class="sd">            - primitive: int, str, float</span>
+<span class="sd">            - Dict[primitive, primitive]</span>
+<span class="sd">            - List[primitive]</span>
+<span class="sd">            - Optional[Dict[primitive, primitive]]</span>
+<span class="sd">            - Optional[List[primitive]]</span>
+<span class="sd">        * ``app_fn`` can define a vararg (*arg) at the end</span>
+<span class="sd">        * There should be a docstring for the function that defines</span>
+<span class="sd">            All arguments in a google-style format</span>
+<span class="sd">        * There can be default values for the function arguments.</span>
+<span class="sd">        * The return object must be ``AppDef``</span>
 
-<span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span>
-    <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span>
-    <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">should_validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">should_validate</span><span class="p">:</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span>
-        <span class="n">_validate_and_raise</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">app_fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        app_fn: Component function</span>
+<span class="sd">        app_args: Function args</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An application spec</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">function_args</span><span class="p">,</span> <span class="n">var_arg</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_get_function_args</span><span class="p">(</span><span class="n">app_fn</span><span class="p">,</span> <span class="n">app_args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">app_fn</span><span class="p">(</span><span class="o">*</span><span class="n">function_args</span><span class="p">,</span> <span class="o">*</span><span class="n">var_arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">should_validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates an application by extracting user defined ``function_name`` and running it.</span>
-
-<span class="sd">    ``function_name`` has the following restrictions:</span>
-<span class="sd">        * Name must be ``function_name``</span>
-<span class="sd">        * All arguments should be annotated</span>
-<span class="sd">        * Supported argument types:</span>
-<span class="sd">            - primitive: int, str, float</span>
-<span class="sd">            - Dict[primitive, primitive]</span>
-<span class="sd">            - List[primitive]</span>
-<span class="sd">            - Optional[Dict[primitive, primitive]]</span>
-<span class="sd">            - Optional[List[primitive]]</span>
-<span class="sd">        * ``function_name`` can define a vararg (*arg) at the end</span>
-<span class="sd">        * There should be a docstring for the function that defines</span>
-<span class="sd">            All arguments in a google-style format</span>
-<span class="sd">        * There can be default values for the function arguments.</span>
-<span class="sd">        * The return object must be ``AppDef``</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        file_path: The path to the torchx file, mainly used for validation info.</span>
-<span class="sd">        function_name: Function name</span>
-<span class="sd">        app_args: Application arguments that will be decoded based on the</span>
-<span class="sd">            ``function_name`` arguments types and passed to ``function_name``</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        An application spec</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">should_validate</span><span class="p">:</span>
-        <span class="n">_validate_and_raise</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
-
-    <span class="n">file_content</span> <span class="o">=</span> <span class="n">read_conf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-
-    <span class="n">namespace</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
-    <span class="n">exec</span><span class="p">(</span><span class="n">file_content</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>  <span class="c1"># noqa: P204</span>
-    <span class="k">if</span> <span class="n">function_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">namespace</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Function </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2"> does not exist in file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">app_fn</span> <span class="o">=</span> <span class="n">namespace</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">from_function</span><span class="p">(</span><span class="n">app_fn</span><span class="p">,</span> <span class="n">app_args</span><span class="p">,</span> <span class="n">should_validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">from_module</span><span class="p">(</span>
-    <span class="n">module</span><span class="p">:</span> <span class="n">ModuleType</span><span class="p">,</span>
-    <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">should_validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates an application by extracting user defined ``function_name`` and running it.</span>
-
-<span class="sd">    ``function_name`` has the following restrictions:</span>
-<span class="sd">        * Name must be ``function_name``</span>
-<span class="sd">        * All arguments should be annotated</span>
-<span class="sd">        * Supported argument types:</span>
-<span class="sd">            - primitive: int, str, float</span>
-<span class="sd">            - Dict[primitive, primitive]</span>
-<span class="sd">            - List[primitive]</span>
-<span class="sd">            - Optional[Dict[primitive, primitive]]</span>
-<span class="sd">            - Optional[List[primitive]]</span>
-<span class="sd">        * ``function_name`` can define a vararg (*arg) at the end</span>
-<span class="sd">        * There should be a docstring for the function that defines</span>
-<span class="sd">            All arguments in a google-style format</span>
-<span class="sd">        * There can be default values for the function arguments.</span>
-<span class="sd">        * The return object must be ``AppDef``</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        file_path: The path to the torchx file, mainly used for validation info.</span>
-<span class="sd">        function_name: Function name</span>
-<span class="sd">        app_args: Application arguments that will be decoded based on the</span>
-<span class="sd">            ``function_name`` arguments types and passed to ``function_name``</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        An application spec</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">function_name</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has no function: </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="n">app_fn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">from_function</span><span class="p">(</span><span class="n">app_fn</span><span class="p">,</span> <span class="n">app_args</span><span class="p">,</span> <span class="n">should_validate</span><span class="o">=</span><span class="n">should_validate</span><span class="p">)</span>
 </pre></div>
 
      </article>
