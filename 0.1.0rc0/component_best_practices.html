@@ -460,21 +460,21 @@ arguments instead of consuming a dictionary of arguments. This makes it easier
 for users to figure out the options as well as can provide static typing when
 used with <a class="reference external" href="https://pyre-check.org/">pyre</a> or <a class="reference external" href="http://mypy-lang.org/">mypy</a>.</p>
 </section>
-<section id="module-torchx.components.test.component_test_base">
-<span id="unit-tests"></span><h2>Unit Tests<a class="headerlink" href="#module-torchx.components.test.component_test_base" title="Permalink to this headline">¶</a></h2>
+<section id="module-torchx.components.component_test_base">
+<span id="unit-tests"></span><h2>Unit Tests<a class="headerlink" href="#module-torchx.components.component_test_base" title="Permalink to this headline">¶</a></h2>
 <p>You can unit test the component definitions as you would normal Python code
 since they are valid Python definitions.</p>
-<p>We do recommend using <a class="reference internal" href="#torchx.components.test.component_test_base.ComponentTestCase" title="torchx.components.test.component_test_base.ComponentTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentTestCase</span></code></a> to ensure that your
+<p>We do recommend using <a class="reference internal" href="#torchx.components.component_test_base.ComponentTestCase" title="torchx.components.component_test_base.ComponentTestCase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentTestCase</span></code></a> to ensure that your
 component can be parsed by the TorchX CLI. The CLI requires stricter formatting
 on the doc string than pure Python as the doc string is used for parsing CLI
 args.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="torchx.components.test.component_test_base.ComponentTestCase">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.components.test.component_test_base.</span></span><span class="sig-name descname"><span class="pre">ComponentTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/components/test/component_test_base.html#ComponentTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.test.component_test_base.ComponentTestCase" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.components.component_test_base.ComponentTestCase">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.components.component_test_base.</span></span><span class="sig-name descname"><span class="pre">ComponentTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/components/component_test_base.html#ComponentTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.component_test_base.ComponentTestCase" title="Permalink to this definition">¶</a></dt>
 <dd><p>ComponentTestCase is an extension of TestCase with helper methods for use
 with testing component definitions.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">unittest</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.test.component_test_base</span> <span class="kn">import</span> <span class="n">ComponentTestCase</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.component_test_base</span> <span class="kn">import</span> <span class="n">ComponentTestCase</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyComponentTest</span><span class="p">(</span><span class="n">ComponentTestCase</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">test_my_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -484,8 +484,8 @@ with testing component definitions.</p>
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.components.test.component_test_base.ComponentTestCase._validate">
-<span class="sig-name descname"><span class="pre">_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/components/test/component_test_base.html#ComponentTestCase._validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.test.component_test_base.ComponentTestCase._validate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.components.component_test_base.ComponentTestCase._validate">
+<span class="sig-name descname"><span class="pre">_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/components/component_test_base.html#ComponentTestCase._validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.component_test_base.ComponentTestCase._validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>_validate takes in a module and the name of a component function
 definition defined in that module and validates that it is a valid
 component def.</p>
@@ -556,7 +556,7 @@ programmatic runner API or write a bash script to call the CLI.</p>
 <li><a class="reference internal" href="#composing-components">Composing Components</a></li>
 <li><a class="reference internal" href="#distributed-components">Distributed Components</a></li>
 <li><a class="reference internal" href="#define-all-arguments">Define All Arguments</a></li>
-<li><a class="reference internal" href="#module-torchx.components.test.component_test_base">Unit Tests</a></li>
+<li><a class="reference internal" href="#module-torchx.components.component_test_base">Unit Tests</a></li>
 <li><a class="reference internal" href="#integration-tests">Integration Tests</a></li>
 </ul>
 </li>
