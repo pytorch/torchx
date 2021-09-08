@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import torchx.components.dist as dist
-from torchx.components.test.component_test_base import ComponentTestCase
+from torchx.components.component_test_base import ComponentTestCase
 
 
 class DistributedComponentTest(ComponentTestCase):

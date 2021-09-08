@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import examples.apps.lightning_classy_vision.component as lightning_classy_vision
-from torchx.components.test.component_test_base import ComponentTestCase
+from torchx.components.component_test_base import ComponentTestCase
 
 
 class DistributedComponentTest(ComponentTestCase):

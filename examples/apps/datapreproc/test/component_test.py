@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import examples.apps.datapreproc.component as datapreproc
-from torchx.components.test.component_test_base import ComponentTestCase
+from torchx.components.component_test_base import ComponentTestCase
 
 
 class DatapreprocComponentTest(ComponentTestCase):
