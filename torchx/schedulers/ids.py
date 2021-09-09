@@ -17,4 +17,4 @@ def make_unique(name: str) -> str:
         string in format $name_$unique_suffix
     """
     rand_suffix = binascii.b2a_hex(os.urandom(8)).decode("utf-8")
-    return f"{name}_{rand_suffix}"
+    return f"{name}-{rand_suffix}"
