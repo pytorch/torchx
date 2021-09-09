@@ -129,10 +129,10 @@ used with `pyre <https://pyre-check.org/>`__ or `mypy <http://mypy-lang.org/>`__
 Unit Tests
 --------------
 
-.. automodule:: torchx.components.test.component_test_base
-.. currentmodule:: torchx.components.test.component_test_base
+.. automodule:: torchx.components.component_test_base
+.. currentmodule:: torchx.components.component_test_base
 
-.. autoclass:: torchx.components.test.component_test_base.ComponentTestCase
+.. autoclass:: torchx.components.component_test_base.ComponentTestCase
    :members:
    :private-members: _validate
 

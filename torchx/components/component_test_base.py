@@ -27,7 +27,7 @@ class ComponentTestCase(unittest.TestCase):
     with testing component definitions.
 
     >>> import unittest
-    >>> from torchx.components.test.component_test_base import ComponentTestCase
+    >>> from torchx.components.component_test_base import ComponentTestCase
     >>> from torchx.components import utils
     >>> class MyComponentTest(ComponentTestCase):
     ...     def test_my_comp(self):
