@@ -220,7 +220,7 @@ spec:
     def test_submit_job_name_conflict(
         self, create_namespaced_custom_object: MagicMock
     ) -> None:
-        from kubernetes.client.exceptions import ApiException
+        from kubernetes.client.rest import ApiException
 
         api_exc = ApiException(status=409, reason="Conflict")
         api_exc.body = "{'details':{'name': 'test_job'}}"

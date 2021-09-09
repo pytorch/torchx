@@ -16,7 +16,6 @@ import yaml
 
 if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
-    from kubernetes.client.exceptions import ApiException
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Pod,
         V1PodSpec,
@@ -25,6 +24,7 @@ if TYPE_CHECKING:
         V1ResourceRequirements,
         V1ContainerPort,
     )
+    from kubernetes.client.rest import ApiException
 
 import torchx
 from torchx.schedulers.api import (
@@ -324,7 +324,7 @@ class KubernetesScheduler(Scheduler):
             return None
 
     def schedule(self, dryrun_info: AppDryRunInfo[KubernetesJob]) -> str:
-        from kubernetes.client.exceptions import ApiException
+        from kubernetes.client.rest import ApiException
 
         cfg = dryrun_info._cfg
         assert cfg is not None, f"{dryrun_info} missing cfg"

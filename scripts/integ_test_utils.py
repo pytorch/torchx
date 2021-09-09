@@ -5,11 +5,12 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import binascii
 import dataclasses
 import os
 import subprocess
 from getpass import getuser
+
+from torchx.schedulers.ids import random_id
 
 
 @dataclasses.dataclass
@@ -28,10 +29,6 @@ def getenv_asserts(env: str) -> str:
     if not v:
         raise MissingEnvError(f"must have {env} environment variable")
     return v
-
-
-def rand_id() -> str:
-    return binascii.b2a_hex(os.urandom(8)).decode("utf-8")
 
 
 def run(*args: str) -> None:
@@ -74,7 +71,7 @@ def examples_container_tag(id: str) -> str:
 
 
 def build_images() -> BuildInfo:
-    id = f"{getuser()}_{rand_id()}"
+    id = f"{getuser()}_{random_id()}"
     examples_image = build_examples_canary(id)
     torchx_image = build_torchx_canary(id)
     return BuildInfo(
