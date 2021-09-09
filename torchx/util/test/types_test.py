@@ -109,9 +109,33 @@ class TypesTest(unittest.TestCase):
     def test_to_dict_empty(self) -> None:
         self.assertDictEqual({}, to_dict(""))
 
+    def test_to_dict_simple(self) -> None:
+        enc = "foo=bar,key=value"
+        self.assertDictEqual({"foo": "bar", "key": "value"}, to_dict(enc))
+
+    def test_to_dict_one(self) -> None:
+        enc = "foo=bar"
+        self.assertDictEqual({"foo": "bar"}, to_dict(enc))
+
+    def test_to_dict_only_key(self) -> None:
+        enc = "foo"
+        with self.assertRaises(ValueError):
+            to_dict(enc)
+
+    def test_to_dict_complex_comma(self) -> None:
+        enc = "foo=bar1,bar2,bar3,my_key=my_value,new_foo=new_bar1,new_bar2"
+        self.assertDictEqual(
+            {
+                "foo": "bar1,bar2,bar3",
+                "my_key": "my_value",
+                "new_foo": "new_bar1,new_bar2",
+            },
+            to_dict(enc),
+        )
+
     def test_to_dict_doulbe_comma(self) -> None:
         enc = "key1=value1,,foo=bar"
-        self.assertDictEqual({"foo": "bar", "key1": "value1"}, to_dict(enc))
+        self.assertDictEqual({"foo": "bar", "key1": "value1,"}, to_dict(enc))
 
     def test_to_list_empty(self) -> None:
         self.assertListEqual([], to_list(""))
