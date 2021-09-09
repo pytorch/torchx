@@ -10,15 +10,54 @@ import typing_inspect
 
 
 def to_dict(arg: str) -> Dict[str, str]:
-    conf = {}
-    if len(arg.strip()) == 0:
+    """
+    Parses the sting into the key-value pairs using `,` as delimiter.
+    The algorithm uses the last `,` between previous value and next key as delimiter, e.g.:
+
+    .. code-block:: python
+
+     arg="FOO=Value1,Value2,BAR=Value3"
+     conf = to_dict(arg)
+     print(conf) # {'FOO': 'Value1,Value2', 'BAR': 'Value3'}
+
+    """
+    conf: Dict[str, str] = {}
+    arg = arg.strip()
+    if len(arg) == 0:
         return {}
-    for kv in arg.split(","):
-        if kv == "":
-            continue
-        key, value = kv.split("=")
+
+    kv_delimiter: str = "="
+    pair_delimiter: str = ","
+
+    cpos: int = 0
+    while cpos < len(arg):
+        key = _get_key(arg, cpos, kv_delimiter)
+        cpos += len(key) + 1
+        value = _get_value(arg, cpos, kv_delimiter, pair_delimiter)
+        cpos += len(value) + 1
         conf[key] = value
     return conf
+
+
+def _get_key(arg: str, spos: int, kv_delimiter: str = "=") -> str:
+    epos: int = spos + 1
+    while epos < len(arg) and arg[epos] != kv_delimiter:
+        epos += 1
+    if epos == len(arg):
+        raise ValueError(
+            f"Argument `{arg}` does not follow the pattern: KEY1=VALUE1,KEY2=VALUE2"
+        )
+    return arg[spos:epos]
+
+
+def _get_value(arg: str, spos: int, kv_delimiter="=", pair_delimiter=",") -> str:
+    epos: int = spos + 1
+    while epos < len(arg) and arg[epos] != kv_delimiter:
+        epos += 1
+    if epos < len(arg) and arg[epos] == kv_delimiter:
+        while arg[epos] != pair_delimiter:
+            epos -= 1
+    return arg[spos:epos]
 
 
 def to_list(arg: str) -> List[str]:
