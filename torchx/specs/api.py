@@ -526,6 +526,18 @@ def get_type_name(tp: Type[ConfigValue]) -> str:
         return str(tp)
 
 
+@dataclass
+class Runopt:
+    """
+    Represents the metadata about the specific run option
+    """
+
+    default: ConfigValue
+    opt_type: Type[ConfigValue]
+    is_required: bool
+    help: str
+
+
 class runopts:
     """
     Holds the accepted scheduler run configuration
@@ -560,7 +572,7 @@ class runopts:
     """
 
     def __init__(self) -> None:
-        self._opts: Dict[str, Tuple[ConfigValue, Type[ConfigValue], bool, str]] = {}
+        self._opts: Dict[str, Runopt] = {}
 
     @staticmethod
     def is_type(obj: ConfigValue, tp: Type[ConfigValue]) -> bool:
@@ -575,6 +587,12 @@ class runopts:
                 return all(isinstance(e, str) for e in obj)
             else:
                 return False
+
+    def get(self, name: str) -> Optional[Runopt]:
+        """
+        Returns option if any was registerred, or None otherwise
+        """
+        return self._opts.get(name, None)
 
     def add(
         self,
@@ -600,7 +618,7 @@ class runopts:
                     f" Given: {default} ({type(default).__name__})"
                 )
 
-        self._opts[cfg_key] = (default, type_, required, help)
+        self._opts[cfg_key] = Runopt(default, type_, required, help)
 
     def resolve(self, config: RunConfig) -> RunConfig:
         """
@@ -614,11 +632,11 @@ class runopts:
         # make a copy; don't need to be deep b/c the values are primitives
         resolved_cfg = RunConfig(config.cfgs.copy())
 
-        for cfg_key, (default, type_, required, _help) in self._opts.items():
+        for cfg_key, runopt in self._opts.items():
             val = resolved_cfg.get(cfg_key)
 
             # check required opt
-            if required and val is None:
+            if runopt.is_required and val is None:
                 raise InvalidRunConfigException(
                     f"Required run option: {cfg_key}, must be provided and not None",
                     config,
@@ -626,9 +644,9 @@ class runopts:
                 )
 
             # check type (None matches all types)
-            if val is not None and not runopts.is_type(val, type_):
+            if val is not None and not runopts.is_type(val, runopt.opt_type):
                 raise InvalidRunConfigException(
-                    f"Run option: {cfg_key}, must be of type: {get_type_name(type_)},"
+                    f"Run option: {cfg_key}, must be of type: {get_type_name(runopt.opt_type)},"
                     f" but was: {val} ({type(val).__name__})",
                     config,
                     self,
@@ -636,20 +654,20 @@ class runopts:
 
             # not required and not set, set to default
             if val is None:
-                resolved_cfg.set(cfg_key, default)
+                resolved_cfg.set(cfg_key, runopt.default)
         return resolved_cfg
 
     def __repr__(self) -> str:
         # make it a pretty printable dict
         pretty_opts = {}
-        for cfg_key, (default, type_, required, help) in self._opts.items():
-            key = f"*{cfg_key}" if required else cfg_key
-            opt = {"type": get_type_name(type_)}
-            if required:
+        for cfg_key, runopt in self._opts.items():
+            key = f"*{cfg_key}" if runopt.is_required else cfg_key
+            opt = {"type": get_type_name(runopt.opt_type)}
+            if runopt.is_required:
                 opt["required"] = "True"
             else:
-                opt["default"] = str(default)
-            opt["help"] = help
+                opt["default"] = str(runopt.default)
+            opt["help"] = runopt.help
 
             pretty_opts[key] = opt
         import pprint

@@ -13,11 +13,12 @@ import tempfile
 import unittest
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
+from typing import Generator, List
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_run_config
 from torchx.schedulers.local_scheduler import SignalException
+from torchx.specs import runopts
 
 
 @contextmanager
@@ -117,11 +118,30 @@ class CmdRunTest(unittest.TestCase):
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
 
-    def test_parse_run_config(self) -> None:
-        args = "key=value,foo=bar"
-        cfg = _parse_run_config(args)
-        self.assertEqual("value", cfg.get("key"))
-        self.assertEqual("bar", cfg.get("foo"))
+    def _get_test_runopts(self) -> runopts:
+        opts = runopts()
+        opts.add("foo", type_=str, default="", help="")
+        opts.add("test_key", type_=str, default="", help="")
+        opts.add("default_time", type_=int, default=0, help="")
+        opts.add("enable", type_=bool, default=True, help="")
+        opts.add("disable", type_=bool, default=True, help="")
+        opts.add("complex_list", type_=List[str], default=[], help="")
+        return opts
+
+    def test_parse_runopts(self) -> None:
+        test_arg = "foo=bar,test_key=test_value,default_time=42,enable=True,disable=False,complex_list=v1;v2;v3"
+        expected_args = {
+            "foo": "bar",
+            "test_key": "test_value",
+            "default_time": 42,
+            "enable": True,
+            "disable": False,
+            "complex_list": ["v1", "v2", "v3"],
+        }
+        opts = self._get_test_runopts()
+        runconfig = _parse_run_config(test_arg, opts)
+        for k, v in expected_args.items():
+            self.assertEqual(v, runconfig.get(k))
 
 
 class CmdBuiltinTest(unittest.TestCase):

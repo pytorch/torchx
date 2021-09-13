@@ -9,7 +9,7 @@ import logging
 import sys
 from dataclasses import asdict
 from pprint import pformat
-from typing import Dict, List, Union, cast
+from typing import Dict, List, cast, Type
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
@@ -27,19 +27,30 @@ from torchx.util.types import to_dict
 logger: logging.Logger = logging.getLogger(__name__)
 
 
-def parse_args_children(arg: str) -> Dict[str, Union[str, List[str]]]:
-    conf = {}
-    for key, value in to_dict(arg).items():
-        if ";" in value:
-            value = value.split(";")
-        conf[key] = value
-    return conf
+def _convert_to_option_type(
+    value: str, option_type: Type[specs.ConfigValue]
+) -> specs.ConfigValue:
+    if option_type == bool:
+        return value.lower() == "true"
+    elif option_type == List[str]:
+        return value.split(";")
+    else:
+        # pyre-ignore[19]
+        return option_type(value)
 
 
-def _parse_run_config(arg: str) -> specs.RunConfig:
+def _parse_run_config(arg: str, scheduler_run_opts: specs.runopts) -> specs.RunConfig:
     conf = specs.RunConfig()
-    for key, value in parse_args_children(arg).items():
-        conf.set(key, value)
+    if not arg:
+        return conf
+
+    for key, value in to_dict(arg).items():
+        option = scheduler_run_opts.get(key)
+        if option is None:
+            raise ValueError(f"Unknown {key}, run `torchx runopts` for more info")
+        option_type = option.opt_type
+        typed_value = _convert_to_option_type(value, option_type)
+        conf.set(key, typed_value)
     return conf
 
 
@@ -68,7 +79,7 @@ class CmdRun(SubCommand):
         )
         subparser.add_argument(
             "--scheduler_args",
-            type=_parse_run_config,
+            type=str,
             help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."
             " For a list of scheduler run options run: `torchx runopts`"
             "",
@@ -98,12 +109,15 @@ class CmdRun(SubCommand):
         )
 
     def _run(self, runner: Runner, args: argparse.Namespace) -> None:
+        run_opts = get_runner().run_opts()
+        scheduler_opts = run_opts[args.scheduler]
+        scheduler_args = _parse_run_config(args.scheduler_args, scheduler_opts)
         try:
             result = runner.run_component(
                 args.conf_file,
                 args.conf_args,
                 args.scheduler,
-                args.scheduler_args,
+                scheduler_args,
                 dryrun=args.dryrun,
             )
         except (ComponentValidationException, ComponentNotFoundException) as e:
