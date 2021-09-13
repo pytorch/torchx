@@ -5,6 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import inspect
 from typing import Any, Callable, Dict, Optional, Set, cast
 
 import pandas as pd
@@ -17,11 +18,13 @@ from ax.core.runner import Runner as ax_Runner
 from ax.service.scheduler import Scheduler as ax_Scheduler, TrialStatus
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
+from torchx.runtime.tracking import FsspecResultTracker
 from torchx.specs import AppDef, AppState, AppStatus, RunConfig
 
 
 _TORCHX_APP_HANDLE: str = "torchx_app_handle"
 _TORCHX_RUNNER: str = "torchx_runner"
+_TORCHX_TRACKER_BASE: str = "torchx_tracker_base"
 
 # maps torchx AppState to Ax's TrialStatus equivalent
 APP_STATE_TO_TRIAL_STATUS: Dict[AppState, TrialStatus] = {
@@ -37,27 +40,48 @@ APP_STATE_TO_TRIAL_STATUS: Dict[AppState, TrialStatus] = {
 
 
 class AppMetric(Metric):
+    """
+    Fetches AppMetric (the observation returned by the trial job/app)
+    via the ``torchx.tracking`` module. Assumes that the app used
+    the tracker in the following manner:
+
+    .. code-block:: python
+
+     tracker = torchx.runtime.tracking.FsspecResultTracker(tracker_base)
+     tracker[str(trial_index)] = {metric_name: value}
+
+     # -- or --
+    tracker[str(trial_index)] = {"metric_name/mean": mean_value,
+                                 "metric_name/sem": sem_value}
+
+    """
+
     def fetch_trial_data(
         self, trial: BaseTrial, **kwargs: Any
     ) -> AbstractDataFrameData:
-        # TODO implement
-        # sketch of idea:
-        #  1. Have the job take --trial_result_path = s3://foo/bar
-        #     (the argument name can be whatever, we just care about the uri)
-        #  2. Read the uri
-        #  3. return the resulting metrics wrapped in ax.core.data.Data
-        #
-        # for now just return the trial idx
+        tracker_base = trial.run_metadata[_TORCHX_TRACKER_BASE]
+        tracker = FsspecResultTracker(tracker_base)
+        res = tracker[trial.index]
 
-        # no need to check for trial type since we checked already in TorchXRunner
-        # and refused to run anythin other than trials of type `Trial`
+        if self.name in res:
+            mean = res[self.name]
+            sem = None
+        else:
+            mean = res.get(f"{self.name}/mean")
+            sem = res.get(f"{self.name}/sem")
+
+        if mean is None and sem is None:
+            raise KeyError(
+                f"Observation for `{self.name}` not found in tracker at base `{tracker_base}`."
+                f" Ensure that the trial job is writing the results at the same tracker base."
+            )
 
         df_dict = {
             "arm_name": none_throws(cast(Trial, trial).arm).name,
             "trial_index": trial.index,
-            "metric_name": self.name,  # FIXME get this from the output file
-            "mean": trial.index,  # FIXME get this from the output file
-            "sem": None,
+            "metric_name": self.name,
+            "mean": mean,
+            "sem": sem,
         }
         return Data(df=pd.DataFrame.from_records([df_dict]))
 
@@ -69,13 +93,26 @@ class TorchXRunner(ax_Runner):
     since Ax runners run trials of a single component with different parameters.
 
     It is expected that the experiment parameter names and types match
-    EXACTLY with component function args.
+    EXACTLY with component's function args. Component function args that are
+    NOT part of the search space can be passed as ``component_const_params``.
+    The following args (provided that the component function declares them
+    in the function signature) as passed automatically:
 
-    For example for the component shown below:
+
+    1. ``trial_idx (int)``: current trial's index
+    2. ``tracker_base (str)``: torchx tracker's base (typically a URL indicating the base dir of the tracker)
+
+    Example:
 
     .. code-block:: python
 
-     def trainer_component(x1: int, x2: float) -> spec.AppDef:
+     def trainer_component(
+        x1: int,
+        x2: float,
+        trial_idx: int,
+        tracker_base: str,
+        x3: float,
+        x4: str) -> spec.AppDef:
         # ... implementation omitted for brevity ...
         pass
 
@@ -96,14 +133,40 @@ class TorchXRunner(ax_Runner):
        }
      ]
 
+    And the rest of the arguments can be set as:
+
+    .. code-block:: python
+
+     TorchXRunner(
+        tracker_base="s3://foo/bar",
+        component=trainer_component,
+        # trial_idx and tracker_base args passed automatically
+        # if the function signature declares those args
+        component_const_params={"x3": 1.2, "x4": "barbaz"})
+
+    Running the experiment as set up above results in each trial running:
+
+    .. code-block:: python
+
+     appdef = trainer_component(
+                x1=trial.params["x1"],
+                x2=trial.params["x2"],
+                trial_idx=trial.index,
+                tracker_base="s3://foo/bar",
+                x3=1.2,
+                x4="barbaz")
+
+     torchx.runner.get_runner().run(appdef, ...)
+
     """
 
     def __init__(
         self,
+        tracker_base: str,
         component: Callable[..., AppDef],
-        scheduler: str,
+        component_const_params: Optional[Dict[str, Any]] = None,
+        scheduler: str = "local",
         scheduler_args: Optional[RunConfig] = None,
-        torchx_runner: Optional[Runner] = None,
     ) -> None:
         self._component: Callable[..., AppDef] = component
         self._scheduler: str = scheduler
@@ -111,7 +174,9 @@ class TorchXRunner(ax_Runner):
         # need to use the same runner in case it has state
         # e.g. torchx's local_scheduler has state hence need to poll status
         # on the same scheduler instance
-        self._torchx_runner: Runner = torchx_runner or get_runner()
+        self._torchx_runner: Runner = get_runner()
+        self._tracker_base = tracker_base
+        self._component_const_params: Dict[str, Any] = component_const_params or {}
 
     def run(self, trial: BaseTrial) -> Dict[str, Any]:
         """
@@ -126,14 +191,24 @@ class TorchXRunner(ax_Runner):
                 f"{type(trial)} is not supported. Check your experiment setup"
             )
 
-        # TODO add type + param check here
-        parameters = none_throws(trial.arm).parameters or {}
-        appdef = self._component(**parameters)
+        parameters = dict(self._component_const_params)
+        parameters.update(none_throws(trial.arm).parameters)
+        component_args = inspect.getfullargspec(self._component).args
+        if "trial_idx" in component_args:
+            parameters["trial_idx"] = trial.index
 
+        if "tracker_base" in component_args:
+            parameters["tracker_base"] = self._tracker_base
+
+        appdef = self._component(**parameters)
         app_handle = self._torchx_runner.run(
             appdef, self._scheduler, self._scheduler_args
         )
-        return {_TORCHX_APP_HANDLE: app_handle, _TORCHX_RUNNER: self._torchx_runner}
+        return {
+            _TORCHX_APP_HANDLE: app_handle,
+            _TORCHX_RUNNER: self._torchx_runner,
+            _TORCHX_TRACKER_BASE: self._tracker_base,
+        }
 
 
 class TorchXScheduler(ax_Scheduler):

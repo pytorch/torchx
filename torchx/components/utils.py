@@ -112,14 +112,53 @@ def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
             specs.Role(
                 name="torchx-utils-copy",
                 image=image,
-                entrypoint="python3",
+                entrypoint="torchx/apps/utils/copy_main.py",
                 args=[
-                    "torchx/apps/utils/copy_main.py",
                     "--src",
                     src,
                     "--dst",
                     dst,
                 ],
             ),
+        ],
+    )
+
+
+def booth(
+    x1: float,
+    x2: float,
+    trial_idx: int = 0,
+    tracker_base: str = "/tmp/torchx-util-booth",
+    image: str = TORCHX_IMAGE,
+) -> specs.AppDef:
+    """
+    Evaluates the booth function, ``f(x1, x2) = (x1 + 2*x2 - 7)^2 + (2*x1 + x2 - 5)^2``.
+    Output result is accessible via ``FsspecResultTracker(outdir)[trial_idx]``
+
+    Args:
+        x1: x1
+        x2: x2
+        trial_idx: ignore if not running hpo
+        tracker_base: URI of the tracker's base output directory (e.g. s3://foo/bar)
+        image: the image that contains the booth app
+    """
+    return specs.AppDef(
+        name="torchx-utils-booth",
+        roles=[
+            specs.Role(
+                name="torchx-utils-booth",
+                image=image,
+                entrypoint="torchx/apps/utils/booth_main.py",
+                args=[
+                    "--x1",
+                    str(x1),
+                    "--x2",
+                    str(x2),
+                    "--trial_idx",
+                    str(trial_idx),
+                    "--tracker_base",
+                    tracker_base,
+                ],
+            )
         ],
     )
