@@ -160,3 +160,5 @@ class CmdBuiltinTest(unittest.TestCase):
         # make sure there's at least one
         # there will always be one (example.torchx)
         self.assertTrue(len(builtins) > 0)
+        for component in builtins.values():
+            self.assertListEqual([], component.validation_errors)
