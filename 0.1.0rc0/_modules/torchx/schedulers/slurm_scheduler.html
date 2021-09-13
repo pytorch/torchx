@@ -472,27 +472,34 @@
     <span class="n">cmd</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">replicas</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SlurmReplicaRequest</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        materialize returns the contents of the script that can be passed to</span>
+<span class="sd">        sbatch to run the job.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">sbatch_groups</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">srun_groups</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">sbatch_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-                <span class="n">srun_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                <span class="n">srun_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;:</span><span class="se">\\\n</span><span class="s2">    &quot;</span><span class="p">)</span>
 
             <span class="n">sbatch_group</span><span class="p">,</span> <span class="n">srun_group</span> <span class="o">=</span> <span class="n">replica</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span>
-            <span class="n">sbatch_groups</span> <span class="o">+=</span> <span class="n">sbatch_group</span>
+            <span class="n">sbatch_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sbatch_group</span><span class="p">))</span>
             <span class="n">srun_groups</span> <span class="o">+=</span> <span class="n">srun_group</span>
 
-        <span class="n">script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;#!/bin/sh</span>
-
+        <span class="n">sbatch_opts</span> <span class="o">=</span> <span class="s2">&quot;#SBATCH hetjob</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;#SBATCH </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">sbatch_groups</span>
+        <span class="p">)</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;#!/bin/bash</span>
+<span class="si">{</span><span class="n">sbatch_opts</span><span class="si">}</span><span class="s2"></span>
 <span class="s2"># exit on error</span>
 <span class="s2">set -e</span>
 
 <span class="s2">srun </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srun_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="n">sbatch_cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+</span> <span class="n">sbatch_groups</span>
-        <span class="k">return</span> <span class="n">sbatch_cmd</span><span class="p">,</span> <span class="n">script</span>
+        <span class="k">return</span> <span class="n">script</span>
 
 
 <div class="viewcode-block" id="SlurmScheduler"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler">[docs]</a><span class="k">class</span> <span class="nc">SlurmScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">):</span>
@@ -541,13 +548,13 @@
 <div class="viewcode-block" id="SlurmScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">SlurmBatchRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
-            <span class="n">cmd</span><span class="p">,</span> <span class="n">script</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span>
+            <span class="n">script</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;job.sh&quot;</span><span class="p">)</span>
 
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
 
-            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
 
             <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
@@ -555,7 +562,6 @@
     <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">SlurmBatchRequest</span><span class="p">]:</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sbatch&quot;</span><span class="p">,</span> <span class="s2">&quot;--parsable&quot;</span><span class="p">]</span>
         <span class="n">replicas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
@@ -568,7 +574,7 @@
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
                 <span class="n">replicas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SlurmReplicaRequest</span><span class="o">.</span><span class="n">from_role</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">SlurmBatchRequest</span><span class="p">(</span>
-            <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
+            <span class="n">cmd</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sbatch&quot;</span><span class="p">,</span> <span class="s2">&quot;--parsable&quot;</span><span class="p">],</span>
             <span class="n">replicas</span><span class="o">=</span><span class="n">replicas</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
