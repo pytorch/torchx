@@ -115,12 +115,23 @@ class SlurmSchedulerTest(unittest.TestCase):
             {"foo-a-0", "foo-a-1", "foo-b-0"},
         )
 
-        cmd, script = req.materialize()
-
-        # check macro substitution
-        self.assertIn(
-            "echo 1 'hello '\"$SLURM_JOB_ID\"''",
+        script = req.materialize()
+        self.assertEqual(
             script,
+            """#!/bin/bash
+#SBATCH --job-name=foo-a-0 --ntasks-per-node=1
+#SBATCH hetjob
+#SBATCH --job-name=foo-a-1 --ntasks-per-node=1
+#SBATCH hetjob
+#SBATCH --job-name=foo-b-0 --ntasks-per-node=1
+
+# exit on error
+set -e
+
+srun --chdir=/some/path echo 0 'hello '"$SLURM_JOB_ID"'' :\\
+     --chdir=/some/path echo 1 'hello '"$SLURM_JOB_ID"'' :\\
+     --chdir=/some/path echo
+""",
         )
 
     @patch("subprocess.run")
@@ -156,14 +167,6 @@ class SlurmSchedulerTest(unittest.TestCase):
             [
                 "sbatch",
                 "--parsable",
-                "--job-name=foo-a-0",
-                "--ntasks-per-node=1",
-                ":",
-                "--job-name=foo-a-1",
-                "--ntasks-per-node=1",
-                ":",
-                "--job-name=foo-b-0",
-                "--ntasks-per-node=1",
             ],
         )
 

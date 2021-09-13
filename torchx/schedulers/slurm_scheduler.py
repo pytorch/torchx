@@ -122,27 +122,34 @@ class SlurmBatchRequest:
     cmd: List[str]
     replicas: Dict[str, SlurmReplicaRequest]
 
-    def materialize(self) -> Tuple[List[str], str]:
+    def materialize(self) -> str:
+        """
+        materialize returns the contents of the script that can be passed to
+        sbatch to run the job.
+        """
+
         sbatch_groups = []
         srun_groups = []
         for i, replica in enumerate(self.replicas.values()):
             if i > 0:
-                sbatch_groups.append(":")
-                srun_groups.append(":")
+                srun_groups.append(":\\\n    ")
 
             sbatch_group, srun_group = replica.materialize()
-            sbatch_groups += sbatch_group
+            sbatch_groups.append(" ".join(sbatch_group))
             srun_groups += srun_group
 
-        script = f"""#!/bin/sh
-
+        sbatch_opts = "#SBATCH hetjob\n".join(
+            f"#SBATCH {group}\n" for group in sbatch_groups
+        )
+        script = f"""#!/bin/bash
+{sbatch_opts}
 # exit on error
 set -e
 
 srun {" ".join(srun_groups)}
 """
         sbatch_cmd = self.cmd + sbatch_groups
-        return sbatch_cmd, script
+        return script
 
 
 class SlurmScheduler(Scheduler):
@@ -191,13 +198,13 @@ class SlurmScheduler(Scheduler):
     def schedule(self, dryrun_info: AppDryRunInfo[SlurmBatchRequest]) -> str:
         req = dryrun_info.request
         with tempfile.TemporaryDirectory() as tmpdir:
-            cmd, script = req.materialize()
+            script = req.materialize()
             path = os.path.join(tmpdir, "job.sh")
 
             with open(path, "w") as f:
                 f.write(script)
 
-            cmd += [path]
+            cmd = req.cmd + [path]
 
             p = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
             return p.stdout.decode("utf-8").strip()
@@ -205,7 +212,6 @@ class SlurmScheduler(Scheduler):
     def _submit_dryrun(
         self, app: AppDef, cfg: RunConfig
     ) -> AppDryRunInfo[SlurmBatchRequest]:
-        cmd = ["sbatch", "--parsable"]
         replicas = {}
         for role in app.roles:
             for replica_id in range(role.num_replicas):
@@ -218,7 +224,7 @@ class SlurmScheduler(Scheduler):
                 replica_role = values.apply(role)
                 replicas[name] = SlurmReplicaRequest.from_role(name, replica_role, cfg)
         req = SlurmBatchRequest(
-            cmd=cmd,
+            cmd=["sbatch", "--parsable"],
             replicas=replicas,
         )
         return AppDryRunInfo(req, repr)
