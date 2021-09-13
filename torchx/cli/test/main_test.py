@@ -8,9 +8,7 @@
 import unittest
 from pathlib import Path
 
-from torchx.cli.cmd_run import _parse_run_config
 from torchx.cli.main import main
-from torchx.specs import api
 
 
 _root: Path = Path(__file__).parent
@@ -45,18 +43,4 @@ class CLITest(unittest.TestCase):
                 "--trainer_image",
                 str(_root / "container"),
             ]
-        )
-
-    def test_run_scheduler_args_empty(self) -> None:
-        self.assertEqual(_parse_run_config(""), api.RunConfig())
-
-    def test_run_scheduler_args_simple(self) -> None:
-        self.assertEqual(
-            _parse_run_config("a=1,b=2;3;4"),
-            api.RunConfig(
-                cfgs={
-                    "a": "1",
-                    "b": ["2", "3", "4"],
-                }
-            ),
         )
