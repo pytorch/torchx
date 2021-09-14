@@ -20,3 +20,6 @@ class UtilsComponentTest(ComponentTestCase):
 
     def test_copy(self) -> None:
         self._validate(utils, "copy")
+
+    def test_booth(self) -> None:
+        self._validate(utils, "booth")

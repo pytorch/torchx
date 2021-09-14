@@ -30,7 +30,7 @@ from typing import (
 import yaml
 from pyre_extensions import none_throws
 from torchx.specs.file_linter import parse_fn_docstring
-from torchx.util.types import decode_from_string, is_primitive, decode_optional
+from torchx.util.types import decode_from_string, decode_optional, is_primitive
 
 
 SchedulerBackend = str
@@ -136,6 +136,7 @@ class macros:
             """
             apply applies the values to a copy the specified role and returns it.
             """
+
             role = copy.deepcopy(role)
             role.args = [self.substitute(arg) for arg in role.args]
             role.env = {key: self.substitute(arg) for key, arg in role.env.items()}

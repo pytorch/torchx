@@ -5,28 +5,31 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
+import shutil
+import tempfile
 import unittest
-from typing import List, cast
+from typing import List
 
 from ax.core import (
     BatchTrial,
-    ChoiceParameter,
     Experiment,
-    FixedParameter,
     Objective,
     OptimizationConfig,
     Parameter,
     ParameterType,
+    RangeParameter,
     SearchSpace,
-    Trial,
 )
 from ax.modelbridge.dispatch_utils import choose_generation_strategy
 from ax.service.scheduler import SchedulerOptions
 from ax.service.utils.best_point import get_best_parameters
 from ax.service.utils.report_utils import exp_to_df
+from ax.utils.common.constants import Keys
 from pyre_extensions import none_throws
-from torchx.apps.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
 from torchx.components import utils
+from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
+from torchx.specs import RunConfig
 
 
 def is_ci() -> bool:
@@ -38,36 +41,54 @@ def is_ci() -> bool:
 @unittest.skipIf(is_ci(), "re-enable when a new version of ax-platform releases")
 class TorchXSchedulerTest(unittest.TestCase):
     def setUp(self) -> None:
+        self.test_dir = tempfile.mkdtemp("torchx_runtime_hpo_ax_test")
+
         self._parameters: List[Parameter] = [
-            ChoiceParameter(
-                name="msg",
-                parameter_type=ParameterType.STRING,
-                # generate enough search dimensions for the # of trials
-                values=[f"hello_{i}" for i in range(30)],
+            RangeParameter(
+                name="x1",
+                lower=-10.0,
+                upper=10.0,
+                parameter_type=ParameterType.FLOAT,
             ),
-            FixedParameter(
-                name="num_replicas",
-                parameter_type=ParameterType.INT,
-                value=1,
+            RangeParameter(
+                name="x2",
+                lower=-10.0,
+                upper=10.0,
+                parameter_type=ParameterType.FLOAT,
             ),
         ]
 
         self._minimize = True
         self._objective = Objective(
-            metric=AppMetric(name="foobar"), minimize=self._minimize
+            metric=AppMetric(
+                name="booth_eval",
+            ),
+            minimize=self._minimize,
         )
 
-        self._runner = TorchXRunner(component=utils.echo, scheduler="local")
+        self._runner = TorchXRunner(
+            tracker_base=self.test_dir,
+            component=utils.booth,
+            component_const_params={
+                "image": os.path.dirname(__file__),
+            },
+            scheduler="local",
+            scheduler_args=RunConfig({"log_dir": self.test_dir}),
+        )
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.test_dir)
 
     def test_run_experiment_locally(self) -> None:
         # runs optimization over n rounds of k sequential trials
 
         experiment = Experiment(
-            name="torchx_echo_sequential_demo",
+            name="torchx_booth_sequential_demo",
             search_space=SearchSpace(parameters=self._parameters),
             optimization_config=OptimizationConfig(objective=self._objective),
             runner=self._runner,
             is_test=True,
+            properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
         )
 
         # maybe add-on RunConfig into SchedulerOption?
@@ -82,8 +103,8 @@ class TorchXSchedulerTest(unittest.TestCase):
             options=SchedulerOptions(),
         )
 
-        for i in range(2):
-            scheduler.run_n_trials(max_trials=3)
+        for i in range(3):
+            scheduler.run_n_trials(max_trials=2)
 
         # print statement intentional for demo purposes
         print(exp_to_df(experiment))
@@ -91,10 +112,7 @@ class TorchXSchedulerTest(unittest.TestCase):
         # AppMetrics always returns trial index; hence the best
         # experiment for min objective will be the params for trial 0
         best_param, _ = none_throws(get_best_parameters(experiment))
-
-        self.assertEqual(
-            none_throws(cast(Trial, experiment.trials[0]).arm).parameters, best_param
-        )
+        # nothing to assert, just make sure experiment runs
 
     def test_run_experiment_locally_in_batches(self) -> None:
         # runs optimization over k x n rounds of k parallel trials
@@ -106,15 +124,16 @@ class TorchXSchedulerTest(unittest.TestCase):
         # this asks ax to run up to max_parallelism_cap trials
         # in parallel by submitting them to the scheduler at the same time
 
-        parallelism = 3
-        rounds = 2
+        parallelism = 2
+        rounds = 3
 
         experiment = Experiment(
-            name="torchx_echo_parallel_demo",
+            name="torchx_booth_parallel_demo",
             search_space=SearchSpace(parameters=self._parameters),
             optimization_config=OptimizationConfig(objective=self._objective),
             runner=self._runner,
             is_test=True,
+            properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
         )
 
         # maybe add-on RunConfig into SchedulerOption?
@@ -139,11 +158,7 @@ class TorchXSchedulerTest(unittest.TestCase):
         # AppMetrics always returns trial index; hence the best
         # experiment for min objective will be the params for trial 0
         best_param, _ = none_throws(get_best_parameters(experiment))
-
-        self.assertEqual(
-            none_throws(cast(Trial, experiment.trials[0]).arm).parameters,
-            best_param,
-        )
+        # nothing to assert, just make sure experiment runs
 
     def test_runner_no_batch_trials(self) -> None:
         experiment = Experiment(
@@ -154,7 +169,5 @@ class TorchXSchedulerTest(unittest.TestCase):
             is_test=True,
         )
 
-        runner = TorchXRunner(component=utils.echo, scheduler="local")
-
         with self.assertRaises(ValueError):
-            runner.run(trial=BatchTrial(experiment))
+            self._runner.run(trial=BatchTrial(experiment))
