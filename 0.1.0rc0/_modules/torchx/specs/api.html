@@ -380,7 +380,7 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">parse_fn_docstring</span>
-<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">is_primitive</span><span class="p">,</span> <span class="n">decode_optional</span>
+<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">decode_optional</span><span class="p">,</span> <span class="n">is_primitive</span>
 
 
 <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="nb">str</span>
@@ -486,6 +486,7 @@
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            apply applies the values to a copy the specified role and returns it.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
+
             <span class="n">role</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
             <span class="n">role</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
             <span class="n">role</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>

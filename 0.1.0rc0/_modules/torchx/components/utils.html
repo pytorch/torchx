@@ -460,9 +460,8 @@
             <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-utils-copy&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;torchx/apps/utils/copy_main.py&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;torchx/apps/utils/copy_main.py&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;--src&quot;</span><span class="p">,</span>
                     <span class="n">src</span><span class="p">,</span>
                     <span class="s2">&quot;--dst&quot;</span><span class="p">,</span>
@@ -471,6 +470,46 @@
             <span class="p">),</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">booth</span><span class="p">(</span>
+    <span class="n">x1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">x2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">trial_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">tracker_base</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/tmp/torchx-util-booth&quot;</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates the booth function, ``f(x1, x2) = (x1 + 2*x2 - 7)^2 + (2*x1 + x2 - 5)^2``.</span>
+<span class="sd">    Output result is accessible via ``FsspecResultTracker(outdir)[trial_idx]``</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x1: x1</span>
+<span class="sd">        x2: x2</span>
+<span class="sd">        trial_idx: ignore if not running hpo</span>
+<span class="sd">        tracker_base: URI of the tracker&#39;s base output directory (e.g. s3://foo/bar)</span>
+<span class="sd">        image: the image that contains the booth app</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-utils-booth&quot;</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-utils-booth&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;torchx/apps/utils/booth_main.py&quot;</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;--x1&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span>
+                    <span class="s2">&quot;--x2&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">x2</span><span class="p">),</span>
+                    <span class="s2">&quot;--trial_idx&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">trial_idx</span><span class="p">),</span>
+                    <span class="s2">&quot;--tracker_base&quot;</span><span class="p">,</span>
+                    <span class="n">tracker_base</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
 </pre></div>
 
      </article>
