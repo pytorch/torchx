@@ -37,6 +37,7 @@ from torchx.specs.api import (
     is_terminal,
     macros,
     runopts,
+    ImageType,
 )
 
 
@@ -80,6 +81,8 @@ class ImageProvider(abc.ABC):
     ``LocalhostScheduler`` since typically real schedulers will do this
     on-behalf of the user.
     """
+
+    IMAGE_TYPE: ImageType
 
     @abc.abstractmethod
     def fetch(self, image: str) -> str:
@@ -127,6 +130,8 @@ class LocalDirectoryImageProvider(ImageProvider):
     #. ``fetch(Image(name="/tmp/dir/that/does/not_exist"))`` raises ``ValueError``
 
     """
+
+    IMAGE_TYPE: ImageType = ImageType.PATH
 
     def __init__(self, cfg: RunConfig) -> None:
         pass
@@ -176,6 +181,8 @@ class DockerImageProvider(ImageProvider):
 
        ``fetch(Image(name="pytorch/pytorch:latest"))`` pulls docker image, returns ""
        ``get_command(image="pytorch/pytorch:latest", ..)`` return ``docker run ...``"""
+
+    IMAGE_TYPE: ImageType = ImageType.DOCKER
 
     def __init__(self, cfg: RunConfig) -> None:
         pass
@@ -703,7 +710,9 @@ class LocalScheduler(Scheduler):
             replica_params = role_params.setdefault(role.name, [])
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
-            img_root = image_provider.fetch(role.image)
+            image = image_provider.IMAGE_TYPE.get(role.image)
+
+            img_root = image_provider.fetch(image)
             base_image = role.base_image
             if base_image:
                 cmd = self._get_base_image_runner_cmd(cfg, role)
@@ -712,7 +721,7 @@ class LocalScheduler(Scheduler):
                 cmd = image_provider.get_entrypoint(img_root, role)
                 base_img_root = NONE
 
-            cwd = image_provider.get_cwd(role.image)
+            cwd = image_provider.get_cwd(image)
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
                     img_root=img_root,
@@ -740,7 +749,7 @@ class LocalScheduler(Scheduler):
                     log.info(f"Setting stdout log dir: {stdout}")
                     log.info(f"Setting stderr log dir: {stderr}")
 
-                provider_cmd = image_provider.get_command(role.image, args, env_vars)
+                provider_cmd = image_provider.get_command(image, args, env_vars)
                 replica_params.append(
                     ReplicaParam(provider_cmd, env_vars, stdout, stderr, cwd)
                 )

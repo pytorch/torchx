@@ -24,6 +24,7 @@ from torchx.specs.api import (
     macros,
     RoleStatus,
     ReplicaStatus,
+    ImageType,
 )
 
 
@@ -85,7 +86,7 @@ class SlurmReplicaRequest:
 
         return cls(
             name=name,
-            dir=role.image,
+            dir=ImageType.PATH.get(role.image),
             entrypoint=role.entrypoint,
             args=list(role.args),
             sbatch_opts=sbatch_opts,
@@ -216,7 +217,7 @@ class SlurmScheduler(Scheduler):
         for role in app.roles:
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
-                    img_root=role.image,
+                    img_root=ImageType.PATH.get(role.image),
                     app_id=macros.app_id,
                     replica_id=str(replica_id),
                 )

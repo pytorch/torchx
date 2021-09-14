@@ -30,5 +30,5 @@ class SchedulersTest(unittest.TestCase):
         self.assertTrue(isinstance(schedulers["local"], LocalScheduler))
         self.assertTrue(isinstance(schedulers["default"], LocalScheduler))
 
-        self.assertEquals("test_session", schedulers["local"].session_name)
-        self.assertEquals("test_session", schedulers["default"].session_name)
+        self.assertEqual("test_session", schedulers["local"].session_name)
+        self.assertEqual("test_session", schedulers["default"].session_name)

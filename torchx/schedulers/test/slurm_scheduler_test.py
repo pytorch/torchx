@@ -26,7 +26,7 @@ class SlurmSchedulerTest(unittest.TestCase):
     def test_replica_request(self) -> None:
         role = specs.Role(
             name="foo",
-            image="/some/path",
+            image={specs.ImageType.PATH: "/some/path"},
             entrypoint="echo",
             args=["hello slurm", "test"],
             env={

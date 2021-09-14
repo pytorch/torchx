@@ -31,6 +31,7 @@ from torchx.specs.api import (
     make_app_handle,
     parse_app_handle,
     runopts,
+    ImageType,
 )
 
 
@@ -577,3 +578,16 @@ class AppDefLoadTest(unittest.TestCase):
             ],
         )
         self.assertEqual(_TEST_VAR_ARGS, ("fooval", ("arg1", "arg2"), "barval"))
+
+    def test_image_type(self) -> None:
+        self.assertEqual(ImageType.DOCKER.get("asdf"), "asdf")
+
+        images = {
+            ImageType.DOCKER: "docker_image",
+            ImageType.PATH: "path_image",
+        }
+        self.assertEqual(ImageType.DOCKER.get(images), "docker_image")
+        self.assertEqual(ImageType.PATH.get(images), "path_image")
+
+        with self.assertRaisesRegex(KeyError, "missing image for"):
+            ImageType.PATH.get({})

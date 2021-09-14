@@ -11,14 +11,27 @@ and are meant to be used as tutorial materials or glue operations between
 meaningful stages in a workflow.
 """
 
+import os.path
 import shlex
+from typing import Dict, Optional
 
+import torchx
 import torchx.specs as specs
 from torchx.version import TORCHX_IMAGE
 
+DEFAULT_GENERIC_IMAGES: Dict[specs.ImageType, str] = {
+    specs.ImageType.PATH: "/tmp",
+    specs.ImageType.DOCKER: "alpine",
+}
+
+DEFAULT_TORCHX_IMAGES: Dict[specs.ImageType, str] = {
+    specs.ImageType.PATH: os.path.dirname(os.path.dirname(torchx.__file__)),
+    specs.ImageType.DOCKER: TORCHX_IMAGE,
+}
+
 
 def echo(
-    msg: str = "hello world", image: str = "/tmp", num_replicas: int = 1
+    msg: str = "hello world", image: Optional[str] = None, num_replicas: int = 1
 ) -> specs.AppDef:
     """
     Echos a message to stdout (calls /bin/echo)
@@ -34,7 +47,7 @@ def echo(
         roles=[
             specs.Role(
                 name="echo",
-                image=image,
+                image=image or DEFAULT_GENERIC_IMAGES,
                 entrypoint="/bin/echo",
                 args=[msg],
                 num_replicas=num_replicas,
@@ -43,12 +56,13 @@ def echo(
     )
 
 
-def touch(file: str) -> specs.AppDef:
+def touch(file: str, image: Optional[str] = None) -> specs.AppDef:
     """
     Touches a file (calls /bin/touch)
 
     Args:
         file: file to create
+        image: image to use
 
     """
     return specs.AppDef(
@@ -56,7 +70,7 @@ def touch(file: str) -> specs.AppDef:
         roles=[
             specs.Role(
                 name="touch",
-                image="/tmp",
+                image=image or DEFAULT_GENERIC_IMAGES,
                 entrypoint="/bin/touch",
                 args=[file],
                 num_replicas=1,
@@ -65,7 +79,7 @@ def touch(file: str) -> specs.AppDef:
     )
 
 
-def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
+def sh(*args: str, image: Optional[str] = None, num_replicas: int = 1) -> specs.AppDef:
     """
     Runs the provided command via sh. Currently sh does not support
     environment variable substitution.
@@ -84,7 +98,7 @@ def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
         roles=[
             specs.Role(
                 name="sh",
-                image=image,
+                image=image or DEFAULT_GENERIC_IMAGES,
                 entrypoint="/bin/sh",
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
@@ -93,7 +107,7 @@ def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
     )
 
 
-def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
+def copy(src: str, dst: str, image: Optional[str] = None) -> specs.AppDef:
     """
     copy copies the file from src to dst. src and dst can be any valid fsspec
     url.
@@ -111,7 +125,7 @@ def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
         roles=[
             specs.Role(
                 name="torchx-utils-copy",
-                image=image,
+                image=image or DEFAULT_TORCHX_IMAGES,
                 entrypoint="torchx/apps/utils/copy_main.py",
                 args=[
                     "--src",
@@ -129,7 +143,7 @@ def booth(
     x2: float,
     trial_idx: int = 0,
     tracker_base: str = "/tmp/torchx-util-booth",
-    image: str = TORCHX_IMAGE,
+    image: Optional[str] = None,
 ) -> specs.AppDef:
     """
     Evaluates the booth function, ``f(x1, x2) = (x1 + 2*x2 - 7)^2 + (2*x1 + x2 - 5)^2``.
@@ -147,7 +161,7 @@ def booth(
         roles=[
             specs.Role(
                 name="torchx-utils-booth",
-                image=image,
+                image=image or DEFAULT_TORCHX_IMAGES,
                 entrypoint="torchx/apps/utils/booth_main.py",
                 args=[
                     "--x1",

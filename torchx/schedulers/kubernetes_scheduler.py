@@ -46,6 +46,7 @@ from torchx.specs.api import (
     RoleStatus,
     ReplicaStatus,
     runopts,
+    ImageType,
 )
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -154,9 +155,10 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
         requests=requests,
     )
 
+    image: str = ImageType.DOCKER.get(role.image)
     container = V1Container(
         command=[role.entrypoint] + role.args,
-        image=role.image,
+        image=image,
         name=name,
         env=[
             V1EnvVar(
@@ -415,7 +417,7 @@ class KubernetesScheduler(Scheduler):
                     state = TASK_STATE[state_str]
 
                     if role not in roles:
-                        roles[role] = Role(name=role, num_replicas=0, image="")
+                        roles[role] = Role(name=role, num_replicas=0, image={})
                         roles_statuses[role] = RoleStatus(role, [])
                     roles[role].num_replicas += 1
                     roles_statuses[role].replicas.append(

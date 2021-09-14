@@ -176,6 +176,23 @@ class RetryPolicy(str, Enum):
     APPLICATION = "APPLICATION"
 
 
+class ImageType(str, Enum):
+    PATH = "path"
+    DOCKER = "docker"
+    FBPKG = "fbpkg"
+
+    def get(self, img: Union[str, Dict["ImageType", str]]) -> str:
+        """
+        get returns the match image for the current type or the overridden type
+        if present.
+        """
+        if isinstance(img, str):
+            return img
+        if self not in img:
+            raise KeyError(f"missing image for {self} in {img}")
+        return img[self]
+
+
 @dataclass
 class Role:
     """
@@ -239,7 +256,7 @@ class Role:
     """
 
     name: str
-    image: str
+    image: Union[str, Dict[ImageType, str]]
     base_image: Optional[str] = None
     entrypoint: str = MISSING
     args: List[str] = field(default_factory=list)

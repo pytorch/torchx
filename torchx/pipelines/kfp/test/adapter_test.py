@@ -31,7 +31,7 @@ class KFPSpecsTest(unittest.TestCase):
     def _test_app(self) -> api.AppDef:
         trainer_role = api.Role(
             name="trainer",
-            image="pytorch/torchx:latest",
+            image={api.ImageType.DOCKER: "pytorch/torchx:latest"},
             entrypoint="main",
             args=["--output-path", "blah"],
             env={"FOO": "bar"},

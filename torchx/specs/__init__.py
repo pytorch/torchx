@@ -40,6 +40,7 @@ from .api import (  # noqa: F401 F403
     parse_app_handle,
     get_argparse_param_type,
     from_function,
+    ImageType,
 )
 
 GiB: int = 1024

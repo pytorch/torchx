@@ -9,7 +9,7 @@ import json
 import os
 import os.path
 import shlex
-from typing import Tuple, Optional, Mapping
+from typing import Tuple, Optional, Mapping, List
 
 import yaml
 from kfp import components, dsl
@@ -56,14 +56,15 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
 
     assert role.base_image is None, "KFP adapter does not support base_image"
 
-    command = [role.entrypoint, *role.args]
+    command: List[str] = [role.entrypoint, *role.args]
+    image: str = api.ImageType.DOCKER.get(role.image)
 
     spec = {
         "name": f"{app.name}-{role.name}",
         "description": f"KFP wrapper for TorchX component {app.name}, role {role.name}",
         "implementation": {
             "container": {
-                "image": role.image,
+                "image": image,
                 "command": command,
                 "env": role.env,
             }

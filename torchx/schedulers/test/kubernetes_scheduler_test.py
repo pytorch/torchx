@@ -27,7 +27,9 @@ from torchx.schedulers.kubernetes_scheduler import (
 def _test_app() -> specs.AppDef:
     trainer_role = specs.Role(
         name="trainer",
-        image="pytorch/torchx:latest",
+        image={
+            specs.ImageType.DOCKER: "pytorch/torchx:latest",
+        },
         entrypoint="main",
         args=["--output-path", specs.macros.img_root, "--app-id", specs.macros.app_id],
         env={"FOO": "bar"},
@@ -223,7 +225,7 @@ spec:
         from kubernetes.client.rest import ApiException
 
         api_exc = ApiException(status=409, reason="Conflict")
-        api_exc.body = "{'details':{'name': 'test_job'}}"
+        api_exc.body = '{"details":{"name": "test_job"}}'
         create_namespaced_custom_object.side_effect = api_exc
 
         scheduler = create_scheduler("test")
@@ -278,7 +280,7 @@ spec:
                     ),
                 ],
                 roles=[
-                    specs.Role(name="echo", image="", num_replicas=1),
+                    specs.Role(name="echo", image={}, num_replicas=1),
                 ],
             ),
         )
