@@ -238,19 +238,7 @@ def _load_components() -> Dict[str, _Component]:
 _components: Optional[Dict[str, _Component]] = None
 
 
-def get_components() -> Dict[str, _Component]:
-    """
-    Returns all components registered in the [torchx.components] entry_points.txt
-    Each line is a key, value pair in a format:
-    ::
-      foo = test.bar
-
-    Where ``test.bar`` is a valid path to the python module and ``foo`` is alias.
-    Note: the module mast be discoverable by the torchx. A
-
-    Returns:
-        Components in a format : {ALIAS: LIST_OF_COMPONENTS}
-    """
+def _find_components() -> Dict[str, _Component]:
     global _components
     if not _components:
         _components = _load_components()
@@ -261,7 +249,7 @@ def _is_custom_component(component_name: str) -> bool:
     return ":" in component_name
 
 
-def get_custom_components(name: str) -> Dict[str, _Component]:
+def _find_custom_components(name: str) -> Dict[str, _Component]:
     if ":" not in name:
         raise ValueError(
             f"Invalid custom component: {name}, valid template : `FILEPATH`:`FUNCTION_NAME`"
@@ -269,6 +257,27 @@ def get_custom_components(name: str) -> Dict[str, _Component]:
     filepath, component_name = name.split(":")
     components = CustomComponentsFinder(filepath, component_name).find()
     return {component.name: component for component in components}
+
+
+def get_components() -> Dict[str, _Component]:
+    """
+    Returns all builtint components and components registered
+    in the ``[torchx.components] entry_points.txt``
+    Each line is a key, value pair in a format:
+    ::
+      foo = test.bar
+
+    Where ``test.bar`` is a valid path to the python module and ``foo`` is alias.
+    Note: the module mast be discoverable by the torchx.
+
+    Returns:
+        Components in a format : {ALIAS: LIST_OF_COMPONENTS}
+    """
+    valid_components: Dict[str, _Component] = {}
+    for component_name, component in _find_components().items():
+        if len(component.validation_errors) == 0:
+            valid_components[component_name] = component
+    return valid_components
 
 
 def get_component(name: str) -> _Component:
@@ -279,9 +288,9 @@ def get_component(name: str) -> _Component:
         Component or None if no component with ``name`` exists
     """
     if _is_custom_component(name):
-        components = get_custom_components(name)
+        components = _find_custom_components(name)
     else:
-        components = get_components()
+        components = _find_components()
     if name not in components:
         raise ComponentNotFoundException(
             f"Component `{name}` not found. Please make sure it is one of the "

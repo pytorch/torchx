@@ -17,6 +17,7 @@ from torchx.specs.finder import (
     ModuleComponentsFinder,
     CustomComponentsFinder,
     get_component,
+    get_components,
     ComponentValidationException,
     ComponentNotFoundException,
     _load_components,
@@ -156,6 +157,11 @@ class CustomComponentsFinderTest(unittest.TestCase):
         self.assertEqual("Test component", component.description)
         self.assertEqual("test_component", component.fn_name)
         self.assertListEqual([], component.validation_errors)
+
+    def test_get_components(self) -> None:
+        components = get_components()
+        for component in components.values():
+            self.assertListEqual([], component.validation_errors)
 
     def test_get_component_unknown(self) -> None:
         with self.assertRaises(ComponentNotFoundException):
