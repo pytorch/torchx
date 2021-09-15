@@ -21,7 +21,8 @@ from torchx.specs import named_resources
 def trainer(
     image: str,
     output_path: str,
-    data_path: str,
+    data_path: Optional[str] = None,
+    use_test_data: bool = True,
     entrypoint: str = "lightning_classy_vision/train.py",
     load_path: str = "",
     log_path: str = "/logs",
@@ -38,6 +39,7 @@ def trainer(
         load_path: path to load pretrained model from
         data_path: path to the data to load
         entrypoint: user script to launch.
+        use_test_data: use_test_data
         log_path: path to save tensorboard logs to
         resource: the resources to use
         env: env variables for the app
@@ -52,16 +54,21 @@ def trainer(
         load_path,
         "--log_path",
         log_path,
-        "--data_path",
-        data_path,
         "--epochs",
         str(epochs),
     ]
+    if use_test_data:
+        args.append("--test")
+    else:
+        args += ["--data_path", data_path]
     if skip_export:
         args.append("--skip_export")
+    entrypoint_override = "python"
+    args = [entrypoint] + args
     return binary_component(
-        name="examples-lightning_classy_vision-trainer",
-        entrypoint=entrypoint,
+        name="classy-vision-trainer",
+        role_name="worker",
+        entrypoint=entrypoint_override,
         args=args,
         env=env,
         image=image,

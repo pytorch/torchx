@@ -1,0 +1,26 @@
+name: Local Sched Integration Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  kubernetes-launch:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          set -eux
+          pip install -e .
+      - name: Run Local Sched Integration Tests
+        run: |
+          scripts/local_sched_integ_tests.py

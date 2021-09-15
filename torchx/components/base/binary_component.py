@@ -13,6 +13,7 @@ def binary_component(
     name: str,
     image: str,
     entrypoint: str,
+    role_name: Optional[str] = None,
     args: Optional[List[str]] = None,
     env: Optional[Dict[str, str]] = None,
     resource: Optional[api.Resource] = None,
@@ -37,11 +38,14 @@ def binary_component(
     if not resource:
         resource = api.NULL_RESOURCE
 
+    if not role_name:
+        role_name = name
+
     return api.AppDef(
         name=name,
         roles=[
             api.Role(
-                name=name,
+                name=role_name,
                 image=image,
                 entrypoint=entrypoint,
                 args=args or [],

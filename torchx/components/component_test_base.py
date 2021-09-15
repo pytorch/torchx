@@ -15,9 +15,13 @@ args.
 """
 
 import os
+import sys
 import unittest
 from types import ModuleType
+from typing import Callable, List, Any, Dict, Optional
 
+from torchx.runner import get_runner
+from torchx.specs import AppDef, SchedulerBackend, RunConfig, AppState, AppHandle
 from torchx.specs.file_linter import validate
 
 
@@ -52,3 +56,49 @@ class ComponentTestCase(unittest.TestCase):
                 error_msg += f"Lint Error: {linter_error.description}\n"
             raise ValueError(error_msg)
         self.assertEquals(0, len(linter_errors))
+
+    def _validate_component(self, component: Callable[..., AppDef]) -> None:
+        module_name = component.__module__
+        component_name = component.__name__
+        module = sys.modules[module_name]
+        filepath = module.__file__
+        with open(filepath, "r") as fp:
+            source = fp.read()
+        errors = validate(source=source, torchx_function=component_name)
+        if len(errors) != 0:
+            raise ValueError(
+                f"Component {component_name} has the following linter errors: {errors}"
+            )
+
+    def _run_component_on_scheduler(
+        self,
+        component: Callable[..., AppDef],
+        component_args: List[Any],
+        component_kwargs: Dict[str, Any],
+        scheduler: SchedulerBackend,
+        scheduler_cfg: RunConfig,
+    ) -> None:
+        app_def = component(*component_args, **component_kwargs)
+        runner = get_runner("test-runner")
+        app_handle = runner.run(app_def, scheduler, scheduler_cfg)
+        print(f"AppHandle: {app_handle}")
+        app_status = runner.wait(app_handle)
+        print(f"Final status: {app_status}")
+        assert app_status.state == AppState.SUCCEEDED
+        return app_handle
+
+    def run_component_on_local(
+        self,
+        component: Callable[..., AppDef],
+        component_args: Optional[List[Any]] = None,
+        component_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> AppHandle:
+        component_args = component_args or []
+        component_kwargs = component_kwargs or {}
+        self._validate_component(component)
+        app_def = component(*component_args, **component_kwargs)
+        cfg = RunConfig()
+        cfg.set("img_type", "dir")
+        self._run_component_on_scheduler(
+            component, component_args, component_kwargs, "local", cfg
+        )
