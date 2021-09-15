@@ -8,6 +8,7 @@
 import os
 import re
 import sys
+from datetime import date
 
 from setuptools import find_packages, setup
 
@@ -22,9 +23,22 @@ def get_version():
         return version
 
 
+def get_nightly_version():
+    today = date.today()
+    return f"{today.year}.{today.month}.{today.day}"
+
+
 if __name__ == "__main__":
     if sys.version_info < (3, 7):
         sys.exit("python >= 3.7 required for torchx-sdk")
+
+    name = "torchx"
+    NAME_ARG = "--override-name"
+    if NAME_ARG in sys.argv:
+        idx = sys.argv.index(NAME_ARG)
+        name = sys.argv.pop(idx + 1)
+        sys.argv.pop(idx)
+    is_nightly = "nightly" in name
 
     with open("README.md", encoding="utf8") as f:
         readme = f.read()
@@ -35,12 +49,12 @@ if __name__ == "__main__":
     with open("dev-requirements.txt") as f:
         dev_reqs = f.read()
 
-    version = get_version()
-    print("-- Building version: " + version)
+    version = get_nightly_version() if is_nightly else get_version()
+    print(f"-- {name} building version: {version}")
 
     setup(
         # Metadata
-        name="torchx",
+        name=name,
         version=version,
         author="TorchX Devs",
         author_email="torchx@fb.com",
