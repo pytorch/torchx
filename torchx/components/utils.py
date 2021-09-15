@@ -12,6 +12,7 @@ meaningful stages in a workflow.
 """
 
 import shlex
+from typing import Optional
 
 import torchx.specs as specs
 from torchx.version import TORCHX_IMAGE
@@ -65,7 +66,12 @@ def touch(file: str) -> specs.AppDef:
     )
 
 
-def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
+def sh(
+    *args: str,
+    image: str = "/tmp",
+    num_replicas: int = 1,
+    resource: Optional[str] = None,
+) -> specs.AppDef:
     """
     Runs the provided command via sh. Currently sh does not support
     environment variable substitution.
@@ -74,6 +80,7 @@ def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
         args: bash arguments
         image: image to use
         num_replicas: number of replicas to run
+        resource: Optional resource argument
 
     """
 
