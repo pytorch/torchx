@@ -34,6 +34,7 @@ from torchx.schedulers.api import (
     filter_regex,
 )
 from torchx.schedulers.ids import make_unique
+from torchx.schedulers.images import ImageType, assert_image_type
 from torchx.specs.api import (
     AppState,
     ReplicaState,
@@ -153,6 +154,8 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
         limits=requests,
         requests=requests,
     )
+
+    assert_image_type(role.image, ImageType.DOCKER)
 
     container = V1Container(
         command=[role.entrypoint] + role.args,

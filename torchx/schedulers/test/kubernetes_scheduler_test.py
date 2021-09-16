@@ -116,6 +116,15 @@ class KubernetesSchedulerTest(unittest.TestCase):
             want,
         )
 
+    def test_bad_image(self) -> None:
+        app = _test_app()
+        role = app.roles[0]
+        role.image = "/tmp"
+        with self.assertRaisesRegex(
+            TypeError, "expected image of type.*DOCKER.*not.*DIR"
+        ):
+            role_to_pod("name", role)
+
     def test_validate(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()

@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
+from torchx.schedulers.images import ImageType, assert_image_type
 from torchx.specs.api import (
     NONE,
     AppDef,
@@ -82,6 +83,8 @@ class SlurmReplicaRequest:
                 sbatch_opts.setdefault("mem", str(resource.memMB))
             if resource.gpu > 0:
                 sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
+
+        assert_image_type(role.image, ImageType.DIR)
 
         return cls(
             name=name,

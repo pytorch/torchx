@@ -23,6 +23,7 @@ from unittest.mock import MagicMock, call, patch
 from pyre_extensions import none_throws
 from torchx.components.base.binary_component import binary_component
 from torchx.schedulers.api import DescribeAppResponse
+from torchx.schedulers.images import ImageType
 from torchx.schedulers.local_scheduler import (
     ReplicaParam,
     DockerImageProvider,
@@ -136,6 +137,14 @@ class DockerImageProviderTest(unittest.TestCase):
         self.assertEqual(provider.fetch(img), "")
         self.assertEqual(run.call_count, 1)
         self.assertEqual(run.call_args, call(["docker", "pull", img], check=True))
+
+    def test_fetch_path(self) -> None:
+        cfg = RunConfig()
+        provider = DockerImageProvider(cfg)
+        with self.assertRaisesRegex(
+            TypeError, "expected image of type.*DOCKER.*not.*DIR"
+        ):
+            provider.fetch("/tmp")
 
     def test_get_command(self) -> None:
         cfg = RunConfig()
@@ -686,7 +695,7 @@ class LocalSchedulerTest(unittest.TestCase):
         self._skip_unless_docker()
 
         app = self._docker_app("echo", "foo")
-        cfg = RunConfig({"image_type": "docker"})
+        cfg = RunConfig({})
         app_id = self.scheduler.submit(app, cfg)
 
         desc = self.wait(app_id)
@@ -697,12 +706,36 @@ class LocalSchedulerTest(unittest.TestCase):
         self._skip_unless_docker()
 
         app = self._docker_app("sh", "-c", "exit 1")
-        cfg = RunConfig({"image_type": "docker"})
+        cfg = RunConfig({})
         app_id = self.scheduler.submit(app, cfg)
 
         desc = self.wait(app_id)
         assert desc is not None
         self.assertEqual(AppState.FAILED, desc.state)
+
+    def test_img_type(self) -> None:
+
+        app = self._docker_app("sh", "-c", "exit 1")
+        cfg = RunConfig({})
+        self.assertEqual(self.scheduler._get_img_type(app, cfg), ImageType.DOCKER)
+        cfg = RunConfig({"image_type": "dir"})
+        self.assertEqual(self.scheduler._get_img_type(app, cfg), ImageType.DIR)
+
+        app = AppDef(
+            name="sleep",
+            roles=[
+                Role(
+                    name="sleep",
+                    image=self.test_dir,
+                    entrypoint="sleep.sh",
+                    args=["60"],
+                    num_replicas=4,
+                )
+            ],
+        )
+        self.assertEqual(self.scheduler._get_img_type(app, cfg), ImageType.DIR)
+        cfg = RunConfig({"image_type": "docker"})
+        self.assertEqual(self.scheduler._get_img_type(app, cfg), ImageType.DOCKER)
 
     def test_close(self) -> None:
         # 2 apps each with 4 replicas == 8 total pids

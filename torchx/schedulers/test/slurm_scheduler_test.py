@@ -72,6 +72,17 @@ class SlurmSchedulerTest(unittest.TestCase):
             " ".join(srun),
         )
 
+    def test_replica_request_bad_image(self) -> None:
+        role = specs.Role(
+            name="foo",
+            image="alpine:latest",
+            entrypoint="echo",
+        )
+        with self.assertRaisesRegex(
+            TypeError, "expected image of type.*DIR.*not.*DOCKER"
+        ):
+            SlurmReplicaRequest.from_role("role-name", role, specs.RunConfig())
+
     def test_replica_request_run_config(self) -> None:
         role = specs.Role(
             name="foo",

@@ -26,6 +26,7 @@ from uuid import uuid4
 
 from pyre_extensions import none_throws
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
+from torchx.schedulers.images import ImageType, image_type, assert_image_type
 from torchx.specs.api import (
     NONE,
     AppDef,
@@ -181,6 +182,8 @@ class DockerImageProvider(ImageProvider):
         pass
 
     def fetch(self, image: str) -> str:
+        assert_image_type(image, ImageType.DOCKER)
+
         try:
             subprocess.run(["docker", "pull", image], check=True)
         except Exception as e:
@@ -481,8 +484,8 @@ class LocalScheduler(Scheduler):
         opts.add(
             "image_type",
             type_=str,
-            help="image type. One of [dir, docker]",
-            default="dir",
+            help=f"image type. One of [{ImageType.DIR}, {ImageType.DOCKER}]",
+            default=None,
         )
         opts.add(
             "log_dir",
@@ -496,16 +499,23 @@ class LocalScheduler(Scheduler):
         # Skip validation step for local application
         pass
 
-    def _img_providers(self, cfg: RunConfig) -> Dict[str, ImageProvider]:
+    def _img_providers(self, cfg: RunConfig) -> Dict[ImageType, ImageProvider]:
         return {
-            "dir": LocalDirectoryImageProvider(cfg),
-            "docker": DockerImageProvider(cfg),
+            ImageType.DIR: LocalDirectoryImageProvider(cfg),
+            ImageType.DOCKER: DockerImageProvider(cfg),
         }
 
-    def _get_img_provider(self, cfg: RunConfig) -> ImageProvider:
+    def _get_img_type(self, app: AppDef, cfg: RunConfig) -> ImageType:
         img_type = cfg.get("image_type")
+        if not img_type:
+            image = next(role.image for role in app.roles)
+            img_type = image_type(image)
+        return ImageType(img_type)
+
+    def _get_img_provider(self, cfg: RunConfig, img_type: ImageType) -> ImageProvider:
+        log.info(f"using image_type {img_type}")
         providers = self._img_providers(cfg)
-        # pyre-ignore [6]: type check already done by runopt.resolve
+
         img_provider = providers.get(img_type, None)
         if not img_provider:
             raise InvalidRunConfigException(
@@ -694,7 +704,8 @@ class LocalScheduler(Scheduler):
         """
 
         app_id = make_unique(app.name)
-        image_provider = self._get_img_provider(cfg)
+        img_type = self._get_img_type(app, cfg)
+        image_provider = self._get_img_provider(cfg, img_type)
         app_log_dir, redirect_std = self._get_app_log_dir(app_id, cfg)
 
         role_params: Dict[str, List[ReplicaParam]] = {}
