@@ -68,6 +68,17 @@ Components Library
    components/distributed
    components/utils
 
+Runtime Library
+----------------
+.. toctree::
+   :maxdepth: 1
+   :caption: Runtime
+
+   runtime/overview
+   runtime/hpo
+   runtime/tracking
+
+
 Works With
 ---------------
 

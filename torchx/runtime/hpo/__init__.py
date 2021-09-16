@@ -22,15 +22,99 @@ of an HPO app.
 Currently this module uses `Ax <https://ax.dev>`_ as the underlying brains of HPO
 and offers a few extension points to integrate Ax with TorchX runners.
 
-Quick Usage:
+Quickstart Example
+~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+The following example demonstrates running an HPO job on a TorchX component.
+We use the builtin ``utils.booth`` component which simply runs an application
+that evaluates the booth function at ``(x1, x2)``. The objective is to
+find ``x1`` and ``x2`` that minimizes the booth function.
 
+.. testsetup:: [hpo_ax_demo]
+
+ import tempfile
+ tmpdir = tempfile.mkdtemp("torchx_runtime_hpo_demo")
+
+.. testcleanup:: [hpo_ax_demo]
+
+ import shutil
+ shutil.rmtree(tmpdir)
+
+.. doctest:: [hpo_ax_demo]
+
+ import os
+ from ax.core import (
+    BatchTrial,
+    Experiment,
+    Objective,
+    OptimizationConfig,
+    Parameter,
+    ParameterType,
+    RangeParameter,
+    SearchSpace,
+ )
  from ax.modelbridge.dispatch_utils import choose_generation_strategy
  from ax.service.scheduler import SchedulerOptions
  from ax.service.utils.best_point import get_best_parameters
  from ax.service.utils.report_utils import exp_to_df
+ from ax.utils.common.constants import Keys
+ from pyre_extensions import none_throws
+ from torchx.components import utils
  from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
+ from torchx.specs import RunConfig
 
+ # Run HPO on the booth function (https://en.wikipedia.org/wiki/Test_functions_for_optimization)
+
+ parameters = [
+    RangeParameter(
+        name="x1",
+        lower=-10.0,
+        upper=10.0,
+        parameter_type=ParameterType.FLOAT,
+    ),
+    RangeParameter(
+        name="x2",
+        lower=-10.0,
+        upper=10.0,
+        parameter_type=ParameterType.FLOAT,
+    ),
+ ]
+
+ objective = Objective(metric=AppMetric(name="booth_eval"), minimize=True)
+
+ runner = TorchXRunner(
+    tracker_base=tmpdir,
+    component=utils.booth,
+    component_const_params={
+        "image": "ghcr.io/pytorch/torchx:0.1.0rc0",
+    },
+    scheduler="local", # can also be [kubernetes, slurm, etc]
+    scheduler_args=RunConfig({"log_dir": tmpdir, "image_type": "docker"}),
+ )
+
+ experiment = Experiment(
+     name="torchx_booth_sequential_demo",
+     search_space=SearchSpace(parameters=parameters),
+     optimization_config=OptimizationConfig(objective=objective),
+     runner=runner,
+     is_test=True,
+     properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
+ )
+
+ scheduler = TorchXScheduler(
+     experiment=experiment,
+     generation_strategy=(
+         choose_generation_strategy(
+             search_space=experiment.search_space,
+         )
+     ),
+     options=SchedulerOptions(),
+ )
+
+
+ for i in range(3): # doctest: +SKIP
+    scheduler.run_n_trials(max_trials=2) # doctest: +SKIP
+
+ print(exp_to_df(experiment)) # doctest:+ SKIP
 
 """
