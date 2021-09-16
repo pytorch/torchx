@@ -71,34 +71,56 @@ class ComponentTestCase(unittest.TestCase):
             )
 
     def _run_component_on_scheduler(
-        self,
-        component: Callable[..., AppDef],
-        component_args: List[Any],
-        component_kwargs: Dict[str, Any],
-        scheduler: SchedulerBackend,
-        scheduler_cfg: RunConfig,
+            self,
+            component: Callable[..., AppDef],
+            component_args: List[Any],
+            component_kwargs: Dict[str, Any],
+            scheduler: SchedulerBackend,
+            scheduler_cfg: RunConfig,
+            dryrun: bool = False
     ) -> None:
         app_def = component(*component_args, **component_kwargs)
         runner = get_runner("test-runner")
-        app_handle = runner.run(app_def, scheduler, scheduler_cfg)
-        print(f"AppHandle: {app_handle}")
-        app_status = runner.wait(app_handle)
-        print(f"Final status: {app_status}")
-        assert app_status.state == AppState.SUCCEEDED
-        return app_handle
+        if dryrun:
+            dryrun_info = runner.dryrun(app_def, scheduler, scheduler_cfg)
+            print(f"Dryrun info: {dryrun_info}")
+            return dryrun_info
+        else:
+            app_handle = runner.run(app_def, scheduler, scheduler_cfg)
+            print(f"AppHandle: {app_handle}")
+            app_status = runner.wait(app_handle)
+            print(f"Final status: {app_status}")
+            assert app_status.state == AppState.SUCCEEDED
+            return app_handle
 
     def run_component_on_local(
-        self,
-        component: Callable[..., AppDef],
-        component_args: Optional[List[Any]] = None,
-        component_kwargs: Optional[Dict[str, Any]] = None,
+            self,
+            component: Callable[..., AppDef],
+            component_args: Optional[List[Any]] = None,
+            component_kwargs: Optional[Dict[str, Any]] = None,
     ) -> AppHandle:
         component_args = component_args or []
         component_kwargs = component_kwargs or {}
         self._validate_component(component)
-        app_def = component(*component_args, **component_kwargs)
         cfg = RunConfig()
         cfg.set("img_type", "dir")
         self._run_component_on_scheduler(
             component, component_args, component_kwargs, "local", cfg
+        )
+
+    def run_component_on_k8s(
+            self,
+            component: Callable[..., AppDef],
+            component_args: Optional[List[Any]] = None,
+            component_kwargs: Optional[Dict[str, Any]] = None,
+            dryrun: bool = False,
+    ) -> AppHandle:
+        component_args = component_args or []
+        component_kwargs = component_kwargs or {}
+        self._validate_component(component)
+        cfg = RunConfig()
+        cfg.set("namespace", "torchx-dev")
+        cfg.set("queue", "default")
+        self._run_component_on_scheduler(
+            component, component_args, component_kwargs, "kubernetes", cfg, dryrun
         )
