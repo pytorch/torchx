@@ -18,7 +18,7 @@ import os
 import sys
 import unittest
 from types import ModuleType
-from typing import Callable, Union
+from typing import Callable, List, Any, Dict, Optional, Union
 
 from pyre_extensions import none_throws
 from torchx.runner import get_runner
