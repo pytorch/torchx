@@ -368,7 +368,9 @@ Each replica of each role has a unique shell script generated with it’s
 resource allocations and args and then sbatch is used to launch all of them
 together.</p>
 <p>Logs are written to the default slurm log file.</p>
-<p>Any scheduler options passed to it are added as SBATCH arguments to each replica.</p>
+<p>Any scheduler options passed to it are added as SBATCH arguments to each
+replica. See <a class="reference external" href="https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS">https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS</a> for info
+on the arguments.</p>
 <p>For more info see:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://slurm.schedmd.com/sbatch.html">https://slurm.schedmd.com/sbatch.html</a></p></li>
@@ -418,6 +420,13 @@ status but does not provide the complete original AppSpec.</p></td>
 <dd class="field-odd"><p>AppDef description or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the app does not exist.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts">
+<span class="sig-name descname"><span class="pre">run_opts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.runopts" title="torchx.specs.api.runopts"><span class="pre">torchx.specs.api.runopts</span></a><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.run_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the run configuration options expected by the scheduler.
+Basically a <code class="docutils literal notranslate"><span class="pre">--help</span></code> for the <code class="docutils literal notranslate"><span class="pre">run</span></code> API.</p>
 </dd></dl>
 
 <dl class="py method">
