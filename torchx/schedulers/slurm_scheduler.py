@@ -24,6 +24,7 @@ from torchx.specs.api import (
     macros,
     RoleStatus,
     ReplicaStatus,
+    runopts,
 )
 
 
@@ -71,7 +72,7 @@ class SlurmReplicaRequest:
 
     @classmethod
     def from_role(cls, name: str, role: Role, cfg: RunConfig) -> "SlurmReplicaRequest":
-        sbatch_opts = {k: str(v) for k, v in cfg.cfgs.items()}
+        sbatch_opts = {k: str(v) for k, v in cfg.cfgs.items() if v is not None}
         sbatch_opts.setdefault("ntasks-per-node", "1")
         resource = role.resource
 
@@ -164,7 +165,9 @@ class SlurmScheduler(Scheduler):
 
     Logs are written to the default slurm log file.
 
-    Any scheduler options passed to it are added as SBATCH arguments to each replica.
+    Any scheduler options passed to it are added as SBATCH arguments to each
+    replica. See https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS for info
+    on the arguments.
 
     For more info see:
 
@@ -194,6 +197,22 @@ class SlurmScheduler(Scheduler):
 
     def __init__(self, session_name: str) -> None:
         super().__init__("slurm", session_name)
+
+    def run_opts(self) -> runopts:
+        opts = runopts()
+        opts.add(
+            "partition",
+            type_=str,
+            help="The partition to run the job in.",
+            default=None,
+        )
+        opts.add(
+            "time",
+            type_=str,
+            default=None,
+            help="The maximum time the job is allowed to run for.",
+        )
+        return opts
 
     def schedule(self, dryrun_info: AppDryRunInfo[SlurmBatchRequest]) -> str:
         req = dryrun_info.request

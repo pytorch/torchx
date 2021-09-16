@@ -73,6 +73,8 @@ class SlurmSchedulerTest(unittest.TestCase):
         )
 
     def test_replica_request_run_config(self) -> None:
+        scheduler = create_scheduler("foo")
+
         role = specs.Role(
             name="foo",
             image="/some/path",
@@ -80,12 +82,18 @@ class SlurmSchedulerTest(unittest.TestCase):
             args=["hello"],
         )
         cfg = specs.RunConfig()
-        cfg.set("foo", "bar")
+        cfg.set("partition", "bubblegum")
+        cfg.set("time", "5:13")
         sbatch, _ = SlurmReplicaRequest.from_role("role-name", role, cfg).materialize()
-        self.assertIn(
-            "--foo=bar",
-            sbatch,
-        )
+
+        run_opts = scheduler.run_opts()
+
+        for k, v in cfg.cfgs.items():
+            self.assertIsNotNone(run_opts.get(k))
+            self.assertIn(
+                f"--{k}={v}",
+                sbatch,
+            )
 
     def test_dryrun_multi_role(self) -> None:
         scheduler = create_scheduler("foo")
