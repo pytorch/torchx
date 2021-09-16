@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchx.components.base.binary_component &mdash; PyTorch/TorchX main documentation</title>
+  <title>torchx.runtime.tracking.api &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -320,7 +320,7 @@
         
           <li><a href="../../../index.html">Module code</a> &gt;</li>
         
-      <li>torchx.components.base.binary_component</li>
+      <li>torchx.runtime.tracking.api</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -351,59 +351,171 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <h1>Source code for torchx.components.base.binary_component</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+  <h1>Source code for torchx.runtime.tracking.api</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">api</span>
+<span class="kn">import</span> <span class="nn">fsspec</span>
 
 
-<div class="viewcode-block" id="binary_component"><a class="viewcode-back" href="../../../../components/base.html#torchx.components.base.binary_component.binary_component">[docs]</a><span class="k">def</span> <span class="nf">binary_component</span><span class="p">(</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">api</span><span class="o">.</span><span class="n">Resource</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+<span class="n">KeyType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="n">ResultType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ResultTracker"><a class="viewcode-back" href="../../../../runtime/tracking.html#torchx.runtime.tracking.ResultTracker">[docs]</a><span class="k">class</span> <span class="nc">ResultTracker</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    binary_component creates a single binary component from the</span>
-<span class="sd">    provided arguments.</span>
+<span class="sd">    Base result tracker, which should be sub-classed to implement trackers.</span>
+<span class="sd">    Typically there exists a tracker implementation per backing store.</span>
 
-<span class="sd">    &gt;&gt;&gt; from torchx.components.base.binary_component import binary_component</span>
-<span class="sd">    &gt;&gt;&gt; binary_component(</span>
-<span class="sd">    ...     name=&quot;datapreproc&quot;,</span>
-<span class="sd">    ...     image=&quot;pytorch/pytorch:latest&quot;,</span>
-<span class="sd">    ...     entrypoint=&quot;python3&quot;,</span>
-<span class="sd">    ...     args=[&quot;--version&quot;],</span>
-<span class="sd">    ...     env={</span>
-<span class="sd">    ...         &quot;FOO&quot;: &quot;bar&quot;,</span>
-<span class="sd">    ...     },</span>
-<span class="sd">    ... )</span>
-<span class="sd">    AppDef(name=&#39;datapreproc&#39;, ...)</span>
+<span class="sd">    Usage:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">     # get and put APIs can be used directly or in map-like API</span>
+<span class="sd">     # the following are equivalent</span>
+<span class="sd">     tracker.put(&quot;foo&quot;, l2norm=1.2)</span>
+<span class="sd">     tracker[&quot;foo&quot;] = {&quot;l2norm&quot;: 1.2}</span>
+
+<span class="sd">     # so are these</span>
+<span class="sd">     tracker.get(&quot;foo&quot;)[&quot;l2norm&quot;] == 1.2</span>
+<span class="sd">     tracker[&quot;foo&quot;][&quot;l2norm&quot;] == 1.2</span>
+
+<span class="sd">    Valid ``result`` types are:</span>
+
+<span class="sd">    1. numeric: int, float</span>
+<span class="sd">    2. literal:str (1kb size limit when utf-8 encoded)</span>
+
+<span class="sd">    Valid ``key`` types are:</span>
+
+<span class="sd">    1. ``int``</span>
+<span class="sd">    2. ``str``</span>
+
+<span class="sd">    As a convention, &quot;slashes&quot; can be used in the key to store results that</span>
+<span class="sd">    are statistical. For instance, to store the mean and sem of l2norm:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">     tracker[key] = {&quot;l2norm/mean&quot; : 1.2, &quot;l2norm/sem&quot;: 3.4}</span>
+<span class="sd">     tracker[key][&quot;l2norm/mean&quot;] # returns 1.2</span>
+<span class="sd">     tracker[key][&quot;l2norm/sem&quot;] # returns 3.4</span>
+
+<span class="sd">    Keys are assumed to be unique within the scope of the tracker&#39;s backing</span>
+<span class="sd">    store. For example, if a tracker is backed by a local directory and the</span>
+<span class="sd">    ``key`` is the file within directory where the results are saved, then</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      # same key, different backing directory -&gt; results are not overwritten</span>
+<span class="sd">      FsspecResultTracker(&quot;/tmp/foo&quot;)[&quot;1&quot;] = {&quot;l2norm&quot;:1.2}</span>
+<span class="sd">      FsspecResultTracker(&quot;/tmp/bar&quot;)[&quot;1&quot;] = {&quot;l2norm&quot;:3.4}</span>
+
+<span class="sd">    The tracker is NOT a central entity hence no strong consistency guarantees</span>
+<span class="sd">    (beyond what the backing store provides) are made between ``put`` and ``get``</span>
+<span class="sd">    operations on the same key. Similarly no strong consistency guarantees are</span>
+<span class="sd">    made between two consecutive ``put`` or ``get`` operations on the same key.</span>
+
+<span class="sd">    For example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      tracker[1] = {&quot;l2norm&quot;:1.2}</span>
+<span class="sd">      tracker[1] = {&quot;l2norm&quot;:3.4}</span>
+<span class="sd">      tracker[1] # NOT GUARANTEED TO BE 3.4!</span>
+
+<span class="sd">      sleep(1*MIN)</span>
+<span class="sd">      tracker[1] # more likely to be 3.4 but still not guaranteed!</span>
+
+<span class="sd">    It is STRONGLY advised that a unique id is used as the key. This id is</span>
+<span class="sd">    often the job id for simple jobs or can be a concatenation of</span>
+<span class="sd">    (experiment_id, trial_number) or (job id, replica/worker rank)</span>
+<span class="sd">    for iterative applications like hyper-parameter optimization.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">resource</span><span class="p">:</span>
-        <span class="n">resource</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">NULL_RESOURCE</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultType</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">api</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="n">args</span> <span class="ow">or</span> <span class="p">[],</span>
-                <span class="n">env</span><span class="o">=</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{},</span>
-                <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyType</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyType</span><span class="p">,</span> <span class="o">**</span><span class="n">results</span><span class="p">:</span> <span class="n">ResultType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Records the given results by associating them with the provided key.</span>
+<span class="sd">        The key is implicitly converted to a string by calling ``str(key)``.</span>
+
+<span class="sd">        Calling this API on the same key multiple times overwrites</span>
+<span class="sd">        the results BUT not necessarily with the last call&#39;s results.</span>
+<span class="sd">        The exact semantics of consistency depends on the backing store.</span>
+
+<span class="sd">        .. note:: It is recommended this API is only called once per unique key</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultType</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the results that have been recorded (put) with the key or</span>
+<span class="sd">        an empty map if no such key exists.</span>
+<span class="sd">        The key is implicitly converted to a string by calling ``str(key)``.</span>
+
+<span class="sd">        Note that if the backing store is not strongly consistent, there may be</span>
+<span class="sd">        a delay in the presence of the key after the ``put`` API has been called.</span>
+<span class="sd">        In this case, this method DOES NOT block until the key becomes available.</span>
+<span class="sd">        To account for this, the caller may chose to retry-get-with-timeout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FsspecResultTracker"><a class="viewcode-back" href="../../../../runtime/tracking.html#torchx.runtime.tracking.FsspecResultTracker">[docs]</a><span class="k">class</span> <span class="nc">FsspecResultTracker</span><span class="p">(</span><span class="n">ResultTracker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tracker that uses fsspec under the hood to save results.</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    .. testcode:: [tracking_fsspec_result_tracker]</span>
+
+<span class="sd">     from torchx.runtime.tracking import FsspecResultTracker</span>
+
+<span class="sd">     # PUT: in trainer.py</span>
+<span class="sd">     tracker_base = &quot;/tmp/foobar&quot; # also supports URIs (e.g. &quot;s3://bucket/trainer/123&quot;)</span>
+<span class="sd">     tracker = FsspecResultTracker(tracker_base)</span>
+<span class="sd">     tracker[&quot;attempt_1/out&quot;] = {&quot;accuracy&quot;: 0.233}</span>
+
+<span class="sd">     # GET: anywhere outside trainer.py</span>
+<span class="sd">     tracker = FsspecResultTracker(tracker_base)</span>
+<span class="sd">     print(tracker[&quot;attempt_1/out&quot;][&quot;accuracy&quot;])</span>
+
+<span class="sd">    .. testoutput:: [tracking_fsspec_result_tracker]</span>
+
+<span class="sd">      0.233</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tracker_base</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracker_base</span> <span class="o">=</span> <span class="n">tracker_base</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyType</span><span class="p">,</span> <span class="o">**</span><span class="n">results</span><span class="p">:</span> <span class="n">ResultType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mapper</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">get_mapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tracker_base</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># save results in pretty-print format so that the file is human readable</span>
+        <span class="n">mapper</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultType</span><span class="p">]:</span>
+        <span class="n">mapper</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">get_mapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tracker_base</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">mapper</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span></div>
 </pre></div>
 
      </article>

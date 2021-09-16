@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serve &mdash; PyTorch/TorchX main documentation</title>
+  <title>Overview &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Interpret" href="interpret.html" />
-    <link rel="prev" title="Train" href="train.html" />
+    <link rel="next" title="Hyper Parameter Optimization" href="hpo.html" />
+    <link rel="prev" title="Utils" href="../components/utils.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -252,21 +252,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="train.html">Train</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Serve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="interpret.html">Interpret</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hpo.html">Hyperparameter Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="base.html">Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">Hyperparameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/base.html">Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Runtime</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">Hyper Parameter Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -321,13 +321,13 @@
       </li>
 
         
-      <li>Serve</li>
+      <li>Overview</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/components/serve.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/runtime/overview.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -356,42 +356,15 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.components.serve">
-<span id="serve"></span><h1>Serve<a class="headerlink" href="#module-torchx.components.serve" title="Permalink to this headline">¶</a></h1>
-<p>These components aim to make it easier to interact with inference and serving
-tools such as <a class="reference external" href="https://pytorch.org/serve/">torchserve</a>.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.serve.torchserve">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.serve.</span></span><span class="sig-name descname"><span class="pre">torchserve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">management_api</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.0rc0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/serve.html#torchserve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.serve.torchserve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deploys the provided model to the given torchserve management API
-endpoint.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.serve</span> <span class="kn">import</span> <span class="n">torchserve</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">torchserve</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/your-model.pt&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">management_api</span><span class="o">=</span><span class="s2">&quot;http://torchserve:8081&quot;</span><span class="p">,</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="go">AppDef(name=&#39;torchx-serve-torchserve&#39;, ...)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_path</strong> – The fsspec path to the model archive file.</p></li>
-<li><p><strong>management_api</strong> – The URL to the root of the torchserve management API.</p></li>
-<li><p><strong>image</strong> – Container to use.</p></li>
-<li><p><strong>params</strong> – torchserve parameters.
-See <a class="reference external" href="https://pytorch.org/serve/management_api.html#register-a-model">https://pytorch.org/serve/management_api.html#register-a-model</a></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the Torchx application definition</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef">specs.AppDef</a></p>
-</dd>
-</dl>
-</dd></dl>
-
+  <section id="module-torchx.runtime">
+<span id="overview"></span><h1>Overview<a class="headerlink" href="#module-torchx.runtime" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> module contains libraries and utilities that you can
+use while authoring your applications. The usage of this module is not a hard
+requirement to use TorchX, but it will make it easier for you to author
+applications that are scheduler and infrastructure agnostic.</p>
+<p>The sub-modules of <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> are categorized by topic. For example in
+the <code class="docutils literal notranslate"><span class="pre">torchx.runtime.hpo</span></code> module you will find libraries that are useful
+when authoring hyper-parameter optimization jobs (applications).</p>
 </section>
 
 
@@ -402,10 +375,10 @@ See <a class="reference external" href="https://pytorch.org/serve/management_api
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="interpret.html" class="btn btn-neutral float-right" title="Interpret" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="hpo.html" class="btn btn-neutral float-right" title="Hyper Parameter Optimization" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="train.html" class="btn btn-neutral" title="Train" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../components/utils.html" class="btn btn-neutral" title="Utils" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -437,7 +410,7 @@ See <a class="reference external" href="https://pytorch.org/serve/management_api
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Serve</a></li>
+<li><a class="reference internal" href="#">Overview</a></li>
 </ul>
 
             </div>
