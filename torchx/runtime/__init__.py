@@ -6,21 +6,14 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-The ``torchx.sdk`` module contains TorchX's base interfaces, objects, and tools
-for:
-
-1. Authoring :py:class:`Component`
-2. Authoring :py:class:`ComponentAdapter`
-3. Authoring various types of plugins
+The ``torchx.runtime`` module contains libraries and utilities that you can
+use while authoring your applications. The usage of this module is not a hard
+requirement to use TorchX, but it will make it easier for you to author
+applications that are scheduler and infrastructure agnostic.
 
 
-Use this SDK to implement custom functionalities. This is the same SDK
-that TorchX uses to implement the out-of-the-box:
+The sub-modules of ``torchx.runtime`` are categorized by topic. For example in
+the ``torchx.runtime.hpo`` module you will find libraries that are useful
+when authoring hyper-parameter optimization jobs (applications).
 
-1. Components (the ones in ``torchx.apps.*``)
-2. Adapters to certain ML Platforms (e.g. ``torchx.kfp`` for Kubeflow Pipelines)
-3. Plugins to certain cloud providers (e.g. ``torchx.plugins.aws``)
-
-Refer to the implementations of these out of the box functionalities
-as examples when implementing custom functionalities.
 """

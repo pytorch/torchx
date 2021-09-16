@@ -71,6 +71,7 @@ class ResultTracker(abc.ABC):
     For example:
 
     .. code-block:: python
+
       tracker[1] = {"l2norm":1.2}
       tracker[1] = {"l2norm":3.4}
       tracker[1] # NOT GUARANTEED TO BE 3.4!
@@ -127,7 +128,9 @@ class FsspecResultTracker(ResultTracker):
 
     Usage:
 
-    .. testcode::
+    .. testcode:: [tracking_fsspec_result_tracker]
+
+     from torchx.runtime.tracking import FsspecResultTracker
 
      # PUT: in trainer.py
      tracker_base = "/tmp/foobar" # also supports URIs (e.g. "s3://bucket/trainer/123")
@@ -138,7 +141,7 @@ class FsspecResultTracker(ResultTracker):
      tracker = FsspecResultTracker(tracker_base)
      print(tracker["attempt_1/out"]["accuracy"])
 
-     .. testoutput::
+    .. testoutput:: [tracking_fsspec_result_tracker]
 
       0.233
 

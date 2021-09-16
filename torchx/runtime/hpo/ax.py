@@ -51,7 +51,7 @@ class AppMetric(Metric):
      tracker[str(trial_index)] = {metric_name: value}
 
      # -- or --
-    tracker[str(trial_index)] = {"metric_name/mean": mean_value,
+     tracker[str(trial_index)] = {"metric_name/mean": mean_value,
                                  "metric_name/sem": sem_value}
 
     """
@@ -213,13 +213,13 @@ class TorchXRunner(ax_Runner):
 
 class TorchXScheduler(ax_Scheduler):
     """
-    An implementation of an `Ax Scheduler<https://ax.dev/tutorials/scheduler.html>`_
+    An implementation of an `Ax Scheduler <https://ax.dev/tutorials/scheduler.html>`_
     that works with Experiments hooked up with the ``TorchXRunner``.
 
     This scheduler is not a real scheduler but rather a facade scheduler
     that delegates to scheduler clients for various remote/local schedulers.
     For a list of supported schedulers please refer to TorchX
-    `scheduler docs<https://pytorch.org/torchx/latest/schedulers.html>`_.
+    `scheduler docs <https://pytorch.org/torchx/latest/schedulers.html>`_.
 
     """
 
