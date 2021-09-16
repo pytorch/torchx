@@ -84,7 +84,7 @@ class KuberneteschedTest(ComponentTestCase):
                 "skip_export": True,
                 "log_path": tmpdir,
             }
-            self.run_component_on_local(
+            self.run_component_on_k8s(
                 cv_component.trainer,
                 component_kwargs=component_kwargs,
                 dryrun=dryrun
