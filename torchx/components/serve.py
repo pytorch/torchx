@@ -43,7 +43,8 @@ def torchserve(
     """
 
     args = [
-        "torchx/apps/serve/serve.py",
+        "-m",
+        "torchx.apps.serve.serve",
         "--model_path",
         model_path,
         "--management_api",
@@ -62,7 +63,7 @@ def torchserve(
             specs.Role(
                 name="torchx-serve-torchserve",
                 image=image,
-                entrypoint="python3",
+                entrypoint="python",
                 args=args,
                 port_map={"model-download": 8222},
             ),

@@ -113,6 +113,8 @@ class CmdRunTest(unittest.TestCase):
                 "--scheduler",
                 "local",
                 "utils.echo",
+                "--image",
+                "/tmp",
             ]
         )
         self.cmd_run.run(args)

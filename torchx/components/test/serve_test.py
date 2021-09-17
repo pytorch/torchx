@@ -19,9 +19,10 @@ class ServeTest(unittest.TestCase):
                 specs.Role(
                     name="torchx-serve-torchserve",
                     image="torchx:latest",
-                    entrypoint="python3",
+                    entrypoint="python",
                     args=[
-                        "torchx/apps/serve/serve.py",
+                        "-m",
+                        "torchx.apps.serve.serve",
                         "--model_path",
                         "the_model_path",
                         "--management_api",
