@@ -21,7 +21,7 @@ import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
-from typing import Any, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple, Callable
 from uuid import uuid4
 
 from pyre_extensions import none_throws
@@ -30,7 +30,6 @@ from torchx.specs.api import (
     NONE,
     AppDef,
     AppState,
-    InvalidRunConfigException,
     Role,
     RunConfig,
     SchedulerBackend,
@@ -445,9 +444,10 @@ class LocalScheduler(Scheduler):
     Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.
     The scheduler will terminate the spawned processes.
 
+    This is exposed via the schedulers `local`, `default` and `local_docker`.
+
     .. note::
         The orphan cleanup only works if `LocalScheduler` is instantiated from the main thread.
-
 
     .. note::
         Use this scheduler sparingly since an application that runs successfully
@@ -465,11 +465,17 @@ class LocalScheduler(Scheduler):
             describe: true
     """
 
-    def __init__(self, session_name: str, cache_size: int = 100) -> None:
+    def __init__(
+        self,
+        session_name: str,
+        image_provider_class: Callable[[RunConfig], ImageProvider],
+        cache_size: int = 100,
+    ) -> None:
         super().__init__("local", session_name)
 
         # TODO T72035686 replace dict with a proper LRUCache data structure
         self._apps: Dict[AppId, _LocalAppDef] = {}
+        self._image_provider_class = image_provider_class
 
         if cache_size <= 0:
             raise ValueError("cache size must be greater than zero")
@@ -478,12 +484,6 @@ class LocalScheduler(Scheduler):
 
     def run_opts(self) -> runopts:
         opts = runopts()
-        opts.add(
-            "image_type",
-            type_=str,
-            help="image type. One of [dir, docker]",
-            default="dir",
-        )
         opts.add(
             "log_dir",
             type_=str,
@@ -495,25 +495,6 @@ class LocalScheduler(Scheduler):
     def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
         # Skip validation step for local application
         pass
-
-    def _img_providers(self, cfg: RunConfig) -> Dict[str, ImageProvider]:
-        return {
-            "dir": LocalDirectoryImageProvider(cfg),
-            "docker": DockerImageProvider(cfg),
-        }
-
-    def _get_img_provider(self, cfg: RunConfig) -> ImageProvider:
-        img_type = cfg.get("image_type")
-        providers = self._img_providers(cfg)
-        # pyre-ignore [6]: type check already done by runopt.resolve
-        img_provider = providers.get(img_type, None)
-        if not img_provider:
-            raise InvalidRunConfigException(
-                f"Unsupported image provider type: {img_type}. Must be one of: {providers.keys()}",
-                cfg,
-                self.run_opts(),
-            )
-        return img_provider
 
     def _evict_lru(self) -> bool:
         """
@@ -694,7 +675,7 @@ class LocalScheduler(Scheduler):
         """
 
         app_id = make_unique(app.name)
-        image_provider = self._get_img_provider(cfg)
+        image_provider = self._image_provider_class(cfg)
         app_log_dir, redirect_std = self._get_app_log_dir(app_id, cfg)
 
         role_params: Dict[str, List[ReplicaParam]] = {}
@@ -891,4 +872,13 @@ def create_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
     return LocalScheduler(
         session_name=session_name,
         cache_size=kwargs.get("cache_size", 100),
+        image_provider_class=LocalDirectoryImageProvider,
+    )
+
+
+def create_docker_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
+    return LocalScheduler(
+        session_name=session_name,
+        cache_size=kwargs.get("cache_size", 100),
+        image_provider_class=DockerImageProvider,
     )

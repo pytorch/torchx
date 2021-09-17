@@ -5,6 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import abc
 import json
 import multiprocessing as mp
 import os
@@ -61,7 +62,9 @@ def start_sleep_processes(
     app = AppDef(name="test_app", roles=[role])
     cfg = RunConfig({"log_dir": test_dir})
 
-    scheduler = LocalScheduler(session_name="test_session")
+    scheduler = LocalScheduler(
+        session_name="test_session", image_provider_class=LocalDirectoryImageProvider
+    )
     app_id = scheduler.submit(app, cfg)
 
     my_pid = os.getpid()
@@ -172,22 +175,8 @@ LOCAL_SCHEDULER_MAKE_UNIQUE = "torchx.schedulers.local_scheduler.make_unique"
 ERR_FILE_ENV = "TORCHELASTIC_ERROR_FILE"
 
 
-class LocalSchedulerTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.test_dir = tempfile.mkdtemp(prefix=f"{self.__class__.__name__}_")
-        write_shell_script(self.test_dir, "touch.sh", ["touch $1"])
-        write_shell_script(self.test_dir, "env.sh", ["env > $1"])
-        write_shell_script(self.test_dir, "fail.sh", ["exit 1"])
-        write_shell_script(self.test_dir, "sleep.sh", ["sleep $1"])
-        write_shell_script(self.test_dir, "echo_stdout.sh", ["echo $1"])
-        write_shell_script(self.test_dir, "echo_stderr.sh", ["echo $1 1>&2"])
-        write_shell_script(
-            self.test_dir,
-            "echo_range.sh",
-            ["for i in $(seq 0 $1); do echo $i 1>&2; sleep $2; done"],
-        )
-        write_shell_script(self.test_dir, "echo_env_foo.sh", ["echo $FOO 1>&2"])
-        self.scheduler = LocalScheduler(session_name="test_session")
+class LocalSchedulerTestUtil(abc.ABC):
+    scheduler: LocalScheduler
 
     def wait(
         self,
@@ -216,6 +205,27 @@ class LocalSchedulerTest(unittest.TestCase):
 
             time.sleep(interval)
         raise TimeoutError(f"timed out waiting for app: {app_id}")
+
+
+class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
+    def setUp(self) -> None:
+        self.test_dir = tempfile.mkdtemp(prefix=f"{self.__class__.__name__}_")
+        write_shell_script(self.test_dir, "touch.sh", ["touch $1"])
+        write_shell_script(self.test_dir, "env.sh", ["env > $1"])
+        write_shell_script(self.test_dir, "fail.sh", ["exit 1"])
+        write_shell_script(self.test_dir, "sleep.sh", ["sleep $1"])
+        write_shell_script(self.test_dir, "echo_stdout.sh", ["echo $1"])
+        write_shell_script(self.test_dir, "echo_stderr.sh", ["echo $1 1>&2"])
+        write_shell_script(
+            self.test_dir,
+            "echo_range.sh",
+            ["for i in $(seq 0 $1); do echo $i 1>&2; sleep $2; done"],
+        )
+        write_shell_script(self.test_dir, "echo_env_foo.sh", ["echo $FOO 1>&2"])
+        self.scheduler = LocalScheduler(
+            session_name="test_session",
+            image_provider_class=LocalDirectoryImageProvider,
+        )
 
     def tearDown(self) -> None:
         shutil.rmtree(self.test_dir)
@@ -612,13 +622,25 @@ class LocalSchedulerTest(unittest.TestCase):
 
     def test_invalid_cache_size(self) -> None:
         with self.assertRaises(ValueError):
-            LocalScheduler(session_name="test_session", cache_size=0)
+            LocalScheduler(
+                session_name="test_session",
+                cache_size=0,
+                image_provider_class=LocalDirectoryImageProvider,
+            )
 
         with self.assertRaises(ValueError):
-            LocalScheduler(session_name="test_session", cache_size=-1)
+            LocalScheduler(
+                session_name="test_session",
+                cache_size=-1,
+                image_provider_class=LocalDirectoryImageProvider,
+            )
 
     def test_cache_full(self) -> None:
-        scheduler = LocalScheduler(session_name="test_session", cache_size=1)
+        scheduler = LocalScheduler(
+            session_name="test_session",
+            cache_size=1,
+            image_provider_class=LocalDirectoryImageProvider,
+        )
         role = Role(
             "role1",
             image=self.test_dir,
@@ -633,7 +655,11 @@ class LocalSchedulerTest(unittest.TestCase):
             scheduler.submit(app, cfg)
 
     def test_cache_evict(self) -> None:
-        scheduler = LocalScheduler(session_name="test_session", cache_size=1)
+        scheduler = LocalScheduler(
+            session_name="test_session",
+            cache_size=1,
+            image_provider_class=LocalDirectoryImageProvider,
+        )
         test_file1 = join(self.test_dir, "test_file_1")
         test_file2 = join(self.test_dir, "test_file_2")
 
@@ -663,46 +689,6 @@ class LocalSchedulerTest(unittest.TestCase):
 
         self.assertIsNotNone(scheduler.describe(app_id2))
         self.assertIsNotNone(self.wait(app_id2, scheduler))
-
-    def _docker_app(self, entrypoint: str, *args: str) -> AppDef:
-        return binary_component(
-            name="test-app",
-            image="busybox",
-            entrypoint=entrypoint,
-            args=list(args),
-        )
-
-    def _has_docker(self) -> bool:
-        try:
-            return subprocess.run(["docker", "version"]).returncode == 0
-        except FileNotFoundError:
-            return False
-
-    def _skip_unless_docker(self) -> None:
-        if not self._has_docker():
-            self.skipTest("test requires docker")
-
-    def test_docker_submit(self) -> None:
-        self._skip_unless_docker()
-
-        app = self._docker_app("echo", "foo")
-        cfg = RunConfig({"image_type": "docker"})
-        app_id = self.scheduler.submit(app, cfg)
-
-        desc = self.wait(app_id)
-        assert desc is not None
-        self.assertEqual(AppState.SUCCEEDED, desc.state)
-
-    def test_docker_submit_error(self) -> None:
-        self._skip_unless_docker()
-
-        app = self._docker_app("sh", "-c", "exit 1")
-        cfg = RunConfig({"image_type": "docker"})
-        app_id = self.scheduler.submit(app, cfg)
-
-        desc = self.wait(app_id)
-        assert desc is not None
-        self.assertEqual(AppState.FAILED, desc.state)
 
     def test_close(self) -> None:
         # 2 apps each with 4 replicas == 8 total pids
@@ -800,3 +786,46 @@ class LocalSchedulerTest(unittest.TestCase):
             # os.kill would raise OSError
             with self.assertRaises(OSError):
                 os.kill(child_pid, 0)
+
+
+def _has_docker() -> bool:
+    try:
+        return subprocess.run(["docker", "version"]).returncode == 0
+    except FileNotFoundError:
+        return False
+
+
+if _has_docker():
+
+    class LocalDockerSchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
+        def setUp(self) -> None:
+            self.scheduler = LocalScheduler(
+                session_name="test_session",
+                image_provider_class=DockerImageProvider,
+            )
+
+        def _docker_app(self, entrypoint: str, *args: str) -> AppDef:
+            return binary_component(
+                name="test-app",
+                image="busybox",
+                entrypoint=entrypoint,
+                args=list(args),
+            )
+
+        def test_docker_submit(self) -> None:
+            app = self._docker_app("echo", "foo")
+            cfg = RunConfig({"image_type": "docker"})
+            app_id = self.scheduler.submit(app, cfg)
+
+            desc = self.wait(app_id)
+            assert desc is not None
+            self.assertEqual(AppState.SUCCEEDED, desc.state)
+
+        def test_docker_submit_error(self) -> None:
+            app = self._docker_app("sh", "-c", "exit 1")
+            cfg = RunConfig({"image_type": "docker"})
+            app_id = self.scheduler.submit(app, cfg)
+
+            desc = self.wait(app_id)
+            assert desc is not None
+            self.assertEqual(AppState.FAILED, desc.state)
