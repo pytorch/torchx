@@ -18,7 +18,7 @@ from torchx.version import TORCHX_IMAGE
 
 
 def echo(
-    msg: str = "hello world", image: str = "/tmp", num_replicas: int = 1
+    msg: str = "hello world", image: str = TORCHX_IMAGE, num_replicas: int = 1
 ) -> specs.AppDef:
     """
     Echos a message to stdout (calls /bin/echo)
@@ -43,12 +43,13 @@ def echo(
     )
 
 
-def touch(file: str) -> specs.AppDef:
+def touch(file: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
     """
     Touches a file (calls /bin/touch)
 
     Args:
         file: file to create
+        image: the image to use
 
     """
     return specs.AppDef(
@@ -56,7 +57,7 @@ def touch(file: str) -> specs.AppDef:
         roles=[
             specs.Role(
                 name="touch",
-                image="/tmp",
+                image=image,
                 entrypoint="/bin/touch",
                 args=[file],
                 num_replicas=1,
@@ -65,7 +66,7 @@ def touch(file: str) -> specs.AppDef:
     )
 
 
-def sh(*args: str, image: str = "/tmp", num_replicas: int = 1) -> specs.AppDef:
+def sh(*args: str, image: str = TORCHX_IMAGE, num_replicas: int = 1) -> specs.AppDef:
     """
     Runs the provided command via sh. Currently sh does not support
     environment variable substitution.
@@ -112,8 +113,10 @@ def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
             specs.Role(
                 name="torchx-utils-copy",
                 image=image,
-                entrypoint="torchx/apps/utils/copy_main.py",
+                entrypoint="python",
                 args=[
+                    "-m",
+                    "torchx.apps.utils.copy_main",
                     "--src",
                     src,
                     "--dst",
@@ -148,8 +151,10 @@ def booth(
             specs.Role(
                 name="torchx-utils-booth",
                 image=image,
-                entrypoint="torchx/apps/utils/booth_main.py",
+                entrypoint="python",
                 args=[
+                    "-m",
+                    "torchx.apps.utils.booth_main",
                     "--x1",
                     str(x1),
                     "--x2",
