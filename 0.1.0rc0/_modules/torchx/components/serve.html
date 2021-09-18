@@ -397,7 +397,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;torchx/apps/serve/serve.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torchx.apps.serve.serve&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--model_path&quot;</span><span class="p">,</span>
         <span class="n">model_path</span><span class="p">,</span>
         <span class="s2">&quot;--management_api&quot;</span><span class="p">,</span>
@@ -416,7 +417,7 @@
             <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-serve-torchserve&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">port_map</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model-download&quot;</span><span class="p">:</span> <span class="mi">8222</span><span class="p">},</span>
             <span class="p">),</span>
