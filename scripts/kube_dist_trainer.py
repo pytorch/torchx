@@ -11,8 +11,10 @@ Kubernetes integration tests.
 
 import argparse
 import os
+import tempfile
 
-from examples.apps.dist_cifar.component import trainer
+import examples.apps.dist_cifar.component as dist_cifar_component
+import examples.apps.lightning_classy_vision.component as cv_component
 
 # pyre-ignore-all-errors[21] # Cannot find module utils
 # pyre-ignore-all-errors[11]
@@ -22,9 +24,9 @@ from integ_test_utils import (
     push_images,
     BuildInfo,
 )
-from pyre_extensions import none_throws
-from torchx.runner import get_runner
-from torchx.specs import Resource, named_resources, RunConfig, AppState
+from torchx.components.component_test_base import ComponentTestCase
+from torchx.components.test.integ_tests import IntegComponentTest
+from torchx.specs import Resource, named_resources
 
 GiB: int = 1024
 
@@ -45,47 +47,45 @@ def build_and_push_image() -> BuildInfo:
     return build
 
 
-def run_job(dryrun: bool = False) -> None:
-    register_gpu_resource()
-    build = build_and_push_image()
-    image = build.examples_image
-    runner = get_runner("kubeflow-dist-runner")
-
-    storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
-    root = os.path.join(storage_path, build.id)
-    output_path = os.path.join(root, "output")
-
-    args = ("--output_path", output_path)
-    train_app = trainer(
-        *args,
-        image=image,
-        resource="GPU_X1",
-        nnodes=2,
-        rdzv_backend="etcd-v2",
-        rdzv_endpoint="etcd-server:2379",
-    )
-    print(f"Starting Trainer with args: {args}")
-    cfg = RunConfig()
-    cfg.set("namespace", "default")
-    cfg.set("queue", "default")
-    print("Submitting pods")
-    if dryrun:
-        dryrun_info = runner.dryrun(train_app, "kubernetes", cfg)
-        print(f"Dryrun info: {dryrun_info}")
-    else:
-        app_handle = runner.run(train_app, "kubernetes", cfg)
-        print(app_handle)
-        runner.wait(app_handle)
-        final_status = runner.status(app_handle)
-        print(f"Final status: {final_status}")
-        if none_throws(final_status).state != AppState.SUCCEEDED:
-            raise Exception(f"Dist app failed with status: {final_status}")
+# class KuberneteschedTest(ComponentTestCase):
+# def run_dist_cifar(self, build_info: BuildInfo, dryrun: bool = False) -> None:
+#     register_gpu_resource()
+#     storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
+#     root = os.path.join(storage_path, build_info.id)
+#     output_path = os.path.join(root, "output")
+#
+#     image = build_info.examples_image
+#
+#     args = ("--output_path", output_path)
+#     component_args = ["--output_path", output_path]
+#     component_kwargs = {
+#         "image": image,
+#         "resource": "GPU_X1",
+#         "nnodes": 2,
+#         "rdzv_backend": "etcd-v2",
+#         "rdzv_endpoint": "etcd-server.default.svc.cluster.local:2379",
+#     }
+#     print(f"Starting Trainer with args: {args}")
+#     self.run_component_on_k8s(
+#         dist_cifar_component.trainer, component_args, component_kwargs, dryrun
+#     )
+#
+# def run_lightning_cv(self, build_info: BuildInfo, dryrun: bool = False) -> None:
+#     with tempfile.TemporaryDirectory() as tmpdir:
+#         image = build_info.examples_image
+#         component_kwargs = {
+#             "image": image,
+#             "output_path": tmpdir,
+#             "skip_export": True,
+#             "log_path": tmpdir,
+#         }
+#         self.run_component_on_k8s(
+#             cv_component.trainer, component_kwargs=component_kwargs, dryrun=dryrun
+#         )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="kubernetes dist trainer integration test runner"
-    )
+    parser = argparse.ArgumentParser(description="kubernetes integration test runner")
     parser.add_argument(
         "--dryrun",
         action="store_true",
@@ -94,7 +94,10 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        run_job(args.dryrun)
+        build = build_and_push_image()
+        test_suite = IntegComponentTest()
+        # test_suite.run_on_k8s(build.examples_image)
+        test_suite.run_on_local(build.examples_image)
     except MissingEnvError:
         print("Skip runnig tests, executed only docker buid step")
 

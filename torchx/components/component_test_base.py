@@ -18,7 +18,11 @@ import os
 import sys
 import unittest
 from types import ModuleType
+<<<<<<< HEAD
 from typing import Callable, Union
+=======
+from typing import Callable, List, Any, Dict, Optional, Union
+>>>>>>> b1e1ade8e2f5a6ea5e244e47f65a4b0b104d49f9
 
 from pyre_extensions import none_throws
 from torchx.runner import get_runner
@@ -79,17 +83,30 @@ class ComponentTestCase(unittest.TestCase):
         file_path = module.__file__
         self._validate_content(file_path, function_name)
 
+<<<<<<< HEAD
     def run_appdef_on_scheduler(
         self,
         app_def: AppDef,
+=======
+    def _run_component_on_scheduler(
+        self,
+        component: Callable[..., AppDef],
+        # pyre-ignore[2]
+        component_args: List[Any],
+        component_kwargs: Dict[str, Any],
+>>>>>>> b1e1ade8e2f5a6ea5e244e47f65a4b0b104d49f9
         scheduler: SchedulerBackend,
         scheduler_cfg: RunConfig,
         dryrun: bool = False,
     ) -> Union[AppHandle, AppDryRunInfo]:
+<<<<<<< HEAD
         """
         Runs component on provided scheduler.
         """
 
+=======
+        app_def = component(*component_args, **component_kwargs)
+>>>>>>> b1e1ade8e2f5a6ea5e244e47f65a4b0b104d49f9
         runner = get_runner("test-runner")
         if dryrun:
             dryrun_info = runner.dryrun(app_def, scheduler, scheduler_cfg)
@@ -105,3 +122,40 @@ class ComponentTestCase(unittest.TestCase):
                     f"App {app_handle} failed with status: {app_status}"
                 )
             return app_handle
+<<<<<<< HEAD
+=======
+
+    def run_component_on_local(
+        self,
+        component: Callable[..., AppDef],
+        # pyre-ignore[2]
+        component_args: Optional[List[Any]] = None,
+        component_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> Union[AppHandle, AppDryRunInfo]:
+        component_args = component_args or []
+        component_kwargs = component_kwargs or {}
+        self._validate_component(component)
+        cfg = RunConfig()
+        cfg.set("img_type", "dir")
+        return self._run_component_on_scheduler(
+            component, component_args, component_kwargs, "local", cfg
+        )
+
+    def run_component_on_k8s(
+        self,
+        component: Callable[..., AppDef],
+        # pyre-ignore[2]
+        component_args: Optional[List[Any]] = None,
+        component_kwargs: Optional[Dict[str, Any]] = None,
+        dryrun: bool = False,
+    ) -> Union[AppHandle, AppDryRunInfo]:
+        component_args = component_args or []
+        component_kwargs = component_kwargs or {}
+        self._validate_component(component)
+        cfg = RunConfig()
+        cfg.set("namespace", "torchx-dev")
+        cfg.set("queue", "default")
+        return self._run_component_on_scheduler(
+            component, component_args, component_kwargs, "kubernetes", cfg, dryrun
+        )
+>>>>>>> b1e1ade8e2f5a6ea5e244e47f65a4b0b104d49f9
