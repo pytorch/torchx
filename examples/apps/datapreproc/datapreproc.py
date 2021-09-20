@@ -44,6 +44,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="remote path to save the .tar.gz data to",
         required=True,
     )
+    parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="start the app, but do not actually perform the work",
+    )
     return parser.parse_args(argv)
 
 
@@ -55,6 +60,9 @@ def download_and_extract_zip_archive(url: str, path: str) -> None:
 
 def main(argv: List[str]) -> None:
     args = parse_args(argv)
+    if args.dryrun:
+        print("App datapreproc started sucsessfully")
+        return
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"downloading {args.input_path} to {tmpdir}...")
         download_and_extract_zip_archive(args.input_path, tmpdir)

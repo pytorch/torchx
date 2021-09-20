@@ -15,9 +15,21 @@ args.
 """
 
 import os
+import sys
 import unittest
 from types import ModuleType
+from typing import Callable, Union
 
+from pyre_extensions import none_throws
+from torchx.runner import get_runner
+from torchx.specs import (
+    AppDef,
+    SchedulerBackend,
+    RunConfig,
+    AppState,
+    AppHandle,
+    AppDryRunInfo,
+)
 from torchx.specs.file_linter import validate
 
 
@@ -36,13 +48,7 @@ class ComponentTestCase(unittest.TestCase):
     <unittest.result.TestResult run=1 errors=0 failures=0>
     """
 
-    def _validate(self, module: ModuleType, function_name: str) -> None:
-        """
-        _validate takes in a module and the name of a component function
-        definition defined in that module and validates that it is a valid
-        component def.
-        """
-        file_path = path = os.path.abspath(module.__file__)
+    def _validate_content(self, file_path: str, function_name: str) -> None:
         with open(file_path, "r") as fp:
             file_content = fp.read()
         linter_errors = validate(file_content, file_path, function_name)
@@ -52,3 +58,50 @@ class ComponentTestCase(unittest.TestCase):
                 error_msg += f"Lint Error: {linter_error.description}\n"
             raise ValueError(error_msg)
         self.assertEquals(0, len(linter_errors))
+
+    def _validate(self, module: ModuleType, function_name: str) -> None:
+        """
+        _validate takes in a module and the name of a component function
+        definition defined in that module and validates that it is a valid
+        component def.
+        """
+        file_path = os.path.abspath(module.__file__)
+        self._validate_content(file_path, function_name)
+
+    def _validate_component(self, component: Callable[..., AppDef]) -> None:
+        """
+        _validate_component takes in a function that produces a component
+        and validates that it is a valid component def.
+        """
+        module_name = component.__module__
+        function_name = component.__name__
+        module = sys.modules[module_name]
+        file_path = module.__file__
+        self._validate_content(file_path, function_name)
+
+    def run_appdef_on_scheduler(
+        self,
+        app_def: AppDef,
+        scheduler: SchedulerBackend,
+        scheduler_cfg: RunConfig,
+        dryrun: bool = False,
+    ) -> Union[AppHandle, AppDryRunInfo]:
+        """
+        Runs component on provided scheduler.
+        """
+
+        runner = get_runner("test-runner")
+        if dryrun:
+            dryrun_info = runner.dryrun(app_def, scheduler, scheduler_cfg)
+            print(f"Dryrun info: {dryrun_info}")
+            return dryrun_info
+        else:
+            app_handle = runner.run(app_def, scheduler, scheduler_cfg)
+            print(f"AppHandle: {app_handle}")
+            app_status = runner.wait(app_handle)
+            print(f"Final status: {app_status}")
+            if none_throws(app_status).state != AppState.SUCCEEDED:
+                raise AssertionError(
+                    f"App {app_handle} failed with status: {app_status}"
+                )
+            return app_handle
