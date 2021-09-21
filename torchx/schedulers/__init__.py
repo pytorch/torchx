@@ -26,6 +26,7 @@ def get_schedulers(
 ) -> Dict[SchedulerBackend, Scheduler]:
     default_schedulers: Dict[str, SchedulerFactory] = {
         "local": local_scheduler.create_scheduler,
+        "local_docker": local_scheduler.create_docker_scheduler,
         "default": local_scheduler.create_scheduler,
         "slurm": slurm_scheduler.create_scheduler,
         "kubernetes": kubernetes_scheduler.create_scheduler,

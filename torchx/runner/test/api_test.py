@@ -15,7 +15,10 @@ from unittest.mock import MagicMock, patch
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
 from torchx.schedulers.api import DescribeAppResponse
-from torchx.schedulers.local_scheduler import LocalScheduler
+from torchx.schedulers.local_scheduler import (
+    LocalScheduler,
+    LocalDirectoryImageProvider,
+)
 from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs.api import (
     AppDef,
@@ -52,7 +55,9 @@ class RunnerTest(unittest.TestCase):
         write_shell_script(self.test_dir, "fail.sh", ["exit 1"])
         write_shell_script(self.test_dir, "sleep.sh", ["sleep $1"])
 
-        self.scheduler = LocalScheduler(SESSION_NAME)
+        self.scheduler = LocalScheduler(
+            SESSION_NAME, image_provider_class=LocalDirectoryImageProvider
+        )
         self.cfg = RunConfig({"image_type": "dir"})
 
         # resource ignored for local scheduler; adding as an example
@@ -179,7 +184,9 @@ class RunnerTest(unittest.TestCase):
         # removed by the scheduler also get removed from the session after a status() API has been
         # called on the app
 
-        scheduler = LocalScheduler(session_name=SESSION_NAME, cache_size=1)
+        scheduler = LocalScheduler(
+            SESSION_NAME, cache_size=1, image_provider_class=LocalDirectoryImageProvider
+        )
         with Runner(
             name=SESSION_NAME,
             schedulers={"default": scheduler},
