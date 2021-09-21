@@ -63,7 +63,7 @@ def trainer(
     if skip_export:
         args.append("--skip_export")
     return binary_component(
-        name="examples-lightning_classy_vision-trainer",
+        name="cv-trainer",
         entrypoint=entrypoint,
         args=args,
         env=env,

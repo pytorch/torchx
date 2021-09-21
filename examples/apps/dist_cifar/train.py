@@ -44,6 +44,7 @@ from torchvision.datasets import CIFAR10
 
 NUM_WORKERS: int = max(1, (os.cpu_count() or 1) // 2)
 
+
 # pyre-ignore-all-errors[16]
 
 
@@ -57,7 +58,7 @@ def create_model(num_classes: int = 10) -> nn.Module:
 
 
 def create_train_valid_data_loaders(
-    dest_dir: str, batch_size: int
+        dest_dir: str, batch_size: int
 ) -> Tuple[DataLoader, DataLoader]:
     normalize = torchvision.transforms.Normalize(
         mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]
@@ -104,7 +105,7 @@ class LitResnet(LightningModule):
 
     # pyre-ignore[14]
     def training_step(
-        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+            self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         x, y = batch
         logits = self(x)
@@ -113,7 +114,7 @@ class LitResnet(LightningModule):
         return loss
 
     def evaluate(
-        self, batch: Tuple[torch.Tensor, torch.Tensor], stage: Optional[str] = None
+            self, batch: Tuple[torch.Tensor, torch.Tensor], stage: Optional[str] = None
     ) -> None:
         x, y = batch
         logits = self(x)
@@ -127,13 +128,13 @@ class LitResnet(LightningModule):
 
     # pyre-ignore[14]
     def validation_step(
-        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+            self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> None:
         self.evaluate(batch, "val")
 
     # pyre-ignore[14]
     def test_step(
-        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+            self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> None:
         self.evaluate(batch, "test")
 
@@ -150,6 +151,9 @@ class LitResnet(LightningModule):
 def parse_args(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Trainer that trains the last layer of pretrained resnet18 for cifar10 classification"
+    )
+    parser.add_argument(
+        "--dryrun", help="starts the app, but does not perform actual train", action="store_true"
     )
     parser.add_argument(
         "--epochs", type=int, default=1, help="number of epochs to train"
@@ -173,6 +177,9 @@ def get_gpu_devices() -> int:
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
+    if args.dryrun:
+        print("App dist_cifar.trainer started successfully")
+        return
     gpus = get_gpu_devices()
     batch_size = args.batch_size
     num_nodes = int(os.environ["GROUP_WORLD_SIZE"])

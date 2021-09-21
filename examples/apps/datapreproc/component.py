@@ -59,7 +59,7 @@ def data_preproc(
         resource_def = specs.Resource(cpu=1, gpu=0, memMB=1024)
 
     return binary_component(
-        name="datapreproc_role",
+        name="datapreproc",
         entrypoint=entrypoint,
         args=args,
         env=env,

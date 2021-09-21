@@ -19,7 +19,7 @@ from integ_test_utils import (
     push_images,
     BuildInfo,
 )
-from torchx.components.integration_tests.integ_test import IntegComponentTest
+from torchx.components.integration_tests.integ_tests import IntegComponentTest
 
 
 def build_and_push_image() -> BuildInfo:

@@ -50,7 +50,6 @@ from torchx.specs.api import (
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-
 RETRY_POLICIES: Mapping[str, Iterable[Mapping[str, str]]] = {
     RetryPolicy.REPLICA: [],
     RetryPolicy.APPLICATION: [
@@ -143,7 +142,7 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
 
     resource = role.resource
     if resource.cpu >= 0:
-        requests["cpu"] = f"{int(resource.cpu*1000)}m"
+        requests["cpu"] = f"{int(resource.cpu * 1000)}m"
     if resource.memMB >= 0:
         requests["memory"] = f"{int(resource.memMB)}M"
     if resource.gpu >= 0:
@@ -225,7 +224,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
                     "name": name,
                     "template": pod,
                     "maxRetry": role.max_retries,
-                    "policies": RETRY_POLICIES[role.retry_policy],
+                    # "policies": RETRY_POLICIES[role.retry_policy],
                 }
             )
 
@@ -350,7 +349,7 @@ class KubernetesScheduler(Scheduler):
         return f'{namespace}:{resp["metadata"]["name"]}'
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: RunConfig
+            self, app: AppDef, cfg: RunConfig
     ) -> AppDryRunInfo[KubernetesJob]:
         queue = cfg.get("queue")
         if not isinstance(queue, str):
@@ -409,10 +408,13 @@ class KubernetesScheduler(Scheduler):
 
             if TASK_STATUS_COUNT in status:
                 for name, status in status[TASK_STATUS_COUNT].items():
-                    role, idx = name.split("-")
+                    idx = name.split("-")[-1]
+                    role = name[0:len(name) - len(idx) - 1]
 
                     state_str = next(iter(status["phase"].keys()))
                     state = TASK_STATE[state_str]
+                    if state == AppState.FAILED:
+                        app_state = state
 
                     if role not in roles:
                         roles[role] = Role(name=role, num_replicas=0, image="")
@@ -431,14 +433,14 @@ class KubernetesScheduler(Scheduler):
         )
 
     def log_iter(
-        self,
-        app_id: str,
-        role_name: str,
-        k: int = 0,
-        regex: Optional[str] = None,
-        since: Optional[datetime] = None,
-        until: Optional[datetime] = None,
-        should_tail: bool = False,
+            self,
+            app_id: str,
+            role_name: str,
+            k: int = 0,
+            regex: Optional[str] = None,
+            since: Optional[datetime] = None,
+            until: Optional[datetime] = None,
+            should_tail: bool = False,
     ) -> Iterable[str]:
         assert until is None, "kubernetes API doesn't support until"
 
@@ -477,7 +479,7 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
 
 
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int
+        app: AppDef, role_idx: int, role: Role, replica_id: int
 ) -> Dict[str, str]:
     return {
         LABEL_VERSION: torchx.__version__,
