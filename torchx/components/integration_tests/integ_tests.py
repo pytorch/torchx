@@ -6,13 +6,9 @@
 
 
 from concurrent.futures import Future, ThreadPoolExecutor
-import os
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Callable
 from dataclasses import dataclass
 
-import examples.apps.dist_cifar.component as dist_cifar_component
-import examples.apps.lightning_classy_vision.component as cv_component
-import examples.apps.datapreproc.component as dp_component
 import torchx.components.utils as utils_components
 from torchx.components.component_test_base import ComponentTestCase
 from torchx.specs import RunConfig, AppDef, SchedulerBackend
@@ -36,17 +32,21 @@ class IntegComponentTest:
     def run_builtin_components(
             self, image: str, schedulers: List[SchedulerBackend], dryrun: bool = False
     ) -> None:
+        return self.run_components(AppDefProvider().get_app_defs, image, schedulers, dryrun)
+
+    def run_components(self, components_fetcher: Callable[[str, SchedulerBackend], List[AppDef]], image: str,
+                       schedulers: List[SchedulerBackend], dryrun: bool = False) -> None:
         with ThreadPoolExecutor() as executor:
             futures: List[AppDefRun] = []
             for scheduler in schedulers:
-                app_defs = AppDefProvider().get_app_defs(image, scheduler)
+                app_defs = components_fetcher(image, scheduler)
                 for app_def in app_defs:
                     future = self.run_appdef_on_scheduler(executor, app_def, scheduler, dryrun)
                     futures.append(AppDefRun(app_def.name, scheduler, future))
             report = self._wait_and_construct_report(futures)
             print(report)
 
-    def _wait_and_construct_report(self, futures: List[AppDefRun], timeout: int = 600) -> str:
+    def _wait_and_construct_report(self, futures: List[AppDefRun]) -> str:
         return "\n".join(self._get_app_def_run_status(app_def_run) for app_def_run in futures)
 
     def _get_app_def_run_status(self, app_def_run: AppDefRun) -> str:
@@ -86,43 +86,12 @@ class IntegComponentTest:
 class AppDefProvider:
     def get_app_defs(self, image: str, scheduler: SchedulerBackend) -> List[AppDef]:
         app_defs = [
-            self._get_cv_app_def(image, scheduler),
-            self._get_dp_app_def(image, scheduler),
-            self._get_dist_cifar_app_def(image, scheduler),
             self._get_booth_app_def(image, scheduler),
             self._get_echo_app_def(image, scheduler),
             self._get_sh_app_def(image, scheduler),
         ]
 
         return [app_def for app_def in app_defs if app_def]
-
-    def _get_cv_app_def(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> Optional[AppDef]:
-        return cv_component.trainer(
-            image=image,
-            output_path="/tmp",
-            skip_export=True,
-            log_path="/tmp",
-        )
-
-    def _get_dist_cifar_app_def(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> Optional[AppDef]:
-        args = ["--output_path", "/tmp", "--dryrun"]
-        return dist_cifar_component.trainer(
-            *args,
-            image=image,
-        )
-
-    def _get_dp_app_def(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> Optional[AppDef]:
-        return dp_component.data_preproc(
-            image=image,
-            output_path="/tmp",
-            dryrun=True,
-        )
 
     def _get_echo_app_def(
             self, image: str, scheduler: SchedulerBackend
