@@ -9,84 +9,78 @@ for the builtin TorchX components.
 See :ref:`app_best_practices:App Best Practices` for information how to write
 apps using TorchX.
 
+Entrypoints
+-------------------
+
+When possible it's best to call your reusable component via `python -m <module>`
+instead of specifying the path to the main module. This makes it so it can be
+used in multiple different environments such as docker and slurm by relying on
+the python module resolution instead of the directory structure.
+
+If your app isn't python based, you can place your app in a folder on your
+`PATH` so it's accessible regardless of the directory structure.
+
+.. code-block:: python
+
+   def trainer(img_name: str, img_version: str) -> AppDef:
+       return AppDef(roles=[
+           Role(
+               entrypoint="python",
+               args=[
+                   "-m",
+                   "your.app",
+               ],
+           )
+       ])
+
+
 Simplify
 -------------------
 
-When writing a component generally you want to keep it as simple as possible and
-make it so it just passes the arguments around.
-
-Avoiding complex processing makes it easier to use the component in different
-environments and easier for others to understand what the component does.
+When writing a component you want to keep each component as simple as
+possible to make it easier for others to reuse and understand.
 
 Argument Processing
 ^^^^^^^^^^^^^^^^^^^^^
 
-Argument processing makes it hard to use the component in other environments. In
-this example we concatenate the image name which makes it impossible to use in
-other environments which have a different format for images.
+Argument processing makes it hard to use the component in other environments.
+For images in particular we want to directly pass the image field to the AppDef
+since any sort of manipulation will make it impossible to use in other
+environments with different image naming conventions.
 
 .. code-block:: python
 
-   # avoid
-   def trainer(img_name: str, img_version: str) -> AppDef:
-       """
-       ...
-       """
-       return AppDef(roles=[Role(image=f"{img_name}:{img_version}")...)
-
-   # recommended
    def trainer(image: str):
-       """
-       ...
-       """
        return AppDef(roles=[Role(image=image)...)
 
 Branching Logic
 ^^^^^^^^^^^^^^^^^
 
-If the component has lots of branching logic it can make it hard for others to
-understand how the component maps to the underlying app and how they should
-configure the arguments.
+You should avoid branching logic in the components. If you have a case where you
+feel like you need an `if` statement in the component you should prefer to
+create multiple components with shared logic. Complex arguments make it hard for
+others to understand how to use it.
 
 .. code-block:: python
 
-   # avoid
-   def trainer(stage: str):
-       """
-       ...
-       """
-       if stage == "test":
-           num_replicas=1
-       elif stage == "prod":
-           num_replicas=10
-       return AppDef(roles=[Role(..., num_replicas=num_replicas)])
-
-   # recommended
    def trainer_test():
-       """
-       ...
-       """
-       return trainer(num_replicas=1)
+       return _trainer(num_replicas=1)
 
    def trainer_prod() -> AppDef:
-       """
-       ...
-       """
-       return trainer(num_replicas=10)
+       return _trainer(num_replicas=10)
 
    # not a component just a function
-   def trainer(num_replicas: int) -> AppDef:
+   def _trainer(num_replicas: int) -> AppDef:
         return AppDef(roles=[Role(..., num_replicas=num_replicas)])
-
 
 
 Named Resources
 -----------------
 
-Generally when writing components it's best to use TorchX's named resources
-support instead of manually specifying cpu and memory allocations. Named
-resources allow your component to be environment independent and allow for
-better scheduling behavior by using t-shirt sizes.
+When writing components it's best to use TorchX's named resources support
+instead of manually specifying cpu and memory allocations. Named resources allow
+your component to be environment independent and allow for better scheduling
+behavior by using t-shirt sizes.
 
 See :py:meth:`torchx.specs.get_named_resources` for more info.
 
@@ -94,8 +88,8 @@ Composing Components
 ----------------------
 
 For common component styles we provide base component definitions. These can be
-called from your custom component definition and are generally easier to use
-than creating a full AppDef from scratch.
+called from your custom component definition and an alternative to creating a
+full AppDef from scratch.
 
 See:
 
@@ -121,10 +115,10 @@ imports the `ddp` component and calls it with your app configuration.
 Define All Arguments
 ----------------------
 
-It's generally preferable to define all component arguments as function
-arguments instead of consuming a dictionary of arguments. This makes it easier
-for users to figure out the options as well as can provide static typing when
-used with `pyre <https://pyre-check.org/>`__ or `mypy <http://mypy-lang.org/>`__.
+It's preferable to define all component arguments as function arguments instead
+of consuming a dictionary of arguments. This makes it easier for users to figure
+out the options as well as can provide static typing when used with `pyre
+<https://pyre-check.org/>`__ or `mypy <http://mypy-lang.org/>`__.
 
 Unit Tests
 --------------
