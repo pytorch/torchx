@@ -364,64 +364,56 @@ from these practices if necessary however these are the best practices we use
 for the builtin TorchX components.</p>
 <p>See <a class="reference internal" href="app_best_practices.html#app-best-practices"><span class="std std-ref">App Best Practices</span></a> for information how to write
 apps using TorchX.</p>
+<section id="entrypoints">
+<h2>Entrypoints<a class="headerlink" href="#entrypoints" title="Permalink to this headline">¶</a></h2>
+<p>When possible it’s best to call your reusable component via <cite>python -m &lt;module&gt;</cite>
+instead of specifying the path to the main module. This makes it so it can be
+used in multiple different environments such as docker and slurm by relying on
+the python module resolution instead of the directory structure.</p>
+<p>If your app isn’t python based, you can place your app in a folder on your
+<cite>PATH</cite> so it’s accessible regardless of the directory structure.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">img_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">img_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Role</span><span class="p">(</span>
+            <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;your.app&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">])</span>
+</pre></div>
+</div>
+</section>
 <section id="simplify">
 <h2>Simplify<a class="headerlink" href="#simplify" title="Permalink to this headline">¶</a></h2>
-<p>When writing a component generally you want to keep it as simple as possible and
-make it so it just passes the arguments around.</p>
-<p>Avoiding complex processing makes it easier to use the component in different
-environments and easier for others to understand what the component does.</p>
+<p>When writing a component you want to keep each component as simple as
+possible to make it easier for others to reuse and understand.</p>
 <section id="argument-processing">
 <h3>Argument Processing<a class="headerlink" href="#argument-processing" title="Permalink to this headline">¶</a></h3>
-<p>Argument processing makes it hard to use the component in other environments. In
-this example we concatenate the image name which makes it impossible to use in
-other environments which have a different format for images.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># avoid</span>
-<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">img_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">img_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">img_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">img_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
-
-<span class="c1"># recommended</span>
-<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<p>Argument processing makes it hard to use the component in other environments.
+For images in particular we want to directly pass the image field to the AppDef
+since any sort of manipulation will make it impossible to use in other
+environments with different image naming conventions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="branching-logic">
 <h3>Branching Logic<a class="headerlink" href="#branching-logic" title="Permalink to this headline">¶</a></h3>
-<p>If the component has lots of branching logic it can make it hard for others to
-understand how the component maps to the underlying app and how they should
-configure the arguments.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># avoid</span>
-<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
-        <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="s2">&quot;prod&quot;</span><span class="p">:</span>
-        <span class="n">num_replicas</span><span class="o">=</span><span class="mi">10</span>
-    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)])</span>
-
-<span class="c1"># recommended</span>
-<span class="k">def</span> <span class="nf">trainer_test</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<p>You should avoid branching logic in the components. If you have a case where you
+feel like you need an <cite>if</cite> statement in the component you should prefer to
+create multiple components with shared logic. Complex arguments make it hard for
+others to understand how to use it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer_test</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">_trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">trainer_prod</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># not a component just a function</span>
-<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_trainer</span><span class="p">(</span><span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
      <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)])</span>
 </pre></div>
 </div>
@@ -429,17 +421,17 @@ configure the arguments.</p>
 </section>
 <section id="named-resources">
 <h2>Named Resources<a class="headerlink" href="#named-resources" title="Permalink to this headline">¶</a></h2>
-<p>Generally when writing components it’s best to use TorchX’s named resources
-support instead of manually specifying cpu and memory allocations. Named
-resources allow your component to be environment independent and allow for
-better scheduling behavior by using t-shirt sizes.</p>
+<p>When writing components it’s best to use TorchX’s named resources support
+instead of manually specifying cpu and memory allocations. Named resources allow
+your component to be environment independent and allow for better scheduling
+behavior by using t-shirt sizes.</p>
 <p>See <a class="reference internal" href="specs.html#torchx.specs.get_named_resources" title="torchx.specs.get_named_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.specs.get_named_resources()</span></code></a> for more info.</p>
 </section>
 <section id="composing-components">
 <h2>Composing Components<a class="headerlink" href="#composing-components" title="Permalink to this headline">¶</a></h2>
 <p>For common component styles we provide base component definitions. These can be
-called from your custom component definition and are generally easier to use
-than creating a full AppDef from scratch.</p>
+called from your custom component definition and an alternative to creating a
+full AppDef from scratch.</p>
 <p>See:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="components/base.html#module-torchx.components.base" title="torchx.components.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.base</span></code></a> for simple single node components.</p></li>
@@ -461,10 +453,9 @@ imports the <cite>ddp</cite> component and calls it with your app configuration.
 </section>
 <section id="define-all-arguments">
 <h2>Define All Arguments<a class="headerlink" href="#define-all-arguments" title="Permalink to this headline">¶</a></h2>
-<p>It’s generally preferable to define all component arguments as function
-arguments instead of consuming a dictionary of arguments. This makes it easier
-for users to figure out the options as well as can provide static typing when
-used with <a class="reference external" href="https://pyre-check.org/">pyre</a> or <a class="reference external" href="http://mypy-lang.org/">mypy</a>.</p>
+<p>It’s preferable to define all component arguments as function arguments instead
+of consuming a dictionary of arguments. This makes it easier for users to figure
+out the options as well as can provide static typing when used with <a class="reference external" href="https://pyre-check.org/">pyre</a> or <a class="reference external" href="http://mypy-lang.org/">mypy</a>.</p>
 </section>
 <section id="module-torchx.components.component_test_base">
 <span id="unit-tests"></span><h2>Unit Tests<a class="headerlink" href="#module-torchx.components.component_test_base" title="Permalink to this headline">¶</a></h2>
@@ -553,6 +544,7 @@ programmatic runner API or write a bash script to call the CLI.</p>
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">Component Best Practices</a><ul>
+<li><a class="reference internal" href="#entrypoints">Entrypoints</a></li>
 <li><a class="reference internal" href="#simplify">Simplify</a><ul>
 <li><a class="reference internal" href="#argument-processing">Argument Processing</a></li>
 <li><a class="reference internal" href="#branching-logic">Branching Logic</a></li>
