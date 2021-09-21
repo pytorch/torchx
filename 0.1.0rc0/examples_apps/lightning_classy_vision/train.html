@@ -401,9 +401,17 @@ the app agnostic to the environment it’s running in.</p>
 <span class="kn">from</span> <span class="nn">pytorch_lightning.loggers</span> <span class="kn">import</span> <span class="n">TensorBoardLogger</span>
 
 <span class="c1"># ensure data and module are on the path</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;examples/apps/lightning_classy_vision&quot;</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">data</span> <span class="kn">import</span> <span class="n">TinyImageNetDataModule</span><span class="p">,</span> <span class="n">download_data</span><span class="p">,</span> <span class="n">create_random_data</span>
-<span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span><span class="p">,</span> <span class="n">export_inference_model</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="p">,</span>
+    <span class="n">create_random_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TinyImageNetModel</span><span class="p">,</span>
+    <span class="n">export_inference_model</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>

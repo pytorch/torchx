@@ -128,7 +128,7 @@ from torchx.components.base.binary_component import binary_component
 processed_data_path: str = os.path.join(args.output_path, "processed")
 datapreproc_app: specs.AppDef = binary_component(
     name="examples-datapreproc",
-    entrypoint="datapreproc/datapreproc.py",
+    entrypoint="examples/apps/datapreproc/datapreproc.py",
     args=["--input_path", data_path, "--output_path", processed_data_path],
     image=args.image,
 )

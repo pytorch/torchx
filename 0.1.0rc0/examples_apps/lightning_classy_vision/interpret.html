@@ -403,10 +403,13 @@ using captum.</p>
 <span class="kn">import</span> <span class="nn">torch</span>
 
 <span class="c1"># ensure data and module are on the path</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;examples/apps/lightning_classy_vision&quot;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">data</span> <span class="kn">import</span> <span class="n">TinyImageNetDataModule</span><span class="p">,</span> <span class="n">download_data</span>
-<span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span>
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span>
 
 
 <span class="c1"># FIXME: captum must be imported after torch otherwise it causes python to crash</span>

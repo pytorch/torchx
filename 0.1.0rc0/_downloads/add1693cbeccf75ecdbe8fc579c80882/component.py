@@ -22,7 +22,7 @@ def trainer(
     image: str,
     output_path: str,
     data_path: str,
-    entrypoint: str = "lightning_classy_vision/train.py",
+    entrypoint: str = "examples/apps/lightning_classy_vision/train.py",
     load_path: str = "",
     log_path: str = "/logs",
     resource: Optional[str] = None,
@@ -90,7 +90,7 @@ def interpret(
     """
     return binary_component(
         name="examples-lightning_classy_vision-interpret",
-        entrypoint="lightning_classy_vision/interpret.py",
+        entrypoint="examples/apps/lightning_classy_vision/interpret.py",
         args=[
             "--load_path",
             load_path,
