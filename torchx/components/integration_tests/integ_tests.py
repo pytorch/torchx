@@ -10,9 +10,9 @@ import os
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 
-import examples.apps.datapreproc.component as dp_component
 import examples.apps.dist_cifar.component as dist_cifar_component
 import examples.apps.lightning_classy_vision.component as cv_component
+import examples.apps.datapreproc.component as dp_component
 import torchx.components.utils as utils_components
 from torchx.components.component_test_base import ComponentTestCase
 from torchx.specs import RunConfig, AppDef, SchedulerBackend
