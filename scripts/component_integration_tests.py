@@ -19,6 +19,7 @@ from integ_test_utils import (
     push_images,
     BuildInfo,
 )
+from example_app_defs import get_example_app_defs
 from torchx.components.integration_tests.integ_tests import IntegComponentTest
 
 
@@ -36,11 +37,17 @@ def main() -> None:
         help="Does not actually submit the app," " just prints the scheduler request",
     )
     args = parser.parse_args()
-
+    print("Starting components integration tests")
     try:
         build = build_and_push_image()
         test_suite = IntegComponentTest()
         test_suite.run_builtin_components(
+            image=build.examples_image,
+            schedulers=["local", "kubernetes"],
+            dryrun=args.dryrun,
+        )
+        test_suite.run_components(
+            get_example_app_defs,
             image=build.examples_image,
             schedulers=["local", "kubernetes"],
             dryrun=args.dryrun,
