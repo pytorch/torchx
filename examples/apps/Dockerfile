@@ -9,4 +9,4 @@ RUN pip install classy_vision pytorch-lightning fsspec[s3] torch-model-archiver 
 
 WORKDIR /app
 
-COPY . /app
+COPY . /app/examples/apps

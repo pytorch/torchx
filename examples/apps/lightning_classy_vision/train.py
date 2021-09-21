@@ -28,9 +28,17 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
 # ensure data and module are on the path
-sys.path.append("examples/apps/lightning_classy_vision")
-from data import TinyImageNetDataModule, download_data, create_random_data
-from model import TinyImageNetModel, export_inference_model
+sys.path.append(".")
+
+from examples.apps.lightning_classy_vision.data import (
+    TinyImageNetDataModule,
+    download_data,
+    create_random_data,
+)
+from examples.apps.lightning_classy_vision.model import (
+    TinyImageNetModel,
+    export_inference_model,
+)
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:

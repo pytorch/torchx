@@ -55,7 +55,7 @@ def trainer(
     """
     return ddp(
         image,
-        "dist_cifar/train.py",
+        "examples/apps/dist_cifar/train.py",
         rdzv_backend,
         rdzv_endpoint,
         resource,

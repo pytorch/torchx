@@ -1,6 +1,5 @@
 {
   "source_directories": [
-    "examples/apps/lightning_classy_vision",
     "."
   ],
   "strict": true,

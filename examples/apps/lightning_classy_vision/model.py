@@ -98,7 +98,7 @@ def export_inference_model(
             "--model-name",
             "tiny_image_net",
             "--handler",
-            "lightning_classy_vision/handler/handler.py",
+            "examples/apps/lightning_classy_vision/handler/handler.py",
             "--version",
             "1",
             "--serialized-file",

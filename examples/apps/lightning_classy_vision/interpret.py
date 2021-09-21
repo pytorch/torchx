@@ -30,10 +30,13 @@ import fsspec
 import torch
 
 # ensure data and module are on the path
-sys.path.append("examples/apps/lightning_classy_vision")
+sys.path.append(".")
 
-from data import TinyImageNetDataModule, download_data
-from model import TinyImageNetModel
+from examples.apps.lightning_classy_vision.data import (
+    TinyImageNetDataModule,
+    download_data,
+)
+from examples.apps.lightning_classy_vision.model import TinyImageNetModel
 
 
 # FIXME: captum must be imported after torch otherwise it causes python to crash
