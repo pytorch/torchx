@@ -113,8 +113,8 @@ dict from a `.ckpt` or `.pt` file.
 This is how Pytorch Lightning's
 `ModelCheckpoint <https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.ModelCheckpoint.html>`__ hook works.
 
-This is generally the most common but makes it harder to make a reusable app
-since your trainer app needs to include the model definition code.
+This is the most common but makes it harder to make a reusable app since your
+trainer app needs to include the model definition code.
 
 TorchScript Models
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -132,7 +132,7 @@ TorchServe Model Archiver (`.mar`)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to use TorchServe for inference you'll need to export your model to
-this format. For inference you'll generally use a quantized version of the model
+this format. For inference it's common to use a quantized version of the model
 so it's best to have your trainer export both a full precision model for fine
 tuning as well as a quantized `.mar` file for TorchServe to consume.
 
