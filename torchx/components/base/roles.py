@@ -41,11 +41,6 @@ def create_torch_dist_role(
     that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed
     to fail and restart a maximum of 3 times.
 
-    .. warning:: ``replicas`` MUST BE an integer between (inclusive) ``nnodes``. That is,
-                   ``Role("trainer", nnodes="2:4", num_replicas=5)`` is invalid and will
-                   result in undefined behavior.
-
-
     >>> from torchx.components.base.roles import create_torch_dist_role
     >>> from torchx.specs.api import NULL_RESOURCE
     >>> elastic_trainer = create_torch_dist_role(
@@ -55,11 +50,11 @@ def create_torch_dist_role(
     ...     entrypoint="my_train_script.py",
     ...     args=["--script_arg", "foo", "--another_arg", "bar"],
     ...     num_replicas=4, max_retries=1,
-    ...     nproc_per_node=8, nnodes="2:4", max_restarts=3)
+    ...     nproc_per_node=8, max_restarts=3)
     ... # effectively runs:
     ... #    python -m torch.distributed.launch
     ... #        --nproc_per_node 8
-    ... #        --nnodes 2:4
+    ... #        --nnodes 4
     ... #        --max_restarts 3
     ... #        my_train_script.py --script_arg foo --another_arg bar
     >>> elastic_trainer
@@ -92,6 +87,8 @@ def create_torch_dist_role(
     launch_kwargs.setdefault("rdzv_backend", "etcd")
     launch_kwargs.setdefault("rdzv_id", macros.app_id)
     launch_kwargs.setdefault("role", name)
+
+    launch_kwargs["nnodes"] = num_replicas
 
     for (arg, val) in launch_kwargs.items():
         if isinstance(val, bool):

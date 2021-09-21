@@ -32,7 +32,7 @@ class TorchxBaseLibTest(unittest.TestCase):
                     resource="unknown resource",
                 )
 
-    def test_torch_dist_role_default(self) -> None:
+    def test_torch_dist_role(self) -> None:
         with patch.object(metadata, "entry_points") as entry_points_mock:
             entry_points_mock.return_value = {}
             role = torch_dist_role(
@@ -43,7 +43,40 @@ class TorchxBaseLibTest(unittest.TestCase):
                 resource=Resource(1, 1, 10),
                 args=["arg1", "arg2"],
                 env={"FOO": "BAR"},
-                nnodes=2,
+                num_replicas=2,
+            )
+
+        self.assertEqual("python", role.entrypoint)
+        expected_args = [
+            "-m",
+            "torch.distributed.run",
+            "--rdzv_backend",
+            "etcd",
+            "--rdzv_id",
+            "${app_id}",
+            "--role",
+            "dist_role",
+            "--nnodes",
+            "2",
+            "test_entry.py",
+            "arg1",
+            "arg2",
+        ]
+        self.assertListEqual(expected_args, role.args)
+
+    def test_torch_dist_role_nnodes_override(self) -> None:
+        with patch.object(metadata, "entry_points") as entry_points_mock:
+            entry_points_mock.return_value = {}
+            role = torch_dist_role(
+                name="dist_role",
+                image="test_image",
+                entrypoint="test_entry.py",
+                base_image="test_base_image",
+                resource=Resource(1, 1, 10),
+                args=["arg1", "arg2"],
+                env={"FOO": "BAR"},
+                num_replicas=2,
+                nnodes=10,
             )
 
         self.assertEqual("python", role.entrypoint)
