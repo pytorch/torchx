@@ -380,6 +380,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">]:</span>
     <span class="n">default_schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;local&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
+        <span class="s2">&quot;local_docker&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_docker_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;slurm&quot;</span><span class="p">:</span> <span class="n">slurm_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;kubernetes&quot;</span><span class="p">:</span> <span class="n">kubernetes_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
