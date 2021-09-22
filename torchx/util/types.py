@@ -128,8 +128,14 @@ def decode_from_string(
         raise ValueError("Unknown")
 
 
+def is_bool(param_type: Any) -> bool:
+    """Check if the ``param_type`` is bool"""
+    return param_type == bool
+
+
 def is_primitive(param_type: Any) -> bool:
-    """Check if the ``param_type`` primitive or not
+    """Check if the ``param_type`` belongs to a list of
+    (int, str, float)
 
     Args:
         param_type: Parameter type

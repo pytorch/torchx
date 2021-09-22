@@ -13,6 +13,7 @@ from torchx.util.types import (
     decode_from_string,
     decode_optional,
     is_primitive,
+    is_bool,
     to_dict,
     to_list,
 )
@@ -66,6 +67,10 @@ class TypesTest(unittest.TestCase):
         arg2_parameter = parameters["arg2"]
         arg2_type = decode_optional(parameters["arg2"].annotation)
         self.assertFalse(is_primitive(arg2_parameter.annotation))
+
+    def test_is_bool(self) -> None:
+        self.assertTrue(is_bool(bool))
+        self.assertFalse(is_bool(int))
 
     def test_decode_from_string_dict(self) -> None:
         parameters = inspect.signature(_test_dict).parameters
