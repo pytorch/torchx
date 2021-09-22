@@ -19,7 +19,7 @@ from integ_test_utils import (
     push_images,
     BuildInfo,
 )
-from example_app_defs import get_example_app_defs
+from example_app_defs import ExamplesAppDefProvider
 from torchx.components.integration_tests.integ_tests import IntegComponentTest
 
 
@@ -47,7 +47,7 @@ def main() -> None:
             dryrun=args.dryrun,
         )
         test_suite.run_components(
-            get_example_app_defs,
+            ExamplesAppDefProvider().get_example_app_defs,
             image=build.examples_image,
             schedulers=["local", "kubernetes"],
             dryrun=args.dryrun,
