@@ -14,7 +14,7 @@ import argparse
 # pyre-ignore-all-errors[21] # Cannot find module utils
 # pyre-ignore-all-errors[11]
 
-from example_app_defs import get_example_app_defs
+from example_app_defs import ExamplesAppDefProvider
 from integ_test_utils import (
     MissingEnvError,
     build_images,
@@ -44,13 +44,13 @@ def main() -> None:
         test_suite = IntegComponentTest()
         test_suite.run_builtin_components(
             image=build.examples_image,
-            schedulers=["local", "kubernetes"],
+            schedulers=["local_docker", "kubernetes"],
             dryrun=args.dryrun,
         )
         test_suite.run_components(
-            get_example_app_defs,
+            ExamplesAppDefProvider().get_example_app_defs,
             image=build.examples_image,
-            schedulers=["local", "kubernetes"],
+            schedulers=["local_docker", "kubernetes"],
             dryrun=args.dryrun,
         )
     except MissingEnvError:

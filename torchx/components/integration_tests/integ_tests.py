@@ -25,7 +25,7 @@ class IntegComponentTest:
     def __init__(self) -> None:
         self.component_test_case = ComponentTestCase()
         self._schedulers_args: Dict[str, RunConfig] = {
-            "local": self._get_torchx_local_args(),
+            "local_docker": self._get_torchx_local_args(),
             "kubernetes": self._get_torchx_k8s_args(),
         }
 

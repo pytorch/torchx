@@ -21,7 +21,7 @@ from torchx.specs import named_resources
 def trainer(
     image: str,
     output_path: str,
-    data_path: str,
+    data_path: Optional[str] = None,
     entrypoint: str = "examples/apps/lightning_classy_vision/train.py",
     load_path: str = "",
     log_path: str = "/logs",
