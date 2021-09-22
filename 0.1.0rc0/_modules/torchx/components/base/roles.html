@@ -445,12 +445,8 @@
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">)</span>
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;nnodes&quot;</span> <span class="ow">in</span> <span class="n">launch_kwargs</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Parameter ``nnodes`` will be overridden by the ``num_replicas``&quot;</span>
-            <span class="s2">&quot;You can safely omit it and use ``num_replicas``&quot;</span>
-        <span class="p">)</span>
-    <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;nnodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_replicas</span>
+    <span class="k">if</span> <span class="s2">&quot;nnodes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">launch_kwargs</span><span class="p">:</span>
+        <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;nnodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_replicas</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
