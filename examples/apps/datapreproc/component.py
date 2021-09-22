@@ -20,13 +20,12 @@ from torchx.components.base.binary_component import binary_component
 
 def data_preproc(
     image: str,
-    entrypoint: str,
     output_path: str,
+    entrypoint: str = "datapreproc/datapreproc.py",
     input_path: str = "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
-    input_md5: str = "90528d7ca1a48142e341f4ef8d21d0de",
     env: Optional[Dict[str, str]] = None,
     resource: Optional[str] = None,
-    name: str = "datapreproc",
+    dryrun: bool = False,
 ) -> specs.AppDef:
     """Data PreProc app.
 
@@ -37,10 +36,9 @@ def data_preproc(
         entrypoint: User script to launch
         output_path: Url-like path to save the processes compressed images
         input_path: Url-like path to fetch the imagenet dataset
-        input_md5: Hash of the input imagenet dataset file
         env: Env variables to transfer to the user script
         resource: String representation of the resource
-        name: Name of the worker
+        dryrun: Starts the app, but does not actually perform any work.
 
     Returns:
         specs.AppDef: Torchx AppDef
@@ -50,18 +48,18 @@ def data_preproc(
     args = [
         "--input_path",
         input_path,
-        "--input_md5",
-        input_md5,
         "--output_path",
         output_path,
     ]
+    if dryrun:
+        args.append("--dryrun")
     if resource:
         resource_def = specs.named_resources[resource]
     else:
         resource_def = specs.Resource(cpu=1, gpu=0, memMB=1024)
 
     return binary_component(
-        name="datapreproc_role",
+        name="datapreproc",
         entrypoint=entrypoint,
         args=args,
         env=env,

@@ -36,7 +36,8 @@ def trainer(
         image: image to run (e.g. foobar:latest)
         output_path: output path for model checkpoints (e.g. file:///foo/bar)
         load_path: path to load pretrained model from
-        data_path: path to the data to load
+        data_path: path to the data to load, if data_path is not provided,
+            auto generated test data will be used
         entrypoint: user script to launch.
         log_path: path to save tensorboard logs to
         resource: the resources to use
@@ -52,15 +53,17 @@ def trainer(
         load_path,
         "--log_path",
         log_path,
-        "--data_path",
-        data_path,
         "--epochs",
         str(epochs),
     ]
+    if data_path:
+        args += ["--data_path", data_path]
+    else:
+        args.append("--test")
     if skip_export:
         args.append("--skip_export")
     return binary_component(
-        name="examples-lightning_classy_vision-trainer",
+        name="cv-trainer",
         entrypoint=entrypoint,
         args=args,
         env=env,
@@ -89,7 +92,7 @@ def interpret(
         resource: the resources to use
     """
     return binary_component(
-        name="examples-lightning_classy_vision-interpret",
+        name="cv-interpret",
         entrypoint="examples/apps/lightning_classy_vision/interpret.py",
         args=[
             "--load_path",

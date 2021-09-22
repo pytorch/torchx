@@ -409,7 +409,8 @@ class KubernetesScheduler(Scheduler):
 
             if TASK_STATUS_COUNT in status:
                 for name, status in status[TASK_STATUS_COUNT].items():
-                    role, idx = name.split("-")
+                    idx = name.split("-")[-1]
+                    role = name[0 : len(name) - len(idx) - 1]
 
                     state_str = next(iter(status["phase"].keys()))
                     state = TASK_STATE[state_str]

@@ -1,4 +1,4 @@
-name: Kubernetes Integration Tests
+name: Components Integration Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  kubernetes-launch:
+  components-launch:
     runs-on: ubuntu-18.04
     steps:
       - name: Setup Python
@@ -26,28 +26,28 @@ jobs:
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
             aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
           fi
-      - name: Install dependencies
-        run: |
-          set -eux
-          pip install -e .[kubernetes]
-      - name: Run Kubernetes Integration Tests
+      - name: Configure Docker
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
+          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
+          fi
+      - name: Install dependencies
+        run: |
+          set -eux
+          pip install -e .[kubernetes]
+      - name: Run Components Integration Tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
           if [ -z "$AWS_ACCESS_KEY_ID" ]; then
             # only dryrun if no secrets
             ARGS="--dryrun"
           else
             ARGS=
           fi
-
-          torchx runopts kubernetes
-          APP_ID="$(torchx run --wait $ARGS --scheduler kubernetes \
-            --scheduler_args queue=default utils.echo \
-            --image alpine:latest --num_replicas 3)"
-          if [ "$ARGS" != "--dryrun" ]; then
-            torchx status "$APP_ID"
-            torchx describe "$APP_ID"
-          fi
+          scripts/component_integration_tests.py $ARGS
