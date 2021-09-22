@@ -358,10 +358,13 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">NULL_RESOURCE</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">macros</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="create_torch_dist_role"><a class="viewcode-back" href="../../../../components/base.html#torchx.components.base.roles.create_torch_dist_role">[docs]</a><span class="k">def</span> <span class="nf">create_torch_dist_role</span><span class="p">(</span>
@@ -395,11 +398,6 @@
 <span class="sd">    that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed</span>
 <span class="sd">    to fail and restart a maximum of 3 times.</span>
 
-<span class="sd">    .. warning:: ``replicas`` MUST BE an integer between (inclusive) ``nnodes``. That is,</span>
-<span class="sd">                   ``Role(&quot;trainer&quot;, nnodes=&quot;2:4&quot;, num_replicas=5)`` is invalid and will</span>
-<span class="sd">                   result in undefined behavior.</span>
-
-
 <span class="sd">    &gt;&gt;&gt; from torchx.components.base.roles import create_torch_dist_role</span>
 <span class="sd">    &gt;&gt;&gt; from torchx.specs.api import NULL_RESOURCE</span>
 <span class="sd">    &gt;&gt;&gt; elastic_trainer = create_torch_dist_role(</span>
@@ -409,11 +407,11 @@
 <span class="sd">    ...     entrypoint=&quot;my_train_script.py&quot;,</span>
 <span class="sd">    ...     args=[&quot;--script_arg&quot;, &quot;foo&quot;, &quot;--another_arg&quot;, &quot;bar&quot;],</span>
 <span class="sd">    ...     num_replicas=4, max_retries=1,</span>
-<span class="sd">    ...     nproc_per_node=8, nnodes=&quot;2:4&quot;, max_restarts=3)</span>
+<span class="sd">    ...     nproc_per_node=8, max_restarts=3)</span>
 <span class="sd">    ... # effectively runs:</span>
 <span class="sd">    ... #    python -m torch.distributed.launch</span>
 <span class="sd">    ... #        --nproc_per_node 8</span>
-<span class="sd">    ... #        --nnodes 2:4</span>
+<span class="sd">    ... #        --nnodes 4</span>
 <span class="sd">    ... #        --max_restarts 3</span>
 <span class="sd">    ... #        my_train_script.py --script_arg foo --another_arg bar</span>
 <span class="sd">    &gt;&gt;&gt; elastic_trainer</span>
@@ -446,6 +444,13 @@
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_backend&quot;</span><span class="p">,</span> <span class="s2">&quot;etcd&quot;</span><span class="p">)</span>
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;rdzv_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">)</span>
     <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;nnodes&quot;</span> <span class="ow">in</span> <span class="n">launch_kwargs</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Parameter ``nnodes`` will be overridden by the ``num_replicas``&quot;</span>
+            <span class="s2">&quot;You can safely omit it and use ``num_replicas``&quot;</span>
+        <span class="p">)</span>
+    <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;nnodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_replicas</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">launch_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>

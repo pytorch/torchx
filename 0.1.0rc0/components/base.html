@@ -400,12 +400,6 @@ automatically include torchelastic in the role’s image.</p>
 <p>The following example launches 2 <code class="docutils literal notranslate"><span class="pre">replicas</span></code> (nodes) of an elastic <code class="docutils literal notranslate"><span class="pre">my_train_script.py</span></code>
 that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed
 to fail and restart a maximum of 3 times.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><code class="docutils literal notranslate"><span class="pre">replicas</span></code> MUST BE an integer between (inclusive) <code class="docutils literal notranslate"><span class="pre">nnodes</span></code>. That is,
-<code class="docutils literal notranslate"><span class="pre">Role(&quot;trainer&quot;,</span> <span class="pre">nnodes=&quot;2:4&quot;,</span> <span class="pre">num_replicas=5)</span></code> is invalid and will
-result in undefined behavior.</p>
-</div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.base.roles</span> <span class="kn">import</span> <span class="n">create_torch_dist_role</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">NULL_RESOURCE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">elastic_trainer</span> <span class="o">=</span> <span class="n">create_torch_dist_role</span><span class="p">(</span>
@@ -415,11 +409,11 @@ result in undefined behavior.</p>
 <span class="gp">... </span>    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;my_train_script.py&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--script_arg&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;--another_arg&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">num_replicas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="s2">&quot;2:4&quot;</span><span class="p">,</span> <span class="n">max_restarts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">max_restarts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">... </span><span class="c1"># effectively runs:</span>
 <span class="gp">... </span><span class="c1">#    python -m torch.distributed.launch</span>
 <span class="gp">... </span><span class="c1">#        --nproc_per_node 8</span>
-<span class="gp">... </span><span class="c1">#        --nnodes 2:4</span>
+<span class="gp">... </span><span class="c1">#        --nnodes 4</span>
 <span class="gp">... </span><span class="c1">#        --max_restarts 3</span>
 <span class="gp">... </span><span class="c1">#        my_train_script.py --script_arg foo --another_arg bar</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">elastic_trainer</span>
