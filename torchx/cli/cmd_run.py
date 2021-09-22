@@ -15,6 +15,7 @@ import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import Runner, get_runner
+from torchx.schedulers import get_scheduler_factories
 from torchx.specs.finder import (
     _Component,
     get_components,
@@ -71,10 +72,11 @@ class CmdBuiltins(SubCommand):
 
 class CmdRun(SubCommand):
     def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
+        scheduler_names = get_scheduler_factories().keys()
         subparser.add_argument(
             "--scheduler",
             type=str,
-            help="Name of the scheduler to use",
+            help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
             default="default",
         )
         subparser.add_argument(
