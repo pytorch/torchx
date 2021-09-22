@@ -60,8 +60,9 @@ def torch_dist_role(
      trainer = torch_dist_role("trainer",container, entrypoint="trainer.py",.., nproc_per_node=4)
 
 
-    .. warning:: ``torch.distributed.run`` parameter ``nnodes`` will be set to the ``num_replicas``.
-                  The ``nnodes`` parameter will be ignored if provided.
+    .. warning:: Users can provide ``nnodes`` parameter, that is used by the ``torch.distibuted.run``
+                  If users do not provide ``nnodes`` parameter, the ``nnodes`` will be automatically set
+                  to ``num_replicas``.
 
 
     Args:
