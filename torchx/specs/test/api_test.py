@@ -401,6 +401,30 @@ def test_empty_fn() -> AppDef:
     return get_dummy_application("trainer")
 
 
+def test_fn_with_bool(flag: bool = False) -> AppDef:
+    """Dummy app with or without flag
+
+    Args:
+        flag: flag param
+    """
+    if flag:
+        return get_dummy_application("trainer-with-flag")
+    else:
+        return get_dummy_application("trainer-without-flag")
+
+
+def test_fn_with_bool_opional(flag: Optional[bool] = None) -> AppDef:
+    """Dummy app with or without flag
+
+    Args:
+        flag: flag param
+    """
+    if flag:
+        return get_dummy_application("trainer-with-flag")
+    else:
+        return get_dummy_application("trainer-without-flag")
+
+
 def test_empty_fn_no_docstring() -> AppDef:
     return get_dummy_application("trainer")
 
@@ -577,3 +601,46 @@ class AppDefLoadTest(unittest.TestCase):
             ],
         )
         self.assertEqual(_TEST_VAR_ARGS, ("fooval", ("arg1", "arg2"), "barval"))
+
+    def test_bool_true(self) -> None:
+        app_def = from_function(
+            test_fn_with_bool,
+            [
+                "--flag",
+                "True",
+            ],
+        )
+        self.assertEqual("trainer-with-flag", app_def.roles[0].name)
+        app_def = from_function(
+            test_fn_with_bool,
+            [
+                "--flag",
+                "true",
+            ],
+        )
+        self.assertEqual("trainer-with-flag", app_def.roles[0].name)
+
+    def test_bool_false(self) -> None:
+        app_def = from_function(
+            test_fn_with_bool,
+            [
+                "--flag",
+                "False",
+            ],
+        )
+        self.assertEqual("trainer-without-flag", app_def.roles[0].name)
+        app_def = from_function(
+            test_fn_with_bool,
+            [
+                "--flag",
+                "false",
+            ],
+        )
+        self.assertEqual("trainer-without-flag", app_def.roles[0].name)
+
+    def test_bool_none(self) -> None:
+        app_def = from_function(
+            test_fn_with_bool,
+            [],
+        )
+        self.assertEqual("trainer-without-flag", app_def.roles[0].name)

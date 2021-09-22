@@ -30,7 +30,7 @@ from typing import (
 import yaml
 from pyre_extensions import none_throws
 from torchx.specs.file_linter import parse_fn_docstring
-from torchx.util.types import decode_from_string, decode_optional, is_primitive
+from torchx.util.types import decode_from_string, decode_optional, is_primitive, is_bool
 
 
 SchedulerBackend = str
@@ -777,7 +777,10 @@ def _create_args_parser(
             "type": get_argparse_param_type(parameter),
         }
         if parameter.default != inspect.Parameter.empty:
-            args["default"] = parameter.default
+            if is_bool(type(parameter.default)):
+                args["default"] = str(parameter.default)
+            else:
+                args["default"] = parameter.default
         if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
             args["nargs"] = argparse.REMAINDER
             arg_name = param_name
@@ -810,7 +813,9 @@ def _get_function_args(
         arg_value = getattr(parsed_args, param_name)
         parameter_type = parameter.annotation
         parameter_type = decode_optional(parameter_type)
-        if not is_primitive(parameter_type):
+        if is_bool(parameter_type):
+            arg_value = arg_value.lower() == "true"
+        elif not is_primitive(parameter_type):
             arg_value = decode_from_string(arg_value, parameter_type)
         if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
             var_arg = arg_value
