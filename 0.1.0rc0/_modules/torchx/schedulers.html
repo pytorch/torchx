@@ -375,23 +375,33 @@
         <span class="o">...</span>
 
 
-<div class="viewcode-block" id="get_schedulers"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_schedulers">[docs]</a><span class="k">def</span> <span class="nf">get_schedulers</span><span class="p">(</span>
-    <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="nb">object</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">get_scheduler_factories</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get_scheduler_factories returns all the available schedulers names and the</span>
+<span class="sd">    method to instantiate them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">default_schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;local&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;local_docker&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_docker_scheduler</span><span class="p">,</span>
-        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;slurm&quot;</span><span class="p">:</span> <span class="n">slurm_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;kubernetes&quot;</span><span class="p">:</span> <span class="n">kubernetes_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">schedulers</span> <span class="o">=</span> <span class="n">load_group</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">load_group</span><span class="p">(</span>
         <span class="s2">&quot;torchx.schedulers&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">default_schedulers</span><span class="p">,</span>
         <span class="n">ignore_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
+
+<div class="viewcode-block" id="get_schedulers"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_schedulers">[docs]</a><span class="k">def</span> <span class="nf">get_schedulers</span><span class="p">(</span>
+    <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="nb">object</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get_schedulers returns all available schedulers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schedulers</span> <span class="o">=</span> <span class="n">get_scheduler_factories</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">scheduler_backend</span><span class="p">:</span> <span class="n">scheduler_factory_method</span><span class="p">(</span><span class="n">session_name</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">scheduler_factory_method</span> <span class="ow">in</span> <span class="n">schedulers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
