@@ -55,9 +55,14 @@ def torch_dist_role(
 
     ::
 
-     # nnodes and nproc_per_node correspond to the ``torch.distributed.launch`` arguments. More
+     # nproc_per_node correspond to the ``torch.distributed.launch`` arguments. More
      # info about available arguments: https://pytorch.org/docs/stable/distributed.html#launch-utility
-     trainer = torch_dist_role("trainer",container, entrypoint="trainer.py",.., nnodes=2, nproc_per_node=4)
+     trainer = torch_dist_role("trainer",container, entrypoint="trainer.py",.., nproc_per_node=4)
+
+
+    .. warning:: ``torch.distributed.run`` parameter ``nnodes`` will be set to the ``num_replicas``.
+                  The ``nnodes`` parameter will be ignored if provided.
+
 
     Args:
         name: Name of the role
