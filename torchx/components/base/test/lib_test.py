@@ -84,7 +84,7 @@ class TorchxBaseLibTest(unittest.TestCase):
             "-m",
             "torch.distributed.run",
             "--nnodes",
-            "2",
+            "10",
             "--rdzv_backend",
             "etcd",
             "--rdzv_id",

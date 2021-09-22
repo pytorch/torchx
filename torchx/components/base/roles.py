@@ -91,12 +91,8 @@ def create_torch_dist_role(
     launch_kwargs.setdefault("rdzv_id", macros.app_id)
     launch_kwargs.setdefault("role", name)
 
-    if "nnodes" in launch_kwargs:
-        logger.warning(
-            "Parameter ``nnodes`` will be overridden by the ``num_replicas``"
-            "You can safely omit it and use ``num_replicas``"
-        )
-    launch_kwargs["nnodes"] = num_replicas
+    if "nnodes" not in launch_kwargs:
+        launch_kwargs["nnodes"] = num_replicas
 
     for (arg, val) in launch_kwargs.items():
         if isinstance(val, bool):
