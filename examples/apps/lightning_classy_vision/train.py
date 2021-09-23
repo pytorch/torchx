@@ -61,6 +61,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         type=str,
         help="path to load the training data from",
     )
+    parser.add_argument(
+        "--num_processes",
+        type=int,
+        default=1,
+        help="number of processes",
+    )
     parser.add_argument("--skip_export", action="store_true")
     parser.add_argument("--load_path", type=str, help="checkpoint path to load from")
     parser.add_argument(
@@ -121,6 +127,7 @@ def main(argv: List[str]) -> None:
         # Initialize a trainer
         trainer = pl.Trainer(
             accelerator="ddp2",
+            num_processes=args.num_processes,
             logger=logger,
             max_epochs=args.epochs,
             callbacks=[checkpoint_callback],

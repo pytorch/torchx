@@ -47,12 +47,12 @@ def main() -> None:
             schedulers=["local_docker", "kubernetes"],
             dryrun=args.dryrun,
         )
-        test_suite.run_components(
-            ExamplesAppDefProvider().get_example_app_defs,
-            image=build.examples_image,
-            schedulers=["local_docker", "kubernetes"],
-            dryrun=args.dryrun,
-        )
+        # test_suite.run_components(
+        #     ExamplesAppDefProvider().get_example_app_defs,
+        #     image=build.examples_image,
+        #     schedulers=["local_docker", "kubernetes"],
+        #     dryrun=args.dryrun,
+        # )
     except MissingEnvError:
         print("Skip runnig tests, executed only docker buid step")
 
