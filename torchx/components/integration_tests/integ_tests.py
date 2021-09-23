@@ -114,6 +114,7 @@ class AppDefProvider:
         return app_defs
 
     def _instantiate_component(self, component: _Component, image: str, scheduler: SchedulerBackend) -> AppDef:
+        import pdb;pdb.set_trace()
         return None
 
     def _app_def_overrides(self, component: _Component) -> Optional[AppDef]:
@@ -132,21 +133,3 @@ class AppDefProvider:
             entrypoint="examples/apps/dist_cifar/train.py",
             image=image,
         )
-
-    def _get_int(self):
-        return 0
-
-    def _get_str(self):
-        return "test"
-
-    def _get_float(self):
-        return 1.0
-
-    def _get_bool(self):
-        return True
-
-    def _get_list(self):
-        return []
-
-    def _get_dict(self):
-        return {}
