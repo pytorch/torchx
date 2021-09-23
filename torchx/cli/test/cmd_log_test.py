@@ -10,7 +10,7 @@ import unittest
 from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_log import ENDC, GREEN, get_logs
+from torchx.cli.cmd_log import ENDC, GREEN, get_logs, validate
 from torchx.specs import AppDef, Role, parse_app_handle
 
 
@@ -80,6 +80,25 @@ class CmdLogTest(unittest.TestCase):
 
     @patch(RUNNER, new_callable=MockRunner)
     @patch("sys.stdout", new_callable=io.StringIO)
+    def test_cmd_log_all_roles(
+        self, stdout_mock: MagicMock, mock_runner: MagicMock
+    ) -> None:
+        get_logs("local://test-session/SparseNNAppDef", regex="INFO")
+        self.assertSetEqual(
+            {
+                f"{GREEN}master/0{ENDC} INFO foo",
+                f"{GREEN}trainer/0{ENDC} INFO foo",
+                f"{GREEN}trainer/1{ENDC} INFO foo",
+                f"{GREEN}trainer/2{ENDC} INFO foo",
+                # print writes the final newline so we
+                # end up with an empty string when we split by \n
+                "",
+            },
+            set(stdout_mock.getvalue().split("\n")),
+        )
+
+    @patch(RUNNER, new_callable=MockRunner)
+    @patch("sys.stdout", new_callable=io.StringIO)
     def test_cmd_log_all_replicas(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
@@ -139,3 +158,18 @@ class CmdLogTest(unittest.TestCase):
             log_lines_mock.side_effect = RuntimeError
             with self.assertRaises(RuntimeError):
                 get_logs("local://test-session/SparseNNAppDef/trainer/0,1", regex=None)
+
+    def test_validate(self) -> None:
+        validate("kubernetes://session/queue:name-1234")
+        validate("kubernetes://session/queue:name-1234/role")
+        validate("kubernetes://session/queue:name-1234/role/1")
+        validate("kubernetes://session/queue:name-1234/role/1,2,3")
+
+        with self.assertRaisesRegex(SystemExit, "1"):
+            validate("kubernetes://session")
+
+        with self.assertRaisesRegex(SystemExit, "1"):
+            validate("session/name/role")
+
+        with self.assertRaisesRegex(SystemExit, "1"):
+            validate("kubernetes://session/queue:name-1234/role/")

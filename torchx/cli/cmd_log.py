@@ -11,7 +11,7 @@ import re
 import sys
 import threading
 from queue import Queue
-from typing import Optional
+from typing import Optional, List, Tuple
 from urllib.parse import urlparse
 
 from pyre_extensions import none_throws
@@ -31,10 +31,13 @@ else:
     ENDC = ""
 
 
+ID_FORMAT = "SCHEDULER://[SESSION_NAME]/APP_ID/[ROLE_NAME/[REPLICA_IDS,...]]"
+
+
 def validate(job_identifier: str) -> None:
-    if not re.match(r"^\w+://[^/.]*/[^/.]+/[^/.]+(/(\d+,?)+)?$", job_identifier):
+    if not re.match(r"^\w+://[^/.]*/[^/.]+(/[^/.]+(/(\d+,?)+)?)?$", job_identifier):
         logger.error(
-            f"{job_identifier} is not of the form SCHEDULER://[SESSION_NAME]/APP_ID/ROLE_NAME/[REPLICA_IDS,...]",
+            f"{job_identifier} is not of the form {ID_FORMAT}",
         )
         sys.exit(1)
 
@@ -67,7 +70,7 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
     # path is of the form ["", "app_id", "master", "0"]
     path = url.path.split("/")
     app_id = path[1]
-    role_name = path[2]
+    role_name = path[2] if len(path) > 2 else None
 
     runner = get_runner(name=session_name)
     app_handle = make_app_handle(scheduler_backend, session_name, app_id)
@@ -75,12 +78,12 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
     app = none_throws(runner.describe(app_handle))
 
     if len(path) == 4:
-        replica_ids = [int(id) for id in path[3].split(",") if id]
+        replica_ids = [(role_name, int(id)) for id in path[3].split(",") if id]
     else:
         # print all replicas for the role
-        num_replicas = find_role_replicas(app, role_name)
+        replica_ids = find_role_replicas(app, role_name)
 
-        if num_replicas is None:
+        if not replica_ids:
             valid_ids = "\n".join(
                 [
                     f"  {idx}: {scheduler_backend}://{app_id}/{role.name}"
@@ -94,11 +97,9 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
             )
             sys.exit(1)
 
-        replica_ids = list(range(0, num_replicas))
-
     threads = []
     exceptions = Queue()
-    for replica_id in replica_ids:
+    for role_name, replica_id in replica_ids:
         thread = threading.Thread(
             target=print_log_lines,
             args=(
@@ -130,11 +131,15 @@ def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -
         raise threads_exceptions[0]
 
 
-def find_role_replicas(app: specs.AppDef, role_name: str) -> Optional[int]:
+def find_role_replicas(
+    app: specs.AppDef, role_name: Optional[str]
+) -> List[Tuple[str, int]]:
+    role_replicas = []
     for role in app.roles:
-        if role_name == role.name:
-            return role.num_replicas
-    return None
+        if role_name is None or role_name == role.name:
+            for i in range(role.num_replicas):
+                role_replicas.append((role.name, i))
+    return role_replicas
 
 
 class CmdLog(SubCommand):
@@ -155,7 +160,8 @@ class CmdLog(SubCommand):
         subparser.add_argument(
             "identifier",
             type=str,
-            help="host identifier (scheduler_backend://[session_name]/app_id/role_name/replica_id)",
+            metavar=ID_FORMAT,
+            help="identifiers for the roles and replicas to log",
         )
 
     def run(self, args: argparse.Namespace) -> None:
