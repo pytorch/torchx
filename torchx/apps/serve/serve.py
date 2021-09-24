@@ -21,7 +21,6 @@ from urllib.parse import urlparse
 import fsspec
 import requests
 
-
 TORCHSERVE_PARAMS = (
     "model_name",
     "handler",
@@ -56,6 +55,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="timeout for requests to management api",
         default=60,
     )
+    parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="verifies that app can run, but does not perform actual work",
+    )
+
     parser.add_argument(
         "--port",
         type=int,
@@ -96,6 +101,9 @@ def rand_id() -> str:
 
 def main(argv: List[str]) -> None:
     args = parse_args(argv)
+    if args.dryrun:
+        print("App serve started successfully")
+        return
     with tempfile.TemporaryDirectory() as tmpdir:
         model_name = args.model_name or "model"
         model_file = f"{model_name}_{rand_id()}.mar"

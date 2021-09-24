@@ -20,15 +20,15 @@ from torchx.components.dist import ddp
 
 
 def trainer(
-    *script_args: str,
-    image: str,
-    resource: Optional[str] = None,
-    base_image: Optional[str] = None,
-    nnodes: int = 1,
-    nproc_per_node: int = 1,
-    rdzv_backend: str = "c10d",
-    rdzv_endpoint: str = "localhost:29400",
-    env: Optional[Dict[str, str]] = None,
+        *script_args: str,
+        image: str,
+        resource: Optional[str] = None,
+        base_image: Optional[str] = None,
+        nnodes: int = 1,
+        nproc_per_node: int = 1,
+        rdzv_backend: str = "c10d",
+        rdzv_endpoint: str = "localhost:29400",
+        env: Optional[Dict[str, str]] = None,
 ) -> torchx.AppDef:
     """Defines the component for cifar10 distributed trainer.
 
@@ -54,16 +54,16 @@ def trainer(
         specs.AppDef: Torchx AppDef
     """
     return ddp(
-        image,
-        "examples/apps/dist_cifar/train.py",
-        rdzv_backend,
-        rdzv_endpoint,
-        resource,
-        nnodes,
-        nproc_per_node,
-        base_image,
-        "cifar-trainer",
-        "worker",
-        env,
         *script_args,
+        image=image,
+        entrypoint="examples/apps/dist_cifar/train.py",
+        rdzv_backend=rdzv_backend,
+        rdzv_endpoint=rdzv_endpoint,
+        resource=resource,
+        nnodes=nnodes,
+        nproc_per_node=nproc_per_node,
+        base_image=base_image,
+        name="cifar-trainer",
+        role="worker",
+        env=env,
     )

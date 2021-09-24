@@ -15,40 +15,32 @@ import examples.apps.datapreproc.component as dp_component
 import examples.apps.dist_cifar.component as dist_cifar_component
 import examples.apps.lightning_classy_vision.component as cv_component
 from torchx.specs import AppDef, SchedulerBackend
+from torchx.components.integration_tests.component_provider import ComponentProvider
 
 
-class ExamplesAppDefProvider:
-    def get_example_app_defs(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> List[AppDef]:
-        # app_defs: List[AppDef] = AppDefLoader.load_apps_defs(self, image, scheduler)
-        # return [app_def for app_def in app_defs if app_def]
-        return []
-
-    def _get_app_def_cv(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> Optional[AppDef]:
+class CvTrainerComponentProvider(ComponentProvider):
+    def get_app_def(self) -> AppDef:
         return cv_component.trainer(
-            image=image,
+            image=self._image,
             output_path="/tmp",
             skip_export=True,
             log_path="/tmp",
         )
 
-    def _get_app_def_dist_cifar(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> Optional[AppDef]:
+
+class DistCifarComponentProvider(ComponentProvider):
+    def get_app_def(self) -> AppDef:
         args = ["--output_path", "/tmp", "--dryrun"]
         return dist_cifar_component.trainer(
             *args,
-            image=image,
+            image=self._image,
         )
 
-    def _get_app_def_dp(
-            self, image: str, scheduler: SchedulerBackend
-    ) -> Optional[AppDef]:
+
+class DatapreprocComponentProvider(ComponentProvider):
+    def get_app_def(self) -> AppDef:
         return dp_component.data_preproc(
-            image=image,
+            image=self._image,
             output_path="/tmp",
             dryrun=True,
         )

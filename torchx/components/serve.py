@@ -16,10 +16,11 @@ from torchx.version import TORCHX_IMAGE
 
 
 def torchserve(
-    model_path: str,
-    management_api: str,
-    image: str = TORCHX_IMAGE,
-    params: Optional[Dict[str, object]] = None,
+        model_path: str,
+        management_api: str,
+        image: str = TORCHX_IMAGE,
+        params: Optional[Dict[str, object]] = None,
+        dryrun: bool = False,
 ) -> specs.AppDef:
     """Deploys the provided model to the given torchserve management API
     endpoint.
@@ -37,6 +38,7 @@ def torchserve(
         image: Container to use.
         params: torchserve parameters.
             See https://pytorch.org/serve/management_api.html#register-a-model
+        dryrun: Start the app, but does not perform actual work
 
     Returns:
         specs.AppDef: the Torchx application definition
@@ -50,6 +52,8 @@ def torchserve(
         "--management_api",
         management_api,
     ]
+    if dryrun:
+        args.append("--dryrun")
     if params is not None:
         for param, value in params.items():
             args += [
@@ -58,7 +62,7 @@ def torchserve(
             ]
 
     return specs.AppDef(
-        name="torchx-serve-torchserve",
+        name="torchx-serve",
         roles=[
             specs.Role(
                 name="torchx-serve-torchserve",

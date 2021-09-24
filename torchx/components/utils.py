@@ -18,7 +18,7 @@ from torchx.version import TORCHX_IMAGE
 
 
 def echo(
-    msg: str = "hello world", image: str = TORCHX_IMAGE, num_replicas: int = 1
+        msg: str = "hello world", image: str = TORCHX_IMAGE, num_replicas: int = 1
 ) -> specs.AppDef:
     """
     Echos a message to stdout (calls /bin/echo)
@@ -58,7 +58,7 @@ def touch(file: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
             specs.Role(
                 name="touch",
                 image=image,
-                entrypoint="/bin/touch",
+                entrypoint="touch",
                 args=[file],
                 num_replicas=1,
             )
@@ -128,11 +128,11 @@ def copy(src: str, dst: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
 
 
 def booth(
-    x1: float,
-    x2: float,
-    trial_idx: int = 0,
-    tracker_base: str = "/tmp/torchx-util-booth",
-    image: str = TORCHX_IMAGE,
+        x1: float,
+        x2: float,
+        trial_idx: int = 0,
+        tracker_base: str = "/tmp/torchx-util-booth",
+        image: str = TORCHX_IMAGE,
 ) -> specs.AppDef:
     """
     Evaluates the booth function, ``f(x1, x2) = (x1 + 2*x2 - 7)^2 + (2*x1 + x2 - 5)^2``.
