@@ -32,13 +32,6 @@ from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
 from torchx.specs import RunConfig
 
 
-def is_ci() -> bool:
-    import os
-
-    return os.getenv("GITHUB_ACTIONS") is not None
-
-
-@unittest.skipIf(is_ci(), "re-enable when a new version of ax-platform releases")
 class TorchXSchedulerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.test_dir = tempfile.mkdtemp("torchx_runtime_hpo_ax_test")
