@@ -31,13 +31,23 @@ If so, no need to even author an app spec!
   3. touch
   ... <omitted for brevity>
 
-Listing the supported schedulers
-----------------------------------
+Listing the supported schedulers and arguments
+-------------------------------------------------
 To get a list of supported schedulers that you can launch your job into run:
 
 .. code-block:: shell-session
 
- $ torchx schedulers
+ $ torchx runopts
+ local_docker:
+ { 'log_dir': { 'default': 'None',
+                'help': 'dir to write stdout/stderr log files of replicas',
+                'type': 'str'}}
+ local_cwd:
+ ...
+ slurm:
+ ...
+ kubernetes:
+ ...
 
 Running a component as a job
 ---------------------------------
@@ -80,27 +90,24 @@ parameters:
 
 2. arguments to the scheduler (``--scheduler_args``, also known as ``run_options`` or ``run_configs``),
    each scheduler takes different args, to find out the args for a specific scheduler run (command for
-   ``local`` scheduler shown below:
+   ``local_cwd`` scheduler shown below:
 
    .. code-block:: shell-session
 
-    $ torchx runopts local
-    { 'image_fetcher': { 'default': 'dir',
-                     'help': 'image fetcher type',
-                     'type': 'str'},
-    'log_dir': { 'default': 'None',
+    $ torchx runopts local_cwd
+    { 'log_dir': { 'default': 'None',
                'help': 'dir to write stdout/stderr log files of replicas',
                'type': 'str'}}
 
     # pass run options as comma-delimited k=v pairs
-    $ torchx run --scheduler local --scheduler_args image_fetcher=dir,log_dir=/tmp ...
+    $ torchx run --scheduler local_cwd --scheduler_args log_dir=/tmp ...
 
 3. arguments to the component (the app args are included here), this also depends on the
    component and can be seen with the ``--help`` string on the component
 
    .. code-block:: shell-session
 
-    $ torchx run --scheduler local utils.echo --help
+    $ torchx run --scheduler local_cwd utils.echo --help
     usage: torchx run echo.torchx [-h] [--msg MSG]
 
     Echos a message
@@ -109,11 +116,11 @@ parameters:
     -h, --help  show this help message and exit
     --msg MSG   Message to echo
 
-Putting everything together, running ``echo`` with the ``local`` scheduler:
+Putting everything together, running ``echo`` with the ``local_cwd`` scheduler:
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local --scheduler_args image_fetcher=dir,log_dir=/tmp utils.echo --msg "hello $USER"
+ $ torchx run --scheduler local_cwd --scheduler_args log_dir=/tmp utils.echo --msg "hello $USER"
  === RUN RESULT ===
  Launched app: local://torchx_kiuk/echo_ecd30f74
 
@@ -137,7 +144,7 @@ use the ``--dryrun`` option to the ``run`` subcommand:
 
 .. code-block:: shell-session
 
- $ torchx run --dryrun utils.echo --msg  hello_world
+ $ torchx run --dryrun utils.echo --msg hello_world
  === APPLICATION ===
  { 'metadata': {},
    'name': 'echo',

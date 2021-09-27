@@ -5,6 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
 import unittest
 from pathlib import Path
 
@@ -17,17 +18,22 @@ _SIMPLE_CONF: str = str(Path(__file__).parent / "components.py:simple")
 
 
 class CLITest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.old_cwd = os.getcwd()
+        os.chdir(_root / "container")
+
+    def tearDown(self) -> None:
+        os.chdir(self.old_cwd)
+
     def test_run_abs_config_path(self) -> None:
         main(
             [
                 "run",
                 "--scheduler",
-                "local",
+                "local_cwd",
                 str(_root / "components.py:simple"),
                 "--num_trainers",
                 "2",
-                "--trainer_image",
-                str(_root / "container"),
             ]
         )
 
@@ -36,11 +42,9 @@ class CLITest(unittest.TestCase):
             [
                 "run",
                 "--scheduler",
-                "local",
+                "local_cwd",
                 _SIMPLE_CONF,
                 "--num_trainers",
                 "2",
-                "--trainer_image",
-                str(_root / "container"),
             ]
         )

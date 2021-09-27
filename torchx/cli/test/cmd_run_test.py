@@ -45,7 +45,7 @@ class CmdRunTest(unittest.TestCase):
         args = self.parser.parse_args(
             [
                 "--scheduler",
-                "local",
+                "local_cwd",
                 str(Path(__file__).parent / "components.py:touch"),
                 "--file",
                 str(self.tmpdir / "foobar.txt"),
@@ -60,7 +60,7 @@ class CmdRunTest(unittest.TestCase):
             args = self.parser.parse_args(
                 [
                     "--scheduler",
-                    "local",
+                    "local_cwd",
                     str(Path(__file__).parent / "components.py:touch_v2"),
                     "--file",
                     str(self.tmpdir / "foobar.txt"),
@@ -83,7 +83,7 @@ class CmdRunTest(unittest.TestCase):
             args = self.parser.parse_args(
                 [
                     "--scheduler",
-                    "local",
+                    "local_cwd",
                     str(Path(__file__).parent / "components.py:touch_v2"),
                     "--file",
                     str(self.tmpdir / "foobar.txt"),
@@ -99,7 +99,7 @@ class CmdRunTest(unittest.TestCase):
         args = self.parser.parse_args(
             [
                 "--scheduler",
-                "local",
+                "local_cwd",
                 "1234_does_not_exist.torchx",
             ]
         )
@@ -111,7 +111,7 @@ class CmdRunTest(unittest.TestCase):
             [
                 "--dryrun",
                 "--scheduler",
-                "local",
+                "local_cwd",
                 "utils.echo",
                 "--image",
                 "/tmp",

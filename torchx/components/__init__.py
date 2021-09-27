@@ -20,11 +20,11 @@ Components can be used out of the box by either torchx cli or torchx sdk.
 
   # using via sdk
   from torchx.runner import get_runner
-  get_runner().run_component("distributed.ddp", app_args=[], scheduler="local", ...)
+  get_runner().run_component("distributed.ddp", app_args=[], scheduler="local_cwd", ...)
 
   # using via torchx-cli
 
-  >> torchx run --scheduler local distributed.ddp --param1 --param2
+  >> torchx run --scheduler local_cwd distributed.ddp --param1 --param2
 
 
 Components development

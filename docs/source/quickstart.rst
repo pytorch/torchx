@@ -26,7 +26,7 @@ Echo looks familiar and simple. Lets understand how to run ``utils.echo``.
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local utils.echo --help
+ $ torchx run --scheduler local_cwd utils.echo --help
  usage: torchx run echo [-h] [--msg MSG]
 
  Echos a message
@@ -39,7 +39,7 @@ We can see that it takes a ``--msg`` argument. Lets try running it locally
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local utils.echo --msg "hello world"
+ $ torchx run --scheduler local_cwd utils.echo --msg "hello world"
 
 .. note:: ``echo`` in this context is just an app spec. It is not the application
           logic itself but rather just the "job definition" for running `/bin/echo`.
@@ -83,7 +83,7 @@ Now copy paste the following into ``test.py``
              specs.Role(
                  name="echo",
                  entrypoint="/bin/echo",
-                 image="/tmp",
+                 image="ubuntu:latest",
                  args=[f"replica #{specs.macros.replica_id}: {msg}"],
                  num_replicas=num_replicas,
              )
@@ -94,9 +94,7 @@ Notice that
 
 1. Unlike ``--msg``, ``--num_replicas`` does not have a default value
    indicating that it is a required argument.
-2. We use a local dir (``/tmp``) as the ``image``. In practice this will be
-   the identifier of the package (e.g. Docker image) that the scheduler supports.
-3. ``test.py`` does **not** contain the logic of the app and is
+2. ``test.py`` does **not** contain the logic of the app and is
    simply a job definition.
 
 
@@ -104,7 +102,7 @@ Now lets try running our custom ``echo``
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local ~/test.py:echo --num_replicas 4 --msg "foobar"
+ $ torchx run --scheduler local_cwd ~/test.py:echo --num_replicas 4 --msg "foobar"
 
  replica #0: foobar
  replica #1: foobar
@@ -113,13 +111,14 @@ Now lets try running our custom ``echo``
 
 Running on Other Images
 -----------------------------
-So far we've run ``utils.echo`` with ``image=/tmp``. This means that the
-``entrypoint`` we specified is relative to ``/tmp``. That did not matter for us
+So far we've run ``utils.echo`` with the ``local_cwd`` scheduler. This means that the
+``entrypoint`` we specified is relative to the current working directory and
+ignores the specified image. That did not matter for us
 since we specified an absolute path as the entrypoint (``entrypoint=/bin/echo``).
-Had we specified ``entrypoint=echo`` the local scheduler would have tried to invoke
-``/tmp/echo``.
+Had we specified ``entrypoint=echo`` the local_cwd scheduler would have tried to invoke
+``echo`` relative to the current directory and the specified PATH.
 
-If you have a pre-built application binary, setting the image to a local directory is a
+If you have a pre-built application binary, using local_cwd is a
 quick way to validate the application and the ``specs.AppDef``. But its not all
 that useful if you want to run the application on a remote scheduler
 (see :ref:`quickstart:Running On Other Schedulers`).
@@ -128,18 +127,8 @@ that useful if you want to run the application on a remote scheduler
           supported by the scheduler. Refer to the scheduler documentation to find out
           what container image is supported by the scheduler you want to use.
 
-For ``local`` scheduler we can see that it supports both a local directory
-and docker as the image:
-
-.. code-block:: shell-session
-
- $ torchx runopts local
-
- { 'image_type': { 'default': 'dir',
-                  'help': 'image type. One of [dir, docker]',
-                  'type': 'str'},
- ... <omitted for brevity> ...
-
+To match remote image behavior we can use the ``local_docker`` scheduler which
+will launch the image via docker and run the same application.
 
 .. note:: Before proceeding, you will need docker installed. If you have not done so already
           follow the install instructions on: https://docs.docker.com/get-docker/
@@ -178,8 +167,7 @@ Try running the echo app
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local \
-              --scheduler_args image_type=docker \
+ $ torchx run --scheduler local_docker \
               ~/test.py:echo \
               --num_replicas 4 \
               --msg "foobar from docker!"
@@ -209,7 +197,7 @@ required by the scheduler you are planning to use
 .. code-block:: shell-session
 
  $ torchx runopts <sched_name>
- $ torchx runopts local
+ $ torchx runopts local_docker
 
 Now that you've figured out what scheduler args are required, launch your app
 
@@ -217,7 +205,7 @@ Now that you've figured out what scheduler args are required, launch your app
 
  $ torchx run --scheduler <sched_name> --scheduler_args <k1=v1,k2=v2,...> \
      utils.sh ~/my_app.py <app_args...>
- $ torchx run --scheduler local --scheduler_args image_type=dir,log_dir=/tmp \
+ $ torchx run --scheduler local_cwd --scheduler_args log_dir=/tmp \
      utils.sh ~/my_app.py --foo=bar
 
 .. note:: If your app args overlap with the ``run`` subcommand's args, you
@@ -227,7 +215,7 @@ Now that you've figured out what scheduler args are required, launch your app
 
 .. code-block:: shell-session
 
- $ torchx run --scheduler local ~/my_app.py -- --scheduler foobar
+ $ torchx run --scheduler local_docker ~/my_app.py -- --scheduler foobar
 
 
 Next Steps

@@ -25,11 +25,12 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
     """
     get_scheduler_factories returns all the available schedulers names and the
     method to instantiate them.
+
+    The first scheduler in the dictionary is used as the default scheduler.
     """
     default_schedulers: Dict[str, SchedulerFactory] = {
-        "default": local_scheduler.create_scheduler,
-        "local": local_scheduler.create_scheduler,
         "local_docker": local_scheduler.create_docker_scheduler,
+        "local_cwd": local_scheduler.create_cwd_scheduler,
         "slurm": slurm_scheduler.create_scheduler,
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
@@ -39,6 +40,14 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         default=default_schedulers,
         ignore_missing=True,
     )
+
+
+def get_default_scheduler_name() -> str:
+    """
+    default_scheduler_name returns the first scheduler defined in
+    get_scheduler_factories.
+    """
+    return next(iter(get_scheduler_factories().keys()))
 
 
 def get_schedulers(
