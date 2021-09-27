@@ -14,7 +14,6 @@ This is a component definition that runs the example lightning_classy_vision app
 from typing import Optional, Dict
 
 import torchx.specs.api as torchx
-from torchx.components.base.binary_component import binary_component
 from torchx.specs import named_resources
 
 
@@ -59,15 +58,20 @@ def trainer(
     ]
     if skip_export:
         args.append("--skip_export")
-    return binary_component(
+    return torchx.AppDef(
         name="examples-lightning_classy_vision-trainer",
-        entrypoint=entrypoint,
-        args=args,
-        env=env,
-        image=image,
-        resource=named_resources[resource]
-        if resource
-        else torchx.Resource(cpu=1, gpu=0, memMB=1024),
+        roles=[
+            torchx.Role(
+                name="worker",
+                entrypoint=entrypoint,
+                args=args,
+                env=env,
+                image=image,
+                resource=named_resources[resource]
+                if resource
+                else torchx.Resource(cpu=1, gpu=0, memMB=1024),
+            )
+        ],
     )
 
 
@@ -88,19 +92,24 @@ def interpret(
         output_path: output path for model checkpoints (e.g. file:///foo/bar)
         resource: the resources to use
     """
-    return binary_component(
+    return torchx.AppDef(
         name="examples-lightning_classy_vision-interpret",
-        entrypoint="examples/apps/lightning_classy_vision/interpret.py",
-        args=[
-            "--load_path",
-            load_path,
-            "--data_path",
-            data_path,
-            "--output_path",
-            output_path,
+        roles=[
+            torchx.Role(
+                name="worker",
+                entrypoint="examples/apps/lightning_classy_vision/interpret.py",
+                args=[
+                    "--load_path",
+                    load_path,
+                    "--data_path",
+                    data_path,
+                    "--output_path",
+                    output_path,
+                ],
+                image=image,
+                resource=named_resources[resource]
+                if resource
+                else torchx.Resource(cpu=1, gpu=0, memMB=1024),
+            )
         ],
-        image=image,
-        resource=named_resources[resource]
-        if resource
-        else torchx.Resource(cpu=1, gpu=0, memMB=1024),
     )

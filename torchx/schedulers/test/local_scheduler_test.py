@@ -22,7 +22,6 @@ from unittest import mock
 from unittest.mock import MagicMock, call, patch
 
 from pyre_extensions import none_throws
-from torchx.components.base.binary_component import binary_component
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     ReplicaParam,
@@ -805,11 +804,16 @@ if _has_docker():
             )
 
         def _docker_app(self, entrypoint: str, *args: str) -> AppDef:
-            return binary_component(
+            return AppDef(
                 name="test-app",
-                image="busybox",
-                entrypoint=entrypoint,
-                args=list(args),
+                roles=[
+                    Role(
+                        name="base_image_test_role",
+                        image="busybox",
+                        entrypoint=entrypoint,
+                        args=list(args),
+                    ),
+                ],
             )
 
         def test_docker_submit(self) -> None:

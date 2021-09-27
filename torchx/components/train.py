@@ -23,7 +23,6 @@ Components
 These are generic components for common patterns that that can be used in your
 train components.
 
-* Single Node Component - :meth:`torchx.components.base.binary_component`
 * Distributed Data Parallel Component - :meth:`torchx.components.dist.ddp`
 
 
