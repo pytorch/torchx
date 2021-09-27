@@ -37,27 +37,30 @@ KFP can understand.
 Typically you have a separate component file but for this example we define the
 AppDef inline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 28-53
+.. GENERATED FROM PYTHON SOURCE LINES 28-56
 
 .. code-block:: default
 
 
     import kfp
     from torchx import specs
-    from torchx.components.base.binary_component import binary_component
     from torchx.pipelines.kfp.adapter import container_from_app
 
 
     def pipeline() -> None:
-        # First we define our AppDef for the component. We use the binary_component
-        # helper for making single node components. AppDef is a core part of TorchX
+        # First we define our AppDef for the component. AppDef is a core part of TorchX
         # and can be used to describe complex distributed multi container apps or
         # just a single node component like here.
-        echo_app: specs.AppDef = binary_component(
+        echo_app: specs.AppDef = specs.AppDef(
             name="examples-intro",
-            entrypoint="/bin/echo",
-            args=["Hello TorchX!"],
-            image="alpine",
+            roles=[
+                specs.Role(
+                    name="worker",
+                    entrypoint="/bin/echo",
+                    args=["Hello TorchX!"],
+                    image="alpine",
+                )
+            ],
         )
 
         # To convert the TorchX AppDef into a KFP container we use
@@ -67,12 +70,12 @@ AppDef inline.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-56
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
 
 To generate the pipeline definition file we need to call into the KFP compiler
 with our pipeline function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-65
+.. GENERATED FROM PYTHON SOURCE LINES 59-68
 
 .. code-block:: default
 
@@ -86,7 +89,7 @@ with our pipeline function.
         print(f.read())
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 66-73
+.. GENERATED FROM PYTHON SOURCE LINES 69-76
 
 Once this has all run you should have a pipeline file (typically
 pipeline.yaml) that you can upload to your KFP cluster via the UI or
@@ -96,7 +99,7 @@ See the
 `KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/tutorials/sdk-examples/#examples>`_
 for more info on launching KFP pipelines.
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-77
+.. GENERATED FROM PYTHON SOURCE LINES 78-80
 
 See the :ref:`examples_pipelines/kfp/advanced_pipeline:Advanced KubeFlow Pipelines Example` for how to chain multiple
 components together and use builtin components.

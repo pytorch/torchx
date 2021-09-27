@@ -28,20 +28,23 @@ AppDef inline.
 
 import kfp
 from torchx import specs
-from torchx.components.base.binary_component import binary_component
 from torchx.pipelines.kfp.adapter import container_from_app
 
 
 def pipeline() -> None:
-    # First we define our AppDef for the component. We use the binary_component
-    # helper for making single node components. AppDef is a core part of TorchX
+    # First we define our AppDef for the component. AppDef is a core part of TorchX
     # and can be used to describe complex distributed multi container apps or
     # just a single node component like here.
-    echo_app: specs.AppDef = binary_component(
+    echo_app: specs.AppDef = specs.AppDef(
         name="examples-intro",
-        entrypoint="/bin/echo",
-        args=["Hello TorchX!"],
-        image="alpine",
+        roles=[
+            specs.Role(
+                name="worker",
+                entrypoint="/bin/echo",
+                args=["Hello TorchX!"],
+                image="alpine",
+            )
+        ],
     )
 
     # To convert the TorchX AppDef into a KFP container we use

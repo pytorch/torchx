@@ -177,23 +177,21 @@ the previous operator and runs some transforms on it for use with the trainer.
 datapreproc outputs the data to a specified fsspec path. These paths are all
 specified ahead of time so we have a fully static pipeline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 125-136
+.. GENERATED FROM PYTHON SOURCE LINES 125-134
 
 .. code-block:: default
 
 
-    from torchx.components.base.binary_component import binary_component
+
+    from examples.apps.datapreproc.component import data_preproc
 
     processed_data_path: str = os.path.join(args.output_path, "processed")
-    datapreproc_app: specs.AppDef = binary_component(
-        name="examples-datapreproc",
-        entrypoint="examples/apps/datapreproc/datapreproc.py",
-        args=["--input_path", data_path, "--output_path", processed_data_path],
-        image=args.image,
+    datapreproc_app: specs.AppDef = data_preproc(
+        image=args.image, output_path=processed_data_path, input_path=data_path
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 137-144
+.. GENERATED FROM PYTHON SOURCE LINES 135-142
 
 Next we'll create the trainer component that takes in the training data from the
 previous datapreproc component. We've defined this in a separate component
@@ -203,7 +201,7 @@ Having a separate component file allows you to launch your trainer from the
 TorchX CLI via `torchx run` for fast iteration as well as run it from a
 pipeline in an automated fashion.
 
-.. GENERATED FROM PYTHON SOURCE LINES 144-163
+.. GENERATED FROM PYTHON SOURCE LINES 142-161
 
 .. code-block:: default
 
@@ -227,14 +225,14 @@ pipeline in an automated fashion.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 164-168
+.. GENERATED FROM PYTHON SOURCE LINES 162-166
 
 To have the tensorboard path show up in KFPs UI we need to some metadata so
 KFP knows where to consume the metrics from.
 
 This will get used when we create the KFP container.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-180
+.. GENERATED FROM PYTHON SOURCE LINES 166-178
 
 .. code-block:: default
 
@@ -251,13 +249,13 @@ This will get used when we create the KFP container.
     }
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-184
+.. GENERATED FROM PYTHON SOURCE LINES 179-182
 
 For the inference, we're leveraging one of the builtin TorchX components. This
 component takes in a model and uploads it to the TorchServe management API
 endpoints.
 
-.. GENERATED FROM PYTHON SOURCE LINES 184-198
+.. GENERATED FROM PYTHON SOURCE LINES 182-196
 
 .. code-block:: default
 
@@ -276,13 +274,13 @@ endpoints.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-202
+.. GENERATED FROM PYTHON SOURCE LINES 197-200
 
 For model interpretability we're leveraging a custom component stored in it's
 own component file. This component takes in the output from datapreproc and
 train components and produces images with integrated gradient results.
 
-.. GENERATED FROM PYTHON SOURCE LINES 202-213
+.. GENERATED FROM PYTHON SOURCE LINES 200-211
 
 .. code-block:: default
 
@@ -298,7 +296,7 @@ train components and produces images with integrated gradient results.
     )
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 214-225
+.. GENERATED FROM PYTHON SOURCE LINES 212-223
 
 Pipeline Definition
 ###################
@@ -312,7 +310,7 @@ containers need to have their dependencies specified via `.after()`.
 We call `.set_tty()` to make the logs from the components more responsive for
 example purposes.
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-265
+.. GENERATED FROM PYTHON SOURCE LINES 223-263
 
 .. code-block:: default
 
@@ -357,7 +355,7 @@ example purposes.
         print(f.read())
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 266-269
+.. GENERATED FROM PYTHON SOURCE LINES 264-267
 
 Once this has all run you should have a pipeline file (typically
 pipeline.yaml) that you can upload to your KFP cluster via the UI or

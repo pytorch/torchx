@@ -389,18 +389,15 @@ to download the full example code</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
-<span class="kn">from</span> <span class="nn">torchx.components.base.binary_component</span> <span class="kn">import</span> <span class="n">binary_component</span>
 
 
 <span class="k">def</span> <span class="nf">data_preproc</span><span class="p">(</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;examples/apps/datapreproc/datapreproc.py&quot;</span><span class="p">,</span>
     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="p">,</span>
-    <span class="n">input_md5</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;90528d7ca1a48142e341f4ef8d21d0de&quot;</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;datapreproc&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Data PreProc app.</span>
 
@@ -411,10 +408,8 @@ to download the full example code</p>
 <span class="sd">        entrypoint: User script to launch</span>
 <span class="sd">        output_path: Url-like path to save the processes compressed images</span>
 <span class="sd">        input_path: Url-like path to fetch the imagenet dataset</span>
-<span class="sd">        input_md5: Hash of the input imagenet dataset file</span>
 <span class="sd">        env: Env variables to transfer to the user script</span>
 <span class="sd">        resource: String representation of the resource</span>
-<span class="sd">        name: Name of the worker</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        specs.AppDef: Torchx AppDef</span>
@@ -424,8 +419,6 @@ to download the full example code</p>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;--input_path&quot;</span><span class="p">,</span>
         <span class="n">input_path</span><span class="p">,</span>
-        <span class="s2">&quot;--input_md5&quot;</span><span class="p">,</span>
-        <span class="n">input_md5</span><span class="p">,</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="n">output_path</span><span class="p">,</span>
     <span class="p">]</span>
@@ -433,14 +426,18 @@ to download the full example code</p>
         <span class="n">resource_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">named_resources</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">resource_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">binary_component</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;datapreproc_role&quot;</span><span class="p">,</span>
-        <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-        <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
-        <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-        <span class="n">resource</span><span class="o">=</span><span class="n">resource_def</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;datapreproc&quot;</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">resource_def</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
     <span class="p">)</span>
 </pre></div>
 </div>
