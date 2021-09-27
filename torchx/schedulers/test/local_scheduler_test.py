@@ -28,8 +28,10 @@ from torchx.schedulers.local_scheduler import (
     ReplicaParam,
     DockerImageProvider,
     LocalDirectoryImageProvider,
+    CWDImageProvider,
     LocalScheduler,
     make_unique,
+    create_cwd_scheduler,
 )
 from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
 
@@ -128,6 +130,37 @@ class LocalDirImageProviderTest(unittest.TestCase):
         provider = LocalDirectoryImageProvider(cfg)
         args = ["a", "b"]
         self.assertEqual(provider.get_command("image", args, {}), args)
+
+
+class CWDImageProviderTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.maxDiff = None  # get full diff on assertion error
+        cfg = RunConfig()
+        self.provider = CWDImageProvider(cfg)
+
+    def test_fetch(self) -> None:
+        self.assertEqual(os.getcwd(), self.provider.fetch("/strawberry/toast"))
+
+    def test_cwd(self) -> None:
+        self.assertEqual(os.getcwd(), self.provider.get_cwd("/strawberry/toast"))
+
+    def test_get_command(self) -> None:
+        args = ["a", "b"]
+        self.assertEqual(self.provider.get_command("image", args, {}), args)
+
+    def test_get_entrypoint(self) -> None:
+        args = ["a", "b"]
+        role = Role(
+            "role1",
+            image="some/dir",
+            entrypoint="entrypoint.sh",
+        )
+        self.assertEqual(self.provider.get_entrypoint("asdf", role), "entrypoint.sh")
+
+    def test_create_cwd_scheduler(self) -> None:
+        sched = create_cwd_scheduler("foo")
+        self.assertEqual(sched.session_name, "foo")
+        self.assertEqual(sched._image_provider_class, CWDImageProvider)
 
 
 class DockerImageProviderTest(unittest.TestCase):

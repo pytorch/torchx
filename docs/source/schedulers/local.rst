@@ -13,8 +13,8 @@ Image Providers
 .. autoclass:: ImageProvider
    :members:
 
-.. autoclass:: LocalDirectoryImageProvider
+.. autoclass:: DockerImageProvider
    :members:
 
-.. autoclass::DockerImageProvider
+.. autoclass:: CWDImageProvider
    :members:

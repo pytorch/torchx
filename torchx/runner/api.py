@@ -65,10 +65,6 @@ class Runner:
                 inherit this name.
             schedulers: a list of schedulers the runner can use.
         """
-        if "default" not in schedulers:
-            raise ValueError(
-                f"A `default` scheduler is required. Provided schedulers: {schedulers.keys()}"
-            )
         self._name: str = name
         self._schedulers = schedulers
         self._apps: Dict[AppHandle, AppDef] = {}
@@ -107,7 +103,7 @@ class Runner:
         self,
         component_name: ComponentId,
         app_args: List[str],
-        scheduler: SchedulerBackend = "default",
+        scheduler: SchedulerBackend,
         cfg: Optional[RunConfig] = None,
         dryrun: bool = False,
         # pyre-ignore[24]: Allow generic AppDryRunInfo
@@ -163,7 +159,7 @@ class Runner:
     def run(
         self,
         app: AppDef,
-        scheduler: SchedulerBackend = "default",
+        scheduler: SchedulerBackend,
         cfg: Optional[RunConfig] = None,
     ) -> AppHandle:
         """
@@ -229,7 +225,7 @@ class Runner:
     def dryrun(
         self,
         app: AppDef,
-        scheduler: SchedulerBackend = "default",
+        scheduler: SchedulerBackend,
         cfg: Optional[RunConfig] = None,
         # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
     ) -> AppDryRunInfo:
@@ -292,9 +288,6 @@ class Runner:
     def scheduler_backends(self) -> List[SchedulerBackend]:
         """
         Returns a list of all supported scheduler backends.
-        All session implementations must support a "default"
-        scheduler backend and document what the default
-        scheduler is.
         """
         return list(self._schedulers.keys())
 

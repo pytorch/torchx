@@ -36,6 +36,9 @@ class TorchXSchedulerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.test_dir = tempfile.mkdtemp("torchx_runtime_hpo_ax_test")
 
+        self.old_cwd = os.getcwd()
+        os.chdir(os.path.dirname(__file__))
+
         self._parameters: List[Parameter] = [
             RangeParameter(
                 name="x1",
@@ -62,15 +65,13 @@ class TorchXSchedulerTest(unittest.TestCase):
         self._runner = TorchXRunner(
             tracker_base=self.test_dir,
             component=utils.booth,
-            component_const_params={
-                "image": os.path.dirname(__file__),
-            },
-            scheduler="local",
+            scheduler="local_cwd",
             scheduler_args=RunConfig({"log_dir": self.test_dir}),
         )
 
     def tearDown(self) -> None:
         shutil.rmtree(self.test_dir)
+        os.chdir(self.old_cwd)
 
     def test_run_experiment_locally(self) -> None:
         # runs optimization over n rounds of k sequential trials

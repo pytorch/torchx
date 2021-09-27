@@ -15,7 +15,7 @@ import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import Runner, get_runner
-from torchx.schedulers import get_scheduler_factories
+from torchx.schedulers import get_scheduler_factories, get_default_scheduler_name
 from torchx.specs.finder import (
     _Component,
     get_components,
@@ -77,7 +77,7 @@ class CmdRun(SubCommand):
             "--scheduler",
             type=str,
             help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
-            default="default",
+            default=get_default_scheduler_name(),
         )
         subparser.add_argument(
             "--scheduler_args",
@@ -140,7 +140,7 @@ class CmdRun(SubCommand):
             app_handle = cast(specs.AppHandle, result)
             print(app_handle)
 
-            if args.scheduler == "local":
+            if args.scheduler.startswith("local"):
                 self._wait_and_exit(runner, app_handle)
             else:
                 logger.info("=== RUN RESULT ===")

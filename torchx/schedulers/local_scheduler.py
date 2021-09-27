@@ -167,6 +167,36 @@ class LocalDirectoryImageProvider(ImageProvider):
         return role.entrypoint
 
 
+class CWDImageProvider(ImageProvider):
+    """
+    Similar to LocalDirectoryImageProvider however it ignores the image name and
+    uses the current working directory as the image path.
+
+    Example:
+
+    #. ``fetch(Image(name="/tmp/foobar"))`` returns `os.getcwd()`
+    #. ``fetch(Image(name="foobar:latest"))`` returns `os.getcwd()`
+
+    """
+
+    def __init__(self, cfg: RunConfig) -> None:
+        pass
+
+    def fetch(self, image: str) -> str:
+        return os.getcwd()
+
+    def get_command(
+        self, image: str, args: List[str], env_vars: Dict[str, str]
+    ) -> List[str]:
+        return args
+
+    def get_cwd(self, image: str) -> Optional[str]:
+        return os.getcwd()
+
+    def get_entrypoint(self, img_root: str, role: Role) -> str:
+        return role.entrypoint
+
+
 class DockerImageProvider(ImageProvider):
     """
     Calls into docker CLI to pull and run the specified image.
@@ -444,7 +474,15 @@ class LocalScheduler(Scheduler):
     Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.
     The scheduler will terminate the spawned processes.
 
-    This is exposed via the schedulers `local`, `default` and `local_docker`.
+    This is exposed via the schedulers `local_cwd` and `local_docker`.
+
+    * `local_docker` runs the provided app via the local docker runtime using
+      the specified images in the AppDef. Docker must be installed. This
+      provides the closest environment to schedulers that natively use Docker
+      such as Kubernetes.
+    * `local_cwd` runs the provided app relative to the current working
+      directory and ignores the images field for faster iteration and testing
+      purposes.
 
     .. note::
         The orphan cleanup only works if `LocalScheduler` is instantiated from the main thread.
@@ -873,6 +911,14 @@ def create_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
         session_name=session_name,
         cache_size=kwargs.get("cache_size", 100),
         image_provider_class=LocalDirectoryImageProvider,
+    )
+
+
+def create_cwd_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
+    return LocalScheduler(
+        session_name=session_name,
+        cache_size=kwargs.get("cache_size", 100),
+        image_provider_class=CWDImageProvider,
     )
 
 
