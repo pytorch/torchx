@@ -25,7 +25,7 @@ VENV="$DIR/venv"
 
 function run_cmd {
     # shellcheck disable=SC2048,SC2086
-    ssh "$SLURM_MASTER" -i "$SLURM_IDENT" $*
+    ssh -o ServerAliveInterval=60 "$SLURM_MASTER" -i "$SLURM_IDENT" $*
 }
 
 function run_scp {
