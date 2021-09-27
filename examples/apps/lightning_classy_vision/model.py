@@ -14,7 +14,7 @@ by the apps in the same folder.
 
 import os.path
 import subprocess
-from typing import Tuple
+from typing import Tuple, Optional, List
 
 import fsspec
 import pytorch_lightning as pl
@@ -29,15 +29,26 @@ class TinyImageNetModel(pl.LightningModule):
     An very simple linear model for the tiny image net dataset.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, layer_sizes: Optional[List[int]] = None) -> None:
         super().__init__()
-        self.l1 = torch.nn.Linear(64 * 64, 4096)
+
+        # build a model with hidden layers specified by layer_sizes
+        if layer_sizes is None:
+            layer_sizes = []
+        dims = [64 * 64] + layer_sizes + [4096]
+        layers = []
+        for i, (a, b) in enumerate(zip(dims, dims[1:])):
+            if i > 0:
+                layers.append(torch.nn.ReLU(inplace=True))
+            layers.append(torch.nn.Linear(a, b))
+        self.seq = torch.nn.Sequential(*layers)
+
         self.train_acc = Accuracy()
         self.val_acc = Accuracy()
 
     # pyre-fixme[14]
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.relu(self.l1(x.view(x.size(0), -1)))
+        return self.seq(x.view(x.size(0), -1))
 
     # pyre-fixme[14]
     def training_step(

@@ -72,7 +72,7 @@ def trainer(
                 image=image,
                 resource=named_resources[resource]
                 if resource
-                else torchx.Resource(cpu=1, gpu=0, memMB=1024),
+                else torchx.Resource(cpu=1, gpu=0, memMB=1500),
             )
         ],
     )
