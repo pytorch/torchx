@@ -123,14 +123,12 @@ copy_app: specs.AppDef = copy(
 # datapreproc outputs the data to a specified fsspec path. These paths are all
 # specified ahead of time so we have a fully static pipeline.
 
-from torchx.components.base.binary_component import binary_component
+
+from examples.apps.datapreproc.component import data_preproc
 
 processed_data_path: str = os.path.join(args.output_path, "processed")
-datapreproc_app: specs.AppDef = binary_component(
-    name="examples-datapreproc",
-    entrypoint="examples/apps/datapreproc/datapreproc.py",
-    args=["--input_path", data_path, "--output_path", processed_data_path],
-    image=args.image,
+datapreproc_app: specs.AppDef = data_preproc(
+    image=args.image, output_path=processed_data_path, input_path=data_path
 )
 
 # %%
