@@ -443,6 +443,8 @@
       </ul></li>
       <li><a href="components/base.html#torchx.components.base.roles.create_torch_dist_role">create_torch_dist_role() (in module torchx.components.base.roles)</a>
 </li>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider">CWDImageProvider (class in torchx.schedulers.local_scheduler)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -465,6 +467,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider">DockerImageProvider (class in torchx.schedulers.local_scheduler)</a>
+</li>
       <li><a href="runner.html#torchx.runner.Runner.dryrun">dryrun() (torchx.runner.Runner method)</a>
 </li>
   </ul></td>
@@ -485,10 +489,12 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch">fetch() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.fetch">fetch() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.fetch">(torchx.schedulers.local_scheduler.DockerImageProvider method)</a>
+</li>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch">(torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -503,29 +509,35 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.runopts.get">get() (torchx.specs.runopts method)</a>
 </li>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_command">get_command() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_command">get_command() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_command">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.get_command">(torchx.schedulers.local_scheduler.DockerImageProvider method)</a>
+</li>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_command">(torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
       </ul></li>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">get_cwd() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_cwd">get_cwd() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">(torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_entrypoint">get_entrypoint() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
+      <li><a href="schedulers.html#torchx.schedulers.get_default_scheduler_name">get_default_scheduler_name() (in module torchx.schedulers)</a>
+</li>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_entrypoint">get_entrypoint() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_entrypoint">(torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
       </ul></li>
       <li><a href="specs.html#torchx.specs.get_named_resources">get_named_resources() (in module torchx.specs)</a>
 </li>
       <li><a href="runner.html#torchx.runner.get_runner">get_runner() (in module torchx.runner)</a>
+</li>
+      <li><a href="schedulers.html#torchx.schedulers.get_scheduler_factories">get_scheduler_factories() (in module torchx.schedulers)</a>
 </li>
       <li><a href="schedulers.html#torchx.schedulers.get_schedulers">get_schedulers() (in module torchx.schedulers)</a>
 </li>
@@ -557,12 +569,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.list">list() (torchx.runner.Runner method)</a>
 </li>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider">LocalDirectoryImageProvider (class in torchx.schedulers.local_scheduler)</a>
-</li>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler">LocalScheduler (class in torchx.schedulers.local_scheduler)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.log_iter">log_iter() (torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 
       <ul>
@@ -571,6 +579,8 @@
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.log_iter">(torchx.schedulers.Scheduler method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.log_lines">log_lines() (torchx.runner.Runner method)</a>
 </li>
   </ul></td>
@@ -714,6 +724,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
+</li>
       <li><a href="components/utils.html#torchx.components.utils.sh">sh() (in module torchx.components.utils)</a>
 </li>
       <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler">SlurmScheduler (class in torchx.schedulers.slurm_scheduler)</a>

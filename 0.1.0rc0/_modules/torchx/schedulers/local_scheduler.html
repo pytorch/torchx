@@ -467,7 +467,7 @@
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider">[docs]</a><span class="k">class</span> <span class="nc">LocalDirectoryImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">LocalDirectoryImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interprets the image name as the path to a directory on</span>
 <span class="sd">    local host. Does not &quot;fetch&quot; (e.g. download) anything. Used in conjunction</span>
@@ -486,7 +486,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError - if the image name is not an absolute dir</span>
@@ -498,21 +498,21 @@
                 <span class="sa">f</span><span class="s2">&quot;Invalid image name: </span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">, does not exist or is not a directory&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">image</span></div>
+        <span class="k">return</span> <span class="n">image</span>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">args</span></div>
+        <span class="k">return</span> <span class="n">args</span>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute working directory. Used as a working</span>
 <span class="sd">        directory for the child process.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">image</span></div>
+        <span class="k">return</span> <span class="n">image</span>
 
-<div class="viewcode-block" id="LocalDirectoryImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the role entrypoint. When local scheduler is executed with</span>
 <span class="sd">        image_type=dir, the childprocess working directory will be set to the</span>
@@ -520,10 +520,40 @@
 <span class="sd">        as `img_root/role.entrypoint`, if `role.entrypoint` is absolute path,</span>
 <span class="sd">        it will be executed as provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span>
+
+
+<div class="viewcode-block" id="CWDImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider">[docs]</a><span class="k">class</span> <span class="nc">CWDImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Similar to LocalDirectoryImageProvider however it ignores the image name and</span>
+<span class="sd">    uses the current working directory as the image path.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    #. ``fetch(Image(name=&quot;/tmp/foobar&quot;))`` returns `os.getcwd()`</span>
+<span class="sd">    #. ``fetch(Image(name=&quot;foobar:latest&quot;))`` returns `os.getcwd()`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="CWDImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CWDImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">args</span></div>
+
+<div class="viewcode-block" id="CWDImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CWDImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">DockerImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
+<div class="viewcode-block" id="DockerImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider">[docs]</a><span class="k">class</span> <span class="nc">DockerImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calls into docker CLI to pull and run the specified image.</span>
 
@@ -535,20 +565,20 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="DockerImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;pull&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;failed to fetch image </span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">, falling back to local: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
+<div class="viewcode-block" id="DockerImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">env_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">env</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--env&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">env</span> <span class="o">+</span> <span class="p">[</span><span class="n">image</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">env</span> <span class="o">+</span> <span class="p">[</span><span class="n">image</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span></div></div>
 
 
 <span class="c1"># aliases to make clear what the mappings are</span>
@@ -800,7 +830,15 @@
 <span class="sd">    Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.</span>
 <span class="sd">    The scheduler will terminate the spawned processes.</span>
 
-<span class="sd">    This is exposed via the schedulers `local`, `default` and `local_docker`.</span>
+<span class="sd">    This is exposed via the schedulers `local_cwd` and `local_docker`.</span>
+
+<span class="sd">    * `local_docker` runs the provided app via the local docker runtime using</span>
+<span class="sd">      the specified images in the AppDef. Docker must be installed. This</span>
+<span class="sd">      provides the closest environment to schedulers that natively use Docker</span>
+<span class="sd">      such as Kubernetes.</span>
+<span class="sd">    * `local_cwd` runs the provided app relative to the current working</span>
+<span class="sd">      directory and ignores the images field for faster iteration and testing</span>
+<span class="sd">      purposes.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        The orphan cleanup only works if `LocalScheduler` is instantiated from the main thread.</span>
@@ -1229,6 +1267,14 @@
         <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
         <span class="n">cache_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_size&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
         <span class="n">image_provider_class</span><span class="o">=</span><span class="n">LocalDirectoryImageProvider</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">create_cwd_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LocalScheduler</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">LocalScheduler</span><span class="p">(</span>
+        <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
+        <span class="n">cache_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_size&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+        <span class="n">image_provider_class</span><span class="o">=</span><span class="n">CWDImageProvider</span><span class="p">,</span>
     <span class="p">)</span>
 
 

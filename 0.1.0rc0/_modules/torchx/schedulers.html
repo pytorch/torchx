@@ -370,20 +370,21 @@
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span>
 
 
-<span class="k">class</span> <span class="nc">SchedulerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<div class="viewcode-block" id="SchedulerFactory"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.SchedulerFactory">[docs]</a><span class="k">class</span> <span class="nc">SchedulerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
-        <span class="o">...</span>
+        <span class="o">...</span></div>
 
 
-<span class="k">def</span> <span class="nf">get_scheduler_factories</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_scheduler_factories"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_scheduler_factories">[docs]</a><span class="k">def</span> <span class="nf">get_scheduler_factories</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    get_scheduler_factories returns all the available schedulers names and the</span>
 <span class="sd">    method to instantiate them.</span>
+
+<span class="sd">    The first scheduler in the dictionary is used as the default scheduler.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">default_schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
-        <span class="s2">&quot;local&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;local_docker&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_docker_scheduler</span><span class="p">,</span>
+        <span class="s2">&quot;local_cwd&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_cwd_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;slurm&quot;</span><span class="p">:</span> <span class="n">slurm_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;kubernetes&quot;</span><span class="p">:</span> <span class="n">kubernetes_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
     <span class="p">}</span>
@@ -392,7 +393,15 @@
         <span class="s2">&quot;torchx.schedulers&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">default_schedulers</span><span class="p">,</span>
         <span class="n">ignore_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_default_scheduler_name"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_default_scheduler_name">[docs]</a><span class="k">def</span> <span class="nf">get_default_scheduler_name</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    default_scheduler_name returns the first scheduler defined in</span>
+<span class="sd">    get_scheduler_factories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">get_scheduler_factories</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
 
 
 <div class="viewcode-block" id="get_schedulers"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_schedulers">[docs]</a><span class="k">def</span> <span class="nf">get_schedulers</span><span class="p">(</span>

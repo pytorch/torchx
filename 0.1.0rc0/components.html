@@ -368,11 +368,11 @@ or on our <a class="reference internal" href="index.html#components-library"><sp
 <p>Components can be used out of the box by either torchx cli or torchx sdk.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># using via sdk</span>
 <span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">get_runner</span>
-<span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run_component</span><span class="p">(</span><span class="s2">&quot;distributed.ddp&quot;</span><span class="p">,</span> <span class="n">app_args</span><span class="o">=</span><span class="p">[],</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run_component</span><span class="p">(</span><span class="s2">&quot;distributed.ddp&quot;</span><span class="p">,</span> <span class="n">app_args</span><span class="o">=</span><span class="p">[],</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local_cwd&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 
 <span class="c1"># using via torchx-cli</span>
 
-<span class="o">&gt;&gt;</span> <span class="n">torchx</span> <span class="n">run</span> <span class="o">--</span><span class="n">scheduler</span> <span class="n">local</span> <span class="n">distributed</span><span class="o">.</span><span class="n">ddp</span> <span class="o">--</span><span class="n">param1</span> <span class="o">--</span><span class="n">param2</span>
+<span class="o">&gt;&gt;</span> <span class="n">torchx</span> <span class="n">run</span> <span class="o">--</span><span class="n">scheduler</span> <span class="n">local_cwd</span> <span class="n">distributed</span><span class="o">.</span><span class="n">ddp</span> <span class="o">--</span><span class="n">param1</span> <span class="o">--</span><span class="n">param2</span>
 </pre></div>
 </div>
 <p>Components development</p>

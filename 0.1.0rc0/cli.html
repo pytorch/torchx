@@ -383,10 +383,20 @@ If so, no need to even author an app spec!</p>
 </pre></div>
 </div>
 </section>
-<section id="listing-the-supported-schedulers">
-<h2>Listing the supported schedulers<a class="headerlink" href="#listing-the-supported-schedulers" title="Permalink to this headline">¶</a></h2>
+<section id="listing-the-supported-schedulers-and-arguments">
+<h2>Listing the supported schedulers and arguments<a class="headerlink" href="#listing-the-supported-schedulers-and-arguments" title="Permalink to this headline">¶</a></h2>
 <p>To get a list of supported schedulers that you can launch your job into run:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx schedulers
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts
+<span class="go">local_docker:</span>
+<span class="go">{ &#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
+<span class="go">               &#39;help&#39;: &#39;dir to write stdout/stderr log files of replicas&#39;,</span>
+<span class="go">               &#39;type&#39;: &#39;str&#39;}}</span>
+<span class="go">local_cwd:</span>
+<span class="go">...</span>
+<span class="go">slurm:</span>
+<span class="go">...</span>
+<span class="go">kubernetes:</span>
+<span class="go">...</span>
 </pre></div>
 </div>
 </section>
@@ -428,23 +438,20 @@ parameters:</p>
 </li>
 <li><p>arguments to the scheduler (<code class="docutils literal notranslate"><span class="pre">--scheduler_args</span></code>, also known as <code class="docutils literal notranslate"><span class="pre">run_options</span></code> or <code class="docutils literal notranslate"><span class="pre">run_configs</span></code>),
 each scheduler takes different args, to find out the args for a specific scheduler run (command for
-<code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler shown below:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts <span class="nb">local</span>
-<span class="go">{ &#39;image_fetcher&#39;: { &#39;default&#39;: &#39;dir&#39;,</span>
-<span class="go">                 &#39;help&#39;: &#39;image fetcher type&#39;,</span>
-<span class="go">                 &#39;type&#39;: &#39;str&#39;},</span>
-<span class="go">&#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
+<code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler shown below:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts local_cwd
+<span class="go">{ &#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
 <span class="go">           &#39;help&#39;: &#39;dir to write stdout/stderr log files of replicas&#39;,</span>
 <span class="go">           &#39;type&#39;: &#39;str&#39;}}</span>
 
 <span class="gp"># </span>pass run options as comma-delimited <span class="nv">k</span><span class="o">=</span>v pairs
-<span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp ...
+<span class="gp">$ </span>torchx run --scheduler local_cwd --scheduler_args <span class="nv">log_dir</span><span class="o">=</span>/tmp ...
 </pre></div>
 </div>
 </li>
 <li><p>arguments to the component (the app args are included here), this also depends on the
 component and can be seen with the <code class="docutils literal notranslate"><span class="pre">--help</span></code> string on the component</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> utils.echo --help
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler local_cwd utils.echo --help
 <span class="go">usage: torchx run echo.torchx [-h] [--msg MSG]</span>
 
 <span class="go">Echos a message</span>
@@ -456,8 +463,8 @@ component and can be seen with the <code class="docutils literal notranslate"><s
 </div>
 </li>
 </ol>
-<p>Putting everything together, running <code class="docutils literal notranslate"><span class="pre">echo</span></code> with the <code class="docutils literal notranslate"><span class="pre">local</span></code> scheduler:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler <span class="nb">local</span> --scheduler_args <span class="nv">image_fetcher</span><span class="o">=</span>dir,log_dir<span class="o">=</span>/tmp utils.echo --msg <span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
+<p>Putting everything together, running <code class="docutils literal notranslate"><span class="pre">echo</span></code> with the <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler local_cwd --scheduler_args <span class="nv">log_dir</span><span class="o">=</span>/tmp utils.echo --msg <span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
 <span class="go">=== RUN RESULT ===</span>
 <span class="go">Launched app: local://torchx_kiuk/echo_ecd30f74</span>
 </pre></div>
@@ -480,7 +487,7 @@ the default scheduler, see: <a class="reference internal" href="configure.html#r
 inspect both the scheduler request object that the runner submits as well as
 the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> object that is created by the component function. To do this,
 use the <code class="docutils literal notranslate"><span class="pre">--dryrun</span></code> option to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --dryrun utils.echo --msg  hello_world
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --dryrun utils.echo --msg hello_world
 <span class="go">=== APPLICATION ===</span>
 <span class="go">{ &#39;metadata&#39;: {},</span>
 <span class="go">  &#39;name&#39;: &#39;echo&#39;,</span>
@@ -637,7 +644,7 @@ the local host. Please use your best judgment when using the logs API.</p>
               <ul>
 <li><a class="reference internal" href="#">CLI</a><ul>
 <li><a class="reference internal" href="#listing-the-builtin-components">Listing the builtin components</a></li>
-<li><a class="reference internal" href="#listing-the-supported-schedulers">Listing the supported schedulers</a></li>
+<li><a class="reference internal" href="#listing-the-supported-schedulers-and-arguments">Listing the supported schedulers and arguments</a></li>
 <li><a class="reference internal" href="#running-a-component-as-a-job">Running a component as a job</a></li>
 <li><a class="reference internal" href="#inspecting-what-will-run-dryrun">Inspecting what will run (dryrun)</a></li>
 <li><a class="reference internal" href="#describing-and-querying-the-status-of-a-job">Describing and querying the status of a job</a></li>
