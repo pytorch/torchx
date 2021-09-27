@@ -34,11 +34,18 @@ pip install "torchx[kfp]"
 pip install "torchx[kubernetes]"
 ```
 
+### Nightly
+
+```bash
+# install torchx sdk and CLI
+pip install torchx-nightly
+```
+
 ### Source
 
 ```bash
 # install torchx sdk and CLI from source
-$ pip install -e git+https://github.com/pytorch/torchx.git
+$ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx
 
 # install extra dependencies
 $ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx[kubernetes]
