@@ -18,6 +18,7 @@ from torchx.components.base import torch_dist_role
 
 
 def ddp(
+    *script_args: str,
     image: str,
     entrypoint: str,
     rdzv_backend: Optional[str] = None,
@@ -26,10 +27,9 @@ def ddp(
     nnodes: int = 1,
     nproc_per_node: int = 1,
     base_image: Optional[str] = None,
-    name: str = "test_name",
+    name: str = "test-name",
     role: str = "worker",
     env: Optional[Dict[str, str]] = None,
-    *script_args: str,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -39,6 +39,7 @@ def ddp(
     distributed workers.
 
     Args:
+        script_args: Script arguments.
         image: container image.
         entrypoint: script or binary to run within the image.
         rdzv_backend: rendezvous backend to use, allowed values can be found at
@@ -52,9 +53,7 @@ def ddp(
         name: Name of the application.
         base_image: container base image (not required) .
         role: Name of the ddp role.
-        script: Main script.
         env: Env variables.
-        script_args: Script arguments.
 
     Returns:
         specs.AppDef: Torchx AppDef

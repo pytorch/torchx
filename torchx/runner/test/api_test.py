@@ -381,7 +381,7 @@ class RunnerTest(unittest.TestCase):
                 args, kwargs = run_mock.call_args
                 actual_app = args[0]
 
-            self.assertEqual(actual_app.name, "test_name")
+            self.assertEqual(actual_app.name, "test-name")
             self.assertEqual(1, len(actual_app.roles))
             self.assertEqual("worker", actual_app.roles[0].name)
 

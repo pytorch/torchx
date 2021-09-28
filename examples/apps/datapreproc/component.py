@@ -36,6 +36,7 @@ def data_preproc(
         input_path: Url-like path to fetch the imagenet dataset
         env: Env variables to transfer to the user script
         resource: String representation of the resource
+        dryrun: Starts the app, but does not actually perform any work.
 
     Returns:
         specs.AppDef: Torchx AppDef

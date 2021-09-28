@@ -20,6 +20,7 @@ def torchserve(
     management_api: str,
     image: str = TORCHX_IMAGE,
     params: Optional[Dict[str, object]] = None,
+    dryrun: bool = False,
 ) -> specs.AppDef:
     """Deploys the provided model to the given torchserve management API
     endpoint.
@@ -29,7 +30,7 @@ def torchserve(
     ...     model_path="s3://your-bucket/your-model.pt",
     ...     management_api="http://torchserve:8081",
     ... )
-    AppDef(name='torchx-serve-torchserve', ...)
+    AppDef(name='torchx-torchserve', ...)
 
     Args:
         model_path: The fsspec path to the model archive file.
@@ -37,6 +38,7 @@ def torchserve(
         image: Container to use.
         params: torchserve parameters.
             See https://pytorch.org/serve/management_api.html#register-a-model
+        dryrun: Start the app, but does not perform actual work
 
     Returns:
         specs.AppDef: the Torchx application definition
@@ -56,12 +58,14 @@ def torchserve(
                 f"--{param}",
                 str(value),
             ]
+    if dryrun:
+        args.append("--dryrun")
 
     return specs.AppDef(
-        name="torchx-serve-torchserve",
+        name="torchx-torchserve",
         roles=[
             specs.Role(
-                name="torchx-serve-torchserve",
+                name="worker",
                 image=image,
                 entrypoint="python",
                 args=args,

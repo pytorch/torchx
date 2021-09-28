@@ -54,16 +54,16 @@ def trainer(
         specs.AppDef: Torchx AppDef
     """
     return ddp(
-        image,
-        "examples/apps/dist_cifar/train.py",
-        rdzv_backend,
-        rdzv_endpoint,
-        resource,
-        nnodes,
-        nproc_per_node,
-        base_image,
-        "cifar-trainer",
-        "worker",
-        env,
         *script_args,
+        image=image,
+        entrypoint="examples/apps/dist_cifar/train.py",
+        rdzv_backend=rdzv_backend,
+        rdzv_endpoint=rdzv_endpoint,
+        resource=resource,
+        nnodes=nnodes,
+        nproc_per_node=nproc_per_node,
+        base_image=base_image,
+        name="cifar-trainer",
+        role="worker",
+        env=env,
     )
