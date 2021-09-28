@@ -67,6 +67,7 @@ def main() -> None:
         examples_image = build.examples_image
     except MissingEnvError:
         print("Skip runnig tests, executed only docker buid step")
+    print("aivanou test run with: ", args.dryrun, torchx_image, examples_image)
     test_suite = IntegComponentTest(timeout=900)  # 15 minutes
     test_suite.run_components(
         component_provider,
