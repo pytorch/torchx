@@ -152,6 +152,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         description="Trainer that trains the last layer of pretrained resnet18 for cifar10 classification"
     )
     parser.add_argument(
+        "--dryrun",
+        help=argparse.SUPPRESS,
+        action="store_true",
+    )
+    parser.add_argument(
         "--epochs", type=int, default=1, help="number of epochs to train"
     )
     parser.add_argument(
@@ -173,6 +178,9 @@ def get_gpu_devices() -> int:
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
+    if args.dryrun:
+        print("App dist_cifar.train started successfully")
+        return
     gpus = get_gpu_devices()
     batch_size = args.batch_size
     num_nodes = int(os.environ["GROUP_WORLD_SIZE"])

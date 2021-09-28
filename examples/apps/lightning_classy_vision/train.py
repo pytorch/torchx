@@ -120,6 +120,7 @@ def main(argv: List[str]) -> None:
 
         # Initialize a trainer
         trainer = pl.Trainer(
+            accelerator="ddp2",
             logger=logger,
             max_epochs=args.epochs,
             callbacks=[checkpoint_callback],

@@ -45,7 +45,7 @@ def echo(
 
 def touch(file: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
     """
-    Touches a file (calls /bin/touch)
+    Touches a file (calls touch)
 
     Args:
         file: file to create
@@ -58,7 +58,7 @@ def touch(file: str, image: str = TORCHX_IMAGE) -> specs.AppDef:
             specs.Role(
                 name="touch",
                 image=image,
-                entrypoint="/bin/touch",
+                entrypoint="touch",
                 args=[file],
                 num_replicas=1,
             )

@@ -14,10 +14,10 @@ from torchx.components.serve import torchserve
 class ServeTest(unittest.TestCase):
     def test_torchserve(self) -> None:
         want = specs.AppDef(
-            name="torchx-serve-torchserve",
+            name="torchx-torchserve",
             roles=[
                 specs.Role(
-                    name="torchx-serve-torchserve",
+                    name="worker",
                     image="torchx:latest",
                     entrypoint="python",
                     args=[
