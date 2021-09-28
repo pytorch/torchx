@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Tiny ImageNet Model" href="model.html" />
-    <link rel="prev" title="Data Preprocessing App Example" href="../datapreproc/datapreproc.html" />
+    <link rel="next" title="Model Interpretability App Example" href="interpret.html" />
+    <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -395,7 +395,7 @@ to download the full example code</p>
 <span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;examples/apps/lightning_classy_vision/train.py&quot;</span><span class="p">,</span>
     <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/logs&quot;</span><span class="p">,</span>
@@ -410,7 +410,8 @@ to download the full example code</p>
 <span class="sd">        image: image to run (e.g. foobar:latest)</span>
 <span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
 <span class="sd">        load_path: path to load pretrained model from</span>
-<span class="sd">        data_path: path to the data to load</span>
+<span class="sd">        data_path: path to the data to load, if data_path is not provided,</span>
+<span class="sd">            auto generated test data will be used</span>
 <span class="sd">        entrypoint: user script to launch.</span>
 <span class="sd">        log_path: path to save tensorboard logs to</span>
 <span class="sd">        resource: the resources to use</span>
@@ -426,15 +427,17 @@ to download the full example code</p>
         <span class="n">load_path</span><span class="p">,</span>
         <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
         <span class="n">log_path</span><span class="p">,</span>
-        <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
-        <span class="n">data_path</span><span class="p">,</span>
         <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">epochs</span><span class="p">),</span>
     <span class="p">]</span>
+    <span class="k">if</span> <span class="n">data_path</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--data_path&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--test&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">skip_export</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--skip_export&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-lightning_classy_vision-trainer&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cv-trainer&quot;</span><span class="p">,</span>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
@@ -456,6 +459,7 @@ to download the full example code</p>
     <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;examples/apps/lightning_classy_vision/interpret.py&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Runs the model interpretability app on the model outputted by the training</span>
 <span class="sd">    component.</span>
@@ -466,13 +470,14 @@ to download the full example code</p>
 <span class="sd">        data_path: path to the data to load</span>
 <span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
 <span class="sd">        resource: the resources to use</span>
+<span class="sd">        entrypoint: user script to launch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;examples-lightning_classy_vision-interpret&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cv-interpret&quot;</span><span class="p">,</span>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;examples/apps/lightning_classy_vision/interpret.py&quot;</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span>
                     <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
                     <span class="n">load_path</span><span class="p">,</span>
@@ -510,10 +515,10 @@ to download the full example code</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="model.html" class="btn btn-neutral float-right" title="Tiny ImageNet Model" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="interpret.html" class="btn btn-neutral float-right" title="Model Interpretability App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../datapreproc/datapreproc.html" class="btn btn-neutral" title="Data Preprocessing App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

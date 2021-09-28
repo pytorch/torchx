@@ -374,6 +374,7 @@
     <span class="n">management_api</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
     <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dryrun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Deploys the provided model to the given torchserve management API</span>
 <span class="sd">    endpoint.</span>
@@ -383,7 +384,7 @@
 <span class="sd">    ...     model_path=&quot;s3://your-bucket/your-model.pt&quot;,</span>
 <span class="sd">    ...     management_api=&quot;http://torchserve:8081&quot;,</span>
 <span class="sd">    ... )</span>
-<span class="sd">    AppDef(name=&#39;torchx-serve-torchserve&#39;, ...)</span>
+<span class="sd">    AppDef(name=&#39;torchx-torchserve&#39;, ...)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model_path: The fsspec path to the model archive file.</span>
@@ -391,6 +392,7 @@
 <span class="sd">        image: Container to use.</span>
 <span class="sd">        params: torchserve parameters.</span>
 <span class="sd">            See https://pytorch.org/serve/management_api.html#register-a-model</span>
+<span class="sd">        dryrun: Start the app, but does not perform actual work</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        specs.AppDef: the Torchx application definition</span>
@@ -410,12 +412,14 @@
                 <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
             <span class="p">]</span>
+    <span class="k">if</span> <span class="n">dryrun</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--dryrun&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-serve-torchserve&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-torchserve&quot;</span><span class="p">,</span>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;torchx-serve-torchserve&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>

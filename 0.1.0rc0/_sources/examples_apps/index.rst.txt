@@ -78,27 +78,6 @@ Lightning + Classy Vision Trainer Example
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This is a component definition that runs the example lightning_classy_vision app.">
-
-.. only:: html
-
- .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_component_thumb.png
-     :alt: Trainer Component Example
-
-     :ref:`sphx_glr_examples_apps_lightning_classy_vision_component.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples_apps/lightning_classy_vision/component
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
 
 .. only:: html
@@ -117,6 +96,27 @@ Lightning + Classy Vision Trainer Example
    :hidden:
 
    /examples_apps/lightning_classy_vision/model
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a component definition that runs the example lightning_classy_vision app.">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_component_thumb.png
+     :alt: Trainer Component Example
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_component.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/component
 
 .. raw:: html
 

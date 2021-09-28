@@ -23,7 +23,7 @@ Datapreproc Component Example
 
 This is a component definition that runs the example datapreproc app.
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-68
+.. GENERATED FROM PYTHON SOURCE LINES 14-69
 
 .. code-block:: default
 
@@ -52,6 +52,7 @@ This is a component definition that runs the example datapreproc app.
             input_path: Url-like path to fetch the imagenet dataset
             env: Env variables to transfer to the user script
             resource: String representation of the resource
+            dryrun: Starts the app, but does not actually perform any work.
 
         Returns:
             specs.AppDef: Torchx AppDef

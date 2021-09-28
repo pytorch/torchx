@@ -765,7 +765,7 @@
 
             <span class="k">if</span> <span class="n">TASK_STATUS_COUNT</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">status</span><span class="p">[</span><span class="n">TASK_STATUS_COUNT</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">role</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                    <span class="n">role</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
                     <span class="n">state_str</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
                     <span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>

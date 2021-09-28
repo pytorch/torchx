@@ -28,7 +28,7 @@ This app only uses standard OSS libraries and has no runtime torchx
 dependencies. For saving and loading data and models it uses fsspec which makes
 the app agnostic to the environment it's running in.
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-138
+.. GENERATED FROM PYTHON SOURCE LINES 19-139
 
 .. code-block:: default
 
@@ -136,6 +136,7 @@ the app agnostic to the environment it's running in.
 
             # Initialize a trainer
             trainer = pl.Trainer(
+                accelerator="ddp2",
                 logger=logger,
                 max_epochs=args.epochs,
                 callbacks=[checkpoint_callback],
