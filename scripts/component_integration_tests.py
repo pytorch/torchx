@@ -69,24 +69,24 @@ def main() -> None:
         print("Skip runnig tests, executed only docker buid step")
     print("aivanou test run with: ", args.dryrun, torchx_image, examples_image)
     test_suite = IntegComponentTest(timeout=900)  # 15 minutes
-    test_suite.run_components(
-        component_provider,
-        scheduler_infos=[
-            get_local_cwd_sched_info(os.getcwd()),
-            get_local_docker_sched_info(torchx_image),
-            get_k8s_sched_info(torchx_image),
-        ],
-        dryrun=args.dryrun,
-    )
-
-    test_suite.run_components(
-        examples_app_defs_providers,
-        scheduler_infos=[
-            get_local_docker_sched_info(examples_image),
-            get_k8s_sched_info(examples_image),
-        ],
-        dryrun=args.dryrun,
-    )
+    # test_suite.run_components(
+    #     component_provider,
+    #     scheduler_infos=[
+    #         get_local_cwd_sched_info(os.getcwd()),
+    #         get_local_docker_sched_info(torchx_image),
+    #         get_k8s_sched_info(torchx_image),
+    #     ],
+    #     dryrun=args.dryrun,
+    # )
+    #
+    # test_suite.run_components(
+    #     examples_app_defs_providers,
+    #     scheduler_infos=[
+    #         get_local_docker_sched_info(examples_image),
+    #         get_k8s_sched_info(examples_image),
+    #     ],
+    #     dryrun=args.dryrun,
+    # )
 
 
 if __name__ == "__main__":
