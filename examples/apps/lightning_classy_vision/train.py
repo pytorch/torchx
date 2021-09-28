@@ -39,6 +39,9 @@ from examples.apps.lightning_classy_vision.model import (
     TinyImageNetModel,
     export_inference_model,
 )
+from examples.apps.lightning_classy_vision.profiler import (
+    SimpleLoggingProfiler,
+)
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -75,6 +78,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="path to place the tensorboard logs",
         default="/tmp",
     )
+    parser.add_argument(
+        "--layers",
+        nargs="+",
+        type=int,
+        help="the MLP hidden layers and sizes, used for neural architecture search",
+    )
     return parser.parse_args(argv)
 
 
@@ -83,7 +92,7 @@ def main(argv: List[str]) -> None:
         args = parse_args(argv)
 
         # Init our model
-        model = TinyImageNetModel()
+        model = TinyImageNetModel(args.layers)
 
         # Download and setup the data module
         if args.test:
@@ -124,6 +133,7 @@ def main(argv: List[str]) -> None:
             logger=logger,
             max_epochs=args.epochs,
             callbacks=[checkpoint_callback],
+            profiler=SimpleLoggingProfiler(logger),
         )
 
         # Train the model ⚡
