@@ -43,7 +43,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Trainer Datasets Example" href="data.html" />
-    <link rel="prev" title="Model Interpretability App Example" href="interpret.html" />
+    <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -412,6 +412,9 @@ the app agnostic to the environment it’s running in.</p>
     <span class="n">TinyImageNetModel</span><span class="p">,</span>
     <span class="n">export_inference_model</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.profiler</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SimpleLoggingProfiler</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>
@@ -448,6 +451,12 @@ the app agnostic to the environment it’s running in.</p>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place the tensorboard logs&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--layers&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the MLP hidden layers and sizes, used for neural architecture search&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
 
@@ -456,7 +465,7 @@ the app agnostic to the environment it’s running in.</p>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
         <span class="c1"># Init our model</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">TinyImageNetModel</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TinyImageNetModel</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
 
         <span class="c1"># Download and setup the data module</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
@@ -497,6 +506,7 @@ the app agnostic to the environment it’s running in.</p>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
             <span class="n">max_epochs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
             <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">checkpoint_callback</span><span class="p">],</span>
+            <span class="n">profiler</span><span class="o">=</span><span class="n">SimpleLoggingProfiler</span><span class="p">(</span><span class="n">logger</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="c1"># Train the model ⚡</span>
@@ -534,7 +544,7 @@ the app agnostic to the environment it’s running in.</p>
         <a href="data.html" class="btn btn-neutral float-right" title="Trainer Datasets Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="interpret.html" class="btn btn-neutral" title="Model Interpretability App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

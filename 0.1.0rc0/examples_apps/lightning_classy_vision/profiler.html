@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Trainer Component Example &mdash; PyTorch/TorchX main documentation</title>
+  <title>Simple Logging Profiler &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model Interpretability App Example" href="interpret.html" />
-    <link rel="prev" title="Simple Logging Profiler" href="profiler.html" />
+    <link rel="next" title="Trainer Component Example" href="component.html" />
+    <link rel="prev" title="Data Preprocessing App Example" href="../datapreproc/datapreproc.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -323,13 +323,13 @@
         
           <li><a href="../index.html">Application Examples</a> &gt;</li>
         
-      <li>Trainer Component Example</li>
+      <li>Simple Logging Profiler</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../../_sources/examples_apps/lightning_classy_vision/component.rst.txt" rel="nofollow"><img src="../../_static/images/view-page-source-icon.svg"></a>
+            <a href="../../_sources/examples_apps/lightning_classy_vision/profiler.rst.txt" rel="nofollow"><img src="../../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -351,7 +351,7 @@
         
   
   <div class="pytorch-call-to-action-links">
-    <div id="tutorial-type">examples_apps/lightning_classy_vision/component</div>
+    <div id="tutorial-type">examples_apps/lightning_classy_vision/profiler</div>
 
     <div id="torchx-google-colab-link">
       <img class="call-to-action-img" src="../../_static/images/pytorch-colab.svg"/>
@@ -380,128 +380,62 @@
       
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-component-py"><span class="std std-ref">here</span></a>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-profiler-py"><span class="std std-ref">here</span></a>
 to download the full example code</p>
 </div>
-<section class="sphx-glr-example-title" id="trainer-component-example">
-<span id="sphx-glr-examples-apps-lightning-classy-vision-component-py"></span><h1>Trainer Component Example<a class="headerlink" href="#trainer-component-example" title="Permalink to this headline">¶</a></h1>
-<p>This is a component definition that runs the example lightning_classy_vision app.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
+<section class="sphx-glr-example-title" id="simple-logging-profiler">
+<span id="sphx-glr-examples-apps-lightning-classy-vision-profiler-py"></span><h1>Simple Logging Profiler<a class="headerlink" href="#simple-logging-profiler" title="Permalink to this headline">¶</a></h1>
+<p>This is a simple profiler that’s used as part of the trainer app example. This
+logs the Lightning training stage durations a logger such as Tensorboard. This
+output is used for HPO optimization with Ax.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
 
-<span class="kn">import</span> <span class="nn">torchx.specs.api</span> <span class="k">as</span> <span class="nn">torchx</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">named_resources</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning.loggers.base</span> <span class="kn">import</span> <span class="n">LightningLoggerBase</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning.profiler.base</span> <span class="kn">import</span> <span class="n">BaseProfiler</span>
 
 
-<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span>
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;examples/apps/lightning_classy_vision/train.py&quot;</span><span class="p">,</span>
-    <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/logs&quot;</span><span class="p">,</span>
-    <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">env</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">skip_export</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Runs the example lightning_classy_vision app.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        image: image to run (e.g. foobar:latest)</span>
-<span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
-<span class="sd">        load_path: path to load pretrained model from</span>
-<span class="sd">        data_path: path to the data to load, if data_path is not provided,</span>
-<span class="sd">            auto generated test data will be used</span>
-<span class="sd">        entrypoint: user script to launch.</span>
-<span class="sd">        log_path: path to save tensorboard logs to</span>
-<span class="sd">        resource: the resources to use</span>
-<span class="sd">        env: env variables for the app</span>
-<span class="sd">        skip_export: disable model export</span>
-<span class="sd">        epochs: number of epochs to run</span>
+<span class="k">class</span> <span class="nc">SimpleLoggingProfiler</span><span class="p">(</span><span class="n">BaseProfiler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This profiler records the duration of actions (in seconds) and reports the</span>
+<span class="sd">    mean duration of each action to the specified logger. Reported metrics are</span>
+<span class="sd">    in the format `duration_&lt;event&gt;`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">env</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-        <span class="n">output_path</span><span class="p">,</span>
-        <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
-        <span class="n">load_path</span><span class="p">,</span>
-        <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
-        <span class="n">log_path</span><span class="p">,</span>
-        <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">epochs</span><span class="p">),</span>
-    <span class="p">]</span>
-    <span class="k">if</span> <span class="n">data_path</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--data_path&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--test&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">skip_export</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--skip_export&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cv-trainer&quot;</span><span class="p">,</span>
-        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
-                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">resource</span><span class="o">=</span><span class="n">named_resources</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">resource</span>
-                <span class="k">else</span> <span class="n">torchx</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1500</span><span class="p">),</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">LightningLoggerBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_actions</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">action_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_actions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attempted to start </span><span class="si">{</span><span class="n">action_name</span><span class="si">}</span><span class="s2"> which has already started.&quot;</span>
             <span class="p">)</span>
-        <span class="p">],</span>
-    <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_actions</span><span class="p">[</span><span class="n">action_name</span><span class="p">]</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.monotonic" title="time.monotonic" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span></a><span class="p">()</span>
 
-
-<span class="k">def</span> <span class="nf">interpret</span><span class="p">(</span>
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;examples/apps/lightning_classy_vision/interpret.py&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Runs the model interpretability app on the model outputted by the training</span>
-<span class="sd">    component.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        image: image to run (e.g. foobar:latest)</span>
-<span class="sd">        load_path: path to load pretrained model from</span>
-<span class="sd">        data_path: path to the data to load</span>
-<span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
-<span class="sd">        resource: the resources to use</span>
-<span class="sd">        entrypoint: user script to launch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cv-interpret&quot;</span><span class="p">,</span>
-        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
-                    <span class="n">load_path</span><span class="p">,</span>
-                    <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
-                    <span class="n">data_path</span><span class="p">,</span>
-                    <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-                    <span class="n">output_path</span><span class="p">,</span>
-                <span class="p">],</span>
-                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">resource</span><span class="o">=</span><span class="n">named_resources</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">resource</span>
-                <span class="k">else</span> <span class="n">torchx</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">end_time</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/time.html#time.monotonic" title="time.monotonic" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span></a><span class="p">()</span>
+        <span class="k">if</span> <span class="n">action_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_actions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attempting to stop recording an action (</span><span class="si">{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">) which was never started.&quot;</span>
             <span class="p">)</span>
-        <span class="p">],</span>
-    <span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_actions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">action_name</span><span class="p">)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">({</span><span class="s2">&quot;duration_&quot;</span> <span class="o">+</span> <span class="n">action_name</span><span class="p">:</span> <span class="n">duration</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 </pre></div>
 </div>
 <p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.000 seconds)</p>
-<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-apps-lightning-classy-vision-component-py">
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-apps-lightning-classy-vision-profiler-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/add1693cbeccf75ecdbe8fc579c80882/component.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">component.py</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/26b8b845e15e7fe8d7ac2ab67938fee6/profiler.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">profiler.py</span></code></a></p>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/57051b82485663d8a56cc0b95fbdac31/component.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">component.ipynb</span></code></a></p>
+<p><a class="reference download internal" download="" href="../../_downloads/e5f9a60038103b9a8f893b11d9289bf0/profiler.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">profiler.ipynb</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -515,10 +449,10 @@ to download the full example code</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="interpret.html" class="btn btn-neutral float-right" title="Model Interpretability App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="component.html" class="btn btn-neutral float-right" title="Trainer Component Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="profiler.html" class="btn btn-neutral" title="Simple Logging Profiler" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../datapreproc/datapreproc.html" class="btn btn-neutral" title="Data Preprocessing App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -550,7 +484,7 @@ to download the full example code</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Trainer Component Example</a></li>
+<li><a class="reference internal" href="#">Simple Logging Profiler</a></li>
 </ul>
 
             </div>

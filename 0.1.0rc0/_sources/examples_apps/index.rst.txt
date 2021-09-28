@@ -78,14 +78,14 @@ Lightning + Classy Vision Trainer Example
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a simple profiler that&#x27;s used as part of the trainer app example. This logs the Lightni...">
 
 .. only:: html
 
- .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_model_thumb.png
-     :alt: Tiny ImageNet Model
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_profiler_thumb.png
+     :alt: Simple Logging Profiler
 
-     :ref:`sphx_glr_examples_apps_lightning_classy_vision_model.py`
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_profiler.py`
 
 .. raw:: html
 
@@ -95,7 +95,7 @@ Lightning + Classy Vision Trainer Example
 .. toctree::
    :hidden:
 
-   /examples_apps/lightning_classy_vision/model
+   /examples_apps/lightning_classy_vision/profiler
 
 .. raw:: html
 
@@ -138,6 +138,27 @@ Lightning + Classy Vision Trainer Example
    :hidden:
 
    /examples_apps/lightning_classy_vision/interpret
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_model_thumb.png
+     :alt: Tiny ImageNet Model
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_model.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/model
 
 .. raw:: html
 
