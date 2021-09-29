@@ -8,7 +8,6 @@
 """
 Kubernetes integration tests.
 """
-import argparse
 import os
 
 # pyre-ignore-all-errors[21] # Cannot find module utils
@@ -51,23 +50,18 @@ def get_local_docker_sched_info(image: str) -> SchedulerInfo:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="kubernetes integration test runner")
-    parser.add_argument(
-        "--dryrun",
-        action="store_true",
-        help="Does not actually submit the app," " just prints the scheduler request",
-    )
-    args = parser.parse_args()
     print("Starting components integration tests")
     torchx_image = "dummy_image"
     examples_image = "dummy_image"
+    dryrun: bool = False
     try:
         build = build_and_push_image()
         torchx_image = build.torchx_image
         examples_image = build.examples_image
     except MissingEnvError:
+        dryrun = True
         print("Skip runnig tests, executed only docker buid step")
-    test_suite = IntegComponentTest(timeout=900)  # 15 minutes
+    test_suite = IntegComponentTest(timeout=600)  # 10 minutes
     test_suite.run_components(
         component_provider,
         scheduler_infos=[
@@ -75,7 +69,7 @@ def main() -> None:
             get_local_docker_sched_info(torchx_image),
             get_k8s_sched_info(torchx_image),
         ],
-        dryrun=args.dryrun,
+        dryrun=dryrun,
     )
 
     test_suite.run_components(
@@ -84,7 +78,7 @@ def main() -> None:
             get_local_docker_sched_info(examples_image),
             get_k8s_sched_info(examples_image),
         ],
-        dryrun=args.dryrun,
+        dryrun=dryrun,
     )
 
 
