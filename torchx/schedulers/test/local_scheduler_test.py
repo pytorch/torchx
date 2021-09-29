@@ -24,13 +24,13 @@ from unittest.mock import MagicMock, call, patch
 from pyre_extensions import none_throws
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
-    ReplicaParam,
+    CWDImageProvider,
     DockerImageProvider,
     LocalDirectoryImageProvider,
-    CWDImageProvider,
     LocalScheduler,
-    make_unique,
+    ReplicaParam,
     create_cwd_scheduler,
+    make_unique,
 )
 from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
 
@@ -124,11 +124,15 @@ class LocalDirImageProviderTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             provider.fetch(non_existent_dir)
 
-    def test_get_command(self) -> None:
-        cfg = RunConfig()
-        provider = LocalDirectoryImageProvider(cfg)
-        args = ["a", "b"]
-        self.assertEqual(provider.get_command("image", args, {}), args)
+    def test_get_replica_param(self) -> None:
+        provider = LocalDirectoryImageProvider(RunConfig())
+        role = Role(name="foo", image="/tmp", entrypoint="a", args=["b", "c"])
+        self.assertEqual(
+            ["a", "b", "c"],
+            provider.get_replica_param(
+                img_root=provider.fetch(role.image), role=role
+            ).args,
+        )
 
 
 class CWDImageProviderTest(unittest.TestCase):
@@ -143,12 +147,14 @@ class CWDImageProviderTest(unittest.TestCase):
     def test_cwd(self) -> None:
         self.assertEqual(os.getcwd(), self.provider.get_cwd("/strawberry/toast"))
 
-    def test_get_command(self) -> None:
-        args = ["a", "b"]
-        self.assertEqual(self.provider.get_command("image", args, {}), args)
+    def test_replica_param(self) -> None:
+        role = Role(name="foo", image="ignored", entrypoint="a", args=["b", "c"])
+        rp = self.provider.get_replica_param(
+            img_root=self.provider.fetch(role.image), role=role
+        )
+        self.assertEqual(rp.args, ["a", "b", "c"])
 
     def test_get_entrypoint(self) -> None:
-        args = ["a", "b"]
         role = Role(
             "role1",
             image="some/dir",
@@ -172,16 +178,21 @@ class DockerImageProviderTest(unittest.TestCase):
         self.assertEqual(run.call_count, 1)
         self.assertEqual(run.call_args, call(["docker", "pull", img], check=True))
 
-    def test_get_command(self) -> None:
-        cfg = RunConfig()
-        provider = DockerImageProvider(cfg)
-        cmd = provider.get_command(
-            "pytorch/pytorch:latest",
-            ["main.py", "--a", "b"],
-            {
+    def test_get_replica_param(self) -> None:
+        role = Role(
+            name="foo",
+            image="pytorch/pytorch:latest",
+            entrypoint="main.py",
+            args=["--a", "b"],
+            env={
                 "FOO": "bar",
                 "FOO2": "bar3",
             },
+        )
+        cmd = (
+            DockerImageProvider(RunConfig())
+            .get_replica_param(img_root="ignored", role=role)
+            .args
         )
         self.assertEqual(
             cmd,
@@ -347,19 +358,72 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         assert desc is not None
         self.assertEqual(AppState.SUCCEEDED, desc.state)
 
-    def test_child_process_env(self) -> None:
-        dir_path = "/tmp/users"
-        replica_params = ReplicaParam([], {}, None, None, dir_path)
-        child_env = self.scheduler._get_child_process_env(replica_params)
-        path = child_env["PATH"]
-        self.assertTrue(dir_path in path)
+    @mock.patch("subprocess.Popen")
+    @mock.patch.dict(
+        os.environ, {"PATH": "/bin:/usr/bin", "TORCHELASTIC_ERROR_FILE": "ignored"}
+    )
+    def test_child_process_env_append_cwd(self, popen_mock: MagicMock) -> None:
+        ignored = 0
+        self.scheduler._popen(
+            role_name="ignored",
+            replica_id=ignored,
+            replica_params=ReplicaParam(
+                args=["a", "b"], env={}, cwd="/home/bob", stdout=None, stderr=None
+            ),
+            prepend_cwd=False,
+        )
 
-    def test_child_process_env_none(self) -> None:
-        replica_params = ReplicaParam([], {}, None, None, None)
-        parent_proc_path = os.environ["PATH"]
-        child_env = self.scheduler._get_child_process_env(replica_params)
-        child_proc_path = child_env["PATH"]
-        self.assertEqual(parent_proc_path, child_proc_path)
+        self.assertEqual(
+            # for python 3.7 BC get call_args.kwargs by index
+            "/bin:/usr/bin:/home/bob",
+            popen_mock.call_args[1]["env"]["PATH"],
+        )
+
+    @mock.patch("subprocess.Popen")
+    @mock.patch.dict(
+        os.environ, {"PATH": "/bin:/usr/bin", "TORCHELASTIC_ERROR_FILE": "ignored"}
+    )
+    def test_child_process_env_prepend_cwd(self, popen_mock: MagicMock) -> None:
+        ignored = 0
+        self.scheduler._popen(
+            role_name="ignored",
+            replica_id=ignored,
+            replica_params=ReplicaParam(
+                args=["a", "b"], env={}, cwd="/home/bob", stdout=None, stderr=None
+            ),
+            prepend_cwd=True,
+        )
+
+        self.assertEqual(
+            # for python 3.7 BC get call_args.kwargs by index
+            "/home/bob:/bin:/usr/bin",
+            popen_mock.call_args[1]["env"]["PATH"],
+        )
+
+    @mock.patch("subprocess.Popen")
+    @mock.patch.dict(os.environ, {"TORCHELASTIC_ERROR_FILE": "ignored"}, clear=True)
+    def test_child_process_env_none(self, popen_mock: MagicMock) -> None:
+        ignored = 0
+        self.scheduler._popen(
+            role_name="ignored",
+            replica_id=ignored,
+            replica_params=ReplicaParam(
+                args=["a", "b"], env={}, cwd="/home/bob", stdout=None, stderr=None
+            ),
+            prepend_cwd=True,
+        )
+        self.assertEqual("/home/bob", popen_mock.call_args[1]["env"]["PATH"])
+
+        self.scheduler._popen(
+            role_name="ignored",
+            replica_id=ignored,
+            replica_params=ReplicaParam(
+                args=["a", "b"], env={}, cwd=None, stdout=None, stderr=None
+            ),
+            prepend_cwd=True,
+        )
+        # for python 3.7 BC get call_args.kwargs by index
+        self.assertFalse("PATH" in popen_mock.call_args[1]["env"])
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_override_parent_env(self) -> None:
@@ -773,24 +837,6 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         self.scheduler.close()
         self.scheduler.close()
         # nothing to validate just make sure no errors are raised
-
-    def test_dryrun_base_image_should_throw(self) -> None:
-        # base_image for vanilla local_scheduler shouldn't work
-        app = AppDef(
-            name="base_image_test_app",
-            roles=[
-                Role(
-                    name="base_image_test_role",
-                    image=self.test_dir,
-                    base_image=self.test_dir,
-                    entrypoint="touch.sh",
-                    args=[join(self.test_dir, "testfile1")],
-                ),
-            ],
-        )
-
-        with self.assertRaises(NotImplementedError):
-            self.scheduler.submit_dryrun(app, RunConfig())
 
     def test_no_orphan_process_function(self) -> None:
         self._test_orphan_workflow(signal.SIGTERM)

@@ -21,7 +21,7 @@ import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
-from typing import Any, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple, Callable
+from typing import Any, Callable, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
 from uuid import uuid4
 
 from pyre_extensions import none_throws
@@ -73,6 +73,19 @@ def _terminate_process_handler(signum: int, frame: FrameType) -> None:
     raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
 
 
+@dataclass
+class ReplicaParam:
+    """
+    Holds ``LocalScheduler._popen()``parameters for each replica of the role.
+    """
+
+    args: List[str]
+    env: Dict[str, str]
+    stdout: Optional[str]
+    stderr: Optional[str]
+    cwd: Optional[str] = None
+
+
 class ImageProvider(abc.ABC):
     """
     Manages downloading and setting up an on localhost. This is only needed for
@@ -88,14 +101,29 @@ class ImageProvider(abc.ABC):
         """
         raise NotImplementedError()
 
-    @abc.abstractmethod
-    def get_command(
-        self, image: str, args: List[str], env_vars: Dict[str, str]
-    ) -> List[str]:
+    def get_replica_param(
+        self,
+        img_root: str,
+        role: Role,
+        stdout: Optional[str] = None,
+        stderr: Optional[str] = None,
+    ) -> ReplicaParam:
         """
-        Returns the command line required to run the specified image.
+        Given the role replica's specs returns ``ReplicaParam`` holder
+        which hold the arguments to eventually pass to ``subprocess.Popen``
+        to actually invoke and run each role's replica. The ``img_root``
+        is expected to be the return value of ``self.fetch(role.image)``.
+        Since the role's image need only be fetched once (not for each replica)
+        it is expected that the caller call the ``fetch`` method once per role
+        and call this method for each ``role.num_replicas``.
         """
-        raise NotImplementedError()
+        return ReplicaParam(
+            [self.get_entrypoint(img_root, role)] + role.args,
+            role.env,
+            stdout,
+            stderr,
+            self.get_cwd(role.image),
+        )
 
     def get_cwd(self, image: str) -> Optional[str]:
         """
@@ -144,11 +172,6 @@ class LocalDirectoryImageProvider(ImageProvider):
 
         return image
 
-    def get_command(
-        self, image: str, args: List[str], env_vars: Dict[str, str]
-    ) -> List[str]:
-        return args
-
     def get_cwd(self, image: str) -> Optional[str]:
         """
         Returns the absolute working directory. Used as a working
@@ -185,11 +208,6 @@ class CWDImageProvider(ImageProvider):
     def fetch(self, image: str) -> str:
         return os.getcwd()
 
-    def get_command(
-        self, image: str, args: List[str], env_vars: Dict[str, str]
-    ) -> List[str]:
-        return args
-
     def get_cwd(self, image: str) -> Optional[str]:
         return os.getcwd()
 
@@ -216,13 +234,28 @@ class DockerImageProvider(ImageProvider):
             print(f"failed to fetch image {image}, falling back to local: {e}")
         return ""
 
-    def get_command(
-        self, image: str, args: List[str], env_vars: Dict[str, str]
-    ) -> List[str]:
+    def get_replica_param(
+        self,
+        img_root: str,
+        role: Role,
+        stdout: Optional[str] = None,
+        stderr: Optional[str] = None,
+    ) -> ReplicaParam:
         env = []
-        for k, v in env_vars.items():
+        for k, v in role.env.items():
             env += ["--env", f"{k}={v}"]
-        return ["docker", "run", "-i", "--rm"] + env + [image] + args
+
+        return ReplicaParam(
+            args=["docker", "run", "-i", "--rm"]
+            + env
+            + [role.image, role.entrypoint]
+            + role.args,
+            # role envs go as --env arg to docker not to subprocess.Popen(["docker",...])
+            env={},
+            stdout=stdout,
+            stderr=stderr,
+            cwd=self.get_cwd(role.image),
+        )
 
 
 # aliases to make clear what the mappings are
@@ -418,19 +451,6 @@ class _LocalAppDef:
 
 
 @dataclass
-class ReplicaParam:
-    """
-    Holds ``LocalScheduler._popen()``parameters for each replica of the role.
-    """
-
-    args: List[str]
-    env: Dict[str, str]
-    stdout: Optional[str]
-    stderr: Optional[str]
-    cwd: Optional[str] = None
-
-
-@dataclass
 class PopenRequest:
     """
     Holds parameters to create a subprocess for each replica of each role
@@ -528,6 +548,13 @@ class LocalScheduler(Scheduler):
             default=None,
             help="dir to write stdout/stderr log files of replicas",
         )
+        opts.add(
+            "prepend_cwd",
+            type_=bool,
+            default=False,
+            help="if set, prepends CWD to replica's PATH env var"
+            " making any binaries in CWD take precedence over those in PATH",
+        )
         return opts
 
     def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
@@ -579,28 +606,12 @@ class LocalScheduler(Scheduler):
         os.makedirs(os.path.dirname(file), exist_ok=True)
         return open(file, mode="w")
 
-    def _get_child_process_env(self, replica_params: ReplicaParam) -> Dict[str, str]:
-        # inherit parent's env vars since 99.9% of the time we want this behavior
-        # just make sure we override the parent's env vars with the user_defined ones
-        env = os.environ.copy()
-        env.update(replica_params.env)
-
-        # Add img root to the end of the path to be able to access executables
-        # using relative path, e.g.: `--img_root /users --entrypoint test.sh`
-        # will be resolved to /users/test.sh
-        # The path is attached to the end, giving it the lowest priority
-        if replica_params.cwd:
-            child_cwd = none_throws(replica_params.cwd)
-            path = env.get("PATH", "")
-            if path == "":
-                path = child_cwd
-            else:
-                path = f"{path}:{child_cwd}"
-            env["PATH"] = path
-        return env
-
     def _popen(
-        self, role_name: RoleName, replica_id: int, replica_params: ReplicaParam
+        self,
+        role_name: RoleName,
+        replica_id: int,
+        replica_params: ReplicaParam,
+        prepend_cwd: bool,
     ) -> _LocalReplica:
         """
         Same as ``subprocess.Popen(**popen_kwargs)`` but is able to take ``stdout`` and ``stderr``
@@ -609,9 +620,23 @@ class LocalScheduler(Scheduler):
 
         stdout_ = self._get_file_io(replica_params.stdout)
         stderr_ = self._get_file_io(replica_params.stderr)
-        env = self._get_child_process_env(replica_params)
 
-        error_file = env["TORCHELASTIC_ERROR_FILE"]
+        # inherit parent's env vars since 99.9% of the time we want this behavior
+        # just make sure we override the parent's env vars with the user_defined ones
+        env = os.environ.copy()
+        env.update(replica_params.env)
+
+        cwd = replica_params.cwd
+        if cwd:
+            # if prepend_cwd is set, then prepend cwd to PATH
+            # making binaries in cwd take precedence to those in PATH
+            # otherwise append cwd to PATH so that the binaries in PATH
+            # precede over those in cwd
+            if prepend_cwd:
+                path = [cwd, env.get("PATH", "")]
+            else:
+                path = [env.get("PATH", ""), cwd]
+            env["PATH"] = os.pathsep.join([p for p in path if p])  # remove empty str
 
         args_pfmt = pprint.pformat(asdict(replica_params), indent=2, width=80)
         log.info(f"Running {role_name} (replica {replica_id}):\n {args_pfmt}")
@@ -630,7 +655,7 @@ class LocalScheduler(Scheduler):
             proc,
             stdout=stdout_,
             stderr=stderr_,
-            error_file=error_file,
+            error_file=env.get("TORCHELASTIC_ERROR_FILE", "<N/A>"),
         )
 
     def _get_app_log_dir(self, app_id: str, cfg: RunConfig) -> Tuple[str, bool]:
@@ -675,7 +700,14 @@ class LocalScheduler(Scheduler):
                 replica_log_dir = role_log_dirs[replica_id]
 
                 os.makedirs(replica_log_dir)
-                replica = self._popen(role_name, replica_id, replica_params)
+                replica = self._popen(
+                    role_name,
+                    replica_id,
+                    replica_params,
+                    dryrun_info._cfg.get(  # pyre-ignore[16] _cfg is always set
+                        "prepend_cwd"
+                    ),
+                )
                 local_app.add_replica(role_name, replica)
         self._apps[app_id] = local_app
         return app_id
@@ -685,23 +717,6 @@ class LocalScheduler(Scheduler):
     ) -> AppDryRunInfo[PopenRequest]:
         request = self._to_popen_request(app, cfg)
         return AppDryRunInfo(request, lambda p: pprint.pformat(p, indent=2, width=80))
-
-    def _get_base_image_runner_cmd(self, cfg: RunConfig, role: Role) -> str:
-        """
-        Returns the command (in absolute path, e.g. /bin/foobar) that is
-        used to run the image + base_image when base_image is specified on
-        the role. If you are not sure what a base_image is, then its a good
-        sign that the concept of a base_image is not applicable to your
-        infrastructure, hence this method should not be overridden and
-        users should be discouraged from setting the base_image parameter
-        in their role specs.
-        """
-        raise NotImplementedError(
-            f"This scheduler does not support base_images."
-            f" Role <{role.name}> specifies base_image={role.base_image}."
-            f" Either use a scheduler that supports base_image"
-            f" or remove the base_image from the role."
-        )
 
     def _to_popen_request(
         self,
@@ -723,34 +738,23 @@ class LocalScheduler(Scheduler):
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
             img_root = image_provider.fetch(role.image)
-            base_image = role.base_image
-            if base_image:
-                cmd = self._get_base_image_runner_cmd(cfg, role)
-                base_img_root = image_provider.fetch(base_image)
-            else:
-                cmd = image_provider.get_entrypoint(img_root, role)
-                base_img_root = NONE
 
-            cwd = image_provider.get_cwd(role.image)
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
                     img_root=img_root,
-                    base_img_root=base_img_root,
                     app_id=app_id,
                     replica_id=str(replica_id),
                 )
                 replica_role = values.apply(role)
-                args = [cmd] + replica_role.args
                 replica_log_dir = os.path.join(app_log_dir, role.name, str(replica_id))
 
-                env_vars = {
+                if "TORCHELASTIC_ERROR_FILE" not in replica_role.env:
                     # this is the top level (agent if using elastic role) error file
                     # a.k.a scheduler reply file
-                    "TORCHELASTIC_ERROR_FILE": os.path.join(
+                    replica_role.env["TORCHELASTIC_ERROR_FILE"] = os.path.join(
                         replica_log_dir, "error.json"
-                    ),
-                    **replica_role.env,
-                }
+                    )
+
                 stdout = None
                 stderr = None
                 if redirect_std:
@@ -759,9 +763,10 @@ class LocalScheduler(Scheduler):
                     log.info(f"Setting stdout log dir: {stdout}")
                     log.info(f"Setting stderr log dir: {stderr}")
 
-                provider_cmd = image_provider.get_command(role.image, args, env_vars)
                 replica_params.append(
-                    ReplicaParam(provider_cmd, env_vars, stdout, stderr, cwd)
+                    image_provider.get_replica_param(
+                        img_root, replica_role, stdout, stderr
+                    )
                 )
                 replica_log_dirs.append(replica_log_dir)
 

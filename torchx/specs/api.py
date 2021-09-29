@@ -30,7 +30,7 @@ from typing import (
 import yaml
 from pyre_extensions import none_throws
 from torchx.specs.file_linter import parse_fn_docstring
-from torchx.util.types import decode_from_string, decode_optional, is_primitive, is_bool
+from torchx.util.types import decode_from_string, decode_optional, is_bool, is_primitive
 
 
 SchedulerBackend = str
@@ -98,10 +98,8 @@ class macros:
     Available macros:
 
     1. ``img_root`` - root directory of the pulled container.image
-    2. ``base_img_root`` - root directory of the pulled role.base_image
-                           (resolves to "<NONE>" if no base_image set)
-    3. ``app_id`` - application id as assigned by the scheduler
-    4. ``replica_id`` - unique id for each instance of a replica of a Role,
+    2. ``app_id`` - application id as assigned by the scheduler
+    3. ``replica_id`` - unique id for each instance of a replica of a Role,
                         for instance a role with 3 replicas could have the 0, 1, 2
                         as replica ids. Note that when the container fails and is
                         replaced, the new container will have the same ``replica_id``
@@ -130,7 +128,7 @@ class macros:
         img_root: str
         app_id: str
         replica_id: str
-        base_img_root: str = NONE
+        base_img_root: str = "DEPRECATED"
 
         def apply(self, role: "Role") -> "Role":
             """
