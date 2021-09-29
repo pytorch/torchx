@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import tempfile
 from abc import ABC, abstractmethod
 
 import torchx.components.dist as dist_components
@@ -35,7 +36,7 @@ class ComponentProvider(ABC):
 
 class DDPComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
-        args = ["torchx.apps.test.dummy_script"]
+        args = ["torchx.components.integration_tests.test.dummy_app"]
         rdzv_backend: str = "c10d"
         rdzv_endpoint: str = "localhost:29400"
         return dist_components.ddp(
@@ -81,19 +82,20 @@ class TouchComponentProvider(ComponentProvider):
         self._file_path = "<None>"
 
     def setUp(self) -> None:
-        if self._scheduler == "local":
-            self._file_path: str = os.path.join(os.getcwd(), "test.txt")
+        fname = "torchx_touch_test.txt"
+        if self._scheduler == "local_cwd":
+            self._file_path: str = os.path.join(tempfile.gettempdir(), fname)
         else:
-            self._file_path: str = "test.txt"
+            self._file_path: str = fname
 
     def get_app_def(self) -> AppDef:
         return utils_components.touch(
-            file="test.txt",
+            file=self._file_path,
             image=self._image,
         )
 
     def tearDown(self) -> None:
-        if self._scheduler == "local" and os.path.exists(self._file_path):
+        if os.path.exists(self._file_path):
             os.remove(self._file_path)
 
 
@@ -104,9 +106,10 @@ class CopyComponentProvider(ComponentProvider):
         self._dst_path = "<None>"
 
     def setUp(self) -> None:
-        if self._scheduler == "local":
-            self._src_path: str = os.path.join(os.getcwd(), "copy_test.txt")
-            self._dst_path: str = os.path.join(os.getcwd(), "copy_test.txt.copy")
+        if self._scheduler == "local_cwd":
+            fname = "torchx_copy_test.txt"
+            self._src_path: str = os.path.join(tempfile.gettempdir(), fname)
+            self._dst_path: str = os.path.join(tempfile.gettempdir(), f"{fname}.copy")
             self._process_local_sched()
         else:
             self._src_path: str = "README.md"
@@ -118,7 +121,9 @@ class CopyComponentProvider(ComponentProvider):
                 f.write("test data")
 
     def tearDown(self) -> None:
-        if self._scheduler == "local" and os.path.exists(self._dst_path):
+        if os.path.exists(self._dst_path):
+            os.remove(self._dst_path)
+        if self._scheduler == "local_cwd" and os.path.exists(self._dst_path):
             os.remove(self._dst_path)
 
     def get_app_def(self) -> AppDef:

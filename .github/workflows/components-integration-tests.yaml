@@ -43,11 +43,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
-            # only dryrun if no secrets
-            ARGS="--dryrun"
-          else
-            ARGS=
-          fi
-          scripts/component_integration_tests.py $ARGS
+          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
+          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
+        run: scripts/component_integration_tests.py
