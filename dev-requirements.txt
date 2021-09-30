@@ -14,3 +14,4 @@ torchserve>=0.4.0
 captum>=0.3.1
 importlib-metadata
 ax-platform[mysql]>=0.2.2
+fsspec>=2021.09.0
