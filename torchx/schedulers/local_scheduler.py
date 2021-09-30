@@ -231,7 +231,7 @@ class DockerImageProvider(ImageProvider):
         try:
             subprocess.run(["docker", "pull", image], check=True)
         except Exception as e:
-            print(f"failed to fetch image {image}, falling back to local: {e}")
+            log.warning(f"failed to fetch image {image}, falling back to local: {e}")
         return ""
 
     def get_replica_param(
@@ -438,7 +438,7 @@ class _LocalAppDef:
         with open(os.path.join(self.log_dir, "SUCCESS"), "w") as fp:
             fp.write(info_str)
 
-        log.info(f"Successfully closed app_id: {self.id}.\n{info_str}")
+        log.debug(f"Successfully closed app_id: {self.id}.\n{info_str}")
 
     def __repr__(self) -> str:
         role_to_pid = {}
@@ -639,7 +639,7 @@ class LocalScheduler(Scheduler):
             env["PATH"] = os.pathsep.join([p for p in path if p])  # remove empty str
 
         args_pfmt = pprint.pformat(asdict(replica_params), indent=2, width=80)
-        log.info(f"Running {role_name} (replica {replica_id}):\n {args_pfmt}")
+        log.debug(f"Running {role_name} (replica {replica_id}):\n {args_pfmt}")
 
         proc = subprocess.Popen(
             args=replica_params.args,

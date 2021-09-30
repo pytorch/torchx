@@ -657,25 +657,32 @@ class runopts:
         return resolved_cfg
 
     def __repr__(self) -> str:
-        # make it a pretty printable dict
-        pretty_opts = {}
-        for cfg_key, runopt in self._opts.items():
-            key = f"*{cfg_key}" if runopt.is_required else cfg_key
-            opt = {"type": get_type_name(runopt.opt_type)}
-            if runopt.is_required:
-                opt["required"] = "True"
-            else:
-                opt["default"] = str(runopt.default)
-            opt["help"] = runopt.help
+        required = [(key, opt) for key, opt in self._opts.items() if opt.is_required]
+        optional = [
+            (key, opt) for key, opt in self._opts.items() if not opt.is_required
+        ]
 
-            pretty_opts[key] = opt
-        import pprint
+        out = "    usage:\n        "
+        for i, (key, opt) in enumerate(required + optional):
+            contents = f"{key}={key.upper()}"
+            if not opt.is_required:
+                contents = f"[{contents}]"
+            if i > 0:
+                contents = "," + contents
+            out += contents
 
-        return pprint.pformat(
-            pretty_opts,
-            indent=2,
-            width=80,
-        )
+        sections = [("required", required), ("optional", optional)]
+
+        for section, opts in sections:
+            if len(opts) == 0:
+                continue
+            out += f"\n\n    {section} arguments:"
+            for key, opt in opts:
+                default = "" if opt.is_required else f", {opt.default}"
+                out += f"\n        {key}={key.upper()} ({get_type_name(opt.opt_type)}{default})"
+                out += f"\n            {opt.help}"
+
+        return out
 
 
 class InvalidRunConfigException(Exception):

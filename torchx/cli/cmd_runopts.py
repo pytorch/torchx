@@ -9,6 +9,7 @@ import argparse
 import logging
 
 from torchx.cli.cmd_base import SubCommand
+from torchx.cli.colors import GREEN, ENDC
 from torchx.runner.api import get_runner
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -24,11 +25,9 @@ class CmdRunopts(SubCommand):
         )
 
     def run(self, args: argparse.Namespace) -> None:
-        scheduler = args.scheduler
+        filter = args.scheduler
         run_opts = get_runner().run_opts()
 
-        if not scheduler:
-            for scheduler, opts in run_opts.items():
-                logger.info(f"{scheduler}:\n{repr(opts)}")
-        else:
-            logger.info(repr(run_opts[scheduler]))
+        for scheduler, opts in run_opts.items():
+            if not filter or scheduler == filter:
+                print(f"{GREEN}{scheduler}{ENDC}:\n{repr(opts)}\n")
