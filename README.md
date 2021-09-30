@@ -1,4 +1,8 @@
-[![PyPI](https://img.shields.io/pypi/v/torchx)](https://pypi.org/project/torchx/) [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE) ![Tests](https://github.com/pytorch/torchx/actions/workflows/python-unittests.yaml/badge.svg) ![Lint](https://github.com/pytorch/torchx/actions/workflows/lint.yaml/badge.svg)
+[![PyPI](https://img.shields.io/pypi/v/torchx)](https://pypi.org/project/torchx/)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+![Tests](https://github.com/pytorch/torchx/actions/workflows/python-unittests.yaml/badge.svg)
+![Lint](https://github.com/pytorch/torchx/actions/workflows/lint.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/pytorch/torchx/branch/main/graph/badge.svg?token=ceHHIm0hXy)](https://codecov.io/gh/pytorch/torchx)
 
 
 # TorchX
@@ -24,8 +28,11 @@ TorchX Kubeflow Pipelines Support (torchx-kfp):
 ### Release
 
 ```bash
-# install torchx sdk and CLI
+# install torchx sdk and CLI -- minimum dependencies
 pip install torchx
+
+# install torchx sdk and CLI -- all dependencies
+pip install "torchx[dev]"
 
 # install torchx kubeflow pipelines (kfp) support
 pip install "torchx[kfp]"

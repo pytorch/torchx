@@ -24,7 +24,7 @@ from torchx.specs.finder import (
 )
 
 
-def test_component(name: str, role_name: str = "worker") -> AppDef:
+def _test_component(name: str, role_name: str = "worker") -> AppDef:
     """
     Test component
 
@@ -94,10 +94,10 @@ class DirComponentsFinderTest(unittest.TestCase):
         with patch("torchx.specs.finder.entrypoints") as entrypoints_mock:
             entrypoints_mock.load_group.return_value = test_torchx_group
             components = _load_components()
-        foobar_component = components["foobar.finder_test.test_component"]
-        self.assertEqual(test_component, foobar_component.fn)
-        self.assertEqual("test_component", foobar_component.fn_name)
-        self.assertEqual("foobar.finder_test.test_component", foobar_component.name)
+        foobar_component = components["foobar.finder_test._test_component"]
+        self.assertEqual(_test_component, foobar_component.fn)
+        self.assertEqual("_test_component", foobar_component.fn_name)
+        self.assertEqual("foobar.finder_test._test_component", foobar_component.name)
         self.assertEqual("Test component", foobar_component.description)
 
     def test_get_base_module_name(self) -> None:
@@ -142,20 +142,20 @@ def current_file_path() -> str:
 class CustomComponentsFinderTest(unittest.TestCase):
     def test_find_components(self) -> None:
         components = CustomComponentsFinder(
-            current_file_path(), "test_component"
+            current_file_path(), "_test_component"
         ).find()
         self.assertEqual(1, len(components))
         component = components[0]
-        self.assertEqual(f"{current_file_path()}:test_component", component.name)
+        self.assertEqual(f"{current_file_path()}:_test_component", component.name)
         self.assertEqual("Test component", component.description)
-        self.assertEqual("test_component", component.fn_name)
+        self.assertEqual("_test_component", component.fn_name)
         self.assertListEqual([], component.validation_errors)
 
     def test_get_component(self) -> None:
-        component = get_component(f"{current_file_path()}:test_component")
-        self.assertEqual(f"{current_file_path()}:test_component", component.name)
+        component = get_component(f"{current_file_path()}:_test_component")
+        self.assertEqual(f"{current_file_path()}:_test_component", component.name)
         self.assertEqual("Test component", component.description)
-        self.assertEqual("test_component", component.fn_name)
+        self.assertEqual("_test_component", component.fn_name)
         self.assertListEqual([], component.validation_errors)
 
     def test_get_components(self) -> None:
