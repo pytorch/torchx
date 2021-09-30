@@ -14,6 +14,7 @@ from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
 from torchx.cli.cmd_status import CmdStatus
+from torchx.cli.colors import ORANGE, GRAY, ENDC
 
 sub_parser_description = """Use the following commands to run operations, e.g.:
 torchx run ${JOB_NAME}
@@ -26,6 +27,12 @@ def create_parser() -> ArgumentParser:
     """
 
     parser = ArgumentParser(description="torchx CLI")
+    parser.add_argument(
+        "--log_level",
+        type=int,
+        help="Python logging log level",
+        default=logging.INFO,
+    )
     subparser = parser.add_subparsers(
         title="sub-commands",
         description=sub_parser_description,
@@ -49,13 +56,15 @@ def create_parser() -> ArgumentParser:
 
 
 def main(argv: List[str] = sys.argv[1:]) -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(message)s",
-    )
-
     parser = create_parser()
     args = parser.parse_args(argv)
+
+    logging.basicConfig(
+        level=args.log_level,
+        format=f"{ORANGE}torchx{ENDC} {GRAY}%(asctime)s %(levelname)-8s{ENDC} %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
     if "func" not in args:
         parser.print_help()
         sys.exit(1)

@@ -17,19 +17,11 @@ from urllib.parse import urlparse
 from pyre_extensions import none_throws
 from torchx import specs
 from torchx.cli.cmd_base import SubCommand
+from torchx.cli.colors import GREEN, ENDC
 from torchx.runner import Runner, get_runner
 from torchx.specs.api import make_app_handle
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-# only print colors if outputting directly to a terminal
-if sys.stdout.isatty():
-    GREEN = "\033[32m"
-    ENDC = "\033[0m"
-else:
-    GREEN = ""
-    ENDC = ""
-
 
 ID_FORMAT = "SCHEDULER://[SESSION_NAME]/APP_ID/[ROLE_NAME/[REPLICA_IDS,...]]"
 

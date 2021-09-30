@@ -158,9 +158,15 @@ class CmdRun(SubCommand):
 
     def _wait_and_exit(self, runner: Runner, app_handle: str) -> None:
         logger.info("Waiting for the app to finish...")
+
         status = runner.wait(app_handle, wait_interval=1)
-        logger.info(status)
         if not status:
             raise RuntimeError(f"unknown status, wait returned {status}")
+
+        logger.info(f"Job finished: {status.state}")
+
         if status.state != specs.AppState.SUCCEEDED:
+            logger.error(status)
             sys.exit(1)
+        else:
+            logger.debug(status)
