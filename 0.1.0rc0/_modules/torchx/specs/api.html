@@ -1013,25 +1013,32 @@
         <span class="k">return</span> <span class="n">resolved_cfg</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="c1"># make it a pretty printable dict</span>
-        <span class="n">pretty_opts</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">cfg_key</span><span class="p">,</span> <span class="n">runopt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;*</span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">is_required</span> <span class="k">else</span> <span class="n">cfg_key</span>
-            <span class="n">opt</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">get_type_name</span><span class="p">(</span><span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)}</span>
-            <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">is_required</span><span class="p">:</span>
-                <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;required&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;True&quot;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">runopt</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
-            <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;help&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">help</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span><span class="p">]</span>
+        <span class="n">optional</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span>
+        <span class="p">]</span>
 
-            <span class="n">pretty_opts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt</span>
-        <span class="kn">import</span> <span class="nn">pprint</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;    usage:</span><span class="se">\n</span><span class="s2">        &quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">required</span> <span class="o">+</span> <span class="n">optional</span><span class="p">):</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span><span class="p">:</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">contents</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="n">contents</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">contents</span>
 
-        <span class="k">return</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span>
-            <span class="n">pretty_opts</span><span class="p">,</span>
-            <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;required&quot;</span><span class="p">,</span> <span class="n">required</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;optional&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">opts</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">    </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2"> arguments:&quot;</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">        </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">get_type_name</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span><span class="si">}{</span><span class="n">default</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">            </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">help</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
 
 
 <span class="k">class</span> <span class="nc">InvalidRunConfigException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
