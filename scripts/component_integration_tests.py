@@ -51,35 +51,35 @@ def get_local_docker_sched_info(image: str) -> SchedulerInfo:
 
 def main() -> None:
     print("Starting components integration tests")
-    torchx_image = "dummy_image"
-    examples_image = "dummy_image"
-    dryrun: bool = False
-    try:
-        build = build_and_push_image()
-        torchx_image = build.torchx_image
-        examples_image = build.examples_image
-    except MissingEnvError:
-        dryrun = True
-        print("Skip runnig tests, executed only docker buid step")
+    # torchx_image = "dummy_image"
+    # examples_image = "dummy_image"
+    # dryrun: bool = False
+    # try:
+    #     build = build_and_push_image()
+    #     torchx_image = build.torchx_image
+    #     examples_image = build.examples_image
+    # except MissingEnvError:
+    #     dryrun = True
+    #     print("Skip runnig tests, executed only docker buid step")
     test_suite = IntegComponentTest(timeout=600)  # 10 minutes
     test_suite.run_components(
         component_provider,
         scheduler_infos=[
             get_local_cwd_sched_info(os.getcwd()),
-            get_local_docker_sched_info(torchx_image),
-            get_k8s_sched_info(torchx_image),
+            # get_local_docker_sched_info(torchx_image),
+            # get_k8s_sched_info(torchx_image),
         ],
-        dryrun=dryrun,
+        dryrun=False,
     )
 
-    test_suite.run_components(
-        examples_app_defs_providers,
-        scheduler_infos=[
-            get_local_docker_sched_info(examples_image),
-            get_k8s_sched_info(examples_image),
-        ],
-        dryrun=dryrun,
-    )
+    # test_suite.run_components(
+    #     examples_app_defs_providers,
+    #     scheduler_infos=[
+    #         get_local_docker_sched_info(examples_image),
+    #         get_k8s_sched_info(examples_image),
+    #     ],
+    #     dryrun=dryrun,
+    # )
 
 
 if __name__ == "__main__":

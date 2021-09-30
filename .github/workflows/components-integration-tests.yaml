@@ -38,6 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -eux
+          pip install -r dev-requirements.txt
           pip install -e .[kubernetes]
       - name: Run Components Integration Tests
         env:
