@@ -66,7 +66,7 @@ class TorchXSchedulerTest(unittest.TestCase):
             tracker_base=self.test_dir,
             component=utils.booth,
             scheduler="local_cwd",
-            scheduler_args=RunConfig({"log_dir": self.test_dir}),
+            scheduler_args=RunConfig({"log_dir": self.test_dir, "prepend_cwd": True}),
         )
 
     def tearDown(self) -> None:
