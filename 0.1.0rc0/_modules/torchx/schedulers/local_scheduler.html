@@ -377,7 +377,7 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FrameType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Pattern</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Pattern</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
@@ -429,6 +429,19 @@
     <span class="k">raise</span> <span class="n">SignalException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2"> got signal: </span><span class="si">{</span><span class="n">sigval</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sigval</span><span class="o">=</span><span class="n">sigval</span><span class="p">)</span>
 
 
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ReplicaParam</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Holds ``LocalScheduler._popen()``parameters for each replica of the role.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
 <div class="viewcode-block" id="ImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider">[docs]</a><span class="k">class</span> <span class="nc">ImageProvider</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages downloading and setting up an on localhost. This is only needed for</span>
@@ -444,14 +457,29 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_command">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="ImageProvider.get_replica_param"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_replica_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_replica_param</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
+        <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReplicaParam</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the command line required to run the specified image.</span>
+<span class="sd">        Given the role replica&#39;s specs returns ``ReplicaParam`` holder</span>
+<span class="sd">        which hold the arguments to eventually pass to ``subprocess.Popen``</span>
+<span class="sd">        to actually invoke and run each role&#39;s replica. The ``img_root``</span>
+<span class="sd">        is expected to be the return value of ``self.fetch(role.image)``.</span>
+<span class="sd">        Since the role&#39;s image need only be fetched once (not for each replica)</span>
+<span class="sd">        it is expected that the caller call the ``fetch`` method once per role</span>
+<span class="sd">        and call this method for each ``role.num_replicas``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">ReplicaParam</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_entrypoint</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="p">)]</span> <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -500,11 +528,6 @@
 
         <span class="k">return</span> <span class="n">image</span>
 
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">args</span>
-
     <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute working directory. Used as a working</span>
@@ -541,11 +564,6 @@
 <div class="viewcode-block" id="CWDImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CWDImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">args</span></div>
-
 <div class="viewcode-block" id="CWDImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span></div>
 
@@ -572,13 +590,28 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;failed to fetch image </span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">, falling back to local: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="DockerImageProvider.get_command"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">env_vars</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="DockerImageProvider.get_replica_param"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.get_replica_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_replica_param</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
+        <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReplicaParam</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">env_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">env</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--env&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">env</span> <span class="o">+</span> <span class="p">[</span><span class="n">image</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span></div></div>
+
+        <span class="k">return</span> <span class="n">ReplicaParam</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">env</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+            <span class="c1"># role envs go as --env arg to docker not to subprocess.Popen([&quot;docker&quot;,...])</span>
+            <span class="n">env</span><span class="o">=</span><span class="p">{},</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">),</span>
+        <span class="p">)</span></div></div>
 
 
 <span class="c1"># aliases to make clear what the mappings are</span>
@@ -774,19 +807,6 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ReplicaParam</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Holds ``LocalScheduler._popen()``parameters for each replica of the role.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-    <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-
-<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">PopenRequest</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds parameters to create a subprocess for each replica of each role</span>
@@ -884,6 +904,13 @@
             <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;dir to write stdout/stderr log files of replicas&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;prepend_cwd&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;if set, prepends CWD to replica&#39;s PATH env var&quot;</span>
+            <span class="s2">&quot; making any binaries in CWD take precedence over those in PATH&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
     <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -935,28 +962,12 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_child_process_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
-        <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
-
-        <span class="c1"># Add img root to the end of the path to be able to access executables</span>
-        <span class="c1"># using relative path, e.g.: `--img_root /users --entrypoint test.sh`</span>
-        <span class="c1"># will be resolved to /users/test.sh</span>
-        <span class="c1"># The path is attached to the end, giving it the lowest priority</span>
-        <span class="k">if</span> <span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span><span class="p">:</span>
-            <span class="n">child_cwd</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span><span class="p">)</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">child_cwd</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">child_cwd</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="k">return</span> <span class="n">env</span>
-
     <span class="k">def</span> <span class="nf">_popen</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">role_name</span><span class="p">:</span> <span class="n">RoleName</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">role_name</span><span class="p">:</span> <span class="n">RoleName</span><span class="p">,</span>
+        <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
+        <span class="n">prepend_cwd</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LocalReplica</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as ``subprocess.Popen(**popen_kwargs)`` but is able to take ``stdout`` and ``stderr``</span>
@@ -965,9 +976,23 @@
 
         <span class="n">stdout_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
         <span class="n">stderr_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_child_process_env</span><span class="p">(</span><span class="n">replica_params</span><span class="p">)</span>
 
-        <span class="n">error_file</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">]</span>
+        <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
+        <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span>
+        <span class="k">if</span> <span class="n">cwd</span><span class="p">:</span>
+            <span class="c1"># if prepend_cwd is set, then prepend cwd to PATH</span>
+            <span class="c1"># making binaries in cwd take precedence to those in PATH</span>
+            <span class="c1"># otherwise append cwd to PATH so that the binaries in PATH</span>
+            <span class="c1"># precede over those in cwd</span>
+            <span class="k">if</span> <span class="n">prepend_cwd</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">cwd</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">cwd</span><span class="p">]</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span> <span class="k">if</span> <span class="n">p</span><span class="p">])</span>  <span class="c1"># remove empty str</span>
 
         <span class="n">args_pfmt</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">replica_params</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2"> (replica </span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">args_pfmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -986,7 +1011,7 @@
             <span class="n">proc</span><span class="p">,</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">stdout_</span><span class="p">,</span>
             <span class="n">stderr</span><span class="o">=</span><span class="n">stderr_</span><span class="p">,</span>
-            <span class="n">error_file</span><span class="o">=</span><span class="n">error_file</span><span class="p">,</span>
+            <span class="n">error_file</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
@@ -1031,7 +1056,14 @@
                 <span class="n">replica_log_dir</span> <span class="o">=</span> <span class="n">role_log_dirs</span><span class="p">[</span><span class="n">replica_id</span><span class="p">]</span>
 
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">)</span>
-                <span class="n">replica</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_popen</span><span class="p">(</span><span class="n">role_name</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">,</span> <span class="n">replica_params</span><span class="p">)</span>
+                <span class="n">replica</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_popen</span><span class="p">(</span>
+                    <span class="n">role_name</span><span class="p">,</span>
+                    <span class="n">replica_id</span><span class="p">,</span>
+                    <span class="n">replica_params</span><span class="p">,</span>
+                    <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>  <span class="c1"># pyre-ignore[16] _cfg is always set</span>
+                        <span class="s2">&quot;prepend_cwd&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
                 <span class="n">local_app</span><span class="o">.</span><span class="n">add_replica</span><span class="p">(</span><span class="n">role_name</span><span class="p">,</span> <span class="n">replica</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">[</span><span class="n">app_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_app</span>
         <span class="k">return</span> <span class="n">app_id</span></div>
@@ -1041,23 +1073,6 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">]:</span>
         <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_popen_request</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_get_base_image_runner_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the command (in absolute path, e.g. /bin/foobar) that is</span>
-<span class="sd">        used to run the image + base_image when base_image is specified on</span>
-<span class="sd">        the role. If you are not sure what a base_image is, then its a good</span>
-<span class="sd">        sign that the concept of a base_image is not applicable to your</span>
-<span class="sd">        infrastructure, hence this method should not be overridden and</span>
-<span class="sd">        users should be discouraged from setting the base_image parameter</span>
-<span class="sd">        in their role specs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;This scheduler does not support base_images.&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; Role &lt;</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&gt; specifies base_image=</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">base_image</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; Either use a scheduler that supports base_image&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; or remove the base_image from the role.&quot;</span>
-        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_to_popen_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1079,34 +1094,23 @@
             <span class="n">replica_log_dirs</span> <span class="o">=</span> <span class="n">role_log_dirs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
 
             <span class="n">img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
-            <span class="n">base_image</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">base_image</span>
-            <span class="k">if</span> <span class="n">base_image</span><span class="p">:</span>
-                <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_base_image_runner_cmd</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
-                <span class="n">base_img_root</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">base_image</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">cmd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_entrypoint</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
-                <span class="n">base_img_root</span> <span class="o">=</span> <span class="n">NONE</span>
 
-            <span class="n">cwd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
                     <span class="n">img_root</span><span class="o">=</span><span class="n">img_root</span><span class="p">,</span>
-                    <span class="n">base_img_root</span><span class="o">=</span><span class="n">base_img_root</span><span class="p">,</span>
                     <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
                     <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
-                <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmd</span><span class="p">]</span> <span class="o">+</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">args</span>
                 <span class="n">replica_log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app_log_dir</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">))</span>
 
-                <span class="n">env_vars</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">:</span>
                     <span class="c1"># this is the top level (agent if using elastic role) error file</span>
                     <span class="c1"># a.k.a scheduler reply file</span>
-                    <span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;error.json&quot;</span>
-                    <span class="p">),</span>
-                    <span class="o">**</span><span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
-                <span class="p">}</span>
+                    <span class="p">)</span>
+
                 <span class="n">stdout</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">stderr</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">redirect_std</span><span class="p">:</span>
@@ -1115,9 +1119,10 @@
                     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting stdout log dir: </span><span class="si">{</span><span class="n">stdout</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting stderr log dir: </span><span class="si">{</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="n">provider_cmd</span> <span class="o">=</span> <span class="n">image_provider</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">)</span>
                 <span class="n">replica_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">ReplicaParam</span><span class="p">(</span><span class="n">provider_cmd</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
+                    <span class="n">image_provider</span><span class="o">.</span><span class="n">get_replica_param</span><span class="p">(</span>
+                        <span class="n">img_root</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">replica_log_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">)</span>
 

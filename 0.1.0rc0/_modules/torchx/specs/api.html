@@ -386,7 +386,7 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">parse_fn_docstring</span>
-<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">decode_optional</span><span class="p">,</span> <span class="n">is_primitive</span><span class="p">,</span> <span class="n">is_bool</span>
+<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">decode_optional</span><span class="p">,</span> <span class="n">is_bool</span><span class="p">,</span> <span class="n">is_primitive</span>
 
 
 <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="nb">str</span>
@@ -454,10 +454,8 @@
 <span class="sd">    Available macros:</span>
 
 <span class="sd">    1. ``img_root`` - root directory of the pulled container.image</span>
-<span class="sd">    2. ``base_img_root`` - root directory of the pulled role.base_image</span>
-<span class="sd">                           (resolves to &quot;&lt;NONE&gt;&quot; if no base_image set)</span>
-<span class="sd">    3. ``app_id`` - application id as assigned by the scheduler</span>
-<span class="sd">    4. ``replica_id`` - unique id for each instance of a replica of a Role,</span>
+<span class="sd">    2. ``app_id`` - application id as assigned by the scheduler</span>
+<span class="sd">    3. ``replica_id`` - unique id for each instance of a replica of a Role,</span>
 <span class="sd">                        for instance a role with 3 replicas could have the 0, 1, 2</span>
 <span class="sd">                        as replica ids. Note that when the container fails and is</span>
 <span class="sd">                        replaced, the new container will have the same ``replica_id``</span>
@@ -486,7 +484,7 @@
         <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">replica_id</span><span class="p">:</span> <span class="nb">str</span>
-        <span class="n">base_img_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">NONE</span>
+        <span class="n">base_img_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>
 
 <div class="viewcode-block" id="macros.Values.apply"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.apply">[docs]</a>        <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
             <span class="sd">&quot;&quot;&quot;</span>
