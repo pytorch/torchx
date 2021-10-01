@@ -1,0 +1,6 @@
+[run]
+source =
+    torchx
+
+omit =
+    *test*
