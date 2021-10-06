@@ -9,23 +9,20 @@ import json
 import os
 import os.path
 import shlex
-from typing import Tuple, Optional, Mapping
+from typing import Mapping, Optional, Tuple
 
 import yaml
 from kfp import components, dsl
 
 # @manual=fbsource//third-party/pypi/kfp:kfp
-from kfp.components.structures import OutputSpec, ComponentSpec
+from kfp.components.structures import ComponentSpec, OutputSpec
 from kubernetes.client.models import (
     V1ContainerPort,
+    V1EmptyDirVolumeSource,
     V1Volume,
     V1VolumeMount,
-    V1EmptyDirVolumeSource,
 )
-from torchx.schedulers.kubernetes_scheduler import (
-    app_to_resource,
-    pod_labels,
-)
+from torchx.schedulers.kubernetes_scheduler import app_to_resource, pod_labels
 from torchx.specs import api
 from typing_extensions import Protocol
 
@@ -53,8 +50,6 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
     assert (
         role.num_replicas == 1
     ), f"KFP adapter only supports one replica, got {app.num_replicas}"
-
-    assert role.base_image is None, "KFP adapter does not support base_image"
 
     command = [role.entrypoint, *role.args]
 

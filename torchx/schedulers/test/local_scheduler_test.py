@@ -887,7 +887,7 @@ if _has_docker():
                 name="test-app",
                 roles=[
                     Role(
-                        name="base_image_test_role",
+                        name="image_test_role",
                         image="busybox",
                         entrypoint=entrypoint,
                         args=list(args),

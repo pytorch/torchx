@@ -11,7 +11,7 @@ the layout of the nodes in a distributed setting and take the actual
 binaries that each group of nodes (``specs.Role``) runs.
 """
 
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 import torchx.specs as specs
 from torchx.components.base import torch_dist_role
@@ -26,7 +26,6 @@ def ddp(
     resource: Optional[str] = None,
     nnodes: int = 1,
     nproc_per_node: int = 1,
-    base_image: Optional[str] = None,
     name: str = "test-name",
     role: str = "worker",
     env: Optional[Dict[str, str]] = None,
@@ -51,7 +50,6 @@ def ddp(
         nnodes: Number of nodes.
         nproc_per_node: Number of processes per node.
         name: Name of the application.
-        base_image: container base image (not required) .
         role: Name of the ddp role.
         env: Env variables.
 
@@ -76,7 +74,6 @@ def ddp(
         image=image,
         entrypoint=entrypoint,
         resource=resource or specs.NULL_RESOURCE,
-        base_image=base_image,
         args=list(script_args),
         env=env,
         num_replicas=nnodes,

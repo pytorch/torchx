@@ -13,7 +13,7 @@ The cifar10 distributed trainer uses `torch.distributed.run` to
 spawn worker processes.
 """
 
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import torchx.specs.api as torchx
 from torchx.components.dist import ddp
@@ -23,7 +23,6 @@ def trainer(
     *script_args: str,
     image: str,
     resource: Optional[str] = None,
-    base_image: Optional[str] = None,
     nnodes: int = 1,
     nproc_per_node: int = 1,
     rdzv_backend: str = "c10d",
@@ -37,7 +36,6 @@ def trainer(
         resource: string representation of the resource, registerred via entry_point.
             More info: https://pytorch.org/torchx/latest/configure.html
             Default is torchx.NULL_RESOURCE
-        base_image: specifies the base image
         nnodes: number of nodes to run train on, default 1
         nproc_per_node: number of processes per node. Each process
             is assumed to use a separate GPU, default 1
@@ -62,7 +60,6 @@ def trainer(
         resource=resource,
         nnodes=nnodes,
         nproc_per_node=nproc_per_node,
-        base_image=base_image,
         name="cifar-trainer",
         role="worker",
         env=env,
