@@ -22,6 +22,17 @@ class SchedulerFactory(Protocol):
         ...
 
 
+def add_optional_ray_scheduler_factory(factories: Dict[str, SchedulerFactory]) -> None:
+    # Since the Ray scheduler is an optional feature our import statement might
+    # fail if it is not enabled.
+    try:
+        import torchx.schedulers.ray_scheduler as ray_scheduler
+
+        factories["ray"] = ray_scheduler.create_scheduler
+    except ImportError:
+        pass
+
+
 def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
     """
     get_scheduler_factories returns all the available schedulers names and the
@@ -35,6 +46,8 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "slurm": slurm_scheduler.create_scheduler,
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
+
+    add_optional_ray_scheduler_factory(default_schedulers)
 
     return load_group(
         "torchx.schedulers",

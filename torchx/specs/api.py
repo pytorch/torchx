@@ -570,6 +570,9 @@ class runopts:
     def __iter__(self) -> Iterator[Tuple[str, runopt]]:
         return self._opts.items().__iter__()
 
+    def __len__(self) -> int:
+        return len(self._opts)
+
     @staticmethod
     def is_type(obj: ConfigValue, tp: Type[ConfigValue]) -> bool:
         """
