@@ -45,7 +45,7 @@ fi
 
 git fetch upstream
 
-CHANGED_FILES="$(git diff --diff-filter=ACMRT --name-only upstream/master | grep '\.py$' | tr '\n' ' ')"
+CHANGED_FILES="$(git diff --diff-filter=ACMRT --name-only upstream/main | grep '\.py$' | tr '\n' ' ')"
 
 if [ "$CHANGED_FILES" != "" ]
 then

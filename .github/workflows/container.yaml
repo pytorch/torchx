@@ -3,8 +3,7 @@ name: Publish Docker Containers
 on:
   push:
     branches:
-      - master
-      - torchxcontainer
+      - main
 
 jobs:
   build:
