@@ -16,6 +16,7 @@ from ax.core.data import Data
 from ax.core.metric import Metric
 from ax.core.runner import Runner as ax_Runner
 from ax.service.scheduler import Scheduler as ax_Scheduler, TrialStatus
+from ax.utils.common.typeutils import not_none
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
 from torchx.runtime.tracking import FsspecResultTracker
@@ -237,7 +238,7 @@ class TorchXScheduler(ax_Scheduler):
 
         return trial_statuses
 
-    def poll_available_capacity(self) -> Optional[int]:
+    def poll_available_capacity(self) -> int:
         """
         Used when ``run_trials_in_batches`` option is set.
         Since this scheduler is a faux scheduler, this method
@@ -252,4 +253,8 @@ class TorchXScheduler(ax_Scheduler):
 
         """
 
-        return self.generation_strategy._curr.max_parallelism
+        return (
+            -1
+            if self.generation_strategy._curr.max_parallelism is None
+            else not_none(self.generation_strategy._curr.max_parallelism)
+        )
