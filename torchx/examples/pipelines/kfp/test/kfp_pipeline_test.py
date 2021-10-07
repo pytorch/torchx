@@ -27,18 +27,18 @@ class KFPPipelineTest(unittest.TestCase):
             "--output_path",
             "bar",
         ]
-        from examples.pipelines.kfp import advanced_pipeline  # noqa: F401
+        from torchx.examples.pipelines.kfp import advanced_pipeline  # noqa: F401
 
         self.assertTrue(os.path.exists("pipeline.yaml"))
 
     def test_intro_pipeline(self) -> None:
         sys.argv = ["intro_pipeline.py"]
-        from examples.pipelines.kfp import intro_pipeline  # noqa: F401
+        from torchx.examples.pipelines.kfp import intro_pipeline  # noqa: F401
 
         self.assertTrue(os.path.exists("pipeline.yaml"))
 
     def test_dist_pipeline(self) -> None:
         sys.argv = ["dist_pipeline.py"]
-        from examples.pipelines.kfp import dist_pipeline  # noqa: F401
+        from torchx.examples.pipelines.kfp import dist_pipeline  # noqa: F401
 
         self.assertTrue(os.path.exists("pipeline.yaml"))
