@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Any, Callable, Dict, Optional, Set, cast, Iterable
+from typing import Any, Callable, Dict, Optional, Set, cast
 
 import pandas as pd
 from ax.core import Trial
@@ -15,7 +15,8 @@ from ax.core.base_trial import BaseTrial
 from ax.core.data import Data
 from ax.core.metric import Metric
 from ax.core.runner import Runner as ax_Runner
-from ax.service.scheduler import TrialStatus
+from ax.service.scheduler import Scheduler as ax_Scheduler, TrialStatus
+from ax.utils.common.typeutils import not_none
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
 from torchx.runtime.tracking import FsspecResultTracker
@@ -210,12 +211,23 @@ class TorchXRunner(ax_Runner):
             _TORCHX_TRACKER_BASE: self._tracker_base,
         }
 
-    def poll_trial_status(
-        self, trials: Iterable[BaseTrial]
-    ) -> Dict[TrialStatus, Set[int]]:
+
+class TorchXScheduler(ax_Scheduler):
+    """
+    An implementation of an `Ax Scheduler <https://ax.dev/tutorials/scheduler.html>`_
+    that works with Experiments hooked up with the ``TorchXRunner``.
+
+    This scheduler is not a real scheduler but rather a facade scheduler
+    that delegates to scheduler clients for various remote/local schedulers.
+    For a list of supported schedulers please refer to TorchX
+    `scheduler docs <https://pytorch.org/torchx/latest/schedulers.html>`_.
+
+    """
+
+    def poll_trial_status(self) -> Dict[TrialStatus, Set[int]]:
         trial_statuses: Dict[TrialStatus, Set[int]] = {}
 
-        for trial in trials:
+        for trial in self.running_trials:
             app_handle: str = trial.run_metadata[_TORCHX_APP_HANDLE]
             torchx_runner = trial.run_metadata[_TORCHX_RUNNER]
             app_status: AppStatus = torchx_runner.status(app_handle)
@@ -240,4 +252,9 @@ class TorchXRunner(ax_Runner):
                   and scheduling policies.
 
         """
-        return super().poll_available_capacity()
+
+        return (
+            -1
+            if self.generation_strategy._curr.max_parallelism is None
+            else not_none(self.generation_strategy._curr.max_parallelism)
+        )
