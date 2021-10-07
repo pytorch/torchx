@@ -363,23 +363,20 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">shlex</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">kfp</span> <span class="kn">import</span> <span class="n">components</span><span class="p">,</span> <span class="n">dsl</span>
 
 <span class="c1"># @manual=fbsource//third-party/pypi/kfp:kfp</span>
-<span class="kn">from</span> <span class="nn">kfp.components.structures</span> <span class="kn">import</span> <span class="n">OutputSpec</span><span class="p">,</span> <span class="n">ComponentSpec</span>
+<span class="kn">from</span> <span class="nn">kfp.components.structures</span> <span class="kn">import</span> <span class="n">ComponentSpec</span><span class="p">,</span> <span class="n">OutputSpec</span>
 <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">V1ContainerPort</span><span class="p">,</span>
+    <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
     <span class="n">V1Volume</span><span class="p">,</span>
     <span class="n">V1VolumeMount</span><span class="p">,</span>
-    <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">app_to_resource</span><span class="p">,</span>
-    <span class="n">pod_labels</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="kn">import</span> <span class="n">app_to_resource</span><span class="p">,</span> <span class="n">pod_labels</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">api</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span>
 
@@ -407,8 +404,6 @@
     <span class="k">assert</span> <span class="p">(</span>
         <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;KFP adapter only supports one replica, got </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">num_replicas</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">assert</span> <span class="n">role</span><span class="o">.</span><span class="n">base_image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;KFP adapter does not support base_image&quot;</span>
 
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">,</span> <span class="o">*</span><span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
 

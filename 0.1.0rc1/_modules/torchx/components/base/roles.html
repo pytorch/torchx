@@ -364,6 +364,7 @@
 
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">NULL_RESOURCE</span><span class="p">,</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">macros</span>
 
+
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -372,7 +373,6 @@
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span><span class="p">,</span>
-    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -422,7 +422,6 @@
 <span class="sd">        name: Name of the role</span>
 <span class="sd">        entrypoint: User binary or python script that will be launched.</span>
 <span class="sd">        resource: Resource that is requested by scheduler</span>
-<span class="sd">        base_image: Optional base image, if schedulers support image overlay</span>
 <span class="sd">        args: User provided arguments</span>
 <span class="sd">        env: Env. variables that will be set on worker process that runs entrypoint</span>
 <span class="sd">        num_replicas: Number of role replicas to run</span>
@@ -460,7 +459,6 @@
     <span class="k">return</span> <span class="n">Role</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-        <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
         <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint_override</span><span class="p">,</span>
         <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
         <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>

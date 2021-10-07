@@ -365,7 +365,7 @@
 <span class="sd">binaries that each group of nodes (``specs.Role``) runs.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 <span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
@@ -380,7 +380,6 @@
     <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">nproc_per_node</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;test-name&quot;</span><span class="p">,</span>
     <span class="n">role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;worker&quot;</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -405,7 +404,6 @@
 <span class="sd">        nnodes: Number of nodes.</span>
 <span class="sd">        nproc_per_node: Number of processes per node.</span>
 <span class="sd">        name: Name of the application.</span>
-<span class="sd">        base_image: container base image (not required) .</span>
 <span class="sd">        role: Name of the ddp role.</span>
 <span class="sd">        env: Env variables.</span>
 
@@ -430,7 +428,6 @@
         <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
         <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
         <span class="n">resource</span><span class="o">=</span><span class="n">resource</span> <span class="ow">or</span> <span class="n">specs</span><span class="o">.</span><span class="n">NULL_RESOURCE</span><span class="p">,</span>
-        <span class="n">base_image</span><span class="o">=</span><span class="n">base_image</span><span class="p">,</span>
         <span class="n">args</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">script_args</span><span class="p">),</span>
         <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
         <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>

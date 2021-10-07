@@ -383,7 +383,7 @@ to submit this app to the scheduler.</p>
 <h2>Role<a class="headerlink" href="#role" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.specs.Role">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">image:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">base_image:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">entrypoint:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'&lt;MISSING&gt;'</span></em>, <em class="sig-param"><span class="pre">args:</span> <span class="pre">List[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">env:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">retry_policy:</span> <span class="pre">torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">&lt;RetryPolicy.APPLICATION:</span> <span class="pre">'APPLICATION'&gt;</span></em>, <em class="sig-param"><span class="pre">resource:</span> <span class="pre">torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></em>, <em class="sig-param"><span class="pre">gpu=-1</span></em>, <em class="sig-param"><span class="pre">memMB=-1</span></em>, <em class="sig-param"><span class="pre">capabilities={})</span></em>, <em class="sig-param"><span class="pre">port_map:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Role" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">image:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">entrypoint:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'&lt;MISSING&gt;'</span></em>, <em class="sig-param"><span class="pre">args:</span> <span class="pre">List[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">env:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">retry_policy:</span> <span class="pre">torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">&lt;RetryPolicy.APPLICATION:</span> <span class="pre">'APPLICATION'&gt;</span></em>, <em class="sig-param"><span class="pre">resource:</span> <span class="pre">torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></em>, <em class="sig-param"><span class="pre">gpu=-1</span></em>, <em class="sig-param"><span class="pre">memMB=-1</span></em>, <em class="sig-param"><span class="pre">capabilities={})</span></em>, <em class="sig-param"><span class="pre">port_map:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Role" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of nodes that perform a specific duty within the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code>.
 Examples:</p>
 <ol class="arabic simple">
@@ -399,19 +399,6 @@ or map to a docker image. The scheduler typically knows how to “pull”
 the image given an image name (str), which could be a simple name
 (e.g. docker image) or a url e.g. <code class="docutils literal notranslate"><span class="pre">s3://path/my_image.tar</span></code>).</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>An optional <code class="docutils literal notranslate"><span class="pre">base_image</span></code> can be specified if the scheduler supports a
-concept of base images. For schedulers that run Docker containers the
-base image is not useful since the application image itself can be
-built from a base image (using the <code class="docutils literal notranslate"><span class="pre">FROM</span> <span class="pre">base/image:latest</span></code> construct in
-the Dockerfile). However the base image is useful for schedulers that
-work with simple image artifacts (e.g. <code class="docutils literal notranslate"><span class="pre">*.tar.gz</span></code>) that do not have a built-in
-concept of base images. For these schedulers, specifying a base image that
-includes dependencies while the main image is the actual application code
-makes it possible to make changes to the application code without incurring
-the cost of re-building the uber artifact.</p>
-</div>
 <p>Usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
                <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;pytorch/torch:1&quot;</span><span class="p">,</span>
@@ -420,10 +407,6 @@ the cost of re-building the uber artifact.</p>
                <span class="n">num_replicas</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
                <span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span>
                <span class="n">port_map</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tcp_store&quot;</span><span class="p">:</span><span class="mi">8080</span><span class="p">,</span> <span class="s2">&quot;tensorboard&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">})</span>
-
-
-<span class="c1"># for schedulers that support base_images</span>
-<span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;pytorch/torch:1&quot;</span><span class="p">,</span> <span class="n">base_image</span><span class="o">=</span><span class="s2">&quot;common/ml-tools:latest&quot;</span><span class="p">)</span><span class="o">...</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -431,7 +414,6 @@ the cost of re-building the uber artifact.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – name of the role</p></li>
 <li><p><strong>image</strong> – a software bundle that is installed on a container.</p></li>
-<li><p><strong>base_image</strong> – Optional base image, if schedulers support image overlay</p></li>
 <li><p><strong>entrypoint</strong> – command (within the container) to invoke the role</p></li>
 <li><p><strong>args</strong> – commandline arguments to the entrypoint cmd</p></li>
 <li><p><strong>env</strong> – environment variable mappings</p></li>

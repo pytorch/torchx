@@ -547,18 +547,6 @@
 <span class="sd">              the image given an image name (str), which could be a simple name</span>
 <span class="sd">              (e.g. docker image) or a url e.g. ``s3://path/my_image.tar``).</span>
 
-
-<span class="sd">    .. note:: An optional ``base_image`` can be specified if the scheduler supports a</span>
-<span class="sd">              concept of base images. For schedulers that run Docker containers the</span>
-<span class="sd">              base image is not useful since the application image itself can be</span>
-<span class="sd">              built from a base image (using the ``FROM base/image:latest`` construct in</span>
-<span class="sd">              the Dockerfile). However the base image is useful for schedulers that</span>
-<span class="sd">              work with simple image artifacts (e.g. ``*.tar.gz``) that do not have a built-in</span>
-<span class="sd">              concept of base images. For these schedulers, specifying a base image that</span>
-<span class="sd">              includes dependencies while the main image is the actual application code</span>
-<span class="sd">              makes it possible to make changes to the application code without incurring</span>
-<span class="sd">              the cost of re-building the uber artifact.</span>
-
 <span class="sd">    Usage:</span>
 
 <span class="sd">    ::</span>
@@ -571,14 +559,9 @@
 <span class="sd">                    resource = Resource(cpu=1, gpu=1, memMB=500),</span>
 <span class="sd">                    port_map={&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081})</span>
 
-
-<span class="sd">     # for schedulers that support base_images</span>
-<span class="sd">     trainer = Role(name=&quot;trainer&quot;, image=&quot;pytorch/torch:1&quot;, base_image=&quot;common/ml-tools:latest&quot;)...</span>
-
 <span class="sd">    Args:</span>
 <span class="sd">            name: name of the role</span>
 <span class="sd">            image: a software bundle that is installed on a container.</span>
-<span class="sd">            base_image: Optional base image, if schedulers support image overlay</span>
 <span class="sd">            entrypoint: command (within the container) to invoke the role</span>
 <span class="sd">            args: commandline arguments to the entrypoint cmd</span>
 <span class="sd">            env: environment variable mappings</span>
@@ -594,7 +577,6 @@
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>

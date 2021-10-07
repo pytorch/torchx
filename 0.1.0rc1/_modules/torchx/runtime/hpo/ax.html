@@ -370,6 +370,7 @@
 <span class="kn">from</span> <span class="nn">ax.core.metric</span> <span class="kn">import</span> <span class="n">Metric</span>
 <span class="kn">from</span> <span class="nn">ax.core.runner</span> <span class="kn">import</span> <span class="n">Runner</span> <span class="k">as</span> <span class="n">ax_Runner</span>
 <span class="kn">from</span> <span class="nn">ax.service.scheduler</span> <span class="kn">import</span> <span class="n">Scheduler</span> <span class="k">as</span> <span class="n">ax_Scheduler</span><span class="p">,</span> <span class="n">TrialStatus</span>
+<span class="kn">from</span> <span class="nn">ax.utils.common.typeutils</span> <span class="kn">import</span> <span class="n">not_none</span>
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">Runner</span><span class="p">,</span> <span class="n">get_runner</span>
 <span class="kn">from</span> <span class="nn">torchx.runtime.tracking</span> <span class="kn">import</span> <span class="n">FsspecResultTracker</span>
@@ -591,7 +592,7 @@
 
         <span class="k">return</span> <span class="n">trial_statuses</span>
 
-    <span class="k">def</span> <span class="nf">poll_available_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">poll_available_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Used when ``run_trials_in_batches`` option is set.</span>
 <span class="sd">        Since this scheduler is a faux scheduler, this method</span>
@@ -606,7 +607,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">max_parallelism</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">max_parallelism</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">not_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">max_parallelism</span><span class="p">)</span>
+        <span class="p">)</span></div>
 </pre></div>
 
      </article>
