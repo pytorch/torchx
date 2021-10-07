@@ -6,10 +6,11 @@
 
 import argparse
 import logging
+import os
 import sys
 from dataclasses import asdict
 from pprint import pformat
-from typing import Dict, List, cast, Type
+from typing import Dict, List, cast, Type, Optional
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
@@ -110,7 +111,7 @@ class CmdRun(SubCommand):
             nargs=argparse.REMAINDER,
         )
 
-    def _run(self, runner: Runner, args: argparse.Namespace) -> None:
+    def _run(self, runner: Runner, args: argparse.Namespace) -> Optional[str]:
         run_opts = get_runner().run_opts()
         scheduler_opts = run_opts[args.scheduler]
         scheduler_args = _parse_run_config(args.scheduler_args, scheduler_opts)
@@ -136,9 +137,9 @@ class CmdRun(SubCommand):
 
             logger.info("=== SCHEDULER REQUEST ===")
             logger.info(app_dryrun_info)
+            return
         else:
             app_handle = cast(specs.AppHandle, result)
-            print(app_handle)
 
             if args.scheduler.startswith("local"):
                 self._wait_and_exit(runner, app_handle)
@@ -151,8 +152,10 @@ class CmdRun(SubCommand):
 
                 if args.wait:
                     self._wait_and_exit(runner, app_handle)
+            return app_handle
 
     def run(self, args: argparse.Namespace) -> None:
+        os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
         with get_runner() as runner:
             self._run(runner, args)
 

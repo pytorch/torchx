@@ -52,6 +52,7 @@ class CmdRunTest(unittest.TestCase):
             ]
         )
         self.cmd_run.run(args)
+        self.assertEqual("cli_run", os.environ["TORCHX_CONTEXT_NAME"])
         self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.test")))
 
     def test_run_with_relpath(self) -> None:
