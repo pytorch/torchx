@@ -360,35 +360,50 @@
 <h1>Configuring<a class="headerlink" href="#configuring" title="Permalink to this headline">¶</a></h1>
 <p>TorchX defines plugin points for you to configure TorchX to best support
 your infrastructure setup. Most of the configuration is done through
-Python’s <cite>entry points&lt;https://packaging.python.org/specifications/entry-points/&gt;</cite>.</p>
+Python’s <a class="reference external" href="https://packaging.python.org/specifications/entry-points/">entry points</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Entry points requires a python package containing them be installed.
+If you don’t have a python package we recommend you make one so you can share
+your resource definitions, schedulers and components across your team and org.</p>
+</div>
 <p>The entry points described below can be specified in your project’s <cite>setup.py</cite>
 file as</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
 
 <span class="n">setup</span><span class="p">(</span>
-   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;project foobar&quot;</span><span class="p">,</span>
-   <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
-       <span class="s2">&quot;$ep_group_name&quot;</span> <span class="p">:</span> <span class="p">[</span>
-           <span class="s2">&quot;$ep_name = $module:$function&quot;</span>
-       <span class="p">],</span>
-   <span class="p">}</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;project foobar&quot;</span><span class="p">,</span>
+    <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;torchx.schedulers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;my_scheduler = my.custom.scheduler:create_scheduler&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;torchx.named_resources&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;gpu_x2 = my_module.resources:gpu_x2&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <section id="registering-custom-schedulers">
 <h2>Registering Custom Schedulers<a class="headerlink" href="#registering-custom-schedulers" title="Permalink to this headline">¶</a></h2>
 <p>You may implement a custom scheduler by implementing the
-.. py::class torchx.schedulers.Scheduler interface. Once you do you can
-register this custom scheduler with the following entrypoint</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[torchx.schedulers]
-$sched_name = my.custom.scheduler:create_scheduler
+.. py::class torchx.schedulers.Scheduler interface.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">create_scheduler</span></code> function should have the following function signature:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">Scheduler</span>
+
+<span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">MyScheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">create_scheduler</span></code> function should have the following function signature:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">Scheduler</span>
-
-<span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">MyScheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<p>You can then register this custom scheduler by adding an entry_points definition
+to your python project.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
+<span class="o">...</span>
+<span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;torchx.schedulers&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;my_scheduler = my.custom.scheduler:create_schedule&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -400,35 +415,52 @@ when your cluster has a fixed set of instance types. For instance if your
 deep learning training kubernetes cluster on AWS is
 comprised only of p3.16xlarge (64 vcpu, 8 gpu, 488GB), then you may want to
 enumerate t-shirt sized resource specs for the containers as:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;gpu_x_1&quot;</span> <span class="p">:</span> <span class="s2">&quot;Resource(cpu=8,  gpu=1, memMB=61*GB),</span>
-   <span class="s2">&quot;gpu_x_2&quot;</span> <span class="p">:</span> <span class="s2">&quot;Resource(cpu=16, gpu=2, memMB=122*GB),</span>
-   <span class="s2">&quot;gpu_x_4&quot;</span> <span class="p">:</span> <span class="s2">&quot;Resource(cpu=32, gpu=4, memMB=244*GB),</span>
-   <span class="s2">&quot;gpu_x_8&quot;</span> <span class="p">:</span> <span class="s2">&quot;Resource(cpu=64, gpu=8, memMB=488*GB),</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">Resource</span>
+
+<span class="k">def</span> <span class="nf">gpu_x1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>  <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">61_000</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">gpu_x2</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">122_000</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">gpu_x3</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">244_000</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">gpu_x4</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">488_000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To make these resource definitions available you then need to register them via
+entry_points:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
+<span class="o">...</span>
+<span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;torchx.named_resources&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;gpu_x2 = my_module.resources:gpu_x2&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>And refer to the resources by their string names.</p>
-<p>Torchx supports custom resource definition and reference by string
-representation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">torchx</span><span class="o">.</span><span class="n">named_resources</span><span class="p">]</span>
-<span class="n">gpu_x_2</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span><span class="n">gpu_x_2</span>
+<p>Once you install the package with the entry_points definitions, the named
+resource can then be used in the following manner:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">get_named_resources</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_named_resources</span><span class="p">(</span><span class="s2">&quot;gpu_x2&quot;</span><span class="p">)</span>
+<span class="go">Resource(cpu=16, gpu=2, memMB=122000, ...)</span>
 </pre></div>
 </div>
-<p>The named resource after that can be used in the following manner:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_module.component</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">named_resources</span>
-<span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_module.component</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">get_named_resources</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="o">..</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="n">named_resources</span><span class="p">(</span><span class="s2">&quot;gpu_x_2&quot;</span><span class="p">))])</span>
-</pre></div>
-</div>
-<p>or using <code class="docutils literal notranslate"><span class="pre">torch.distributed.run</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_module.component</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">Role</span>
-<span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
+<span class="k">def</span> <span class="nf">test_app</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDef</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Role</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="n">image</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="n">resource</span><span class="o">=</span><span class="n">get_named_resources</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">])</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">torch_dist_role</span><span class="p">(</span><span class="o">..</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;gpu_x_2&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)])</span>
+<span class="n">test_app</span><span class="p">(</span><span class="s2">&quot;gpu_x2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -442,9 +474,14 @@ when they run</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 </pre></div>
 </div>
-<p>Custom components can be registered via the following modification of the <code class="docutils literal notranslate"><span class="pre">entry_points.txt</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">torchx</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>
-<span class="n">foo</span> <span class="o">=</span> <span class="n">my_project</span><span class="o">.</span><span class="n">bar</span>
+<p>Custom components can be registered via the following modification of the <code class="docutils literal notranslate"><span class="pre">entry_points</span></code>:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
+<span class="o">...</span>
+<span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;torchx.components&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;foo = my_project.bar&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The line above registers a group <code class="docutils literal notranslate"><span class="pre">foo</span></code> that is associated with the module <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code>.
