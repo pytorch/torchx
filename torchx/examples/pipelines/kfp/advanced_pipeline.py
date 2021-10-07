@@ -124,7 +124,7 @@ copy_app: specs.AppDef = copy(
 # specified ahead of time so we have a fully static pipeline.
 
 
-from examples.apps.datapreproc.component import data_preproc
+from torchx.examples.apps.datapreproc.component import data_preproc
 
 processed_data_path: str = os.path.join(args.output_path, "processed")
 datapreproc_app: specs.AppDef = data_preproc(
@@ -144,7 +144,7 @@ datapreproc_app: specs.AppDef = data_preproc(
 if "__file__" in globals():
     sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from examples.apps.lightning_classy_vision.component import trainer
+from torchx.examples.apps.lightning_classy_vision.component import trainer
 
 logs_path: str = os.path.join(args.output_path, "logs")
 models_path: str = os.path.join(args.output_path, "models")
@@ -198,7 +198,7 @@ serve_app: specs.AppDef = torchserve(
 # own component file. This component takes in the output from datapreproc and
 # train components and produces images with integrated gradient results.
 
-from examples.apps.lightning_classy_vision.component import interpret
+from torchx.examples.apps.lightning_classy_vision.component import interpret
 
 interpret_path: str = os.path.join(args.output_path, "interpret")
 interpret_app: specs.AppDef = interpret(
