@@ -22,18 +22,17 @@ from ax.core import (
     SearchSpace,
 )
 from ax.modelbridge.dispatch_utils import choose_generation_strategy
-from ax.service.scheduler import Scheduler
 from ax.service.scheduler import SchedulerOptions
 from ax.service.utils.best_point import get_best_parameters
 from ax.service.utils.report_utils import exp_to_df
 from ax.utils.common.constants import Keys
 from pyre_extensions import none_throws
 from torchx.components import utils
-from torchx.runtime.hpo.ax import AppMetric, TorchXRunner
+from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
 from torchx.specs import RunConfig
 
 
-class SchedulerTest(unittest.TestCase):
+class TorchXSchedulerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.test_dir = tempfile.mkdtemp("torchx_runtime_hpo_ax_test")
 
@@ -88,7 +87,7 @@ class SchedulerTest(unittest.TestCase):
 
         # maybe add-on RunConfig into SchedulerOption?
         # so that we can pass it from one place
-        scheduler = Scheduler(
+        scheduler = TorchXScheduler(
             experiment=experiment,
             generation_strategy=(
                 choose_generation_strategy(
@@ -133,7 +132,7 @@ class SchedulerTest(unittest.TestCase):
 
         # maybe add-on RunConfig into SchedulerOption?
         # so that we can pass it from one place
-        scheduler = Scheduler(
+        scheduler = TorchXScheduler(
             experiment=experiment,
             generation_strategy=(
                 choose_generation_strategy(
