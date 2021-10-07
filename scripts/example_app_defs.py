@@ -9,10 +9,9 @@
 App Defs for integration tests.
 """
 
-
-import examples.apps.datapreproc.component as dp_component
-import examples.apps.dist_cifar.component as dist_cifar_component
-import examples.apps.lightning_classy_vision.component as cv_component
+import torchx.examples.apps.datapreproc.component as dp_component
+import torchx.examples.apps.dist_cifar.component as dist_cifar_component
+import torchx.examples.apps.lightning_classy_vision.component as cv_component
 from torchx.components.integration_tests.component_provider import ComponentProvider
 from torchx.specs import AppDef
 

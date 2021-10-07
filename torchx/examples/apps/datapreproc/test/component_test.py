@@ -4,10 +4,10 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import examples.apps.dist_cifar.component as dist_cifar
+import torchx.examples.apps.datapreproc.component as datapreproc
 from torchx.components.component_test_base import ComponentTestCase
 
 
-class DistCifar10ComponentTest(ComponentTestCase):
+class DatapreprocComponentTest(ComponentTestCase):
     def test_trainer(self) -> None:
-        self._validate(dist_cifar, "trainer")
+        self._validate(datapreproc, "data_preproc")

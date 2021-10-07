@@ -17,7 +17,7 @@ from torchx.schedulers.ids import random_id
 class BuildInfo:
     id: str
     torchx_image: str
-    examples_image: str
+    examples_image: str = "<None>"
 
 
 class MissingEnvError(AssertionError):
@@ -41,15 +41,6 @@ def run_in_bg(*args: str) -> "subprocess.Popen[str]":
     return subprocess.Popen(args)
 
 
-def build_examples_canary(id: str) -> str:
-    examples_tag = "torchx_examples_canary"
-
-    print(f"building {examples_tag}")
-    run("docker", "build", "-t", examples_tag, "examples/apps/")
-
-    return examples_tag
-
-
 def build_torchx_canary(id: str) -> str:
     torchx_tag = "torchx_canary"
 
@@ -65,30 +56,19 @@ def torchx_container_tag(id: str) -> str:
     return f"{CONTAINER_REPO}:canary_{id}_torchx"
 
 
-def examples_container_tag(id: str) -> str:
-    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
-    return f"{CONTAINER_REPO}:canary_{id}_examples"
-
-
 def build_images() -> BuildInfo:
     id = f"{getuser()}_{random_id()}"
-    examples_image = build_examples_canary(id)
     torchx_image = build_torchx_canary(id)
     return BuildInfo(
         id=id,
         torchx_image=torchx_image,
-        examples_image=examples_image,
+        examples_image="<None>",
     )
 
 
 def push_images(build: BuildInfo) -> None:
-    examples_tag = examples_container_tag(build.id)
-    run("docker", "tag", build.examples_image, examples_tag)
-    build.examples_image = examples_tag
-
     torchx_tag = torchx_container_tag(build.id)
     run("docker", "tag", build.torchx_image, torchx_tag)
     build.torchx_image = torchx_tag
 
-    run("docker", "push", examples_tag)
     run("docker", "push", torchx_tag)
