@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from torchx.specs.api import NULL_RESOURCE, Resource, RetryPolicy, Role, macros
 
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 
@@ -18,7 +19,6 @@ def create_torch_dist_role(
     image: str,
     entrypoint: str,
     resource: Resource = NULL_RESOURCE,
-    base_image: Optional[str] = None,
     args: Optional[List[str]] = None,
     env: Optional[Dict[str, str]] = None,
     num_replicas: int = 1,
@@ -68,7 +68,6 @@ def create_torch_dist_role(
         name: Name of the role
         entrypoint: User binary or python script that will be launched.
         resource: Resource that is requested by scheduler
-        base_image: Optional base image, if schedulers support image overlay
         args: User provided arguments
         env: Env. variables that will be set on worker process that runs entrypoint
         num_replicas: Number of role replicas to run
@@ -106,7 +105,6 @@ def create_torch_dist_role(
     return Role(
         name,
         image=image,
-        base_image=base_image,
         entrypoint=entrypoint_override,
         args=args,
         env=env,

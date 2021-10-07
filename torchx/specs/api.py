@@ -191,18 +191,6 @@ class Role:
               the image given an image name (str), which could be a simple name
               (e.g. docker image) or a url e.g. ``s3://path/my_image.tar``).
 
-
-    .. note:: An optional ``base_image`` can be specified if the scheduler supports a
-              concept of base images. For schedulers that run Docker containers the
-              base image is not useful since the application image itself can be
-              built from a base image (using the ``FROM base/image:latest`` construct in
-              the Dockerfile). However the base image is useful for schedulers that
-              work with simple image artifacts (e.g. ``*.tar.gz``) that do not have a built-in
-              concept of base images. For these schedulers, specifying a base image that
-              includes dependencies while the main image is the actual application code
-              makes it possible to make changes to the application code without incurring
-              the cost of re-building the uber artifact.
-
     Usage:
 
     ::
@@ -215,14 +203,9 @@ class Role:
                     resource = Resource(cpu=1, gpu=1, memMB=500),
                     port_map={"tcp_store":8080, "tensorboard": 8081})
 
-
-     # for schedulers that support base_images
-     trainer = Role(name="trainer", image="pytorch/torch:1", base_image="common/ml-tools:latest")...
-
     Args:
             name: name of the role
             image: a software bundle that is installed on a container.
-            base_image: Optional base image, if schedulers support image overlay
             entrypoint: command (within the container) to invoke the role
             args: commandline arguments to the entrypoint cmd
             env: environment variable mappings
@@ -238,7 +221,6 @@ class Role:
 
     name: str
     image: str
-    base_image: Optional[str] = None
     entrypoint: str = MISSING
     args: List[str] = field(default_factory=list)
     env: Dict[str, str] = field(default_factory=dict)

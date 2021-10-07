@@ -149,7 +149,6 @@ use the ``--dryrun`` option to the ``run`` subcommand:
  { 'metadata': {},
    'name': 'echo',
    'roles': [ { 'args': ['hello_world'],
-                'base_image': None,
                 'entrypoint': '/bin/echo',
                 'env': {},
                 'image': '/tmp',

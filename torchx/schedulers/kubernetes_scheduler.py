@@ -10,9 +10,31 @@ import logging
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Iterable
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional
 
+import torchx
 import yaml
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    DescribeAppResponse,
+    Scheduler,
+    filter_regex,
+)
+from torchx.schedulers.ids import make_unique
+from torchx.specs.api import (
+    AppDef,
+    AppState,
+    ReplicaState,
+    ReplicaStatus,
+    RetryPolicy,
+    Role,
+    RoleStatus,
+    RunConfig,
+    SchedulerBackend,
+    macros,
+    runopts,
+)
+
 
 if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
@@ -26,27 +48,6 @@ if TYPE_CHECKING:
     )
     from kubernetes.client.rest import ApiException
 
-import torchx
-from torchx.schedulers.api import (
-    AppDryRunInfo,
-    DescribeAppResponse,
-    Scheduler,
-    filter_regex,
-)
-from torchx.schedulers.ids import make_unique
-from torchx.specs.api import (
-    AppState,
-    ReplicaState,
-    AppDef,
-    Role,
-    RunConfig,
-    SchedulerBackend,
-    macros,
-    RetryPolicy,
-    RoleStatus,
-    ReplicaStatus,
-    runopts,
-)
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -136,8 +137,6 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
         V1ContainerPort,
         V1ObjectMeta,
     )
-
-    assert role.base_image is None, "base_image is not supported by Kubernetes"
 
     requests = {}
 

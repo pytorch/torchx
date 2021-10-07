@@ -8,7 +8,7 @@
 import sys
 import unittest
 from dataclasses import asdict
-from typing import Dict, List, Optional, Union, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch
 
 from torchx.specs.api import (
@@ -111,7 +111,6 @@ class RoleBuilderTest(unittest.TestCase):
         default = Role("foobar", "torch")
         self.assertEqual("foobar", default.name)
         self.assertEqual("torch", default.image)
-        self.assertIsNone(default.base_image)
         self.assertEqual(MISSING, default.entrypoint)
         self.assertEqual({}, default.env)
         self.assertEqual([], default.args)
@@ -126,7 +125,6 @@ class RoleBuilderTest(unittest.TestCase):
         trainer = Role(
             "trainer",
             image="torch",
-            base_image="base_image",
             entrypoint="/bin/echo",
             args=["hello", "world"],
             env={"ENV_VAR_1": "FOOBAR"},
@@ -139,7 +137,6 @@ class RoleBuilderTest(unittest.TestCase):
 
         self.assertEqual("trainer", trainer.name)
         self.assertEqual("torch", trainer.image)
-        self.assertEqual("base_image", trainer.base_image)
         self.assertEqual("/bin/echo", trainer.entrypoint)
         self.assertEqual({"ENV_VAR_1": "FOOBAR"}, trainer.env)
         self.assertEqual(["hello", "world"], trainer.args)
