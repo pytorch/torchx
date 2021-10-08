@@ -1,12 +1,12 @@
 {
-  "source_directories": [
-    "."
-  ],
-  "strict": true,
   "exclude": [
     ".*/build/.*",
     ".*/docs/.*",
     ".*/setup.py"
   ],
-  "version": "0.0.101631877055"
+  "source_directories": [
+    "."
+  ],
+  "strict": true,
+  "version": "0.0.101633432222"
 }
