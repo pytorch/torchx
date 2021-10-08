@@ -24,7 +24,6 @@ Environment variables:
 ```
 export KFP_NAMESPACE=<kfp namespace>
 export INTEGRATION_TEST_STORAGE=<cloud storage path>
-export EXAMPLES_CONTAINER_REPO=<docker repo>
 export TORCHX_CONTAINER_REPO=<docker repo>
 ```
 
@@ -141,7 +140,6 @@ def save_advanced_pipeline_spec(path: str, build: BuildInfo) -> None:
 
     id = build.id
     torchx_image = build.torchx_image
-    examples_image = build.examples_image
 
     STORAGE_PATH = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(STORAGE_PATH, id)
@@ -153,8 +151,6 @@ def save_advanced_pipeline_spec(path: str, build: BuildInfo) -> None:
         "--output_path",
         output,
         "--image",
-        examples_image,
-        "--torchx_image",
         torchx_image,
         "--model_name",
         f"tiny_image_net_{id}",
@@ -165,7 +161,7 @@ def save_pipeline_spec(path: str, pipeline_file: str, *args: str) -> None:
     print(f"generating pipeline spec for {pipeline_file}")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        run(os.path.join("examples/pipelines/kfp", pipeline_file), *args)
+        run(os.path.join("torchx/examples/pipelines/kfp", pipeline_file), *args)
         shutil.copy("pipeline.yaml", path)
 
 
@@ -202,7 +198,6 @@ def run_pipeline(build: BuildInfo, pipeline_file: str) -> object:
     except MaxRetryError:
         print(_connection_error_message())
         raise
-    namespace = getenv_asserts("KFP_NAMESPACE")
     resp = client.create_run_from_pipeline_package(
         pipeline_file,
         arguments={},

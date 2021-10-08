@@ -32,18 +32,12 @@ parser = argparse.ArgumentParser(description="example kfp pipeline")
 # the standard built in apps. If you modify the torchx example code you'll
 # need to rebuild the container before launching it on KFP
 
-from torchx.version import TORCHX_IMAGE, EXAMPLES_IMAGE
+from torchx.version import TORCHX_IMAGE
 
 parser.add_argument(
     "--image",
     type=str,
     help="docker image to use for the examples apps",
-    default=EXAMPLES_IMAGE,
-)
-parser.add_argument(
-    "--torchx_image",
-    type=str,
-    help="docker image to use for the builtin torchx apps",
     default=TORCHX_IMAGE,
 )
 
@@ -113,7 +107,7 @@ data_path: str = os.path.join(args.output_path, "tiny-imagenet-200.zip")
 copy_app: specs.AppDef = copy(
     "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
     data_path,
-    image=args.torchx_image,
+    image=args.image,
 )
 
 # %%
@@ -124,7 +118,7 @@ copy_app: specs.AppDef = copy(
 # specified ahead of time so we have a fully static pipeline.
 
 
-from examples.apps.datapreproc.component import data_preproc
+from torchx.examples.apps.datapreproc.component import data_preproc
 
 processed_data_path: str = os.path.join(args.output_path, "processed")
 datapreproc_app: specs.AppDef = data_preproc(
@@ -144,7 +138,7 @@ datapreproc_app: specs.AppDef = data_preproc(
 if "__file__" in globals():
     sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from examples.apps.lightning_classy_vision.component import trainer
+from torchx.examples.apps.lightning_classy_vision.component import trainer
 
 logs_path: str = os.path.join(args.output_path, "logs")
 models_path: str = os.path.join(args.output_path, "models")
@@ -185,7 +179,7 @@ from torchx.components.serve import torchserve
 serve_app: specs.AppDef = torchserve(
     model_path=os.path.join(models_path, "model.mar"),
     management_api=args.management_api,
-    image=args.torchx_image,
+    image=args.image,
     params={
         "model_name": args.model_name,
         # set this to allocate a worker
@@ -198,7 +192,7 @@ serve_app: specs.AppDef = torchserve(
 # own component file. This component takes in the output from datapreproc and
 # train components and produces images with integrated gradient results.
 
-from examples.apps.lightning_classy_vision.component import interpret
+from torchx.examples.apps.lightning_classy_vision.component import interpret
 
 interpret_path: str = os.path.join(args.output_path, "interpret")
 interpret_app: specs.AppDef = interpret(
