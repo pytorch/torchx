@@ -5,16 +5,27 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import argparse
 import os
 import unittest
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-from torchx.cli.main import main
+from torchx.cli.cmd_base import SubCommand
+from torchx.cli.main import main, get_sub_cmds
 
 
 _root: Path = Path(__file__).parent
 
 _SIMPLE_CONF: str = str(Path(__file__).parent / "components.py:simple")
+
+
+class _TestCmd(SubCommand):
+    def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
+        pass
+
+    def run(self, args: argparse.Namespace) -> None:
+        pass
 
 
 class CLITest(unittest.TestCase):
@@ -48,3 +59,9 @@ class CLITest(unittest.TestCase):
                 "2",
             ]
         )
+
+    @patch("torchx.cli.main.load_group")
+    def test_get_sub_cmds(self, load_group_mock: MagicMock) -> None:
+        load_group_mock.return_value = {"run": _TestCmd}
+        cmds = get_sub_cmds()
+        self.assertIsInstance(cmds["run"], _TestCmd)
