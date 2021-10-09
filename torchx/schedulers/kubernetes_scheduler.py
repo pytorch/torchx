@@ -224,7 +224,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
                     "name": name,
                     "template": pod,
                     "maxRetry": role.max_retries,
-                    "policies": RETRY_POLICIES[role.retry_policy],
+                    # "policies": RETRY_POLICIES[role.retry_policy],
                 }
             )
 
