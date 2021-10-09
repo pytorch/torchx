@@ -140,6 +140,7 @@ class CmdRun(SubCommand):
             return
         else:
             app_handle = cast(specs.AppHandle, result)
+            print(app_handle)
 
             if args.scheduler.startswith("local"):
                 self._wait_and_exit(runner, app_handle)
