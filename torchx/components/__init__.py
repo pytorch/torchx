@@ -28,36 +28,62 @@ Components can be used out of the box by either torchx cli or torchx sdk.
 
 
 Components development
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-The addition of a new component is pretty straightforward and consists
- of the following steps:
+Component is a well-defined python function that accepts arguments and returns `torchx.specs.AppDef`.
+The examples of components can be found under :py:mod:`torchx.components` module.
 
-* Determine component location
-* Create component as function
-* Unit tests
+Component function has the following properties:
 
-Determine component location. Each component belongs to one or another category,
-and should be located accordingly. E.g. the definition of distributed components
-should be located in ``distributed.py`` file.
-
-Create component as function. Each component represents a function that accepts
- arbitrary arguments and returns ``specs.AppDef``.
-
-The function should
-have the following properties:
-
-* All arguments of the function must be annotated
-* Current supported types:
-    + Primitives: int, float, str
+* All arguments of the function must be annotated with corresponding data type
+* Component function can use the following types:
+    + Primitives: int, float, str, bool
+    + Bool is supported via key-value pair, e.g.: `--foo True` correspond to `foo:bool = True`
     + Optional primitives: Optional[int], Optional[float], Optional[str]
     + Dict: Dict[Primitive_key, Primitive_value]
     + List: List[Primitive_value]
-    + Optional[List], Optional[Dict]
+    + Optional[List[Primitive_value]], Optional[Dict[Primitive_key, Primitive_value]]
+    + VAR_ARG. Component function may define `*arg`, that accepts arbitrary number of arguments
+      and can be passed to the underlying script.
 * The function should have well defined description in
     https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html format
 
 
-Unit tests. Write unit tests that use ``torchx.specs.file_linter`` to validate
-the component's structure,  similar to ``torchx.components.tests.distributed_test.py``.
+Torchx supports running builtin component as well as runnig components via provided path:
+
+::
+
+  # component function should contain `foo:str` argument
+  torchx run ./my_component.py:component_ft --foo bar
+
+
+Note about VAR_ARG.
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If component function defines python var arg, there will be the following restrictions when launching it via command line:
+
+* The script args should be passed at the end of the command, e.g.
+
+::
+
+  # component.py
+  def my_component(*script_args: str, image: str) -> specs.AppDef:
+    ...
+
+  # script_args = [arg1, arg2, arg2], image = foo
+  torchx run ./component.py:my_component --image foo arg1 arg2 arg3
+
+  # script_args = [--flag, arg1], image = foo
+  torchx run ./component.py:my_component --image foo -- --flag arg1
+
+  # script_args = [arg1, --flag], image = foo
+  torchx run ./component.py:my_component --image foo arg1 --flag
+
+  # script_args = [--help], image = foo
+  torchx run ./component.py:my_component --image foo -- --help
+
+  # script_args = [--image, bar], image = foo
+  torchx run ./component.py:my_component --image foo -- --image bar
+
 
 """
