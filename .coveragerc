@@ -4,3 +4,4 @@ source =
 
 omit =
     *test*
+    torchx/examples/*
