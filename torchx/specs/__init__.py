@@ -7,6 +7,7 @@
 
 from typing import Dict
 
+import torchx.specs.named_resources_aws as aws_resources
 from torchx.util.entrypoints import load_group
 
 from .api import (  # noqa: F401 F403
@@ -48,6 +49,14 @@ GiB: int = 1024
 def _load_named_resources() -> Dict[str, Resource]:
     resource_methods = load_group("torchx.named_resources", default={})
     materialized_resources = {}
+    default = {
+        "aws_t3.medium": aws_resources.aws_t3_medium(),
+        "aws_m5.2xlarge": aws_resources.aws_m5_2xlarge(),
+        "aws_p3.2xlarge": aws_resources.aws_p3_2xlarge(),
+        "aws_p3.8xlarge": aws_resources.aws_p3_8xlarge(),
+    }
+    for name, resource in default.items():
+        materialized_resources[name] = resource
     for resource_name, resource_method in resource_methods.items():
         materialized_resources[resource_name] = resource_method()
     materialized_resources["NULL"] = NULL_RESOURCE

@@ -26,8 +26,15 @@ Resource
 
 .. autofunction:: get_named_resources
 
+AWS Named Resources
+^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: torchx.specs.named_resources_aws
+
+.. currentmodule:: torchx.specs.named_resources_aws
+
 Macros
 ------------
+.. currentmodule:: torchx.specs
 .. autoclass:: macros
    :members:
 

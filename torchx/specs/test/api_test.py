@@ -11,6 +11,8 @@ from dataclasses import asdict
 from typing import Dict, List, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch
 
+import torchx.specs.named_resources_aws as named_resources_aws
+from torchx.specs import named_resources
 from torchx.specs.api import (
     _TERMINAL_STATES,
     MISSING,
@@ -104,6 +106,20 @@ class ResourceTest(unittest.TestCase):
         self.assertEqual(new_resource.capabilities["test_key"], "test_value_new")
         self.assertEqual(new_resource.capabilities["new_key"], "new_value")
         self.assertEqual(resource.capabilities["test_key"], "test_value")
+
+    def test_named_resources(self) -> None:
+        self.assertEqual(
+            named_resources_aws.aws_m5_2xlarge(), named_resources["aws_m5.2xlarge"]
+        )
+        self.assertEqual(
+            named_resources_aws.aws_t3_medium(), named_resources["aws_t3.medium"]
+        )
+        self.assertEqual(
+            named_resources_aws.aws_p3_2xlarge(), named_resources["aws_p3.2xlarge"]
+        )
+        self.assertEqual(
+            named_resources_aws.aws_p3_8xlarge(), named_resources["aws_p3.8xlarge"]
+        )
 
 
 class RoleBuilderTest(unittest.TestCase):
