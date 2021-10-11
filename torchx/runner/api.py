@@ -5,7 +5,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import getpass
 import json
 import logging
 import time
@@ -547,7 +546,7 @@ def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
 
     """
     if not name:
-        name = f"torchx_{getpass.getuser()}"
+        name = "torchx"
 
     schedulers = get_schedulers(session_name=name, **scheduler_params)
     return Runner(name, schedulers)
