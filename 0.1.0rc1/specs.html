@@ -531,6 +531,30 @@ the following steps:</p>
 </div>
 </dd></dl>
 
+<section id="module-torchx.specs.named_resources_aws">
+<span id="aws-named-resources"></span><h3>AWS Named Resources<a class="headerlink" href="#module-torchx.specs.named_resources_aws" title="Permalink to this headline">¶</a></h3>
+<p><cite>torchx.specs.named_resources_aws</cite> contains resource definitions that represent corresponding AWS instance types
+taken from <a class="reference external" href="https://aws.amazon.com/ec2/instance-types/">https://aws.amazon.com/ec2/instance-types/</a>. The resources are exposed
+via entrypoints after installing torchx lib. The mapping is stored in the <cite>setup.py</cite> file.</p>
+<p>The named resources currently do not specify AWS instance type capabilities but merely represent
+the equvalent resource in mem, cpu and gpu numbers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These resource definitions may change in future. It is expected for each user to
+manage their own resources. Follow <a class="reference external" href="https://pytorch.org/torchx/latest/specs.html#torchx.specs.get_named_resources">https://pytorch.org/torchx/latest/specs.html#torchx.specs.get_named_resources</a>
+to set up named resources.</p>
+</div>
+<p>Usage:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">named_resources</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_t3.medium&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_m5.2xlarge&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_p3.2xlarge&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_p3.8xlarge&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
 </section>
 <section id="macros">
 <h2>Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h2>
@@ -783,7 +807,10 @@ by the scheduler.</p>
 <li><a class="reference internal" href="#">torchx.specs</a><ul>
 <li><a class="reference internal" href="#appdef">AppDef</a></li>
 <li><a class="reference internal" href="#role">Role</a></li>
-<li><a class="reference internal" href="#resource">Resource</a></li>
+<li><a class="reference internal" href="#resource">Resource</a><ul>
+<li><a class="reference internal" href="#module-torchx.specs.named_resources_aws">AWS Named Resources</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#macros">Macros</a></li>
 <li><a class="reference internal" href="#run-configs">Run Configs</a></li>
 <li><a class="reference internal" href="#run-status">Run Status</a></li>
