@@ -21,7 +21,7 @@ def trainer(
     image: str,
     output_path: str,
     data_path: Optional[str] = None,
-    entrypoint: str = "examples/apps/lightning_classy_vision/train.py",
+    entrypoint: str = "torchx/examples/apps/lightning_classy_vision/train.py",
     load_path: str = "",
     log_path: str = "/logs",
     resource: Optional[str] = None,
@@ -84,7 +84,7 @@ def interpret(
     data_path: str,
     output_path: str,
     resource: Optional[str] = None,
-    entrypoint: str = "examples/apps/lightning_classy_vision/interpret.py",
+    entrypoint: str = "torchx/examples/apps/lightning_classy_vision/interpret.py",
 ) -> torchx.AppDef:
     """Runs the model interpretability app on the model outputted by the training
     component.

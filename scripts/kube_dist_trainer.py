@@ -12,8 +12,6 @@ Kubernetes integration tests.
 import argparse
 import os
 
-from examples.apps.dist_cifar.component import trainer
-
 # pyre-ignore-all-errors[21] # Cannot find module utils
 # pyre-ignore-all-errors[11]
 from integ_test_utils import (
@@ -23,6 +21,7 @@ from integ_test_utils import (
     BuildInfo,
 )
 from pyre_extensions import none_throws
+from torchx.examples.apps.dist_cifar.component import trainer
 from torchx.runner import get_runner
 from torchx.specs import Resource, named_resources, RunConfig, AppState
 
@@ -48,7 +47,7 @@ def build_and_push_image() -> BuildInfo:
 def run_job(dryrun: bool = False) -> None:
     register_gpu_resource()
     build = build_and_push_image()
-    image = build.examples_image
+    image = build.torchx_image
     runner = get_runner("kubeflow-dist-runner")
 
     storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
