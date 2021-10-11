@@ -423,3 +423,7 @@ class RunnerTest(unittest.TestCase):
 
         # can call close twice
         runner.close()
+
+    def test_get_default_runner(self, _) -> None:
+        runner = get_runner()
+        self.assertEqual("torchx", runner._name)
