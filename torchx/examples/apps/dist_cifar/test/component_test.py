@@ -4,13 +4,10 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import examples.apps.lightning_classy_vision.component as lightning_classy_vision
+import torchx.examples.apps.dist_cifar.component as dist_cifar
 from torchx.components.component_test_base import ComponentTestCase
 
 
-class DistributedComponentTest(ComponentTestCase):
+class DistCifar10ComponentTest(ComponentTestCase):
     def test_trainer(self) -> None:
-        self._validate(lightning_classy_vision, "trainer")
-
-    def test_interpret(self) -> None:
-        self._validate(lightning_classy_vision, "interpret")
+        self._validate(dist_cifar, "trainer")

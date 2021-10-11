@@ -4,10 +4,13 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import examples.apps.datapreproc.component as datapreproc
+import torchx.examples.apps.lightning_classy_vision.component as lightning_classy_vision
 from torchx.components.component_test_base import ComponentTestCase
 
 
-class DatapreprocComponentTest(ComponentTestCase):
+class DistributedComponentTest(ComponentTestCase):
     def test_trainer(self) -> None:
-        self._validate(datapreproc, "data_preproc")
+        self._validate(lightning_classy_vision, "trainer")
+
+    def test_interpret(self) -> None:
+        self._validate(lightning_classy_vision, "interpret")

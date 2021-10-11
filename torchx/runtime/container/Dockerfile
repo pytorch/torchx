@@ -6,8 +6,8 @@ WORKDIR /app
 
 # copy requirements early so we don't have to redownload dependencies on code
 # changes
-COPY requirements.txt /app
-RUN pip install -r requirements.txt
+COPY dev-requirements.txt /app
+RUN pip install -r dev-requirements.txt
 
 COPY . /app
 

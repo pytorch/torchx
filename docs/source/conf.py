@@ -324,8 +324,8 @@ NOTEBOOK = True
 
 sphinx_gallery_conf = {
     "examples_dirs": [
-        "../../examples/apps",
-        "../../examples/pipelines",
+        "../../torchx/examples/apps",
+        "../../torchx/examples/pipelines",
     ],
     "gallery_dirs": [
         "examples_apps",

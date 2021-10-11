@@ -54,7 +54,7 @@ def trainer(
     return ddp(
         *script_args,
         image=image,
-        entrypoint="examples/apps/dist_cifar/train.py",
+        entrypoint="torchx/examples/apps/dist_cifar/train.py",
         rdzv_backend=rdzv_backend,
         rdzv_endpoint=rdzv_endpoint,
         resource=resource,

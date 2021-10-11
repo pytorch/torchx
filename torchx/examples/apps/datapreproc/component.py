@@ -20,7 +20,7 @@ import torchx.specs as specs
 def data_preproc(
     image: str,
     output_path: str,
-    entrypoint: str = "examples/apps/datapreproc/datapreproc.py",
+    entrypoint: str = "torchx/examples/apps/datapreproc/datapreproc.py",
     input_path: str = "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
     env: Optional[Dict[str, str]] = None,
     resource: Optional[str] = None,
