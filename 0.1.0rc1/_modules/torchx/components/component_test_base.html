@@ -392,9 +392,7 @@
     <span class="k">def</span> <span class="nf">get_linter_errors</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LinterMessage</span><span class="p">]:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">file_content</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">linter_errors</span> <span class="o">=</span> <span class="n">validate</span><span class="p">(</span><span class="n">file_content</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
+        <span class="n">linter_errors</span> <span class="o">=</span> <span class="n">validate</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">linter_errors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">for</span> <span class="n">linter_error</span> <span class="ow">in</span> <span class="n">linter_errors</span><span class="p">:</span>
