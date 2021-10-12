@@ -35,7 +35,6 @@ from torchx.specs.api import (
     runopts,
 )
 
-
 if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
     from kubernetes.client.models import (  # noqa: F401 imported but unused
@@ -48,9 +47,7 @@ if TYPE_CHECKING:
     )
     from kubernetes.client.rest import ApiException
 
-
 logger: logging.Logger = logging.getLogger(__name__)
-
 
 RETRY_POLICIES: Mapping[str, Iterable[Mapping[str, str]]] = {
     RetryPolicy.REPLICA: [],
@@ -142,7 +139,7 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
 
     resource = role.resource
     if resource.cpu >= 0:
-        requests["cpu"] = f"{int(resource.cpu*1000)}m"
+        requests["cpu"] = f"{int(resource.cpu * 1000)}m"
     if resource.memMB >= 0:
         requests["memory"] = f"{int(resource.memMB)}M"
     if resource.gpu >= 0:
@@ -217,16 +214,20 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
 
             pod = role_to_pod(name, replica_role)
             pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
-
-            tasks.append(
-                {
-                    "replicas": 1,
-                    "name": name,
-                    "template": pod,
-                    "maxRetry": role.max_retries,
-                    "policies": RETRY_POLICIES[role.retry_policy],
-                }
-            )
+            task: Dict[str, Any] = {
+                "replicas": 1,
+                "name": name,
+                "template": pod,
+            }
+            if role.max_retries > 0:
+                task["maxRetry"] = role.max_retries
+                task["policies"] = RETRY_POLICIES[role.retry_policy]
+                msg = f"""
+Role {role.name} configured with restarts: {role.max_retries}. As of 1.4.0 Volcano
+does NOT support retries correctly. More info: https://github.com/volcano-sh/volcano/issues/1651
+                """
+                warnings.warn(msg)
+            tasks.append(task)
 
     job_retries = min(role.max_retries for role in app.roles)
     resource: Dict[str, object] = {
@@ -270,6 +271,13 @@ class KubernetesScheduler(Scheduler):
     This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions
     v1.18-1.21. See https://github.com/pytorch/torchx/issues/120 which is
     tracking Volcano support for Kubernetes v1.22.
+
+    .. note::
+
+        AppDefs that have more than 0 retries may not be displayed as pods if they failed.
+        This occurs due to known bug in Volcano(as per 1.4.0 release):
+        https://github.com/volcano-sh/volcano/issues/1651
+
 
     .. code-block:: bash
 
