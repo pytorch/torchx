@@ -403,16 +403,16 @@ the app agnostic to the environment it’s running in.</p>
 <span class="c1"># ensure data and module are on the path</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
     <span class="n">download_data</span><span class="p">,</span>
     <span class="n">create_random_data</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TinyImageNetModel</span><span class="p">,</span>
     <span class="n">export_inference_model</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">examples.apps.lightning_classy_vision.profiler</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.profiler</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">SimpleLoggingProfiler</span><span class="p">,</span>
 <span class="p">)</span>
 
