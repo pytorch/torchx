@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 from docstring_parser import parse
 from pyre_extensions import none_throws
+from torchx.util.io import read_conf_file
 
 # pyre-ignore-all-errors[16]
 
@@ -42,7 +43,7 @@ def parse_fn_docstring(func_description: str) -> Tuple[str, Dict[str, str]]:
     return (short_func_description or "", args_description)
 
 
-def get_fn_docstring(
+def _get_fn_docstring(
     source: str, function_name: str
 ) -> Optional[Tuple[str, Dict[str, str]]]:
     module = ast.parse(source)
@@ -57,8 +58,9 @@ def get_fn_docstring(
     return None
 
 
-def get_short_fn_description(source: str, function_name: str) -> Optional[str]:
-    docstring = get_fn_docstring(source, function_name)
+def get_short_fn_description(path: str, function_name: str) -> Optional[str]:
+    source = read_conf_file(path)
+    docstring = _get_fn_docstring(source, function_name)
     if not docstring:
         return None
     return docstring[0]
@@ -68,16 +70,12 @@ def get_short_fn_description(source: str, function_name: str) -> Optional[str]:
 class LinterMessage:
     name: str
     description: str
-    path: str
     line: int
     char: int
     severity: str = "error"
 
 
 class TorchxFunctionValidator(abc.ABC):
-    def __init__(self, path: str) -> None:
-        self._path = path
-
     @abc.abstractmethod
     def validate(self, app_specs_func_def: ast.FunctionDef) -> List[LinterMessage]:
         raise NotImplementedError()
@@ -86,7 +84,6 @@ class TorchxFunctionValidator(abc.ABC):
         return LinterMessage(
             name="TorchxFunctionValidator",
             description=description,
-            path=self._path,
             line=lineno,
             char=0,
             severity="error",
@@ -94,9 +91,6 @@ class TorchxFunctionValidator(abc.ABC):
 
 
 class TorchxDocstringValidator(TorchxFunctionValidator):
-    def __init__(self, path: str) -> None:
-        super().__init__(path)
-
     def validate(self, app_specs_func_def: ast.FunctionDef) -> List[LinterMessage]:
         """
         Validates the docstring of the `get_app_spec` function. Criteria:
@@ -129,9 +123,6 @@ class TorchxDocstringValidator(TorchxFunctionValidator):
 
 
 class TorchxFunctionArgsValidator(TorchxFunctionValidator):
-    def __init__(self, path: str) -> None:
-        super().__init__(path)
-
     def validate(self, app_specs_func_def: ast.FunctionDef) -> List[LinterMessage]:
         linter_errors = []
         for arg_def in app_specs_func_def.args.args:
@@ -196,9 +187,6 @@ class TorchxFunctionArgsValidator(TorchxFunctionValidator):
 
 
 class TorchxReturnValidator(TorchxFunctionValidator):
-    def __init__(self, path: str) -> None:
-        super().__init__(path)
-
     def _get_return_annotation(
         self, app_specs_func_def: ast.FunctionDef
     ) -> Optional[str]:
@@ -247,7 +235,7 @@ class TorchxReturnValidator(TorchxFunctionValidator):
 
 class TorchFunctionVisitor(ast.NodeVisitor):
     """
-    Visitor that finds the torchx_function and runs registered validators on it.
+    Visitor that finds the component_function and runs registered validators on it.
     Current registered validators:
 
     * TorchxDocstringValidator - validates the docstring of the function.
@@ -269,48 +257,61 @@ class TorchFunctionVisitor(ast.NodeVisitor):
 
     """
 
-    def __init__(self, path: str, torchx_function_name: str) -> None:
+    def __init__(self, component_function_name: str) -> None:
         self.validators = [
-            TorchxDocstringValidator(path),
-            TorchxFunctionArgsValidator(path),
-            TorchxReturnValidator(path),
+            TorchxDocstringValidator(),
+            TorchxFunctionArgsValidator(),
+            TorchxReturnValidator(),
         ]
         self.linter_errors: List[LinterMessage] = []
-        self.torchx_function_name = torchx_function_name
+        self.component_function_name = component_function_name
         self.visited_function = False
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        if node.name != self.torchx_function_name:
+        if node.name != self.component_function_name:
             return
         self.visited_function = True
         for validatior in self.validators:
             self.linter_errors += validatior.validate(node)
 
 
-def validate(
-    source: str, path: str = "<NONE>", torchx_function: str = "get_app_spec"
-) -> List[LinterMessage]:
+def validate(path: str, component_function: str) -> List[LinterMessage]:
+    """Validates the function to make sure it complies the component standard.
+
+    ``validate`` finds the ``component_function`` and vaidates it for according to the following rules:
+
+        * The function must have `google-styple docs
+            <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
+        * All function parameters must be annotated
+        * The function must return :py:class:`torchx.specs.api.AppDef`
+
+    Args:
+        path: Path to python source file.
+        component_function: Name of the function to be validated.
+
+    Returns:
+        List[LinterMessage]: List of validation errors
+    """
+    source = read_conf_file(path)
     try:
         module = ast.parse(source)
     except SyntaxError as ex:
         linter_message = LinterMessage(
-            name="TorchxValidator",
+            name="TorchXValidator",
             description=ex.msg,
-            path=path,
             line=ex.lineno or 0,
             char=ex.offset or 0,
             severity="error",
         )
         return [linter_message]
-    visitor = TorchFunctionVisitor(path, torchx_function)
+    visitor = TorchFunctionVisitor(component_function)
     visitor.visit(module)
     linter_errors = visitor.linter_errors
     if not visitor.visited_function:
         linter_errors.append(
             LinterMessage(
-                name="TorchxValidator",
-                description=f"Function {torchx_function} not found",
-                path=path,
+                name="TorchXValidator",
+                description=f"Function {component_function} not found",
                 line=0,
                 char=0,
                 severity="error",

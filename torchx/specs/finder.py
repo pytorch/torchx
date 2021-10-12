@@ -143,10 +143,10 @@ class ModuleComponentsFinder(ComponentsFinder):
     ) -> List[_Component]:
         functions = getmembers(module, isfunction)
         component_defs = []
-        module_source = self._get_module_source(module)
+        module_path = os.path.abspath(module.__file__)
         for function_name, function in functions:
-            linter_errors = validate(module_source, torchx_function=function_name)
-            component_desc = get_short_fn_description(module_source, function_name)
+            linter_errors = validate(module_path, function_name)
+            component_desc = get_short_fn_description(module_path, function_name)
             component_def = _Component(
                 name=self._get_component_name(
                     base_module, module.__name__, function_name
@@ -185,22 +185,17 @@ class CustomComponentsFinder(ComponentsFinder):
         self._filepath = filepath
         self._function_name = function_name
 
-    def _get_validation_errors(self, file_source: str, function_name: str) -> List[str]:
-        linter_errors = validate(file_source, torchx_function=function_name)
+    def _get_validation_errors(self, path: str, function_name: str) -> List[str]:
+        linter_errors = validate(path, function_name)
         return [linter_error.description for linter_error in linter_errors]
 
-    def _get_fn_description(
-        self, file_source: str, function_name: str
-    ) -> Optional[str]:
-        return get_short_fn_description(file_source, function_name)
-
     def find(self) -> List[_Component]:
-        file_source = read_conf_file(self._filepath)
         validation_errors = self._get_validation_errors(
-            file_source, self._function_name
+            self._filepath, self._function_name
         )
-        fn_desc = self._get_fn_description(file_source, self._function_name)
+        fn_desc = get_short_fn_description(self._filepath, self._function_name)
 
+        file_source = read_conf_file(self._filepath)
         namespace = globals()
         exec(file_source, namespace)  # noqa: P204
         if self._function_name not in namespace:
