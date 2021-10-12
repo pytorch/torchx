@@ -369,6 +369,12 @@ For installation instructions see: <a class="reference external" href="https://g
 <p>This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions
 v1.18-1.21. See <a class="reference external" href="https://github.com/pytorch/torchx/issues/120">https://github.com/pytorch/torchx/issues/120</a> which is
 tracking Volcano support for Kubernetes v1.22.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>AppDefs that have more than 0 retries may not be displayed as pods if they failed.
+This occurs due to known bug in Volcano(as per 1.4.0 release):
+<a class="reference external" href="https://github.com/volcano-sh/volcano/issues/1651">https://github.com/volcano-sh/volcano/issues/1651</a></p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install torchx<span class="o">[</span>kubernetes<span class="o">]</span>
 $ torchx run --scheduler kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span><span class="nb">test</span> utils.echo --image alpine:latest --msg hello
 kubernetes://torchx_user/1234

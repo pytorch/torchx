@@ -391,7 +391,6 @@
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
 
-
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">CustomObjectsApi</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401 imported but unused</span>
@@ -404,9 +403,7 @@
     <span class="p">)</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
 
-
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
 
 <span class="n">RETRY_POLICIES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">RetryPolicy</span><span class="o">.</span><span class="n">REPLICA</span><span class="p">:</span> <span class="p">[],</span>
@@ -498,7 +495,7 @@
 
     <span class="n">resource</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span>
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">cpu</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span><span class="si">}</span><span class="s2">m&quot;</span>
+        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span><span class="si">}</span><span class="s2">m&quot;</span>
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">)</span><span class="si">}</span><span class="s2">M&quot;</span>
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -573,16 +570,20 @@
 
             <span class="n">pod</span> <span class="o">=</span> <span class="n">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">)</span>
             <span class="n">pod</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">))</span>
-
-            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-                    <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">pod</span><span class="p">,</span>
-                    <span class="s2">&quot;maxRetry&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
-                    <span class="s2">&quot;policies&quot;</span><span class="p">:</span> <span class="n">RETRY_POLICIES</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">retry_policy</span><span class="p">],</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
+            <span class="n">task</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">pod</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">task</span><span class="p">[</span><span class="s2">&quot;maxRetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span>
+                <span class="n">task</span><span class="p">[</span><span class="s2">&quot;policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RETRY_POLICIES</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">retry_policy</span><span class="p">]</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> configured with restarts: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2">. As of 1.4.0 Volcano</span>
+<span class="s2">does NOT support retries correctly. More info: https://github.com/volcano-sh/volcano/issues/1651</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
     <span class="n">job_retries</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -626,6 +627,13 @@
 <span class="sd">    This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions</span>
 <span class="sd">    v1.18-1.21. See https://github.com/pytorch/torchx/issues/120 which is</span>
 <span class="sd">    tracking Volcano support for Kubernetes v1.22.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        AppDefs that have more than 0 retries may not be displayed as pods if they failed.</span>
+<span class="sd">        This occurs due to known bug in Volcano(as per 1.4.0 release):</span>
+<span class="sd">        https://github.com/volcano-sh/volcano/issues/1651</span>
+
 
 <span class="sd">    .. code-block:: bash</span>
 
