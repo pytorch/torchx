@@ -1115,6 +1115,8 @@
         <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;App spec: </span><span class="si">{</span><span class="n">function_desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="n">remainder_arg</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="n">args_desc</span><span class="p">[</span><span class="n">param_name</span><span class="p">],</span>
@@ -1128,11 +1130,14 @@
         <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_ParameterKind</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
             <span class="n">args</span><span class="p">[</span><span class="s2">&quot;nargs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span>
             <span class="n">arg_name</span> <span class="o">=</span> <span class="n">param_name</span>
+            <span class="n">remainder_arg</span> <span class="o">=</span> <span class="p">[</span><span class="n">arg_name</span><span class="p">,</span> <span class="n">args</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">arg_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">if</span> <span class="s2">&quot;default&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
                 <span class="n">args</span><span class="p">[</span><span class="s2">&quot;required&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">script_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="n">arg_name</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">script_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="n">arg_name</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">remainder_arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">script_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="n">remainder_arg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">remainder_arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">script_parser</span>
 
 

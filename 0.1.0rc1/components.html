@@ -375,34 +375,23 @@ or on our <a class="reference internal" href="index.html#components-library"><sp
 <span class="o">&gt;&gt;</span> <span class="n">torchx</span> <span class="n">run</span> <span class="o">--</span><span class="n">scheduler</span> <span class="n">local_cwd</span> <span class="n">distributed</span><span class="o">.</span><span class="n">ddp</span> <span class="o">--</span><span class="n">param1</span> <span class="o">--</span><span class="n">param2</span>
 </pre></div>
 </div>
-<p>Components development</p>
-<dl class="simple">
-<dt>The addition of a new component is pretty straightforward and consists</dt><dd><p>of the following steps:</p>
-</dd>
-</dl>
+<section id="components-development">
+<h2>Components development<a class="headerlink" href="#components-development" title="Permalink to this headline">¶</a></h2>
+<p>Component is a well-defined python function that accepts arguments and returns <cite>torchx.specs.AppDef</cite>.
+The examples of components can be found under <a class="reference internal" href="#module-torchx.components" title="torchx.components"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components</span></code></a> module.</p>
+<p>Component function has the following properties:</p>
 <ul class="simple">
-<li><p>Determine component location</p></li>
-<li><p>Create component as function</p></li>
-<li><p>Unit tests</p></li>
-</ul>
-<p>Determine component location. Each component belongs to one or another category,
-and should be located accordingly. E.g. the definition of distributed components
-should be located in <code class="docutils literal notranslate"><span class="pre">distributed.py</span></code> file.</p>
-<dl class="simple">
-<dt>Create component as function. Each component represents a function that accepts</dt><dd><p>arbitrary arguments and returns <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>.</p>
-</dd>
-</dl>
-<p>The function should
-have the following properties:</p>
-<ul class="simple">
-<li><p>All arguments of the function must be annotated</p></li>
+<li><p>All arguments of the function must be annotated with corresponding data type</p></li>
 <li><dl class="simple">
-<dt>Current supported types:</dt><dd><ul>
-<li><p>Primitives: int, float, str</p></li>
+<dt>Component function can use the following types:</dt><dd><ul>
+<li><p>Primitives: int, float, str, bool</p></li>
+<li><p>Bool is supported via key-value pair, e.g.: <cite>–foo True</cite> correspond to <cite>foo:bool = True</cite></p></li>
 <li><p>Optional primitives: Optional[int], Optional[float], Optional[str]</p></li>
 <li><p>Dict: Dict[Primitive_key, Primitive_value]</p></li>
 <li><p>List: List[Primitive_value]</p></li>
-<li><p>Optional[List], Optional[Dict]</p></li>
+<li><p>Optional[List[Primitive_value]], Optional[Dict[Primitive_key, Primitive_value]]</p></li>
+<li><p>VAR_ARG. Component function may define <cite>*arg</cite>, that accepts arbitrary number of arguments
+and can be passed to the underlying script.</p></li>
 </ul>
 </dd>
 </dl>
@@ -413,8 +402,39 @@ have the following properties:</p>
 </dl>
 </li>
 </ul>
-<p>Unit tests. Write unit tests that use <code class="docutils literal notranslate"><span class="pre">torchx.specs.file_linter</span></code> to validate
-the component’s structure,  similar to <code class="docutils literal notranslate"><span class="pre">torchx.components.tests.distributed_test.py</span></code>.</p>
+<p>Torchx supports running builtin component as well as runnig components via provided path:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># component function should contain `foo:str` argument</span>
+<span class="n">torchx</span> <span class="n">run</span> <span class="o">./</span><span class="n">my_component</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">component_ft</span> <span class="o">--</span><span class="n">foo</span> <span class="n">bar</span>
+</pre></div>
+</div>
+</section>
+<section id="note-about-var-arg">
+<h2>Note about VAR_ARG.<a class="headerlink" href="#note-about-var-arg" title="Permalink to this headline">¶</a></h2>
+<p>If component function defines python var arg, there will be the following restrictions when launching it via command line:</p>
+<ul class="simple">
+<li><p>The script args should be passed at the end of the command, e.g.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># component.py</span>
+<span class="k">def</span> <span class="nf">my_component</span><span class="p">(</span><span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+  <span class="o">...</span>
+
+<span class="c1"># script_args = [arg1, arg2, arg2], image = foo</span>
+<span class="n">torchx</span> <span class="n">run</span> <span class="o">./</span><span class="n">component</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">my_component</span> <span class="o">--</span><span class="n">image</span> <span class="n">foo</span> <span class="n">arg1</span> <span class="n">arg2</span> <span class="n">arg3</span>
+
+<span class="c1"># script_args = [--flag, arg1], image = foo</span>
+<span class="n">torchx</span> <span class="n">run</span> <span class="o">./</span><span class="n">component</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">my_component</span> <span class="o">--</span><span class="n">image</span> <span class="n">foo</span> <span class="o">--</span> <span class="o">--</span><span class="n">flag</span> <span class="n">arg1</span>
+
+<span class="c1"># script_args = [arg1, --flag], image = foo</span>
+<span class="n">torchx</span> <span class="n">run</span> <span class="o">./</span><span class="n">component</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">my_component</span> <span class="o">--</span><span class="n">image</span> <span class="n">foo</span> <span class="n">arg1</span> <span class="o">--</span><span class="n">flag</span>
+
+<span class="c1"># script_args = [--help], image = foo</span>
+<span class="n">torchx</span> <span class="n">run</span> <span class="o">./</span><span class="n">component</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">my_component</span> <span class="o">--</span><span class="n">image</span> <span class="n">foo</span> <span class="o">--</span> <span class="o">--</span><span class="n">help</span>
+
+<span class="c1"># script_args = [--image, bar], image = foo</span>
+<span class="n">torchx</span> <span class="n">run</span> <span class="o">./</span><span class="n">component</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="n">my_component</span> <span class="o">--</span><span class="n">image</span> <span class="n">foo</span> <span class="o">--</span> <span class="o">--</span><span class="n">image</span> <span class="n">bar</span>
+</pre></div>
+</div>
+</section>
 <img alt="_images/components_diagram.jpg" src="_images/components_diagram.jpg" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -466,7 +486,11 @@ are currently available out-of-the-box.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">torchx.components</a></li>
+<li><a class="reference internal" href="#">torchx.components</a><ul>
+<li><a class="reference internal" href="#components-development">Components development</a></li>
+<li><a class="reference internal" href="#note-about-var-arg">Note about VAR_ARG.</a></li>
+</ul>
+</li>
 </ul>
 
             </div>
