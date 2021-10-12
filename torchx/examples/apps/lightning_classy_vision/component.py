@@ -57,8 +57,6 @@ def trainer(
     ]
     if data_path:
         args += ["--data_path", data_path]
-    else:
-        args.append("--test")
     if skip_export:
         args.append("--skip_export")
     return torchx.AppDef(
