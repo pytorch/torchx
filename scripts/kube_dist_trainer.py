@@ -21,7 +21,7 @@ from integ_test_utils import (
     BuildInfo,
 )
 from pyre_extensions import none_throws
-from torchx.examples.apps.dist_cifar.component import trainer
+from torchx.examples.apps.lightning_classy_vision.component import trainer_dist
 from torchx.runner import get_runner
 from torchx.specs import Resource, named_resources, RunConfig, AppState
 
@@ -55,13 +55,12 @@ def run_job(dryrun: bool = False) -> None:
     output_path = os.path.join(root, "output")
 
     args = ("--output_path", output_path)
-    train_app = trainer(
-        *args,
+    train_app = trainer_dist(
         image=image,
+        output_path=output_path,
         resource="GPU_X1",
         nnodes=2,
-        rdzv_backend="etcd-v2",
-        rdzv_endpoint="etcd-server:2379",
+        nproc_per_node=1,
     )
     print(f"Starting Trainer with args: {args}")
     cfg = RunConfig()
