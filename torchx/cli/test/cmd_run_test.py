@@ -106,6 +106,16 @@ class CmdRunTest(unittest.TestCase):
         )
         self.cmd_run.run(args)
 
+    def test_conf_file_missing(self) -> None:
+        with self.assertRaises(SystemExit):
+            args = self.parser.parse_args(
+                [
+                    "--scheduler",
+                    "local_cwd",
+                ]
+            )
+            self.cmd_run.run(args)
+
     @patch("torchx.runner.Runner.run")
     def test_run_dryrun(self, mock_runner_run: MagicMock) -> None:
         args = self.parser.parse_args(

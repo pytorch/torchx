@@ -508,6 +508,21 @@ def _test_var_args(foo: str, *args: str, bar: str = "asdf") -> AppDef:
     return AppDef(name="varargs")
 
 
+_TEST_VAR_ARGS_FIRST: Optional[Tuple[object, ...]] = None
+
+
+def _test_var_args_first(*args: str, bar: str = "asdf") -> AppDef:
+    """
+    test component for mixing var args with kwargs.
+    Args:
+        args: varargs
+        bar: kwarg
+    """
+    global _TEST_VAR_ARGS_FIRST
+    _TEST_VAR_ARGS_FIRST = (args, bar)
+    return AppDef(name="varargs")
+
+
 class AppDefLoadTest(unittest.TestCase):
     def assert_apps(self, expected_app: AppDef, actual_app: AppDef) -> None:
         self.assertDictEqual(asdict(expected_app), asdict(actual_app))
@@ -657,3 +672,36 @@ class AppDefLoadTest(unittest.TestCase):
             [],
         )
         self.assertEqual("trainer-without-flag", app_def.roles[0].name)
+
+    def test_varargs_only_flag_first(self) -> None:
+        from_function(
+            _test_var_args_first,
+            [
+                "--",
+                "--foo",
+                "fooval",
+                "barval",
+                "arg1",
+                "arg2",
+            ],
+        )
+        self.assertEqual(
+            _TEST_VAR_ARGS_FIRST,
+            (("--foo", "fooval", "barval", "arg1", "arg2"), "asdf"),
+        )
+
+    def test_varargs_only_arg_first(self) -> None:
+        from_function(
+            _test_var_args_first,
+            [
+                "fooval",
+                "--foo",
+                "barval",
+                "arg1",
+                "arg2",
+            ],
+        )
+        self.assertEqual(
+            _TEST_VAR_ARGS_FIRST,
+            (("fooval", "--foo", "barval", "arg1", "arg2"), "asdf"),
+        )

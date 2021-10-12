@@ -72,8 +72,12 @@ class CmdBuiltins(SubCommand):
 
 
 class CmdRun(SubCommand):
+    def __init__(self) -> None:
+        self._subparser: Optional[argparse.ArgumentParser] = None
+
     def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
         scheduler_names = get_scheduler_factories().keys()
+        self._subparser = subparser
         subparser.add_argument(
             "--scheduler",
             type=str,
@@ -101,12 +105,6 @@ class CmdRun(SubCommand):
             help="Wait for the app to finish before exiting.",
         )
         subparser.add_argument(
-            "conf_file",
-            type=str,
-            help="Name of builtin conf or path of the *.torchx.conf file."
-            " for a list of available builtins run:`torchx builtins`",
-        )
-        subparser.add_argument(
             "conf_args",
             nargs=argparse.REMAINDER,
         )
@@ -115,18 +113,25 @@ class CmdRun(SubCommand):
         run_opts = get_runner().run_opts()
         scheduler_opts = run_opts[args.scheduler]
         scheduler_args = _parse_run_config(args.scheduler_args, scheduler_opts)
+        if len(args.conf_args) < 1:
+            none_throws(self._subparser).error(
+                "the following arguments are required: conf_file, conf_args"
+            )
+
+        # Python argparse would remove `--` if it was the first argument. This
+        # does not work well for torchx, since torchx.specs.api uses another argparser to
+        # parse component arguments.
+        conf_file, conf_args = args.conf_args[0], args.conf_args[1:]
         try:
             result = runner.run_component(
-                args.conf_file,
-                args.conf_args,
+                conf_file,
+                conf_args,
                 args.scheduler,
                 scheduler_args,
                 dryrun=args.dryrun,
             )
         except (ComponentValidationException, ComponentNotFoundException) as e:
-            error_msg = (
-                f"\nFailed to run component `{args.conf_file}` got errors: \n {e}"
-            )
+            error_msg = f"\nFailed to run component `{conf_file}` got errors: \n {e}"
             print(error_msg)
             return
 
