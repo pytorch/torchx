@@ -15,8 +15,7 @@ spawn worker processes.
 
 from typing import Dict, Optional
 
-import torchx.specs.api as torchx
-from torchx.components.dist import ddp
+import torchx.specs as specs
 
 
 def trainer(
@@ -28,7 +27,7 @@ def trainer(
     rdzv_backend: str = "c10d",
     rdzv_endpoint: str = "localhost:29400",
     env: Optional[Dict[str, str]] = None,
-) -> torchx.AppDef:
+) -> specs.AppDef:
     """Defines the component for cifar10 distributed trainer.
 
     Args:
@@ -51,16 +50,36 @@ def trainer(
     Returns:
         specs.AppDef: Torchx AppDef
     """
-    return ddp(
-        *script_args,
-        image=image,
-        entrypoint="torchx/examples/apps/dist_cifar/train.py",
-        rdzv_backend=rdzv_backend,
-        rdzv_endpoint=rdzv_endpoint,
-        resource=resource,
-        nnodes=nnodes,
-        nproc_per_node=nproc_per_node,
-        name="cifar-trainer",
-        role="worker",
-        env=env,
+    resource_def = (
+        specs.named_resources[resource]
+        if resource
+        else specs.Resource(cpu=nnodes, gpu=0, memMB=2048)
+    )
+
+    return specs.AppDef(
+        name="dist-cifar",
+        roles=[
+            specs.Role(
+                name="worker",
+                image=image,
+                entrypoint="python",
+                num_replicas=nnodes,
+                args=[
+                    "-m",
+                    "torch.distributed.run",
+                    "--rdzv_backend",
+                    rdzv_backend,
+                    "--rdzv_id",
+                    f"{specs.macros.app_id}",
+                    "--nnodes",
+                    str(nnodes),
+                    "--nproc_per_node",
+                    str(nproc_per_node),
+                    "-m",
+                    "torchx.examples.apps.dist_cifar.train",
+                    *script_args,
+                ],
+                resource=resource_def,
+            )
+        ],
     )

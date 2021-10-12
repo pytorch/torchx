@@ -21,7 +21,6 @@ def trainer(
     image: str,
     output_path: str,
     data_path: Optional[str] = None,
-    entrypoint: str = "torchx/examples/apps/lightning_classy_vision/train.py",
     load_path: str = "",
     log_path: str = "/logs",
     resource: Optional[str] = None,
@@ -37,7 +36,6 @@ def trainer(
         load_path: path to load pretrained model from
         data_path: path to the data to load, if data_path is not provided,
             auto generated test data will be used
-        entrypoint: user script to launch.
         log_path: path to save tensorboard logs to
         resource: the resources to use
         env: env variables for the app
@@ -46,6 +44,8 @@ def trainer(
     """
     env = env or {}
     args = [
+        "-m",
+        "torchx.examples.apps.lightning_classy_vision.train",
         "--output_path",
         output_path,
         "--load_path",
@@ -66,7 +66,7 @@ def trainer(
         roles=[
             torchx.Role(
                 name="worker",
-                entrypoint=entrypoint,
+                entrypoint="python",
                 args=args,
                 env=env,
                 image=image,
@@ -84,7 +84,6 @@ def interpret(
     data_path: str,
     output_path: str,
     resource: Optional[str] = None,
-    entrypoint: str = "torchx/examples/apps/lightning_classy_vision/interpret.py",
 ) -> torchx.AppDef:
     """Runs the model interpretability app on the model outputted by the training
     component.
@@ -95,15 +94,16 @@ def interpret(
         data_path: path to the data to load
         output_path: output path for model checkpoints (e.g. file:///foo/bar)
         resource: the resources to use
-        entrypoint: user script to launch.
     """
     return torchx.AppDef(
         name="cv-interpret",
         roles=[
             torchx.Role(
                 name="worker",
-                entrypoint=entrypoint,
+                entrypoint="python",
                 args=[
+                    "-m",
+                    "torchx.examples.apps.lightning_classy_vision.interpret",
                     "--load_path",
                     load_path,
                     "--data_path",
