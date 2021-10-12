@@ -57,3 +57,10 @@ Run Status
 
 .. autoclass:: ReplicaState
    :members:
+
+Component Linter
+-----------------
+.. automodule:: torchx.specs.file_linter
+.. currentmodule:: torchx.specs.file_linter
+
+.. autofunction:: validate

@@ -14,76 +14,248 @@ module are what we refer to as components.
 You can browse the library of components in the ``torchx.components`` module
 or on our :ref:`docs page<index:Components Library>`.
 
-Components can be used out of the box by either torchx cli or torchx sdk.
+Using Builtins
+---------------------------
+Once you've found a builtin component, you can either:
 
-::
-
-  # using via sdk
-  from torchx.runner import get_runner
-  get_runner().run_component("distributed.ddp", app_args=[], scheduler="local_cwd", ...)
-
-  # using via torchx-cli
-
-  >> torchx run --scheduler local_cwd distributed.ddp --param1 --param2
+1. Run the component as a job
+2. Use the component in the context of a workflow (pipeline)
 
 
-Components development
-~~~~~~~~~~~~~~~~~~~~~~~~
+In both cases, the component will run as a job, with the difference being that
+the job will run as a standalone job directly on a scheduler or a "stage" in a
+workflow with upstream and/or downstream dependencies.
 
-Component is a well-defined python function that accepts arguments and returns `torchx.specs.AppDef`.
-The examples of components can be found under :py:mod:`torchx.components` module.
+.. note:: Depending on the semantics o the component, the job may be single
+          node or distributed. For instance, if the component has a single
+          role where the ``role.num_replicas == 1``, then the job is a single
+          node job. If the component has multiple roles and/or if any of the
+          role's ``num_replicas > 1``, then the job is a multi-node distributed job.
 
-Component function has the following properties:
+Not sure whether you should run the component as a job or as a pipeline stage?
+Use this rule of thumb:
 
-* All arguments of the function must be annotated with corresponding data type
-* Component function can use the following types:
-    + Primitives: int, float, str, bool
-    + Bool is supported via key-value pair, e.g.: `--foo True` correspond to `foo:bool = True`
-    + Optional primitives: Optional[int], Optional[float], Optional[str]
-    + Dict: Dict[Primitive_key, Primitive_value]
-    + List: List[Primitive_value]
-    + Optional[List[Primitive_value]], Optional[Dict[Primitive_key, Primitive_value]]
-    + VAR_ARG. Component function may define `*arg`, that accepts arbitrary number of arguments
-      and can be passed to the underlying script.
-* The function should have well defined description in
-    https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html format
+1. Just getting started? Familiarize yourself with the component by running it as a job
+2. Need job dependencies? Run the components as pipeline stages
+3. Don't need job dependencies? Run the component as a job
 
 
-Torchx supports running builtin component as well as runnig components via provided path:
+Authoring
+-----------
 
-::
+Since a component is simply a python function that returns an ``specs.AppDef``,
+authoring your own component is as simple as writing a python function with the following
+rules:
 
-  # component function should contain `foo:str` argument
-  torchx run ./my_component.py:component_ft --foo bar
+1. The component function must return an ``specs.AppDef`` and the return type must be annotated
+2. All arguments of the component must be type annotated and the type must be one of
+    #. Primitives: ``int``, ``float``, ``str``, ``bool``
+    #. Optional primitives: ``Optional[int]``, ``Optional[float]``, ``Optional[str]``
+    #. Maps of primitives: ``Dict[Primitive_key, Primitive_value]``
+    #. Lists of primitives: ``List[Primitive_values]``
+    #. Optional collections: ``Optional[List]``, ``Optional[Dict]``
+    #. VAR_ARG: ``*arg`` (useful when passing through arguments to the entrypoint script)
+3. The function should have well defined docstring in
+   `google format <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_.
+   This docstring is used by the torchx cli to autogenerate a ``--help`` string which is useful
+   when sharing components with others.
+
+Below is an example component that launches DDP scripts, it is a simplified version of
+the :py:func:`torchx.components.dist.ddp` builtin.
+
+.. doctest:: [component_example]
+
+ import os
+ import torchx.specs as specs
+
+ def ddp(
+     *script_args: str,
+     image: str,
+     script: str,
+     host: str = "aws_p3.2xlarge",
+     nnodes: int = 1,
+     nproc_per_node: int = 1,
+ ) -> specs.AppDef:
+    \"""
+    DDP simplified.
+
+    Args:
+        image: name of the docker image containing the script + deps
+        script: path of the script in the image
+        script_args: arguments to the script
+        host: machine type (one from named resources)
+        nnodes: number of nodes to launch
+        nproc_per_node: number of scripts to launch per node
+
+    Returns:
+        specs.AppDef: ddp AppDef
+    \"""
+
+    return specs.AppDef(
+        name=os.path.basename(script),
+        roles=[
+            spec.Role(
+                name="trainer",
+                image=image,
+                resource=specs.named_resources[host],
+                num_replicas=nnodes,
+                entrypoint="python",
+                args=[
+                    "-m",
+                    "torch.distributed.run",
+                    "--rdzv_backend=etcd",
+                    "--rdzv_endpoint=localhost:5900",
+                    f"--nnodes={nnodes}",
+                    f"--nprocs_per_node={nprocs_per_node}",
+                    "-m",
+                    script,
+                    *script_args,
+                ],
+            ),
+        ]
+    )
 
 
-Note about VAR_ARG.
-~~~~~~~~~~~~~~~~~~~~~~~~
 
-If component function defines python var arg, there will be the following restrictions when launching it via command line:
+Validating
+-----------------------
 
-* The script args should be passed at the end of the command, e.g.
+To validate that you've defined your component correctly you can either:
 
-::
+1. (easiest) Dryrun your component's ``--help`` with the cli: ``torchx run --dryrun ~/component.py:train --help``
+2. Use the component :ref:`linter<specs:Component Linter>`
+   (see `dist_test.py <https://github.com/pytorch/torchx/blob/main/torchx/components/test/dist_test.py>`_ as an example)
 
-  # component.py
-  def my_component(*script_args: str, image: str) -> specs.AppDef:
-    ...
 
-  # script_args = [arg1, arg2, arg2], image = foo
-  torchx run ./component.py:my_component --image foo arg1 arg2 arg3
+Running as a Job
+------------------------
 
-  # script_args = [--flag, arg1], image = foo
-  torchx run ./component.py:my_component --image foo -- --flag arg1
+You can run a component as a job with the :ref:`torchx cli<cli:CLI>` or programmatically with
+the :ref:`torchx.runner<runner:torchx.runner>`. Both are identical, in fact the
+cli uses the runner under the hood, so the choice is yours. The :ref:`quickstart<quickstart:Quickstart>`
+guide walks though the basics for you to get started.
 
-  # script_args = [arg1, --flag], image = foo
-  torchx run ./component.py:my_component --image foo arg1 --flag
+Programmatic Run
+~~~~~~~~~~~~~~~~~~
 
-  # script_args = [--help], image = foo
-  torchx run ./component.py:my_component --image foo -- --help
+To run builtins or your own component programmatically, simply invoke the
+component as a regular python function and pass it along to the :py:mod:`torchx.runner`.
+Below is an example of calling the ``utils.echo`` builtin:
 
-  # script_args = [--image, bar], image = foo
-  torchx run ./component.py:my_component --image foo -- --image bar
+.. doctest:: [running_component_programmatically]
 
+ from torchx.components.utils import echo
+ from torchx.runner import get_runner
+
+ get_runner().run(echo(msg="hello world"), scheduler="local_cwd")
+
+CLI Run (Builtins)
+~~~~~~~~~~~~~~~~~~~
+
+When running components from the cli, you have to pass which component function to invoke.
+For builtin components this  is of the form ``{component_module}.{component_fn}``, where
+the ``{component_module}`` is the module path of the component relative to ``torchx.components``
+and the ``{component_fn}`` is the component function within that module. So for
+``torchx.components.utils.echo``, we'd drop the ``torchx.components`` prefix and run it as
+
+.. code-block:: shell-session
+
+ $ torchx run utils.echo --msg "hello world"
+
+See :ref:`CLI docs<cli:CLI>` for more information.
+
+
+CLI Run (Custom)
+~~~~~~~~~~~~~~~~~~~
+
+To run your custom component with the cli, you have to use a slightly different syntax of
+the form ``{component_path}:{component_fn}``. Where ``{component_path}`` is the
+file path of your component's python file, and ``{component_fn}`` is the name of the
+component function within that file. Assume your component is in ``/home/bob/component.py``
+and the component function is called ``train()``, you would run this as
+
+.. code-block:: shell-session
+
+ # option 1. use absolute path
+ $ torchx run /home/bob/component.py:train --help
+
+ # option 2. let the shell do the expansion
+ $ torchx run ~/component.py:train --help
+
+ # option 3. same but after CWD to $HOME
+ $ cd ~/
+ $ torchx run ./component.py:train --help
+
+ # option 4. files can be relative to CWD
+ $ cd ~/
+ $ torchx run component.py:train --help
+
+.. note:: builtins can be run this way as well given that you know the install directory of TorchX!
+
+Passing Component Params from CLI
+--------------------------------------
+
+Since components are simply python functions, using them programmatically is straight forward.
+As seen above, when running components via the cli's ``run`` subcommand the component parameters are passed
+as program arguments using the double-dash + param_name syntax (e.g ``--param1=1`` or ``--param1 1``).
+The cli autogenerates `argparse <https://docs.python.org/3/library/argparse.html>`_ parser based on the
+docstring of the component. Below is a summary on how to pass component parameters of various types,
+imagine the component is defined as:
+
+.. doctest:: [component_param_passing]
+
+ # in comp.py
+ from typing import Dict, List
+ import torchx.specs as specs
+
+ def f(i: int, f: float, s: str, b: bool, l: List[str], d: Dict[str, str], *args) -> specs.AppDef:
+    \"""
+    Example component
+
+    Args:
+        i: int param
+        f: float param
+        s: string param
+        b: bool param
+        l: list param
+        d: map param
+        args: varargs param
+
+    Returns: specs.AppDef
+    \"""
+
+    pass
+
+
+#. Help: ``torchx run comp.py:f --help``
+#. Primitives (``int``, ``float``, ``str``): ``torchx run comp.py:f --i 1 --f 1.2 --s "bar"``
+#. Bool: ``torchx run comp.py:f --b True`` (or ``--b False``)
+#. Maps: ``torchx run comp.py:f --d k1=v1,k2=v2,k3=v3``
+#. Lists: ``torchx run comp.py:f --l a,b,c``
+#. VAR_ARG: ``*args`` are passed as positionals rather than arguments, hence they are specified
+   at the end of the command. The ``--`` delimiter is used to start the VAR_ARGS section. This
+   is useful when the component and application have the same arguments or when passing through
+   the ``--help`` arg. Below are a few examples:
+   * ``*args=["arg1", "arg2", "arg3"]``: ``torchx run comp.py:f --i 1 arg1 arg2 arg3``
+   * ``*args=["--flag", "arg1"]``: ``torchx run comp.py:f --i 1 --flag arg1 ``
+   * ``*args=["--help"]``: ``torchx run comp.py:f -- --help``
+   * ``*args=["--i", "2"]``: ``torchx run comp.py:f --i 1 -- --i 2``
+
+Run in a Pipeline
+--------------------------------
+
+The :ref:`torchx.pipelines<pipelines:torchx.pipelines>` define adapters that
+convert a torchx component into the object that represents a pipeline "stage" in the
+target pipeline platform (see :ref:`Pipelines` for a list of supported pipeline orchestrators).
+
+Additional Resources
+-----------------------
+
+See:
+
+1. Components defined in this module as expository examples
+2. Defining your own component :ref:`quick start guide<quickstart:Defining Your Own Component>`
+3. Component best practices :ref:`guide<component_best_practices:Component Best Practices>`
+4. App best practices :ref:`guide<app_best_practices:App Best Practices>`
 
 """

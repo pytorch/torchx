@@ -32,17 +32,15 @@ def ddp(
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
-
-    This uses `Torch Elastic
-    <https://pytorch.org/docs/stable/distributed.elastic.html>`_ to manage the
-    distributed workers.
+    Uses `torch.distributed.run <https://pytorch.org/docs/stable/distributed.elastic.html>`_
+    to launch and coordinate pytorch worker processes.
 
     Args:
         script_args: Script arguments.
         image: container image.
         entrypoint: script or binary to run within the image.
-        rdzv_backend: rendezvous backend to use, allowed values can be found at
-            https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py
+        rdzv_backend: rendezvous backend to use, allowed values can be found in the
+             `rdzv registry docs <https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py>`_
         rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd
             endpoint, in case of c10d, this is the endpoint of one of the hosts.
         resource: Optional named resource identifier. The resource parameter
