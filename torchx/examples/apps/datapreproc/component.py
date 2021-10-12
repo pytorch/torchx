@@ -20,7 +20,6 @@ import torchx.specs as specs
 def data_preproc(
     image: str,
     output_path: str,
-    entrypoint: str = "torchx/examples/apps/datapreproc/datapreproc.py",
     input_path: str = "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
     env: Optional[Dict[str, str]] = None,
     resource: Optional[str] = None,
@@ -31,7 +30,6 @@ def data_preproc(
 
     Args:
         image: Image to use
-        entrypoint: User script to launch
         output_path: Url-like path to save the processes compressed images
         input_path: Url-like path to fetch the imagenet dataset
         env: Env variables to transfer to the user script
@@ -44,11 +42,14 @@ def data_preproc(
 
     env = env or {}
     args = [
+        "-m",
+        "torchx.examples.apps.datapreproc.datapreproc.py",
         "--input_path",
         input_path,
         "--output_path",
         output_path,
     ]
+
     if resource:
         resource_def = specs.named_resources[resource]
     else:
@@ -59,7 +60,7 @@ def data_preproc(
             specs.Role(
                 name="worker",
                 image=image,
-                entrypoint=entrypoint,
+                entrypoint="python",
                 args=args,
                 env=env,
                 resource=resource_def,
