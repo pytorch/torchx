@@ -61,6 +61,23 @@ class KubernetesSchedulerTest(unittest.TestCase):
         actual_cmd = resource["spec"]["tasks"][0]["template"].spec.containers[0].command
         expected_cmd = ["main", "--output-path", "", "--app-id", unique_app_name]
 
+    def test_retry_policy_not_set(self) -> None:
+        app = _test_app()
+        resource = app_to_resource(app, "test_queue")
+        self.assertListEqual(
+            [
+                {"event": "PodEvicted", "action": "RestartJob"},
+                {"event": "PodFailed", "action": "RestartJob"},
+            ],
+            # pyre-ignore [16]
+            resource["spec"]["tasks"][0]["policies"],
+        )
+        for role in app.roles:
+            role.max_retries = 0
+        resource = app_to_resource(app, "test_queue")
+        self.assertFalse("policies" in resource["spec"]["tasks"][0])
+        self.assertFalse("maxRetry" in resource["spec"]["tasks"][0])
+
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
             V1Pod,
