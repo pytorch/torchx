@@ -38,9 +38,7 @@ class ComponentUtils:
     def get_linter_errors(
         cls, file_path: str, function_name: str
     ) -> List[LinterMessage]:
-        with open(file_path, "r") as fp:
-            file_content = fp.read()
-        linter_errors = validate(file_content, file_path, function_name)
+        linter_errors = validate(file_path, function_name)
         if len(linter_errors) != 0:
             error_msg = ""
             for linter_error in linter_errors:

@@ -8,11 +8,12 @@ import ast
 import os
 import unittest
 from typing import Dict, List, Optional, cast
+from unittest.mock import patch
 
 from pyre_extensions import none_throws
 from torchx.specs.file_linter import (
     get_short_fn_description,
-    get_fn_docstring,
+    _get_fn_docstring,
     parse_fn_docstring,
     validate,
 )
@@ -129,16 +130,21 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self._file_content = source
 
     def test_validate_docstring_func_desc(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_docstring_func_desc"
-        )
+        linter_errors = validate(self._path, "_test_docstring_func_desc")
         self.assertEqual(0, len(linter_errors))
+
+    def test_syntax_error(self) -> None:
+        content = "!!foo====bar"
+        with patch("torchx.specs.file_linter.read_conf_file") as read_conf_file_mock:
+            read_conf_file_mock.return_value = content
+            errors = validate(self._path, "unknown_function")
+            self.assertEqual(1, len(errors))
+            self.assertEqual("invalid syntax", errors[0].description)
 
     def test_validate_varargs_kwargs_fn(self) -> None:
         linter_errors = validate(
-            self._file_content,
             self._path,
-            torchx_function="_test_invalid_fn_with_varags_and_kwargs",
+            "_test_invalid_fn_with_varags_and_kwargs",
         )
         self.assertEqual(2, len(linter_errors))
         self.assertTrue("Missing args: ['id']" in linter_errors[0].description)
@@ -147,9 +153,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         )
 
     def test_validate_no_return(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_fn_no_return"
-        )
+        linter_errors = validate(self._path, "_test_fn_no_return")
         self.assertEqual(1, len(linter_errors))
         expected_desc = (
             "Function: _test_fn_no_return missing return annotation or "
@@ -158,9 +162,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(expected_desc, linter_errors[0].description)
 
     def test_validate_incorrect_return(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_fn_return_int"
-        )
+        linter_errors = validate(self._path, "_test_fn_return_int")
         self.assertEqual(1, len(linter_errors))
         expected_desc = (
             "Function: _test_fn_return_int has incorrect return annotation, "
@@ -169,9 +171,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(expected_desc, linter_errors[0].description)
 
     def test_validate_empty_fn(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_empty_fn"
-        )
+        linter_errors = validate(self._path, "_test_empty_fn")
         self.assertEqual(1, len(linter_errors))
         linter_error = linter_errors[0]
         self.assertEqual("TorchxFunctionValidator", linter_error.name)
@@ -184,12 +184,10 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEquals(expected_desc, linter_error.description)
         # TODO(aivanou): change this test to validate fn from another file to avoid changing lineno
         # on each file change
-        self.assertEqual(23, linter_error.line)
+        self.assertEqual(24, linter_error.line)
 
     def test_validate_docstring_empty(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_docstring_empty"
-        )
+        linter_errors = validate(self._path, "_test_docstring_empty")
         self.assertEqual(1, len(linter_errors))
         linter_error = linter_errors[0]
         self.assertEqual("TorchxFunctionValidator", linter_error.name)
@@ -201,9 +199,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEquals(expected_desc, linter_error.description)
 
     def test_validate_docstring_no_args(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_docstring_no_args"
-        )
+        linter_errors = validate(self._path, "_test_docstring_no_args")
         self.assertEqual(1, len(linter_errors))
         linter_error = linter_errors[0]
         self.assertEqual("TorchxFunctionValidator", linter_error.name)
@@ -214,15 +210,11 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(expected_desc, linter_error.description)
 
     def test_validate_docstring_correct(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_docstring_correct"
-        )
+        linter_errors = validate(self._path, "_test_docstring_correct")
         self.assertEqual(0, len(linter_errors))
 
     def test_validate_args_no_type_defs(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="_test_args_no_type_defs"
-        )
+        linter_errors = validate(self._path, "_test_args_no_type_defs")
         print(linter_errors)
         self.assertEqual(2, len(linter_errors))
         self.assertEqual(
@@ -234,9 +226,8 @@ class SpecsFileValidatorTest(unittest.TestCase):
 
     def test_validate_args_no_type_defs_complex(self) -> None:
         linter_errors = validate(
-            self._file_content,
             self._path,
-            torchx_function="_test_args_dict_list_complex_types",
+            "_test_args_dict_list_complex_types",
         )
         self.assertEqual(6, len(linter_errors))
         expected_desc = (
@@ -285,14 +276,12 @@ class SpecsFileValidatorTest(unittest.TestCase):
 
     def test_get_fn_docstring(self) -> None:
         function_desc, _ = none_throws(
-            get_fn_docstring(self._file_content, "_test_args_dict_list_complex_types")
+            _get_fn_docstring(self._file_content, "_test_args_dict_list_complex_types")
         )
         self.assertEqual("Test description", function_desc)
 
     def test_unknown_function(self) -> None:
-        linter_errors = validate(
-            self._file_content, self._path, torchx_function="unknown_function"
-        )
+        linter_errors = validate(self._path, "unknown_function")
         self.assertEqual(1, len(linter_errors))
         self.assertEqual(
             "Function unknown_function not found", linter_errors[0].description
@@ -300,8 +289,6 @@ class SpecsFileValidatorTest(unittest.TestCase):
 
     def test_get_short_fn_description(self) -> None:
         fn_short_desc = none_throws(
-            get_short_fn_description(
-                self._file_content, "_test_args_dict_list_complex_types"
-            )
+            get_short_fn_description(self._path, "_test_args_dict_list_complex_types")
         )
         self.assertEqual("Test description", fn_short_desc)
