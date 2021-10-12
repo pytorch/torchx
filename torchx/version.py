@@ -18,7 +18,5 @@ __version__ = "0.1.0rc1"
 
 # Use the github container registry images corresponding to the current package
 # version.
-# pyre-fixme[5]: Global expression must be annotated.
 TORCHX_IMAGE = f"ghcr.io/pytorch/torchx:{__version__}"
-# pyre-fixme[5]: Global expression must be annotated.
 EXAMPLES_IMAGE = f"ghcr.io/pytorch/torchx-examples:{__version__}"
