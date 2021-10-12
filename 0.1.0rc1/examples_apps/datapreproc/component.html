@@ -394,7 +394,6 @@ to download the full example code</p>
 <span class="k">def</span> <span class="nf">data_preproc</span><span class="p">(</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx/examples/apps/datapreproc/datapreproc.py&quot;</span><span class="p">,</span>
     <span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -405,7 +404,6 @@ to download the full example code</p>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: Image to use</span>
-<span class="sd">        entrypoint: User script to launch</span>
 <span class="sd">        output_path: Url-like path to save the processes compressed images</span>
 <span class="sd">        input_path: Url-like path to fetch the imagenet dataset</span>
 <span class="sd">        env: Env variables to transfer to the user script</span>
@@ -418,11 +416,14 @@ to download the full example code</p>
 
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torchx.examples.apps.datapreproc.datapreproc&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--input_path&quot;</span><span class="p">,</span>
         <span class="n">input_path</span><span class="p">,</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="n">output_path</span><span class="p">,</span>
     <span class="p">]</span>
+
     <span class="k">if</span> <span class="n">resource</span><span class="p">:</span>
         <span class="n">resource_def</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">named_resources</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -433,7 +434,7 @@ to download the full example code</p>
             <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
                 <span class="n">resource</span><span class="o">=</span><span class="n">resource_def</span><span class="p">,</span>

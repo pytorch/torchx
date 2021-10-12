@@ -396,7 +396,6 @@ to download the full example code</p>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">data_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx/examples/apps/lightning_classy_vision/train.py&quot;</span><span class="p">,</span>
     <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/logs&quot;</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -412,7 +411,6 @@ to download the full example code</p>
 <span class="sd">        load_path: path to load pretrained model from</span>
 <span class="sd">        data_path: path to the data to load, if data_path is not provided,</span>
 <span class="sd">            auto generated test data will be used</span>
-<span class="sd">        entrypoint: user script to launch.</span>
 <span class="sd">        log_path: path to save tensorboard logs to</span>
 <span class="sd">        resource: the resources to use</span>
 <span class="sd">        env: env variables for the app</span>
@@ -421,6 +419,8 @@ to download the full example code</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.train&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="n">output_path</span><span class="p">,</span>
         <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
@@ -441,7 +441,7 @@ to download the full example code</p>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
@@ -459,7 +459,6 @@ to download the full example code</p>
     <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx/examples/apps/lightning_classy_vision/interpret.py&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Runs the model interpretability app on the model outputted by the training</span>
 <span class="sd">    component.</span>
@@ -470,15 +469,16 @@ to download the full example code</p>
 <span class="sd">        data_path: path to the data to load</span>
 <span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
 <span class="sd">        resource: the resources to use</span>
-<span class="sd">        entrypoint: user script to launch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cv-interpret&quot;</span><span class="p">,</span>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.interpret&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
                     <span class="n">load_path</span><span class="p">,</span>
                     <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
