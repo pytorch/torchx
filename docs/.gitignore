@@ -1,2 +1,3 @@
 src/pytorch-sphinx-theme
 source/examples_*/
+jupyter_execute/

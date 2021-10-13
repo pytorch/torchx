@@ -30,7 +30,7 @@ clean:
 
 # optional live version
 livehtml:
-	sphinx-autobuild --watch ../torchx --watch ../examples --re-ignore ".*(examples_.*|.new)" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	sphinx-autobuild --watch ../torchx --watch ../examples --re-ignore ".*(examples_.*|.new|examples/(Dockerfile|.*.py))" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 papermill: html
 	./papermill.sh

@@ -37,6 +37,8 @@ Documentation
    :maxdepth: 1
    :caption: Examples
 
+   examples/hello_world.md
+
    examples_apps/index
    examples_pipelines/index
 

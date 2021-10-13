@@ -7,7 +7,8 @@ Easiest way to get started with TorchX is through the provided CLI.
 
 .. code-block:: shell-session
 
- $ pip install torchx
+ # install torchx with all dependencies
+ $ pip install torchx[dev]
  $ torchx --help
 
 With TorchX you can BYO app but TorchX has a collection of builtins.
