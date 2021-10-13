@@ -3,12 +3,20 @@
 TorchX
 ==================
 
-TorchX is an SDK for PyTorch related ML applications. It defines a standard struct
-called :py:class:`torchx.specs.AppDef` that represents the job definition of an application.
-The AppDef is the common language between :py:mod:`torchx.runner` and :py:mod:`torchx.pipelines` adapters.
+TorchX is an SDK for quickly building and deploying ML applications from R&D to production.
+It offers various builtin components that encode MLOps best practices and make advanced
+features like distributed training and hyperparameter optimization accessible to all.
+Users can get started with TorchX with no added setup cost since it supports popular
+ML schedulers and pipeline orchestrators that are already widely adopted and deployed
+in production.
 
-**JUST GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basics>` and
-look at the :ref:`quickstart guide<quickstart:Quickstart>`.
+No two production environments are the same. To comply with various use cases, TorchX's
+core APIs allow tons of customization at well-defined extension points so that even the
+most unique applications can be serviced without customizing the whole vertical stack.
+
+
+**GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basics>` and
+follow the :ref:`quickstart guide<quickstart:Quickstart>`.
 
 .. image:: torchx_index_diag.png
 
