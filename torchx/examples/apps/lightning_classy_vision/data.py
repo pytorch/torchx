@@ -41,7 +41,7 @@ class TinyImageNetDataset(ClassyDataset):
         self,
         data_path: str,
         transform: Callable[[object], object],
-        num_samples: int = 1000,
+        num_samples: Optional[int] = None,
     ) -> None:
         batchsize_per_replica = 16
         shuffle = False
@@ -74,7 +74,7 @@ class TinyImageNetDataModule(pl.LightningDataModule):
     test_ds: TinyImageNetDataset
 
     def __init__(
-        self, data_dir: str, batch_size: int = 16, num_samples: int = 1000
+        self, data_dir: str, batch_size: int = 16, num_samples: Optional[int] = None
     ) -> None:
         super().__init__()
         self.data_dir = data_dir
@@ -85,7 +85,6 @@ class TinyImageNetDataModule(pl.LightningDataModule):
         # Setup data loader and transforms
         img_transform = transforms.Compose(
             [
-                transforms.Grayscale(),
                 transforms.ToTensor(),
             ]
         )
@@ -131,6 +130,10 @@ def download_data(remote_path: str, tmpdir: str) -> str:
     download_data downloads the training data from the specified remote path via
     fsspec and places it in the tmpdir unextracted.
     """
+    if os.path.isdir(remote_path):
+        print("dataset path is a directory, using as is")
+        return remote_path
+
     tar_path = os.path.join(tmpdir, "data.tar.gz")
     print(f"downloading dataset from {remote_path} to {tar_path}...")
     fs, _, rpaths = fsspec.get_fs_token_paths(remote_path)

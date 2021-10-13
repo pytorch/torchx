@@ -22,6 +22,7 @@ import torch
 import torch.jit
 from torch.nn import functional as F
 from torchmetrics import Accuracy
+from torchvision.models.resnet import ResNet, BasicBlock
 
 
 class TinyImageNetModel(pl.LightningModule):
@@ -29,26 +30,29 @@ class TinyImageNetModel(pl.LightningModule):
     An very simple linear model for the tiny image net dataset.
     """
 
-    def __init__(self, layer_sizes: Optional[List[int]] = None) -> None:
+    def __init__(
+        self, layer_sizes: Optional[List[int]] = None, lr: Optional[float] = None
+    ) -> None:
         super().__init__()
 
-        # build a model with hidden layers specified by layer_sizes
-        if layer_sizes is None:
-            layer_sizes = []
-        dims = [64 * 64] + layer_sizes + [4096]
-        layers = []
-        for i, (a, b) in enumerate(zip(dims, dims[1:])):
-            if i > 0:
-                layers.append(torch.nn.ReLU(inplace=True))
-            layers.append(torch.nn.Linear(a, b))
-        self.seq: torch.nn.modules.Sequential = torch.nn.Sequential(*layers)
+        if not layer_sizes:
+            layer_sizes = [1, 1, 1, 1]
+
+        self.lr: float = lr or 0.001
+
+        # We use the torchvision resnet model with some small tweaks to match
+        # TinyImageNet.
+        m = ResNet(BasicBlock, layer_sizes)
+        m.avgpool = torch.nn.AdaptiveAvgPool2d(1)
+        m.fc.out_features = 200
+        self.model: ResNet = m
 
         self.train_acc = Accuracy()
         self.val_acc = Accuracy()
 
     # pyre-fixme[14]
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.seq(x.view(x.size(0), -1))
+        return self.model(x)
 
     # pyre-fixme[14]
     def training_step(
@@ -70,9 +74,8 @@ class TinyImageNetModel(pl.LightningModule):
         batch_idx: int,
     ) -> torch.Tensor:
         x, y = batch
-        output = self(x)
-        _, y_pred = torch.max(output, dim=1)
-        loss = F.cross_entropy(output, y)
+        y_pred = self(x)
+        loss = F.cross_entropy(y_pred, y)
         self.log(f"{step_name}_loss", loss)
         acc_metric(y_pred, y)
         self.log(f"{step_name}_acc", acc_metric.compute())
@@ -80,7 +83,7 @@ class TinyImageNetModel(pl.LightningModule):
 
     # pyre-fixme[3]: TODO(aivanou): Figure out why oss pyre can identify type but fb cannot.
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=0.02)
+        return torch.optim.AdamW(self.parameters(), lr=self.lr)
 
 
 def export_inference_model(
