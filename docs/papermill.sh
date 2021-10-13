@@ -18,7 +18,7 @@ tar -cJf "$WORK_DIR/main.tar.gz" -T /dev/null
 ROOT="$(pwd)/.."
 (cd "$WORK_DIR" && ln -s "$ROOT/torchx" . && ln -s "$ROOT/examples" .)
 
-files="$(find "$(pwd)"/build -name '*.ipynb')"
+files="$(find "$(pwd)"/build -wholename '**/_downloads/*.ipynb')"
 for file in $files
 do
   echo "Processing $file..."

@@ -1,7 +1,9 @@
 sphinx==4.0.2
 -e git+http://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
-sphinx-gallery
+sphinx-gallery<=0.7.0
 sphinxcontrib.katex
 matplotlib
 papermill
 ipykernel
+nbsphinx
+jupytext

@@ -61,6 +61,8 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_gallery.gen_gallery",
     "compatibility",
+    "nbsphinx",
+    "IPython.sphinxext.ipython_console_highlighting",
 ]
 
 # katex options
@@ -115,7 +117,9 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = []
+exclude_patterns = [
+    "examples_*/**/*.ipynb",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -338,3 +342,16 @@ sphinx_gallery_conf = {
 
 # add the document to avoid collisions for common titles
 autosectionlabel_prefix_document = True
+
+
+# Options for nbsphinx
+
+nbsphinx_custom_formats = {
+    ".md": ["jupytext.reads", {"fmt": "markdown"}],
+}
+nbsphinx_epilog = r"""
+.. raw:: html
+
+    <div id="is-nbsphinx"></div>
+"""
+# nbsphinx_execute = 'never'
