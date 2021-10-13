@@ -51,9 +51,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--epochs", type=int, default=3, help="number of epochs to train"
     )
+    parser.add_argument("--lr", type=float, help="learning rate")
     parser.add_argument(
         "--batch_size", type=int, default=32, help="batch size to use for training"
     )
+    parser.add_argument("--num_samples", type=int, default=None, help="num_samples")
     parser.add_argument(
         "--test",
         help="Sets to test mode, training on a much smaller set of randomly generated images",
@@ -93,6 +95,7 @@ def main(argv: List[str]) -> None:
 
         # Init our model
         model = TinyImageNetModel(args.layers)
+        print(model)
 
         # Download and setup the data module
         if args.test:
@@ -110,7 +113,7 @@ def main(argv: List[str]) -> None:
         data = TinyImageNetDataModule(
             data_dir=data_path,
             batch_size=args.batch_size,
-            num_samples=5 if args.test else 1000,
+            num_samples=5 if args.test else args.num_samples,
         )
 
         # Setup model checkpointing
@@ -138,6 +141,9 @@ def main(argv: List[str]) -> None:
 
         # Train the model ⚡
         trainer.fit(model, data)
+        print(
+            f"train acc: {model.train_acc.compute()}, val acc: {model.val_acc.compute()}"
+        )
 
         if not args.skip_export:
             # Export the inference model

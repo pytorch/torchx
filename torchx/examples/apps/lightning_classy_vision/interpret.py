@@ -75,10 +75,9 @@ def convert_to_rgb(arr: torch.Tensor) -> np.ndarray:  # pyre-ignore[24]
     This converts the image from a torch tensor with size (1, 1, 64, 64) to
     numpy array with size (64, 64, 3).
     """
-    squeezed = arr.squeeze()
-    stacked = torch.stack([squeezed, squeezed, squeezed], dim=2)
-    print("img stats: ", stacked.count_nonzero(), stacked.mean())
-    return stacked.numpy()
+    out = arr.squeeze().swapaxes(0, 2)
+    assert out.shape == (64, 64, 3), "invalid shape produced"
+    return out.numpy()
 
 
 def main(argv: List[str]) -> None:
@@ -106,6 +105,7 @@ def main(argv: List[str]) -> None:
         # process first 5 images
         for i, (input, label) in enumerate(itertools.islice(dataloader, 5)):
             print(f"analyzing example {i}")
+            # input = input.unsqueeze(dim=0)
             model.zero_grad()
             attr_ig, delta = ig.attribute(
                 input,

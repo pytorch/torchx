@@ -13,19 +13,18 @@ from torchx.examples.apps.lightning_classy_vision.model import (
 
 
 class ModelTest(unittest.TestCase):
-    def test_basic(self) -> None:
-        model = TinyImageNetModel()
-        self.assertEqual(len(model.seq), 1)
-        out = model(torch.zeros((1, 64, 64)))
-        self.assertIsNotNone(out)
+    def test_lr(self) -> None:
+        model = TinyImageNetModel(lr=0.1234)
+        self.assertEqual(model.configure_optimizers().defaults["lr"], 0.1234)
 
     def test_layer_sizes(self) -> None:
         model = TinyImageNetModel(
             layer_sizes=[
-                10,
-                15,
+                1,
+                2,
+                1,
+                1,
             ],
         )
-        self.assertEqual(len(model.seq), 5)
-        out = model(torch.zeros((1, 64, 64)))
+        out = model(torch.zeros((1, 3, 64, 64)))
         self.assertIsNotNone(out)

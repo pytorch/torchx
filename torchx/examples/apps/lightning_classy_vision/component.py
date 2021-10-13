@@ -11,7 +11,7 @@ Trainer Component Example
 This is a component definition that runs the example lightning_classy_vision app.
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 import torchx.specs.api as torchx
 from torchx.specs import named_resources
@@ -27,6 +27,9 @@ def trainer(
     env: Optional[Dict[str, str]] = None,
     skip_export: bool = False,
     epochs: int = 1,
+    layers: Optional[List[int]] = None,
+    learning_rate: Optional[float] = None,
+    num_samples: int = 200,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -41,6 +44,9 @@ def trainer(
         env: env variables for the app
         skip_export: disable model export
         epochs: number of epochs to run
+        layers: the number of convolutional layers and their number of channels
+        learning_rate: the learning rate to use for training
+        num_samples: the number of images to run per batch, use 0 to run on all
     """
     env = env or {}
     args = [
@@ -55,6 +61,12 @@ def trainer(
         "--epochs",
         str(epochs),
     ]
+    if layers:
+        args += ["--layers"] + [str(layer) for layer in layers]
+    if learning_rate:
+        args += ["--lr", str(learning_rate)]
+    if num_samples and num_samples > 0:
+        args += ["--num_samples", str(num_samples)]
     if data_path:
         args += ["--data_path", data_path]
     else:
