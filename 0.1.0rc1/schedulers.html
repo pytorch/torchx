@@ -246,18 +246,18 @@
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">Hyperparameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
@@ -265,7 +265,7 @@
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -356,8 +356,16 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.schedulers">
-<span id="torchx-schedulers"></span><h1>torchx.schedulers<a class="headerlink" href="#module-torchx.schedulers" title="Permalink to this headline">¶</a></h1>
+  <section id="torchx-schedulers">
+<h1>torchx.schedulers<a class="headerlink" href="#torchx-schedulers" title="Permalink to this headline">¶</a></h1>
+<p>TorchX Schedulers define plugins to existing schedulers. Used with the
+<a class="reference internal" href="runner.html#torchx-runner"><span class="std std-ref">runner</span></a>, they submit components as jobs onto
+the respective scheduler backends. TorchX supports a few <a class="reference internal" href="index.html#schedulers"><span class="std std-ref">schedulers</span></a>
+out-of-the-box. You can add your own by implementing .. py:class::torchx.schedulers
+and <a class="reference internal" href="configure.html#registering-custom-schedulers"><span class="std std-ref">registering</span></a> it in the entrypoint.</p>
+<img alt="_images/scheduler_diagram.png" src="_images/scheduler_diagram.png" />
+<section id="module-torchx.schedulers">
+<span id="scheduler-functions"></span><h2>Scheduler Functions<a class="headerlink" href="#module-torchx.schedulers" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.schedulers.get_schedulers">
 <span class="sig-prename descclassname"><span class="pre">torchx.schedulers.</span></span><span class="sig-name descname"><span class="pre">get_schedulers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">scheduler_params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><span class="pre">torchx.schedulers.api.Scheduler</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/torchx/schedulers.html#get_schedulers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.get_schedulers" title="Permalink to this definition">¶</a></dt>
@@ -379,6 +387,9 @@ method to instantiate them.</p>
 get_scheduler_factories.</p>
 </dd></dl>
 
+</section>
+<section id="scheduler-classes">
+<h2>Scheduler Classes<a class="headerlink" href="#scheduler-classes" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.Scheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.</span></span><span class="sig-name descname"><span class="pre">Scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/schedulers/api.html#Scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.Scheduler" title="Permalink to this definition">¶</a></dt>
@@ -546,6 +557,7 @@ the actual return type.</p>
 <dd></dd></dl>
 
 </section>
+</section>
 
 
      </article>
@@ -590,7 +602,11 @@ the actual return type.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">torchx.schedulers</a></li>
+<li><a class="reference internal" href="#">torchx.schedulers</a><ul>
+<li><a class="reference internal" href="#module-torchx.schedulers">Scheduler Functions</a></li>
+<li><a class="reference internal" href="#scheduler-classes">Scheduler Classes</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

@@ -243,18 +243,18 @@
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">Hyperparameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
@@ -262,7 +262,7 @@
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../runtime/hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -386,17 +386,15 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Distributed data parallel style application (one role, multi-replica).</span>
-
-<span class="sd">    This uses `Torch Elastic</span>
-<span class="sd">    &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_ to manage the</span>
-<span class="sd">    distributed workers.</span>
+<span class="sd">    Uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_</span>
+<span class="sd">    to launch and coordinate pytorch worker processes.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        script_args: Script arguments.</span>
 <span class="sd">        image: container image.</span>
 <span class="sd">        entrypoint: script or binary to run within the image.</span>
-<span class="sd">        rdzv_backend: rendezvous backend to use, allowed values can be found at</span>
-<span class="sd">            https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py</span>
+<span class="sd">        rdzv_backend: rendezvous backend to use, allowed values can be found in the</span>
+<span class="sd">             `rdzv registry docs &lt;https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py&gt;`_</span>
 <span class="sd">        rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd</span>
 <span class="sd">            endpoint, in case of c10d, this is the endpoint of one of the hosts.</span>
 <span class="sd">        resource: Optional named resource identifier. The resource parameter</span>

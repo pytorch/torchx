@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hyperparameter Optimization &mdash; PyTorch/TorchX main documentation</title>
+  <title>HPO &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -246,18 +246,18 @@
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="train.html">Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Hyperparameter Optimization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
@@ -265,7 +265,7 @@
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -321,7 +321,7 @@
       </li>
 
         
-      <li>Hyperparameter Optimization</li>
+      <li>HPO</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -357,10 +357,36 @@
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
   <section id="module-torchx.components.hpo">
-<span id="hyperparameter-optimization"></span><h1>Hyperparameter Optimization<a class="headerlink" href="#module-torchx.components.hpo" title="Permalink to this headline">¶</a></h1>
-<p>&lt;COMING SOON&gt;</p>
-<p>Hyperparameter optimization support is not yet available.</p>
-<p>For progress and more info see: <a class="reference external" href="https://github.com/pytorch/torchx/issues/71">https://github.com/pytorch/torchx/issues/71</a></p>
+<span id="hpo"></span><h1>HPO<a class="headerlink" href="#module-torchx.components.hpo" title="Permalink to this headline">¶</a></h1>
+<p>TorchX integrates with <a class="reference external" href="https://github.com/facebook/Ax">Ax</a> to provide
+hyperparameter optimization (HPO) support. Since the semantics of an HPO
+job is highly customizable, especially in the case of Bayesian optimization,
+an HPO application is hard to generalize as an executable. Therefore,
+HPO is offered as a runtime module rather than a builtin component. This means
+that TorchX provides you with the libraries and tools to simplify the building
+of your own HPO application and component.</p>
+<section id="hpo-app">
+<h2>HPO App<a class="headerlink" href="#hpo-app" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>See <a class="reference internal" href="../runtime/hpo.html#module-torchx.runtime.hpo"><span class="std std-ref">HPO with Ax + TorchX</span></a> to learn how to author an HPO application</p></li>
+<li><p>Build an image (typically a Docker image) that includes your HPO app,
+<a class="reference internal" href="overview.html#authoring"><span class="std std-ref">author a component</span></a></p></li>
+<li><p>Run it with the <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">torchx CLI</span></a> or <a class="reference internal" href="../pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a></p></li>
+</ol>
+<p>At a high level, the HPO app sets up the HPO experiment and search space. Each HPO
+trial is a job that is defined by the AppDef obtained by evaluating the
+TorchX component at a point in the parameter space. This point is determined
+by the bayesian optimizer within the Ax platform.</p>
+<p>The search space dimensions have to line up with the arguments
+of the component that you will be running as trials. To launch the HPO app, you can either run the
+main directly or invoke it remotely using TorchX (you’ll need to author a component for your HPO
+app in this case). The diagram below depicts how this works.</p>
+<img alt="../_images/hpo_diagram.png" src="../_images/hpo_diagram.png" />
+<p class="rubric">Example</p>
+<p>The <a class="reference external" href="https://github.com/pytorch/torchx/blob/main/torchx/runtime/hpo/test/ax_test.py">ax_test.py</a>
+unittest is a great end-to-end example of how everything works. It demonstrates running an
+HPO experiment where each trial the TorchX builtin component <a class="reference internal" href="utils.html#torchx.components.utils.booth" title="torchx.components.utils.booth"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.components.utils.booth()</span></code></a>.</p>
+</section>
 </section>
 
 
@@ -406,7 +432,10 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Hyperparameter Optimization</a></li>
+<li><a class="reference internal" href="#">HPO</a><ul>
+<li><a class="reference internal" href="#hpo-app">HPO App</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

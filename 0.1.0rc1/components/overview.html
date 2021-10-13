@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="HPO" href="hpo.html" />
-    <link rel="prev" title="Utils" href="../components/utils.html" />
+    <link rel="next" title="Train" href="train.html" />
+    <link rel="prev" title="torchx.pipelines" href="../pipelines.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -251,22 +251,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../components/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/base.html">Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tracking.html">Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Runtime</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -327,7 +327,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/runtime/overview.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/components/overview.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -356,15 +356,255 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.runtime">
-<span id="overview"></span><h1>Overview<a class="headerlink" href="#module-torchx.runtime" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> module contains libraries and utilities that you can
-use while authoring your applications. The usage of this module is not a hard
-requirement to use TorchX, but it will make it easier for you to author
-applications that are scheduler and infrastructure agnostic.</p>
-<p>The sub-modules of <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> are categorized by topic. For example in
-the <code class="docutils literal notranslate"><span class="pre">torchx.runtime.hpo</span></code> module you will find libraries that are useful
-when authoring hyper-parameter optimization jobs (applications).</p>
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<img alt="../_images/components_diagram.jpg" src="../_images/components_diagram.jpg" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Diagram above for illustration purposes only. Not all boxes
+are currently available out-of-the-box.</p>
+</div>
+<span class="target" id="module-torchx.components"></span><p>This module contains a collection of builtin TorchX components. The directory
+structure is organized by component category. Components are simply
+templetized app specs. Think of them as a factory methods for different types
+of job definitions. The functions that return <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> in this
+module are what we refer to as components.</p>
+<p>You can browse the library of components in the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> module
+or on our <a class="reference internal" href="../index.html#components-library"><span class="std std-ref">docs page</span></a>.</p>
+<section id="using-builtins">
+<h2>Using Builtins<a class="headerlink" href="#using-builtins" title="Permalink to this headline">¶</a></h2>
+<p>Once you’ve found a builtin component, you can either:</p>
+<ol class="arabic simple">
+<li><p>Run the component as a job</p></li>
+<li><p>Use the component in the context of a workflow (pipeline)</p></li>
+</ol>
+<p>In both cases, the component will run as a job, with the difference being that
+the job will run as a standalone job directly on a scheduler or a “stage” in a
+workflow with upstream and/or downstream dependencies.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the semantics o the component, the job may be single
+node or distributed. For instance, if the component has a single
+role where the <code class="docutils literal notranslate"><span class="pre">role.num_replicas</span> <span class="pre">==</span> <span class="pre">1</span></code>, then the job is a single
+node job. If the component has multiple roles and/or if any of the
+role’s <code class="docutils literal notranslate"><span class="pre">num_replicas</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, then the job is a multi-node distributed job.</p>
+</div>
+<p>Not sure whether you should run the component as a job or as a pipeline stage?
+Use this rule of thumb:</p>
+<ol class="arabic simple">
+<li><p>Just getting started? Familiarize yourself with the component by running it as a job</p></li>
+<li><p>Need job dependencies? Run the components as pipeline stages</p></li>
+<li><p>Don’t need job dependencies? Run the component as a job</p></li>
+</ol>
+</section>
+<section id="authoring">
+<h2>Authoring<a class="headerlink" href="#authoring" title="Permalink to this headline">¶</a></h2>
+<p>Since a component is simply a python function that returns an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>,
+authoring your own component is as simple as writing a python function with the following
+rules:</p>
+<ol class="arabic simple">
+<li><p>The component function must return an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> and the return type must be annotated</p></li>
+<li><dl class="simple">
+<dt>All arguments of the component must be type annotated and the type must be one of</dt><dd><ol class="arabic simple">
+<li><p>Primitives: <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p>Optional primitives: <code class="docutils literal notranslate"><span class="pre">Optional[int]</span></code>, <code class="docutils literal notranslate"><span class="pre">Optional[float]</span></code>, <code class="docutils literal notranslate"><span class="pre">Optional[str]</span></code></p></li>
+<li><p>Maps of primitives: <code class="docutils literal notranslate"><span class="pre">Dict[Primitive_key,</span> <span class="pre">Primitive_value]</span></code></p></li>
+<li><p>Lists of primitives: <code class="docutils literal notranslate"><span class="pre">List[Primitive_values]</span></code></p></li>
+<li><p>Optional collections: <code class="docutils literal notranslate"><span class="pre">Optional[List]</span></code>, <code class="docutils literal notranslate"><span class="pre">Optional[Dict]</span></code></p></li>
+<li><p>VAR_ARG: <code class="docutils literal notranslate"><span class="pre">*arg</span></code> (useful when passing through arguments to the entrypoint script)</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><p>The function should have well defined docstring in
+<a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">google format</a>.
+This docstring is used by the torchx cli to autogenerate a <code class="docutils literal notranslate"><span class="pre">--help</span></code> string which is useful
+when sharing components with others.</p></li>
+</ol>
+<p>Below is an example component that launches DDP scripts, it is a simplified version of
+the <a class="reference internal" href="distributed.html#torchx.components.dist.ddp" title="torchx.components.dist.ddp"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.components.dist.ddp()</span></code></a> builtin.</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go">import os</span>
+<span class="go">import torchx.specs as specs</span>
+
+<span class="go">def ddp(</span>
+<span class="go">    *script_args: str,</span>
+<span class="go">    image: str,</span>
+<span class="go">    script: str,</span>
+<span class="go">    host: str = &quot;aws_p3.2xlarge&quot;,</span>
+<span class="go">    nnodes: int = 1,</span>
+<span class="go">    nproc_per_node: int = 1,</span>
+<span class="go">) -&gt; specs.AppDef:</span>
+<span class="go">   &quot;&quot;&quot;</span>
+<span class="go">   DDP simplified.</span>
+
+<span class="go">   Args:</span>
+<span class="go">       image: name of the docker image containing the script + deps</span>
+<span class="go">       script: path of the script in the image</span>
+<span class="go">       script_args: arguments to the script</span>
+<span class="go">       host: machine type (one from named resources)</span>
+<span class="go">       nnodes: number of nodes to launch</span>
+<span class="go">       nproc_per_node: number of scripts to launch per node</span>
+
+<span class="go">   Returns:</span>
+<span class="go">       specs.AppDef: ddp AppDef</span>
+<span class="go">   &quot;&quot;&quot;</span>
+
+<span class="go">   return specs.AppDef(</span>
+<span class="go">       name=os.path.basename(script),</span>
+<span class="go">       roles=[</span>
+<span class="go">           spec.Role(</span>
+<span class="go">               name=&quot;trainer&quot;,</span>
+<span class="go">               image=image,</span>
+<span class="go">               resource=specs.named_resources[host],</span>
+<span class="go">               num_replicas=nnodes,</span>
+<span class="go">               entrypoint=&quot;python&quot;,</span>
+<span class="go">               args=[</span>
+<span class="go">                   &quot;-m&quot;,</span>
+<span class="go">                   &quot;torch.distributed.run&quot;,</span>
+<span class="go">                   &quot;--rdzv_backend=etcd&quot;,</span>
+<span class="go">                   &quot;--rdzv_endpoint=localhost:5900&quot;,</span>
+<span class="go">                   f&quot;--nnodes={nnodes}&quot;,</span>
+<span class="go">                   f&quot;--nprocs_per_node={nprocs_per_node}&quot;,</span>
+<span class="go">                   &quot;-m&quot;,</span>
+<span class="go">                   script,</span>
+<span class="go">                   *script_args,</span>
+<span class="go">               ],</span>
+<span class="go">           ),</span>
+<span class="go">       ]</span>
+<span class="go">   )</span>
+</pre></div>
+</div>
+</section>
+<section id="validating">
+<h2>Validating<a class="headerlink" href="#validating" title="Permalink to this headline">¶</a></h2>
+<p>To validate that you’ve defined your component correctly you can either:</p>
+<ol class="arabic simple">
+<li><p>(easiest) Dryrun your component’s <code class="docutils literal notranslate"><span class="pre">--help</span></code> with the cli: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">--dryrun</span> <span class="pre">~/component.py:train</span> <span class="pre">--help</span></code></p></li>
+<li><p>Use the component <a class="reference internal" href="../specs.html#module-torchx.specs.file_linter"><span class="std std-ref">linter</span></a>
+(see <a class="reference external" href="https://github.com/pytorch/torchx/blob/main/torchx/components/test/dist_test.py">dist_test.py</a> as an example)</p></li>
+</ol>
+</section>
+<section id="running-as-a-job">
+<h2>Running as a Job<a class="headerlink" href="#running-as-a-job" title="Permalink to this headline">¶</a></h2>
+<p>You can run a component as a job with the <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">torchx cli</span></a> or programmatically with
+the <a class="reference internal" href="../runner.html#torchx-runner"><span class="std std-ref">torchx.runner</span></a>. Both are identical, in fact the
+cli uses the runner under the hood, so the choice is yours. The <a class="reference internal" href="../quickstart.html#quickstart"><span class="std std-ref">quickstart</span></a>
+guide walks though the basics for you to get started.</p>
+<section id="programmatic-run">
+<h3>Programmatic Run<a class="headerlink" href="#programmatic-run" title="Permalink to this headline">¶</a></h3>
+<p>To run builtins or your own component programmatically, simply invoke the
+component as a regular python function and pass it along to the <a class="reference internal" href="../runner.html#module-torchx.runner" title="torchx.runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runner</span></code></a>.
+Below is an example of calling the <code class="docutils literal notranslate"><span class="pre">utils.echo</span></code> builtin:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go">from torchx.components.utils import echo</span>
+<span class="go">from torchx.runner import get_runner</span>
+
+<span class="go">get_runner().run(echo(msg=&quot;hello world&quot;), scheduler=&quot;local_cwd&quot;)</span>
+</pre></div>
+</div>
+</section>
+<section id="cli-run-builtins">
+<h3>CLI Run (Builtins)<a class="headerlink" href="#cli-run-builtins" title="Permalink to this headline">¶</a></h3>
+<p>When running components from the cli, you have to pass which component function to invoke.
+For builtin components this  is of the form <code class="docutils literal notranslate"><span class="pre">{component_module}.{component_fn}</span></code>, where
+the <code class="docutils literal notranslate"><span class="pre">{component_module}</span></code> is the module path of the component relative to <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code>
+and the <code class="docutils literal notranslate"><span class="pre">{component_fn}</span></code> is the component function within that module. So for
+<code class="docutils literal notranslate"><span class="pre">torchx.components.utils.echo</span></code>, we’d drop the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> prefix and run it as</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run utils.echo --msg <span class="s2">&quot;hello world&quot;</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">CLI docs</span></a> for more information.</p>
+</section>
+<section id="cli-run-custom">
+<h3>CLI Run (Custom)<a class="headerlink" href="#cli-run-custom" title="Permalink to this headline">¶</a></h3>
+<p>To run your custom component with the cli, you have to use a slightly different syntax of
+the form <code class="docutils literal notranslate"><span class="pre">{component_path}:{component_fn}</span></code>. Where <code class="docutils literal notranslate"><span class="pre">{component_path}</span></code> is the
+file path of your component’s python file, and <code class="docutils literal notranslate"><span class="pre">{component_fn}</span></code> is the name of the
+component function within that file. Assume your component is in <code class="docutils literal notranslate"><span class="pre">/home/bob/component.py</span></code>
+and the component function is called <code class="docutils literal notranslate"><span class="pre">train()</span></code>, you would run this as</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>option <span class="m">1</span>. use absolute path
+<span class="gp">$ </span>torchx run /home/bob/component.py:train --help
+
+<span class="gp"># </span>option <span class="m">2</span>. <span class="nb">let</span> the shell <span class="k">do</span> the expansion
+<span class="gp">$ </span>torchx run ~/component.py:train --help
+
+<span class="gp"># </span>option <span class="m">3</span>. same but after CWD to <span class="nv">$HOME</span>
+<span class="gp">$ </span><span class="nb">cd</span> ~/
+<span class="gp">$ </span>torchx run ./component.py:train --help
+
+<span class="gp"># </span>option <span class="m">4</span>. files can be relative to CWD
+<span class="gp">$ </span><span class="nb">cd</span> ~/
+<span class="gp">$ </span>torchx run component.py:train --help
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>builtins can be run this way as well given that you know the install directory of TorchX!</p>
+</div>
+</section>
+</section>
+<section id="passing-component-params-from-cli">
+<h2>Passing Component Params from CLI<a class="headerlink" href="#passing-component-params-from-cli" title="Permalink to this headline">¶</a></h2>
+<p>Since components are simply python functions, using them programmatically is straight forward.
+As seen above, when running components via the cli’s <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand the component parameters are passed
+as program arguments using the double-dash + param_name syntax (e.g <code class="docutils literal notranslate"><span class="pre">--param1=1</span></code> or <code class="docutils literal notranslate"><span class="pre">--param1</span> <span class="pre">1</span></code>).
+The cli autogenerates <a class="reference external" href="https://docs.python.org/3/library/argparse.html">argparse</a> parser based on the
+docstring of the component. Below is a summary on how to pass component parameters of various types,
+imagine the component is defined as:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go"># in comp.py</span>
+<span class="go">from typing import Dict, List</span>
+<span class="go">import torchx.specs as specs</span>
+
+<span class="go">def f(i: int, f: float, s: str, b: bool, l: List[str], d: Dict[str, str], *args) -&gt; specs.AppDef:</span>
+<span class="go">   &quot;&quot;&quot;</span>
+<span class="go">   Example component</span>
+
+<span class="go">   Args:</span>
+<span class="go">       i: int param</span>
+<span class="go">       f: float param</span>
+<span class="go">       s: string param</span>
+<span class="go">       b: bool param</span>
+<span class="go">       l: list param</span>
+<span class="go">       d: map param</span>
+<span class="go">       args: varargs param</span>
+
+<span class="go">   Returns: specs.AppDef</span>
+<span class="go">   &quot;&quot;&quot;</span>
+
+<span class="go">   pass</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Help: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--help</span></code></p></li>
+<li><p>Primitives (<code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>): <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--i</span> <span class="pre">1</span> <span class="pre">--f</span> <span class="pre">1.2</span> <span class="pre">--s</span> <span class="pre">&quot;bar&quot;</span></code></p></li>
+<li><p>Bool: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--b</span> <span class="pre">True</span></code> (or <code class="docutils literal notranslate"><span class="pre">--b</span> <span class="pre">False</span></code>)</p></li>
+<li><p>Maps: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--d</span> <span class="pre">k1=v1,k2=v2,k3=v3</span></code></p></li>
+<li><p>Lists: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--l</span> <span class="pre">a,b,c</span></code></p></li>
+<li><p>VAR_ARG: <code class="docutils literal notranslate"><span class="pre">*args</span></code> are passed as positionals rather than arguments, hence they are specified
+at the end of the command. The <code class="docutils literal notranslate"><span class="pre">--</span></code> delimiter is used to start the VAR_ARGS section. This
+is useful when the component and application have the same arguments or when passing through
+the <code class="docutils literal notranslate"><span class="pre">--help</span></code> arg. Below are a few examples:
+* <code class="docutils literal notranslate"><span class="pre">*args=[&quot;arg1&quot;,</span> <span class="pre">&quot;arg2&quot;,</span> <span class="pre">&quot;arg3&quot;]</span></code>: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--i</span> <span class="pre">1</span> <span class="pre">arg1</span> <span class="pre">arg2</span> <span class="pre">arg3</span></code>
+* <code class="docutils literal notranslate"><span class="pre">*args=[&quot;--flag&quot;,</span> <span class="pre">&quot;arg1&quot;]</span></code>: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--i</span> <span class="pre">1</span> <span class="pre">--flag</span> <span class="pre">arg1</span> <span class="pre">``</span>
+<span class="pre">*</span> <span class="pre">``*args=[&quot;--help&quot;]</span></code>: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--</span> <span class="pre">--help</span></code>
+* <code class="docutils literal notranslate"><span class="pre">*args=[&quot;--i&quot;,</span> <span class="pre">&quot;2&quot;]</span></code>: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">comp.py:f</span> <span class="pre">--i</span> <span class="pre">1</span> <span class="pre">--</span> <span class="pre">--i</span> <span class="pre">2</span></code></p></li>
+</ol>
+</section>
+<section id="run-in-a-pipeline">
+<h2>Run in a Pipeline<a class="headerlink" href="#run-in-a-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="../pipelines.html#module-torchx.pipelines"><span class="std std-ref">torchx.pipelines</span></a> define adapters that
+convert a torchx component into the object that represents a pipeline “stage” in the
+target pipeline platform (see <a class="reference internal" href="../index.html#pipelines"><span class="std std-ref">Pipeline Adapters</span></a> for a list of supported pipeline orchestrators).</p>
+</section>
+<section id="additional-resources">
+<h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this headline">¶</a></h2>
+<p>See:</p>
+<ol class="arabic simple">
+<li><p>Components defined in this module as expository examples</p></li>
+<li><p>Defining your own component <a class="reference internal" href="../quickstart.html#defining-your-own-component"><span class="std std-ref">quick start guide</span></a></p></li>
+<li><p>Component best practices <a class="reference internal" href="../component_best_practices.html#component-best-practices"><span class="std std-ref">guide</span></a></p></li>
+<li><p>App best practices <a class="reference internal" href="../app_best_practices.html#app-best-practices"><span class="std std-ref">guide</span></a></p></li>
+</ol>
+</section>
 </section>
 
 
@@ -375,10 +615,10 @@ when authoring hyper-parameter optimization jobs (applications).</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="hpo.html" class="btn btn-neutral float-right" title="HPO" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="train.html" class="btn btn-neutral float-right" title="Train" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../components/utils.html" class="btn btn-neutral" title="Utils" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../pipelines.html" class="btn btn-neutral" title="torchx.pipelines" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -410,7 +650,21 @@ when authoring hyper-parameter optimization jobs (applications).</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Overview</a></li>
+<li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#using-builtins">Using Builtins</a></li>
+<li><a class="reference internal" href="#authoring">Authoring</a></li>
+<li><a class="reference internal" href="#validating">Validating</a></li>
+<li><a class="reference internal" href="#running-as-a-job">Running as a Job</a><ul>
+<li><a class="reference internal" href="#programmatic-run">Programmatic Run</a></li>
+<li><a class="reference internal" href="#cli-run-builtins">CLI Run (Builtins)</a></li>
+<li><a class="reference internal" href="#cli-run-custom">CLI Run (Custom)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#passing-component-params-from-cli">Passing Component Params from CLI</a></li>
+<li><a class="reference internal" href="#run-in-a-pipeline">Run in a Pipeline</a></li>
+<li><a class="reference internal" href="#additional-resources">Additional Resources</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

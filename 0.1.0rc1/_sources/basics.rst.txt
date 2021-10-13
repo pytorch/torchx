@@ -120,7 +120,7 @@ See :ref:`basics:Pipeline Adapters` section below to understand how TorchX compo
 are used in the context of pipelines.
 
 Before authoring your own component, browse through the library of
-:ref:`Builtin Components<components:torchx.components>` that are included with TorchX
+:ref:`Components` that are included with TorchX
 to see if one fits your needs.
 
 
@@ -134,7 +134,7 @@ There are two ways to access runners in TorchX:
 1. CLI: ``torchx run ~/app_spec.py``
 2. Programmatically: ``torchx.runner.get_runner().run(appspec)``
 
-See :ref:`schedulers:torchx.schedulers` for a list of schedulers that the runner can
+See :ref:`Schedulers` for a list of schedulers that the runner can
 launch apps to.
 
 Pipeline Adapters

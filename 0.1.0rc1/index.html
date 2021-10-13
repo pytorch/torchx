@@ -245,18 +245,18 @@
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">Hyperparameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
@@ -264,7 +264,7 @@
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -362,18 +362,24 @@
       
   <section id="torchx">
 <h1>TorchX<a class="headerlink" href="#torchx" title="Permalink to this headline">¶</a></h1>
-<p>TorchX is an application spec SDK for PyTorch related apps. It defines
-standard structs called <code class="docutils literal notranslate"><span class="pre">specs</span></code> that represent the job definition of an
-application. The application <code class="docutils literal notranslate"><span class="pre">spec</span></code> is the common language between
-TorchX <code class="docutils literal notranslate"><span class="pre">runners</span></code> and pipeline <code class="docutils literal notranslate"><span class="pre">adapters</span></code>. Once an application’s <code class="docutils literal notranslate"><span class="pre">spec</span></code>
-is created, the application can be run as a standalone job on a cluster or
-as a stage in an ML pipeline/workflow. TorchX works with several mainstream
-job schedulers and ML pipeline platforms so chances are you are already familiar
-with one that works with TorchX.</p>
-<p>Just getting started? First learn the <a class="reference internal" href="basics.html#basics"><span class="std std-ref">basic concepts</span></a> and
-take a look at the <a class="reference internal" href="#components-library"><span class="std std-ref">builtin components</span></a> library.</p>
-<p>Not finding the component or adapter you are looking for? Write a custom one
-that fits your needs by using our <a class="reference internal" href="#torchx-api"><span class="std std-ref">SDK</span></a>.</p>
+<p>TorchX is an SDK for PyTorch related ML applications. It defines a standard struct
+called <a class="reference internal" href="specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.AppDef</span></code></a> that represents the job definition of an application.
+The AppDef is the common language between <a class="reference internal" href="runner.html#module-torchx.runner" title="torchx.runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runner</span></code></a> and <a class="reference internal" href="pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a> adapters.</p>
+<p><strong>JUST GETTING STARTED?</strong> First learn the <a class="reference internal" href="basics.html#basics"><span class="std std-ref">basic concepts</span></a> and
+look at the <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">quickstart guide</span></a>.</p>
+<img alt="_images/torchx_index_diag.png" src="_images/torchx_index_diag.png" />
+<section id="in-1-2-3">
+<h2>In 1-2-3<a class="headerlink" href="#in-1-2-3" title="Permalink to this headline">¶</a></h2>
+<p><strong>01 DEFINE OR CHOOSE</strong> Start by <a class="reference internal" href="components/overview.html#overview"><span class="std std-ref">writing a component</span></a> – a python
+function that returns an AppDef object for your application. Or you can choose one of the
+<a class="reference internal" href="#components"><span class="std std-ref">builtin components</span></a>.</p>
+<p><strong>02 RUN AS A JOB</strong> Once you’ve defined or chosen a component, you can <a class="reference internal" href="runner.html#torchx-runner"><span class="std std-ref">run it</span></a>
+by submitting it as a job in one of the supported <a class="reference internal" href="#schedulers"><span class="std std-ref">Schedulers</span></a>. TorchX supports several
+popular ones, such as Kubernetes and SLURM out of the box.</p>
+<p><strong>03 CONVERT TO PIPELINE</strong> In production, components are often run as a workflow (aka pipeline).
+TorchX components can be converted to pipeline stages by passing them through the <a class="reference internal" href="pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a>
+adapter. <a class="reference internal" href="#pipelines"><span class="std std-ref">Pipelines</span></a> lists the pipeline orchestrators supported out of the box.</p>
+</section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -398,7 +404,6 @@ that fits your needs by using our <a class="reference internal" href="#torchx-ap
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
@@ -407,14 +412,15 @@ that fits your needs by using our <a class="reference internal" href="#torchx-ap
 </section>
 <section id="components-library">
 <h2>Components Library<a class="headerlink" href="#components-library" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
+<div class="toctree-wrapper compound" id="components">
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">Hyperparameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
@@ -427,7 +433,7 @@ that fits your needs by using our <a class="reference internal" href="#torchx-ap
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
 </ul>
 </div>
@@ -502,6 +508,7 @@ that fits your needs by using our <a class="reference internal" href="#torchx-ap
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">TorchX</a><ul>
+<li><a class="reference internal" href="#in-1-2-3">In 1-2-3</a></li>
 <li><a class="reference internal" href="#documentation">Documentation</a><ul>
 </ul>
 </li>

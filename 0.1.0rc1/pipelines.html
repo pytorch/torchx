@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Train" href="components/train.html" />
+    <link rel="next" title="Overview" href="components/overview.html" />
     <link rel="prev" title="torchx.schedulers" href="schedulers.html" />
   <!-- Google Analytics -->
   
@@ -246,18 +246,18 @@
 <p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">torchx.components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">Hyperparameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
@@ -265,7 +265,7 @@
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">Hyper Parameter Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
@@ -363,9 +363,10 @@ for more complex behaviors as well as for continuous deployment.</p>
 <p>The runner and schedulers are designed to launch a single component quickly
 where as these adapters transform the component into something understandable by
 the specific pipeline provider so you can assemble a full pipeline with them.</p>
-<section id="module-torchx.pipelines.kfp">
-<span id="torchx-pipelines-kfp"></span><h2>torchx.pipelines.kfp<a class="headerlink" href="#module-torchx.pipelines.kfp" title="Permalink to this headline">¶</a></h2>
-<p>This module contains adapters for converting TorchX components into KubeFlow
+<section id="torchx-pipelines-kfp">
+<h2>torchx.pipelines.kfp<a class="headerlink" href="#torchx-pipelines-kfp" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/pipeline_kfp_diagram.png" src="_images/pipeline_kfp_diagram.png" />
+<span class="target" id="module-torchx.pipelines.kfp"></span><p>This module contains adapters for converting TorchX components into KubeFlow
 Pipeline components.</p>
 <p>The current KFP adapters only support single node (1 role and 1 replica)
 components.</p>
@@ -494,7 +495,7 @@ kfp.dsl.ContainerOp.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="components/train.html" class="btn btn-neutral float-right" title="Train" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="components/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="schedulers.html" class="btn btn-neutral" title="torchx.schedulers" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -530,7 +531,7 @@ kfp.dsl.ContainerOp.</p>
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">torchx.pipelines</a><ul>
-<li><a class="reference internal" href="#module-torchx.pipelines.kfp">torchx.pipelines.kfp</a></li>
+<li><a class="reference internal" href="#torchx-pipelines-kfp">torchx.pipelines.kfp</a></li>
 </ul>
 </li>
 </ul>
