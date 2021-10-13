@@ -9,7 +9,6 @@
 App Defs for integration tests.
 """
 
-
 import torchx.examples.apps.datapreproc.component as dp_component
 import torchx.examples.apps.lightning_classy_vision.component as cv_component
 from torchx.components.integration_tests.component_provider import ComponentProvider
@@ -23,6 +22,18 @@ class CvTrainerComponentProvider(ComponentProvider):
             output_path="/tmp",
             skip_export=True,
             log_path="/tmp",
+        )
+
+
+class CvTrainerDistComponentProvider(ComponentProvider):
+    def get_app_def(self) -> AppDef:
+        return cv_component.trainer_dist(
+            image=self._image,
+            output_path="/tmp",
+            skip_export=True,
+            log_path="/tmp",
+            rdzv_endpoint="localhost:29500",
+            rdzv_backend="c10d"
         )
 
 

@@ -124,11 +124,9 @@ def main(argv: List[str]) -> None:
 
         # Initialize a trainer
         num_nodes = int(os.environ.get("GROUP_WORLD_SIZE", 1))
-        gpus = get_gpu_devices()
         trainer = pl.Trainer(
             num_nodes=num_nodes,
-            gpus=gpus,
-            accelerator="ddp",
+            accelerator="ddp2",
             logger=logger,
             max_epochs=args.epochs,
             callbacks=[checkpoint_callback],

@@ -18,15 +18,15 @@ from torchx.specs import macros, named_resources, Resource
 
 
 def trainer(
-    image: str,
-    output_path: str,
-    data_path: Optional[str] = None,
-    load_path: str = "",
-    log_path: str = "/logs",
-    resource: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
-    skip_export: bool = False,
-    epochs: int = 1,
+        image: str,
+        output_path: str,
+        data_path: Optional[str] = None,
+        load_path: str = "",
+        log_path: str = "/logs",
+        resource: Optional[str] = None,
+        env: Optional[Dict[str, str]] = None,
+        skip_export: bool = False,
+        epochs: int = 1,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -77,19 +77,19 @@ def trainer(
 
 
 def trainer_dist(
-    image: str,
-    output_path: str,
-    data_path: Optional[str] = None,
-    load_path: str = "",
-    log_path: str = "/logs",
-    resource: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
-    skip_export: bool = False,
-    epochs: int = 1,
-    nnodes: int = 1,
-    nproc_per_node: int = 1,
-    rdzv_backend: str = "etcd",
-    rdzv_endpoint: str = "etcd-server:2379",
+        image: str,
+        output_path: str,
+        data_path: Optional[str] = None,
+        load_path: str = "",
+        log_path: str = "/logs",
+        resource: Optional[str] = None,
+        env: Optional[Dict[str, str]] = None,
+        skip_export: bool = False,
+        epochs: int = 1,
+        nnodes: int = 1,
+        nproc_per_node: int = 1,
+        rdzv_backend: str = "etcd",
+        rdzv_endpoint: str = "etcd-server:2379",
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -146,10 +146,10 @@ def trainer_dist(
     resource_def = (
         named_resources[resource]
         if resource
-        else Resource(cpu=nnodes, gpu=0, memMB=2048)
+        else Resource(cpu=nnodes, gpu=0, memMB=3000)
     )
     return torchx.AppDef(
-        name="cv-trainer",
+        name="dist-cv-trainer",
         roles=[
             torchx.Role(
                 name="worker",
@@ -165,11 +165,11 @@ def trainer_dist(
 
 
 def interpret(
-    image: str,
-    load_path: str,
-    data_path: str,
-    output_path: str,
-    resource: Optional[str] = None,
+        image: str,
+        load_path: str,
+        data_path: str,
+        output_path: str,
+        resource: Optional[str] = None,
 ) -> torchx.AppDef:
     """Runs the model interpretability app on the model outputted by the training
     component.
