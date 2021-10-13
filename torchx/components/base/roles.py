@@ -33,7 +33,7 @@ def create_torch_dist_role(
     invokes multiple copies of ``entrypoint``.
 
     For more information about torchelastic see
-    `torchelastic quickstart docs <http://pytorch.org/elastic/0.2.0/quickstart.html>`__.
+    `docs <https://pytorch.org/docs/stable/distributed.elastic.html>`_.
 
     .. important:: It is the responsibility of the user to ensure that the
                    role's image includes torchelastic. Since Torchx has no

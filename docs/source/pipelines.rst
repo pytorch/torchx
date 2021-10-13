@@ -5,7 +5,9 @@ torchx.pipelines
 .. currentmodule:: torchx.pipelines
 
 torchx.pipelines.kfp
-####################
+#####################
+
+.. image:: pipeline_kfp_diagram.png
 
 .. automodule:: torchx.pipelines.kfp
 .. currentmodule:: torchx.pipelines.kfp

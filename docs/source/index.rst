@@ -3,20 +3,30 @@
 TorchX
 ==================
 
-TorchX is an application spec SDK for PyTorch related apps. It defines
-standard structs called ``specs`` that represent the job definition of an
-application. The application ``spec`` is the common language between
-TorchX ``runners`` and pipeline ``adapters``. Once an application's ``spec``
-is created, the application can be run as a standalone job on a cluster or
-as a stage in an ML pipeline/workflow. TorchX works with several mainstream
-job schedulers and ML pipeline platforms so chances are you are already familiar
-with one that works with TorchX.
+TorchX is an SDK for PyTorch related ML applications. It defines a standard struct
+called :py:class:`torchx.specs.AppDef` that represents the job definition of an application.
+The AppDef is the common language between :py:mod:`torchx.runner` and :py:mod:`torchx.pipelines` adapters.
 
-Just getting started? First learn the :ref:`basic concepts<basics:Basics>` and
-take a look at the :ref:`builtin components<index:Components Library>` library.
+**JUST GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basics>` and
+look at the :ref:`quickstart guide<quickstart:Quickstart>`.
 
-Not finding the component or adapter you are looking for? Write a custom one
-that fits your needs by using our :ref:`SDK<torchx.api>`.
+.. image:: torchx_index_diag.png
+
+In 1-2-3
+-----------------
+
+**01 DEFINE OR CHOOSE** Start by :ref:`writing a component<components/overview:Overview>` -- a python
+function that returns an AppDef object for your application. Or you can choose one of the
+:ref:`builtin components<Components>`.
+
+**02 RUN AS A JOB** Once you've defined or chosen a component, you can :ref:`run it<runner:torchx.runner>`
+by submitting it as a job in one of the supported :ref:`Schedulers<Schedulers>`. TorchX supports several
+popular ones, such as Kubernetes and SLURM out of the box.
+
+**03 CONVERT TO PIPELINE** In production, components are often run as a workflow (aka pipeline).
+TorchX components can be converted to pipeline stages by passing them through the :py:mod:`torchx.pipelines`
+adapter. :ref:`Pipelines<Pipelines>` lists the pipeline orchestrators supported out of the box.
+
 
 Documentation
 ---------------
@@ -47,7 +57,6 @@ Documentation
    :caption: API
 
    specs
-   components
    runner
    schedulers
    pipelines
@@ -55,10 +64,12 @@ Documentation
 
 Components Library
 ---------------------
+.. _Components:
 .. toctree::
    :maxdepth: 1
    :caption: Components
 
+   components/overview
    components/train
    components/serve
    components/interpret

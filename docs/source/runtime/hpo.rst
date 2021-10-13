@@ -1,11 +1,11 @@
-Hyper Parameter Optimization
+HPO
 ################################
 
 Overview & Usage
 ~~~~~~~~~~~~~~~~~
 
-.. automodule:: torchx.runtime.hpo
 .. currentmodule:: torchx.runtime.hpo
+.. automodule:: torchx.runtime.hpo
 
 Ax (Adaptive Experimentation)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

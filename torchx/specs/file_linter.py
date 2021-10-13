@@ -14,6 +14,7 @@ from docstring_parser import parse
 from pyre_extensions import none_throws
 from torchx.util.io import read_conf_file
 
+
 # pyre-ignore-all-errors[16]
 
 
@@ -276,14 +277,14 @@ class TorchFunctionVisitor(ast.NodeVisitor):
 
 
 def validate(path: str, component_function: str) -> List[LinterMessage]:
-    """Validates the function to make sure it complies the component standard.
+    """
+    Validates the function to make sure it complies the component standard.
 
     ``validate`` finds the ``component_function`` and vaidates it for according to the following rules:
 
-        * The function must have `google-styple docs
-            <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
-        * All function parameters must be annotated
-        * The function must return :py:class:`torchx.specs.api.AppDef`
+    #. The function must have `google-styple docs <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
+    #. All function parameters must be annotated
+    #. The function must return :py:class:`torchx.specs.api.AppDef`
 
     Args:
         path: Path to python source file.

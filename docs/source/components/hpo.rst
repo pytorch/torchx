@@ -1,4 +1,4 @@
-Hyperparameter Optimization
+HPO
 ===========================
 
 .. automodule:: torchx.components.hpo
