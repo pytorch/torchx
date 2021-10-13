@@ -5,11 +5,12 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import inspect
 import json
 import os
 import os.path
 import shlex
-from typing import Mapping, Optional, Tuple
+from typing import Mapping, Optional, Tuple, Callable
 
 import yaml
 from kfp import components, dsl
@@ -27,6 +28,59 @@ from torchx.specs import api
 from typing_extensions import Protocol
 
 from .version import __version__ as __version__  # noqa F401
+
+
+def container_from_component_args(
+    app_fn: Callable[..., api.AppDef], *args: object, **kwargs: object
+) -> dsl.ContainerOp:
+    app = app_fn(*args, **kwargs)
+    assert len(app.roles) == 1, f"KFP adapter only support one role, got {app.roles}"
+
+    parameters = dict(inspect.signature(app_fn).parameters)
+
+    inputs_spec = []
+    inputs = {}
+    for k, v in kwargs.items():
+        if isinstance(v, str):
+            param = parameters[k]
+            del parameters[k]
+            inputs_spec.append(
+                {"name": k, "type": "String"},
+            )
+            inputs[k] = v
+
+    for (name, param), arg in zip(parameters.items(), args):
+        if isinstance(arg, str):
+            inputs_spec.append(
+                {"name": name, "type": "String"},
+            )
+            inputs[name] = arg
+
+    role = app.roles[0]
+    assert (
+        role.num_replicas == 1
+    ), f"KFP adapter only supports one replica, got {app.num_replicas}"
+
+    command = [role.entrypoint, *role.args]
+
+    spec = {
+        "name": f"{app.name}-{role.name}",
+        "description": f"KFP wrapper for TorchX component {app.name}, role {role.name}",
+        "implementation": {
+            "container": {
+                "image": role.image,
+                "command": command,
+                "env": role.env,
+            }
+        },
+        "inputs": inputs_spec,
+        "outputs": [],
+    }
+
+    component_factory: KFPContainerFactory = components.load_component_from_text(
+        yaml.dump(spec)
+    )
+    return component_factory(**inputs)
 
 
 def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:

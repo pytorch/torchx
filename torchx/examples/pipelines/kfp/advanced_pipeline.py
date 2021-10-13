@@ -216,18 +216,28 @@ interpret_app: specs.AppDef = interpret(
 # example purposes.
 
 import kfp
-from torchx.pipelines.kfp.adapter import container_from_app
+from torchx.pipelines.kfp.adapter import (
+    container_from_app,
+    container_from_component_args,
+)
 
 
 def pipeline() -> None:
     # container_from_app creates a KFP container from the TorchX app
     # definition.
-    copy = container_from_app(copy_app)
-    copy.container.set_tty()
+
+    copy_op = container_from_component_args(
+        copy,
+        "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
+        data_path,
+        image=args.image,
+    )
+    # copy = container_from_app(copy_app)
+    copy_op.container.set_tty()
 
     datapreproc = container_from_app(datapreproc_app)
     datapreproc.container.set_tty()
-    datapreproc.after(copy)
+    datapreproc.after(copy_op)
 
     # For the trainer we want to log that UI metadata so you can access
     # tensorboard from the UI.
