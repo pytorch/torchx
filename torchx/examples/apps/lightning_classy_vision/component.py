@@ -46,24 +46,24 @@ from torchx.version import TORCHX_IMAGE
 #
 #    torchx run --scheduler local_cwd \
 #    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer \
-#    --output_path /tmp
+#    --output_path /tmp/$USER
 #
 # Single trainer component code:
 
 
 def trainer(
-    output_path: str,
-    image: str = TORCHX_IMAGE,
-    data_path: Optional[str] = None,
-    load_path: str = "",
-    log_path: str = "/tmp/logs",
-    resource: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
-    skip_export: bool = False,
-    epochs: int = 1,
-    layers: Optional[List[int]] = None,
-    learning_rate: Optional[float] = None,
-    num_samples: int = 200,
+        output_path: str,
+        image: str = TORCHX_IMAGE,
+        data_path: Optional[str] = None,
+        load_path: str = "",
+        log_path: str = "/tmp/logs",
+        resource: Optional[str] = None,
+        env: Optional[Dict[str, str]] = None,
+        skip_export: bool = False,
+        epochs: int = 1,
+        layers: Optional[List[int]] = None,
+        learning_rate: Optional[float] = None,
+        num_samples: int = 200,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -170,19 +170,19 @@ def trainer(
 
 
 def trainer_dist(
-    output_path: str,
-    image: str = TORCHX_IMAGE,
-    data_path: Optional[str] = None,
-    load_path: str = "",
-    log_path: str = "/tmp/logs",
-    resource: Optional[str] = None,
-    env: Optional[Dict[str, str]] = None,
-    skip_export: bool = False,
-    epochs: int = 1,
-    nnodes: int = 1,
-    nproc_per_node: int = 1,
-    rdzv_backend: str = "etcd",
-    rdzv_endpoint: str = "etcd-server:2379",
+        output_path: str,
+        image: str = TORCHX_IMAGE,
+        data_path: Optional[str] = None,
+        load_path: str = "",
+        log_path: str = "/tmp/logs",
+        resource: Optional[str] = None,
+        env: Optional[Dict[str, str]] = None,
+        skip_export: bool = False,
+        epochs: int = 1,
+        nnodes: int = 1,
+        nproc_per_node: int = 1,
+        rdzv_backend: str = "etcd",
+        rdzv_endpoint: str = "etcd-server:2379",
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -258,44 +258,58 @@ def trainer_dist(
 
 
 # %%
-# Model Interpretability
-# #######################
-# TODO(aivanou): add documentation
+# Model Interpret
+# #################
+# Defines interpret component
+#
+# Train a single trainer example: :ref:`examples_apps/lightning_classy_vision/component:Single Trainer Component`
+# And use the following cmd to try out:
+#
+# .. code:: bash
+#
+#    torchx run --scheduler local_cwd \
+#    ./torchx/examples/apps/lightning_classy_vision/component.py:interpret \
+#    --output_path /tmp/aivanou/interpret  --load_path /tmp/$USER/last.ckpt
 
 
 def interpret(
-    image: str,
-    load_path: str,
-    data_path: str,
-    output_path: str,
-    resource: Optional[str] = None,
+        load_path: str,
+        output_path: str,
+        data_path: Optional[str] = None,
+        image: str = TORCHX_IMAGE,
+        resource: Optional[str] = None,
 ) -> torchx.AppDef:
     """Runs the model interpretability app on the model outputted by the training
     component.
 
     Args:
-        image: image to run (e.g. foobar:latest)
         load_path: path to load pretrained model from
-        data_path: path to the data to load
         output_path: output path for model checkpoints (e.g. file:///foo/bar)
+        data_path: path to the data to load
+        image: image to run (e.g. foobar:latest)
         resource: the resources to use
     """
+    args = [
+        "-m",
+        "torchx.examples.apps.lightning_classy_vision.interpret",
+        "--load_path",
+        load_path,
+        "--output_path",
+        output_path,
+    ]
+    if data_path:
+        args += [
+            "--data_path",
+            data_path,
+        ]
+
     return torchx.AppDef(
         name="cv-interpret",
         roles=[
             torchx.Role(
                 name="worker",
                 entrypoint="python",
-                args=[
-                    "-m",
-                    "torchx.examples.apps.lightning_classy_vision.interpret",
-                    "--load_path",
-                    load_path,
-                    "--data_path",
-                    data_path,
-                    "--output_path",
-                    output_path,
-                ],
+                args=args,
                 image=image,
                 resource=named_resources[resource]
                 if resource
