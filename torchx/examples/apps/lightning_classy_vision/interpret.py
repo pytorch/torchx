@@ -35,9 +35,9 @@ sys.path.append(".")
 from torchx.examples.apps.lightning_classy_vision.data import (
     TinyImageNetDataModule,
     download_data,
+    create_random_data,
 )
 from torchx.examples.apps.lightning_classy_vision.model import TinyImageNetModel
-
 
 # FIXME: captum must be imported after torch otherwise it causes python to crash
 if True:
@@ -57,8 +57,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--data_path",
         type=str,
-        help="path to load the training data from",
-        required=True,
+        help="path to load the training data from, if not provided, random dataset will be created",
     )
     parser.add_argument(
         "--output_path",
@@ -91,7 +90,12 @@ def main(argv: List[str]) -> None:
         model.load_from_checkpoint(checkpoint_path=args.load_path)
 
         # Download and setup the data module
-        data_path = download_data(args.data_path, tmpdir)
+        if not args.data_path:
+            data_path = os.path.join(tmpdir, "data")
+            os.makedirs(data_path)
+            create_random_data(data_path)
+        else:
+            data_path = download_data(args.data_path, tmpdir)
         data = TinyImageNetDataModule(
             data_dir=data_path,
             batch_size=1,
