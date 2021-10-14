@@ -263,7 +263,7 @@ class Runner:
 
         cfg = cfg or RunConfig()
         # TODO enable profiles - https://github.com/pytorch/torchx/issues/248
-        config.apply(profile="default", scheduler=scheduler, runcfg=cfg)
+        config.apply(scheduler=scheduler, cfg=cfg, profile="default")
 
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)

@@ -509,7 +509,7 @@ def get_type_name(tp: Type[ConfigValue]) -> str:
 
 
 @dataclass
-class Runopt:
+class runopt:
     """
     Represents the metadata about the specific run option
     """
@@ -554,9 +554,9 @@ class runopts:
     """
 
     def __init__(self) -> None:
-        self._opts: Dict[str, Runopt] = {}
+        self._opts: Dict[str, runopt] = {}
 
-    def __iter__(self) -> Iterator[Tuple[str, Runopt]]:
+    def __iter__(self) -> Iterator[Tuple[str, runopt]]:
         return self._opts.items().__iter__()
 
     @staticmethod
@@ -573,7 +573,7 @@ class runopts:
             else:
                 return False
 
-    def get(self, name: str) -> Optional[Runopt]:
+    def get(self, name: str) -> Optional[runopt]:
         """
         Returns option if any was registered, or None otherwise
         """
@@ -603,7 +603,7 @@ class runopts:
                     f" Given: {default} ({type(default).__name__})"
                 )
 
-        self._opts[cfg_key] = Runopt(default, type_, required, help)
+        self._opts[cfg_key] = runopt(default, type_, required, help)
 
     def resolve(self, config: RunConfig) -> RunConfig:
         """
@@ -623,9 +623,8 @@ class runopts:
             # check required opt
             if runopt.is_required and val is None:
                 raise InvalidRunConfigException(
-                    f"Required run option: {cfg_key}, must be provided and not None",
+                    f"Required run option: {cfg_key}, must be provided and not `None`",
                     config,
-                    self,
                 )
 
             # check type (None matches all types)
@@ -634,7 +633,6 @@ class runopts:
                     f"Run option: {cfg_key}, must be of type: {get_type_name(runopt.opt_type)},"
                     f" but was: {val} ({type(val).__name__})",
                     config,
-                    self,
                 )
 
             # not required and not set, set to default
@@ -678,10 +676,9 @@ class InvalidRunConfigException(Exception):
     type mismatch.
     """
 
-    def __init__(
-        self, invalid_reason: str, run_config: RunConfig, runopts: "runopts"
-    ) -> None:
-        super().__init__(f"{invalid_reason}. Given: {run_config}, Expected: {runopts}")
+    def __init__(self, invalid_reason: str, cfg: RunConfig) -> None:
+        given = str(cfg) if cfg.cfgs else "<EMPTY>"
+        super().__init__(f"{invalid_reason}. Given: {given}")
 
 
 class MalformedAppHandleException(Exception):

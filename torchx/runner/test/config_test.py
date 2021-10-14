@@ -102,30 +102,30 @@ class TestScheduler(Scheduler):
         return opts
 
 
-_CONFIG = """[default.scheduler_args.local_cwd]
+_CONFIG = """[default.local_cwd.cfg]
 log_dir = /home/bob/logs
 prepend_cwd = True
 
-[test.scheduler_args.local_cwd]
+[test.local_cwd.cfg]
 log_dir = None
 prepend_cwd = False
 
-[alpha.scheduler_args.local_cwd]
+[alpha.local_cwd.cfg]
 log_dir = /tmp/logs
 """
 
-_CONFIG_INVALID = """[default.scheduler_args.test]
+_CONFIG_INVALID = """[default.test.cfg]
 a_run_opt_that = does_not_exist
 s = option_that_exists
 """
 
-_TEAM_CONFIG = """[default.scheduler_args.test]
+_TEAM_CONFIG = """[default.test.cfg]
 s = team_default
 i = 50
 f = 1.2
 """
 
-_MY_CONFIG = """[default.scheduler_args.test]
+_MY_CONFIG = """[default.test.cfg]
 s = my_default
 i = 100
 """
@@ -158,32 +158,30 @@ class ConfigTest(unittest.TestCase):
         return f
 
     def test_load(self) -> None:
-        runcfg = RunConfig()
-        load(
-            profile="default", scheduler="local_cwd", f=StringIO(_CONFIG), runcfg=runcfg
-        )
-        self.assertEqual("/home/bob/logs", runcfg.get("log_dir"))
-        self.assertEqual(True, runcfg.get("prepend_cwd"))
+        cfg = RunConfig()
+        load(profile="default", scheduler="local_cwd", f=StringIO(_CONFIG), cfg=cfg)
+        self.assertEqual("/home/bob/logs", cfg.get("log_dir"))
+        self.assertEqual(True, cfg.get("prepend_cwd"))
 
-        runcfg = RunConfig()
-        load(profile="test", scheduler="local_cwd", f=StringIO(_CONFIG), runcfg=runcfg)
-        self.assertEqual(None, runcfg.get("log_dir"))
-        self.assertEqual(False, runcfg.get("prepend_cwd"))
+        cfg = RunConfig()
+        load(profile="test", scheduler="local_cwd", f=StringIO(_CONFIG), cfg=cfg)
+        self.assertEqual(None, cfg.get("log_dir"))
+        self.assertEqual(False, cfg.get("prepend_cwd"))
 
-        runcfg = RunConfig()
-        load(profile="alpha", scheduler="local_cwd", f=StringIO(_CONFIG), runcfg=runcfg)
-        self.assertEqual("/tmp/logs", runcfg.get("log_dir"))
-        self.assertEqual(None, runcfg.get("prepend_cwd"))
+        cfg = RunConfig()
+        load(profile="alpha", scheduler="local_cwd", f=StringIO(_CONFIG), cfg=cfg)
+        self.assertEqual("/tmp/logs", cfg.get("log_dir"))
+        self.assertEqual(None, cfg.get("prepend_cwd"))
 
     def test_no_override_load(self) -> None:
-        runcfg = RunConfig()
-        runcfg.set("log_dir", "/foo/bar")
-        runcfg.set("debug", 1)
+        cfg = RunConfig()
+        cfg.set("log_dir", "/foo/bar")
+        cfg.set("debug", 1)
 
-        load(profile="test", scheduler="local_cwd", f=StringIO(_CONFIG), runcfg=runcfg)
-        self.assertEqual("/foo/bar", runcfg.get("log_dir"))
-        self.assertEqual(1, runcfg.get("debug"))
-        self.assertEqual(False, runcfg.get("prepend_cwd"))
+        load(profile="test", scheduler="local_cwd", f=StringIO(_CONFIG), cfg=cfg)
+        self.assertEqual("/foo/bar", cfg.get("log_dir"))
+        self.assertEqual(1, cfg.get("debug"))
+        self.assertEqual(False, cfg.get("prepend_cwd"))
 
     @patch(
         TORCHX_GET_SCHEDULERS,
@@ -192,14 +190,14 @@ class ConfigTest(unittest.TestCase):
     def test_apply(self, _) -> None:
         with patch(PATH_CWD, return_value=Path(self.test_dir)):
             with patch(PATH_HOME, return_value=Path(self.test_dir) / "home" / "bob"):
-                runcfg = RunConfig()
-                runcfg.set("s", "runtime_value")
+                cfg = RunConfig()
+                cfg.set("s", "runtime_value")
 
-                apply(profile="default", scheduler="test", runcfg=runcfg)
+                apply(profile="default", scheduler="test", cfg=cfg)
 
-                self.assertEqual("runtime_value", runcfg.get("s"))
-                self.assertEqual(100, runcfg.get("i"))
-                self.assertEqual(1.2, runcfg.get("f"))
+                self.assertEqual("runtime_value", cfg.get("s"))
+                self.assertEqual(100, cfg.get("i"))
+                self.assertEqual(1.2, cfg.get("f"))
 
     def test_dump_invalid_scheduler(self) -> None:
         with self.assertRaises(ValueError):
@@ -215,50 +213,50 @@ class ConfigTest(unittest.TestCase):
         # test scheduler has no required options hence expect empty string
         dump(f=sfile, required_only=True)
 
-        runcfg = RunConfig()
+        cfg = RunConfig()
         sfile.seek(0)
-        load(profile="default", scheduler="test", f=sfile, runcfg=runcfg)
+        load(profile="default", scheduler="test", f=sfile, cfg=cfg)
 
-        self.assertFalse(runcfg.cfgs)
+        self.assertFalse(cfg.cfgs)
 
     @patch(
         TORCHX_GET_SCHEDULERS,
         return_value={"test": TestScheduler()},
     )
     def test_load_invalid_runopt(self, _) -> None:
-        runcfg = RunConfig()
+        cfg = RunConfig()
         load(
             profile="default",
             scheduler="test",
             f=StringIO(_CONFIG_INVALID),
-            runcfg=runcfg,
+            cfg=cfg,
         )
         # options in the config file but not in runopts
         # should be ignored (we shouldn't throw an error since
         # this makes things super hard to guarantee BC - stale config file will fail
         # to run, we don't want that)
 
-        self.assertEquals("option_that_exists", runcfg.get("s"))
+        self.assertEquals("option_that_exists", cfg.get("s"))
 
     def test_load_no_section(self) -> None:
-        runcfg = RunConfig()
+        cfg = RunConfig()
         load(
             profile="default",
             scheduler="local_cwd",
             f=StringIO(),
-            runcfg=runcfg,
+            cfg=cfg,
         )
         # is empty
-        self.assertFalse(runcfg.cfgs)
+        self.assertFalse(cfg.cfgs)
 
         load(
             profile="default",
             scheduler="local_cwd",
             f=StringIO("[default.scheduler_args.local_cwd]\n"),
-            runcfg=runcfg,
+            cfg=cfg,
         )
         # still empty
-        self.assertFalse(runcfg.cfgs)
+        self.assertFalse(cfg.cfgs)
 
     @patch(
         TORCHX_GET_SCHEDULERS,
@@ -270,12 +268,12 @@ class ConfigTest(unittest.TestCase):
 
         sfile.seek(0)
 
-        runcfg = RunConfig()
-        load(profile="default", scheduler="test", f=sfile, runcfg=runcfg)
+        cfg = RunConfig()
+        load(profile="default", scheduler="test", f=sfile, cfg=cfg)
 
         # all runopts in the TestScheduler have defaults, just check against those
         for opt_name, opt in TestScheduler().run_opts():
-            self.assertEqual(runcfg.get(opt_name), opt.default)
+            self.assertEqual(cfg.get(opt_name), opt.default)
 
     def test_dump_and_load_all_registered_schedulers(self) -> None:
         # dump all the runopts for all registered schedulers
@@ -284,11 +282,11 @@ class ConfigTest(unittest.TestCase):
 
         sfile = StringIO()
         dump(sfile)
-
+        print(sfile.getvalue())
         for sched_name, sched in get_schedulers(session_name="_").items():
             sfile.seek(0)  # reset the file pos
-            runcfg = RunConfig()
-            load(profile="default", scheduler=sched_name, f=sfile, runcfg=runcfg)
+            cfg = RunConfig()
+            load(profile="default", scheduler=sched_name, f=sfile, cfg=cfg)
 
             for opt_name, _ in sched.run_opts():
-                self.assertTrue(opt_name in runcfg.cfgs)
+                self.assertTrue(opt_name in cfg.cfgs)
