@@ -139,11 +139,12 @@ class CmdRun(SubCommand):
 
         if args.dryrun:
             app_dryrun_info = cast(specs.AppDryRunInfo, result)
-            logger.info("=== APPLICATION ===")
-            logger.info(pformat(asdict(app_dryrun_info._app), indent=2, width=80))
+            logger.info(
+                "\n=== APPLICATION ===\n"
+                f"{pformat(asdict(app_dryrun_info._app), indent=2, width=80)}"
+            )
 
-            logger.info("=== SCHEDULER REQUEST ===")
-            logger.info(app_dryrun_info)
+            logger.info("\n=== SCHEDULER REQUEST ===\n" f"{app_dryrun_info}")
             return
         else:
             app_handle = cast(specs.AppHandle, result)
@@ -153,7 +154,6 @@ class CmdRun(SubCommand):
             if args.scheduler.startswith("local"):
                 self._wait_and_exit(runner, app_handle)
             else:
-                logger.info("=== RUN RESULT ===")
                 logger.info(f"Launched app: {app_handle}")
                 status = runner.status(app_handle)
                 logger.info(status)
