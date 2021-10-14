@@ -79,12 +79,14 @@ class CmdRun(SubCommand):
         scheduler_names = get_scheduler_factories().keys()
         self._subparser = subparser
         subparser.add_argument(
+            "-s",
             "--scheduler",
             type=str,
             help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
             default=get_default_scheduler_name(),
         )
         subparser.add_argument(
+            "-a",
             "--scheduler_args",
             type=str,
             help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."

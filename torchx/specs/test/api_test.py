@@ -353,6 +353,11 @@ class RunConfigTest(unittest.TestCase):
         self.assertTrue(runopts.is_type([], List[str]))
         self.assertTrue(runopts.is_type(["a", "b"], List[str]))
 
+    def test_runopts_iter(self) -> None:
+        runopts = self.get_runopts()
+        for name, opt in runopts:
+            self.assertEqual(opt, runopts.get(name))
+
 
 class GetTypeNameTest(unittest.TestCase):
     def test_get_type_name(self) -> None:
