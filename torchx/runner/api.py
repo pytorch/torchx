@@ -13,6 +13,7 @@ from types import TracebackType
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 from pyre_extensions import none_throws
+from torchx.runner import config
 from torchx.runner.events import log_event
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler
@@ -259,9 +260,14 @@ class Runner:
                     f"Non-positive replicas for role: {role.name}."
                     f" Did you forget to set role.num_replicas?"
                 )
+
+        cfg = cfg or RunConfig()
+        # TODO enable profiles - https://github.com/pytorch/torchx/issues/248
+        config.apply(profile="default", scheduler=scheduler, runcfg=cfg)
+
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)
-        dryrun_info = sched.submit_dryrun(app, cfg or RunConfig())
+        dryrun_info = sched.submit_dryrun(app, cfg)
         dryrun_info._scheduler = scheduler
         return dryrun_info
 

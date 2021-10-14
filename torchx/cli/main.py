@@ -7,16 +7,18 @@
 import logging
 import sys
 from argparse import ArgumentParser
-from typing import List, Dict
+from typing import Dict, List
 
 from torchx.cli.cmd_base import SubCommand
+from torchx.cli.cmd_configure import CmdConfigure
 from torchx.cli.cmd_describe import CmdDescribe
 from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
 from torchx.cli.cmd_status import CmdStatus
-from torchx.cli.colors import ORANGE, GRAY, ENDC
+from torchx.cli.colors import ENDC, GRAY, ORANGE
 from torchx.util.entrypoints import load_group
+
 
 sub_parser_description = """Use the following commands to run operations, e.g.:
 torchx run ${JOB_NAME}
@@ -31,6 +33,7 @@ def get_default_sub_cmds() -> Dict[str, SubCommand]:
         "builtins": CmdBuiltins(),
         "runopts": CmdRunopts(),
         "status": CmdStatus(),
+        "configure": CmdConfigure(),
     }
 
 

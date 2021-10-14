@@ -5,7 +5,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-# TODO(aivanou): Update documentation
 import argparse
 import copy
 import inspect
@@ -18,6 +17,7 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    Iterator,
     List,
     Mapping,
     Optional,
@@ -556,6 +556,9 @@ class runopts:
     def __init__(self) -> None:
         self._opts: Dict[str, Runopt] = {}
 
+    def __iter__(self) -> Iterator[Tuple[str, Runopt]]:
+        return self._opts.items().__iter__()
+
     @staticmethod
     def is_type(obj: ConfigValue, tp: Type[ConfigValue]) -> bool:
         """
@@ -572,7 +575,7 @@ class runopts:
 
     def get(self, name: str) -> Optional[Runopt]:
         """
-        Returns option if any was registerred, or None otherwise
+        Returns option if any was registered, or None otherwise
         """
         return self._opts.get(name, None)
 
