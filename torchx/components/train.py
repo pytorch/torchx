@@ -14,7 +14,8 @@ generic components you can use to run your custom training app.
 Trainer Examples
 ----------------
 
-* :ref:`examples_apps/lightning_classy_vision/component:Trainer Component Example`
+* :ref:`examples_apps/lightning_classy_vision/component:Single Trainer Component`
+* :ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`
 * :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example`
 
 Components
