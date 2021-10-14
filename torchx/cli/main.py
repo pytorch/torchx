@@ -9,6 +9,7 @@ import sys
 from argparse import ArgumentParser
 from typing import Dict, List
 
+import torchx
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_configure import CmdConfigure
 from torchx.cli.cmd_describe import CmdDescribe
@@ -74,6 +75,11 @@ def create_parser(subcmds: Dict[str, SubCommand]) -> ArgumentParser:
         type=int,
         help="Python logging log level",
         default=logging.INFO,
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="torchx-{version}".format(version=torchx.version.__version__),
     )
     subparser = parser.add_subparsers(
         title="sub-commands",

@@ -60,6 +60,14 @@ class CLITest(unittest.TestCase):
             ]
         )
 
+    def test_version(self) -> None:
+        with self.assertRaises(SystemExit):
+            main(
+                [
+                    "--version",
+                ]
+            )
+
     @patch("torchx.cli.main.load_group")
     def test_get_sub_cmds(self, load_group_mock: MagicMock) -> None:
         load_group_mock.return_value = {"run": _TestCmd}
