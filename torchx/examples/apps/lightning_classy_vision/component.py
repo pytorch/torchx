@@ -52,18 +52,18 @@ from torchx.version import TORCHX_IMAGE
 
 
 def trainer(
-        output_path: str,
-        image: str = TORCHX_IMAGE,
-        data_path: Optional[str] = None,
-        load_path: str = "",
-        log_path: str = "/tmp/logs",
-        resource: Optional[str] = None,
-        env: Optional[Dict[str, str]] = None,
-        skip_export: bool = False,
-        epochs: int = 1,
-        layers: Optional[List[int]] = None,
-        learning_rate: Optional[float] = None,
-        num_samples: int = 200,
+    output_path: str,
+    image: str = TORCHX_IMAGE,
+    data_path: Optional[str] = None,
+    load_path: str = "",
+    log_path: str = "/tmp/logs",
+    resource: Optional[str] = None,
+    env: Optional[Dict[str, str]] = None,
+    skip_export: bool = False,
+    epochs: int = 1,
+    layers: Optional[List[int]] = None,
+    learning_rate: Optional[float] = None,
+    num_samples: int = 200,
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -170,19 +170,19 @@ def trainer(
 
 
 def trainer_dist(
-        output_path: str,
-        image: str = TORCHX_IMAGE,
-        data_path: Optional[str] = None,
-        load_path: str = "",
-        log_path: str = "/tmp/logs",
-        resource: Optional[str] = None,
-        env: Optional[Dict[str, str]] = None,
-        skip_export: bool = False,
-        epochs: int = 1,
-        nnodes: int = 1,
-        nproc_per_node: int = 1,
-        rdzv_backend: str = "etcd",
-        rdzv_endpoint: str = "etcd-server:2379",
+    output_path: str,
+    image: str = TORCHX_IMAGE,
+    data_path: Optional[str] = None,
+    load_path: str = "",
+    log_path: str = "/tmp/logs",
+    resource: Optional[str] = None,
+    env: Optional[Dict[str, str]] = None,
+    skip_export: bool = False,
+    epochs: int = 1,
+    nnodes: int = 1,
+    nproc_per_node: int = 1,
+    rdzv_backend: str = "etcd",
+    rdzv_endpoint: str = "etcd-server:2379",
 ) -> torchx.AppDef:
     """Runs the example lightning_classy_vision app.
 
@@ -273,11 +273,11 @@ def trainer_dist(
 
 
 def interpret(
-        load_path: str,
-        output_path: str,
-        data_path: Optional[str] = None,
-        image: str = TORCHX_IMAGE,
-        resource: Optional[str] = None,
+    load_path: str,
+    output_path: str,
+    data_path: Optional[str] = None,
+    image: str = TORCHX_IMAGE,
+    resource: Optional[str] = None,
 ) -> torchx.AppDef:
     """Runs the model interpretability app on the model outputted by the training
     component.
