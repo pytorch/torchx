@@ -24,6 +24,7 @@ import tempfile
 from typing import List
 
 import pytorch_lightning as pl
+import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
@@ -64,7 +65,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--data_path",
         type=str,
-        help="path to load the training data from",
+        help="path to load the training data from, if not provided, random data will be generated",
     )
     parser.add_argument("--skip_export", action="store_true")
     parser.add_argument("--load_path", type=str, help="checkpoint path to load from")
@@ -89,6 +90,10 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def get_gpu_devices() -> int:
+    return torch.cuda.device_count()
+
+
 def main(argv: List[str]) -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         args = parse_args(argv)
@@ -98,16 +103,11 @@ def main(argv: List[str]) -> None:
         print(model)
 
         # Download and setup the data module
-        if args.test:
+        if not args.data_path:
             data_path = os.path.join(tmpdir, "data")
             os.makedirs(data_path)
             create_random_data(data_path)
         else:
-            if not args.data_path:
-                raise ValueError(
-                    "'--data_path' flag is not set. Please set it to the path to your data. "
-                    "If you meant to run in test mode, add the '--test' flag instead."
-                )
             data_path = download_data(args.data_path, tmpdir)
 
         data = TinyImageNetDataModule(
@@ -131,7 +131,9 @@ def main(argv: List[str]) -> None:
         )
 
         # Initialize a trainer
+        num_nodes = int(os.environ.get("GROUP_WORLD_SIZE", 1))
         trainer = pl.Trainer(
+            num_nodes=num_nodes,
             accelerator="ddp2",
             logger=logger,
             max_epochs=args.epochs,

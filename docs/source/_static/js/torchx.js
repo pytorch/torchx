@@ -28,7 +28,7 @@ if (downloadNote.length >= 1) {
     var tutorialUrlArray = $("#tutorial-type").text().split('/');
         tutorialUrlArray[0] = tutorialUrlArray[0].replace("examples_", "")
 
-    var githubLink = githubBase + "examples/" + tutorialUrlArray.join("/") + ".py",
+    var githubLink = githubBase + "torchx/examples/" + tutorialUrlArray.join("/") + ".py",
         notebookLink = $(".reference.download")[1].href,
         notebookDownloadPath = notebookLink.split('_downloads')[1],
         colabLink = colabBase + "/_downloads" + notebookDownloadPath;
