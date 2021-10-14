@@ -10,18 +10,18 @@ import os
 import sys
 from dataclasses import asdict
 from pprint import pformat
-from typing import Dict, List, cast, Type, Optional
+from typing import Dict, List, Optional, Type, cast
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import Runner, get_runner
-from torchx.schedulers import get_scheduler_factories, get_default_scheduler_name
+from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs.finder import (
+    ComponentNotFoundException,
+    ComponentValidationException,
     _Component,
     get_components,
-    ComponentValidationException,
-    ComponentNotFoundException,
 )
 from torchx.util.types import to_dict
 
@@ -41,13 +41,13 @@ def _convert_to_option_type(
         return option_type(value)
 
 
-def _parse_run_config(arg: str, scheduler_run_opts: specs.runopts) -> specs.RunConfig:
+def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfig:
     conf = specs.RunConfig()
     if not arg:
         return conf
 
     for key, value in to_dict(arg).items():
-        option = scheduler_run_opts.get(key)
+        option = scheduler_opts.get(key)
         if option is None:
             raise ValueError(f"Unknown {key}, run `torchx runopts` for more info")
         option_type = option.opt_type
@@ -86,7 +86,7 @@ class CmdRun(SubCommand):
             default=get_default_scheduler_name(),
         )
         subparser.add_argument(
-            "-a",
+            "-cfg",
             "--scheduler_args",
             type=str,
             help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."
