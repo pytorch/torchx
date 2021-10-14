@@ -156,7 +156,7 @@ def trainer(
 #
 # * Install etcd server on your kubernetes cluster:
 #
-#       kubectl apply -f https://github.com/pytorch/torchx/blob/main/examples/kubernetes_resources/etcd.yaml
+#       kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
 #
 # After that the job can be executed on kubernetes:
 #
