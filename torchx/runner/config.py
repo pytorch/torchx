@@ -12,6 +12,7 @@ from typing import List, Optional, TextIO
 
 from torchx.schedulers import Scheduler, get_schedulers
 from torchx.specs import RunConfig, get_type_name
+from torchx.specs.api import runopt
 
 
 _NONE = "None"
@@ -47,22 +48,36 @@ def _get_scheduler(name: str) -> Scheduler:
     return sched
 
 
+def _fixme_placeholder(runopt: runopt, max_len: int = 60) -> str:
+    ph = f"#FIXME:({get_type_name(runopt.opt_type)}) {runopt.help}"
+    return ph if len(ph) <= max_len else f"{ph[:max_len]}..."
+
+
 def dump(
     f: TextIO, schedulers: Optional[List[str]] = None, required_only: bool = False
 ) -> None:
     """
-    Dumps a default INI-style config template containing the runopts for the
-    given scheduler names into ``f``. If no ``schedulers`` are specified
-    dumps all known registered schedulers.
+    Dumps a default INI-style config template containing the :py:class:torchx.specs.runopts for the
+    given scheduler names into the file-like object specified by ``f``.
+    If no ``schedulers`` are specified dumps all known registered schedulers.
 
     Optional runopts are pre-filled  with their default values.
-    Required runopts are set with a ``<FIXME_...>`` placeholder.
-    Each scheduler's runopts are written in the section called
-    ``[default.scheduler_args.{scheduler_name}]`` (e.g. ``[default.scheduler_args.kubernetes]``)
-
+    Required runopts are set with a ``FIXME: ...`` placeholder.
     To only dump required runopts pass ``required_only=True``.
 
-    Raises a ``ValueError`` if given a scheduler name that is not known
+    Each scheduler's runopts are written in the section called
+    ``[default.{scheduler_name}.cfg]``.
+
+    For example:
+
+    ::
+
+     [default.kubernetes.cfg]
+     namespace = default
+     queue = #FIXME (str)Volcano queue to schedule job in
+
+    Raises:
+        ``ValueError`` - if given a scheduler name that is not known
     """
 
     if schedulers:
@@ -74,12 +89,12 @@ def dump(
     for sched_name in scheds:
         sched = _get_scheduler(sched_name)
 
-        section = f"default.scheduler_args.{sched_name}"
+        section = f"default.{sched_name}.cfg"
         config.add_section(section)
 
         for opt_name, opt in sched.run_opts():
             if opt.is_required:
-                val = f"<FIXME_WITH_A_{get_type_name(opt.opt_type)}_VALUE>"
+                val = _fixme_placeholder(opt)
             else:  # not required runopts MUST have a default
                 if required_only:
                     continue
@@ -96,11 +111,10 @@ def dump(
                     val = f"{opt.default}"
 
             config.set(section, opt_name, val)
-
     config.write(f, space_around_delimiters=True)
 
 
-def apply(profile: str, scheduler: str, runcfg: RunConfig) -> None:
+def apply(scheduler: str, cfg: RunConfig, profile: str = "default") -> None:
     """
     Loads .torchxconfig files from predefined locations according
     to a load hierarchy and applies the loaded configs into the
@@ -121,10 +135,10 @@ def apply(profile: str, scheduler: str, runcfg: RunConfig) -> None:
         if configfile.exists():
             log.info(f"loading configs from {configfile}")
             with open(str(configfile), "r") as f:
-                load(profile, scheduler, f, runcfg)
+                load(scheduler, f, cfg, profile)
 
 
-def load(profile: str, scheduler: str, f: TextIO, runcfg: RunConfig) -> None:
+def load(scheduler: str, f: TextIO, cfg: RunConfig, profile: str = "default") -> None:
     """
     loads the section ``[{profile}.scheduler_args.{scheduler}]`` from the given
     configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding
@@ -137,17 +151,17 @@ def load(profile: str, scheduler: str, f: TextIO, runcfg: RunConfig) -> None:
 
     runopts = _get_scheduler(scheduler).run_opts()
 
-    section = f"{profile}.scheduler_args.{scheduler}"
+    section = f"{profile}.{scheduler}.cfg"
     if config.has_section(section):
         for name, value in config.items(section):
-            if name in runcfg.cfgs:
+            if name in cfg.cfgs:
                 # DO NOT OVERRIDE existing configs
                 continue
 
             if value == _NONE:
                 # should map to None (not str 'None')
                 # this also handles empty or None lists
-                runcfg.set(name, None)
+                cfg.set(name, None)
             else:
                 runopt = runopts.get(name)
 
@@ -161,9 +175,9 @@ def load(profile: str, scheduler: str, f: TextIO, runcfg: RunConfig) -> None:
                     if runopt.opt_type is bool:
                         # need to handle bool specially since str -> bool is based on
                         # str emptiness not value (e.g. bool("False") == True)
-                        runcfg.set(name, config.getboolean(section, name))
+                        cfg.set(name, config.getboolean(section, name))
                     elif runopt.opt_type is List[str]:
-                        runcfg.set(name, value.split(";"))
+                        cfg.set(name, value.split(";"))
                     else:
                         # pyre-ignore[29]
-                        runcfg.set(name, runopt.opt_type(value))
+                        cfg.set(name, runopt.opt_type(value))
