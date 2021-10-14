@@ -9,6 +9,9 @@ on:
 jobs:
   components-launch:
     runs-on: ubuntu-18.04
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -17,19 +20,19 @@ jobs:
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: component-integration-tests
       - name: Configure Kube Config
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
             aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
           fi
       - name: Configure Docker
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
@@ -42,8 +45,6 @@ jobs:
           pip install -e .[kubernetes]
       - name: Run Components Integration Tests
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
         run: scripts/component_integration_tests.py

@@ -9,6 +9,9 @@ on:
 jobs:
   kfp-launch:
     runs-on: ubuntu-18.04
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Install kubectl
         # More info: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
@@ -18,10 +21,13 @@ jobs:
           mkdir -p ~/.local/bin/kubectl
           mv ./kubectl ~/.local/bin/kubectl
           export PATH=$PATH:~/.local/bin/kubectl
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: kfp-integration-tests
       - name: Configure Kube Config
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
@@ -35,9 +41,6 @@ jobs:
       - name: Checkout TorchX
         uses: actions/checkout@v2
       - name: Configure Docker
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
           if [ -n "$AWS_ACCESS_KEY_ID" ]; then
@@ -50,8 +53,6 @@ jobs:
           python setup.py install
       - name: Run KFP Integration Tests
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
