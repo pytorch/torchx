@@ -28,6 +28,12 @@ def create_torch_dist_role(
     **launch_kwargs: Any,
 ) -> Role:
     """
+    .. warning:: This method is deprecated and will be removed in future versions.
+                 Instead use :py:func:`torchx.components.dist.ddp` as a builtin,
+                 or prefer to use `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_
+                 directly by setting your AppDef's ``entrypoint = python`` and
+                 ``args = ["-m", "torch.distributed.run", ...]``.
+
     A ``Role`` for which the user provided ``entrypoint`` is executed with the
     torchelastic agent (in the container). Note that the torchelastic agent
     invokes multiple copies of ``entrypoint``.

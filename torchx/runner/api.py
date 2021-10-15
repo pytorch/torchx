@@ -145,8 +145,8 @@ class Runner:
             if it dryrun specified.
 
         Raises:
-            `ComponentValidationException`: if component is invalid.
-            `ComponentNotFoundException`: if the ``component_path`` is failed to resolve.
+            ComponentValidationException: if component is invalid.
+            ComponentNotFoundException: if the ``component_path`` is failed to resolve.
         """
         component_def = get_component(component_name)
         app = from_function(component_def.fn, app_args)
@@ -505,9 +505,9 @@ class Runner:
         is the same as this session.
 
         Raises:
-            ValueError - if ``check_session=True`` and the session in the app handle
+            ValueError: if ``check_session=True`` and the session in the app handle
                          does not match this session's name
-            KeyError - if no such scheduler backend exists
+            KeyError: if no such scheduler backend exists
         """
 
         scheduler_backend, _, app_id = parse_app_handle(app_handle)

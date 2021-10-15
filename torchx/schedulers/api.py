@@ -248,7 +248,7 @@ class Scheduler(abc.ABC):
             An ``Iterator`` over log lines of the specified role replica
 
         Raises:
-            NotImplementedError - if the scheduler does not support log iteration
+            NotImplementedError: if the scheduler does not support log iteration
         """
         raise NotImplementedError(
             f"{self.__class__.__qualname__} does not support application log iteration"

@@ -47,18 +47,21 @@ Since a component is simply a python function that returns an ``specs.AppDef``,
 authoring your own component is as simple as writing a python function with the following
 rules:
 
-1. The component function must return an ``specs.AppDef`` and the return type must be annotated
-2. All arguments of the component must be type annotated and the type must be one of
+1. The component function must return an ``specs.AppDef`` and the return type must be specified
+2. All arguments of the component must be PEP 484 type annotated and the type must be one of
     #. Primitives: ``int``, ``float``, ``str``, ``bool``
     #. Optional primitives: ``Optional[int]``, ``Optional[float]``, ``Optional[str]``
     #. Maps of primitives: ``Dict[Primitive_key, Primitive_value]``
     #. Lists of primitives: ``List[Primitive_values]``
     #. Optional collections: ``Optional[List]``, ``Optional[Dict]``
     #. VAR_ARG: ``*arg`` (useful when passing through arguments to the entrypoint script)
-3. The function should have well defined docstring in
-   `google format <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_.
-   This docstring is used by the torchx cli to autogenerate a ``--help`` string which is useful
-   when sharing components with others.
+3. (optional) A docstring in `google format <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
+   (in particular see ``function_with_pep484_type_annotations``). This docstring is purely informative
+   in that torchx cli uses it to autogenerate an informative ``--help`` message, which is
+   useful when sharing components with others. If the component does not have a docstring
+   the ``--help`` option will still work, but the parameters will have a canned description (see below).
+   Note that when running components programmatically via :py:mod:`torchx.runner`, the docstring
+   is not picked up by torchx at all.
 
 Below is an example component that launches DDP scripts, it is a simplified version of
 the :py:func:`torchx.components.dist.ddp` builtin.
@@ -76,21 +79,6 @@ the :py:func:`torchx.components.dist.ddp` builtin.
      nnodes: int = 1,
      nproc_per_node: int = 1,
  ) -> specs.AppDef:
-    \"""
-    DDP simplified.
-
-    Args:
-        image: name of the docker image containing the script + deps
-        script: path of the script in the image
-        script_args: arguments to the script
-        host: machine type (one from named resources)
-        nnodes: number of nodes to launch
-        nproc_per_node: number of scripts to launch per node
-
-    Returns:
-        specs.AppDef: ddp AppDef
-    \"""
-
     return specs.AppDef(
         name=os.path.basename(script),
         roles=[
@@ -115,6 +103,73 @@ the :py:func:`torchx.components.dist.ddp` builtin.
         ]
     )
 
+Assuming the component above is saved in ``example.py``, we can run ``--help``
+on it as:
+
+.. code-block:: shell-session
+
+ $ torchx ./example.py:ddp --help
+ usage: torchx run ...torchx_params... ddp  [-h] --image IMAGE --script SCRIPT [--host HOST]
+                                           [--nnodes NNODES] [--nproc_per_node NPROC_PER_NODE]
+                                           ...
+
+ AppDef: ddp. TIP: improve this help string by adding a docstring ...<omitted for brevity>...
+
+ positional arguments:
+   script_args           (required)
+
+ optional arguments:
+   -h, --help            show this help message and exit
+   --image IMAGE         (required)
+   --script SCRIPT       (required)
+   --host HOST           (default: aws_p3.2xlarge)
+   --nnodes NNODES       (default: 1)
+   --nproc_per_node NPROC_PER_NODE
+                         (default: 1)
+
+If we include a docstring as such:
+
+.. code-block:: python
+
+  def ddp(...) -> specs.AppDef:
+    \"""
+    DDP Simplified.
+
+    Args:
+       image: name of the docker image containing the script + deps
+       script: path of the script in the image
+       script_args: arguments to the script
+       host: machine type (one from named resources)
+       nnodes: number of nodes to launch
+       nproc_per_node: number of scripts to launch per node
+
+    \"""
+
+    # ... component body same as above ...
+    pass
+
+Then the ``--help`` message would reflect the function and parameter descriptions
+in the docstring as such:
+
+::
+
+ usage: torchx run ...torchx_params... ddp  [-h] --image IMAGE --script SCRIPT [--host HOST]
+                                           [--nnodes NNODES] [--nproc_per_node NPROC_PER_NODE]
+                                           ...
+
+ App spec: DDP simplified.
+
+ positional arguments:
+   script_args           arguments to the script
+
+ optional arguments:
+   -h, --help            show this help message and exit
+   --image IMAGE         name of the docker image containing the script + deps
+   --script SCRIPT       path of the script in the image
+   --host HOST           machine type (one from named resources)
+   --nnodes NNODES       number of nodes to launch
+   --nproc_per_node NPROC_PER_NODE
+                         number of scripts to launch per node
 
 
 Validating
