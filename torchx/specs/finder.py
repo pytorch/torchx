@@ -119,9 +119,13 @@ class ModuleComponentsFinder(ComponentsFinder):
         search_pattern = os.path.join(search_dir, "**", "*.py")
         component_defs = []
         for filepath in glob.glob(search_pattern, recursive=True):
-            module = self._try_load_module(
-                self._get_module_name(filepath, search_dir, base_module)
-            )
+            module_name = self._get_module_name(filepath, search_dir, base_module)
+            # TODO(aivanou): move `torchx.components.base` to `torchx.specs`, since
+            # there is nothing related to components in `torchx.components.base`
+            # see https://github.com/pytorch/torchx/issues/261
+            if module_name.startswith("torchx.components.base"):
+                continue
+            module = self._try_load_module(module_name)
             defs = self._get_components_from_module(base_module, module)
             component_defs += defs
         return component_defs
