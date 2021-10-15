@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Type, cast
 import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
-from torchx.runner import Runner, get_runner
+from torchx.runner import Runner, config, get_runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs.finder import (
     ComponentNotFoundException,
@@ -53,6 +53,7 @@ def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfi
         option_type = option.opt_type
         typed_value = _convert_to_option_type(value, option_type)
         conf.set(key, typed_value)
+
     return conf
 
 
@@ -114,7 +115,9 @@ class CmdRun(SubCommand):
     def _run(self, runner: Runner, args: argparse.Namespace) -> Optional[str]:
         run_opts = get_runner().run_opts()
         scheduler_opts = run_opts[args.scheduler]
-        scheduler_args = _parse_run_config(args.scheduler_args, scheduler_opts)
+        cfg = _parse_run_config(args.scheduler_args, scheduler_opts)
+        config.apply(scheduler=args.scheduler, cfg=cfg)
+
         if len(args.conf_args) < 1:
             none_throws(self._subparser).error(
                 "the following arguments are required: conf_file, conf_args"
@@ -129,7 +132,7 @@ class CmdRun(SubCommand):
                 conf_file,
                 conf_args,
                 args.scheduler,
-                scheduler_args,
+                cfg,
                 dryrun=args.dryrun,
             )
         except (ComponentValidationException, ComponentNotFoundException) as e:

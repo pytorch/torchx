@@ -13,7 +13,6 @@ from types import TracebackType
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 from pyre_extensions import none_throws
-from torchx.runner import config
 from torchx.runner.events import log_event
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler
@@ -262,9 +261,6 @@ class Runner:
                 )
 
         cfg = cfg or RunConfig()
-        # TODO enable profiles - https://github.com/pytorch/torchx/issues/248
-        config.apply(scheduler=scheduler, cfg=cfg, profile="default")
-
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)
         dryrun_info = sched.submit_dryrun(app, cfg)
