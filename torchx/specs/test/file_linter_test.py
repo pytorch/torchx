@@ -4,18 +4,16 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import ast
+import argparse
 import os
 import unittest
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional
 from unittest.mock import patch
 
-from pyre_extensions import none_throws
 from torchx.specs.file_linter import (
-    get_short_fn_description,
-    _get_fn_docstring,
-    parse_fn_docstring,
+    get_fn_docstring,
     validate,
+    TorchXArgumentHelpFormatter,
 )
 
 
@@ -41,26 +39,7 @@ def _test_fn_return_int() -> int:
     return 0
 
 
-def _test_docstring_empty(arg: str) -> "AppDef":
-    """ """
-    pass
-
-
-def _test_docstring_func_desc() -> "AppDef":
-    """
-    Function description
-    """
-    pass
-
-
-def _test_docstring_no_args(arg: str) -> "AppDef":
-    """
-    Test description
-    """
-    pass
-
-
-def _test_docstring_correct(arg0: str, arg1: int, arg2: Dict[int, str]) -> "AppDef":
+def _test_docstring(arg0: str, arg1: int, arg2: Dict[int, str]) -> "AppDef":
     """Short Test description
 
     Long funct description
@@ -68,8 +47,16 @@ def _test_docstring_correct(arg0: str, arg1: int, arg2: Dict[int, str]) -> "AppD
     Args:
         arg0: arg0 desc
         arg1: arg1 desc
-        arg2: arg2 desc
     """
+    pass
+
+
+def _test_docstring_short() -> "AppDef":
+    """Short Test description"""
+    pass
+
+
+def _test_without_docstring(arg0: str) -> "AppDef":
     pass
 
 
@@ -129,10 +116,6 @@ class SpecsFileValidatorTest(unittest.TestCase):
             source = fp.read()
         self._file_content = source
 
-    def test_validate_docstring_func_desc(self) -> None:
-        linter_errors = validate(self._path, "_test_docstring_func_desc")
-        self.assertEqual(0, len(linter_errors))
-
     def test_syntax_error(self) -> None:
         content = "!!foo====bar"
         with patch("torchx.specs.file_linter.read_conf_file") as read_conf_file_mock:
@@ -146,10 +129,9 @@ class SpecsFileValidatorTest(unittest.TestCase):
             self._path,
             "_test_invalid_fn_with_varags_and_kwargs",
         )
-        self.assertEqual(2, len(linter_errors))
-        self.assertTrue("Missing args: ['id']" in linter_errors[0].description)
+        self.assertEqual(1, len(linter_errors))
         self.assertTrue(
-            "Arg args missing type annotation", linter_errors[1].description
+            "Arg args missing type annotation", linter_errors[0].description
         )
 
     def test_validate_no_return(self) -> None:
@@ -172,45 +154,6 @@ class SpecsFileValidatorTest(unittest.TestCase):
 
     def test_validate_empty_fn(self) -> None:
         linter_errors = validate(self._path, "_test_empty_fn")
-        self.assertEqual(1, len(linter_errors))
-        linter_error = linter_errors[0]
-        self.assertEqual("TorchxFunctionValidator", linter_error.name)
-
-        expected_desc = (
-            "`_test_empty_fn` is missing a Google Style docstring, please add one. "
-            "For more information on the docstring format see: "
-            "https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html"
-        )
-        self.assertEquals(expected_desc, linter_error.description)
-        # TODO(aivanou): change this test to validate fn from another file to avoid changing lineno
-        # on each file change
-        self.assertEqual(24, linter_error.line)
-
-    def test_validate_docstring_empty(self) -> None:
-        linter_errors = validate(self._path, "_test_docstring_empty")
-        self.assertEqual(1, len(linter_errors))
-        linter_error = linter_errors[0]
-        self.assertEqual("TorchxFunctionValidator", linter_error.name)
-        expected_desc = (
-            "`_test_docstring_empty` is missing a Google Style docstring, please add one. "
-            "For more information on the docstring format see: "
-            "https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html"
-        )
-        self.assertEquals(expected_desc, linter_error.description)
-
-    def test_validate_docstring_no_args(self) -> None:
-        linter_errors = validate(self._path, "_test_docstring_no_args")
-        self.assertEqual(1, len(linter_errors))
-        linter_error = linter_errors[0]
-        self.assertEqual("TorchxFunctionValidator", linter_error.name)
-        expected_desc = (
-            "`_test_docstring_no_args` not all function arguments"
-            " are present in the docstring. Missing args: ['arg']"
-        )
-        self.assertEqual(expected_desc, linter_error.description)
-
-    def test_validate_docstring_correct(self) -> None:
-        linter_errors = validate(self._path, "_test_docstring_correct")
         self.assertEqual(0, len(linter_errors))
 
     def test_validate_args_no_type_defs(self) -> None:
@@ -229,66 +172,74 @@ class SpecsFileValidatorTest(unittest.TestCase):
             self._path,
             "_test_args_dict_list_complex_types",
         )
-        self.assertEqual(6, len(linter_errors))
-        expected_desc = (
-            "`_test_args_dict_list_complex_types` not all function arguments"
-            " are present in the docstring. Missing args: ['arg4']"
+        self.assertEqual(5, len(linter_errors))
+        self.assertEqual(
+            "Arg arg0 missing type annotation", linter_errors[0].description
         )
         self.assertEqual(
-            expected_desc,
-            linter_errors[0].description,
+            "Arg arg1 missing type annotation", linter_errors[1].description
         )
         self.assertEqual(
-            "Arg arg0 missing type annotation", linter_errors[1].description
+            "Dict can only have primitive types", linter_errors[2].description
         )
         self.assertEqual(
-            "Arg arg1 missing type annotation", linter_errors[2].description
-        )
-        self.assertEqual(
-            "Dict can only have primitive types", linter_errors[3].description
-        )
-        self.assertEqual(
-            "List can only have primitive types", linter_errors[4].description
+            "List can only have primitive types", linter_errors[3].description
         )
         self.assertEqual(
             "`_test_args_dict_list_complex_types` allows only Dict, List as complex types.Argument `arg4` has: Optional",
-            linter_errors[5].description,
+            linter_errors[4].description,
         )
 
-    def _get_function_def(self, function_name: str) -> ast.FunctionDef:
-        module: ast.Module = ast.parse(self._file_content)
-        for expr in module.body:
-            if type(expr) == ast.FunctionDef:
-                func_def = cast(ast.FunctionDef, expr)
-                if func_def.name == function_name:
-                    return func_def
-        raise RuntimeError(f"No function found: {function_name}")
-
-    def test_validate_docstring_full(self) -> None:
-        func_def = self._get_function_def("_test_docstring_correct")
-        docstring = none_throws(ast.get_docstring(func_def))
-
-        func_desc, param_desc = parse_fn_docstring(docstring)
-        self.assertEqual("Short Test description", func_desc)
+    def test_validate_docstring(self) -> None:
+        func_desc, param_desc = get_fn_docstring(_test_docstring)
+        self.assertEqual("Short Test description ...", func_desc)
         self.assertEqual("arg0 desc", param_desc["arg0"])
         self.assertEqual("arg1 desc", param_desc["arg1"])
-        self.assertEqual("arg2 desc", param_desc["arg2"])
+        self.assertEqual(" ", param_desc["arg2"])
 
-    def test_get_fn_docstring(self) -> None:
-        function_desc, _ = none_throws(
-            _get_fn_docstring(self._file_content, "_test_args_dict_list_complex_types")
-        )
-        self.assertEqual("Test description", function_desc)
+    def test_validate_docstring_short(self) -> None:
+        func_desc, param_desc = get_fn_docstring(_test_docstring_short)
+        self.assertEqual("Short Test description", func_desc)
 
-    def test_unknown_function(self) -> None:
+    def test_validate_docstring_no_docs(self) -> None:
+        func_desc, param_desc = get_fn_docstring(_test_without_docstring)
+        expected_fn_desc = """_test_without_docstring TIP: improve this help string by adding a docstring
+to your component (see: https://pytorch.org/torchx/latest/component_best_practices.html)"""
+        self.assertEqual(expected_fn_desc, func_desc)
+        self.assertEqual(" ", param_desc["arg0"])
+
+    def test_validate_unknown_function(self) -> None:
         linter_errors = validate(self._path, "unknown_function")
         self.assertEqual(1, len(linter_errors))
         self.assertEqual(
             "Function unknown_function not found", linter_errors[0].description
         )
 
-    def test_get_short_fn_description(self) -> None:
-        fn_short_desc = none_throws(
-            get_short_fn_description(self._path, "_test_args_dict_list_complex_types")
+    def test_formatter(self) -> None:
+        parser = argparse.ArgumentParser(
+            prog="test prog",
+            description="test desc",
         )
-        self.assertEqual("Test description", fn_short_desc)
+        parser.add_argument(
+            "--foo",
+            type=int,
+            required=True,
+            help="foo",
+        )
+        parser.add_argument(
+            "--bar",
+            type=int,
+            help="bar",
+            default=1,
+        )
+        formatter = TorchXArgumentHelpFormatter(prog="test")
+        self.assertEqual(
+            "show this help message and exit",
+            formatter._get_help_string(parser._actions[0]),
+        )
+        self.assertEqual(
+            "foo (required)", formatter._get_help_string(parser._actions[1])
+        )
+        self.assertEqual(
+            "bar (default: 1)", formatter._get_help_string(parser._actions[2])
+        )

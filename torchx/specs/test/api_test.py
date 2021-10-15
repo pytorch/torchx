@@ -5,13 +5,15 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import argparse
 import sys
 import unittest
 from dataclasses import asdict
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Any
 from unittest.mock import MagicMock, patch
 
 import torchx.specs.named_resources_aws as named_resources_aws
+from pyre_extensions import none_throws
 from torchx.specs import named_resources
 from torchx.specs.api import (
     _TERMINAL_STATES,
@@ -33,6 +35,7 @@ from torchx.specs.api import (
     make_app_handle,
     parse_app_handle,
     runopts,
+    _create_args_parser,
 )
 
 
@@ -463,11 +466,6 @@ def _test_complex_fn(
         app_name: AppDef name
         containers: List of containers
         roles_scripts: Dict role_name -> role_script
-        num_cpus: List of cpus per role
-        num_gpus: Dict role_name -> gpus used for role
-        nnodes: Num replicas per role
-        first_arg: First argument to the user script
-        roles_args: Roles args
     """
     num_roles = len(roles_scripts)
     if not num_cpus:
@@ -709,4 +707,44 @@ class AppDefLoadTest(unittest.TestCase):
         self.assertEqual(
             _TEST_VAR_ARGS_FIRST,
             (("fooval", "--foo", "barval", "arg1", "arg2"), "asdf"),
+        )
+
+    # pyre-ignore[3]
+    def _get_argument_help(
+        self, parser: argparse.ArgumentParser, name: str
+    ) -> Optional[Tuple[str, Any]]:
+        actions = parser._actions
+        for action in actions:
+            if action.dest == name:
+                return action.help or "", action.default
+        return None
+
+    def test_argparster_complex_fn_partial(self) -> None:
+        parser = _create_args_parser(_test_complex_fn)
+        self.assertTupleEqual(
+            ("AppDef name", None),
+            none_throws(self._get_argument_help(parser, "app_name")),
+        )
+        self.assertTupleEqual(
+            ("List of containers", None),
+            none_throws(self._get_argument_help(parser, "containers")),
+        )
+        self.assertTupleEqual(
+            ("Dict role_name -> role_script", None),
+            none_throws(self._get_argument_help(parser, "roles_scripts")),
+        )
+        self.assertTupleEqual(
+            (" ", None), none_throws(self._get_argument_help(parser, "num_cpus"))
+        )
+        self.assertTupleEqual(
+            (" ", None), none_throws(self._get_argument_help(parser, "num_gpus"))
+        )
+        self.assertTupleEqual(
+            (" ", 4), none_throws(self._get_argument_help(parser, "nnodes"))
+        )
+        self.assertTupleEqual(
+            (" ", None), none_throws(self._get_argument_help(parser, "first_arg"))
+        )
+        self.assertTupleEqual(
+            (" ", None), none_throws(self._get_argument_help(parser, "roles_args"))
         )

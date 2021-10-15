@@ -19,7 +19,6 @@ from typing import (
     Generic,
     Iterator,
     List,
-    Mapping,
     Optional,
     Tuple,
     Type,
@@ -28,8 +27,7 @@ from typing import (
 )
 
 import yaml
-from pyre_extensions import none_throws
-from torchx.specs.file_linter import parse_fn_docstring
+from torchx.specs.file_linter import get_fn_docstring, TorchXArgumentHelpFormatter
 from torchx.util.types import decode_from_string, decode_optional, is_bool, is_primitive
 
 
@@ -748,22 +746,21 @@ def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], obj
         return str
 
 
-def _create_args_parser(
-    fn_name: str,
-    parameters: Mapping[str, inspect.Parameter],
-    function_desc: str,
-    args_desc: Dict[str, str],
-) -> argparse.ArgumentParser:
+def _create_args_parser(app_fn: Callable[..., AppDef]) -> argparse.ArgumentParser:
+    parameters = inspect.signature(app_fn).parameters
+    function_desc, args_desc = get_fn_docstring(app_fn)
     script_parser = argparse.ArgumentParser(
-        prog=f"torchx run ...torchx_params... {fn_name} ",
-        description=f"App spec: {function_desc}",
+        prog=f"torchx run <<torchx_params>> {app_fn.__name__} ",
+        description=f"AppDef for {function_desc}",
+        formatter_class=TorchXArgumentHelpFormatter,
     )
 
     remainder_arg = []
 
     for param_name, parameter in parameters.items():
+        param_desc = args_desc[parameter.name]
         args: Dict[str, Any] = {
-            "help": args_desc[param_name],
+            "help": param_desc,
             "type": get_argparse_param_type(parameter),
         }
         if parameter.default != inspect.Parameter.empty:
@@ -788,13 +785,7 @@ def _create_args_parser(
 def _get_function_args(
     app_fn: Callable[..., AppDef], app_args: List[str]
 ) -> Tuple[List[object], List[str], Dict[str, object]]:
-    docstring = none_throws(inspect.getdoc(app_fn))
-    function_desc, args_desc = parse_fn_docstring(docstring)
-
-    parameters = inspect.signature(app_fn).parameters
-    script_parser = _create_args_parser(
-        app_fn.__name__, parameters, function_desc, args_desc
-    )
+    script_parser = _create_args_parser(app_fn)
 
     parsed_args = script_parser.parse_args(app_args)
 
@@ -802,6 +793,7 @@ def _get_function_args(
     var_arg = []
     kwargs = {}
 
+    parameters = inspect.signature(app_fn).parameters
     for param_name, parameter in parameters.items():
         arg_value = getattr(parsed_args, param_name)
         parameter_type = parameter.annotation

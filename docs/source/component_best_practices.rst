@@ -74,6 +74,14 @@ others to understand how to use it.
         return AppDef(roles=[Role(..., num_replicas=num_replicas)])
 
 
+Documentation
+^^^^^^^^^^^^^^^^^^^^^
+
+The documentation is optional, but it is the best practice to keep component functions documented,
+especially if you want to share your components. See :ref:Component Authoring<components/overview:Authoring>
+for more details.
+
+
 Named Resources
 -----------------
 
