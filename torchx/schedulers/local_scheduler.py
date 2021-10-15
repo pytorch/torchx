@@ -161,8 +161,8 @@ class LocalDirectoryImageProvider(ImageProvider):
     def fetch(self, image: str) -> str:
         """
         Raises:
-            ValueError - if the image name is not an absolute dir
-                         and if it does not exist or is not a directory
+            ValueError: if the image name is not an absolute dir and if it
+                        does not exist or is not a directory
 
         """
         if not os.path.isdir(image):
