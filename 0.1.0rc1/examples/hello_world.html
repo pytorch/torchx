@@ -730,7 +730,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_cwd://torchx/hello_world_71d6a6b4
+local_cwd://torchx/hello_world_4e9b64f2
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -738,8 +738,8 @@ local_cwd://torchx/hello_world_71d6a6b4
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-10-15 20:40:31 INFO     Waiting for the app to finish...
-torchx 2021-10-15 20:40:32 INFO     Job finished: SUCCEEDED
+torchx 2021-10-15 20:44:44 INFO     Waiting for the app to finish...
+torchx 2021-10-15 20:44:45 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -792,73 +792,73 @@ d2e110be24e1: Pulling fs layer
 6009a622672a: Pulling fs layer
 143f80195431: Pulling fs layer
 eccbe17c44e1: Pulling fs layer
-6bf98b4f4059: Pulling fs layer
-692fa2b54750: Pulling fs layer
-0c770338dc26: Pulling fs layer
-f88500b788c1: Pulling fs layer
-bed782606238: Pulling fs layer
-dabf8ec6b5a9: Pulling fs layer
-c34ee71f5137: Pulling fs layer
-323e65d74a45: Pulling fs layer
+c4cd934092e7: Pulling fs layer
+d61c70aa1e93: Pulling fs layer
+001b034ddad5: Pulling fs layer
+182a871c314a: Pulling fs layer
+e183586e7d41: Pulling fs layer
+c2fb7190f97a: Pulling fs layer
+6de368d18056: Pulling fs layer
+957f2522dff4: Pulling fs layer
 6009a622672a: Waiting
 143f80195431: Waiting
 eccbe17c44e1: Waiting
-6bf98b4f4059: Waiting
-692fa2b54750: Waiting
-0c770338dc26: Waiting
-f88500b788c1: Waiting
-bed782606238: Waiting
-dabf8ec6b5a9: Waiting
-c34ee71f5137: Waiting
-323e65d74a45: Waiting
-889a7173dcfe: Verifying Checksum
-889a7173dcfe: Download complete
+c4cd934092e7: Waiting
+d61c70aa1e93: Waiting
+001b034ddad5: Waiting
+182a871c314a: Waiting
+e183586e7d41: Waiting
+c2fb7190f97a: Waiting
+6de368d18056: Waiting
+957f2522dff4: Waiting
 d2e110be24e1: Verifying Checksum
 d2e110be24e1: Download complete
+889a7173dcfe: Verifying Checksum
+889a7173dcfe: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
 6009a622672a: Verifying Checksum
 6009a622672a: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
-692fa2b54750: Verifying Checksum
-692fa2b54750: Download complete
-6bf98b4f4059: Verifying Checksum
-6bf98b4f4059: Download complete
-f88500b788c1: Verifying Checksum
-f88500b788c1: Download complete
-bed782606238: Verifying Checksum
-bed782606238: Download complete
+d61c70aa1e93: Verifying Checksum
+d61c70aa1e93: Download complete
+c4cd934092e7: Verifying Checksum
+c4cd934092e7: Download complete
+182a871c314a: Verifying Checksum
+182a871c314a: Download complete
+e183586e7d41: Verifying Checksum
+e183586e7d41: Download complete
 4bbfd2c87b75: Pull complete
-dabf8ec6b5a9: Verifying Checksum
-dabf8ec6b5a9: Download complete
-c34ee71f5137: Verifying Checksum
-c34ee71f5137: Download complete
-323e65d74a45: Verifying Checksum
-323e65d74a45: Download complete
+c2fb7190f97a: Verifying Checksum
+c2fb7190f97a: Download complete
+6de368d18056: Verifying Checksum
+6de368d18056: Download complete
+957f2522dff4: Verifying Checksum
+957f2522dff4: Download complete
+d2e110be24e1: Pull complete
 143f80195431: Verifying Checksum
 143f80195431: Download complete
-0c770338dc26: Verifying Checksum
-0c770338dc26: Download complete
-d2e110be24e1: Pull complete
+001b034ddad5: Verifying Checksum
+001b034ddad5: Download complete
 889a7173dcfe: Pull complete
 6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
-6bf98b4f4059: Pull complete
-692fa2b54750: Pull complete
-0c770338dc26: Pull complete
-f88500b788c1: Pull complete
-bed782606238: Pull complete
-dabf8ec6b5a9: Pull complete
-c34ee71f5137: Pull complete
-323e65d74a45: Pull complete
-Digest: sha256:d29ea5afcac536c24bcad2bd7cc7378d86ec4798f5da5ff8e47d94ec929ca24a
+c4cd934092e7: Pull complete
+d61c70aa1e93: Pull complete
+001b034ddad5: Pull complete
+182a871c314a: Pull complete
+e183586e7d41: Pull complete
+c2fb7190f97a: Pull complete
+6de368d18056: Pull complete
+957f2522dff4: Pull complete
+Digest: sha256:745da0b169d57ae85592824e6d380bb1db20da7084b7e0bfa7bba2a997907caf
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
- ---&gt; d8eacc6172ab
+ ---&gt; 39111ab6e741
 Step 2/2 : ADD my_app.py .
- ---&gt; 2aa24a408bb6
-Successfully built 2aa24a408bb6
+ ---&gt; 3eddcb679c1f
+Successfully built 3eddcb679c1f
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -879,7 +879,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_docker://torchx/hello_world_dda362cd
+local_docker://torchx/hello_world_05a092fb
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -888,9 +888,9 @@ local_docker://torchx/hello_world_dda362cd
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Error response from daemon: pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied
-torchx 2021-10-15 20:42:48 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
-torchx 2021-10-15 20:42:48 INFO     Waiting for the app to finish...
-torchx 2021-10-15 20:42:49 INFO     Job finished: SUCCEEDED
+torchx 2021-10-15 20:47:01 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
+torchx 2021-10-15 20:47:01 INFO     Waiting for the app to finish...
+torchx 2021-10-15 20:47:02 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the Kubernetes scheduler to launch this on the cluster instead.</p>
