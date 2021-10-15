@@ -72,7 +72,7 @@ def dump(
 
     ::
 
-     [default.kubernetes.cfg]
+     [kubernetes]
      namespace = default
      queue = #FIXME (str)Volcano queue to schedule job in
 
@@ -89,7 +89,7 @@ def dump(
     for sched_name in scheds:
         sched = _get_scheduler(sched_name)
 
-        section = f"default.{sched_name}.cfg"
+        section = f"{sched_name}"
         config.add_section(section)
 
         for opt_name, opt in sched.run_opts():
@@ -114,33 +114,51 @@ def dump(
     config.write(f, space_around_delimiters=True)
 
 
-def apply(scheduler: str, cfg: RunConfig, profile: str = "default") -> None:
+def apply(scheduler: str, cfg: RunConfig, dirs: Optional[List[str]] = None) -> None:
     """
-    Loads .torchxconfig files from predefined locations according
-    to a load hierarchy and applies the loaded configs into the
-    given ``runcfg``. The load hierarchy is as follows (in order of precedence):
+    Loads a ``.torchxconfig`` INI file from the specified directories in
+    preceding order and applies the run configs for the scheduler onto
+    the given ``cfg``.
 
-    #. ``runcfg`` given to this function
-    #. configs loaded from ``$HOME/.torchxconfig``
-    #. configs loaded from ``$CWD/.torchxconfig``
+    If no ``dirs`` is specified, then it looks for ``.torchxconfig`` in the
+    current working directory. If a specified directory does not have ``.torchxconfig``
+    then it is ignored.
 
-    Note that load hierarchy does NOT overwrite, but rather adds.
-    That is, the configs already present in ``runcfg`` are not
-    overridden during the load.
+    Note that the configs already present in the given ``cfg`` take precedence
+    over the ones in the config file and only new configs are added. The same holds
+    true for the configs loaded in list order.
+
+    For instance if ``cfg = {"foo": "bar"}`` and the config file is:
+
+    ::
+
+     # dir_1/.torchxconfig
+     [local_cwd]
+     foo = baz
+     hello = world
+
+    # dir_2/.torchxconfig
+    [local_cwd]
+    hello = bob
+
+
+    Then after the method call, ``cfg = {"foo": "bar", "hello": "world"}``.
     """
-    lookup_dirs = [Path.home(), Path.cwd()]
 
-    for d in lookup_dirs:
-        configfile = d / ".torchxconfig"
+    if not dirs:
+        dirs = [str(Path.cwd())]
+
+    for d in dirs:
+        configfile = Path(d) / ".torchxconfig"
         if configfile.exists():
             log.info(f"loading configs from {configfile}")
             with open(str(configfile), "r") as f:
-                load(scheduler, f, cfg, profile)
+                load(scheduler, f, cfg)
 
 
-def load(scheduler: str, f: TextIO, cfg: RunConfig, profile: str = "default") -> None:
+def load(scheduler: str, f: TextIO, cfg: RunConfig) -> None:
     """
-    loads the section ``[{profile}.scheduler_args.{scheduler}]`` from the given
+    loads the section ``[{scheduler}]`` from the given
     configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding
     configs that are NOT currently in the given ``runcfg`` (e.g. does not
     override existing values in ``runcfg``). If no section is found, does nothing.
@@ -151,7 +169,7 @@ def load(scheduler: str, f: TextIO, cfg: RunConfig, profile: str = "default") ->
 
     runopts = _get_scheduler(scheduler).run_opts()
 
-    section = f"{profile}.{scheduler}.cfg"
+    section = f"{scheduler}"
     if config.has_section(section):
         for name, value in config.items(section):
             if name in cfg.cfgs:
