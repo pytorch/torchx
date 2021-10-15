@@ -148,7 +148,7 @@ def download_data(remote_path: str, tmpdir: str) -> str:
     return data_path
 
 
-def create_random_data(output_path: str, num_images: int = 5) -> None:
+def create_random_data(output_path: str, num_images: int = 250) -> None:
     """
     Fills the given path with randomly generated 64x64 images.
     This can be used for quick testing of the workflow of the model.

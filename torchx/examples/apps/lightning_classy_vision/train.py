@@ -56,12 +56,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--batch_size", type=int, default=32, help="batch size to use for training"
     )
-    parser.add_argument("--num_samples", type=int, default=None, help="num_samples")
-    parser.add_argument(
-        "--test",
-        help="Sets to test mode, training on a much smaller set of randomly generated images",
-        action="store_true",
-    )
+    parser.add_argument("--num_samples", type=int, default=10, help="num_samples")
     parser.add_argument(
         "--data_path",
         type=str,
@@ -122,7 +117,7 @@ def main(argv: List[str]) -> None:
         data = TinyImageNetDataModule(
             data_dir=data_path,
             batch_size=args.batch_size,
-            num_samples=5 if args.test else args.num_samples,
+            num_samples=args.num_samples,
         )
 
         # Setup model checkpointing

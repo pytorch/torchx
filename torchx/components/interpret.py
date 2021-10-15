@@ -16,6 +16,6 @@ your model.
 See the
 :ref:`examples_apps/lightning_classy_vision/interpret:Model Interpretability App Example`
 and the corresponding
-:ref:`Interpret component definition<examples_apps/lightning_classy_vision/component:Trainer Component Examples>`
+:ref:`Interpret component definition<examples_apps/lightning_classy_vision/component:Interpreting the Model>`
 for an example of how to use Captum with TorchX.
 """
