@@ -9,6 +9,9 @@ on:
 jobs:
   kubernetes-launch:
     runs-on: ubuntu-18.04
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -17,22 +20,30 @@ jobs:
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
-      - name: Configure Kube Config
+      - name: Configure AWS
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: |
+          if [ -n "$AWS_ROLE_ARN" ]; then
+            export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/awscreds
+            export AWS_DEFAULT_REGION=us-west-2
+
+            echo AWS_WEB_IDENTITY_TOKEN_FILE=$AWS_WEB_IDENTITY_TOKEN_FILE >> $GITHUB_ENV
+            echo AWS_ROLE_ARN=$AWS_ROLE_ARN >> $GITHUB_ENV
+            echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $GITHUB_ENV
+
+            curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value' > $AWS_WEB_IDENTITY_TOKEN_FILE
+          fi
+      - name: Configure Kube Config
         run: |
           set -eux
-          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+          if [ -n "$AWS_ROLE_ARN" ]; then
             aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
           fi
       - name: Configure Docker
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -eux
-          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+          if [ -n "$AWS_ROLE_ARN" ]; then
             aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
           fi
       - name: Install dependencies
@@ -41,12 +52,10 @@ jobs:
           pip install -e .[kubernetes]
       - name: Run Kubernetes Integration Tests
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
         run: |
-          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+          if [ -z "$AWS_ROLE_ARN" ]; then
             # only dryrun if no secrets
             ARGS="--dryrun"
           else
