@@ -21,7 +21,7 @@ import argparse
 import os
 import sys
 import tempfile
-from typing import List
+from typing import List, Optional
 
 import pytorch_lightning as pl
 import torch
@@ -72,8 +72,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--output_path",
         type=str,
-        help="path to place checkpoints and model outputs",
-        required=True,
+        help="path to place checkpoints and model outputs, if not specified, checkpoints are not saved",
     )
     parser.add_argument(
         "--log_path",
@@ -92,6 +91,16 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 
 def get_gpu_devices() -> int:
     return torch.cuda.device_count()
+
+
+def get_model_checkpoint(args: argparse.Namespace) -> Optional[ModelCheckpoint]:
+    if not args.output_path:
+        return None
+    return ModelCheckpoint(
+        monitor="train_loss",
+        dirpath=args.output_path,
+        save_last=True,
+    )
 
 
 def main(argv: List[str]) -> None:
@@ -117,11 +126,10 @@ def main(argv: List[str]) -> None:
         )
 
         # Setup model checkpointing
-        checkpoint_callback = ModelCheckpoint(
-            monitor="train_loss",
-            dirpath=args.output_path,
-            save_last=True,
-        )
+        checkpoint_callback = get_model_checkpoint(args)
+        callbacks = []
+        if checkpoint_callback:
+            callbacks.append(checkpoint_callback)
         if args.load_path:
             print(f"loading checkpoint: {args.load_path}...")
             model.load_from_checkpoint(checkpoint_path=args.load_path)
