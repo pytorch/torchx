@@ -14,8 +14,8 @@ python setup.py bdist_wheel
 
 WHEEL="$DIST/$(ls $DIST)"
 
-if [[ -z "${SLURM_MASTER}" ]]; then
-    echo "slurm master is not set, skipping test..."
+if [[ -z "${SLURM_INSTANCE_MASTER}" ]]; then
+    echo "SLURM_INSTANCE_MASTER is not set, skipping test..."
     exit 0
 fi
 
@@ -25,11 +25,11 @@ VENV="$DIR/venv"
 
 function run_cmd {
     # shellcheck disable=SC2048,SC2086
-    ssh -o ServerAliveInterval=60 "$SLURM_MASTER" -i "$SLURM_IDENT" $*
+    mssh -o ServerAliveInterval=60 "$SLURM_INSTANCE_MASTER" -- $*
 }
 
 function run_scp {
-    scp -i "$SLURM_IDENT" "$1" "$SLURM_MASTER:$2"
+    rsync -rav -e mssh "$1" "$SLURM_INSTANCE_MASTER:$2"
 }
 
 function cleanup {
