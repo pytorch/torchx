@@ -34,10 +34,9 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -240,6 +239,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
@@ -380,8 +380,7 @@
       
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-train-py"><span class="std std-ref">here</span></a>
-to download the full example code</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-train-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
 <section class="sphx-glr-example-title" id="trainer-app-example">
 <span id="sphx-glr-examples-apps-lightning-classy-vision-train-py"></span><h1>Trainer App Example<a class="headerlink" href="#trainer-app-example" title="Permalink to this headline">¶</a></h1>
@@ -394,9 +393,10 @@ the app agnostic to the environment it’s running in.</p>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a>
 
 <span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">pytorch_lightning.callbacks</span> <span class="kn">import</span> <span class="n">ModelCheckpoint</span>
 <span class="kn">from</span> <span class="nn">pytorch_lightning.loggers</span> <span class="kn">import</span> <span class="n">TensorBoardLogger</span>
 
@@ -424,9 +424,11 @@ the app agnostic to the environment it’s running in.</p>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of epochs to train&quot;</span>
     <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--lr&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;learning rate&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--batch_size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;batch size to use for training&quot;</span>
     <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_samples&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;num_samples&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--test&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Sets to test mode, training on a much smaller set of randomly generated images&quot;</span><span class="p">,</span>
@@ -435,15 +437,14 @@ the app agnostic to the environment it’s running in.</p>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to load the training data from&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to load the training data from, if not provided, random data will be generated&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--skip_export&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--load_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;checkpoint path to load from&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place checkpoints and model outputs&quot;</span><span class="p">,</span>
-        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to place checkpoints and model outputs, if not specified, checkpoints are not saved&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
@@ -460,38 +461,47 @@ the app agnostic to the environment it’s running in.</p>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">get_gpu_devices</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <a href="https://pytorch.org/docs/stable/generated/torch.cuda.device_count.html#torch.cuda.device_count" title="torch.cuda.device_count" class="sphx-glr-backref-module-torch-cuda sphx-glr-backref-type-py-function"><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span></a><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">get_model_checkpoint</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="n">ModelCheckpoint</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">ModelCheckpoint</span><span class="p">(</span>
+        <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;train_loss&quot;</span><span class="p">,</span>
+        <span class="n">dirpath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+        <span class="n">save_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">with</span> <a href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" title="tempfile.TemporaryDirectory" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span></a><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
         <span class="c1"># Init our model</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">TinyImageNetModel</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="c1"># Download and setup the data module</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">:</span>
             <span class="n">data_path</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
             <a href="https://docs.python.org/3/library/os.html#os.makedirs" title="os.makedirs" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">makedirs</span></a><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
             <span class="n">create_random_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;&#39;--data_path&#39; flag is not set. Please set it to the path to your data. &quot;</span>
-                    <span class="s2">&quot;If you meant to run in test mode, add the &#39;--test&#39; flag instead.&quot;</span>
-                <span class="p">)</span>
             <span class="n">data_path</span> <span class="o">=</span> <span class="n">download_data</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">TinyImageNetDataModule</span><span class="p">(</span>
             <span class="n">data_dir</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
             <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
-            <span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span> <span class="k">else</span> <span class="mi">1000</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Setup model checkpointing</span>
-        <span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">ModelCheckpoint</span><span class="p">(</span>
-            <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;train_loss&quot;</span><span class="p">,</span>
-            <span class="n">dirpath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
-            <span class="n">save_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">get_model_checkpoint</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">checkpoint_callback</span><span class="p">:</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checkpoint_callback</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">load_path</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;loading checkpoint: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">load_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
             <span class="n">model</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">load_path</span><span class="p">)</span>
@@ -501,7 +511,9 @@ the app agnostic to the environment it’s running in.</p>
         <span class="p">)</span>
 
         <span class="c1"># Initialize a trainer</span>
+        <span class="n">num_nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GROUP_WORLD_SIZE&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">trainer</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span>
+            <span class="n">num_nodes</span><span class="o">=</span><span class="n">num_nodes</span><span class="p">,</span>
             <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;ddp2&quot;</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
             <span class="n">max_epochs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
@@ -511,6 +523,9 @@ the app agnostic to the environment it’s running in.</p>
 
         <span class="c1"># Train the model ⚡</span>
         <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;train acc: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">train_acc</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="si">}</span><span class="s2">, val acc: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">val_acc</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_export</span><span class="p">:</span>
             <span class="c1"># Export the inference model</span>
@@ -599,6 +614,7 @@ the app agnostic to the environment it’s running in.</p>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
          <script src="../../_static/js/torchx.js"></script>
      
 

@@ -33,10 +33,9 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -237,6 +236,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
@@ -365,37 +365,39 @@
 <span class="kn">from</span> <span class="nn">torchx.util.entrypoints</span> <span class="kn">import</span> <span class="n">load_group</span>
 
 <span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401 F403</span>
-    <span class="n">SchedulerBackend</span><span class="p">,</span>
-    <span class="n">Resource</span><span class="p">,</span>
-    <span class="n">NULL_RESOURCE</span><span class="p">,</span>
     <span class="n">ALL</span><span class="p">,</span>
     <span class="n">MISSING</span><span class="p">,</span>
     <span class="n">NONE</span><span class="p">,</span>
-    <span class="n">macros</span><span class="p">,</span>
-    <span class="n">RetryPolicy</span><span class="p">,</span>
-    <span class="n">Role</span><span class="p">,</span>
+    <span class="n">NULL_RESOURCE</span><span class="p">,</span>
     <span class="n">AppDef</span><span class="p">,</span>
+    <span class="n">AppDryRunInfo</span><span class="p">,</span>
+    <span class="n">AppHandle</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
-    <span class="n">is_terminal</span><span class="p">,</span>
-    <span class="n">ReplicaStatus</span><span class="p">,</span>
-    <span class="n">ReplicaState</span><span class="p">,</span>
-    <span class="n">RoleStatus</span><span class="p">,</span>
     <span class="n">AppStatus</span><span class="p">,</span>
     <span class="n">ConfigValue</span><span class="p">,</span>
-    <span class="n">RunConfig</span><span class="p">,</span>
-    <span class="n">AppDryRunInfo</span><span class="p">,</span>
-    <span class="n">get_type_name</span><span class="p">,</span>
-    <span class="n">runopts</span><span class="p">,</span>
     <span class="n">InvalidRunConfigException</span><span class="p">,</span>
     <span class="n">MalformedAppHandleException</span><span class="p">,</span>
-    <span class="n">UnknownSchedulerException</span><span class="p">,</span>
-    <span class="n">AppHandle</span><span class="p">,</span>
+    <span class="n">ReplicaState</span><span class="p">,</span>
+    <span class="n">ReplicaStatus</span><span class="p">,</span>
+    <span class="n">Resource</span><span class="p">,</span>
+    <span class="n">RetryPolicy</span><span class="p">,</span>
+    <span class="n">Role</span><span class="p">,</span>
+    <span class="n">RoleStatus</span><span class="p">,</span>
+    <span class="n">RunConfig</span><span class="p">,</span>
+    <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">UnknownAppException</span><span class="p">,</span>
+    <span class="n">UnknownSchedulerException</span><span class="p">,</span>
+    <span class="n">from_function</span><span class="p">,</span>
+    <span class="n">get_argparse_param_type</span><span class="p">,</span>
+    <span class="n">get_type_name</span><span class="p">,</span>
+    <span class="n">is_terminal</span><span class="p">,</span>
+    <span class="n">macros</span><span class="p">,</span>
     <span class="n">make_app_handle</span><span class="p">,</span>
     <span class="n">parse_app_handle</span><span class="p">,</span>
-    <span class="n">get_argparse_param_type</span><span class="p">,</span>
-    <span class="n">from_function</span><span class="p">,</span>
+    <span class="n">runopt</span><span class="p">,</span>
+    <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
+
 
 <span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
 
@@ -509,6 +511,7 @@
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
          <script src="../../_static/js/torchx.js"></script>
      
 

@@ -99,27 +99,6 @@ Lightning + Classy Vision Trainer Example
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This is a component definition that runs the example lightning_classy_vision app.">
-
-.. only:: html
-
- .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_component_thumb.png
-     :alt: Trainer Component Example
-
-     :ref:`sphx_glr_examples_apps_lightning_classy_vision_component.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples_apps/lightning_classy_vision/component
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses captum to analyze inputs to for model interpretability ...">
 
 .. only:: html
@@ -201,6 +180,27 @@ Lightning + Classy Vision Trainer Example
    :hidden:
 
    /examples_apps/lightning_classy_vision/data
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Component definitions that run the example lightning_classy_vision app in a single or distribut...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_component_thumb.png
+     :alt: Trainer Component Examples
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_component.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/component
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
@@ -215,13 +215,13 @@ Lightning + Classy Vision Trainer Example
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-    :download:`Download all examples in Python source code: examples_apps_python.zip </examples_apps/examples_apps_python.zip>`
+    :download:`Download all examples in Python source code: examples_apps_python.zip <//home/runner/work/torchx/torchx/docs/source/examples_apps/examples_apps_python.zip>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-    :download:`Download all examples in Jupyter notebooks: examples_apps_jupyter.zip </examples_apps/examples_apps_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: examples_apps_jupyter.zip <//home/runner/work/torchx/torchx/docs/source/examples_apps/examples_apps_jupyter.zip>`
 
 
 .. only:: html

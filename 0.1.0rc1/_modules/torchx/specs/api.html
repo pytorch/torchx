@@ -33,10 +33,9 @@
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -237,6 +236,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
@@ -361,7 +361,6 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="c1"># TODO(aivanou): Update documentation</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
@@ -374,6 +373,7 @@
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Dict</span><span class="p">,</span>
     <span class="n">Generic</span><span class="p">,</span>
+    <span class="n">Iterator</span><span class="p">,</span>
     <span class="n">List</span><span class="p">,</span>
     <span class="n">Mapping</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
@@ -865,7 +865,7 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Runopt</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">runopt</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents the metadata about the specific run option</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -910,7 +910,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Runopt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="runopts.is_type"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.is_type">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">ConfigValue</span><span class="p">,</span> <span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ConfigValue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -926,9 +929,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="runopts.get"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Runopt</span><span class="p">]:</span>
+<div class="viewcode-block" id="runopts.get"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">runopt</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns option if any was registerred, or None otherwise</span>
+<span class="sd">        Returns option if any was registered, or None otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
@@ -956,7 +959,7 @@
                     <span class="sa">f</span><span class="s2">&quot; Given: </span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">default</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Runopt</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">required</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">required</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="runopts.resolve"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RunConfig</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -976,9 +979,8 @@
             <span class="c1"># check required opt</span>
             <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">is_required</span> <span class="ow">and</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">InvalidRunConfigException</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Required run option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">, must be provided and not None&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;Required run option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">, must be provided and not `None`&quot;</span><span class="p">,</span>
                     <span class="n">config</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="p">,</span>
                 <span class="p">)</span>
 
             <span class="c1"># check type (None matches all types)</span>
@@ -987,7 +989,6 @@
                     <span class="sa">f</span><span class="s2">&quot;Run option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">, must be of type: </span><span class="si">{</span><span class="n">get_type_name</span><span class="p">(</span><span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span><span class="si">}</span><span class="s2">,&quot;</span>
                     <span class="sa">f</span><span class="s2">&quot; but was: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
                     <span class="n">config</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="p">,</span>
                 <span class="p">)</span>
 
             <span class="c1"># not required and not set, set to default</span>
@@ -1031,10 +1032,9 @@
 <span class="sd">    type mismatch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">invalid_reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">run_config</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">runopts</span><span class="p">:</span> <span class="s2">&quot;runopts&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">invalid_reason</span><span class="si">}</span><span class="s2">. Given: </span><span class="si">{</span><span class="n">run_config</span><span class="si">}</span><span class="s2">, Expected: </span><span class="si">{</span><span class="n">runopts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invalid_reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">cfgs</span> <span class="k">else</span> <span class="s2">&quot;&lt;EMPTY&gt;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">invalid_reason</span><span class="si">}</span><span class="s2">. Given: </span><span class="si">{</span><span class="n">given</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">MalformedAppHandleException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1262,6 +1262,7 @@
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
          <script src="../../../_static/js/torchx.js"></script>
      
 

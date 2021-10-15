@@ -34,15 +34,14 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Pipelines Examples" href="../../examples_pipelines/index.html" />
+    <link rel="next" title="Trainer Component Examples" href="component.html" />
     <link rel="prev" title="Trainer App Example" href="train.html" />
   <!-- Google Analytics -->
   
@@ -240,6 +239,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
@@ -380,8 +380,7 @@
       
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-data-py"><span class="std std-ref">here</span></a>
-to download the full example code</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-data-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
 <section class="sphx-glr-example-title" id="trainer-datasets-example">
 <span id="sphx-glr-examples-apps-lightning-classy-vision-data-py"></span><h1>Trainer Datasets Example<a class="headerlink" href="#trainer-datasets-example" title="Permalink to this headline">¶</a></h1>
@@ -413,7 +412,7 @@ Pytorch Lightning data module.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">transform</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Callable</span></a><span class="p">[[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">],</span>
-        <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">batchsize_per_replica</span> <span class="o">=</span> <span class="mi">16</span>
         <span class="n">shuffle</span> <span class="o">=</span> <span class="kc">False</span>
@@ -444,7 +443,7 @@ our trainer and other components that need to load data.</p>
     <span class="n">test_ds</span><span class="p">:</span> <span class="n">TinyImageNetDataset</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
@@ -455,7 +454,6 @@ our trainer and other components that need to load data.</p>
         <span class="c1"># Setup data loader and transforms</span>
         <span class="n">img_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">transforms</span><span class="o">.</span><span class="n">Grayscale</span><span class="p">(),</span>
                 <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -498,6 +496,10 @@ read/write to cloud or local file storage.</p>
 <span class="sd">    download_data downloads the training data from the specified remote path via</span>
 <span class="sd">    fsspec and places it in the tmpdir unextracted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.isdir" title="os.path.isdir" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span></a><span class="p">(</span><span class="n">remote_path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dataset path is a directory, using as is&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">remote_path</span>
+
     <span class="n">tar_path</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;data.tar.gz&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;downloading dataset from </span><span class="si">{</span><span class="n">remote_path</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">tar_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
     <span class="n">fs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">rpaths</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">get_fs_token_paths</span><span class="p">(</span><span class="n">remote_path</span><span class="p">)</span>
@@ -596,7 +598,7 @@ read/write to cloud or local file storage.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../examples_pipelines/index.html" class="btn btn-neutral float-right" title="Pipelines Examples" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="component.html" class="btn btn-neutral float-right" title="Trainer Component Examples" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="train.html" class="btn btn-neutral" title="Trainer App Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -654,6 +656,7 @@ read/write to cloud or local file storage.</p>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
          <script src="../../_static/js/torchx.js"></script>
      
 

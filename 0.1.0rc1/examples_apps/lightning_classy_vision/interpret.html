@@ -34,16 +34,15 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Tiny ImageNet Model" href="model.html" />
-    <link rel="prev" title="Trainer Component Example" href="component.html" />
+    <link rel="prev" title="Simple Logging Profiler" href="profiler.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -240,6 +239,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
@@ -380,8 +380,7 @@
       
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-interpret-py"><span class="std std-ref">here</span></a>
-to download the full example code</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-interpret-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
 <section class="sphx-glr-example-title" id="model-interpretability-app-example">
 <span id="sphx-glr-examples-apps-lightning-classy-vision-interpret-py"></span><h1>Model Interpretability App Example<a class="headerlink" href="#model-interpretability-app-example" title="Permalink to this headline">¶</a></h1>
@@ -448,10 +447,9 @@ using captum.</p>
 <span class="sd">    This converts the image from a torch tensor with size (1, 1, 64, 64) to</span>
 <span class="sd">    numpy array with size (64, 64, 3).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">squeezed</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-    <span class="n">stacked</span> <span class="o">=</span> <a href="https://pytorch.org/docs/stable/generated/torch.stack.html#torch.stack" title="torch.stack" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-function"><span class="n">torch</span><span class="o">.</span><span class="n">stack</span></a><span class="p">([</span><span class="n">squeezed</span><span class="p">,</span> <span class="n">squeezed</span><span class="p">,</span> <span class="n">squeezed</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;img stats: &quot;</span><span class="p">,</span> <span class="n">stacked</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(),</span> <span class="n">stacked</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">stacked</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;invalid shape produced&quot;</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -479,6 +477,7 @@ using captum.</p>
         <span class="c1"># process first 5 images</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><a href="https://docs.python.org/3/library/itertools.html#itertools.islice" title="itertools.islice" class="sphx-glr-backref-module-itertools sphx-glr-backref-type-py-function"><span class="n">itertools</span><span class="o">.</span><span class="n">islice</span></a><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="mi">5</span><span class="p">)):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;analyzing example </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># input = input.unsqueeze(dim=0)</span>
             <span class="n">model</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
             <span class="n">attr_ig</span><span class="p">,</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">ig</span><span class="o">.</span><span class="n">attribute</span><span class="p">(</span>
                 <span class="nb">input</span><span class="p">,</span>
@@ -533,7 +532,7 @@ using captum.</p>
         <a href="model.html" class="btn btn-neutral float-right" title="Tiny ImageNet Model" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="component.html" class="btn btn-neutral" title="Trainer Component Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="profiler.html" class="btn btn-neutral" title="Simple Logging Profiler" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -588,6 +587,7 @@ using captum.</p>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
          <script src="../../_static/js/torchx.js"></script>
      
 
