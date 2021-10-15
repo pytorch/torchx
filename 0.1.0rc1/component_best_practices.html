@@ -254,12 +254,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/base.html">Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Runtime</span></p>
@@ -278,9 +277,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Beta Features</span></p>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="beta.html">Coming Soon</a></li>
+<li class="toctree-l1"><a class="reference internal" href="experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -434,7 +433,7 @@ called from your custom component definition and an alternative to creating a
 full AppDef from scratch.</p>
 <p>See:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="components/base.html#module-torchx.components.base" title="torchx.components.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.base</span></code></a> for simple single node components.</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.base</span></code> for simple single node components.</p></li>
 <li><p><a class="reference internal" href="components/distributed.html#torchx.components.dist.ddp" title="torchx.components.dist.ddp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.components.dist.ddp()</span></code></a> for distributed components.</p></li>
 </ul>
 <p>For even more complex components it’s possible to merge multiple existing

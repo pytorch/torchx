@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Base &mdash; PyTorch/TorchX main documentation</title>
+  <title>(beta) .torchxconfig file &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -41,8 +41,7 @@
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Distributed" href="distributed.html" />
-    <link rel="prev" title="HPO" href="hpo.html" />
+    <link rel="prev" title="Kubeflow Pipelines" href="../pipelines/kfp.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -251,16 +250,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="interpret.html">Interpret</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hpo.html">HPO</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Runtime</span></p>
 <ul>
@@ -278,9 +276,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Beta Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../beta.html">Coming Soon</a></li>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -321,13 +319,13 @@
       </li>
 
         
-      <li>Base</li>
+      <li>(beta) .torchxconfig file</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/components/base.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/experimental/runner.config.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -356,71 +354,147 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.components.base">
-<span id="base"></span><h1>Base<a class="headerlink" href="#module-torchx.components.base" title="Permalink to this headline">¶</a></h1>
-<p>These components are meant to be used as convenience methods when constructing
-other components. Many methods in the base component library are factory methods
-for <code class="docutils literal notranslate"><span class="pre">Role</span></code>, <code class="docutils literal notranslate"><span class="pre">Container</span></code>, and <code class="docutils literal notranslate"><span class="pre">Resources</span></code> that are hooked up to
-TorchX’s configurable extension points.</p>
-<span class="target" id="module-torchx.components.base.roles"></span><dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.base.roles.create_torch_dist_role">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.base.roles.</span></span><span class="sig-name descname"><span class="pre">create_torch_dist_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">image:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">entrypoint:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">resource:</span> <span class="pre">torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></em>, <em class="sig-param"><span class="pre">gpu=-1</span></em>, <em class="sig-param"><span class="pre">memMB=-1</span></em>, <em class="sig-param"><span class="pre">capabilities={})</span></em>, <em class="sig-param"><span class="pre">args:</span> <span class="pre">Optional[List[str]]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">env:</span> <span class="pre">Optional[Dict[str</span></em>, <em class="sig-param"><span class="pre">str]]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">port_map:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">Field(name=None</span></em>, <em class="sig-param"><span class="pre">type=None</span></em>, <em class="sig-param"><span class="pre">default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">default_factory=&lt;class</span> <span class="pre">'dict'&gt;</span></em>, <em class="sig-param"><span class="pre">init=True</span></em>, <em class="sig-param"><span class="pre">repr=True</span></em>, <em class="sig-param"><span class="pre">hash=None</span></em>, <em class="sig-param"><span class="pre">compare=True</span></em>, <em class="sig-param"><span class="pre">metadata=mappingproxy({})</span></em>, <em class="sig-param"><span class="pre">_field_type=None)</span></em>, <em class="sig-param"><span class="pre">retry_policy:</span> <span class="pre">torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">&lt;RetryPolicy.APPLICATION:</span> <span class="pre">'APPLICATION'&gt;</span></em>, <em class="sig-param"><span class="pre">**launch_kwargs:</span> <span class="pre">Any</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">torchx.specs.api.Role</span></a><a class="reference internal" href="../_modules/torchx/components/base/roles.html#create_torch_dist_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.base.roles.create_torch_dist_role" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <code class="docutils literal notranslate"><span class="pre">Role</span></code> for which the user provided <code class="docutils literal notranslate"><span class="pre">entrypoint</span></code> is executed with the
-torchelastic agent (in the container). Note that the torchelastic agent
-invokes multiple copies of <code class="docutils literal notranslate"><span class="pre">entrypoint</span></code>.</p>
-<p>For more information about torchelastic see
-<a class="reference external" href="https://pytorch.org/docs/stable/distributed.elastic.html">docs</a>.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>It is the responsibility of the user to ensure that the
-role’s image includes torchelastic. Since Torchx has no
-control over the build process of the image, it cannot
-automatically include torchelastic in the role’s image.</p>
+  <section id="module-torchx.runner.config">
+<span id="beta-torchxconfig-file"></span><h1>(beta) .torchxconfig file<a class="headerlink" href="#module-torchx.runner.config" title="Permalink to this headline">¶</a></h1>
+<p>You can store the scheduler <a class="reference internal" href="../specs.html#torchx.specs.RunConfig" title="torchx.specs.RunConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.RunConfig</span></code></a> for your project
+by storing them in the <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file. Currently this file is only read
+and honored when running the component from the CLI.</p>
+<section id="cli-usage">
+<h2>CLI Usage<a class="headerlink" href="#cli-usage" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span></code> into the directory where you want the <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file to be dropped.
+The CLI only picks up <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> files from the current-working-directory (CWD)
+so chose a directory where you typically run <code class="docutils literal notranslate"><span class="pre">torchx</span></code> from. Typically this
+is the root of your project directory.</p></li>
+<li><p>Generate the config file by running</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx configure -s &lt;comma,delimited,scheduler,names&gt;
+
+<span class="gp"># </span>-- or <span class="k">for</span> all registered schedulers --
+<span class="gp">$ </span>torchx configure
+</pre></div>
 </div>
-<p>The following example launches 2 <code class="docutils literal notranslate"><span class="pre">replicas</span></code> (nodes) of an elastic <code class="docutils literal notranslate"><span class="pre">my_train_script.py</span></code>
-that is allowed to scale between 2 to 4 nodes. Each node runs 8 workers which are allowed
-to fail and restart a maximum of 3 times.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.base.roles</span> <span class="kn">import</span> <span class="n">create_torch_dist_role</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">NULL_RESOURCE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">elastic_trainer</span> <span class="o">=</span> <span class="n">create_torch_dist_role</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&lt;NONE&gt;&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">resource</span><span class="o">=</span><span class="n">NULL_RESOURCE</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;my_train_script.py&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--script_arg&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;--another_arg&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">num_replicas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">max_restarts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">... </span><span class="c1"># effectively runs:</span>
-<span class="gp">... </span><span class="c1">#    python -m torch.distributed.launch</span>
-<span class="gp">... </span><span class="c1">#        --nproc_per_node 8</span>
-<span class="gp">... </span><span class="c1">#        --nnodes 4</span>
-<span class="gp">... </span><span class="c1">#        --max_restarts 3</span>
-<span class="gp">... </span><span class="c1">#        my_train_script.py --script_arg foo --another_arg bar</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">elastic_trainer</span>
-<span class="go">Role(name=&#39;trainer&#39;, ...)</span>
+</li>
+<li><p>If you specified <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">local_cwd,kubernetes</span></code>, you should see a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code>
+file as shown below:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat .torchxconfig
+<span class="go">[local_cwd]</span>
+
+<span class="go">[kubernetes]</span>
+<span class="go">queue = #FIXME:(str) Volcano queue to schedule job in</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> in in INI format and the section names map to the scheduler names.
+Each section contains the run configs for the scheduler as <code class="docutils literal notranslate"><span class="pre">$key</span> <span class="pre">=</span> <span class="pre">$value</span></code> pairs.
+You may find that certain schedulers have empty sections, this means that
+the scheduler defines sensible defaults for all its run configs hence no run configs
+are required at runtime. If you’d like to override the default you can add them.
+<strong>TIP:</strong> To see all the run options for a scheduler use <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">runopts</span> <span class="pre">&lt;scheduler_name&gt;</span></code>.</p></li>
+<li><p>The sections with <code class="docutils literal notranslate"><span class="pre">FIXME</span></code> placeholders are run configs that are required
+by the scheduler. Replace these with the values that apply to you.</p></li>
+<li><p><strong>IMPORTANT:</strong> If you are happy with the scheduler provided defaults for a particular
+run config, you <strong>should not</strong> redundantly specity them in <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> with the
+same default value. This is because the scheduler may decide to change the default
+value at a later date which would leave you with a stale default.</p></li>
+<li><p>Now you can run your component without having to specify the scheduler run configs
+each time. Just make sure the directory you are running <code class="docutils literal notranslate"><span class="pre">torchx</span></code> cli from actually
+has <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code>!</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls .torchxconfig
+<span class="go">.torchxconfig</span>
+
+<span class="gp">$ </span>torchx run -s local_cwd ./my_component.py:train
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="programmatic-usage">
+<h2>Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permalink to this headline">¶</a></h2>
+<p>Unlike the cli, <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file <strong>is not</strong> picked up automatically
+from <code class="docutils literal notranslate"><span class="pre">CWD</span></code> if you are programmatically running your component with <a class="reference internal" href="../runner.html#torchx.runner.Runner" title="torchx.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.runner.Runner</span></code></a>.
+You’ll have to manually specify the directory containing <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code>.</p>
+<p>Below is an example</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go">from torchx.runner import get_runner</span>
+<span class="go">from torchx.runner.config import apply</span>
+<span class="go">import torchx.specs as specs</span>
+
+<span class="go">def my_component(a: int) -&gt; specs.AppDef:</span>
+<span class="go">   # &lt;... component body omitted for brevity ...&gt;</span>
+<span class="go">   pass</span>
+
+<span class="go">scheduler = &quot;local_cwd&quot;</span>
+<span class="go">cfg = specs.RunConfig()</span>
+<span class="go">cfg.set(&quot;log_dir&quot;, &quot;/these/take/outmost/precedence&quot;)</span>
+
+<span class="go">apply(scheduler, cfg, dirs=[&quot;/home/bob&quot;])  # looks for /home/bob/.torchxconfig</span>
+<span class="go">get_runner().run(my_component(1), scheduler, cfg)</span>
+</pre></div>
+</div>
+<p>You may also specify multiple directories (in preceding order) which is useful when
+you want to keep personal config overrides on top of a project defined default.</p>
+</section>
+<section id="config-api-functions">
+<h2>Config API Functions<a class="headerlink" href="#config-api-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.runner.config.apply">
+<span class="sig-prename descclassname"><span class="pre">torchx.runner.config.</span></span><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheduler</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../specs.html#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="../_modules/torchx/runner/config.html#apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.config.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> INI file from the specified directories in
+preceding order and applies the run configs for the scheduler onto
+the given <code class="docutils literal notranslate"><span class="pre">cfg</span></code>.</p>
+<p>If no <code class="docutils literal notranslate"><span class="pre">dirs</span></code> is specified, then it looks for <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> in the
+current working directory. If a specified directory does not have <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code>
+then it is ignored.</p>
+<p>Note that the configs already present in the given <code class="docutils literal notranslate"><span class="pre">cfg</span></code> take precedence
+over the ones in the config file and only new configs are added. The same holds
+true for the configs loaded in list order.</p>
+<p>For instance if <code class="docutils literal notranslate"><span class="pre">cfg={&quot;foo&quot;:&quot;bar&quot;}</span></code> and the config file is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># dir_1/.torchxconfig</span>
+<span class="p">[</span><span class="n">local_cwd</span><span class="p">]</span>
+<span class="n">foo</span> <span class="o">=</span> <span class="n">baz</span>
+<span class="n">hello</span> <span class="o">=</span> <span class="n">world</span>
+
+<span class="c1"># dir_2/.torchxconfig</span>
+<span class="p">[</span><span class="n">local_cwd</span><span class="p">]</span>
+<span class="n">hello</span> <span class="o">=</span> <span class="n">bob</span>
+</pre></div>
+</div>
+<p>Then after the method call, <code class="docutils literal notranslate"><span class="pre">cfg={&quot;foo&quot;:&quot;bar&quot;,&quot;hello&quot;:&quot;world&quot;}</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.runner.config.load">
+<span class="sig-prename descclassname"><span class="pre">torchx.runner.config.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheduler</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TextIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../specs.html#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="../_modules/torchx/runner/config.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.config.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads the section <code class="docutils literal notranslate"><span class="pre">[{scheduler}]</span></code> from the given
+configfile <code class="docutils literal notranslate"><span class="pre">f</span></code> (in .INI format) into the provided <code class="docutils literal notranslate"><span class="pre">runcfg</span></code>, only adding
+configs that are NOT currently in the given <code class="docutils literal notranslate"><span class="pre">runcfg</span></code> (e.g. does not
+override existing values in <code class="docutils literal notranslate"><span class="pre">runcfg</span></code>). If no section is found, does nothing.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.runner.config.dump">
+<span class="sig-prename descclassname"><span class="pre">torchx.runner.config.</span></span><span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TextIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedulers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_only</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="../_modules/torchx/runner/config.html#dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.config.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps a default INI-style config template containing the :py:class:torchx.specs.runopts for the
+given scheduler names into the file-like object specified by <code class="docutils literal notranslate"><span class="pre">f</span></code>.
+If no <code class="docutils literal notranslate"><span class="pre">schedulers</span></code> are specified dumps all known registered schedulers.</p>
+<p>Optional runopts are pre-filled  with their default values.
+Required runopts are set with a <code class="docutils literal notranslate"><span class="pre">FIXME:</span> <span class="pre">...</span></code> placeholder.
+To only dump required runopts pass <code class="docutils literal notranslate"><span class="pre">required_only=True</span></code>.</p>
+<p>Each scheduler’s runopts are written in the section called
+<code class="docutils literal notranslate"><span class="pre">[{scheduler_name}]</span></code>.</p>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">kubernetes</span><span class="p">]</span>
+<span class="n">namespace</span> <span class="o">=</span> <span class="n">default</span>
+<span class="n">queue</span> <span class="o">=</span> <span class="c1">#FIXME (str)Volcano queue to schedule job in</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – Name of the role</p></li>
-<li><p><strong>entrypoint</strong> – User binary or python script that will be launched.</p></li>
-<li><p><strong>resource</strong> – Resource that is requested by scheduler</p></li>
-<li><p><strong>args</strong> – User provided arguments</p></li>
-<li><p><strong>env</strong> – Env. variables that will be set on worker process that runs entrypoint</p></li>
-<li><p><strong>num_replicas</strong> – Number of role replicas to run</p></li>
-<li><p><strong>max_retries</strong> – Max number of retries</p></li>
-<li><p><strong>port_map</strong> – Port mapping for the role</p></li>
-<li><p><strong>retry_policy</strong> – Retry policy that is applied to the role</p></li>
-<li><p><strong>launch_kwargs</strong> – kwarg style launch arguments that will be used to launch torchelastic agent.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Role object that launches user entrypoint via the torchelastic as proxy</p>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – if given a scheduler name that is not known</p>
 </dd>
 </dl>
 </dd></dl>
 
+</section>
 </section>
 
 
@@ -431,10 +505,8 @@ to fail and restart a maximum of 3 times.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="distributed.html" class="btn btn-neutral float-right" title="Distributed" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
-      
-        <a href="hpo.html" class="btn btn-neutral" title="HPO" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../pipelines/kfp.html" class="btn btn-neutral" title="Kubeflow Pipelines" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -466,7 +538,12 @@ to fail and restart a maximum of 3 times.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Base</a></li>
+<li><a class="reference internal" href="#">(beta) .torchxconfig file</a><ul>
+<li><a class="reference internal" href="#cli-usage">CLI Usage</a></li>
+<li><a class="reference internal" href="#programmatic-usage">Programmatic Usage</a></li>
+<li><a class="reference internal" href="#config-api-functions">Config API Functions</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

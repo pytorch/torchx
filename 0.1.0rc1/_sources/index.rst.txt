@@ -81,12 +81,11 @@ Components Library
 
    components/overview
    components/train
-   components/serve
+   components/distributed
    components/interpret
    components/metrics
    components/hpo
-   components/base
-   components/distributed
+   components/serve
    components/utils
 
 Runtime Library
@@ -123,9 +122,9 @@ Experimental
 ---------------
 .. toctree::
    :maxdepth: 1
-   :caption: Beta Features
+   :caption: Experimental Features
 
-   beta
+   experimental/runner.config
 
 
 

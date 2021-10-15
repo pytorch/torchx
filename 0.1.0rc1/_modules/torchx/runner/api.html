@@ -251,12 +251,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components/base.html">Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Runtime</span></p>
@@ -275,9 +274,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Beta Features</span></p>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../beta.html">Coming Soon</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -499,8 +498,8 @@
 <span class="sd">            if it dryrun specified.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            `ComponentValidationException`: if component is invalid.</span>
-<span class="sd">            `ComponentNotFoundException`: if the ``component_path`` is failed to resolve.</span>
+<span class="sd">            ComponentValidationException: if component is invalid.</span>
+<span class="sd">            ComponentNotFoundException: if the ``component_path`` is failed to resolve.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">component_def</span> <span class="o">=</span> <span class="n">get_component</span><span class="p">(</span><span class="n">component_name</span><span class="p">)</span>
         <span class="n">app</span> <span class="o">=</span> <span class="n">from_function</span><span class="p">(</span><span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span> <span class="n">app_args</span><span class="p">)</span>
@@ -859,9 +858,9 @@
 <span class="sd">        is the same as this session.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            ValueError - if ``check_session=True`` and the session in the app handle</span>
+<span class="sd">            ValueError: if ``check_session=True`` and the session in the app handle</span>
 <span class="sd">                         does not match this session&#39;s name</span>
-<span class="sd">            KeyError - if no such scheduler backend exists</span>
+<span class="sd">            KeyError: if no such scheduler backend exists</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">app_id</span> <span class="o">=</span> <span class="n">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>

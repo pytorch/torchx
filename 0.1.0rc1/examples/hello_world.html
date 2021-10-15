@@ -254,12 +254,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../components/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/base.html">Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Runtime</span></p>
@@ -278,9 +277,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Beta Features</span></p>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../beta.html">Coming Soon</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -730,7 +729,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_cwd://torchx/hello_world_777b69e6
+local_cwd://torchx/hello_world_51ccaa34
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -738,8 +737,8 @@ local_cwd://torchx/hello_world_777b69e6
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-10-15 22:18:37 INFO     Waiting for the app to finish...
-torchx 2021-10-15 22:18:38 INFO     Job finished: SUCCEEDED
+torchx 2021-10-15 22:35:01 INFO     Waiting for the app to finish...
+torchx 2021-10-15 22:35:02 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -792,73 +791,73 @@ d2e110be24e1: Pulling fs layer
 6009a622672a: Pulling fs layer
 143f80195431: Pulling fs layer
 eccbe17c44e1: Pulling fs layer
-143f23ff3be4: Pulling fs layer
-e3d6e1eac672: Pulling fs layer
-f6c7f8bc4e49: Pulling fs layer
-45e80c2917d5: Pulling fs layer
-4624bf2ca9ed: Pulling fs layer
-44d2b8b39e8d: Pulling fs layer
-415025032a3e: Pulling fs layer
-5b8810d813c6: Pulling fs layer
+764aa5f3c75c: Pulling fs layer
+03bbae226dd3: Pulling fs layer
+f91ce314e3e5: Pulling fs layer
+9abb026e37ac: Pulling fs layer
+ce7611d0e903: Pulling fs layer
+4fbc52a9cbf0: Pulling fs layer
+b539c764bee5: Pulling fs layer
+291efc29e62d: Pulling fs layer
 6009a622672a: Waiting
 143f80195431: Waiting
 eccbe17c44e1: Waiting
-143f23ff3be4: Waiting
-e3d6e1eac672: Waiting
-f6c7f8bc4e49: Waiting
-45e80c2917d5: Waiting
-4624bf2ca9ed: Waiting
-5b8810d813c6: Waiting
-44d2b8b39e8d: Waiting
-415025032a3e: Waiting
+764aa5f3c75c: Waiting
+03bbae226dd3: Waiting
+f91ce314e3e5: Waiting
+9abb026e37ac: Waiting
+ce7611d0e903: Waiting
+4fbc52a9cbf0: Waiting
+b539c764bee5: Waiting
+291efc29e62d: Waiting
 d2e110be24e1: Verifying Checksum
 d2e110be24e1: Download complete
 889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
-4bbfd2c87b75: Verifying Checksum
-4bbfd2c87b75: Download complete
 6009a622672a: Verifying Checksum
 6009a622672a: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
-e3d6e1eac672: Verifying Checksum
-e3d6e1eac672: Download complete
-143f23ff3be4: Verifying Checksum
-143f23ff3be4: Download complete
-45e80c2917d5: Verifying Checksum
-45e80c2917d5: Download complete
-4624bf2ca9ed: Verifying Checksum
-4624bf2ca9ed: Download complete
-44d2b8b39e8d: Verifying Checksum
-44d2b8b39e8d: Download complete
-415025032a3e: Verifying Checksum
-415025032a3e: Download complete
-5b8810d813c6: Verifying Checksum
-5b8810d813c6: Download complete
+4bbfd2c87b75: Verifying Checksum
+4bbfd2c87b75: Download complete
+03bbae226dd3: Verifying Checksum
+03bbae226dd3: Download complete
+764aa5f3c75c: Verifying Checksum
+764aa5f3c75c: Download complete
+9abb026e37ac: Verifying Checksum
+9abb026e37ac: Download complete
+ce7611d0e903: Verifying Checksum
+ce7611d0e903: Download complete
+4fbc52a9cbf0: Verifying Checksum
+4fbc52a9cbf0: Download complete
+b539c764bee5: Verifying Checksum
+b539c764bee5: Download complete
+291efc29e62d: Verifying Checksum
+291efc29e62d: Download complete
 4bbfd2c87b75: Pull complete
-f6c7f8bc4e49: Verifying Checksum
-f6c7f8bc4e49: Download complete
 143f80195431: Verifying Checksum
 143f80195431: Download complete
+f91ce314e3e5: Verifying Checksum
+f91ce314e3e5: Download complete
 d2e110be24e1: Pull complete
 889a7173dcfe: Pull complete
 6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
-143f23ff3be4: Pull complete
-e3d6e1eac672: Pull complete
-f6c7f8bc4e49: Pull complete
-45e80c2917d5: Pull complete
-4624bf2ca9ed: Pull complete
-44d2b8b39e8d: Pull complete
-415025032a3e: Pull complete
-5b8810d813c6: Pull complete
-Digest: sha256:7e3052eb850e13a0107c560ae48a1c39fb5c22ae90cef1089164814fd4c1be2e
+764aa5f3c75c: Pull complete
+03bbae226dd3: Pull complete
+f91ce314e3e5: Pull complete
+9abb026e37ac: Pull complete
+ce7611d0e903: Pull complete
+4fbc52a9cbf0: Pull complete
+b539c764bee5: Pull complete
+291efc29e62d: Pull complete
+Digest: sha256:7a46d90dcb71281ab965ebee6cc305658d9316222012851b042e54e15a7bcd58
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
- ---&gt; 935823c2da9a
+ ---&gt; ad6ad956e8c7
 Step 2/2 : ADD my_app.py .
- ---&gt; 3a886ed3b19d
-Successfully built 3a886ed3b19d
+ ---&gt; 3b132c566080
+Successfully built 3b132c566080
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -879,7 +878,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_docker://torchx/hello_world_9a5be0fe
+local_docker://torchx/hello_world_e906d47e
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -888,9 +887,9 @@ local_docker://torchx/hello_world_9a5be0fe
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Error response from daemon: pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied
-torchx 2021-10-15 22:21:10 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
-torchx 2021-10-15 22:21:10 INFO     Waiting for the app to finish...
-torchx 2021-10-15 22:21:11 INFO     Job finished: SUCCEEDED
+torchx 2021-10-15 22:37:27 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
+torchx 2021-10-15 22:37:27 INFO     Waiting for the app to finish...
+torchx 2021-10-15 22:37:28 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the Kubernetes scheduler to launch this on the cluster instead.</p>
