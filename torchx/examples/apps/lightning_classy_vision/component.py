@@ -258,9 +258,9 @@ def trainer_dist(
 
 
 # %%
-# Model Interpret
-# #################
-# Defines interpret component
+# Interpreting the Model
+# #######################
+# Defines a component that interprets the model
 #
 # Train a single trainer example: :ref:`examples_apps/lightning_classy_vision/component:Single Trainer Component`
 # And use the following cmd to try out:
