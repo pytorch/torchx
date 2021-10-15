@@ -412,7 +412,7 @@ pip install -r dev-requirements.txt
 <p>Use the following cmd to try out:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd <span class="se">\</span>
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer <span class="se">\</span>
---output_path /tmp
+--output_path /tmp/<span class="nv">$USER</span>
 </pre></div>
 </div>
 <p>Single trainer component code:</p>
@@ -615,42 +615,54 @@ distributed jobs: <cite>c10d</cite> and <cite>etcd</cite>.</p>
 </pre></div>
 </div>
 </section>
-<section id="model-interpretability">
-<h2>Model Interpretability<a class="headerlink" href="#model-interpretability" title="Permalink to this headline">¶</a></h2>
-<p>TODO(aivanou): add documentation</p>
+<section id="interpreting-the-model">
+<h2>Interpreting the Model<a class="headerlink" href="#interpreting-the-model" title="Permalink to this headline">¶</a></h2>
+<p>Defines a component that interprets the model</p>
+<p>Train a single trainer example: <a class="reference internal" href="#single-trainer-component"><span class="std std-ref">Single Trainer Component</span></a>
+And use the following cmd to try out:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd <span class="se">\</span>
+./torchx/examples/apps/lightning_classy_vision/component.py:interpret <span class="se">\</span>
+--output_path /tmp/aivanou/interpret  --load_path /tmp/<span class="nv">$USER</span>/last.ckpt
+</pre></div>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">interpret</span><span class="p">(</span>
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Runs the model interpretability app on the model outputted by the training</span>
 <span class="sd">    component.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        image: image to run (e.g. foobar:latest)</span>
 <span class="sd">        load_path: path to load pretrained model from</span>
-<span class="sd">        data_path: path to the data to load</span>
 <span class="sd">        output_path: output path for model checkpoints (e.g. file:///foo/bar)</span>
+<span class="sd">        data_path: path to the data to load</span>
+<span class="sd">        image: image to run (e.g. foobar:latest)</span>
 <span class="sd">        resource: the resources to use</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.interpret&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
+        <span class="n">load_path</span><span class="p">,</span>
+        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">data_path</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+            <span class="n">data_path</span><span class="p">,</span>
+        <span class="p">]</span>
+
     <span class="k">return</span> <span class="n">torchx</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cv-interpret&quot;</span><span class="p">,</span>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">torchx</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span>
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.interpret&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
-                    <span class="n">load_path</span><span class="p">,</span>
-                    <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
-                    <span class="n">data_path</span><span class="p">,</span>
-                    <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-                    <span class="n">output_path</span><span class="p">,</span>
-                <span class="p">],</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
                 <span class="n">resource</span><span class="o">=</span><span class="n">named_resources</span><span class="p">[</span><span class="n">resource</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">resource</span>
@@ -720,7 +732,7 @@ distributed jobs: <cite>c10d</cite> and <cite>etcd</cite>.</p>
 <li><a class="reference internal" href="#single-trainer-component">Single Trainer Component</a></li>
 <li><a class="reference internal" href="#distributed-trainer-component">Distributed Trainer Component</a></li>
 <li><a class="reference internal" href="#executing-distributed-trainer-job">Executing distributed trainer job</a></li>
-<li><a class="reference internal" href="#model-interpretability">Model Interpretability</a></li>
+<li><a class="reference internal" href="#interpreting-the-model">Interpreting the Model</a></li>
 </ul>
 </li>
 </ul>

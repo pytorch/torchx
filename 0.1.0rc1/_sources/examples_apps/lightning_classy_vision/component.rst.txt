@@ -52,7 +52,7 @@ Use the following cmd to try out:
 
    torchx run --scheduler local_cwd \
    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer \
-   --output_path /tmp
+   --output_path /tmp/$USER
 
 Single trainer component code:
 
@@ -272,9 +272,18 @@ Distributed trainer component code:
 
 
 
-Model Interpretability
+Interpreting the Model
 #######################
-TODO(aivanou): add documentation
+Defines a component that interprets the model
+
+Train a single trainer example: :ref:`examples_apps/lightning_classy_vision/component:Single Trainer Component`
+And use the following cmd to try out:
+
+.. code:: bash
+
+   torchx run --scheduler local_cwd \
+   ./torchx/examples/apps/lightning_classy_vision/component.py:interpret \
+   --output_path /tmp/aivanou/interpret  --load_path /tmp/$USER/last.ckpt
 
 
 .. code-block:: default
@@ -282,38 +291,43 @@ TODO(aivanou): add documentation
 
 
     def interpret(
-        image: str,
         load_path: str,
-        data_path: str,
         output_path: str,
+        data_path: Optional[str] = None,
+        image: str = TORCHX_IMAGE,
         resource: Optional[str] = None,
     ) -> torchx.AppDef:
         """Runs the model interpretability app on the model outputted by the training
         component.
 
         Args:
-            image: image to run (e.g. foobar:latest)
             load_path: path to load pretrained model from
-            data_path: path to the data to load
             output_path: output path for model checkpoints (e.g. file:///foo/bar)
+            data_path: path to the data to load
+            image: image to run (e.g. foobar:latest)
             resource: the resources to use
         """
+        args = [
+            "-m",
+            "torchx.examples.apps.lightning_classy_vision.interpret",
+            "--load_path",
+            load_path,
+            "--output_path",
+            output_path,
+        ]
+        if data_path:
+            args += [
+                "--data_path",
+                data_path,
+            ]
+
         return torchx.AppDef(
             name="cv-interpret",
             roles=[
                 torchx.Role(
                     name="worker",
                     entrypoint="python",
-                    args=[
-                        "-m",
-                        "torchx.examples.apps.lightning_classy_vision.interpret",
-                        "--load_path",
-                        load_path,
-                        "--data_path",
-                        data_path,
-                        "--output_path",
-                        output_path,
-                    ],
+                    args=args,
                     image=image,
                     resource=named_resources[resource]
                     if resource

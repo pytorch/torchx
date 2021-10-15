@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Tiny ImageNet Model" href="model.html" />
-    <link rel="prev" title="Simple Logging Profiler" href="profiler.html" />
+    <link rel="next" title="Trainer App Example" href="train.html" />
+    <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -407,9 +407,9 @@ using captum.</p>
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
     <span class="n">download_data</span><span class="p">,</span>
+    <span class="n">create_random_data</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span>
-
 
 <span class="c1"># FIXME: captum must be imported after torch otherwise it causes python to crash</span>
 <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
@@ -429,8 +429,7 @@ using captum.</p>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to load the training data from&quot;</span><span class="p">,</span>
-        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to load the training data from, if not provided, random dataset will be created&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
@@ -463,7 +462,12 @@ using captum.</p>
         <span class="n">model</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">load_path</span><span class="p">)</span>
 
         <span class="c1"># Download and setup the data module</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="n">download_data</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">:</span>
+            <span class="n">data_path</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+            <span class="n">create_random_data</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_path</span> <span class="o">=</span> <span class="n">download_data</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">TinyImageNetDataModule</span><span class="p">(</span>
             <span class="n">data_dir</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
             <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -529,10 +533,10 @@ using captum.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="model.html" class="btn btn-neutral float-right" title="Tiny ImageNet Model" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="train.html" class="btn btn-neutral float-right" title="Trainer App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="profiler.html" class="btn btn-neutral" title="Simple Logging Profiler" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

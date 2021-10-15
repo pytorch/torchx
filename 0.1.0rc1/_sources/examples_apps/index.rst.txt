@@ -99,27 +99,6 @@ Lightning + Classy Vision Trainer Example
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses captum to analyze inputs to for model interpretability ...">
-
-.. only:: html
-
- .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_interpret_thumb.png
-     :alt: Model Interpretability App Example
-
-     :ref:`sphx_glr_examples_apps_lightning_classy_vision_interpret.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples_apps/lightning_classy_vision/interpret
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
 
 .. only:: html
@@ -138,6 +117,27 @@ Lightning + Classy Vision Trainer Example
    :hidden:
 
    /examples_apps/lightning_classy_vision/model
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses captum to analyze inputs to for model interpretability ...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_interpret_thumb.png
+     :alt: Model Interpretability App Example
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_interpret.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/interpret
 
 .. raw:: html
 
