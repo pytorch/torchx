@@ -60,6 +60,10 @@ jobs:
           set -ex
           git config --global user.email "runner@github.com"
           git config --global user.name "TorchX CI Runner"
+      - name: Install Dependencies
+        run: |
+          set -eux
+          sudo apt-get install -y pandoc
       - name: Build
         run: |
           set -ex
