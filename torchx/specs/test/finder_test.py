@@ -40,6 +40,12 @@ def _test_component(name: str, role_name: str = "worker") -> AppDef:
     )
 
 
+def _test_component_without_docstring(name: str, role_name: str = "worker") -> AppDef:
+    return AppDef(
+        name, roles=[Role(name=role_name, image="test_image", entrypoint="main.py")]
+    )
+
+
 # pyre-ignore[2]
 def invalid_component(name, role_name: str = "worker") -> AppDef:
     return AppDef(
@@ -87,7 +93,7 @@ class DirComponentsFinderTest(unittest.TestCase):
             entrypoints_mock.load_group.return_value = test_torchx_group
             components = _load_components()
         foobar_component = components["foobar.finder_test.invalid_component"]
-        self.assertEqual(2, len(foobar_component.validation_errors))
+        self.assertEqual(1, len(foobar_component.validation_errors))
 
     def test_get_entrypoints_components(self) -> None:
         test_torchx_group = {"foobar": sys.modules[__name__]}
@@ -149,6 +155,21 @@ class CustomComponentsFinderTest(unittest.TestCase):
         self.assertEqual(f"{current_file_path()}:_test_component", component.name)
         self.assertEqual("Test component", component.description)
         self.assertEqual("_test_component", component.fn_name)
+        self.assertListEqual([], component.validation_errors)
+
+    def test_find_components_without_docstring(self) -> None:
+        components = CustomComponentsFinder(
+            current_file_path(), "_test_component_without_docstring"
+        ).find()
+        self.assertEqual(1, len(components))
+        component = components[0]
+        self.assertEqual(
+            f"{current_file_path()}:_test_component_without_docstring", component.name
+        )
+        exprected_desc = """_test_component_without_docstring TIP: improve this help string by adding a docstring
+to your component (see: https://pytorch.org/torchx/latest/component_best_practices.html)"""
+        self.assertEqual(exprected_desc, component.description)
+        self.assertEqual("_test_component_without_docstring", component.fn_name)
         self.assertListEqual([], component.validation_errors)
 
     def test_get_component(self) -> None:

@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Union, Callable
 
 from pyre_extensions import none_throws
 from torchx.specs import AppDef
-from torchx.specs.file_linter import get_short_fn_description, validate
+from torchx.specs.file_linter import get_fn_docstring, validate
 from torchx.util import entrypoints
 from torchx.util.io import read_conf_file
 
@@ -40,14 +40,15 @@ class _Component:
     Args:
         name: The name of the component, which usually MODULE_PATH.FN_NAME
         description: The description of the component, taken from the desrciption
-            of the function that creates component
+            of the function that creates component. In case of no docstring, description
+            will be the same as name
         fn_name: Function name that creates component
         fn: Function that creates component
         validation_errors: Validation errors
     """
 
     name: str
-    description: Optional[str]
+    description: str
     fn_name: str
     fn: Callable[..., AppDef]
     validation_errors: List[str]
@@ -150,7 +151,7 @@ class ModuleComponentsFinder(ComponentsFinder):
         module_path = os.path.abspath(module.__file__)
         for function_name, function in functions:
             linter_errors = validate(module_path, function_name)
-            component_desc = get_short_fn_description(module_path, function_name)
+            component_desc, _ = get_fn_docstring(function)
             component_def = _Component(
                 name=self._get_component_name(
                     base_module, module.__name__, function_name
@@ -197,7 +198,6 @@ class CustomComponentsFinder(ComponentsFinder):
         validation_errors = self._get_validation_errors(
             self._filepath, self._function_name
         )
-        fn_desc = get_short_fn_description(self._filepath, self._function_name)
 
         file_source = read_conf_file(self._filepath)
         namespace = globals()
@@ -207,6 +207,7 @@ class CustomComponentsFinder(ComponentsFinder):
                 f"Function {self._function_name} does not exist in file {self._filepath}"
             )
         app_fn = namespace[self._function_name]
+        fn_desc, _ = get_fn_docstring(app_fn)
         return [
             _Component(
                 name=f"{self._filepath}:{self._function_name}",
