@@ -374,7 +374,6 @@
     <span class="n">Generic</span><span class="p">,</span>
     <span class="n">Iterator</span><span class="p">,</span>
     <span class="n">List</span><span class="p">,</span>
-    <span class="n">Mapping</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">Tuple</span><span class="p">,</span>
     <span class="n">Type</span><span class="p">,</span>
@@ -383,8 +382,7 @@
 <span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">parse_fn_docstring</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">get_fn_docstring</span><span class="p">,</span> <span class="n">TorchXArgumentHelpFormatter</span>
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">decode_optional</span><span class="p">,</span> <span class="n">is_bool</span><span class="p">,</span> <span class="n">is_primitive</span>
 
 
@@ -1103,22 +1101,21 @@
         <span class="k">return</span> <span class="nb">str</span>
 
 
-<span class="k">def</span> <span class="nf">_create_args_parser</span><span class="p">(</span>
-    <span class="n">fn_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">parameters</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">],</span>
-    <span class="n">function_desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">args_desc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_create_args_parser</span><span class="p">(</span><span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span> <span class="o">=</span> <span class="n">get_fn_docstring</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span>
     <span class="n">script_parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">prog</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;torchx run ...torchx_params... </span><span class="si">{</span><span class="n">fn_name</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;App spec: </span><span class="si">{</span><span class="n">function_desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;torchx run &lt;&lt;torchx_params&gt;&gt; </span><span class="si">{</span><span class="n">app_fn</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;AppDef for </span><span class="si">{</span><span class="n">function_desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">TorchXArgumentHelpFormatter</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">remainder_arg</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">param_desc</span> <span class="o">=</span> <span class="n">args_desc</span><span class="p">[</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="n">args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="n">args_desc</span><span class="p">[</span><span class="n">param_name</span><span class="p">],</span>
+            <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="n">param_desc</span><span class="p">,</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">get_argparse_param_type</span><span class="p">(</span><span class="n">parameter</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
@@ -1143,13 +1140,7 @@
 <span class="k">def</span> <span class="nf">_get_function_args</span><span class="p">(</span>
     <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span> <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]:</span>
-    <span class="n">docstring</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">app_fn</span><span class="p">))</span>
-    <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span> <span class="o">=</span> <span class="n">parse_fn_docstring</span><span class="p">(</span><span class="n">docstring</span><span class="p">)</span>
-
-    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="n">script_parser</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span>
-        <span class="n">app_fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span>
-    <span class="p">)</span>
+    <span class="n">script_parser</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span>
 
     <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">script_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">app_args</span><span class="p">)</span>
 
@@ -1157,6 +1148,7 @@
     <span class="n">var_arg</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
 
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
     <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">arg_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
         <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span>
