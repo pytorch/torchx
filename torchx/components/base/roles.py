@@ -92,7 +92,8 @@ def create_torch_dist_role(
     entrypoint_override = "python"
     torch_run_args: List[str] = ["-m", "torch.distributed.run"]
 
-    launch_kwargs.setdefault("rdzv_backend", "etcd")
+    launch_kwargs.setdefault("rdzv_backend", "c10d")
+    launch_kwargs.setdefault("rdzv_endpoint", "localhost:29500")
     launch_kwargs.setdefault("rdzv_id", macros.app_id)
     launch_kwargs.setdefault("role", name)
 

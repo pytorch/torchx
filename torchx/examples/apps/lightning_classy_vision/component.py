@@ -11,6 +11,9 @@ Trainer Component Examples
 Component definitions that run the example lightning_classy_vision app
 in a single or distributed manner.
 
+Prerequisites of running examples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Before executing examples, install torchx and dependencies necessary to run examples:
 
 .. code:: bash
@@ -24,6 +27,7 @@ Before executing examples, install torchx and dependencies necessary to run exam
 
      The working dir should be `torchx` to run the components.
 
+
 """
 
 # Importing torchx api specifications
@@ -36,8 +40,8 @@ from torchx.version import TORCHX_IMAGE
 
 
 # %%
-# Single Trainer Component
-# #########################
+# Trainer Component
+# ###################
 # Defines a single trainer component
 #
 # Use the following cmd to try out:
@@ -46,7 +50,7 @@ from torchx.version import TORCHX_IMAGE
 #
 #    torchx run --scheduler local_cwd \
 #    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer \
-#    --output_path /tmp/$USER
+#    --output_path /tmp
 #
 # Single trainer component code:
 
@@ -124,49 +128,8 @@ def trainer(
 
 # %%
 # Distributed Trainer Component
-# ##############################
-# Defines distributed trainer component
+# ###############################
 #
-# Use the following cmd to try out:
-#
-# .. code:: bash
-#
-#       torchx run --scheduler local_cwd \
-#       ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
-#       --output_path /tmp --rdzv_backend c10d --rdzv_endpoint localhost:29500
-#
-#
-# Executing distributed trainer job
-# #################################
-#
-# TorchX supports kubernetes scheduler that allows users to execute distributed job in kubernetes cluster.
-# It uses `Volcano <https://volcano.sh/en/>`_ to schedule jobs.
-#
-# Distributed trainer uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/quickstart.html>`_
-# to start user processes. There are two rendezvous types that can be used to execute
-# distributed jobs: `c10d` and `etcd`.
-#
-# Prerequisites to execute distributed jobs on kubernetes cluster:
-#
-# * Install volcano 1.4.0 version
-#
-# .. code:: bash
-#
-#       kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
-#
-# * Install etcd server on your kubernetes cluster:
-#
-#       kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
-#
-# After that the job can be executed on kubernetes:
-#
-# .. code:: bash
-#
-#  torchx run --scheduler kubernetes --scheduler_args namespace=default,queue=default \
-#  ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
-#  --nnodes 2 --epochs 1 --output_path /tmp
-#
-# Distributed trainer component code:
 
 
 def trainer_dist(
@@ -262,7 +225,7 @@ def trainer_dist(
 # #######################
 # Defines a component that interprets the model
 #
-# Train a single trainer example: :ref:`examples_apps/lightning_classy_vision/component:Single Trainer Component`
+# Train a single trainer example: :ref:`examples_apps/lightning_classy_vision/component:Trainer Component`
 # And use the following cmd to try out:
 #
 # .. code:: bash

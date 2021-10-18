@@ -5,6 +5,26 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+"""
+
+Torchx kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.
+
+Install volcano 1.4.0 version
+
+.. code:: bash
+
+    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
+
+Install etcd server on your kubernetes cluster:
+
+.. code:: bash
+
+    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
+
+Install `python etcd library <https://pypi.org/project/python-etcd/>`_
+
+"""
+
 import json
 import logging
 import warnings
