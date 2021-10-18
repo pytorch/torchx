@@ -35,12 +35,16 @@ jobs:
             curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value' > $AWS_WEB_IDENTITY_TOKEN_FILE
           fi
       - name: Configure Kube Config
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
         run: |
           set -eux
           if [ -n "$AWS_ROLE_ARN" ]; then
             aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
           fi
       - name: Configure Docker
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
         run: |
           set -eux
           if [ -n "$AWS_ROLE_ARN" ]; then
