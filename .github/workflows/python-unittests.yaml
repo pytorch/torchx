@@ -8,11 +8,12 @@ on:
 
 jobs:
   unittest:
-    runs-on: ubuntu-18.04
     strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
+        platform: [ubuntu-18.04, macos-latest]
       fail-fast: false
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
