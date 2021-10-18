@@ -10,18 +10,19 @@ code. As such, we don't provide an out of the box training loop app. We do
 however have examples for how you can construct your training app as well as
 generic components you can use to run your custom training app.
 
+
+.. note::
+
+    Follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples`
+    before running the examples
+
+
 Check out the code for :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example`.
 You can try it out by running a single trainer example on your desktop:
-
-.. note:
-
-    Follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples` to
-    before running the examples
 
 
 .. code:: bash
 
-    cd ~/torchx
     python torchx/examples/apps/lightning_classy_vision/train.py --skip_export
 
 
@@ -37,8 +38,6 @@ Try it out yourself:
 
 .. code:: bash
 
-    cd torchx
-
     torchx run -s local_cwd \
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer --skip-export
 
@@ -48,14 +47,13 @@ If you have docker installed on your laptop you can running the same single trai
 
 .. code:: bash
 
-    cd torchx
-
     torchx run -s local_docker \
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer --skip-export
 
 
-You can learn more about authoring your own components.
+You can learn more about authoring your own components: :py:mod:`torchx.components`
 
-Torchx has great support for simplifying execution of distributed jobs, that you can learn more here.
+Torchx has great support for simplifying execution of distributed jobs, that you can learn more
+:py:mod:`torchx.components.dist`
 
 """
