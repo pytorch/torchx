@@ -27,7 +27,7 @@ from typing import (
 )
 
 import yaml
-from torchx.specs.file_linter import get_fn_docstring, TorchXArgumentHelpFormatter
+from torchx.specs.file_linter import TorchXArgumentHelpFormatter, get_fn_docstring
 from torchx.util.types import decode_from_string, decode_optional, is_bool, is_primitive
 
 
@@ -751,7 +751,7 @@ def _create_args_parser(app_fn: Callable[..., AppDef]) -> argparse.ArgumentParse
     function_desc, args_desc = get_fn_docstring(app_fn)
     script_parser = argparse.ArgumentParser(
         prog=f"torchx run <<torchx_params>> {app_fn.__name__} ",
-        description=f"AppDef for {function_desc}",
+        description=function_desc,
         formatter_class=TorchXArgumentHelpFormatter,
     )
 
