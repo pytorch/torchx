@@ -38,8 +38,6 @@ Try launching a single node, multiple trainers example on your desktop:
 
 .. code:: bash
 
-    cd torchx
-
     torchx run -s local_cwd \
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
 --nnodes 1 --nproc_per_node 2
@@ -81,7 +79,17 @@ It is simple to launch multiple nodes trainer in kubernetes:
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
 --nnodes 2 --nproc_per_node 2
 
+The command above will launch distributed train job on kubernetes `default` namespace using volcano
+`default` queue. It will use etcd service accessible on `etcd-server:2379` to perform
+`etcd rendezvous <https://pytorch.org/docs/stable/elastic/rendezvous.html>`_.
 
+You can overwrite rendezvous endpoint:
+
+.. code:: bash
+
+    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\
+./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
+--nnodes 2 --nproc_per_node 2 --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
 
 Builtin distributed components
 ---------------------------------

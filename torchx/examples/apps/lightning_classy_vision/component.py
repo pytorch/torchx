@@ -56,7 +56,7 @@ from torchx.version import TORCHX_IMAGE
 
 
 def trainer(
-    output_path: str,
+    output_path: Optional[str] = None,
     image: str = TORCHX_IMAGE,
     data_path: Optional[str] = None,
     load_path: str = "",
@@ -90,8 +90,6 @@ def trainer(
     args = [
         "-m",
         "torchx.examples.apps.lightning_classy_vision.train",
-        "--output_path",
-        output_path,
         "--load_path",
         load_path,
         "--log_path",
@@ -99,6 +97,8 @@ def trainer(
         "--epochs",
         str(epochs),
     ]
+    if output_path:
+        args += ["--output_path", output_path]
     if layers:
         args += ["--layers"] + [str(layer) for layer in layers]
     if learning_rate:
@@ -133,7 +133,7 @@ def trainer(
 
 
 def trainer_dist(
-    output_path: str,
+    output_path: Optional[str] = None,
     image: str = TORCHX_IMAGE,
     data_path: Optional[str] = None,
     load_path: str = "",
@@ -186,8 +186,6 @@ def trainer_dist(
         str(nproc_per_node),
         "-m",
         "torchx.examples.apps.lightning_classy_vision.train",
-        "--output_path",
-        output_path,
         "--load_path",
         load_path,
         "--log_path",
@@ -195,6 +193,8 @@ def trainer_dist(
         "--epochs",
         str(epochs),
     ]
+    if output_path:
+        args += ["--output_path", output_path]
     if data_path:
         args += ["--data_path", data_path]
     if skip_export:

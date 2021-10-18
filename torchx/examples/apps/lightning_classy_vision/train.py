@@ -150,7 +150,7 @@ def main(argv: List[str]) -> None:
             f"train acc: {model.train_acc.compute()}, val acc: {model.val_acc.compute()}"
         )
 
-        if not args.skip_export:
+        if not args.skip_export and args.output_path:
             # Export the inference model
             export_inference_model(model, args.output_path, tmpdir)
 
