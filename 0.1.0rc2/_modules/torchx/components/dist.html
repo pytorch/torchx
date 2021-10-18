@@ -358,22 +358,170 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Components for applications that run as distributed jobs. Many of the</span>
-<span class="sd">components in this section are simply topological, meaning that they define</span>
-<span class="sd">the layout of the nodes in a distributed setting and take the actual</span>
-<span class="sd">binaries that each group of nodes (``specs.Role``) runs.</span>
+<span class="sd">Torchx helps you to run your distributed trainer jobs. Check out :py:mod:`torchx.components.train`</span>
+<span class="sd">on the example of running single trainer job. Here we will be using</span>
+<span class="sd">the same :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example`.</span>
+<span class="sd">but will run it in a distributed manner.</span>
+
+<span class="sd">Torchx uses `Torch distributed run &lt;https://pytorch.org/docs/stable/elastic/run.html&gt;`_ to launch user processes</span>
+<span class="sd">and expects that user applications will be written in</span>
+<span class="sd">`Distributed data parallel &lt;https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html&gt;`_</span>
+<span class="sd">manner</span>
+
+
+<span class="sd">Distributed Trainer Execution</span>
+<span class="sd">------------------------------</span>
+
+<span class="sd">In order to run your trainer on a single or multiple processes, remotely or locally, all you need to do is to</span>
+<span class="sd">write a distributed torchx component. The example that we will be using here is</span>
+<span class="sd">:ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`</span>
+
+<span class="sd">The component defines how the user application is launched and torchx will take care of translating this into</span>
+<span class="sd">scheduler-specific definitions.</span>
+
+<span class="sd">.. note:</span>
+
+<span class="sd">    Follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples` to</span>
+<span class="sd">    before running the examples</span>
+
+<span class="sd">Single node, multiple trainers (desktop)</span>
+<span class="sd">=========================================</span>
+
+<span class="sd">Try launching a single node, multiple trainers example on your desktop:</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    cd torchx</span>
+
+<span class="sd">    torchx run -s local_cwd \</span>
+<span class="sd">./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\</span>
+<span class="sd">--nnodes 1 --nproc_per_node 2</span>
+
+<span class="sd">The `./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist` is reference to the component</span>
+<span class="sd">function: :ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`</span>
+
+
+
+<span class="sd">Single node, multiple trainers (kubernetes)</span>
+<span class="sd">============================================</span>
+
+
+<span class="sd">Now lets launch the same component on the kubernetes cluster.</span>
+<span class="sd">Check out :py:mod:`torchx.schedulers.kubernetes_scheduler` on dependencies that needs to be installed</span>
+<span class="sd">before running using `kubernetes` scheduler.</span>
+
+
+<span class="sd">We can use the following cmd to launch application on kubernetes:</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\</span>
+<span class="sd">./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\</span>
+<span class="sd">--nnodes 1 --nproc_per_node 2</span>
+
+<span class="sd">The `namespaces` arg corresponds to the kubernetes namespace that you want to launch.</span>
+<span class="sd">The `queue` arg is the volcano `queue &lt;https://volcano.sh/en/docs/queue/&gt;`_.</span>
+
+
+<span class="sd">Multiple nodes, multiple trainers (kubernetes)</span>
+<span class="sd">===============================================</span>
+
+<span class="sd">It is simple to launch multiple nodes trainer in kubernetes:</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\</span>
+<span class="sd">./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\</span>
+<span class="sd">--nnodes 2 --nproc_per_node 2</span>
+
+
+
+<span class="sd">Builtin distributed components</span>
+<span class="sd">---------------------------------</span>
+
+<span class="sd">In the examples above we used custom components to launch user applications. It is not always the case that</span>
+<span class="sd">users need to write their own components.</span>
+
+<span class="sd">Torchx comes with set of builtin component that describe typical execution patterns.</span>
+
+
+<span class="sd">dist.ddp</span>
+<span class="sd">=========</span>
+
+<span class="sd">``dist.ddp``  is a component  for applications that run as distributed jobs in a DDP manner.</span>
+<span class="sd">You can use it to quickly iterate over your application without the need of authoring your own component.</span>
+
+<span class="sd">.. note::</span>
+
+<span class="sd">    ``dist.ddp`` is a generic component, as a result it is good for quick iterations, but not production usage.</span>
+<span class="sd">    It is recommended to author your own component if you want to put your application in production.</span>
+<span class="sd">    Learn more :ref:`components/overview:Authoring` about how to author your component.</span>
+
+<span class="sd">We will be using ``dist.ddp`` to execute the following example:</span>
+
+<span class="sd">.. code:: python</span>
+
+<span class="sd">    # main.py</span>
+<span class="sd">    import os</span>
+
+<span class="sd">    import torch</span>
+<span class="sd">    import torch.distributed as dist</span>
+<span class="sd">    import torch.nn.functional as F</span>
+<span class="sd">    import torch.distributed.run</span>
+
+<span class="sd">    def compute_world_size():</span>
+<span class="sd">        rank = int(os.getenv(&quot;RANK&quot;, &quot;0&quot;))</span>
+<span class="sd">        world_size = int(os.getenv(&quot;WORLD_SIZE&quot;, &quot;1&quot;))</span>
+<span class="sd">        dist.init_process_group()</span>
+<span class="sd">        print(&quot;successfully initialized process group&quot;)</span>
+
+<span class="sd">        t = F.one_hot(torch.tensor(rank), num_classes=world_size)</span>
+<span class="sd">        dist.all_reduce(t)</span>
+<span class="sd">        computed_world_size = int(torch.sum(t).item())</span>
+<span class="sd">        print(</span>
+<span class="sd">            f&quot;rank: {rank}, actual world_size: {world_size}, computed world_size: {computed_world_size}&quot;</span>
+<span class="sd">        )</span>
+
+<span class="sd">    if __name__ == &quot;__main__&quot;:</span>
+<span class="sd">        compute_world_size()</span>
+
+
+<span class="sd">Single trainer on desktop</span>
+<span class="sd">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+
+<span class="sd">We can run this example on desktop on four processes using the following cmd:</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4</span>
+
+
+<span class="sd">Single trainer on kubernetes cluster</span>
+<span class="sd">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+
+<span class="sd">We can execute it on the kubernetes cluster</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\</span>
+<span class="sd">dist.ddp --entrypoint main.py --nproc_per_node 4</span>
+
+
+
+<span class="sd">Components APIs</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 <span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
+<span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span>
 
 
 <div class="viewcode-block" id="ddp"><a class="viewcode-back" href="../../../components/distributed.html#torchx.components.dist.ddp">[docs]</a><span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span>
     <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
     <span class="n">rdzv_backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -394,8 +542,10 @@
 <span class="sd">        entrypoint: script or binary to run within the image.</span>
 <span class="sd">        rdzv_backend: rendezvous backend to use, allowed values can be found in the</span>
 <span class="sd">             `rdzv registry docs &lt;https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py&gt;`_</span>
+<span class="sd">             The default backend is `c10d`</span>
 <span class="sd">        rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd</span>
 <span class="sd">            endpoint, in case of c10d, this is the endpoint of one of the hosts.</span>
+<span class="sd">            The default entdpoint it `localhost:29500`</span>
 <span class="sd">        resource: Optional named resource identifier. The resource parameter</span>
 <span class="sd">            gets ignored when running on the local scheduler.</span>
 <span class="sd">        nnodes: Number of nodes.</span>

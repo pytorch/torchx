@@ -360,6 +360,26 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Torchx kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.</span>
+
+<span class="sd">Install volcano 1.4.0 version</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml</span>
+
+<span class="sd">Install etcd server on your kubernetes cluster:</span>
+
+<span class="sd">.. code:: bash</span>
+
+<span class="sd">    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml</span>
+
+<span class="sd">Install `python etcd library &lt;https://pypi.org/project/python-etcd/&gt;`_</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>

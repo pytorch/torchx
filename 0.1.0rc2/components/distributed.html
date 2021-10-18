@@ -357,13 +357,113 @@
       
   <section id="module-torchx.components.dist">
 <span id="distributed"></span><h1>Distributed<a class="headerlink" href="#module-torchx.components.dist" title="Permalink to this headline">¶</a></h1>
-<p>Components for applications that run as distributed jobs. Many of the
-components in this section are simply topological, meaning that they define
-the layout of the nodes in a distributed setting and take the actual
-binaries that each group of nodes (<code class="docutils literal notranslate"><span class="pre">specs.Role</span></code>) runs.</p>
+<p>Torchx helps you to run your distributed trainer jobs. Check out <a class="reference internal" href="train.html#module-torchx.components.train" title="torchx.components.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.train</span></code></a>
+on the example of running single trainer job. Here we will be using
+the same <a class="reference internal" href="../examples_apps/lightning_classy_vision/train.html#trainer-app-example"><span class="std std-ref">Trainer App Example</span></a>.
+but will run it in a distributed manner.</p>
+<p>Torchx uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">Torch distributed run</a> to launch user processes
+and expects that user applications will be written in
+<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html">Distributed data parallel</a>
+manner</p>
+<section id="distributed-trainer-execution">
+<h2>Distributed Trainer Execution<a class="headerlink" href="#distributed-trainer-execution" title="Permalink to this headline">¶</a></h2>
+<p>In order to run your trainer on a single or multiple processes, remotely or locally, all you need to do is to
+write a distributed torchx component. The example that we will be using here is
+<a class="reference internal" href="../examples_apps/lightning_classy_vision/component.html#distributed-trainer-component"><span class="std std-ref">Distributed Trainer Component</span></a></p>
+<p>The component defines how the user application is launched and torchx will take care of translating this into
+scheduler-specific definitions.</p>
+<section id="single-node-multiple-trainers-desktop">
+<h3>Single node, multiple trainers (desktop)<a class="headerlink" href="#single-node-multiple-trainers-desktop" title="Permalink to this headline">¶</a></h3>
+<p>Try launching a single node, multiple trainers example on your desktop:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> torchx
+
+torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">1</span> --nproc_per_node <span class="m">2</span>
+</pre></div>
+</div>
+<p>The <cite>./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist</cite> is reference to the component
+function: <a class="reference internal" href="../examples_apps/lightning_classy_vision/component.html#distributed-trainer-component"><span class="std std-ref">Distributed Trainer Component</span></a></p>
+</section>
+<section id="single-node-multiple-trainers-kubernetes">
+<h3>Single node, multiple trainers (kubernetes)<a class="headerlink" href="#single-node-multiple-trainers-kubernetes" title="Permalink to this headline">¶</a></h3>
+<p>Now lets launch the same component on the kubernetes cluster.
+Check out <a class="reference internal" href="../schedulers/kubernetes.html#module-torchx.schedulers.kubernetes_scheduler" title="torchx.schedulers.kubernetes_scheduler"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.schedulers.kubernetes_scheduler</span></code></a> on dependencies that needs to be installed
+before running using <cite>kubernetes</cite> scheduler.</p>
+<p>We can use the following cmd to launch application on kubernetes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">1</span> --nproc_per_node <span class="m">2</span>
+</pre></div>
+</div>
+<p>The <cite>namespaces</cite> arg corresponds to the kubernetes namespace that you want to launch.
+The <cite>queue</cite> arg is the volcano <a class="reference external" href="https://volcano.sh/en/docs/queue/">queue</a>.</p>
+</section>
+<section id="multiple-nodes-multiple-trainers-kubernetes">
+<h3>Multiple nodes, multiple trainers (kubernetes)<a class="headerlink" href="#multiple-nodes-multiple-trainers-kubernetes" title="Permalink to this headline">¶</a></h3>
+<p>It is simple to launch multiple nodes trainer in kubernetes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">2</span> --nproc_per_node <span class="m">2</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="builtin-distributed-components">
+<h2>Builtin distributed components<a class="headerlink" href="#builtin-distributed-components" title="Permalink to this headline">¶</a></h2>
+<p>In the examples above we used custom components to launch user applications. It is not always the case that
+users need to write their own components.</p>
+<p>Torchx comes with set of builtin component that describe typical execution patterns.</p>
+<section id="dist-ddp">
+<h3>dist.ddp<a class="headerlink" href="#dist-ddp" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code>  is a component  for applications that run as distributed jobs in a DDP manner.
+You can use it to quickly iterate over your application without the need of authoring your own component.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> is a generic component, as a result it is good for quick iterations, but not production usage.
+It is recommended to author your own component if you want to put your application in production.
+Learn more <a class="reference internal" href="overview.html#authoring"><span class="std std-ref">Authoring</span></a> about how to author your component.</p>
+</div>
+<p>We will be using <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> to execute the following example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># main.py</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">torch.distributed.run</span>
+
+<span class="k">def</span> <span class="nf">compute_world_size</span><span class="p">():</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;RANK&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span>
+    <span class="n">world_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;WORLD_SIZE&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span>
+    <span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;successfully initialized process group&quot;</span><span class="p">)</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">rank</span><span class="p">),</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">world_size</span><span class="p">)</span>
+    <span class="n">dist</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">computed_world_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;rank: </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">, actual world_size: </span><span class="si">{</span><span class="n">world_size</span><span class="si">}</span><span class="s2">, computed world_size: </span><span class="si">{</span><span class="n">computed_world_size</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">compute_world_size</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="single-trainer-on-desktop">
+<h4>Single trainer on desktop<a class="headerlink" href="#single-trainer-on-desktop" title="Permalink to this headline">¶</a></h4>
+<p>We can run this example on desktop on four processes using the following cmd:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
+</pre></div>
+</div>
+</section>
+<section id="single-trainer-on-kubernetes-cluster">
+<h4>Single trainer on kubernetes cluster<a class="headerlink" href="#single-trainer-on-kubernetes-cluster" title="Permalink to this headline">¶</a></h4>
+<p>We can execute it on the kubernetes cluster</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>defaultdist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
+</pre></div>
+</div>
+<p>Components APIs</p>
+</section>
+</section>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.components.dist.ddp">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.dist.</span></span><span class="sig-name descname"><span class="pre">ddp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">script_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_backend</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nnodes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc_per_node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'test-name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'worker'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/dist.html#ddp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.dist.ddp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">torchx.components.dist.</span></span><span class="sig-name descname"><span class="pre">ddp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">script_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.0rc2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_backend</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nnodes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc_per_node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'test-name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'worker'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/dist.html#ddp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.dist.ddp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distributed data parallel style application (one role, multi-replica).
 Uses <a class="reference external" href="https://pytorch.org/docs/stable/distributed.elastic.html">torch.distributed.run</a>
 to launch and coordinate pytorch worker processes.</p>
@@ -374,9 +474,11 @@ to launch and coordinate pytorch worker processes.</p>
 <li><p><strong>image</strong> – container image.</p></li>
 <li><p><strong>entrypoint</strong> – script or binary to run within the image.</p></li>
 <li><p><strong>rdzv_backend</strong> – rendezvous backend to use, allowed values can be found in the
-<a class="reference external" href="https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py">rdzv registry docs</a></p></li>
+<a class="reference external" href="https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py">rdzv registry docs</a>
+The default backend is <cite>c10d</cite></p></li>
 <li><p><strong>rdzv_endpoint</strong> – Controller endpoint. In case of rdzv_backend is etcd, this is a etcd
-endpoint, in case of c10d, this is the endpoint of one of the hosts.</p></li>
+endpoint, in case of c10d, this is the endpoint of one of the hosts.
+The default entdpoint it <cite>localhost:29500</cite></p></li>
 <li><p><strong>resource</strong> – Optional named resource identifier. The resource parameter
 gets ignored when running on the local scheduler.</p></li>
 <li><p><strong>nnodes</strong> – Number of nodes.</p></li>
@@ -440,7 +542,23 @@ gets ignored when running on the local scheduler.</p></li>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Distributed</a></li>
+<li><a class="reference internal" href="#">Distributed</a><ul>
+<li><a class="reference internal" href="#distributed-trainer-execution">Distributed Trainer Execution</a><ul>
+<li><a class="reference internal" href="#single-node-multiple-trainers-desktop">Single node, multiple trainers (desktop)</a></li>
+<li><a class="reference internal" href="#single-node-multiple-trainers-kubernetes">Single node, multiple trainers (kubernetes)</a></li>
+<li><a class="reference internal" href="#multiple-nodes-multiple-trainers-kubernetes">Multiple nodes, multiple trainers (kubernetes)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#builtin-distributed-components">Builtin distributed components</a><ul>
+<li><a class="reference internal" href="#dist-ddp">dist.ddp</a><ul>
+<li><a class="reference internal" href="#single-trainer-on-desktop">Single trainer on desktop</a></li>
+<li><a class="reference internal" href="#single-trainer-on-kubernetes-cluster">Single trainer on kubernetes cluster</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             </div>

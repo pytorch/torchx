@@ -146,7 +146,7 @@ the app agnostic to the environment it's running in.
                 accelerator="ddp2",
                 logger=logger,
                 max_epochs=args.epochs,
-                callbacks=[checkpoint_callback],
+                callbacks=callbacks,
                 profiler=SimpleLoggingProfiler(logger),
             )
 

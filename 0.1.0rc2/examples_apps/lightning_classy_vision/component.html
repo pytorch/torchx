@@ -385,6 +385,8 @@
 <span id="sphx-glr-examples-apps-lightning-classy-vision-component-py"></span><h1>Trainer Component Examples<a class="headerlink" href="#trainer-component-examples" title="Permalink to this headline">¶</a></h1>
 <p>Component definitions that run the example lightning_classy_vision app
 in a single or distributed manner.</p>
+<section id="prerequisites-of-running-examples">
+<h2>Prerequisites of running examples<a class="headerlink" href="#prerequisites-of-running-examples" title="Permalink to this headline">¶</a></h2>
 <p>Before executing examples, install torchx and dependencies necessary to run examples:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install torchx
 git clone https://github.com/pytorch/torchx.git
@@ -405,13 +407,13 @@ pip install -r dev-requirements.txt
 <span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span>
 </pre></div>
 </div>
-<section id="single-trainer-component">
-<h2>Single Trainer Component<a class="headerlink" href="#single-trainer-component" title="Permalink to this headline">¶</a></h2>
+<section id="trainer-component">
+<h3>Trainer Component<a class="headerlink" href="#trainer-component" title="Permalink to this headline">¶</a></h3>
 <p>Defines a single trainer component</p>
 <p>Use the following cmd to try out:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd <span class="se">\</span>
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer <span class="se">\</span>
---output_path /tmp/<span class="nv">$USER</span>
+--output_path /tmp
 </pre></div>
 </div>
 <p>Single trainer component code:</p>
@@ -488,43 +490,7 @@ pip install -r dev-requirements.txt
 </div>
 </section>
 <section id="distributed-trainer-component">
-<h2>Distributed Trainer Component<a class="headerlink" href="#distributed-trainer-component" title="Permalink to this headline">¶</a></h2>
-<p>Defines distributed trainer component</p>
-<p>Use the following cmd to try out:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd <span class="se">\</span>
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
---output_path /tmp --rdzv_backend c10d --rdzv_endpoint localhost:29500
-</pre></div>
-</div>
-</section>
-<section id="executing-distributed-trainer-job">
-<h2>Executing distributed trainer job<a class="headerlink" href="#executing-distributed-trainer-job" title="Permalink to this headline">¶</a></h2>
-<p>TorchX supports kubernetes scheduler that allows users to execute distributed job in kubernetes cluster.
-It uses <a class="reference external" href="https://volcano.sh/en/">Volcano</a> to schedule jobs.</p>
-<p>Distributed trainer uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/quickstart.html">torch.distributed.run</a>
-to start user processes. There are two rendezvous types that can be used to execute
-distributed jobs: <cite>c10d</cite> and <cite>etcd</cite>.</p>
-<p>Prerequisites to execute distributed jobs on kubernetes cluster:</p>
-<ul class="simple">
-<li><p>Install volcano 1.4.0 version</p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
-</pre></div>
-</div>
-<ul>
-<li><p>Install etcd server on your kubernetes cluster:</p>
-<blockquote>
-<div><p>kubectl apply -f <a class="reference external" href="https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml">https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml</a></p>
-</div></blockquote>
-</li>
-</ul>
-<p>After that the job can be executed on kubernetes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default <span class="se">\</span>
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
---nnodes <span class="m">2</span> --epochs <span class="m">1</span> --output_path /tmp
-</pre></div>
-</div>
-<p>Distributed trainer component code:</p>
+<h3>Distributed Trainer Component<a class="headerlink" href="#distributed-trainer-component" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer_dist</span><span class="p">(</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
@@ -615,9 +581,9 @@ distributed jobs: <cite>c10d</cite> and <cite>etcd</cite>.</p>
 </div>
 </section>
 <section id="interpreting-the-model">
-<h2>Interpreting the Model<a class="headerlink" href="#interpreting-the-model" title="Permalink to this headline">¶</a></h2>
+<h3>Interpreting the Model<a class="headerlink" href="#interpreting-the-model" title="Permalink to this headline">¶</a></h3>
 <p>Defines a component that interprets the model</p>
-<p>Train a single trainer example: <a class="reference internal" href="#single-trainer-component"><span class="std std-ref">Single Trainer Component</span></a>
+<p>Train a single trainer example: <a class="reference internal" href="#trainer-component"><span class="std std-ref">Trainer Component</span></a>
 And use the following cmd to try out:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd <span class="se">\</span>
 ./torchx/examples/apps/lightning_classy_vision/component.py:interpret <span class="se">\</span>
@@ -683,6 +649,7 @@ And use the following cmd to try out:</p>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
 </section>
 </section>
+</section>
 
 
      </article>
@@ -728,10 +695,12 @@ And use the following cmd to try out:</p>
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">Trainer Component Examples</a><ul>
-<li><a class="reference internal" href="#single-trainer-component">Single Trainer Component</a></li>
+<li><a class="reference internal" href="#prerequisites-of-running-examples">Prerequisites of running examples</a><ul>
+<li><a class="reference internal" href="#trainer-component">Trainer Component</a></li>
 <li><a class="reference internal" href="#distributed-trainer-component">Distributed Trainer Component</a></li>
-<li><a class="reference internal" href="#executing-distributed-trainer-job">Executing distributed trainer job</a></li>
 <li><a class="reference internal" href="#interpreting-the-model">Interpreting the Model</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
