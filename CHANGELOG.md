@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## torchx-0.1.0rc1
+
+* `torchx.specs`
+  * base_image has been deprecated
+  * Some predefined AWS specific named_resources have been added
+  * Docstrings are no longer required for component definitions to make it
+  easier to write them. They will be still rendered as help text if present and
+  are encouraged but aren't required.
+  * Improved vararg handling logic for components
+
+* `torchx.runner`
+  * Username has been removed from the session name
+  * Standardized `runopts` naming
+
+* `torchx.cli`
+  * Added experimental `.torchxconfig` file which can be used to set default
+  scheduler arguments for all runs.
+  * Added `--version` flag
+  * `builtins` ignores `torchx.components.base` folder
+
+* Docs
+  * Improved entry_points and resources docs
+  * Better component documentation
+  * General improvements and fixes
+
+* Examples
+  * Moved examples to be under torchx/ and merged the examples container with
+  the primary container to simplify usage.
+  * Added a self contained "Hello World" example
+  * Switched lightning_classy_vision example to use ResNet model architecture so
+  it will actually converage
+  * Removed CIFAR example and merged functionality into lightning_classy_vision
+
+* CI
+  * Switched to OpenID Connect based auth
+
 ## torchx-0.1.0rc0
 
 * `torchx.specs` API release candidate
