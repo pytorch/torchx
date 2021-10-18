@@ -140,7 +140,7 @@ def main(argv: List[str]) -> None:
             accelerator="ddp2",
             logger=logger,
             max_epochs=args.epochs,
-            callbacks=[checkpoint_callback],
+            callbacks=callbacks,
             profiler=SimpleLoggingProfiler(logger),
         )
 
