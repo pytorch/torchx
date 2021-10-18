@@ -48,13 +48,6 @@ pipeline.
 import torchx.specs as specs
 
 def greet(user: str, image: str = "my_app:latest") -> specs.AppDef:
-    """
-    Echos a message to stdout (calls /bin/echo)
-
-    Args:
-        user: name of the person to greet
-        image: image to use
-    """
     return specs.AppDef(
         name="hello_world",
         roles=[

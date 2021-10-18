@@ -70,14 +70,6 @@ Now copy paste the following into ``test.py``
 
 
  def echo(num_replicas: int, msg: str = "hello world") -> specs.AppDef:
-     """
-     Echos a message to stdout (calls /bin/echo)
-
-     Args:
-        num_replicas: number of copies (in parallel) to run
-        msg: message to echo
-
-     """
      return specs.AppDef(
          name="echo",
          roles=[
@@ -143,14 +135,6 @@ in ``~/test.py`` you created in the previous section to make the ``image="ubuntu
 
 
  def echo(num_replicas: int, msg: str = "hello world") -> specs.AppDef:
-     """
-     Echos a message to stdout (calls /bin/echo)
-
-     Args:
-        num_replicas: number of copies (in parallel) to run
-        msg: message to echo
-
-     """
      return specs.AppDef(
          name="echo",
          roles=[
