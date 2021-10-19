@@ -23,7 +23,7 @@ You can try it out by running a single trainer example on your desktop:
 
 .. code:: bash
 
-    python torchx/examples/apps/lightning_classy_vision/train.py --skip_export
+    python torchx/examples/apps/lightning_classy_vision/train.py
 
 
 Torchx simplifies application execution by providing a simple to use APIs that standardize
@@ -39,7 +39,7 @@ Try it out yourself:
 .. code:: bash
 
     torchx run -s local_cwd \
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer --skip-export
+./torchx/examples/apps/lightning_classy_vision/component.py:trainer
 
 
 The code above will execute a single trainer on a user desktop.
@@ -48,7 +48,7 @@ If you have docker installed on your laptop you can running the same single trai
 .. code:: bash
 
     torchx run -s local_docker \
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer --skip-export
+./torchx/examples/apps/lightning_classy_vision/component.py:trainer
 
 
 You can learn more about authoring your own components: :py:mod:`torchx.components`
