@@ -450,6 +450,29 @@ class _LocalAppDef:
         return f"{{app_id:{self.id}, state:{self.state}, pid_map:{role_to_pid}}}"
 
 
+def join_PATH(*paths: Optional[str]) -> str:
+    """
+    Joins strings that go in the PATH env var.
+    Deals with empty strings and None-types, making sure no leading
+    or trailing path-sep (`:`) in the resulting string
+
+    Usage:
+
+    .. code-block:: python
+
+     # PATH=/usr/local/bin:$PATH (prepend)
+     join_PATH("/usr/local/bin", os.environ["PATH"])
+
+     # PATH=$PATH:/usr/local/bin (append)
+     join_PATH(os.environ["PATH"], "/usr/local/bin")
+
+    """
+
+    return os.pathsep.join(
+        [p.strip(os.pathsep) for p in paths if p]
+    )  # remove empty and null str + strip leading and trailing ":"s
+
+
 @dataclass
 class PopenRequest:
     """
@@ -528,6 +551,7 @@ class LocalScheduler(Scheduler):
         session_name: str,
         image_provider_class: Callable[[RunConfig], ImageProvider],
         cache_size: int = 100,
+        extra_paths: Optional[List[str]] = None,
     ) -> None:
         super().__init__("local", session_name)
 
@@ -539,6 +563,8 @@ class LocalScheduler(Scheduler):
             raise ValueError("cache size must be greater than zero")
         self._cache_size = cache_size
         register_termination_signals()
+
+        self._extra_paths: List[str] = extra_paths or []
 
     def run_opts(self) -> runopts:
         opts = runopts()
@@ -626,6 +652,9 @@ class LocalScheduler(Scheduler):
         env = os.environ.copy()
         env.update(replica_params.env)
 
+        # prepend extra_paths to PATH
+        env["PATH"] = join_PATH(*self._extra_paths, env.get("PATH"))
+
         cwd = replica_params.cwd
         if cwd:
             # if prepend_cwd is set, then prepend cwd to PATH
@@ -633,10 +662,9 @@ class LocalScheduler(Scheduler):
             # otherwise append cwd to PATH so that the binaries in PATH
             # precede over those in cwd
             if prepend_cwd:
-                path = [cwd, env.get("PATH", "")]
+                env["PATH"] = join_PATH(cwd, env.get("PATH"))
             else:
-                path = [env.get("PATH", ""), cwd]
-            env["PATH"] = os.pathsep.join([p for p in path if p])  # remove empty str
+                env["PATH"] = join_PATH(env.get("PATH"), cwd)
 
         args_pfmt = pprint.pformat(asdict(replica_params), indent=2, width=80)
         log.debug(f"Running {role_name} (replica {replica_id}):\n {args_pfmt}")
@@ -909,14 +937,6 @@ class LogIterator:
                 line = line.rstrip("\n")  # strip the trailing newline
                 if re.match(self._regex, line):
                     return line
-
-
-def create_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
-    return LocalScheduler(
-        session_name=session_name,
-        cache_size=kwargs.get("cache_size", 100),
-        image_provider_class=LocalDirectoryImageProvider,
-    )
 
 
 def create_cwd_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
