@@ -60,7 +60,7 @@ class DirComponentsFinderTest(unittest.TestCase):
         component = components["utils.echo"]
         self.assertEqual("utils.echo", component.name)
         self.assertEqual(
-            "Echos a message to stdout (calls /bin/echo)", component.description
+            "Echos a message to stdout (calls echo)", component.description
         )
         self.assertEqual("echo", component.fn_name)
         self.assertIsNotNone(component.fn)

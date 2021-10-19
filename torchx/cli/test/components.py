@@ -12,7 +12,7 @@ def touch(file: str) -> specs.AppDef:
     touch = specs.Role(
         name="touch",
         image="/tmp",
-        entrypoint="/bin/touch",
+        entrypoint="touch",
         args=[f"{file}.test"],
         num_replicas=1,
     )
@@ -24,7 +24,7 @@ def touch_v2(file: str) -> specs.AppDef:
     touch = specs.Role(
         name="touch",
         image="/tmp",
-        entrypoint="/bin/touch",
+        entrypoint="touch",
         args=[f"{file}.testv2"],
         num_replicas=1,
     )

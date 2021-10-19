@@ -6,7 +6,7 @@
 
 """
 Utility components that are `ready-to-use` out of the box. These are
-components that simply execute well known binaries (e.g. ``/bin/cp``)
+components that simply execute well known binaries (e.g. ``cp``)
 and are meant to be used as tutorial materials or glue operations between
 meaningful stages in a workflow.
 """
@@ -21,7 +21,7 @@ def echo(
     msg: str = "hello world", image: str = TORCHX_IMAGE, num_replicas: int = 1
 ) -> specs.AppDef:
     """
-    Echos a message to stdout (calls /bin/echo)
+    Echos a message to stdout (calls echo)
 
     Args:
         msg: message to echo
@@ -35,7 +35,7 @@ def echo(
             specs.Role(
                 name="echo",
                 image=image,
-                entrypoint="/bin/echo",
+                entrypoint="echo",
                 args=[msg],
                 num_replicas=num_replicas,
             )
@@ -86,7 +86,7 @@ def sh(*args: str, image: str = TORCHX_IMAGE, num_replicas: int = 1) -> specs.Ap
             specs.Role(
                 name="sh",
                 image=image,
-                entrypoint="/bin/sh",
+                entrypoint="sh",
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
             )
