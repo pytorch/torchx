@@ -382,7 +382,7 @@
 <span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">get_fn_docstring</span><span class="p">,</span> <span class="n">TorchXArgumentHelpFormatter</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">TorchXArgumentHelpFormatter</span><span class="p">,</span> <span class="n">get_fn_docstring</span>
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">decode_from_string</span><span class="p">,</span> <span class="n">decode_optional</span><span class="p">,</span> <span class="n">is_bool</span><span class="p">,</span> <span class="n">is_primitive</span>
 
 
@@ -1106,7 +1106,7 @@
     <span class="n">function_desc</span><span class="p">,</span> <span class="n">args_desc</span> <span class="o">=</span> <span class="n">get_fn_docstring</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span>
     <span class="n">script_parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">prog</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;torchx run &lt;&lt;torchx_params&gt;&gt; </span><span class="si">{</span><span class="n">app_fn</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;AppDef for </span><span class="si">{</span><span class="n">function_desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">function_desc</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">TorchXArgumentHelpFormatter</span><span class="p">,</span>
     <span class="p">)</span>
 
