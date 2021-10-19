@@ -722,7 +722,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_cwd://torchx/hello_world_d7a54bd5
+local_cwd://torchx/hello_world_971953bd
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -730,8 +730,8 @@ local_cwd://torchx/hello_world_d7a54bd5
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-10-19 04:32:23 INFO     Waiting for the app to finish...
-torchx 2021-10-19 04:32:24 INFO     Job finished: SUCCEEDED
+torchx 2021-10-19 04:36:22 INFO     Waiting for the app to finish...
+torchx 2021-10-19 04:36:23 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -790,6 +790,8 @@ f18d016c4ccc: Pulling fs layer
 c0ad16d9fa05: Pulling fs layer
 30587ba7fd6b: Pulling fs layer
 909695be1d50: Pulling fs layer
+f119a6d0a466: Pulling fs layer
+88d87059c913: Pulling fs layer
 6009a622672a: Waiting
 143f80195431: Waiting
 eccbe17c44e1: Waiting
@@ -798,19 +800,17 @@ d4c7af0d4fa7: Waiting
 f18d016c4ccc: Waiting
 c0ad16d9fa05: Waiting
 30587ba7fd6b: Waiting
-f119a6d0a466: Pulling fs layer
-88d87059c913: Pulling fs layer
 909695be1d50: Waiting
-f119a6d0a466: Waiting
 88d87059c913: Waiting
-d2e110be24e1: Verifying Checksum
-d2e110be24e1: Download complete
+f119a6d0a466: Waiting
 889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
-4bbfd2c87b75: Verifying Checksum
-4bbfd2c87b75: Download complete
+d2e110be24e1: Verifying Checksum
+d2e110be24e1: Download complete
 6009a622672a: Verifying Checksum
 6009a622672a: Download complete
+4bbfd2c87b75: Verifying Checksum
+4bbfd2c87b75: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
 06b5edd6bf52: Verifying Checksum
@@ -828,10 +828,10 @@ f119a6d0a466: Download complete
 88d87059c913: Verifying Checksum
 88d87059c913: Download complete
 4bbfd2c87b75: Pull complete
-143f80195431: Verifying Checksum
-143f80195431: Download complete
 f18d016c4ccc: Verifying Checksum
 f18d016c4ccc: Download complete
+143f80195431: Verifying Checksum
+143f80195431: Download complete
 d2e110be24e1: Pull complete
 889a7173dcfe: Pull complete
 6009a622672a: Pull complete
@@ -849,8 +849,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; 8a491608c882
-Successfully built 8a491608c882
+ ---&gt; 8545f4b3d461
+Successfully built 8545f4b3d461
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -871,7 +871,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_docker://torchx/hello_world_c5dc686d
+local_docker://torchx/hello_world_196515d3
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -880,9 +880,9 @@ local_docker://torchx/hello_world_c5dc686d
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Error response from daemon: pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied
-torchx 2021-10-19 04:34:41 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
-torchx 2021-10-19 04:34:41 INFO     Waiting for the app to finish...
-torchx 2021-10-19 04:34:42 INFO     Job finished: SUCCEEDED
+torchx 2021-10-19 04:39:02 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
+torchx 2021-10-19 04:39:02 INFO     Waiting for the app to finish...
+torchx 2021-10-19 04:39:03 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the Kubernetes scheduler to launch this on the cluster instead.</p>
