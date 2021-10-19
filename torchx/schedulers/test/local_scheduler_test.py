@@ -12,6 +12,7 @@ import os
 import shutil
 import signal
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -176,7 +177,9 @@ class DockerImageProviderTest(unittest.TestCase):
         img = "pytorch/pytorch:latest"
         self.assertEqual(provider.fetch(img), "")
         self.assertEqual(run.call_count, 1)
-        self.assertEqual(run.call_args, call(["docker", "pull", img], check=True))
+        self.assertEqual(
+            run.call_args, call(["docker", "pull", img], stdout=sys.stderr, check=True)
+        )
 
     def test_get_replica_param(self) -> None:
         role = Role(

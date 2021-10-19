@@ -27,3 +27,18 @@ article.pytorch-article .py dt span.pre {
   border-bottom-color: #e44c2c;
   color: #e44c2c;
 }
+
+.output_area.stderr.docutils.container::before {
+    content: "stderr";
+    font-weight: bold;
+    opacity: 0.8;
+    margin: 0 5px;
+}
+.output_area.stderr.docutils.container {
+  background-color: #fed !important;
+}
+.note .admonition-title > p {
+  margin: 0 !important;
+  font: inherit;
+  color: inherit;
+}

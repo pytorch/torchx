@@ -22,7 +22,7 @@ const colabBase = "https://colab.research.google.com/github/pytorch/torchx/blob/
 const githubBase = "https://github.com/pytorch/torchx/blob/main/"
 
 var downloadNote = $(".sphx-glr-download-link-note.admonition.note");
-var isNBSphinx = $("#is-nbsphinx");
+var isNBSphinx = $(".nbinput");
 
 if (downloadNote.length >= 1) {
     var tutorialUrlArray = $("#tutorial-type").text().split('/');

@@ -84,7 +84,7 @@ def torch_dist_role(
         launch_kwargs: ``torch.distributed.launch`` arguments.
 
     Returns:
-        Torchx role
+        TorchX role
 
     """
     dist_role_factory = load(

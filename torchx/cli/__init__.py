@@ -132,7 +132,7 @@ subcommands to identify your job.
 
 .. note:: If the ``--scheduler`` option is not provided, then it defaults to
           the scheduler backend ``default`` which points to ``local``. To change
-          the default scheduler, see: :ref:`configure:Registering Custom Schedulers`.
+          the default scheduler, see: :ref:`advanced:Registering Custom Schedulers`.
 
 
 Inspecting what will run (dryrun)

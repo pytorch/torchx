@@ -42,7 +42,7 @@ def create_torch_dist_role(
     `docs <https://pytorch.org/docs/stable/distributed.elastic.html>`_.
 
     .. important:: It is the responsibility of the user to ensure that the
-                   role's image includes torchelastic. Since Torchx has no
+                   role's image includes torchelastic. Since TorchX has no
                    control over the build process of the image, it cannot
                    automatically include torchelastic in the role's image.
 

@@ -15,7 +15,7 @@ core APIs allow tons of customization at well-defined extension points so that e
 most unique applications can be serviced without customizing the whole vertical stack.
 
 
-**GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basics>` and
+**GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basic Concepts>` and
 follow the :ref:`quickstart guide<quickstart:Quickstart>`.
 
 .. image:: torchx_index_diag.png
@@ -44,32 +44,18 @@ Documentation
    :caption: Usage
 
    basics
-   quickstart
+   quickstart.md
    cli
-   configure
-   app_best_practices
-   component_best_practices
 
+   advanced
 
 .. toctree::
    :maxdepth: 1
    :caption: Examples
 
-   examples/hello_world.md
 
    examples_apps/index
    examples_pipelines/index
-
-
-.. _torchx.api:
-.. toctree::
-   :maxdepth: 1
-   :caption: API
-
-   specs
-   runner
-   schedulers
-   pipelines
 
 
 Components Library
@@ -92,7 +78,7 @@ Runtime Library
 ----------------
 .. toctree::
    :maxdepth: 1
-   :caption: Runtime
+   :caption: Application (Runtime)
 
    runtime/overview
    runtime/hpo
@@ -114,9 +100,31 @@ Works With
 .. _Pipelines:
 .. toctree::
    :maxdepth: 1
-   :caption: Pipeline Adapters
+   :caption: Pipelines
 
    pipelines/kfp
+
+
+Reference
+-----------
+
+.. _torchx.api:
+.. toctree::
+   :maxdepth: 1
+   :caption: API
+
+   specs
+   runner
+   schedulers
+   pipelines
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Best Practices
+
+   app_best_practices
+   component_best_practices
+
 
 Experimental
 ---------------

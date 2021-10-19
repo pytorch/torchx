@@ -229,7 +229,11 @@ class DockerImageProvider(ImageProvider):
 
     def fetch(self, image: str) -> str:
         try:
-            subprocess.run(["docker", "pull", image], check=True)
+            subprocess.run(
+                ["docker", "pull", image],
+                stdout=sys.stderr,
+                check=True,
+            )
         except Exception as e:
             log.warning(f"failed to fetch image {image}, falling back to local: {e}")
         return ""

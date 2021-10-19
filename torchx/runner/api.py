@@ -45,7 +45,7 @@ ComponentId = str
 
 class Runner:
     """
-    Torchx individual component runner. Has the methods for the user to
+    TorchX individual component runner. Has the methods for the user to
     act upon ``AppDefs``. The ``Runner`` will cache information about the
     launched apps if they were launched locally otherwise it's up to the
     specific scheduler implementation.

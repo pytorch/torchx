@@ -7,7 +7,7 @@
 
 """
 
-Torchx kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.
+TorchX kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.
 
 Install volcano 1.4.0 version
 
@@ -15,7 +15,7 @@ Install volcano 1.4.0 version
 
     kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
 
-Torchx uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
+TorchX uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
 This requires the installation of etcd service on your kubernetes cluster:
 
 .. code:: bash

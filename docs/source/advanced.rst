@@ -1,4 +1,4 @@
-Configuring
+Advanced Usage
 ======================
 
 TorchX defines plugin points for you to configure TorchX to best support
@@ -180,7 +180,7 @@ Custom components can be registered via the following modification of the ``entr
    }
 
 The line above registers a group ``foo`` that is associated with the module ``my_project.bar``.
-Torchx will recursively traverse lowest level dir associated with the ``my_project.bar`` and will find
+TorchX will recursively traverse lowest level dir associated with the ``my_project.bar`` and will find
 all defined components.
 
 .. note:: If there are two registry entries, e.g. ``foo = my_project.bar`` and ``test = my_project``
@@ -200,7 +200,7 @@ If ``my_project.bar`` had the following directory structure:
  $PROJECT_ROOT/my_project/bar/
      |- baz.py
 
-And `baz.py` defines a component (function) called `trainer`. Then the component can be run as a job in the following manner:
+And ``baz.py`` defines a component (function) called ``trainer``. Then the component can be run as a job in the following manner:
 
 .. code-block:: shell-session
 

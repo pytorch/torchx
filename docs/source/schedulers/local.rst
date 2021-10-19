@@ -1,4 +1,4 @@
-Localhost
+Local
 =================
 
 .. automodule:: torchx.schedulers.local_scheduler

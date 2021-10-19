@@ -12,7 +12,7 @@ apps using TorchX.
 Entrypoints
 -------------------
 
-When possible it's best to call your reusable component via `python -m <module>`
+When possible it's best to call your reusable component via ``python -m <module>``
 instead of specifying the path to the main module. This makes it so it can be
 used in multiple different environments such as docker and slurm by relying on
 the python module resolution instead of the directory structure.
@@ -57,7 +57,7 @@ Branching Logic
 ^^^^^^^^^^^^^^^^^
 
 You should avoid branching logic in the components. If you have a case where you
-feel like you need an `if` statement in the component you should prefer to
+feel like you need an ``if`` statement in the component you should prefer to
 create multiple components with shared logic. Complex arguments make it hard for
 others to understand how to use it.
 
@@ -115,10 +115,10 @@ Distributed Components
 If you're writing a component for distributed training or other similar
 distributed computation, we recommend using the
 :py:meth:`torchx.components.dist.ddp` component since it provides out of the box
-support for `torch.distributed.elastic` jobs.
+support for ``torch.distributed.elastic`` jobs.
 
-You can extend the `ddp` component by writing a custom component that simple
-imports the `ddp` component and calls it with your app configuration.
+You can extend the ``ddp`` component by writing a custom component that simple
+imports the ``ddp`` component and calls it with your app configuration.
 
 Define All Arguments
 ----------------------
