@@ -225,9 +225,29 @@ class DockerImageProvider(ImageProvider):
        ``get_command(image="pytorch/pytorch:latest", ..)`` return ``docker run ...``"""
 
     def __init__(self, cfg: RunConfig) -> None:
-        pass
+        self._has_docker: Optional[bool] = None
+
+    @staticmethod
+    def has_docker() -> bool:
+        try:
+            return subprocess.run(["docker", "version"]).returncode == 0
+        except FileNotFoundError:
+            return False
+
+    def _assert_docker(self) -> None:
+        if self._has_docker is None:
+            self._has_docker = self.has_docker()
+
+        if not self._has_docker:
+            raise FileNotFoundError(
+                """Docker is required to use the local_docker scheduler.
+
+Please see https://docs.docker.com/get-docker/ for information on how to install it on your local system."""
+            )
 
     def fetch(self, image: str) -> str:
+        self._assert_docker()
+
         try:
             subprocess.run(["docker", "pull", image], check=True)
         except Exception as e:
