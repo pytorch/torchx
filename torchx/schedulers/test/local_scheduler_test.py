@@ -30,6 +30,7 @@ from torchx.schedulers.local_scheduler import (
     LocalScheduler,
     ReplicaParam,
     create_cwd_scheduler,
+    join_PATH,
     make_unique,
 )
 from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
@@ -423,7 +424,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             prepend_cwd=True,
         )
         # for python 3.7 BC get call_args.kwargs by index
-        self.assertFalse("PATH" in popen_mock.call_args[1]["env"])
+        self.assertFalse(popen_mock.call_args[1]["env"]["PATH"])
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_override_parent_env(self) -> None:
@@ -864,6 +865,25 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             # os.kill would raise OSError
             with self.assertRaises(OSError):
                 os.kill(child_pid, 0)
+
+
+class JoinPATHTest(unittest.TestCase):
+    def test_join_PATH(self) -> None:
+        self.assertEqual("", join_PATH(None))
+        self.assertEqual("", join_PATH(""))
+        self.assertEqual("", join_PATH("", None))
+        self.assertEqual("/usr/local/bin", join_PATH("/usr/local/bin", ""))
+        self.assertEqual("/usr/local/bin", join_PATH("/usr/local/bin", None))
+        self.assertEqual("/usr/local/bin", join_PATH("", "/usr/local/bin"))
+        self.assertEqual("/usr/local/bin", join_PATH(None, "/usr/local/bin"))
+
+        path = ":/usr/bin:/bin:"
+        self.assertEqual(
+            "/usr/local/bin:/usr/bin:/bin", join_PATH("/usr/local/bin", path)
+        )
+        self.assertEqual(
+            "/usr/bin:/bin:/usr/local/bin", join_PATH(path, "/usr/local/bin")
+        )
 
 
 def _has_docker() -> bool:
