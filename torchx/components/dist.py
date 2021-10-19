@@ -39,12 +39,12 @@ Try launching a single node, multiple trainers example on your desktop:
 .. code:: bash
 
     torchx run -s local_cwd \
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
---nnodes 1 --nproc_per_node 2
+    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
+    --nnodes 1 --nproc_per_node 2 \
+    --rdzv_backend c10d --rdzv_endpoint localhost:29500
 
 The `./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist` is reference to the component
 function: :ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`
-
 
 
 Single node, multiple trainers (kubernetes)
@@ -60,12 +60,44 @@ We can use the following cmd to launch application on kubernetes:
 
 .. code:: bash
 
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
---nnodes 1 --nproc_per_node 2
+    torchx run -s kubernetes --scheduler_args namespace=default,queue=default \
+    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
+    --nnodes 1 --nproc_per_node 2
 
 The `namespaces` arg corresponds to the kubernetes namespace that you want to launch.
 The `queue` arg is the volcano `queue <https://volcano.sh/en/docs/queue/>`_.
+
+
+Example of output:
+
+.. code:: bash
+
+    kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+    torchx 2021-10-18 18:46:55 INFO     Launched app: kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+    torchx 2021-10-18 18:46:55 INFO     AppStatus:
+      msg: <NONE>
+      num_restarts: -1
+      roles: []
+      state: PENDING (2)
+      structured_error_msg: <NONE>
+      ui_url: null
+
+    torchx 2021-10-18 18:46:55 INFO     Job URL: None
+
+
+You can use the job url to query the status or logs of the job:
+
+.. code:: bash
+
+    torchx status kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+
+    torchx 2021-10-18 18:47:44 INFO     AppDef:
+      State: SUCCEEDED
+      Num Restarts: -1
+    Roles:
+     *worker[0]:SUCCEEDED
+
+Try running `torchx log kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng`.
 
 
 Multiple nodes, multiple trainers (kubernetes)
@@ -75,9 +107,9 @@ It is simple to launch multiple nodes trainer in kubernetes:
 
 .. code:: bash
 
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
---nnodes 2 --nproc_per_node 2
+    torchx run -s kubernetes --scheduler_args namespace=default,queue=default \
+    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
+    --nnodes 2 --nproc_per_node 2
 
 The command above will launch distributed train job on kubernetes `default` namespace using volcano
 `default` queue. It will use etcd service accessible on `etcd-server:2379` to perform
@@ -87,9 +119,17 @@ You can overwrite rendezvous endpoint:
 
 .. code:: bash
 
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\
-./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export\
---nnodes 2 --nproc_per_node 2 --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
+    torchx run -s kubernetes --scheduler_args namespace=default,queue=default \
+    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
+    --nnodes 2 --nproc_per_node 1 \
+    --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
+
+.. note:: For GPU training, keep `nproc_per_node` equal to the amount of GPUs the instace has.
+
+The command above will launch distributed train job on kubernetes `default` namespace using volcano
+`default` queue. It will use etcd service accessible on `etcd-server:2379` to perform
+`etcd rendezvous <https://pytorch.org/docs/stable/elastic/rendezvous.html>`_.
+
 
 Builtin distributed components
 ---------------------------------
