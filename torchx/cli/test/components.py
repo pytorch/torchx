@@ -9,12 +9,6 @@ import torchx.specs as specs
 
 
 def touch(file: str) -> specs.AppDef:
-    """Echos a message
-
-    Args:
-        file: File to touch
-    """
-
     touch = specs.Role(
         name="touch",
         image="/tmp",
@@ -27,12 +21,6 @@ def touch(file: str) -> specs.AppDef:
 
 
 def touch_v2(file: str) -> specs.AppDef:
-    """Echos a message
-
-    Args:
-        file: File to touch
-    """
-
     touch = specs.Role(
         name="touch",
         image="/tmp",
@@ -47,13 +35,6 @@ def touch_v2(file: str) -> specs.AppDef:
 def simple(
     num_trainers: int = 10, trainer_image: str = "pytorch/torchx:latest"
 ) -> specs.AppDef:
-    """A simple configuration example.
-
-    Args:
-        num_trainers: The number of trainers to use.
-        trainer_image: The trainer image to use.
-    """
-
     trainer = specs.Role(
         name="trainer",
         image=trainer_image,

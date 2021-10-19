@@ -18,21 +18,6 @@ def ddp(
     env: Optional[Dict[str, str]] = None,
     *script_args: str,
 ) -> specs.AppDef:
-    """Single role application.
-
-    Single role application.
-
-    Args:
-        script: Script to execute.
-        nnodes: Number of nodes to launch.
-        name: Name of the application.
-        role: Name of the role.
-        env: Env variables.
-        script_args: Script arguments.
-
-    Returns:
-        specs.AppDef: Torchx AppDef
-    """
     app_env: Dict[str, str] = {}
     if env:
         app_env.update(env)
