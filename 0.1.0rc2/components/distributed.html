@@ -375,9 +375,7 @@ scheduler-specific definitions.</p>
 <section id="single-node-multiple-trainers-desktop">
 <h3>Single node, multiple trainers (desktop)<a class="headerlink" href="#single-node-multiple-trainers-desktop" title="Permalink to this headline">¶</a></h3>
 <p>Try launching a single node, multiple trainers example on your desktop:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> torchx
-
-torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">1</span> --nproc_per_node <span class="m">2</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">1</span> --nproc_per_node <span class="m">2</span>
 </pre></div>
 </div>
 <p>The <cite>./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist</cite> is reference to the component
@@ -399,6 +397,13 @@ The <cite>queue</cite> arg is the volcano <a class="reference external" href="ht
 <h3>Multiple nodes, multiple trainers (kubernetes)<a class="headerlink" href="#multiple-nodes-multiple-trainers-kubernetes" title="Permalink to this headline">¶</a></h3>
 <p>It is simple to launch multiple nodes trainer in kubernetes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">2</span> --nproc_per_node <span class="m">2</span>
+</pre></div>
+</div>
+<p>The command above will launch distributed train job on kubernetes <cite>default</cite> namespace using volcano
+<cite>default</cite> queue. It will use etcd service accessible on <cite>etcd-server:2379</cite> to perform
+<a class="reference external" href="https://pytorch.org/docs/stable/elastic/rendezvous.html">etcd rendezvous</a>.</p>
+<p>You can overwrite rendezvous endpoint:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist --skip-export--nnodes <span class="m">2</span> --nproc_per_node <span class="m">2</span> --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
 </pre></div>
 </div>
 </section>

@@ -370,13 +370,16 @@
 
 <span class="sd">    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml</span>
 
-<span class="sd">Install etcd server on your kubernetes cluster:</span>
+<span class="sd">Torchx uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/elastic/run.html&gt;`_ to run distributed training.</span>
+<span class="sd">This requires the installation of etcd service on your kubernetes cluster:</span>
 
 <span class="sd">.. code:: bash</span>
 
 <span class="sd">    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml</span>
 
-<span class="sd">Install `python etcd library &lt;https://pypi.org/project/python-etcd/&gt;`_</span>
+
+
+<span class="sd">Learn more about running distributed trainers :py:mod:`torchx.components.dist`</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 

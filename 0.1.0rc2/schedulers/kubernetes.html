@@ -362,11 +362,12 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
 </pre></div>
 </div>
-<p>Install etcd server on your kubernetes cluster:</p>
+<p>Torchx uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torch.distributed.run</a> to run distributed training.
+This requires the installation of etcd service on your kubernetes cluster:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
 </pre></div>
 </div>
-<p>Install <a class="reference external" href="https://pypi.org/project/python-etcd/">python etcd library</a></p>
+<p>Learn more about running distributed trainers <a class="reference internal" href="../components/distributed.html#module-torchx.components.dist" title="torchx.components.dist"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.dist</span></code></a></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">KubernetesScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler" title="Permalink to this definition">¶</a></dt>

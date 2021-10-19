@@ -521,7 +521,7 @@ the app agnostic to the environment it’s running in.</p>
             <span class="sa">f</span><span class="s2">&quot;train acc: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">train_acc</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="si">}</span><span class="s2">, val acc: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">val_acc</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_export</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_export</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span>
             <span class="c1"># Export the inference model</span>
             <span class="n">export_inference_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
 

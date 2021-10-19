@@ -418,7 +418,7 @@ pip install -r dev-requirements.txt
 </div>
 <p>Single trainer component code:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
     <span class="n">data_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -452,8 +452,6 @@ pip install -r dev-requirements.txt
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
         <span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.train&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-        <span class="n">output_path</span><span class="p">,</span>
         <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
         <span class="n">load_path</span><span class="p">,</span>
         <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
@@ -461,6 +459,8 @@ pip install -r dev-requirements.txt
         <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">epochs</span><span class="p">),</span>
     <span class="p">]</span>
+    <span class="k">if</span> <span class="n">output_path</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--output_path&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">layers</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--layers&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">learning_rate</span><span class="p">:</span>
@@ -492,7 +492,7 @@ pip install -r dev-requirements.txt
 <section id="distributed-trainer-component">
 <h3>Distributed Trainer Component<a class="headerlink" href="#distributed-trainer-component" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer_dist</span><span class="p">(</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
     <span class="n">data_path</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">load_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -545,8 +545,6 @@ pip install -r dev-requirements.txt
         <span class="nb">str</span><span class="p">(</span><span class="n">nproc_per_node</span><span class="p">),</span>
         <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
         <span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.train&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
-        <span class="n">output_path</span><span class="p">,</span>
         <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
         <span class="n">load_path</span><span class="p">,</span>
         <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
@@ -554,6 +552,8 @@ pip install -r dev-requirements.txt
         <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">epochs</span><span class="p">),</span>
     <span class="p">]</span>
+    <span class="k">if</span> <span class="n">output_path</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--output_path&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">data_path</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--data_path&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">skip_export</span><span class="p">:</span>
