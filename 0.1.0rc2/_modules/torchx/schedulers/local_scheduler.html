@@ -805,6 +805,29 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">app_id:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, state:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="s2">, pid_map:</span><span class="si">{</span><span class="n">role_to_pid</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
 
 
+<span class="k">def</span> <span class="nf">join_PATH</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Joins strings that go in the PATH env var.</span>
+<span class="sd">    Deals with empty strings and None-types, making sure no leading</span>
+<span class="sd">    or trailing path-sep (`:`) in the resulting string</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">     # PATH=/usr/local/bin:$PATH (prepend)</span>
+<span class="sd">     join_PATH(&quot;/usr/local/bin&quot;, os.environ[&quot;PATH&quot;])</span>
+
+<span class="sd">     # PATH=$PATH:/usr/local/bin (append)</span>
+<span class="sd">     join_PATH(os.environ[&quot;PATH&quot;], &quot;/usr/local/bin&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span> <span class="k">if</span> <span class="n">p</span><span class="p">]</span>
+    <span class="p">)</span>  <span class="c1"># remove empty and null str + strip leading and trailing &quot;:&quot;s</span>
+
+
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">PopenRequest</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -883,6 +906,7 @@
         <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">image_provider_class</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RunConfig</span><span class="p">],</span> <span class="n">ImageProvider</span><span class="p">],</span>
         <span class="n">cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">extra_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
 
@@ -894,6 +918,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cache size must be greater than zero&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span> <span class="o">=</span> <span class="n">cache_size</span>
         <span class="n">register_termination_signals</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_paths</span> <span class="ow">or</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="LocalScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
@@ -981,6 +1007,9 @@
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
 
+        <span class="c1"># prepend extra_paths to PATH</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">join_PATH</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_paths</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">))</span>
+
         <span class="n">cwd</span> <span class="o">=</span> <span class="n">replica_params</span><span class="o">.</span><span class="n">cwd</span>
         <span class="k">if</span> <span class="n">cwd</span><span class="p">:</span>
             <span class="c1"># if prepend_cwd is set, then prepend cwd to PATH</span>
@@ -988,10 +1017,9 @@
             <span class="c1"># otherwise append cwd to PATH so that the binaries in PATH</span>
             <span class="c1"># precede over those in cwd</span>
             <span class="k">if</span> <span class="n">prepend_cwd</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">cwd</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)]</span>
+                <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">join_PATH</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">cwd</span><span class="p">]</span>
-            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span> <span class="k">if</span> <span class="n">p</span><span class="p">])</span>  <span class="c1"># remove empty str</span>
+                <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">join_PATH</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">),</span> <span class="n">cwd</span><span class="p">)</span>
 
         <span class="n">args_pfmt</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">replica_params</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2"> (replica </span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">args_pfmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1264,14 +1292,6 @@
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># strip the trailing newline</span>
                 <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">line</span>
-
-
-<span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LocalScheduler</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">LocalScheduler</span><span class="p">(</span>
-        <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
-        <span class="n">cache_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_size&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-        <span class="n">image_provider_class</span><span class="o">=</span><span class="n">LocalDirectoryImageProvider</span><span class="p">,</span>
-    <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">create_cwd_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LocalScheduler</span><span class="p">:</span>
