@@ -112,6 +112,14 @@ class CmdRun(SubCommand):
         )
 
     def _run(self, runner: Runner, args: argparse.Namespace) -> Optional[str]:
+        if args.scheduler == "local":
+            logger.warning(
+                "`local` scheduler is deprecated and will be"
+                " removed in the near future,"
+                " please use other variants of the local scheduler"
+                " (e.g. `local_cwd`)"
+            )
+
         run_opts = get_runner().run_opts()
         scheduler_opts = run_opts[args.scheduler]
         cfg = _parse_run_config(args.scheduler_args, scheduler_opts)
