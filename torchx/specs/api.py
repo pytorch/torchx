@@ -30,8 +30,8 @@ import yaml
 from torchx.specs.file_linter import TorchXArgumentHelpFormatter, get_fn_docstring
 from torchx.util.types import decode_from_string, decode_optional, is_bool, is_primitive
 
-
 SchedulerBackend = str
+
 
 # ========================================
 # ==== Distributed AppDef API =======
@@ -622,6 +622,7 @@ class runopts:
             if runopt.is_required and val is None:
                 raise InvalidRunConfigException(
                     f"Required run option: {cfg_key}, must be provided and not `None`",
+                    cfg_key,
                     config,
                 )
 
@@ -630,6 +631,7 @@ class runopts:
                 raise InvalidRunConfigException(
                     f"Run option: {cfg_key}, must be of type: {get_type_name(runopt.opt_type)},"
                     f" but was: {val} ({type(val).__name__})",
+                    cfg_key,
                     config,
                 )
 
@@ -674,9 +676,10 @@ class InvalidRunConfigException(Exception):
     type mismatch.
     """
 
-    def __init__(self, invalid_reason: str, cfg: RunConfig) -> None:
+    def __init__(self, invalid_reason: str, cfg_key: str, cfg: RunConfig) -> None:
         given = str(cfg) if cfg.cfgs else "<EMPTY>"
         super().__init__(f"{invalid_reason}. Given: {given}")
+        self.cfg_key = cfg_key
 
 
 class MalformedAppHandleException(Exception):

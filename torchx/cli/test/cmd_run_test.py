@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Generator, List
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_run_config
+from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_run_config, logger
 from torchx.schedulers.local_scheduler import SignalException
 from torchx.specs import runopts
 
@@ -104,7 +104,9 @@ class CmdRunTest(unittest.TestCase):
                 "1234_does_not_exist.torchx",
             ]
         )
-        self.cmd_run.run(args)
+
+        with self.assertRaises(SystemExit):
+            self.cmd_run.run(args)
 
     def test_conf_file_missing(self) -> None:
         with self.assertRaises(SystemExit):
@@ -130,6 +132,25 @@ class CmdRunTest(unittest.TestCase):
         )
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
+
+    def test_runopts_not_found(self) -> None:
+        args = self.parser.parse_args(
+            [
+                "--dryrun",
+                "--scheduler",
+                "kubernetes",
+                "utils.echo",
+                "--image",
+                "/tmp",
+            ]
+        )
+        with patch.object(logger, "error") as log_error:
+            with self.assertRaises(SystemExit) as e:
+                self.cmd_run.run(args)
+            msg = log_error.call_args[0][0]
+            self.assertTrue(
+                "Scheduler arg is incorrect or missing required option" in msg
+            )
 
     def _get_test_runopts(self) -> runopts:
         opts = runopts()

@@ -25,7 +25,6 @@ from torchx.specs.finder import (
 )
 from torchx.util.types import to_dict
 
-
 logger: logging.Logger = logging.getLogger(__name__)
 
 
@@ -137,7 +136,18 @@ class CmdRun(SubCommand):
             )
         except (ComponentValidationException, ComponentNotFoundException) as e:
             error_msg = f"\nFailed to run component `{conf_file}` got errors: \n {e}"
-            print(error_msg)
+            logger.error(error_msg)
+            sys.exit(1)
+            return
+        except specs.InvalidRunConfigException as e:
+            error_msg = (
+                f"Scheduler arg is incorrect or missing required option: `{e.cfg_key}`\n"
+                f"Run `torchx runopts` to check configuration for `{args.scheduler}` scheduler\n"
+                f"Use `-cfg` to specify run cfg as `key1=value1,key2=value2` pair\n"
+                "of setup `.torchxconfig` file, see: https://pytorch.org/torchx/main/experimental/runner.config.html"
+            )
+            logger.error(error_msg)
+            sys.exit(1)
             return
 
         if args.dryrun:
