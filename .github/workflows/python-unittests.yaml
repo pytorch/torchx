@@ -10,11 +10,19 @@ jobs:
   unittest:
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        platform: [ubuntu-18.04]
-#        include:
+        include:
+# TODO: uncomment this when torch.1.10 is released
 #          - python-version: 3.9
 #            platform: macos-latest
+          - python-version: 3.7
+            platform: ubuntu-18.04
+            torch-whl: https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
+          - python-version: 3.8
+            platform: ubuntu-18.04
+            torch-whl: https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
+          - python-version: 3.8
+            platform: ubuntu-18.04
+            torch-whl: https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp39-cp39-linux_x86_64.whl
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     steps:
@@ -31,7 +39,7 @@ jobs:
           pip install coverage codecov
           pip install -e .[dev]
           pip uninstall -y torch
-          pip install https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
+          pip install ${{ matrix.torch-whl }}
       - name: Run tests
         run: coverage run -m unittest discover --verbose --start-directory . --pattern "*_test.py"
       - name: Coverage
