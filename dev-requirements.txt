@@ -5,6 +5,7 @@ pyre-extensions>=0.0.21
 black>=21.5b1
 usort==0.6.4
 pytorch-lightning>=0.5.3
+torch>=1.9.0
 torchvision>=0.10.0
 classy-vision>=0.6.0
 flake8==3.9.0
@@ -15,4 +16,3 @@ importlib-metadata
 ax-platform[mysql]>=0.2.2
 fsspec[s3]>=2021.09.0
 torch-model-archiver>=0.4.2
-torch @ https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
