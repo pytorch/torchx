@@ -1,0 +1,1418 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quickstart &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI" href="cli.html" />
+    <link rel="prev" title="Basic Concepts" href="basics.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
+                  <span class="dropdown-title">TorchElastic</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.1.0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="experimental/runner.config.html">(beta) .torchxconfig file</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Quickstart</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/quickstart.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Quickstart">
+<h1>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this headline">¶</a></h1>
+<p>This is a self contained guide on how to build a simple app and component spec and launch it via two different schedulers.</p>
+<section id="Installation">
+<h2>Installation<a class="headerlink" href="#Installation" title="Permalink to this headline">¶</a></h2>
+<p>First thing we need to do is to install the TorchX python package which includes the CLI and the library.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># install torchx with all dependencies</span>
+$ pip install torchx<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://github.com/pytorch/torchx">README</a> for more information on installation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
+<span></span>%%sh
+torchx --help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+usage: torchx [-h] [--log_level LOG_LEVEL] [--version]
+              {describe,log,run,builtins,runopts,status,configure} ...
+
+torchx CLI
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --log_level LOG_LEVEL
+                        Python logging log level
+  --version             show program&#39;s version number and exit
+
+sub-commands:
+  Use the following commands to run operations, e.g.: torchx run ${JOB_NAME}
+
+  {describe,log,run,builtins,runopts,status,configure}
+</pre></div></div>
+</div>
+</section>
+<section id="Hello-World">
+<h2>Hello World<a class="headerlink" href="#Hello-World" title="Permalink to this headline">¶</a></h2>
+<p>Lets start off with writing a simple “Hello World” python app. This is just a normal python program and can contain anything you’d like.</p>
+<div class="admonition note"><div class="admonition-title"><p>Note</p>
+</div><p>This example uses Jupyter Notebook <code class="docutils literal notranslate"><span class="pre">%%writefile</span></code> to create local files for example purposes. Under normal usage you would have these as standalone files.</p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%%writefile</span> my_app.py
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Hello world app&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--user&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the person to greet&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing my_app.py
+</pre></div></div>
+</div>
+<p>Now that we have an app we can write the component file for it. This function allows us to reuse and share our app in a user friendly way.</p>
+<p>We can use this component from the <code class="docutils literal notranslate"><span class="pre">torchx</span></code> cli or programmatically as part of a pipeline.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%%writefile</span> my_component.py
+
+<span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;my_app:latest&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hello_world&quot;</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;greeter&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;my_app&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--user&quot;</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing my_component.py
+</pre></div></div>
+</div>
+<p>We can execute our component via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span></code>. The <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler executes the component relative to the current directory.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
+<span></span>%%sh
+torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&quot;your name&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Hello, your name!
+local_cwd://torchx/hello_world_62ee8941
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2021-10-20 21:48:07 INFO     Waiting for the app to finish...
+torchx 2021-10-20 21:48:08 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+<p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
+<div class="admonition note"><div class="admonition-title"><p>Note</p>
+</div><p>This requires Docker installed and won’t work in environments such as Google Colab. If you have not done so already follow the install instructions on: <a class="reference external" href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a></p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%%writefile</span> Dockerfile
+
+<span class="n">FROM</span> <span class="n">ghcr</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">pytorch</span><span class="o">/</span><span class="n">torchx</span><span class="p">:</span><span class="mf">0.1.0</span><span class="n">rc1</span>
+
+<span class="n">ADD</span> <span class="n">my_app</span><span class="o">.</span><span class="n">py</span> <span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing Dockerfile
+</pre></div></div>
+</div>
+<p>Once we have the Dockerfile created we can create our docker image.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
+<span></span>%%sh
+docker build -t my_app:latest -f Dockerfile .
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Step 1/2 : FROM ghcr.io/pytorch/torchx:0.1.0rc1
+0.1.0rc1: Pulling from pytorch/torchx
+4bbfd2c87b75: Pulling fs layer
+d2e110be24e1: Pulling fs layer
+889a7173dcfe: Pulling fs layer
+6009a622672a: Pulling fs layer
+143f80195431: Pulling fs layer
+eccbe17c44e1: Pulling fs layer
+d4c7af0d4fa7: Pulling fs layer
+06b5edd6bf52: Pulling fs layer
+f18d016c4ccc: Pulling fs layer
+c0ad16d9fa05: Pulling fs layer
+30587ba7fd6b: Pulling fs layer
+909695be1d50: Pulling fs layer
+f119a6d0a466: Pulling fs layer
+88d87059c913: Pulling fs layer
+6009a622672a: Waiting
+143f80195431: Waiting
+eccbe17c44e1: Waiting
+d4c7af0d4fa7: Waiting
+06b5edd6bf52: Waiting
+f18d016c4ccc: Waiting
+c0ad16d9fa05: Waiting
+30587ba7fd6b: Waiting
+909695be1d50: Waiting
+88d87059c913: Waiting
+f119a6d0a466: Waiting
+d2e110be24e1: Verifying Checksum
+d2e110be24e1: Download complete
+889a7173dcfe: Verifying Checksum
+889a7173dcfe: Download complete
+4bbfd2c87b75: Verifying Checksum
+4bbfd2c87b75: Download complete
+6009a622672a: Verifying Checksum
+6009a622672a: Download complete
+eccbe17c44e1: Verifying Checksum
+eccbe17c44e1: Download complete
+06b5edd6bf52: Verifying Checksum
+06b5edd6bf52: Download complete
+d4c7af0d4fa7: Verifying Checksum
+d4c7af0d4fa7: Download complete
+c0ad16d9fa05: Verifying Checksum
+c0ad16d9fa05: Download complete
+30587ba7fd6b: Verifying Checksum
+30587ba7fd6b: Download complete
+4bbfd2c87b75: Pull complete
+909695be1d50: Verifying Checksum
+909695be1d50: Download complete
+f119a6d0a466: Verifying Checksum
+f119a6d0a466: Download complete
+88d87059c913: Verifying Checksum
+88d87059c913: Download complete
+d2e110be24e1: Pull complete
+889a7173dcfe: Pull complete
+f18d016c4ccc: Verifying Checksum
+f18d016c4ccc: Download complete
+143f80195431: Verifying Checksum
+143f80195431: Download complete
+6009a622672a: Pull complete
+143f80195431: Pull complete
+eccbe17c44e1: Pull complete
+d4c7af0d4fa7: Pull complete
+06b5edd6bf52: Pull complete
+f18d016c4ccc: Pull complete
+c0ad16d9fa05: Pull complete
+30587ba7fd6b: Pull complete
+909695be1d50: Pull complete
+f119a6d0a466: Pull complete
+88d87059c913: Pull complete
+Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
+Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
+ ---&gt; 3dbec59e8049
+Step 2/2 : ADD my_app.py .
+ ---&gt; 6c1f636dd563
+Successfully built 6c1f636dd563
+Successfully tagged my_app:latest
+</pre></div></div>
+</div>
+<p>We can then launch it on the local scheduler.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
+<span></span>%%sh
+torchx run --scheduler local_docker my_component.py:greet --image <span class="s2">&quot;my_app:latest&quot;</span> --user <span class="s2">&quot;your name&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Client:
+ Version:           20.10.9+azure-1
+ API version:       1.41
+ Go version:        go1.16.8
+ Git commit:        c2ea9bc90bacf19bdbe37fd13eec8772432aca99
+ Built:             Thu Sep 23 18:26:34 2021
+ OS/Arch:           linux/amd64
+ Context:           default
+ Experimental:      true
+
+Server:
+ Engine:
+  Version:          20.10.9+azure-1
+  API version:      1.41 (minimum version 1.12)
+  Go version:       go1.16.8
+  Git commit:       79ea9d3080181d755855d5924d0f4f116faa9463
+  Built:            Thu Sep 23 18:26:18 2021
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.4.11+azure
+  GitCommit:        5b46e404f6b9f661a205e28d59c982d3634148f8
+ runc:
+  Version:          1.0.2
+  GitCommit:        52b36a2dd837e8462de8e01458bf02cf9eea47dd
+ docker-init:
+  Version:          0.19.0
+  GitCommit:
+Hello, your name!
+local_docker://torchx/hello_world_e218bc32
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Error response from daemon: pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied
+torchx 2021-10-20 21:50:47 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
+torchx 2021-10-20 21:50:47 INFO     Waiting for the app to finish...
+torchx 2021-10-20 21:50:48 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+<p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ docker push my_app:latest
+$ torchx run --scheduler kubernetes my_component.py:greet --image <span class="s2">&quot;my_app:latest&quot;</span> --user <span class="s2">&quot;your name&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="Builtins">
+<h2>Builtins<a class="headerlink" href="#Builtins" title="Permalink to this headline">¶</a></h2>
+<p>TorchX also provides a number of builtin components with premade images. You can discover them via:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
+<span></span>%%sh
+torchx builtins
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Found 7 builtin components:
+  1. dist.ddp
+  2. utils.booth
+  3. utils.copy
+  4. utils.echo
+  5. utils.sh
+  6. utils.touch
+  7. serve.torchserve
+</pre></div></div>
+</div>
+<p>You can use these either from the CLI, from a pipeline or programmatically like you would any other component.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
+<span></span>%%sh
+torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Client:
+ Version:           20.10.9+azure-1
+ API version:       1.41
+ Go version:        go1.16.8
+ Git commit:        c2ea9bc90bacf19bdbe37fd13eec8772432aca99
+ Built:             Thu Sep 23 18:26:34 2021
+ OS/Arch:           linux/amd64
+ Context:           default
+ Experimental:      true
+
+Server:
+ Engine:
+  Version:          20.10.9+azure-1
+  API version:      1.41 (minimum version 1.12)
+  Go version:       go1.16.8
+  Git commit:       79ea9d3080181d755855d5924d0f4f116faa9463
+  Built:            Thu Sep 23 18:26:18 2021
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.4.11+azure
+  GitCommit:        5b46e404f6b9f661a205e28d59c982d3634148f8
+ runc:
+  Version:          1.0.2
+  GitCommit:        52b36a2dd837e8462de8e01458bf02cf9eea47dd
+ docker-init:
+  Version:          0.19.0
+  GitCommit:
+Hello :)
+local_docker://torchx/echo_f4606894
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+0.1.0: Pulling from pytorch/torchx
+4bbfd2c87b75: Already exists
+d2e110be24e1: Already exists
+889a7173dcfe: Already exists
+6009a622672a: Already exists
+143f80195431: Already exists
+eccbe17c44e1: Already exists
+43816ffbaafd: Pulling fs layer
+6a947bdcd633: Pulling fs layer
+a05bc569b1b8: Pulling fs layer
+e7e04288977f: Pulling fs layer
+706411270dbf: Pulling fs layer
+30c79e8be50e: Pulling fs layer
+b3cecbaad1f1: Pulling fs layer
+40b39224f19c: Pulling fs layer
+e7e04288977f: Waiting
+706411270dbf: Waiting
+30c79e8be50e: Waiting
+b3cecbaad1f1: Waiting
+40b39224f19c: Waiting
+6a947bdcd633: Verifying Checksum
+6a947bdcd633: Download complete
+e7e04288977f: Verifying Checksum
+e7e04288977f: Download complete
+43816ffbaafd: Verifying Checksum
+43816ffbaafd: Download complete
+706411270dbf: Verifying Checksum
+706411270dbf: Download complete
+b3cecbaad1f1: Verifying Checksum
+b3cecbaad1f1: Download complete
+40b39224f19c: Verifying Checksum
+40b39224f19c: Download complete
+30c79e8be50e: Verifying Checksum
+30c79e8be50e: Download complete
+43816ffbaafd: Pull complete
+6a947bdcd633: Pull complete
+a05bc569b1b8: Verifying Checksum
+a05bc569b1b8: Download complete
+a05bc569b1b8: Pull complete
+e7e04288977f: Pull complete
+706411270dbf: Pull complete
+30c79e8be50e: Pull complete
+b3cecbaad1f1: Pull complete
+40b39224f19c: Pull complete
+Digest: sha256:3d9e6d929e1c70cf83954fceabbc4055e1f6217647252c20ea229ae990eb5a7e
+Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0
+ghcr.io/pytorch/torchx:0.1.0
+torchx 2021-10-20 21:51:57 INFO     Waiting for the app to finish...
+torchx 2021-10-20 21:51:58 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+</section>
+<section id="Next-Steps">
+<h2>Next Steps<a class="headerlink" href="#Next-Steps" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Checkout other features of the <a class="reference internal" href="cli.html"><span class="doc">torchx CLI</span></a></p></li>
+<li><p>Learn how to author more complex app specs by referencing <a class="reference internal" href="specs.html"><span class="doc">specs</span></a></p></li>
+<li><p>Browse through the collection of <a class="reference internal" href="components/overview.html"><span class="doc">builtin components</span></a></p></li>
+<li><p>Take a look at the <a class="reference internal" href="schedulers.html"><span class="doc">list of schedulers</span></a> supported by the runner</p></li>
+<li><p>See which <a class="reference internal" href="pipelines.html"><span class="doc">ML pipeline platforms</span></a> you can run components on</p></li>
+<li><p>See a <a class="reference internal" href="examples_apps/index.html"><span class="doc">training app example</span></a></p></li>
+</ol>
+</section>
+</section>
+<div id="is-nbsphinx"></div>
+
+     </article>
+     
+    </div>
+    <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cli.html" class="btn btn-neutral float-right" title="CLI" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="basics.html" class="btn btn-neutral" title="Basic Concepts" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#Installation">Installation</a></li>
+<li><a class="reference internal" href="#Hello-World">Hello World</a></li>
+<li><a class="reference internal" href="#Builtins">Builtins</a></li>
+<li><a class="reference internal" href="#Next-Steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+         <script src="_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
