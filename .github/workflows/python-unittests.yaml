@@ -20,7 +20,7 @@ jobs:
           - python-version: 3.8
             platform: ubuntu-18.04
             torch-whl: https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
-          - python-version: 3.8
+          - python-version: 3.9
             platform: ubuntu-18.04
             torch-whl: https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp39-cp39-linux_x86_64.whl
       fail-fast: false
