@@ -230,7 +230,14 @@ class DockerImageProvider(ImageProvider):
     @staticmethod
     def has_docker() -> bool:
         try:
-            return subprocess.run(["docker", "version"]).returncode == 0
+            return (
+                subprocess.run(
+                    ["docker", "version"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                ).returncode
+                == 0
+            )
         except FileNotFoundError:
             return False
 
