@@ -29,7 +29,9 @@ jobs:
         run: |
           set -eux
           pip install coverage codecov
-          pip install -e .[dev] --no-warn-conflicts
+          pip install -e .[dev]
+          pip uninstall -y torch
+          pip install https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
       - name: Run tests
         run: coverage run -m unittest discover --verbose --start-directory . --pattern "*_test.py"
       - name: Coverage
