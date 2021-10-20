@@ -18,6 +18,10 @@ RUN pip uninstall -y torch
 
 RUN pip install https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
 
+RUN pip uninstall -y torchtext
+
+RUN pip install https://download.pytorch.org/whl/test/torchtext-0.10.0-cp37-cp37m-linux_x86_64.whl
+
 COPY . /app
 
 RUN python setup.py install
