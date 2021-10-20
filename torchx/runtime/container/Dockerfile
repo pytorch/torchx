@@ -1,9 +1,5 @@
 FROM pytorch/pytorch:1.9.0-cuda10.2-cudnn7-runtime
 
-RUN pip uninstall -y torch
-
-RUN pip install https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
-
 RUN pip install fsspec[s3]
 
 # Note: the pytorch image installs version of the torchvision that is not compatible
@@ -17,6 +13,10 @@ WORKDIR /app
 # changes
 COPY dev-requirements.txt /app
 RUN pip install -r dev-requirements.txt --no-dependencies
+
+RUN pip uninstall -y torch
+
+RUN pip install https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp38-cp38-linux_x86_64.whl
 
 COPY . /app
 
