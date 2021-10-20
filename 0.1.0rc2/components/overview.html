@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Train" href="train.html" />
-    <link rel="prev" title="torchx.pipelines" href="../pipelines.html" />
+    <link rel="prev" title="Advanced KubeFlow Pipelines Example" href="../examples_pipelines/kfp/advanced_pipeline.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -230,25 +230,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul class="current">
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -537,7 +539,7 @@ in the docstring as such:</p>
 <h2>Running as a Job<a class="headerlink" href="#running-as-a-job" title="Permalink to this headline">¶</a></h2>
 <p>You can run a component as a job with the <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">torchx cli</span></a> or programmatically with
 the <a class="reference internal" href="../runner.html#torchx-runner"><span class="std std-ref">torchx.runner</span></a>. Both are identical, in fact the
-cli uses the runner under the hood, so the choice is yours. The <a class="reference internal" href="../quickstart.html#quickstart"><span class="std std-ref">quickstart</span></a>
+cli uses the runner under the hood, so the choice is yours. The <a class="reference internal" href="../quickstart.html"><span class="doc">quickstart</span></a>
 guide walks though the basics for you to get started.</p>
 <section id="programmatic-run">
 <h3>Programmatic Run<a class="headerlink" href="#programmatic-run" title="Permalink to this headline">¶</a></h3>
@@ -642,14 +644,14 @@ the <code class="docutils literal notranslate"><span class="pre">--help</span></
 <h2>Run in a Pipeline<a class="headerlink" href="#run-in-a-pipeline" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="../pipelines.html#module-torchx.pipelines"><span class="std std-ref">torchx.pipelines</span></a> define adapters that
 convert a torchx component into the object that represents a pipeline “stage” in the
-target pipeline platform (see <a class="reference internal" href="../index.html#pipelines"><span class="std std-ref">Pipeline Adapters</span></a> for a list of supported pipeline orchestrators).</p>
+target pipeline platform (see <a class="reference internal" href="../index.html#pipelines"><span class="std std-ref">Pipelines</span></a> for a list of supported pipeline orchestrators).</p>
 </section>
 <section id="additional-resources">
 <h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this headline">¶</a></h2>
 <p>See:</p>
 <ol class="arabic simple">
 <li><p>Components defined in this module as expository examples</p></li>
-<li><p>Defining your own component <a class="reference internal" href="../quickstart.html#defining-your-own-component"><span class="std std-ref">quick start guide</span></a></p></li>
+<li><p>Defining your own component <a class="reference internal" href="../quickstart.html"><span class="doc">quick start guide</span></a></p></li>
 <li><p>Component best practices <a class="reference internal" href="../component_best_practices.html#component-best-practices"><span class="std std-ref">guide</span></a></p></li>
 <li><p>App best practices <a class="reference internal" href="../app_best_practices.html#app-best-practices"><span class="std std-ref">guide</span></a></p></li>
 </ol>
@@ -667,7 +669,7 @@ target pipeline platform (see <a class="reference internal" href="../index.html#
         <a href="train.html" class="btn btn-neutral float-right" title="Train" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="../pipelines.html" class="btn btn-neutral" title="torchx.pipelines" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="../examples_pipelines/kfp/advanced_pipeline.html" class="btn btn-neutral" title="Advanced KubeFlow Pipelines Example" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

@@ -1,16 +1,51 @@
-# Hello World
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: '1.1'
+      jupytext_version: 1.1.0
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+# Quickstart
 
 This is a self contained guide on how to build a simple app and component spec
 and launch it via two different schedulers.
 
-See the [Quickstart](../quickstart.rst) for how to install TorchX locally before
-following this example.
+## Installation
+
+First thing we need to do is to install the TorchX python package which includes
+the CLI and the library.
+
+<!-- #md -->
+```sh
+# install torchx with all dependencies
+$ pip install torchx[dev]
+```
+<!-- #endmd -->
+
+See the [README](https://github.com/pytorch/torchx) for more
+information on installation.
+
+```sh
+torchx --help
+```
+
+## Hello World
 
 Lets start off with writing a simple "Hello World" python app. This is just a
 normal python program and can contain anything you'd like.
 
-> **NOTE**: This example uses Jupyter Notebook `%%writefile` to create local files for
+<div class="admonition note">
+<div class="admonition-title">Note</div>
+This example uses Jupyter Notebook `%%writefile` to create local files for
 example purposes. Under normal usage you would have these as standalone files.
+</div>
 
 ```python
 %%writefile my_app.py
@@ -64,7 +99,7 @@ def greet(user: str, image: str = "my_app:latest") -> specs.AppDef:
     )
 ```
 
-Once we write our component, we can then call it via `torchx run`. The
+We can execute our component via `torchx run`. The
 `local_cwd` scheduler executes the component relative to the current directory.
 
 ```sh
@@ -75,8 +110,12 @@ If we want to run in other environments, we can build a Docker container so we
 can run our component in Docker enabled environments such as Kubernetes or via
 the local Docker scheduler.
 
-> **NOTE:** this requires Docker installed and won't work in environments such as
-Google Colab.
+<div class="admonition note">
+<div class="admonition-title">Note</div>
+This requires Docker installed and won't work in environments such as Google
+Colab. If you have not done so already follow the install instructions on:
+[https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)</a>
+</div>
 
 ```python
 %%writefile Dockerfile
@@ -98,5 +137,40 @@ We can then launch it on the local scheduler.
 torchx run --scheduler local_docker my_component.py:greet --image "my_app:latest" --user "your name"
 ```
 
-If you have a Kubernetes cluster you can use the Kubernetes scheduler to launch
+If you have a Kubernetes cluster you can use the [Kubernetes scheduler](schedulers/kubernetes.rst) to launch
 this on the cluster instead.
+
+
+<!-- #md -->
+```sh
+$ docker push my_app:latest
+$ torchx run --scheduler kubernetes my_component.py:greet --image "my_app:latest" --user "your name"
+```
+<!-- #endmd -->
+
+
+## Builtins
+
+TorchX also provides a number of builtin components with premade images. You can discover
+them via:
+
+```sh
+torchx builtins
+```
+
+You can use these either from the CLI, from a pipeline or programmatically like
+you would any other component.
+
+```sh
+torchx run utils.echo --msg "Hello :)"
+```
+
+
+## Next Steps
+
+1. Checkout other features of the [torchx CLI](cli.rst)
+2. Learn how to author more complex app specs by referencing [specs](specs.rst)
+3. Browse through the collection of [builtin components](components/overview.rst)
+4. Take a look at the [list of schedulers](schedulers.rst) supported by the runner
+5. See which [ML pipeline platforms](pipelines.rst) you can run components on
+6. See a [training app example](examples_apps/index.rst)

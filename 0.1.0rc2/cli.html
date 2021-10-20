@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Configuring" href="configure.html" />
+    <link rel="next" title="Advanced Usage" href="advanced.html" />
     <link rel="prev" title="Quickstart" href="quickstart.html" />
   <!-- Google Analytics -->
   
@@ -230,25 +230,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -477,7 +479,7 @@ subcommands to identify your job.</p>
 <p class="admonition-title">Note</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--scheduler</span></code> option is not provided, then it defaults to
 the scheduler backend <code class="docutils literal notranslate"><span class="pre">default</span></code> which points to <code class="docutils literal notranslate"><span class="pre">local</span></code>. To change
-the default scheduler, see: <a class="reference internal" href="configure.html#registering-custom-schedulers"><span class="std std-ref">Registering Custom Schedulers</span></a>.</p>
+the default scheduler, see: <a class="reference internal" href="advanced.html#registering-custom-schedulers"><span class="std std-ref">Registering Custom Schedulers</span></a>.</p>
 </div>
 </section>
 <section id="inspecting-what-will-run-dryrun">
@@ -605,7 +607,7 @@ the local host. Please use your best judgment when using the logs API.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="configure.html" class="btn btn-neutral float-right" title="Configuring" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="quickstart.html" class="btn btn-neutral" title="Quickstart" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>

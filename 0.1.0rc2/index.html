@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Basics" href="basics.html" />
+    <link rel="next" title="Basic Concepts" href="basics.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -229,25 +229,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -260,7 +250,7 @@
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
@@ -268,13 +258,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -370,8 +372,8 @@ in production.</p>
 <p>No two production environments are the same. To comply with various use cases, TorchX’s
 core APIs allow tons of customization at well-defined extension points so that even the
 most unique applications can be serviced without customizing the whole vertical stack.</p>
-<p><strong>GETTING STARTED?</strong> First learn the <a class="reference internal" href="basics.html#basics"><span class="std std-ref">basic concepts</span></a> and
-follow the <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">quickstart guide</span></a>.</p>
+<p><strong>GETTING STARTED?</strong> First learn the <a class="reference internal" href="basics.html#basic-concepts"><span class="std std-ref">basic concepts</span></a> and
+follow the <a class="reference internal" href="quickstart.html#Quickstart"><span class="std std-ref">quickstart guide</span></a>.</p>
 <img alt="_images/torchx_index_diag.png" src="_images/torchx_index_diag.png" />
 <section id="in-1-2-3">
 <h2>In 1-2-3<a class="headerlink" href="#in-1-2-3" title="Permalink to this headline">¶</a></h2>
@@ -390,29 +392,17 @@ adapter. <a class="reference internal" href="#pipelines"><span class="std std-re
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-</div>
-<div class="toctree-wrapper compound" id="torchx-api">
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 </div>
 </section>
@@ -435,7 +425,7 @@ adapter. <a class="reference internal" href="#pipelines"><span class="std std-re
 <section id="runtime-library">
 <h2>Runtime Library<a class="headerlink" href="#runtime-library" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
@@ -448,15 +438,34 @@ adapter. <a class="reference internal" href="#pipelines"><span class="std std-re
 <div class="toctree-wrapper compound" id="schedulers">
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound" id="pipelines">
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+</div>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound" id="torchx-api">
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 </div>
 </section>
@@ -479,7 +488,7 @@ adapter. <a class="reference internal" href="#pipelines"><span class="std std-re
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="basics.html" class="btn btn-neutral float-right" title="Basics" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="basics.html" class="btn btn-neutral float-right" title="Basic Concepts" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
     </div>
@@ -520,6 +529,9 @@ adapter. <a class="reference internal" href="#pipelines"><span class="std std-re
 <li><a class="reference internal" href="#components-library">Components Library</a></li>
 <li><a class="reference internal" href="#runtime-library">Runtime Library</a></li>
 <li><a class="reference internal" href="#works-with">Works With</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference">Reference</a><ul>
 </ul>
 </li>
 <li><a class="reference internal" href="#experimental">Experimental</a></li>

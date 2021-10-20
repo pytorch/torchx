@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="torchx.specs" href="../../specs.html" />
+    <link rel="next" title="Overview" href="../../components/overview.html" />
     <link rel="prev" title="Intro KubeFlow Pipelines Example" href="intro_pipeline.html" />
   <!-- Google Analytics -->
   
@@ -230,25 +230,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -413,7 +415,7 @@ need to rebuild the container before launching it on KFP</p>
 <p>Most TorchX components use
 <a class="reference external" href="https://filesystem-spec.readthedocs.io/en/latest/">fsspec</a> to abstract
 away dealing with remote filesystems. This allows the components to take
-paths like <cite>s3://</cite> to make it easy to use cloud storage providers.</p>
+paths like <code class="docutils literal notranslate"><span class="pre">s3://</span></code> to make it easy to use cloud storage providers.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
     <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -425,7 +427,7 @@ paths like <cite>s3://</cite> to make it easy to use cloud storage providers.</p
 </div>
 <p>This example uses the torchserve for inference so we need to specify some
 options. This assumes you have a TorchServe instance running in the same
-Kubernetes cluster with with the service name <cite>torchserve</cite> in the default
+Kubernetes cluster with with the service name <code class="docutils literal notranslate"><span class="pre">torchserve</span></code> in the default
 namespace.</p>
 <p>See <a class="reference external" href="https://github.com/pytorch/serve/blob/master/kubernetes/README.md">https://github.com/pytorch/serve/blob/master/kubernetes/README.md</a> for info
 on how to setup TorchServe.</p>
@@ -493,7 +495,7 @@ specified ahead of time so we have a fully static pipeline.</p>
 previous datapreproc component. We’ve defined this in a separate component
 file as you normally would.</p>
 <p>Having a separate component file allows you to launch your trainer from the
-TorchX CLI via <cite>torchx run</cite> for fast iteration as well as run it from a
+TorchX CLI via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span></code> for fast iteration as well as run it from a
 pipeline in an automated fashion.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># make sure examples is on the path</span>
 <span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
@@ -634,7 +636,7 @@ a kfp.Client.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../specs.html" class="btn btn-neutral float-right" title="torchx.specs" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="../../components/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="intro_pipeline.html" class="btn btn-neutral" title="Intro KubeFlow Pipelines Example" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>

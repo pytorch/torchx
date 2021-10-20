@@ -1,4 +1,4 @@
-Basics
+Basic Concepts
 =======================
 
 Project Structure
@@ -224,3 +224,9 @@ author your application. But finding a proper permanent home for these abstracti
 may take time or even require an entirely new OSS project to be created.
 Until this happens the features can mature and be accessible to users
 through the ``torchx.runtime`` module.
+
+Next Steps
+------------------
+
+Check out the `Quickstart Guide <quickstart.md>`_ to learn how to create and
+run components.

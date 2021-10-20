@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Slurm" href="slurm.html" />
-    <link rel="prev" title="Localhost" href="local.html" />
+    <link rel="prev" title="Local" href="local.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -230,25 +230,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -357,12 +359,12 @@
       
   <section id="module-torchx.schedulers.kubernetes_scheduler">
 <span id="kubernetes"></span><h1>Kubernetes<a class="headerlink" href="#module-torchx.schedulers.kubernetes_scheduler" title="Permalink to this headline">¶</a></h1>
-<p>Torchx kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.</p>
+<p>TorchX kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.</p>
 <p>Install volcano 1.4.0 version</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
 </pre></div>
 </div>
-<p>Torchx uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torch.distributed.run</a> to run distributed training.
+<p>TorchX uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torch.distributed.run</a> to run distributed training.
 This requires the installation of etcd service on your kubernetes cluster:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
 </pre></div>
@@ -520,7 +522,7 @@ implemented by:</p>
         <a href="slurm.html" class="btn btn-neutral float-right" title="Slurm" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="local.html" class="btn btn-neutral" title="Localhost" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="local.html" class="btn btn-neutral" title="Local" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

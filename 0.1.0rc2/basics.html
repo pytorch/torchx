@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Basics &mdash; PyTorch/TorchX main documentation</title>
+  <title>Basic Concepts &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -230,25 +230,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Basics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -320,7 +322,7 @@
       </li>
 
         
-      <li>Basics</li>
+      <li>Basic Concepts</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -355,8 +357,8 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="basics">
-<h1>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
+  <section id="basic-concepts">
+<h1>Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this headline">¶</a></h1>
 <section id="project-structure">
 <h2>Project Structure<a class="headerlink" href="#project-structure" title="Permalink to this headline">¶</a></h2>
 <p>The top level modules in TorchX are:</p>
@@ -495,7 +497,7 @@ pipeline DSL allows dynamically adding stages to a pipeline from an upstream
 stage, then TorchX may take advantage of such feature to “inline” the
 sub-pipeline to the main pipeline. TorchX generally tries its best to adapt
 app specs to the <strong>most canonical</strong> representation in the target pipeline platform.</p>
-<p>See <a class="reference internal" href="index.html#pipelines"><span class="std std-ref">Pipeline Adapters</span></a> for a list of supported pipeline platforms.</p>
+<p>See <a class="reference internal" href="index.html#pipelines"><span class="std std-ref">Pipelines</span></a> for a list of supported pipeline platforms.</p>
 </section>
 <section id="runtime">
 <h3>Runtime<a class="headerlink" href="#runtime" title="Permalink to this headline">¶</a></h3>
@@ -560,6 +562,11 @@ Until this happens the features can mature and be accessible to users
 through the <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> module.</p>
 </section>
 </section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>Check out the <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart Guide</span></a> to learn how to create and
+run components.</p>
+</section>
 </section>
 
 
@@ -605,7 +612,7 @@ through the <code class="docutils literal notranslate"><span class="pre">torchx.
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Basics</a><ul>
+<li><a class="reference internal" href="#">Basic Concepts</a><ul>
 <li><a class="reference internal" href="#project-structure">Project Structure</a></li>
 <li><a class="reference internal" href="#concepts">Concepts</a><ul>
 <li><a class="reference internal" href="#appdefs">AppDefs</a></li>
@@ -615,6 +622,7 @@ through the <code class="docutils literal notranslate"><span class="pre">torchx.
 <li><a class="reference internal" href="#runtime">Runtime</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
 </ul>
 </li>
 </ul>

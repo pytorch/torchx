@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Component Best Practices" href="component_best_practices.html" />
-    <link rel="prev" title="Configuring" href="configure.html" />
+    <link rel="prev" title="torchx.pipelines" href="pipelines.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -229,26 +229,16 @@
             
             
               <p class="caption"><span class="caption-text">Usage</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configure.html">Configuring</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -445,7 +447,7 @@ of options and when you might need to use them.</p>
 <h3>Python + Saved Weights<a class="headerlink" href="#python-saved-weights" title="Permalink to this headline">¶</a></h3>
 <p>This is the most common format for packaging models. To use you’ll load your
 model definition from a python file and then you’ll load the weights and state
-dict from a <cite>.ckpt</cite> or <cite>.pt</cite> file.</p>
+dict from a <code class="docutils literal notranslate"><span class="pre">.ckpt</span></code> or <code class="docutils literal notranslate"><span class="pre">.pt</span></code> file.</p>
 <p>This is how Pytorch Lightning’s
 <a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.ModelCheckpoint.html">ModelCheckpoint</a> hook works.</p>
 <p>This is the most common but makes it harder to make a reusable app since your
@@ -465,7 +467,7 @@ be automatically converted to TorchScript.</p>
 <p>If you want to use TorchServe for inference you’ll need to export your model to
 this format. For inference it’s common to use a quantized version of the model
 so it’s best to have your trainer export both a full precision model for fine
-tuning as well as a quantized <cite>.mar</cite> file for TorchServe to consume.</p>
+tuning as well as a quantized <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file for TorchServe to consume.</p>
 <p>See the
 <a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README.md">Model Archiver documentation</a>.</p>
 </section>
@@ -517,7 +519,7 @@ them like you would with any other Python code.</p>
         <a href="component_best_practices.html" class="btn btn-neutral float-right" title="Component Best Practices" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="configure.html" class="btn btn-neutral" title="Configuring" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="pipelines.html" class="btn btn-neutral" title="torchx.pipelines" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   

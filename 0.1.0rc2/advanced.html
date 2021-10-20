@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Configuring &mdash; PyTorch/TorchX main documentation</title>
+  <title>Advanced Usage &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="App Best Practices" href="app_best_practices.html" />
+    <link rel="next" title="Application Examples" href="examples_apps/index.html" />
     <link rel="prev" title="CLI" href="cli.html" />
   <!-- Google Analytics -->
   
@@ -230,25 +230,15 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
@@ -261,7 +251,7 @@
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Runtime</span></p>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
@@ -269,13 +259,25 @@
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Localhost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Pipeline Adapters</span></p>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
@@ -320,13 +322,13 @@
       </li>
 
         
-      <li>Configuring</li>
+      <li>Advanced Usage</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/configure.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/advanced.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -355,8 +357,8 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="configuring">
-<h1>Configuring<a class="headerlink" href="#configuring" title="Permalink to this headline">¶</a></h1>
+  <section id="advanced-usage">
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
 <p>TorchX defines plugin points for you to configure TorchX to best support
 your infrastructure setup. Most of the configuration is done through
 Python’s <a class="reference external" href="https://packaging.python.org/specifications/entry-points/">entry points</a>.</p>
@@ -484,7 +486,7 @@ when they run</p>
 </pre></div>
 </div>
 <p>The line above registers a group <code class="docutils literal notranslate"><span class="pre">foo</span></code> that is associated with the module <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code>.
-Torchx will recursively traverse lowest level dir associated with the <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> and will find
+TorchX will recursively traverse lowest level dir associated with the <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> and will find
 all defined components.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -500,7 +502,7 @@ there will be two sets of overlapping components with different aliases.</p>
     |- baz.py
 </pre></div>
 </div>
-<p>And <cite>baz.py</cite> defines a component (function) called <cite>trainer</cite>. Then the component can be run as a job in the following manner:</p>
+<p>And <code class="docutils literal notranslate"><span class="pre">baz.py</span></code> defines a component (function) called <code class="docutils literal notranslate"><span class="pre">trainer</span></code>. Then the component can be run as a job in the following manner:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run foo.baz.trainer -- --name <span class="s2">&quot;test app&quot;</span>
 </pre></div>
 </div>
@@ -515,7 +517,7 @@ there will be two sets of overlapping components with different aliases.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="app_best_practices.html" class="btn btn-neutral float-right" title="App Best Practices" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="examples_apps/index.html" class="btn btn-neutral float-right" title="Application Examples" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="cli.html" class="btn btn-neutral" title="CLI" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -550,7 +552,7 @@ there will be two sets of overlapping components with different aliases.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Configuring</a><ul>
+<li><a class="reference internal" href="#">Advanced Usage</a><ul>
 <li><a class="reference internal" href="#registering-custom-schedulers">Registering Custom Schedulers</a></li>
 <li><a class="reference internal" href="#registering-named-resources">Registering Named Resources</a></li>
 <li><a class="reference internal" href="#registering-custom-components">Registering Custom Components</a></li>

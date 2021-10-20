@@ -43,7 +43,7 @@ This is a component definition that runs the example datapreproc app.
             dryrun: Starts the app, but does not actually perform any work.
 
         Returns:
-            specs.AppDef: Torchx AppDef
+            specs.AppDef: TorchX AppDef
         """
 
         env = env or {}

@@ -5,7 +5,7 @@ TorchX Schedulers define plugins to existing schedulers. Used with the
 :ref:`runner<runner:torchx.runner>`, they submit components as jobs onto
 the respective scheduler backends. TorchX supports a few :ref:`schedulers<Schedulers>`
 out-of-the-box. You can add your own by implementing .. py:class::torchx.schedulers
-and :ref:`registering<configure:Registering Custom Schedulers>` it in the entrypoint.
+and :ref:`registering<advanced:Registering Custom Schedulers>` it in the entrypoint.
 
 .. image:: scheduler_diagram.png
 

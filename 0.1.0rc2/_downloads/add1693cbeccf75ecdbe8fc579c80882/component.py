@@ -25,7 +25,7 @@ Before executing examples, install torchx and dependencies necessary to run exam
 
 .. note::
 
-     The working dir should be `torchx` to run the components.
+     The working dir should be ``torchx`` to run the components.
 
 
 """
