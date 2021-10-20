@@ -11,13 +11,13 @@ import multiprocessing as mp
 import os
 import shutil
 import signal
-import subprocess
 import tempfile
 import time
 import unittest
+from contextlib import contextmanager
 from datetime import datetime
 from os.path import join
-from typing import Optional
+from typing import Optional, Generator
 from unittest import mock
 from unittest.mock import MagicMock, call, patch
 
@@ -170,8 +170,11 @@ class CWDImageProviderTest(unittest.TestCase):
 
 
 class DockerImageProviderTest(unittest.TestCase):
+    @patch("torchx.schedulers.local_scheduler.DockerImageProvider.has_docker")
     @patch("subprocess.run")
-    def test_fetch(self, run: MagicMock) -> None:
+    def test_fetch(self, run: MagicMock, has_docker: MagicMock) -> None:
+        has_docker.return_value = True
+
         cfg = RunConfig()
         provider = DockerImageProvider(cfg)
         img = "pytorch/pytorch:latest"
@@ -886,14 +889,17 @@ class JoinPATHTest(unittest.TestCase):
         )
 
 
-def _has_docker() -> bool:
+@contextmanager
+def _temp_setenv(k: str, v: str) -> Generator[None, None, None]:
+    old = os.environ[k]
+    os.environ[k] = v
     try:
-        return subprocess.run(["docker", "version"]).returncode == 0
-    except FileNotFoundError:
-        return False
+        yield
+    finally:
+        os.environ[k] = old
 
 
-if _has_docker():
+if DockerImageProvider.has_docker():
 
     class LocalDockerSchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         def setUp(self) -> None:
@@ -932,3 +938,13 @@ if _has_docker():
             desc = self.wait(app_id)
             assert desc is not None
             self.assertEqual(AppState.FAILED, desc.state)
+
+        def test_no_docker(self) -> None:
+            with _temp_setenv("PATH", ""):
+                with self.assertRaisesRegex(
+                    FileNotFoundError,
+                    "Docker is required to use the local_docker scheduler.",
+                ):
+                    app = self._docker_app("echo", "foo")
+                    cfg = RunConfig({"image_type": "docker"})
+                    app_id = self.scheduler.submit(app, cfg)
