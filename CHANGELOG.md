@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## torchx-0.1.0
+
+* `torchx.schedulers`
+  * `local_docker` print a nicer error if Docker is not installed #284
+* `torchx.cli`
+  *  Improved error messages when `-cfg` is not provided #271
+* `torchx.components`
+  * Update `dist.ddp` to use `c10d` backend as default #263
+* `torchx.aws`
+  * Removed entirely as it was unused
+
+* Docs
+  * Restructure documentation to be more clear
+  * Merged Hello World example with the Quickstart guide to reduce confusion
+  * Updated Train / Distributed component documentation
+  * Renamed configure page to "Advanced Usage" to avoid confusion with experimental .torchxconfig
+  * Renamed Localhost page to just Local to better match the class name
+  * Misc cleanups / improvements
+
+* Tests
+  * Fixed test failure when no secrets are present #274
+  * Added macOS variant to our unit tests #209
+
 ## torchx-0.1.0rc1
 
 * `torchx.specs`
