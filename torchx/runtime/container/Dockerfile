@@ -16,7 +16,7 @@ WORKDIR /app
 # copy requirements early so we don't have to redownload dependencies on code
 # changes
 COPY dev-requirements.txt /app
-RUN pip install -r dev-requirements.txt
+RUN pip install -r dev-requirements.txt --no-dependencies
 
 COPY . /app
 
