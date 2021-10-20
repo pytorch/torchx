@@ -16,7 +16,7 @@ from torchx.schedulers.ids import (
 )
 
 
-class TorchxIdsTest(unittest.TestCase):
+class IdsTest(unittest.TestCase):
     def test_make_unique(self) -> None:
         name = "test"
         self.assertNotEqual(make_unique(name), make_unique(name))

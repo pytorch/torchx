@@ -72,7 +72,7 @@ def get_named_resources(res: str) -> Resource:
     """
     Get resource object based on the string definition registered via entrypoints.txt.
 
-    Torchx implements ``named_resource`` registration mechanism, which consists of
+    TorchX implements ``named_resource`` registration mechanism, which consists of
     the following steps:
 
     1. Create a module and define your resource retrieval function:

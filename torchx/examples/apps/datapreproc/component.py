@@ -37,7 +37,7 @@ def data_preproc(
         dryrun: Starts the app, but does not actually perform any work.
 
     Returns:
-        specs.AppDef: Torchx AppDef
+        specs.AppDef: TorchX AppDef
     """
 
     env = env or {}

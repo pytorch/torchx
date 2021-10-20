@@ -249,7 +249,11 @@ Please see https://docs.docker.com/get-docker/ for information on how to install
         self._assert_docker()
 
         try:
-            subprocess.run(["docker", "pull", image], check=True)
+            subprocess.run(
+                ["docker", "pull", image],
+                stdout=sys.stderr,
+                check=True,
+            )
         except Exception as e:
             log.warning(f"failed to fetch image {image}, falling back to local: {e}")
         return ""

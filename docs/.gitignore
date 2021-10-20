@@ -1,3 +1,7 @@
 src/pytorch-sphinx-theme
 source/examples_*/
 jupyter_execute/
+
+Dockerfile
+my_component.py
+my_app.py

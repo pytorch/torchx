@@ -41,7 +41,7 @@ def torchserve(
         dryrun: Start the app, but does not perform actual work
 
     Returns:
-        specs.AppDef: the Torchx application definition
+        specs.AppDef: the TorchX application definition
     """
 
     args = [

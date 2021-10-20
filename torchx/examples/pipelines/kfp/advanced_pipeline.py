@@ -45,7 +45,7 @@ parser.add_argument(
 # Most TorchX components use
 # `fsspec <https://filesystem-spec.readthedocs.io/en/latest/>`_ to abstract
 # away dealing with remote filesystems. This allows the components to take
-# paths like `s3://` to make it easy to use cloud storage providers.
+# paths like ``s3://`` to make it easy to use cloud storage providers.
 parser.add_argument(
     "--output_path",
     type=str,
@@ -57,7 +57,7 @@ parser.add_argument("--load_path", type=str, help="checkpoint path to load from"
 # %%
 # This example uses the torchserve for inference so we need to specify some
 # options. This assumes you have a TorchServe instance running in the same
-# Kubernetes cluster with with the service name `torchserve` in the default
+# Kubernetes cluster with with the service name ``torchserve`` in the default
 # namespace.
 #
 # See https://github.com/pytorch/serve/blob/master/kubernetes/README.md for info
@@ -131,7 +131,7 @@ datapreproc_app: specs.AppDef = data_preproc(
 # file as you normally would.
 #
 # Having a separate component file allows you to launch your trainer from the
-# TorchX CLI via `torchx run` for fast iteration as well as run it from a
+# TorchX CLI via ``torchx run`` for fast iteration as well as run it from a
 # pipeline in an automated fashion.
 
 # make sure examples is on the path

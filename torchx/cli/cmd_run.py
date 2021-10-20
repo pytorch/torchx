@@ -66,7 +66,7 @@ class CmdBuiltins(SubCommand):
     def run(self, args: argparse.Namespace) -> None:
         builtin_components = self._builtins()
         num_builtins = len(builtin_components)
-        print(f"Found {num_builtins} builtin configs:")
+        print(f"Found {num_builtins} builtin components:")
         for i, component in enumerate(builtin_components.values()):
             print(f" {i + 1:2d}. {component.name}")
 

@@ -1,1 +1,0 @@
-../../../torchx/examples/hello_world.md

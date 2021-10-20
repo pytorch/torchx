@@ -108,7 +108,7 @@ Python + Saved Weights
 
 This is the most common format for packaging models. To use you'll load your
 model definition from a python file and then you'll load the weights and state
-dict from a `.ckpt` or `.pt` file.
+dict from a ``.ckpt`` or ``.pt`` file.
 
 This is how Pytorch Lightning's
 `ModelCheckpoint <https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.ModelCheckpoint.html>`__ hook works.
@@ -134,7 +134,7 @@ TorchServe Model Archiver (`.mar`)
 If you want to use TorchServe for inference you'll need to export your model to
 this format. For inference it's common to use a quantized version of the model
 so it's best to have your trainer export both a full precision model for fine
-tuning as well as a quantized `.mar` file for TorchServe to consume.
+tuning as well as a quantized ``.mar`` file for TorchServe to consume.
 
 See the
 `Model Archiver documentation <https://github.com/pytorch/serve/blob/master/model-archiver/README.md>`_.
