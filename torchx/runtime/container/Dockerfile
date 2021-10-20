@@ -14,6 +14,8 @@ WORKDIR /app
 COPY dev-requirements.txt /app
 RUN pip install -r dev-requirements.txt
 
+# TODO: Remove this and get dependency on torch 1.10 when it is released
+
 RUN pip uninstall -y torch
 
 RUN pip install https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp37-cp37m-linux_x86_64.whl

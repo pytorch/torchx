@@ -11,9 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-# TODO: uncomment this when torch.1.10 is released
+# TODO: uncomment this when torch.1-10 is released
 #          - python-version: 3.9
 #            platform: macos-latest
+# TODO: remove this when torch.1-10 is released
           - python-version: 3.7
             platform: ubuntu-18.04
             torch-whl: https://download.pytorch.org/whl/test/cu113/torch-1.10.0%2Bcu113-cp37-cp37m-linux_x86_64.whl
