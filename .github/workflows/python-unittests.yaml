@@ -29,7 +29,7 @@ jobs:
         run: |
           set -eux
           pip install coverage codecov
-          pip install -e .[dev] --no-dependencies
+          pip install -e .[dev] --no-warn-conflicts
       - name: Run tests
         run: coverage run -m unittest discover --verbose --start-directory . --pattern "*_test.py"
       - name: Coverage
