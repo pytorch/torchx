@@ -1,3 +1,4 @@
+import os
 import json
 from json import JSONEncoder
 import dataclasses
@@ -48,3 +49,5 @@ if __name__ == "__main__":
 
     # Is STRICK_PACK the correct strategy?
     pg = placement_group([bundle1, bundle2, bundle3], strategy="STRICT_PACK")    
+
+    os.system("ray exec python ray_driver.py actor.json")
