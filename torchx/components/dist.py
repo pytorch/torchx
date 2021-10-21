@@ -5,12 +5,12 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-Torchx helps you to run your distributed trainer jobs. Check out :py:mod:`torchx.components.train`
+TorchX helps you to run your distributed trainer jobs. Check out :py:mod:`torchx.components.train`
 on the example of running single trainer job. Here we will be using
 the same :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example`.
 but will run it in a distributed manner.
 
-Torchx uses `Torch distributed run <https://pytorch.org/docs/stable/elastic/run.html>`_ to launch user processes
+TorchX uses `Torch distributed run <https://pytorch.org/docs/stable/elastic/run.html>`_ to launch user processes
 and expects that user applications will be written in
 `Distributed data parallel <https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html>`_
 manner
@@ -26,53 +26,96 @@ write a distributed torchx component. The example that we will be using here is
 The component defines how the user application is launched and torchx will take care of translating this into
 scheduler-specific definitions.
 
-.. note:
+.. note:: Follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples`
+          before running the examples
 
-    Follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples` to
-    before running the examples
-
-Single node, multiple trainers (desktop)
+Single node, multiple trainers
 =========================================
 
-Try launching a single node, multiple trainers example on your desktop:
+Try launching a single node, multiple trainers example:
 
-.. code:: bash
+.. code:: shell-session
 
-    torchx run -s local_cwd \
-    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
-    --nnodes 1 --nproc_per_node 2 \
-    --rdzv_backend c10d --rdzv_endpoint localhost:29500
+   $ torchx run \\
+     -s local_cwd \\
+     ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
+     --nnodes 1 \\
+     --nproc_per_node 2 \\
+     --rdzv_backend c10d --rdzv_endpoint localhost:29500
 
-The `./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist` is reference to the component
+
+.. note:: Use ``torchx runopts`` to see available schedulers
+
+The ``./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist`` is reference to the component
 function: :ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`
 
 
-Single node, multiple trainers (kubernetes)
-============================================
+.. note:: TorchX supports docker scheduler via ``-s local_docker`` command that currently works only for single
+          node multiple processes due to issues `286 <https://github.com/pytorch/torchx/issues/286>`_ and
+          `287 <https://github.com/pytorch/torchx/issues/287>`_
 
 
-Now lets launch the same component on the kubernetes cluster.
-Check out :py:mod:`torchx.schedulers.kubernetes_scheduler` on dependencies that needs to be installed
-before running using `kubernetes` scheduler.
+
+Multiple nodes, multiple trainers
+===================================
+
+It is simple to launch and manage distributed trainer with torchx. Lets try out and launch distributed
+trainer using docker. The following cmd to launch distributed job on docker:
+
+.. code:: shell-session
+
+    Launch the trainer using torchx
+    $ torchx run \\
+      -s local_cwd \\
+      ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
+      --nnodes 2 \\
+      --nproc_per_node 2 \\
+      --rdzv_backend c10d \\
+      --rdzv_endpoint localhost:29500
 
 
-We can use the following cmd to launch application on kubernetes:
+.. note:: The command above will only work for hosts without GPU!
+
+
+This will run 4 trainers on two docker containers. ``local_docker`` assigns ``hostname``
+to each of the container role using the pattern ``${$APP_NAME}-${ROLE_NAME}-${RELICA_ID}``.
+
+
+TorchX supports ``kubernetes`` scheduler that allows you to execute distributed jobs on your kubernetes cluster.
+
+
+.. note:: Make sure that you install necessary dependencies on :ref:`schedulers/kubernetes:Prerequisites`
+            before executing job
+
+
+The following command runs 2 pods on kubernetes cluster, each of the pods will occupy a single gpu.
+
+
+.. code:: shell-session
+
+    $ torchx run -s kubernetes \\
+      --scheduler_args namespace=default,queue=default \\
+      ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
+      --nnodes 2 \\
+      --nproc_per_node 1 \\
+      --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
+
+
+The command above will launch distributed train job on kubernetes ``default`` namespace using volcano
+``default`` queue. In this example we used ``etcd`` rendezvous  in comparison to the ``c10d`` rendezvous.
+It is important to use ``etcd`` rendezvous that uses ``etcd server`` since it is a best practice to perform
+peer discovery for distributed jobs.  Read more about
+`rendezvous <https://pytorch.org/docs/stable/elastic/rendezvous.html>`_.
+
+
+.. note:: For GPU training, keep ``nproc_per_node`` equal to the amount of GPUs on the host and
+          change the resource requirements in ``torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist``
+          method. Modify ``resource_def`` to the number of GPUs that your host has.
+
+The command should produce the following output:
 
 .. code:: bash
 
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default \
-    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
-    --nnodes 1 --nproc_per_node 2
-
-The `namespaces` arg corresponds to the kubernetes namespace that you want to launch.
-The `queue` arg is the volcano `queue <https://volcano.sh/en/docs/queue/>`_.
-
-
-Example of output:
-
-.. code:: bash
-
-    kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
     torchx 2021-10-18 18:46:55 INFO     Launched app: kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
     torchx 2021-10-18 18:46:55 INFO     AppStatus:
       msg: <NONE>
@@ -87,9 +130,12 @@ Example of output:
 
 You can use the job url to query the status or logs of the job:
 
-.. code:: bash
+.. code:: shell-session
 
-    torchx status kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+    Change value to your unique app handle
+    $ export APP_HANDLE=kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+
+    $ torchx status $APP_HANDLE
 
     torchx 2021-10-18 18:47:44 INFO     AppDef:
       State: SUCCEEDED
@@ -97,38 +143,11 @@ You can use the job url to query the status or logs of the job:
     Roles:
      *worker[0]:SUCCEEDED
 
-Try running `torchx log kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng`.
+Try running
 
+.. code:: shell-session
 
-Multiple nodes, multiple trainers (kubernetes)
-===============================================
-
-It is simple to launch multiple nodes trainer in kubernetes:
-
-.. code:: bash
-
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default \
-    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
-    --nnodes 2 --nproc_per_node 2
-
-The command above will launch distributed train job on kubernetes `default` namespace using volcano
-`default` queue. It will use etcd service accessible on `etcd-server:2379` to perform
-`etcd rendezvous <https://pytorch.org/docs/stable/elastic/rendezvous.html>`_.
-
-You can overwrite rendezvous endpoint:
-
-.. code:: bash
-
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default \
-    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \
-    --nnodes 2 --nproc_per_node 1 \
-    --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
-
-.. note:: For GPU training, keep `nproc_per_node` equal to the amount of GPUs the instace has.
-
-The command above will launch distributed train job on kubernetes `default` namespace using volcano
-`default` queue. It will use etcd service accessible on `etcd-server:2379` to perform
-`etcd rendezvous <https://pytorch.org/docs/stable/elastic/rendezvous.html>`_.
+    $ torchx log $APP_HANDLE
 
 
 Builtin distributed components
@@ -137,7 +156,7 @@ Builtin distributed components
 In the examples above we used custom components to launch user applications. It is not always the case that
 users need to write their own components.
 
-Torchx comes with set of builtin component that describe typical execution patterns.
+TorchX comes with set of builtin component that describe typical execution patterns.
 
 
 dist.ddp
@@ -186,9 +205,9 @@ Single trainer on desktop
 
 We can run this example on desktop on four processes using the following cmd:
 
-.. code:: bash
+.. code:: shell-session
 
-    torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4
+    $ torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4
 
 
 Single trainer on kubernetes cluster
@@ -196,14 +215,15 @@ Single trainer on kubernetes cluster
 
 We can execute it on the kubernetes cluster
 
-.. code:: bash
+.. code:: shell-session
 
-    torchx run -s kubernetes --scheduler_args namespace=default,queue=default\
-dist.ddp --entrypoint main.py --nproc_per_node 4
-
+    $ torchx run -s kubernetes \\
+      --scheduler_args namespace=default,queue=default \\
+      dist.ddp --entrypoint main.py --nproc_per_node 4
 
 
 Components APIs
+-----------------
 """
 
 from typing import Any, Dict, Optional
