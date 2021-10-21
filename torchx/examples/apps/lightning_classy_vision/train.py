@@ -27,22 +27,20 @@ import pytorch_lightning as pl
 import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
-
-# ensure data and module are on the path
-sys.path.append(".")
-
 from torchx.examples.apps.lightning_classy_vision.data import (
     TinyImageNetDataModule,
-    download_data,
     create_random_data,
+    download_data,
 )
 from torchx.examples.apps.lightning_classy_vision.model import (
     TinyImageNetModel,
     export_inference_model,
 )
-from torchx.examples.apps.lightning_classy_vision.profiler import (
-    SimpleLoggingProfiler,
-)
+from torchx.examples.apps.lightning_classy_vision.profiler import SimpleLoggingProfiler
+
+
+# ensure data and module are on the path
+sys.path.append(".")
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -82,10 +80,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="the MLP hidden layers and sizes, used for neural architecture search",
     )
     return parser.parse_args(argv)
-
-
-def get_gpu_devices() -> int:
-    return torch.cuda.device_count()
 
 
 def get_model_checkpoint(args: argparse.Namespace) -> Optional[ModelCheckpoint]:
@@ -138,10 +132,16 @@ def main(argv: List[str]) -> None:
         # Initialize a trainer
         num_nodes = int(os.environ.get("GROUP_WORLD_SIZE", 1))
         num_processes = int(os.environ.get("LOCAL_WORLD_SIZE", 1))
+
+        if torch.cuda.is_available():
+            gpus = num_processes
+        else:
+            gpus = None
+
         trainer = pl.Trainer(
             num_nodes=num_nodes,
             num_processes=num_processes,
-            gpus=get_gpu_devices(),
+            gpus=gpus,
             accelerator="ddp",
             logger=logger,
             max_epochs=args.epochs,
