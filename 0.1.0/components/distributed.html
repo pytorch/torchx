@@ -359,11 +359,11 @@
       
   <section id="module-torchx.components.dist">
 <span id="distributed"></span><h1>Distributed<a class="headerlink" href="#module-torchx.components.dist" title="Permalink to this headline">¶</a></h1>
-<p>Torchx helps you to run your distributed trainer jobs. Check out <a class="reference internal" href="train.html#module-torchx.components.train" title="torchx.components.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.train</span></code></a>
+<p>TorchX helps you to run your distributed trainer jobs. Check out <a class="reference internal" href="train.html#module-torchx.components.train" title="torchx.components.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.train</span></code></a>
 on the example of running single trainer job. Here we will be using
 the same <a class="reference internal" href="../examples_apps/lightning_classy_vision/train.html#trainer-app-example"><span class="std std-ref">Trainer App Example</span></a>.
 but will run it in a distributed manner.</p>
-<p>Torchx uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">Torch distributed run</a> to launch user processes
+<p>TorchX uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">Torch distributed run</a> to launch user processes
 and expects that user applications will be written in
 <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html">Distributed data parallel</a>
 manner</p>
@@ -374,29 +374,83 @@ write a distributed torchx component. The example that we will be using here is
 <a class="reference internal" href="../examples_apps/lightning_classy_vision/component.html#distributed-trainer-component"><span class="std std-ref">Distributed Trainer Component</span></a></p>
 <p>The component defines how the user application is launched and torchx will take care of translating this into
 scheduler-specific definitions.</p>
-<section id="single-node-multiple-trainers-desktop">
-<h3>Single node, multiple trainers (desktop)<a class="headerlink" href="#single-node-multiple-trainers-desktop" title="Permalink to this headline">¶</a></h3>
-<p>Try launching a single node, multiple trainers example on your desktop:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s local_cwd     ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist     --nnodes <span class="m">1</span> --nproc_per_node <span class="m">2</span>     --rdzv_backend c10d --rdzv_endpoint localhost:29500
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Follow <a class="reference internal" href="../examples_apps/lightning_classy_vision/component.html#prerequisites-of-running-examples"><span class="std std-ref">Prerequisites of running examples</span></a>
+before running the examples</p>
+</div>
+<section id="single-node-multiple-trainers">
+<h3>Single node, multiple trainers<a class="headerlink" href="#single-node-multiple-trainers" title="Permalink to this headline">¶</a></h3>
+<p>Try launching a single node, multiple trainers example:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run <span class="se">\</span>
+  -s local_cwd <span class="se">\</span>
+  ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
+  --nnodes <span class="m">1</span> <span class="se">\</span>
+  --nproc_per_node <span class="m">2</span> <span class="se">\</span>
+  --rdzv_backend c10d --rdzv_endpoint localhost:29500
 </pre></div>
 </div>
-<p>The <cite>./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist</cite> is reference to the component
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">runopts</span></code> to see available schedulers</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist</span></code> is reference to the component
 function: <a class="reference internal" href="../examples_apps/lightning_classy_vision/component.html#distributed-trainer-component"><span class="std std-ref">Distributed Trainer Component</span></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TorchX supports docker scheduler via <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">local_docker</span></code> command that currently works only for single
+node multiple processes due to issues <a class="reference external" href="https://github.com/pytorch/torchx/issues/286">286</a> and
+<a class="reference external" href="https://github.com/pytorch/torchx/issues/287">287</a></p>
+</div>
 </section>
-<section id="single-node-multiple-trainers-kubernetes">
-<h3>Single node, multiple trainers (kubernetes)<a class="headerlink" href="#single-node-multiple-trainers-kubernetes" title="Permalink to this headline">¶</a></h3>
-<p>Now lets launch the same component on the kubernetes cluster.
-Check out <a class="reference internal" href="../schedulers/kubernetes.html#module-torchx.schedulers.kubernetes_scheduler" title="torchx.schedulers.kubernetes_scheduler"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.schedulers.kubernetes_scheduler</span></code></a> on dependencies that needs to be installed
-before running using <cite>kubernetes</cite> scheduler.</p>
-<p>We can use the following cmd to launch application on kubernetes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default     ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist     --nnodes <span class="m">1</span> --nproc_per_node <span class="m">2</span>
+<section id="multiple-nodes-multiple-trainers">
+<h3>Multiple nodes, multiple trainers<a class="headerlink" href="#multiple-nodes-multiple-trainers" title="Permalink to this headline">¶</a></h3>
+<p>It is simple to launch and manage distributed trainer with torchx. Lets try out and launch distributed
+trainer using docker. The following cmd to launch distributed job on docker:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="go">Launch the trainer using torchx</span>
+<span class="gp">$ </span>torchx run <span class="se">\</span>
+  -s local_cwd <span class="se">\</span>
+  ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
+  --nnodes <span class="m">2</span> <span class="se">\</span>
+  --nproc_per_node <span class="m">2</span> <span class="se">\</span>
+  --rdzv_backend c10d <span class="se">\</span>
+  --rdzv_endpoint localhost:29500
 </pre></div>
 </div>
-<p>The <cite>namespaces</cite> arg corresponds to the kubernetes namespace that you want to launch.
-The <cite>queue</cite> arg is the volcano <a class="reference external" href="https://volcano.sh/en/docs/queue/">queue</a>.</p>
-<p>Example of output:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
-torchx <span class="m">2021</span>-10-18 <span class="m">18</span>:46:55 INFO     Launched app: kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The command above will only work for hosts without GPU!</p>
+</div>
+<p>This will run 4 trainers on two docker containers. <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> assigns <code class="docutils literal notranslate"><span class="pre">hostname</span></code>
+to each of the container role using the pattern <code class="docutils literal notranslate"><span class="pre">${$APP_NAME}-${ROLE_NAME}-${RELICA_ID}</span></code>.</p>
+<p>TorchX supports <code class="docutils literal notranslate"><span class="pre">kubernetes</span></code> scheduler that allows you to execute distributed jobs on your kubernetes cluster.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure that you install necessary dependencies on <a class="reference internal" href="../schedulers/kubernetes.html#prerequisites"><span class="std std-ref">Prerequisites</span></a>
+before executing job</p>
+</div>
+<p>The following command runs 2 pods on kubernetes cluster, each of the pods will occupy a single gpu.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s kubernetes <span class="se">\</span>
+  --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default <span class="se">\</span>
+  ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
+  --nnodes <span class="m">2</span> <span class="se">\</span>
+  --nproc_per_node <span class="m">1</span> <span class="se">\</span>
+  --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
+</pre></div>
+</div>
+<p>The command above will launch distributed train job on kubernetes <code class="docutils literal notranslate"><span class="pre">default</span></code> namespace using volcano
+<code class="docutils literal notranslate"><span class="pre">default</span></code> queue. In this example we used <code class="docutils literal notranslate"><span class="pre">etcd</span></code> rendezvous  in comparison to the <code class="docutils literal notranslate"><span class="pre">c10d</span></code> rendezvous.
+It is important to use <code class="docutils literal notranslate"><span class="pre">etcd</span></code> rendezvous that uses <code class="docutils literal notranslate"><span class="pre">etcd</span> <span class="pre">server</span></code> since it is a best practice to perform
+peer discovery for distributed jobs.  Read more about
+<a class="reference external" href="https://pytorch.org/docs/stable/elastic/rendezvous.html">rendezvous</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For GPU training, keep <code class="docutils literal notranslate"><span class="pre">nproc_per_node</span></code> equal to the amount of GPUs on the host and
+change the resource requirements in <code class="docutils literal notranslate"><span class="pre">torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist</span></code>
+method. Modify <code class="docutils literal notranslate"><span class="pre">resource_def</span></code> to the number of GPUs that your host has.</p>
+</div>
+<p>The command should produce the following output:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx <span class="m">2021</span>-10-18 <span class="m">18</span>:46:55 INFO     Launched app: kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
 torchx <span class="m">2021</span>-10-18 <span class="m">18</span>:46:55 INFO     AppStatus:
   msg: &lt;NONE&gt;
   num_restarts: -1
@@ -409,44 +463,29 @@ torchx <span class="m">2021</span>-10-18 <span class="m">18</span>:46:55 INFO   
 </pre></div>
 </div>
 <p>You can use the job url to query the status or logs of the job:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx status kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="go">Change value to your unique app handle</span>
+<span class="gp">$ </span><span class="nb">export</span> <span class="nv">APP_HANDLE</span><span class="o">=</span>kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
 
-torchx <span class="m">2021</span>-10-18 <span class="m">18</span>:47:44 INFO     AppDef:
-  State: SUCCEEDED
-  Num Restarts: -1
-Roles:
- *worker<span class="o">[</span><span class="m">0</span><span class="o">]</span>:SUCCEEDED
+<span class="gp">$ </span>torchx status <span class="nv">$APP_HANDLE</span>
+
+<span class="go">torchx 2021-10-18 18:47:44 INFO     AppDef:</span>
+<span class="go">  State: SUCCEEDED</span>
+<span class="go">  Num Restarts: -1</span>
+<span class="go">Roles:</span>
+<span class="go"> *worker[0]:SUCCEEDED</span>
 </pre></div>
 </div>
-<p>Try running <cite>torchx log kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng</cite>.</p>
-</section>
-<section id="multiple-nodes-multiple-trainers-kubernetes">
-<h3>Multiple nodes, multiple trainers (kubernetes)<a class="headerlink" href="#multiple-nodes-multiple-trainers-kubernetes" title="Permalink to this headline">¶</a></h3>
-<p>It is simple to launch multiple nodes trainer in kubernetes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default     ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist     --nnodes <span class="m">2</span> --nproc_per_node <span class="m">2</span>
+<p>Try running</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx log <span class="nv">$APP_HANDLE</span>
 </pre></div>
 </div>
-<p>The command above will launch distributed train job on kubernetes <cite>default</cite> namespace using volcano
-<cite>default</cite> queue. It will use etcd service accessible on <cite>etcd-server:2379</cite> to perform
-<a class="reference external" href="https://pytorch.org/docs/stable/elastic/rendezvous.html">etcd rendezvous</a>.</p>
-<p>You can overwrite rendezvous endpoint:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default     ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist     --nnodes <span class="m">2</span> --nproc_per_node <span class="m">1</span>     --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For GPU training, keep <cite>nproc_per_node</cite> equal to the amount of GPUs the instace has.</p>
-</div>
-<p>The command above will launch distributed train job on kubernetes <cite>default</cite> namespace using volcano
-<cite>default</cite> queue. It will use etcd service accessible on <cite>etcd-server:2379</cite> to perform
-<a class="reference external" href="https://pytorch.org/docs/stable/elastic/rendezvous.html">etcd rendezvous</a>.</p>
 </section>
 </section>
 <section id="builtin-distributed-components">
 <h2>Builtin distributed components<a class="headerlink" href="#builtin-distributed-components" title="Permalink to this headline">¶</a></h2>
 <p>In the examples above we used custom components to launch user applications. It is not always the case that
 users need to write their own components.</p>
-<p>Torchx comes with set of builtin component that describe typical execution patterns.</p>
+<p>TorchX comes with set of builtin component that describe typical execution patterns.</p>
 <section id="dist-ddp">
 <h3>dist.ddp<a class="headerlink" href="#dist-ddp" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code>  is a component  for applications that run as distributed jobs in a DDP manner.
@@ -486,19 +525,23 @@ Learn more <a class="reference internal" href="overview.html#authoring"><span cl
 <section id="single-trainer-on-desktop">
 <h4>Single trainer on desktop<a class="headerlink" href="#single-trainer-on-desktop" title="Permalink to this headline">¶</a></h4>
 <p>We can run this example on desktop on four processes using the following cmd:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
 </pre></div>
 </div>
 </section>
 <section id="single-trainer-on-kubernetes-cluster">
 <h4>Single trainer on kubernetes cluster<a class="headerlink" href="#single-trainer-on-kubernetes-cluster" title="Permalink to this headline">¶</a></h4>
 <p>We can execute it on the kubernetes cluster</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run -s kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>defaultdist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s kubernetes <span class="se">\</span>
+  --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span>default <span class="se">\</span>
+  dist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
 </pre></div>
 </div>
-<p>Components APIs</p>
 </section>
 </section>
+</section>
+<section id="components-apis">
+<h2>Components APIs<a class="headerlink" href="#components-apis" title="Permalink to this headline">¶</a></h2>
 </section>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.components.dist.ddp">
@@ -583,9 +626,8 @@ gets ignored when running on the local scheduler.</p></li>
               <ul>
 <li><a class="reference internal" href="#">Distributed</a><ul>
 <li><a class="reference internal" href="#distributed-trainer-execution">Distributed Trainer Execution</a><ul>
-<li><a class="reference internal" href="#single-node-multiple-trainers-desktop">Single node, multiple trainers (desktop)</a></li>
-<li><a class="reference internal" href="#single-node-multiple-trainers-kubernetes">Single node, multiple trainers (kubernetes)</a></li>
-<li><a class="reference internal" href="#multiple-nodes-multiple-trainers-kubernetes">Multiple nodes, multiple trainers (kubernetes)</a></li>
+<li><a class="reference internal" href="#single-node-multiple-trainers">Single node, multiple trainers</a></li>
+<li><a class="reference internal" href="#multiple-nodes-multiple-trainers">Multiple nodes, multiple trainers</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#builtin-distributed-components">Builtin distributed components</a><ul>
@@ -596,6 +638,7 @@ gets ignored when running on the local scheduler.</p></li>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#components-apis">Components APIs</a></li>
 </ul>
 </li>
 </ul>

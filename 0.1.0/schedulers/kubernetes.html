@@ -359,6 +359,8 @@
       
   <section id="module-torchx.schedulers.kubernetes_scheduler">
 <span id="kubernetes"></span><h1>Kubernetes<a class="headerlink" href="#module-torchx.schedulers.kubernetes_scheduler" title="Permalink to this headline">¶</a></h1>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>TorchX kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.</p>
 <p>Install volcano 1.4.0 version</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
@@ -370,6 +372,7 @@ This requires the installation of etcd service on your kubernetes cluster:</p>
 </pre></div>
 </div>
 <p>Learn more about running distributed trainers <a class="reference internal" href="../components/distributed.html#module-torchx.components.dist" title="torchx.components.dist"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.dist</span></code></a></p>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">KubernetesScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler" title="Permalink to this definition">¶</a></dt>
@@ -554,7 +557,10 @@ implemented by:</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Kubernetes</a></li>
+<li><a class="reference internal" href="#">Kubernetes</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+</ul>
+</li>
 </ul>
 
             </div>
