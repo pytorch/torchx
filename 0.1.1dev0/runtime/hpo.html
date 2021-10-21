@@ -1,0 +1,887 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>HPO &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tracking" href="tracking.html" />
+    <link rel="prev" title="Overview" href="overview.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
+                  <span class="dropdown-title">TorchElastic</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.1.1dev0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracking.html">Tracking</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>HPO</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/runtime/hpo.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <section id="hpo">
+<h1>HPO<a class="headerlink" href="#hpo" title="Permalink to this headline">¶</a></h1>
+<section id="module-torchx.runtime.hpo">
+<span id="overview-usage"></span><h2>Overview &amp; Usage<a class="headerlink" href="#module-torchx.runtime.hpo" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">torchx.runtime.hpo</span></code> module contains modules and functions that you
+can use to build a Hyperparameter Optimization (HPO) application. Note
+that an HPO application is the entity that is coordinating the HPO search
+and is not to be confused with the application that runs for each “trial”
+of the search. Typically a “trial” in an HPO job is the trainer app that
+trains an ML model given a set of parameters as dictated by the HPO job.</p>
+<p>For grid-search, the HPO job may be as simple as a for-parallel loop that
+exhaustively runs through all the combinations of parameters in the user-defined
+search space. On the other hand, bayesian optimization requires the optimizer
+state to be preserved between trials, which leads a more non-trivial implementation
+of an HPO app.</p>
+<p>Currently this module uses <a class="reference external" href="https://ax.dev">Ax</a> as the underlying brains of HPO
+and offers a few extension points to integrate Ax with TorchX runners.</p>
+<section id="quickstart-example">
+<h3>Quickstart Example<a class="headerlink" href="#quickstart-example" title="Permalink to this headline">¶</a></h3>
+<p>The following example demonstrates running an HPO job on a TorchX component.
+We use the builtin <code class="docutils literal notranslate"><span class="pre">utils.booth</span></code> component which simply runs an application
+that evaluates the booth function at <code class="docutils literal notranslate"><span class="pre">(x1,</span> <span class="pre">x2)</span></code>. The objective is to
+find <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code> that minimizes the booth function.</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go">import os</span>
+<span class="go">from ax.core import (</span>
+<span class="go">   BatchTrial,</span>
+<span class="go">   Experiment,</span>
+<span class="go">   Objective,</span>
+<span class="go">   OptimizationConfig,</span>
+<span class="go">   Parameter,</span>
+<span class="go">   ParameterType,</span>
+<span class="go">   RangeParameter,</span>
+<span class="go">   SearchSpace,</span>
+<span class="go">)</span>
+<span class="go">from ax.modelbridge.dispatch_utils import choose_generation_strategy</span>
+<span class="go">from ax.service.scheduler import SchedulerOptions</span>
+<span class="go">from ax.service.utils.best_point import get_best_parameters</span>
+<span class="go">from ax.service.utils.report_utils import exp_to_df</span>
+<span class="go">from ax.utils.common.constants import Keys</span>
+<span class="go">from pyre_extensions import none_throws</span>
+<span class="go">from torchx.components import utils</span>
+<span class="go">from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler</span>
+<span class="go">from torchx.specs import RunConfig</span>
+
+<span class="go"># Run HPO on the booth function (https://en.wikipedia.org/wiki/Test_functions_for_optimization)</span>
+
+<span class="go">parameters = [</span>
+<span class="go">   RangeParameter(</span>
+<span class="go">       name=&quot;x1&quot;,</span>
+<span class="go">       lower=-10.0,</span>
+<span class="go">       upper=10.0,</span>
+<span class="go">       parameter_type=ParameterType.FLOAT,</span>
+<span class="go">   ),</span>
+<span class="go">   RangeParameter(</span>
+<span class="go">       name=&quot;x2&quot;,</span>
+<span class="go">       lower=-10.0,</span>
+<span class="go">       upper=10.0,</span>
+<span class="go">       parameter_type=ParameterType.FLOAT,</span>
+<span class="go">   ),</span>
+<span class="go">]</span>
+
+<span class="go">objective = Objective(metric=AppMetric(name=&quot;booth_eval&quot;), minimize=True)</span>
+
+<span class="go">runner = TorchXRunner(</span>
+<span class="go">   tracker_base=tmpdir,</span>
+<span class="go">   component=utils.booth,</span>
+<span class="go">   component_const_params={</span>
+<span class="go">       &quot;image&quot;: &quot;ghcr.io/pytorch/torchx:0.1.0rc0&quot;,</span>
+<span class="go">   },</span>
+<span class="go">   scheduler=&quot;local&quot;, # can also be [kubernetes, slurm, etc]</span>
+<span class="go">   scheduler_args=RunConfig({&quot;log_dir&quot;: tmpdir, &quot;image_type&quot;: &quot;docker&quot;}),</span>
+<span class="go">)</span>
+
+<span class="go">experiment = Experiment(</span>
+<span class="go">    name=&quot;torchx_booth_sequential_demo&quot;,</span>
+<span class="go">    search_space=SearchSpace(parameters=parameters),</span>
+<span class="go">    optimization_config=OptimizationConfig(objective=objective),</span>
+<span class="go">    runner=runner,</span>
+<span class="go">    is_test=True,</span>
+<span class="go">    properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},</span>
+<span class="go">)</span>
+
+<span class="go">scheduler = TorchXScheduler(</span>
+<span class="go">    experiment=experiment,</span>
+<span class="go">    generation_strategy=(</span>
+<span class="go">        choose_generation_strategy(</span>
+<span class="go">            search_space=experiment.search_space,</span>
+<span class="go">        )</span>
+<span class="go">    ),</span>
+<span class="go">    options=SchedulerOptions(),</span>
+<span class="go">)</span>
+
+
+<span class="go">for i in range(3): </span>
+<span class="go">   scheduler.run_n_trials(max_trials=2) </span>
+
+<span class="go">print(exp_to_df(experiment)) </span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-torchx.runtime.hpo.ax">
+<span id="ax-adaptive-experimentation"></span><h2>Ax (Adaptive Experimentation)<a class="headerlink" href="#module-torchx.runtime.hpo.ax" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.TorchXRunner">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.runtime.hpo.ax.</span></span><span class="sig-name descname"><span class="pre">TorchXRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracker_base</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_const_params</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduler</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheduler_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../specs.html#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#TorchXRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.TorchXRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>An implementation of <code class="docutils literal notranslate"><span class="pre">ax.core.runner.Runner</span></code> that delegates job submission
+to the TorchX Runner. This runner is coupled with the torchx component
+since Ax runners run trials of a single component with different parameters.</p>
+<p>It is expected that the experiment parameter names and types match
+EXACTLY with component’s function args. Component function args that are
+NOT part of the search space can be passed as <code class="docutils literal notranslate"><span class="pre">component_const_params</span></code>.
+The following args (provided that the component function declares them
+in the function signature) as passed automatically:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trial_idx</span> <span class="pre">(int)</span></code>: current trial’s index</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tracker_base</span> <span class="pre">(str)</span></code>: torchx tracker’s base (typically a URL indicating the base dir of the tracker)</p></li>
+</ol>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trainer_component</span><span class="p">(</span>
+   <span class="n">x1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+   <span class="n">x2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+   <span class="n">trial_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+   <span class="n">tracker_base</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+   <span class="n">x3</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+   <span class="n">x4</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spec</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+   <span class="c1"># ... implementation omitted for brevity ...</span>
+   <span class="k">pass</span>
+</pre></div>
+</div>
+<p>The experiment should be set up as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span><span class="o">=</span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;x1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value_type&quot;</span><span class="p">:</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+    <span class="c1"># ... other options...</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;value_type&quot;</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+    <span class="c1"># ... other options...</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>And the rest of the arguments can be set as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TorchXRunner</span><span class="p">(</span>
+   <span class="n">tracker_base</span><span class="o">=</span><span class="s2">&quot;s3://foo/bar&quot;</span><span class="p">,</span>
+   <span class="n">component</span><span class="o">=</span><span class="n">trainer_component</span><span class="p">,</span>
+   <span class="c1"># trial_idx and tracker_base args passed automatically</span>
+   <span class="c1"># if the function signature declares those args</span>
+   <span class="n">component_const_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x3&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;x4&quot;</span><span class="p">:</span> <span class="s2">&quot;barbaz&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Running the experiment as set up above results in each trial running:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">appdef</span> <span class="o">=</span> <span class="n">trainer_component</span><span class="p">(</span>
+           <span class="n">x1</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;x1&quot;</span><span class="p">],</span>
+           <span class="n">x2</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;x2&quot;</span><span class="p">],</span>
+           <span class="n">trial_idx</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+           <span class="n">tracker_base</span><span class="o">=</span><span class="s2">&quot;s3://foo/bar&quot;</span><span class="p">,</span>
+           <span class="n">x3</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+           <span class="n">x4</span><span class="o">=</span><span class="s2">&quot;barbaz&quot;</span><span class="p">)</span>
+
+<span class="n">torchx</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">appdef</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.TorchXScheduler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.runtime.hpo.ax.</span></span><span class="sig-name descname"><span class="pre">TorchXScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.core.experiment.Experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_strategy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.modelbridge.generation_strategy.GenerationStrategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.service.scheduler.SchedulerOptions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_settings</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ax.storage.sqa_store.structs.DBSettings</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_skip_experiment_save</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#TorchXScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.TorchXScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>An implementation of an <a class="reference external" href="https://ax.dev/tutorials/scheduler.html">Ax Scheduler</a>
+that works with Experiments hooked up with the <code class="docutils literal notranslate"><span class="pre">TorchXRunner</span></code>.</p>
+<p>This scheduler is not a real scheduler but rather a facade scheduler
+that delegates to scheduler clients for various remote/local schedulers.
+For a list of supported schedulers please refer to TorchX
+<a class="reference external" href="https://pytorch.org/torchx/latest/schedulers.html">scheduler docs</a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.AppMetric">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.runtime.hpo.ax.</span></span><span class="sig-name descname"><span class="pre">AppMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#AppMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.AppMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches AppMetric (the observation returned by the trial job/app)
+via the <code class="docutils literal notranslate"><span class="pre">torchx.tracking</span></code> module. Assumes that the app used
+the tracker in the following manner:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tracker</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">tracking</span><span class="o">.</span><span class="n">FsspecResultTracker</span><span class="p">(</span><span class="n">tracker_base</span><span class="p">)</span>
+<span class="n">tracker</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">trial_index</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="n">metric_name</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+
+<span class="c1"># -- or --</span>
+<span class="n">tracker</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">trial_index</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;metric_name/mean&quot;</span><span class="p">:</span> <span class="n">mean_value</span><span class="p">,</span>
+                            <span class="s2">&quot;metric_name/sem&quot;</span><span class="p">:</span> <span class="n">sem_value</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+     </article>
+     
+    </div>
+    <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tracking.html" class="btn btn-neutral float-right" title="Tracking" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="overview.html" class="btn btn-neutral" title="Overview" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">HPO</a><ul>
+<li><a class="reference internal" href="#module-torchx.runtime.hpo">Overview &amp; Usage</a><ul>
+<li><a class="reference internal" href="#quickstart-example">Quickstart Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-torchx.runtime.hpo.ax">Ax (Adaptive Experimentation)</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+         <script src="../_static/jquery.js"></script>
+         <script src="../_static/underscore.js"></script>
+         <script src="../_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+         <script src="../_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>

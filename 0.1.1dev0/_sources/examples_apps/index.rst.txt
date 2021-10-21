@@ -1,0 +1,231 @@
+:orphan:
+
+
+
+.. _sphx_glr_examples_apps:
+
+Application Examples
+====================
+
+
+.. raw:: html
+
+    <div class="sphx-glr-clear"></div>
+
+
+
+.. _sphx_glr_examples_apps_datapreproc:
+
+Data Preprocessing Example
+##########################
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a component definition that runs the example datapreproc app.">
+
+.. only:: html
+
+ .. figure:: /examples_apps/datapreproc/images/thumb/sphx_glr_component_thumb.png
+     :alt: Datapreproc Component Example
+
+     :ref:`sphx_glr_examples_apps_datapreproc_component.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/datapreproc/component
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a simple TorchX app that downloads some data via HTTP, normalizes the images via torchv...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/datapreproc/images/thumb/sphx_glr_datapreproc_thumb.png
+     :alt: Data Preprocessing App Example
+
+     :ref:`sphx_glr_examples_apps_datapreproc_datapreproc.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/datapreproc/datapreproc
+.. raw:: html
+
+    <div class="sphx-glr-clear"></div>
+
+
+
+.. _sphx_glr_examples_apps_lightning_classy_vision:
+
+Lightning + Classy Vision Trainer Example
+#########################################
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a simple profiler that&#x27;s used as part of the trainer app example. This logs the Lightni...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_profiler_thumb.png
+     :alt: Simple Logging Profiler
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_profiler.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/profiler
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a toy model for doing regression on the tiny imagenet dataset. It&#x27;s used by the apps in...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_model_thumb.png
+     :alt: Tiny ImageNet Model
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_model.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/model
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses captum to analyze inputs to for model interpretability ...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_interpret_thumb.png
+     :alt: Model Interpretability App Example
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_interpret.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/interpret
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is an example TorchX app that uses PyTorch Lightning and ClassyVision to train a model.">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_train_thumb.png
+     :alt: Trainer App Example
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_train.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/train
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is the datasets used for the training example. It&#x27;s using stock Pytorch Lightning + Classy...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_data_thumb.png
+     :alt: Trainer Datasets Example
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_data.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/data
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Component definitions that run the example lightning_classy_vision app in a single or distribut...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_component_thumb.png
+     :alt: Trainer Component Examples
+
+     :ref:`sphx_glr_examples_apps_lightning_classy_vision_component.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/lightning_classy_vision/component
+.. raw:: html
+
+    <div class="sphx-glr-clear"></div>
+
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-gallery
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+    :download:`Download all examples in Python source code: examples_apps_python.zip <//home/runner/work/torchx/torchx/docs/source/examples_apps/examples_apps_python.zip>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+    :download:`Download all examples in Jupyter notebooks: examples_apps_jupyter.zip <//home/runner/work/torchx/torchx/docs/source/examples_apps/examples_apps_jupyter.zip>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
