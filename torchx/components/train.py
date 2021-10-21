@@ -14,11 +14,7 @@ generic components you can use to run your custom training app.
 1. :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example`
 2. :ref:`examples_apps/lightning_classy_vision/component:Trainer Component`
 3. :ref:`component_best_practices:Component Best Practices`
-
-
-You can learn more about authoring your own components: :py:mod:`torchx.components`
-
-Torchx has great support for simplifying execution of distributed jobs, that you can learn more
-:py:mod:`torchx.components.dist`
+4. See :py:mod:`torchx.components` to learn more about authoring components
+5. For more information on distributed training see :py:mod:`torchx.components.dist`.
 
 """
