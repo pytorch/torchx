@@ -464,6 +464,9 @@ the app agnostic to the environment it’s running in.</p>
 <span class="k">def</span> <span class="nf">get_model_checkpoint</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="n">ModelCheckpoint</span><span class="p">]:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># Note: It is important that each rank behaves the same.</span>
+    <span class="c1"># All of the ranks, or none of them should return ModelCheckpoint</span>
+    <span class="c1"># Otherwise, there will be deadlock for distributed training</span>
     <span class="k">return</span> <span class="n">ModelCheckpoint</span><span class="p">(</span>
         <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;train_loss&quot;</span><span class="p">,</span>
         <span class="n">dirpath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
@@ -505,12 +508,14 @@ the app agnostic to the environment it’s running in.</p>
         <span class="n">logger</span> <span class="o">=</span> <span class="n">TensorBoardLogger</span><span class="p">(</span>
             <span class="n">save_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;lightning_logs&quot;</span>
         <span class="p">)</span>
-
         <span class="c1"># Initialize a trainer</span>
         <span class="n">num_nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GROUP_WORLD_SIZE&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">num_processes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LOCAL_WORLD_SIZE&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">trainer</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span>
             <span class="n">num_nodes</span><span class="o">=</span><span class="n">num_nodes</span><span class="p">,</span>
-            <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;ddp2&quot;</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="n">get_gpu_devices</span><span class="p">(),</span>
+            <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;ddp&quot;</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
             <span class="n">max_epochs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
             <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
@@ -523,7 +528,8 @@ the app agnostic to the environment it’s running in.</p>
             <span class="sa">f</span><span class="s2">&quot;train acc: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">train_acc</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="si">}</span><span class="s2">, val acc: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">val_acc</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_export</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;RANK&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_export</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span>
             <span class="c1"># Export the inference model</span>
             <span class="n">export_inference_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
 
