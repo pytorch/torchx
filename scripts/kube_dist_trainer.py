@@ -33,7 +33,7 @@ def register_gpu_resource() -> None:
     res = Resource(
         cpu=2,
         gpu=1,
-        memMB=4 * GiB,
+        memMB=8 * GiB,
     )
     print(f"Registering resource: {res}")
     named_resources["GPU_X1"] = res

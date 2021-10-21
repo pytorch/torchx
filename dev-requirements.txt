@@ -4,7 +4,7 @@ kfp==1.6.2
 pyre-extensions>=0.0.21
 black>=21.5b1
 usort==0.6.4
-pytorch-lightning>=0.5.3
+pytorch-lightning>=1.4.9
 torch>=1.9.0
 torchvision>=0.10.0
 classy-vision>=0.6.0
