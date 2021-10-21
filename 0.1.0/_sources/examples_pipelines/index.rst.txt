@@ -97,13 +97,13 @@ KubeFlow Pipelines Examples
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-    :download:`Download all examples in Python source code: examples_pipelines_python.zip <//home/runner/work/torchx/torchx/docs/source/examples_pipelines/examples_pipelines_python.zip>`
+    :download:`Download all examples in Python source code: examples_pipelines_python.zip <//home/tristanr/Developer/torchx/docs/source/examples_pipelines/examples_pipelines_python.zip>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-    :download:`Download all examples in Jupyter notebooks: examples_pipelines_jupyter.zip <//home/runner/work/torchx/torchx/docs/source/examples_pipelines/examples_pipelines_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: examples_pipelines_jupyter.zip <//home/tristanr/Developer/torchx/docs/source/examples_pipelines/examples_pipelines_jupyter.zip>`
 
 
 .. only:: html
