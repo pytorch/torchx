@@ -360,117 +360,106 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">TorchX helps you to run your distributed trainer jobs. Check out :py:mod:`torchx.components.train`</span>
-<span class="sd">on the example of running single trainer job. Here we will be using</span>
-<span class="sd">the same :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example`.</span>
-<span class="sd">but will run it in a distributed manner.</span>
+<span class="sd">For distributed training, TorchX relies on the scheduler&#39;s gang scheduling</span>
+<span class="sd">capabilities to schedule ``n`` copies of nodes. Once launched, the application</span>
+<span class="sd">is expected to be written in a way that leverages this topology, for instance,</span>
+<span class="sd">with PyTorch&#39;s</span>
+<span class="sd">`DDP &lt;https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html&gt;`_.</span>
+<span class="sd">You can express a variety of node topologies with TorchX by specifying multiple</span>
+<span class="sd">:py:class:`torchx.specs.Role` in your component&#39;s AppDef. Each role maps to</span>
+<span class="sd">a homogeneous group of nodes that performs a &quot;role&quot; (function) in the overall</span>
+<span class="sd">training. Scheduling-wise, TorchX launches each role as a sub-gang.</span>
 
-<span class="sd">TorchX uses `Torch distributed run &lt;https://pytorch.org/docs/stable/elastic/run.html&gt;`_ to launch user processes</span>
-<span class="sd">and expects that user applications will be written in</span>
-<span class="sd">`Distributed data parallel &lt;https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html&gt;`_</span>
-<span class="sd">manner</span>
+
+<span class="sd">A DDP-style training job has a single role: trainers. Whereas a</span>
+<span class="sd">training job that uses parameter servers will have two roles: parameter server, trainer.</span>
+<span class="sd">You can specify different entrypoint (executable), num replicas, resource requirements,</span>
+<span class="sd">and more for each role.</span>
 
 
-<span class="sd">Distributed Trainer Execution</span>
-<span class="sd">------------------------------</span>
+<span class="sd">DDP Builtin</span>
+<span class="sd">----------------</span>
 
-<span class="sd">In order to run your trainer on a single or multiple processes, remotely or locally, all you need to do is to</span>
-<span class="sd">write a distributed torchx component. The example that we will be using here is</span>
-<span class="sd">:ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`</span>
-
-<span class="sd">The component defines how the user application is launched and torchx will take care of translating this into</span>
-<span class="sd">scheduler-specific definitions.</span>
-
-<span class="sd">.. note:: Follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples`</span>
-<span class="sd">          before running the examples</span>
-
-<span class="sd">Single node, multiple trainers</span>
-<span class="sd">=========================================</span>
-
-<span class="sd">Try launching a single node, multiple trainers example:</span>
+<span class="sd">DDP-style trainers are common and easy to templetize since they are homogeneous</span>
+<span class="sd">single role AppDefs, so there is a builtin: ``dist.ddp``. Assuming your DDP</span>
+<span class="sd">training script is called ``main.py``, launch it as:</span>
 
 <span class="sd">.. code:: shell-session</span>
 
-<span class="sd">   $ torchx run \\</span>
-<span class="sd">     -s local_cwd \\</span>
-<span class="sd">     ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
-<span class="sd">     --nnodes 1 \\</span>
-<span class="sd">     --nproc_per_node 2 \\</span>
-<span class="sd">     --rdzv_backend c10d --rdzv_endpoint localhost:29500</span>
+<span class="sd">    # locally, 1 node x 4 workers</span>
+<span class="sd">    $ torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4</span>
+
+<span class="sd">    # locally, 2 node x 4 workers (8 total)</span>
+<span class="sd">    $ torchx run -s local_cwd dist.ddp --entrypoint main.py \\</span>
+<span class="sd">        --rdzv_backend c10d \\</span>
+<span class="sd">        --nnodes 2 \\</span>
+<span class="sd">        --nproc_per_node 4 \\</span>
+
+<span class="sd">    # remote (needs you to setup an etcd server first!)</span>
+<span class="sd">    $ torchx run -s kubernetes -cfg queue=default dist.ddp \\</span>
+<span class="sd">        --entrypoint main.py \\</span>
+<span class="sd">        --rdzv_backend etcd \\</span>
+<span class="sd">        --rdzv_endpoint etcd-server.default.svc.cluster.local:2379 \\</span>
+<span class="sd">        --nnodes 2 \\</span>
+<span class="sd">        --nproc_per_node 4 \\</span>
 
 
-<span class="sd">.. note:: Use ``torchx runopts`` to see available schedulers</span>
+<span class="sd">There is a lot happening under the hood so we strongly encourage you</span>
+<span class="sd">to continue reading the rest of this section</span>
+<span class="sd">to get an understanding of how everything works. Also note that</span>
+<span class="sd">while ``dist.ddp`` is convenient, you&#39;ll find that authoring your own</span>
+<span class="sd">distributed component is not only easy (simplest way is to just copy</span>
+<span class="sd">``dist.ddp``!) but also leads to better flexbility and maintainability</span>
+<span class="sd">down the road since builtin APIs are subject to more changes than</span>
+<span class="sd">the more stable specs API. However the choice is yours, feel free to rely on</span>
+<span class="sd">the builtins if they meet your needs.</span>
 
-<span class="sd">The ``./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist`` is reference to the component</span>
-<span class="sd">function: :ref:`examples_apps/lightning_classy_vision/component:Distributed Trainer Component`</span>
+<span class="sd">Distributed Training</span>
+<span class="sd">-----------------------</span>
 
+<span class="sd">Local Testing</span>
+<span class="sd">===================</span>
 
-<span class="sd">.. note:: TorchX supports docker scheduler via ``-s local_docker`` command that currently works only for single</span>
-<span class="sd">          node multiple processes due to issues `286 &lt;https://github.com/pytorch/torchx/issues/286&gt;`_ and</span>
-<span class="sd">          `287 &lt;https://github.com/pytorch/torchx/issues/287&gt;`_</span>
-
-
-
-<span class="sd">Multiple nodes, multiple trainers</span>
-<span class="sd">===================================</span>
-
-<span class="sd">It is simple to launch and manage distributed trainer with torchx. Lets try out and launch distributed</span>
-<span class="sd">trainer using docker. The following cmd to launch distributed job on docker:</span>
-
-<span class="sd">.. code:: shell-session</span>
-
-<span class="sd">    Launch the trainer using torchx</span>
-<span class="sd">    $ torchx run \\</span>
-<span class="sd">      -s local_cwd \\</span>
-<span class="sd">      ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
-<span class="sd">      --nnodes 2 \\</span>
-<span class="sd">      --nproc_per_node 2 \\</span>
-<span class="sd">      --rdzv_backend c10d \\</span>
-<span class="sd">      --rdzv_endpoint localhost:29500</span>
+<span class="sd">.. note:: Please follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples` first.</span>
 
 
-<span class="sd">.. note:: The command above will only work for hosts without GPU!</span>
-
-
-<span class="sd">This will run 4 trainers on two docker containers. ``local_docker`` assigns ``hostname``</span>
-<span class="sd">to each of the container role using the pattern ``${$APP_NAME}-${ROLE_NAME}-${RELICA_ID}``.</span>
-
-
-<span class="sd">TorchX supports ``kubernetes`` scheduler that allows you to execute distributed jobs on your kubernetes cluster.</span>
-
-
-<span class="sd">.. note:: Make sure that you install necessary dependencies on :ref:`schedulers/kubernetes:Prerequisites`</span>
-<span class="sd">            before executing job</span>
-
-
-<span class="sd">The following command runs 2 pods on kubernetes cluster, each of the pods will occupy a single gpu.</span>
-
+<span class="sd">Running distributed training locally is a quick way to validate your</span>
+<span class="sd">training script. TorchX&#39;s local scheduler will create a process per</span>
+<span class="sd">replica (``--nodes``). The example below uses `torchelastic &lt;https://pytorch.org/docs/stable/elastic/run.html&gt;`_,</span>
+<span class="sd">as the main entrypoint of each node, which in turn spawns ``--nprocs_per_node`` number</span>
+<span class="sd">of trainers. In total you&#39;ll see ``nnodes*nprocs_per_node`` trainer processes and ``nnodes``</span>
+<span class="sd">elastic agent procesess created on your local host.</span>
 
 <span class="sd">.. code:: shell-session</span>
 
-<span class="sd">    $ torchx run -s kubernetes \\</span>
-<span class="sd">      --scheduler_args namespace=default,queue=default \\</span>
-<span class="sd">      ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
-<span class="sd">      --nnodes 2 \\</span>
-<span class="sd">      --nproc_per_node 1 \\</span>
-<span class="sd">      --rdzv_endpoint etcd-server.default.svc.cluster.local:2379</span>
+<span class="sd">   $ torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
+<span class="sd">        --nnodes 2 \\</span>
+<span class="sd">        --nproc_per_node 2 \\</span>
+<span class="sd">        --rdzv_backend c10d \\</span>
+<span class="sd">        --rdzv_endpoint localhost:29500</span>
 
 
-<span class="sd">The command above will launch distributed train job on kubernetes ``default`` namespace using volcano</span>
-<span class="sd">``default`` queue. In this example we used ``etcd`` rendezvous  in comparison to the ``c10d`` rendezvous.</span>
-<span class="sd">It is important to use ``etcd`` rendezvous that uses ``etcd server`` since it is a best practice to perform</span>
-<span class="sd">peer discovery for distributed jobs.  Read more about</span>
-<span class="sd">`rendezvous &lt;https://pytorch.org/docs/stable/elastic/rendezvous.html&gt;`_.</span>
+<span class="sd">.. warning:: There is a known issue with ``local_docker`` (the default scheduler when no ``-s``</span>
+<span class="sd">             argument is supplied), hence we use ``-s local_cwd`` instead. Please track</span>
+<span class="sd">             the progress of the fix on `issue-286 &lt;https://github.com/pytorch/torchx/issues/286&gt;`_,</span>
+<span class="sd">             `issue-287 &lt;https://github.com/pytorch/torchx/issues/287&gt;`_.</span>
 
 
-<span class="sd">.. note:: For GPU training, keep ``nproc_per_node`` equal to the amount of GPUs on the host and</span>
-<span class="sd">          change the resource requirements in ``torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist``</span>
-<span class="sd">          method. Modify ``resource_def`` to the number of GPUs that your host has.</span>
+<span class="sd">Remote Launching</span>
+<span class="sd">====================</span>
 
-<span class="sd">The command should produce the following output:</span>
+<span class="sd">.. note:: Please follow the :ref:`schedulers/kubernetes:Prerequisites` first.</span>
 
-<span class="sd">.. code:: bash</span>
+<span class="sd">The following example demonstrate launching the same job remotely on kubernetes.</span>
 
+<span class="sd">.. code:: shell-session</span>
+
+<span class="sd">    $ torchx run -s kubernetes -cfg queue=default \\</span>
+<span class="sd">        ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
+<span class="sd">        --nnodes 2 \\</span>
+<span class="sd">        --nproc_per_node 2 \\</span>
+<span class="sd">        --rdzv_backend etcd \\</span>
+<span class="sd">        --rdzv_endpoint etcd-server.default.svc.cluster.local:2379</span>
 <span class="sd">    torchx 2021-10-18 18:46:55 INFO     Launched app: kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng</span>
 <span class="sd">    torchx 2021-10-18 18:46:55 INFO     AppStatus:</span>
 <span class="sd">      msg: &lt;NONE&gt;</span>
@@ -482,99 +471,14 @@
 
 <span class="sd">    torchx 2021-10-18 18:46:55 INFO     Job URL: None</span>
 
+<span class="sd">Note that the only difference compared to the local launch is the scheduler (``-s``)</span>
+<span class="sd">and ``--rdzv_backend``. etcd will also work in the local case, but we used ``c10d``</span>
+<span class="sd">since it does not require additional setup. Note that this is a torchelastic requirement</span>
+<span class="sd">not TorchX. Read more about rendezvous `here &lt;https://pytorch.org/docs/stable/elastic/rendezvous.html&gt;`_.</span>
 
-<span class="sd">You can use the job url to query the status or logs of the job:</span>
-
-<span class="sd">.. code:: shell-session</span>
-
-<span class="sd">    Change value to your unique app handle</span>
-<span class="sd">    $ export APP_HANDLE=kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng</span>
-
-<span class="sd">    $ torchx status $APP_HANDLE</span>
-
-<span class="sd">    torchx 2021-10-18 18:47:44 INFO     AppDef:</span>
-<span class="sd">      State: SUCCEEDED</span>
-<span class="sd">      Num Restarts: -1</span>
-<span class="sd">    Roles:</span>
-<span class="sd">     *worker[0]:SUCCEEDED</span>
-
-<span class="sd">Try running</span>
-
-<span class="sd">.. code:: shell-session</span>
-
-<span class="sd">    $ torchx log $APP_HANDLE</span>
-
-
-<span class="sd">Builtin distributed components</span>
-<span class="sd">---------------------------------</span>
-
-<span class="sd">In the examples above we used custom components to launch user applications. It is not always the case that</span>
-<span class="sd">users need to write their own components.</span>
-
-<span class="sd">TorchX comes with set of builtin component that describe typical execution patterns.</span>
-
-
-<span class="sd">dist.ddp</span>
-<span class="sd">=========</span>
-
-<span class="sd">``dist.ddp``  is a component  for applications that run as distributed jobs in a DDP manner.</span>
-<span class="sd">You can use it to quickly iterate over your application without the need of authoring your own component.</span>
-
-<span class="sd">.. note::</span>
-
-<span class="sd">    ``dist.ddp`` is a generic component, as a result it is good for quick iterations, but not production usage.</span>
-<span class="sd">    It is recommended to author your own component if you want to put your application in production.</span>
-<span class="sd">    Learn more :ref:`components/overview:Authoring` about how to author your component.</span>
-
-<span class="sd">We will be using ``dist.ddp`` to execute the following example:</span>
-
-<span class="sd">.. code:: python</span>
-
-<span class="sd">    # main.py</span>
-<span class="sd">    import os</span>
-
-<span class="sd">    import torch</span>
-<span class="sd">    import torch.distributed as dist</span>
-<span class="sd">    import torch.nn.functional as F</span>
-<span class="sd">    import torch.distributed.run</span>
-
-<span class="sd">    def compute_world_size():</span>
-<span class="sd">        rank = int(os.getenv(&quot;RANK&quot;, &quot;0&quot;))</span>
-<span class="sd">        world_size = int(os.getenv(&quot;WORLD_SIZE&quot;, &quot;1&quot;))</span>
-<span class="sd">        dist.init_process_group()</span>
-<span class="sd">        print(&quot;successfully initialized process group&quot;)</span>
-
-<span class="sd">        t = F.one_hot(torch.tensor(rank), num_classes=world_size)</span>
-<span class="sd">        dist.all_reduce(t)</span>
-<span class="sd">        computed_world_size = int(torch.sum(t).item())</span>
-<span class="sd">        print(</span>
-<span class="sd">            f&quot;rank: {rank}, actual world_size: {world_size}, computed world_size: {computed_world_size}&quot;</span>
-<span class="sd">        )</span>
-
-<span class="sd">    if __name__ == &quot;__main__&quot;:</span>
-<span class="sd">        compute_world_size()</span>
-
-
-<span class="sd">Single trainer on desktop</span>
-<span class="sd">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-
-<span class="sd">We can run this example on desktop on four processes using the following cmd:</span>
-
-<span class="sd">.. code:: shell-session</span>
-
-<span class="sd">    $ torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4</span>
-
-
-<span class="sd">Single trainer on kubernetes cluster</span>
-<span class="sd">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-
-<span class="sd">We can execute it on the kubernetes cluster</span>
-
-<span class="sd">.. code:: shell-session</span>
-
-<span class="sd">    $ torchx run -s kubernetes \\</span>
-<span class="sd">      --scheduler_args namespace=default,queue=default \\</span>
-<span class="sd">      dist.ddp --entrypoint main.py --nproc_per_node 4</span>
+<span class="sd">.. note:: For GPU training, keep ``nproc_per_node`` equal to the amount of GPUs on the host and</span>
+<span class="sd">          change the resource requirements in ``torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist``</span>
+<span class="sd">          method. Modify ``resource_def`` to the number of GPUs that your host has.</span>
 
 
 <span class="sd">Components APIs</span>

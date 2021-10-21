@@ -745,7 +745,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_cwd://torchx/hello_world_90342df0
+local_cwd://torchx/hello_world_782e426b
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -753,8 +753,8 @@ local_cwd://torchx/hello_world_90342df0
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-10-21 03:16:07 INFO     Waiting for the app to finish...
-torchx 2021-10-21 03:16:08 INFO     Job finished: SUCCEEDED
+torchx 2021-10-21 15:17:26 INFO     Waiting for the app to finish...
+torchx 2021-10-21 15:17:27 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -825,37 +825,35 @@ c0ad16d9fa05: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
 88d87059c913: Waiting
-889a7173dcfe: Verifying Checksum
-889a7173dcfe: Download complete
-d2e110be24e1: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
+4bbfd2c87b75: Pull complete
+889a7173dcfe: Verifying Checksum
+889a7173dcfe: Download complete
 6009a622672a: Verifying Checksum
 6009a622672a: Download complete
+d2e110be24e1: Verifying Checksum
+d4c7af0d4fa7: Verifying Checksum
+d4c7af0d4fa7: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
 06b5edd6bf52: Verifying Checksum
 06b5edd6bf52: Download complete
-d4c7af0d4fa7: Verifying Checksum
-d4c7af0d4fa7: Download complete
+d2e110be24e1: Pull complete
 c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
+889a7173dcfe: Pull complete
 30587ba7fd6b: Verifying Checksum
 30587ba7fd6b: Download complete
-909695be1d50: Verifying Checksum
-909695be1d50: Download complete
-f119a6d0a466: Verifying Checksum
-f119a6d0a466: Download complete
-88d87059c913: Verifying Checksum
-88d87059c913: Download complete
-4bbfd2c87b75: Pull complete
-f18d016c4ccc: Verifying Checksum
-f18d016c4ccc: Download complete
 143f80195431: Verifying Checksum
 143f80195431: Download complete
-d2e110be24e1: Pull complete
-889a7173dcfe: Pull complete
 6009a622672a: Pull complete
+909695be1d50: Verifying Checksum
+909695be1d50: Download complete
+f18d016c4ccc: Verifying Checksum
+f18d016c4ccc: Download complete
+f119a6d0a466: Download complete
+88d87059c913: Download complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
 d4c7af0d4fa7: Pull complete
@@ -870,8 +868,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; 48b2a5f668e8
-Successfully built 48b2a5f668e8
+ ---&gt; a92bf007953a
+Successfully built a92bf007953a
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -892,7 +890,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello, your name!
-local_docker://torchx/hello_world_e3d398ac
+local_docker://torchx/hello_world_66b556f7
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -901,9 +899,9 @@ local_docker://torchx/hello_world_e3d398ac
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Error response from daemon: pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied
-torchx 2021-10-21 03:18:49 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
-torchx 2021-10-21 03:18:49 INFO     Waiting for the app to finish...
-torchx 2021-10-21 03:18:50 INFO     Job finished: SUCCEEDED
+torchx 2021-10-21 15:20:04 WARNING  failed to fetch image my_app:latest, falling back to local: Command &#39;[&#39;docker&#39;, &#39;pull&#39;, &#39;my_app:latest&#39;]&#39; returned non-zero exit status 1.
+torchx 2021-10-21 15:20:04 INFO     Waiting for the app to finish...
+torchx 2021-10-21 15:20:05 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -957,7 +955,7 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Hello :)
-local_docker://torchx/echo_54cdda3f
+local_docker://torchx/echo_caf88a4c
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -972,68 +970,68 @@ d2e110be24e1: Already exists
 6009a622672a: Already exists
 143f80195431: Already exists
 eccbe17c44e1: Already exists
-7d5ad4ee9e86: Pulling fs layer
-7cee61c039db: Pulling fs layer
-9c8d7572a1cb: Pulling fs layer
-24800ada3d7c: Pulling fs layer
-1c4f0137b06a: Pulling fs layer
-96dd313b57d6: Pulling fs layer
-eec24112ff8d: Pulling fs layer
-abbab9c12784: Pulling fs layer
-92588350a6e6: Pulling fs layer
-1a5d89df9964: Pulling fs layer
-fd898d7407c6: Pulling fs layer
-198d1359b1af: Pulling fs layer
-24800ada3d7c: Waiting
-1c4f0137b06a: Waiting
-abbab9c12784: Waiting
-92588350a6e6: Waiting
-1a5d89df9964: Waiting
-fd898d7407c6: Waiting
-198d1359b1af: Waiting
-96dd313b57d6: Waiting
-eec24112ff8d: Waiting
-7cee61c039db: Verifying Checksum
-7cee61c039db: Download complete
-24800ada3d7c: Verifying Checksum
-24800ada3d7c: Download complete
-7d5ad4ee9e86: Verifying Checksum
-7d5ad4ee9e86: Download complete
-1c4f0137b06a: Verifying Checksum
-1c4f0137b06a: Download complete
-eec24112ff8d: Verifying Checksum
-eec24112ff8d: Download complete
-96dd313b57d6: Verifying Checksum
-96dd313b57d6: Download complete
-92588350a6e6: Verifying Checksum
-92588350a6e6: Download complete
-9c8d7572a1cb: Verifying Checksum
-9c8d7572a1cb: Download complete
-fd898d7407c6: Verifying Checksum
-fd898d7407c6: Download complete
-198d1359b1af: Verifying Checksum
-198d1359b1af: Download complete
-7d5ad4ee9e86: Pull complete
-1a5d89df9964: Verifying Checksum
-1a5d89df9964: Download complete
-7cee61c039db: Pull complete
-abbab9c12784: Verifying Checksum
-abbab9c12784: Download complete
-9c8d7572a1cb: Pull complete
-24800ada3d7c: Pull complete
-1c4f0137b06a: Pull complete
-96dd313b57d6: Pull complete
-eec24112ff8d: Pull complete
-abbab9c12784: Pull complete
-92588350a6e6: Pull complete
-1a5d89df9964: Pull complete
-fd898d7407c6: Pull complete
-198d1359b1af: Pull complete
-Digest: sha256:15f584a06ef4e96d5bb93b4ab1b961adc14794d8d22948ca3e58269d55ff1400
+52afa68fe9ee: Pulling fs layer
+1fed1723a38a: Pulling fs layer
+2b6a80ff4c6f: Pulling fs layer
+0ce610f1fa2d: Pulling fs layer
+a26a019243f4: Pulling fs layer
+7ff4e7ffbb3f: Pulling fs layer
+e7441517b2a7: Pulling fs layer
+c1aedd9bd36e: Pulling fs layer
+0c9e57ad514e: Pulling fs layer
+070f144ba767: Pulling fs layer
+46df0d8ba260: Pulling fs layer
+6fa50e474cc3: Pulling fs layer
+a26a019243f4: Waiting
+7ff4e7ffbb3f: Waiting
+e7441517b2a7: Waiting
+c1aedd9bd36e: Waiting
+0c9e57ad514e: Waiting
+070f144ba767: Waiting
+46df0d8ba260: Waiting
+6fa50e474cc3: Waiting
+0ce610f1fa2d: Waiting
+52afa68fe9ee: Verifying Checksum
+52afa68fe9ee: Download complete
+52afa68fe9ee: Pull complete
+1fed1723a38a: Verifying Checksum
+1fed1723a38a: Download complete
+1fed1723a38a: Pull complete
+a26a019243f4: Verifying Checksum
+a26a019243f4: Download complete
+0ce610f1fa2d: Verifying Checksum
+0ce610f1fa2d: Download complete
+7ff4e7ffbb3f: Verifying Checksum
+7ff4e7ffbb3f: Download complete
+2b6a80ff4c6f: Verifying Checksum
+2b6a80ff4c6f: Download complete
+e7441517b2a7: Verifying Checksum
+e7441517b2a7: Download complete
+0c9e57ad514e: Verifying Checksum
+0c9e57ad514e: Download complete
+070f144ba767: Verifying Checksum
+070f144ba767: Download complete
+46df0d8ba260: Verifying Checksum
+46df0d8ba260: Download complete
+6fa50e474cc3: Verifying Checksum
+6fa50e474cc3: Download complete
+c1aedd9bd36e: Verifying Checksum
+c1aedd9bd36e: Download complete
+2b6a80ff4c6f: Pull complete
+0ce610f1fa2d: Pull complete
+a26a019243f4: Pull complete
+7ff4e7ffbb3f: Pull complete
+e7441517b2a7: Pull complete
+c1aedd9bd36e: Pull complete
+0c9e57ad514e: Pull complete
+070f144ba767: Pull complete
+46df0d8ba260: Pull complete
+6fa50e474cc3: Pull complete
+Digest: sha256:c72373c43f313efcd2ba5bfdc52bf0f0c33e56156f2e06843db511a4c835b304
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0
 ghcr.io/pytorch/torchx:0.1.0
-torchx 2021-10-21 03:22:35 INFO     Waiting for the app to finish...
-torchx 2021-10-21 03:22:36 INFO     Job finished: SUCCEEDED
+torchx 2021-10-21 15:24:01 INFO     Waiting for the app to finish...
+torchx 2021-10-21 15:24:02 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 </section>
