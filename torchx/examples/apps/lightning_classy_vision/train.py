@@ -91,6 +91,9 @@ def get_gpu_devices() -> int:
 def get_model_checkpoint(args: argparse.Namespace) -> Optional[ModelCheckpoint]:
     if not args.output_path:
         return None
+    # Note: It is important that each rank behaves the same.
+    # All of the ranks, or none of them should return ModelCheckpoint
+    # Otherwise, there will be deadlock for distributed training
     return ModelCheckpoint(
         monitor="train_loss",
         dirpath=args.output_path,
@@ -132,12 +135,14 @@ def main(argv: List[str]) -> None:
         logger = TensorBoardLogger(
             save_dir=args.log_path, version=1, name="lightning_logs"
         )
-
         # Initialize a trainer
         num_nodes = int(os.environ.get("GROUP_WORLD_SIZE", 1))
+        num_processes = int(os.environ.get("LOCAL_WORLD_SIZE", 1))
         trainer = pl.Trainer(
             num_nodes=num_nodes,
-            accelerator="ddp2",
+            num_processes=num_processes,
+            gpus=get_gpu_devices(),
+            accelerator="ddp",
             logger=logger,
             max_epochs=args.epochs,
             callbacks=callbacks,
@@ -150,7 +155,8 @@ def main(argv: List[str]) -> None:
             f"train acc: {model.train_acc.compute()}, val acc: {model.val_acc.compute()}"
         )
 
-        if not args.skip_export and args.output_path:
+        rank = int(os.environ.get("RANK", 0))
+        if rank == 0 and not args.skip_export and args.output_path:
             # Export the inference model
             export_inference_model(model, args.output_path, tmpdir)
 
