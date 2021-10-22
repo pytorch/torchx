@@ -358,8 +358,15 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         role = Role("echo_foo", image=self.test_dir, entrypoint="echo_env_foo.sh")
         app = AppDef(name="check_foo_env_var", roles=[role])
         app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
-        for line in self.scheduler.log_iter(app_id, "echo_foo"):
-            self.assertEqual("bar", line)
+        lines = list(self.scheduler.log_iter(app_id, "echo_foo"))
+        self.assertEqual(
+            lines,
+            [
+                "=== stdout ===",
+                "=== stderr ===",
+                "bar",
+            ],
+        )
 
         desc = self.wait(app_id, self.scheduler)
         assert desc is not None
@@ -442,8 +449,15 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
         app = AppDef(name="check_foo_env_var", roles=[role])
         app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
-        for line in self.scheduler.log_iter(app_id, "echo_foo"):
-            self.assertEqual("new_bar", line)
+        lines = list(self.scheduler.log_iter(app_id, "echo_foo"))
+        self.assertEqual(
+            lines,
+            [
+                "=== stdout ===",
+                "=== stderr ===",
+                "new_bar",
+            ],
+        )
 
         desc = self.wait(app_id, self.scheduler)
         assert desc is not None
@@ -598,11 +612,12 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 self.assertEqual(stderr_path, replica_param.stderr)
 
     def test_log_iterator(self) -> None:
+        n = 10
         role = Role(
             "role1",
             image=self.test_dir,
             entrypoint="echo_range.sh",
-            args=["10", "0.5"],
+            args=[str(n), "0.5"],
             num_replicas=1,
         )
 
@@ -611,16 +626,21 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app = AppDef(name="test_app", roles=[role])
         app_id = self.scheduler.submit(app, cfg)
 
-        for i, line in enumerate(self.scheduler.log_iter(app_id, "role1", k=0)):
-            self.assertEqual(str(i), line)
+        want_lines = [
+            "=== stdout ===",
+            "=== stderr ===",
+        ] + [str(i) for i in range(n + 1)]
+
+        lines = list(self.scheduler.log_iter(app_id, "role1", k=0))
+        self.assertEqual(lines, want_lines)
 
         # since and until ignored
-        for i, line in enumerate(
+        lines = list(
             self.scheduler.log_iter(
                 app_id, "role1", k=0, since=datetime.now(), until=datetime.now()
             )
-        ):
-            self.assertEqual(str(i), line)
+        )
+        self.assertEqual(lines, want_lines)
 
         for i, line in enumerate(
             self.scheduler.log_iter(app_id, "role1", k=0, regex=r"[02468]")
@@ -641,6 +661,60 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         with self.assertRaises(RuntimeError, msg="log_dir must be set to iterate logs"):
             app_id = self.scheduler.submit(app, RunConfig())
             self.scheduler.log_iter(app_id, "role1", k=0)
+
+    def test_log_iterator_invalid_role(self) -> None:
+        role = Role(
+            "role1",
+            image=self.test_dir,
+            entrypoint="echo_range.sh",
+            args=["10", "0.5"],
+            num_replicas=1,
+        )
+
+        app = AppDef(name="test_app", roles=[role])
+
+        with self.assertRaises(
+            RuntimeError, msg="role blah not found, must be one of [role1]"
+        ):
+            app_id = self.scheduler.submit(app, RunConfig())
+            self.scheduler.log_iter(app_id, "blah", k=0)
+
+    def test_log_iterator_invalid_replica(self) -> None:
+        role = Role(
+            "role1",
+            image=self.test_dir,
+            entrypoint="echo_range.sh",
+            args=["10", "0.5"],
+            num_replicas=1,
+        )
+
+        app = AppDef(name="test_app", roles=[role])
+
+        with self.assertRaises(
+            RuntimeError, msg="invalid replica ID 1 must be in range 0-0"
+        ):
+            app_id = self.scheduler.submit(app, RunConfig())
+            self.scheduler.log_iter(app_id, "role1", k=1)
+
+    def test_log_iterator_stdout(self) -> None:
+        role = Role(
+            "echo_foo", image=self.test_dir, entrypoint="echo_stdout.sh", args=["bar"]
+        )
+        app = AppDef(name="check_foo_env_var", roles=[role])
+        app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
+        lines = list(self.scheduler.log_iter(app_id, "echo_foo"))
+        self.assertEqual(
+            lines,
+            [
+                "=== stdout ===",
+                "bar",
+                "=== stderr ===",
+            ],
+        )
+
+        desc = self.wait(app_id, self.scheduler)
+        assert desc is not None
+        self.assertEqual(AppState.SUCCEEDED, desc.state)
 
     def test_submit_multiple_roles(self) -> None:
         test_file1 = join(self.test_dir, "test_file_1")

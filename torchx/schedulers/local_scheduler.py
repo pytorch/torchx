@@ -6,11 +6,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import abc
+import itertools
 import json
 import logging
 import os
 import pprint
-import re
 import signal
 import subprocess
 import sys
@@ -21,11 +21,16 @@ import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
-from typing import Any, Callable, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, TextIO, Tuple
 from uuid import uuid4
 
 from pyre_extensions import none_throws
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    DescribeAppResponse,
+    Scheduler,
+    filter_regex,
+)
 from torchx.specs.api import (
     NONE,
     AppDef,
@@ -885,15 +890,36 @@ class LocalScheduler(Scheduler):
             )
 
         app = self._apps[app_id]
-        log_file = os.path.join(app.log_dir, role_name, str(k), "stderr.log")
-
-        if not os.path.isfile(log_file):
+        if role_name not in app.role_replicas:
             raise RuntimeError(
-                f"app: {app_id} was not configured to log into a file."
+                f"role {role_name} not found, must be one of {list(app.role_replicas.keys())}"
+            )
+        replicas = app.role_replicas[role_name]
+        if k >= len(replicas) or k < 0:
+            raise RuntimeError(
+                f"invalid replica ID {k} must be in range 0-{len(replicas)-1}"
+            )
+
+        stdout = os.path.join(app.log_dir, role_name, str(k), "stdout.log")
+        stderr = os.path.join(app.log_dir, role_name, str(k), "stderr.log")
+
+        if not os.path.isfile(stdout) or not os.path.isfile(stderr):
+            raise RuntimeError(
+                f"app: {app_id} failed to find logs."
                 f" Did you run it with log_dir set in RunConfig?"
             )
 
-        return LogIterator(app_id, regex or ".*", log_file, self)
+        stdout_iter = LogIterator(app_id, stdout, self)
+        stderr_iter = LogIterator(app_id, stderr, self)
+        iterator = itertools.chain(
+            ["=== stdout ==="],
+            stdout_iter,
+            ["=== stderr ==="],
+            stderr_iter,
+        )
+        if regex:
+            return filter_regex(regex, iterator)
+        return iterator
 
     def _cancel_existing(self, app_id: str) -> None:
         # can assume app_id exists
@@ -912,11 +938,8 @@ class LocalScheduler(Scheduler):
 
 
 class LogIterator:
-    def __init__(
-        self, app_id: str, regex: str, log_file: str, scheduler: LocalScheduler
-    ) -> None:
+    def __init__(self, app_id: str, log_file: str, scheduler: LocalScheduler) -> None:
         self._app_id: str = app_id
-        self._regex: Pattern[str] = re.compile(regex)
         self._log_file: str = log_file
         self._log_fp: Optional[TextIO] = None
         self._scheduler: LocalScheduler = scheduler
@@ -966,8 +989,7 @@ class LogIterator:
                 self._check_finished()
             else:
                 line = line.rstrip("\n")  # strip the trailing newline
-                if re.match(self._regex, line):
-                    return line
+                return line
 
 
 def create_cwd_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
