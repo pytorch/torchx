@@ -11,6 +11,7 @@ import logging
 import os
 import pprint
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -92,6 +93,18 @@ class ImageProvider(abc.ABC):
     ``LocalhostScheduler`` since typically real schedulers will do this
     on-behalf of the user.
     """
+
+    def fetch_role(self, role: Role) -> str:
+        """
+        Identical to ``fetch(image)`` in that it fetches the role's
+        image and returns the path to the image root, except that
+        it allows the role to be updated by this provider. Useful
+        when additional environment variables need to be set on the role
+        to comply with the image provider's way of fetching and managing
+        images on localhost. By default this method simply delegates
+        to ``fetch(role.image)``. Override if necessary.
+        """
+        return self.fetch(role.image)
 
     @abc.abstractmethod
     def fetch(self, image: str) -> str:
@@ -597,6 +610,9 @@ class LocalScheduler(Scheduler):
 
         self._extra_paths: List[str] = extra_paths or []
 
+        # sets lazily on submit or dryrun based on log_dir cfg
+        self._base_log_dir: Optional[str] = None
+
     def run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
@@ -726,13 +742,17 @@ class LocalScheduler(Scheduler):
         2. if not cfg.get("log_dir") -> (autogen tmp log dir, False)
         """
 
-        base_log_dir = cfg.get("log_dir")
+        # pyre-ignore[8]: cfg type already validated with runopt
+        self._base_log_dir = cfg.get("log_dir")
         redirect_std = True
-        if not base_log_dir:
-            base_log_dir = tempfile.mkdtemp(prefix="torchx_")
+        if not self._base_log_dir:
+            self._base_log_dir = tempfile.mkdtemp(prefix="torchx_")
             redirect_std = False
 
-        return os.path.join(str(base_log_dir), self.session_name, app_id), redirect_std
+        return (
+            os.path.join(str(self._base_log_dir), self.session_name, app_id),
+            redirect_std,
+        )
 
     def schedule(self, dryrun_info: AppDryRunInfo[PopenRequest]) -> str:
         if len(self._apps) == self._cache_size:
@@ -796,7 +816,7 @@ class LocalScheduler(Scheduler):
             replica_params = role_params.setdefault(role.name, [])
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
-            img_root = image_provider.fetch(role.image)
+            img_root = image_provider.fetch_role(role)
 
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
@@ -906,6 +926,9 @@ class LocalScheduler(Scheduler):
         for (app_id, app) in self._apps.items():
             log.debug(f"Terminating app: {app_id}")
             app.kill()
+        # delete logdir
+        if self._base_log_dir:
+            shutil.rmtree(self._base_log_dir, ignore_errors=True)
 
     def __del__(self) -> None:
         self.close()
