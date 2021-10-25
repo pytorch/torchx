@@ -18,7 +18,7 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 from os.path import join
-from typing import Optional, Generator
+from typing import Generator, Optional
 from unittest import mock
 from unittest.mock import MagicMock, call, patch
 
@@ -278,7 +278,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
     def tearDown(self) -> None:
-        shutil.rmtree(self.test_dir)
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_submit(self) -> None:
         # make sure the macro substitution works

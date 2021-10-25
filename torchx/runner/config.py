@@ -240,9 +240,9 @@ def apply(scheduler: str, cfg: RunConfig, dirs: Optional[List[str]] = None) -> N
     for d in dirs:
         configfile = Path(d) / ".torchxconfig"
         if configfile.exists():
-            log.info(f"loading configs from {configfile}")
             with open(str(configfile), "r") as f:
                 load(scheduler, f, cfg)
+                log.info(f"loaded configs from {configfile}")
 
 
 def load(scheduler: str, f: TextIO, cfg: RunConfig) -> None:
