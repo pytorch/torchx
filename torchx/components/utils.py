@@ -12,6 +12,7 @@ meaningful stages in a workflow.
 """
 
 import shlex
+from typing import Optional
 
 import torchx.specs as specs
 from torchx.version import TORCHX_IMAGE
@@ -89,6 +90,58 @@ def sh(*args: str, image: str = TORCHX_IMAGE, num_replicas: int = 1) -> specs.Ap
                 entrypoint="sh",
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
+            )
+        ],
+    )
+
+
+def python(
+    *args: str,
+    m: Optional[str] = None,
+    c: Optional[str] = None,
+    image: str = TORCHX_IMAGE,
+    name: str = "torchx_utils_python",
+    host: str = "aws_t3.medium",
+    num_replicas: int = 1,
+) -> specs.AppDef:
+    """
+    Runs ``python -c CMD`` or ``python -m MODULE`` on the specified
+    image and host. Use ``--`` to separate component args and program args
+    (e.g. ``torchx run utils.python --m foo.main -- --args to --main``)
+
+    Args:
+        args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)
+        m: run library module as a script
+        c: program passed as string (may error if scheduler has a length limit on args)
+        image: image to run on
+        name: name of the job
+        host: a registered named resource
+        num_replicas: number of copies to run (each on its own container)
+    :return:
+    """
+    if m and c:
+        raise ValueError("only one of `--m` or `--c` can be specified")
+    if not m and not c:
+        raise ValueError("only one of `--m` or `--c` must be specified")
+
+    prog_args = args if m else []
+
+    return specs.AppDef(
+        name=name,
+        roles=[
+            specs.Role(
+                name="python",
+                image=image,
+                entrypoint="python",
+                num_replicas=num_replicas,
+                resource=specs.named_resources[host],
+                # pyre-ignore[6]: one of (only one of) m or c HAS to be not null
+                args=[
+                    "-m" if m else "-c",
+                    m if m else c,
+                    *prog_args,
+                ],
+                env={"HYDRA_MAIN_MODULE": m} if m else {},
             )
         ],
     )

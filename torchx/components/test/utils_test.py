@@ -12,6 +12,9 @@ class UtilsComponentTest(ComponentTestCase):
     def test_sh(self) -> None:
         self._validate(utils, "sh")
 
+    def test_python(self) -> None:
+        self._validate(utils, "python")
+
     def test_touch(self) -> None:
         self._validate(utils, "touch")
 
