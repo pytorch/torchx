@@ -4,7 +4,8 @@
 
 ```bash
 $ pip install torchx[ray]
-$ torchx ray run --scheduler ray --cluster cluster.yaml
+$ git clone https://github.com/ray-project/ray.git
+$ torchx ray run --scheduler ray --cluster ray/python/ray/autoscaler/aws/example-full.yaml
 
 ```
 

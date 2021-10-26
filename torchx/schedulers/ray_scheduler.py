@@ -45,10 +45,11 @@ class RayActor:
     command: str
     env: Dict[str, str] = field(default_factory=dict)
     num_replicas: int = 1
-    num_cpus: int = -1
-    num_gpus: int = -1
-    memory_size: int = -1
-    # TODO: max_retries, retry_policy
+    num_cpus: int = 1
+    num_gpus: int = 1
+    memory_size: int = 1
+    max_retries: int = 5
+    # TODO: retry_policy
 
 
 @dataclass

@@ -5,6 +5,7 @@ import dataclasses
 from dataclasses import dataclass, field
 import ray
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
+import logger
 
 
 @dataclass
@@ -13,9 +14,9 @@ class RayActor:
     command: str
     env: Dict[str, str] = field(default_factory=dict)
     num_replicas: int = 1
-    num_cpus: int = -1
-    num_gpus: int = -1
-    memory_size: int = -1
+    num_cpus: int = 1
+    num_gpus: int = 1
+    memory_size: int = 1
 
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
@@ -41,13 +42,20 @@ if __name__ == "__main__":
     serialize(actor)
     actor_dict = load_actor_json('actor.json')
 
-    # Untested below
-    bundle1 = {"GPU": actor_dict[num_gpus]}
-    bundle2 = {"extra_resource": actor_dict[num_replicas]}
-    bundle3 = {"CPU": actor_dict[num_cpus]}
-    # What happens with name, command and memory size
+    bundle = {"CPU": actor_dict[num_cpus], "GPU": actor_dict[num_gpus]}
+    bundles = [bundle] * actor_dict[num_workers]
+    pg = ray.util.placement_group(bundles, strategy="SPREAD")
 
-    # Is STRICK_PACK the correct strategy?
-    pg = placement_group([bundle1, bundle2, bundle3], strategy="STRICT_PACK")    
+    logger.debug("Waiting for placement group to start.")
+    ready, _ = ray.wait([pg.ready()], timeout=5)
 
-    os.system("ray exec python ray_driver.py actor.json")
+    if ready:
+        logger.debug("Placement group has started.")
+    else:
+        raise TimeoutError(
+            "Placement group creation timed out. Make sure "
+            "your cluster either has enough resources or use "
+            "an autoscaling cluster. Current resources "
+            "available: {}, resources requested by the "
+            "placement group: {}".format(ray.available_resources(),
+                                        pg.bundle_specs))
