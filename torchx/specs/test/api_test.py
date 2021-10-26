@@ -526,6 +526,15 @@ def _test_var_args_first(*args: str, bar: str = "asdf") -> AppDef:
     return AppDef(name="varargs")
 
 
+_TEST_SINGLE_LETTER: Optional[str] = None
+
+
+def _test_single_letter(c: str) -> AppDef:
+    global _TEST_SINGLE_LETTER
+    _TEST_SINGLE_LETTER = c
+    return AppDef(name="varargs")
+
+
 class AppDefLoadTest(unittest.TestCase):
     def assert_apps(self, expected_app: AppDef, actual_app: AppDef) -> None:
         self.assertDictEqual(asdict(expected_app), asdict(actual_app))
@@ -707,6 +716,31 @@ class AppDefLoadTest(unittest.TestCase):
         self.assertEqual(
             _TEST_VAR_ARGS_FIRST,
             (("fooval", "--foo", "barval", "arg1", "arg2"), "asdf"),
+        )
+
+    def test_single_letter(self) -> None:
+        from_function(
+            _test_single_letter,
+            [
+                "-c",
+                "arg1",
+            ],
+        )
+        self.assertEqual(
+            _TEST_SINGLE_LETTER,
+            "arg1",
+        )
+
+        from_function(
+            _test_single_letter,
+            [
+                "--c",
+                "arg2",
+            ],
+        )
+        self.assertEqual(
+            _TEST_SINGLE_LETTER,
+            "arg2",
         )
 
     # pyre-ignore[3]
