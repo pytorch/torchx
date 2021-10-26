@@ -776,10 +776,12 @@ def _create_args_parser(app_fn: Callable[..., AppDef]) -> argparse.ArgumentParse
             arg_name = param_name
             remainder_arg = [arg_name, args]
         else:
-            arg_name = f"--{param_name}"
+            arg_names = [f"--{param_name}"]
+            if len(param_name) == 1:
+                arg_names = [f"-{param_name}"] + arg_names
             if "default" not in args:
                 args["required"] = True
-            script_parser.add_argument(arg_name, **args)
+            script_parser.add_argument(*arg_names, **args)
     if len(remainder_arg) > 0:
         script_parser.add_argument(remainder_arg[0], **remainder_arg[1])
     return script_parser
