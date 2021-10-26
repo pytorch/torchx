@@ -367,6 +367,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">shlex</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 <span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span>
@@ -447,6 +448,58 @@
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">python</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">m</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">c</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx_utils_python&quot;</span><span class="p">,</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aws_t3.medium&quot;</span><span class="p">,</span>
+    <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Runs ``python -c CMD`` or ``python -m MODULE`` on the specified</span>
+<span class="sd">    image and host. Use ``--`` to separate component args and program args</span>
+<span class="sd">    (e.g. ``torchx run utils.python --m foo.main -- --args to --main``)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)</span>
+<span class="sd">        m: run library module as a script</span>
+<span class="sd">        c: program passed as string (may error if scheduler has a length limit on args)</span>
+<span class="sd">        image: image to run on</span>
+<span class="sd">        name: name of the job</span>
+<span class="sd">        host: a registered named resource</span>
+<span class="sd">        num_replicas: number of copies to run (each on its own container)</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">c</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;only one of `--m` or `--c` can be specified&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;only one of `--m` or `--c` must be specified&quot;</span><span class="p">)</span>
+
+    <span class="n">prog_args</span> <span class="o">=</span> <span class="n">args</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">named_resources</span><span class="p">[</span><span class="n">host</span><span class="p">],</span>
+                <span class="c1"># pyre-ignore[6]: one of (only one of) m or c HAS to be not null</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;-m&quot;</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+                    <span class="n">m</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="n">c</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">prog_args</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;HYDRA_MAIN_MODULE&quot;</span><span class="p">:</span> <span class="n">m</span><span class="p">}</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="p">{},</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="copy"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.copy">[docs]</a><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
