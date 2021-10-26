@@ -11,7 +11,6 @@ import logging
 import os
 import pprint
 import re
-import shutil
 import signal
 import subprocess
 import sys
@@ -926,9 +925,6 @@ class LocalScheduler(Scheduler):
         for (app_id, app) in self._apps.items():
             log.debug(f"Terminating app: {app_id}")
             app.kill()
-        # delete logdir
-        if self._base_log_dir:
-            shutil.rmtree(self._base_log_dir, ignore_errors=True)
 
     def __del__(self) -> None:
         self.close()

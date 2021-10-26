@@ -318,6 +318,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         assert desc is not None
         self.assertEqual(f"{expected_app_id}", app_id)
         self.assertEqual(AppState.FAILED, desc.state)
+        self.assertTrue(os.path.exists(self.test_dir))
 
     def test_macros_env(self) -> None:
         # make sure the macro substitution works
