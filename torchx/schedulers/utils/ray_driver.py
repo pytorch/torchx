@@ -38,8 +38,12 @@ def load_actor_json(filename : str) -> Dict:
         return actor
 
 if __name__ == "__main__":
+    # 1. Load json actor
+    # 2. Create placement groups per actor
+    # 3. Start Ray actor in each placement group 
     actor = RayActor("ray", "up")
     serialize(actor)
+    logger("actor.json is being read.")
     actor_dict = load_actor_json('actor.json')
 
     bundle = {"CPU": actor_dict[num_cpus], "GPU": actor_dict[num_gpus]}
@@ -47,10 +51,17 @@ if __name__ == "__main__":
     pg = ray.util.placement_group(bundles, strategy="SPREAD")
 
     logger.debug("Waiting for placement group to start.")
-    ready, _ = ray.wait([pg.ready()], timeout=5)
+    ready, _ = ray.wait([pg.ready()], timeout=100)
 
     if ready:
         logger.debug("Placement group has started.")
+        ray.init()
+
+        # Should we introspect the script and get the nn module?
+        RemoteNetwork = ray.remote(actor_dict[scripts])
+        ray.get([NetworkActor.train.remote()])
+
+
     else:
         raise TimeoutError(
             "Placement group creation timed out. Make sure "

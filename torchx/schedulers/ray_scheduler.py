@@ -51,7 +51,6 @@ class RayActor:
     max_retries: int = 5
     # TODO: retry_policy
 
-
 @dataclass
 class RayJob:
     """Represents a job that should be run on a Ray cluster.
