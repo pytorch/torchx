@@ -174,7 +174,7 @@ def ddp(
         name=name or script_name_noext,
         roles=[
             specs.Role(
-                name=script_name_noext,
+                name=f"worker-{script_name_noext}",
                 image=image,
                 entrypoint="python",
                 num_replicas=nnodes,
