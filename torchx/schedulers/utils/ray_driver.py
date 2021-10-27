@@ -56,20 +56,21 @@ if __name__ == "__main__":
     # On driver.py
     logging.debug("Reading actor.json")
     actors_dict = load_actor_json('actor.json')
+    pgs = []
 
     for actor_dict in actors_dict:
 
         bundle = {"CPU": actor_dict["num_cpus"], "GPU": actor_dict["num_gpus"]}
         bundles = [bundle] * actor_dict["num_replicas"]
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
+        pgs.append(pg)
 
         logging.debug("Waiting for placement group to start.")
         ready, _ = ray.wait([pg.ready()], timeout=100)
 
         if ready:
             logging.debug("Placement group has started.")
-            # ray.init() fails if ran twice in a row
-            ray.init(address="auto", namespace=actor_dict["name"])
+            ray.init(address="auto", namespace=actor_dict["name"], ignore_reinit_error=True)
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
@@ -89,5 +90,5 @@ if __name__ == "__main__":
 
     # actor = CommandActor.options(placement_group=pg).remote(actor_dict["command"])
     # ray.get([actor.run_command.remote()])
-    actors = [CommandActor.options(placement_group=pg).remote(actors_dict[i]["command"]) for i in range(len(actors_dict))]
+    actors = [CommandActor.options(placement_group=pgs[i]).remote(actors_dict[i]["command"]) for i in range(len(actors_dict))]
     ray.get([a.run_command.remote() for a in actors])
