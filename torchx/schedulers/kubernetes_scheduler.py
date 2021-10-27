@@ -32,6 +32,7 @@ Learn more about running distributed trainers :py:mod:`torchx.components.dist`
 
 import json
 import logging
+import re
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
@@ -211,6 +212,19 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
     )
 
 
+def cleanup_str(data: str) -> str:
+    """
+    Invokes ``lower`` on thes string and removes all
+    characters that do not satisfy ``[a-z0-9]`` pattern.
+    This method is mostly used to make sure kubernetes scheduler gets
+    the job name that does not violate its validation.
+    """
+    if data.startswith("-"):
+        data = data[1:]
+    pattern = r"[a-z0-9\-]"
+    return "".join(re.findall(pattern, data.lower()))
+
+
 def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     """
     app_to_resource creates a volcano job kubernetes resource definition from
@@ -226,7 +240,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
     count is set to the minimum of the max_retries of the roles.
     """
     tasks = []
-    unique_app_id = make_unique(app.name)
+    unique_app_id = cleanup_str(make_unique(app.name))
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
@@ -234,7 +248,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
             )
-            name = f"{role.name}-{replica_id}"
+            name = cleanup_str(f"{role.name}-{replica_id}")
             replica_role = values.apply(role)
 
             pod = role_to_pod(name, replica_role)

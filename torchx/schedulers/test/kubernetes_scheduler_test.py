@@ -21,6 +21,7 @@ from torchx.schedulers.kubernetes_scheduler import (
     create_scheduler,
     role_to_pod,
     app_to_resource,
+    cleanup_str,
 )
 
 
@@ -51,7 +52,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
 
     def test_app_to_resource_resolved_macros(self) -> None:
         app = _test_app()
-        unique_app_name = "app_name_42"
+        unique_app_name = "app-name-42"
         with patch(
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -138,6 +139,12 @@ class KubernetesSchedulerTest(unittest.TestCase):
         app = _test_app()
         scheduler._validate(app, "kubernetes")
 
+    def test_cleanup_str(self) -> None:
+        self.assertEqual("abcd123", cleanup_str("abcd123"))
+        self.assertEqual("abcd123", cleanup_str("-/_a/b/CD!123!"))
+        self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
+        self.assertEqual("", cleanup_str("!!!"))
+
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
@@ -146,7 +153,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
         with patch(
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
-            make_unique_ctx.return_value = "app_name_42"
+            make_unique_ctx.return_value = "app-name-42"
             info = scheduler._submit_dryrun(app, cfg)
 
         resource = str(info.request)
@@ -156,7 +163,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             f"""apiVersion: batch.volcano.sh/v1alpha1
 kind: Job
 metadata:
-  name: app_name_42
+  name: app-name-42
 spec:
   maxRetry: 3
   plugins:
@@ -190,7 +197,7 @@ spec:
           - --output-path
           - ''
           - --app-id
-          - app_name_42
+          - app-name-42
           env:
           - name: FOO
             value: bar
