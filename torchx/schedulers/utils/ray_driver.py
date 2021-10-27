@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 import ray
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 import logger
+import subprocess
 
 
 @dataclass
@@ -16,6 +17,14 @@ class RayActor:
     num_cpus: int = 1
     num_gpus: int = 1
     memory_size: int = 1
+
+@ray.remote
+class CommandActor:
+    def __init__(self, command):
+        self.command = command
+
+    def run_command(self):
+        return subprocess.run(self.command)
 
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
@@ -60,7 +69,7 @@ if __name__ == "__main__":
 
         if ready:
             logger.debug("Placement group has started.")
-            ray.init()
+            ray.init(address="auto", namespace=actor_dict["name"])
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
@@ -68,13 +77,7 @@ if __name__ == "__main__":
             logger.debug("Environment variables set")
 
             logger.debug("Starting remote function")
-
-            ## TODO: Not sure about this part
-            ## Do we need to introspect the script to get the nn.module?
-            RemoteNetwork = ray.remote(actor_dict["command"])
-            ray.get([NetworkActor.train.remote()])
-            logger.debug("Remote function is running")
-
+        
         else:
             raise TimeoutError(
                 "Placement group creation timed out. Make sure "
@@ -83,3 +86,7 @@ if __name__ == "__main__":
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
+
+        actors = [CommandActor.options(placement_group=pg).remote(actors_dict[i]["command"]) for i in range(len(bundles))]
+        ray.get([a.run_command.remote() for a in actors])
+
