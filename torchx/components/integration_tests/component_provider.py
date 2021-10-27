@@ -37,13 +37,11 @@ class ComponentProvider(ABC):
 class DDPComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
         args = ["torchx.components.integration_tests.test.dummy_app"]
-        rdzv_backend: str = "c10d"
         rdzv_endpoint: str = "localhost:29400"
         return dist_components.ddp(
             *args,
-            entrypoint="-m",
+            script="-m",
             image=self._image,
-            rdzv_backend=rdzv_backend,
             rdzv_endpoint=rdzv_endpoint,
         )
 

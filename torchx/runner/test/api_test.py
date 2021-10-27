@@ -16,8 +16,8 @@ from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
-    LocalScheduler,
     LocalDirectoryImageProvider,
+    LocalScheduler,
 )
 from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs.api import (
@@ -29,6 +29,7 @@ from torchx.specs.api import (
     UnknownAppException,
 )
 from torchx.specs.finder import ComponentNotFoundException
+
 
 GET_SCHEDULERS = "torchx.runner.api.get_schedulers"
 
@@ -375,13 +376,13 @@ class RunnerTest(unittest.TestCase):
         local_sched_mock = MagicMock()
         schedulers = {"local_dir": local_sched_mock, "local": local_sched_mock}
         with Runner(name="test_session", schedulers=schedulers) as runner:
-            app_args = ["--image", "dummy_image", "--entrypoint", "test.py"]
+            app_args = ["--image", "dummy_image", "--script", "test.py"]
             with patch.object(runner, "run") as run_mock:
-                app_handle = runner.run_component("dist.ddp", app_args, "local")
+                _ = runner.run_component("dist.ddp", app_args, "local")
                 args, kwargs = run_mock.call_args
                 actual_app = args[0]
 
-            self.assertEqual(actual_app.name, "test-name")
+            self.assertEqual(actual_app.name, "test")
             self.assertEqual(1, len(actual_app.roles))
             self.assertEqual("worker", actual_app.roles[0].name)
 
