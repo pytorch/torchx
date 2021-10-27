@@ -4,7 +4,7 @@ import dataclasses
 from dataclasses import dataclass, field
 import ray
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
-import logger
+import logging
 import subprocess
 
 
@@ -15,7 +15,7 @@ class RayActor:
     env: Dict[str, str] = field(default_factory=dict)
     num_replicas: int = 1
     num_cpus: int = 1
-    num_gpus: int = 1
+    num_gpus: int = 0
     memory_size: int = 1
 
 @ray.remote
@@ -36,7 +36,7 @@ def serialize(actor : RayActor) -> None:
     actor_json = json.dumps(actor, cls= EnhancedJSONEncoder)
     def write_json(actor, output_filename):
         with open(f"{output_filename}", 'w', encoding='utf-8') as f:
-            json.dump(actor, f, ensure_ascii=False, indent=4)
+            json.dump([actor], f)
     write_json(actor_json, 'actor.json')
 
 def load_actor_json(filename : str) -> List[Dict]:
@@ -46,37 +46,34 @@ def load_actor_json(filename : str) -> List[Dict]:
         return actor
 
 if __name__ == "__main__":
-    # 1. Load json actor
-    # 2. Create placement groups per actor
-    # 3. Start Ray actor in each placement group 
-    
-    # On ray_scheduler.py
-    actor = RayActor("ray", "up")
+    actor = RayActor("resnet", "echo hello")
     serialize(actor)
+    logging.basicConfig(filename='driver.log', encoding='utf-8', level=logging.DEBUG)
+
 
     # On driver.py
-    logger("Reading actor.json")
+    logging.debug("Reading actor.json")
     actors_dict = load_actor_json('actor.json')
 
     for actor_dict in actors_dict:
 
         bundle = {"CPU": actor_dict["num_cpus"], "GPU": actor_dict["num_gpus"]}
-        bundles = [bundle] * actor_dict["num_workers"]
+        bundles = [bundle] * actor_dict["num_replicas"]
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
 
-        logger.debug("Waiting for placement group to start.")
+        logging.debug("Waiting for placement group to start.")
         ready, _ = ray.wait([pg.ready()], timeout=100)
 
         if ready:
-            logger.debug("Placement group has started.")
-            ray.init(address="auto", namespace=actor_dict["name"])
+            logging.debug("Placement group has started.")
+            # ray.init(address="auto", namespace=actor_dict["name"])
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
 
-            logger.debug("Environment variables set")
+            logging.debug("Environment variables set")
 
-            logger.debug("Starting remote function")
+            logging.debug("Starting remote function")
         
         else:
             raise TimeoutError(
@@ -87,6 +84,7 @@ if __name__ == "__main__":
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
 
-        actors = [CommandActor.options(placement_group=pg).remote(actors_dict[i]["command"]) for i in range(len(bundles))]
-        ray.get([a.run_command.remote() for a in actors])
-
+    # actor = CommandActor.options(placement_group=pg).remote(actor_dict["command"])
+    # ray.get([actor.run_command.remote()])
+    actors = [CommandActor.options(placement_group=pg).remote(actors_dict[i]["command"]) for i in range(len(actor_dict))]
+    ray.get([a.run_command.remote() for a in actors])
