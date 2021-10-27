@@ -46,8 +46,10 @@ def load_actor_json(filename : str) -> List[Dict]:
         return actor
 
 if __name__ == "__main__":
-    actor = RayActor("resnet", "echo hello")
-    serialize(actor)
+    actor1 = RayActor("resnet", ["echo", "hello resnet"])
+    actor2 = RayActor("bert", ["echo", "hello bert"])
+    serialize([actor1, actor2])
+
     logging.basicConfig(filename='driver.log', encoding='utf-8', level=logging.DEBUG)
 
 
@@ -66,7 +68,7 @@ if __name__ == "__main__":
 
         if ready:
             logging.debug("Placement group has started.")
-            ray.init(address="auto", namespace=actor_dict["name"])
+            # ray.init(address="auto", namespace=actor_dict["name"])
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
@@ -86,5 +88,5 @@ if __name__ == "__main__":
 
     # actor = CommandActor.options(placement_group=pg).remote(actor_dict["command"])
     # ray.get([actor.run_command.remote()])
-    actors = [CommandActor.options(placement_group=pg).remote(actors_dict[i]["command"]) for i in range(len(actor_dict))]
+    actors = [CommandActor.options(placement_group=pg).remote(actors_dict[i]["command"]) for i in range(len(actors_dict))]
     ray.get([a.run_command.remote() for a in actors])
