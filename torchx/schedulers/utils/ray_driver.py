@@ -32,11 +32,11 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actor : RayActor) -> None:
+def serialize(actor : List[RayActor]) -> None:
     actor_json = json.dumps(actor, cls= EnhancedJSONEncoder)
     def write_json(actor, output_filename):
         with open(f"{output_filename}", 'w', encoding='utf-8') as f:
-            json.dump([actor], f)
+            json.dump(actor, f)
     write_json(actor_json, 'actor.json')
 
 def load_actor_json(filename : str) -> List[Dict]:
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
         if ready:
             logging.debug("Placement group has started.")
-            # ray.init(address="auto", namespace=actor_dict["name"])
+            ray.init(address="auto", namespace=actor_dict["name"])
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
