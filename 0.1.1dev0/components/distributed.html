@@ -378,21 +378,19 @@ and more for each role.</p>
 single role AppDefs, so there is a builtin: <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code>. Assuming your DDP
 training script is called <code class="docutils literal notranslate"><span class="pre">main.py</span></code>, launch it as:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>locally, <span class="m">1</span> node x <span class="m">4</span> workers
-<span class="gp">$ </span>torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node <span class="m">4</span>
+<span class="gp">$ </span>torchx run -s local_cwd dist.ddp -j 1x4 --script main.py
 
 <span class="gp"># </span>locally, <span class="m">2</span> node x <span class="m">4</span> workers <span class="o">(</span><span class="m">8</span> total<span class="o">)</span>
-<span class="gp">$ </span>torchx run -s local_cwd dist.ddp --entrypoint main.py <span class="se">\</span>
-    --rdzv_backend c10d <span class="se">\</span>
-    --nnodes <span class="m">2</span> <span class="se">\</span>
-    --nproc_per_node <span class="m">4</span> <span class="se">\</span>
+<span class="gp"># </span>remote <span class="o">(</span>needs you to start a <span class="nb">local</span> etcd server on port <span class="m">2379</span>!<span class="o">)</span>
+<span class="gp">$ </span>torchx run -s local_cwd dist.ddp
+<span class="go">    -j 2x4 \</span>
+<span class="go">    --rdzv_endpoint localhost:2379 \</span>
+<span class="go">    --script main.py \</span>
 
 <span class="gp"># </span>remote <span class="o">(</span>needs you to setup an etcd server first!<span class="o">)</span>
 <span class="gp">$ </span>torchx run -s kubernetes -cfg <span class="nv">queue</span><span class="o">=</span>default dist.ddp <span class="se">\</span>
-    --entrypoint main.py <span class="se">\</span>
-    --rdzv_backend etcd <span class="se">\</span>
-    --rdzv_endpoint etcd-server.default.svc.cluster.local:2379 <span class="se">\</span>
-    --nnodes <span class="m">2</span> <span class="se">\</span>
-    --nproc_per_node <span class="m">4</span> <span class="se">\</span>
+    -j 2x4 <span class="se">\</span>
+    --script main.py <span class="se">\</span>
 </pre></div>
 </div>
 <p>There is a lot happening under the hood so we strongly encourage you
@@ -476,36 +474,21 @@ method. Modify <code class="docutils literal notranslate"><span class="pre">reso
 </section>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.components.dist.ddp">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.dist.</span></span><span class="sig-name descname"><span class="pre">ddp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">script_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.1dev0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_backend</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nnodes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc_per_node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'test-name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'worker'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/dist.html#ddp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.dist.ddp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">torchx.components.dist.</span></span><span class="sig-name descname"><span class="pre">ddp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">script_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">script</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.1dev0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'aws_t3.medium'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'1x2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rdzv_endpoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'etcd-server.default.svc.cluster.local:2379'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/dist.html#ddp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.dist.ddp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distributed data parallel style application (one role, multi-replica).
 Uses <a class="reference external" href="https://pytorch.org/docs/stable/distributed.elastic.html">torch.distributed.run</a>
 to launch and coordinate pytorch worker processes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>script_args</strong> – Script arguments.</p></li>
-<li><p><strong>image</strong> – container image.</p></li>
-<li><p><strong>entrypoint</strong> – script or binary to run within the image.</p></li>
-<li><p><strong>rdzv_backend</strong> – rendezvous backend to use, allowed values can be found in the
-<a class="reference external" href="https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py">rdzv registry docs</a>
-The default backend is <cite>c10d</cite></p></li>
-<li><p><strong>rdzv_endpoint</strong> – Controller endpoint. In case of rdzv_backend is etcd, this is a etcd
-endpoint, in case of c10d, this is the endpoint of one of the hosts.
-The default entdpoint it <cite>localhost:29500</cite></p></li>
-<li><p><strong>resource</strong> – Optional named resource identifier. The resource parameter
-gets ignored when running on the local scheduler.</p></li>
-<li><p><strong>nnodes</strong> – Number of nodes.</p></li>
-<li><p><strong>nproc_per_node</strong> – Number of processes per node.</p></li>
-<li><p><strong>name</strong> – Name of the application.</p></li>
-<li><p><strong>role</strong> – Name of the ddp role.</p></li>
-<li><p><strong>env</strong> – Env variables.</p></li>
+<li><p><strong>script_args</strong> – arguments to the main module</p></li>
+<li><p><strong>script</strong> – script or binary to run within the image</p></li>
+<li><p><strong>image</strong> – image (e.g. docker)</p></li>
+<li><p><strong>name</strong> – job name override (uses the script name if not specified)</p></li>
+<li><p><strong>h</strong> – a registered named resource</p></li>
+<li><p><strong>j</strong> – {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus</p></li>
+<li><p><strong>rdzv_endpoint</strong> – etcd server endpoint (only matters when nnodes &gt; 1)</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Torchx AppDef</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.AppDef">specs.AppDef</a></p>
 </dd>
 </dl>
 </dd></dl>

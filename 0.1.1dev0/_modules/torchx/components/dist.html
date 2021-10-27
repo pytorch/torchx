@@ -387,21 +387,19 @@
 <span class="sd">.. code:: shell-session</span>
 
 <span class="sd">    # locally, 1 node x 4 workers</span>
-<span class="sd">    $ torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4</span>
+<span class="sd">    $ torchx run -s local_cwd dist.ddp -j 1x4 --script main.py</span>
 
 <span class="sd">    # locally, 2 node x 4 workers (8 total)</span>
-<span class="sd">    $ torchx run -s local_cwd dist.ddp --entrypoint main.py \\</span>
-<span class="sd">        --rdzv_backend c10d \\</span>
-<span class="sd">        --nnodes 2 \\</span>
-<span class="sd">        --nproc_per_node 4 \\</span>
+<span class="sd">    # remote (needs you to start a local etcd server on port 2379!)</span>
+<span class="sd">    $ torchx run -s local_cwd dist.ddp</span>
+<span class="sd">        -j 2x4 \\</span>
+<span class="sd">        --rdzv_endpoint localhost:2379 \\</span>
+<span class="sd">        --script main.py \\</span>
 
 <span class="sd">    # remote (needs you to setup an etcd server first!)</span>
 <span class="sd">    $ torchx run -s kubernetes -cfg queue=default dist.ddp \\</span>
-<span class="sd">        --entrypoint main.py \\</span>
-<span class="sd">        --rdzv_backend etcd \\</span>
-<span class="sd">        --rdzv_endpoint etcd-server.default.svc.cluster.local:2379 \\</span>
-<span class="sd">        --nnodes 2 \\</span>
-<span class="sd">        --nproc_per_node 4 \\</span>
+<span class="sd">        -j 2x4 \\</span>
+<span class="sd">        --script main.py \\</span>
 
 
 <span class="sd">There is a lot happening under the hood so we strongly encourage you</span>
@@ -484,26 +482,22 @@
 <span class="sd">Components APIs</span>
 <span class="sd">-----------------</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
-<span class="kn">from</span> <span class="nn">torchx.components.base</span> <span class="kn">import</span> <span class="n">torch_dist_role</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">macros</span>
 <span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span>
 
 
 <div class="viewcode-block" id="ddp"><a class="viewcode-back" href="../../../components/distributed.html#torchx.components.dist.ddp">[docs]</a><span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span>
     <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">script</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">TORCHX_IMAGE</span><span class="p">,</span>
-    <span class="n">rdzv_backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">nproc_per_node</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;test-name&quot;</span><span class="p">,</span>
-    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;worker&quot;</span><span class="p">,</span>
-    <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">h</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aws_t3.medium&quot;</span><span class="p">,</span>
+    <span class="n">j</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1x2&quot;</span><span class="p">,</span>
+    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etcd-server.default.svc.cluster.local:2379&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Distributed data parallel style application (one role, multi-replica).</span>
@@ -511,54 +505,54 @@
 <span class="sd">    to launch and coordinate pytorch worker processes.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        script_args: Script arguments.</span>
-<span class="sd">        image: container image.</span>
-<span class="sd">        entrypoint: script or binary to run within the image.</span>
-<span class="sd">        rdzv_backend: rendezvous backend to use, allowed values can be found in the</span>
-<span class="sd">             `rdzv registry docs &lt;https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py&gt;`_</span>
-<span class="sd">             The default backend is `c10d`</span>
-<span class="sd">        rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd</span>
-<span class="sd">            endpoint, in case of c10d, this is the endpoint of one of the hosts.</span>
-<span class="sd">            The default entdpoint it `localhost:29500`</span>
-<span class="sd">        resource: Optional named resource identifier. The resource parameter</span>
-<span class="sd">            gets ignored when running on the local scheduler.</span>
-<span class="sd">        nnodes: Number of nodes.</span>
-<span class="sd">        nproc_per_node: Number of processes per node.</span>
-<span class="sd">        name: Name of the application.</span>
-<span class="sd">        role: Name of the ddp role.</span>
-<span class="sd">        env: Env variables.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        specs.AppDef: Torchx AppDef</span>
+<span class="sd">        script_args: arguments to the main module</span>
+<span class="sd">        script: script or binary to run within the image</span>
+<span class="sd">        image: image (e.g. docker)</span>
+<span class="sd">        name: job name override (uses the script name if not specified)</span>
+<span class="sd">        h: a registered named resource</span>
+<span class="sd">        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus</span>
+<span class="sd">        rdzv_endpoint: etcd server endpoint (only matters when nnodes &gt; 1)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">launch_kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;nnodes&quot;</span><span class="p">:</span> <span class="n">nnodes</span><span class="p">,</span>
-        <span class="s2">&quot;nproc_per_node&quot;</span><span class="p">:</span> <span class="n">nproc_per_node</span><span class="p">,</span>
-        <span class="s2">&quot;max_restarts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="n">rdzv_backend</span><span class="p">:</span>
-        <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;rdzv_backend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdzv_backend</span>
-    <span class="k">if</span> <span class="n">rdzv_endpoint</span><span class="p">:</span>
-        <span class="n">launch_kwargs</span><span class="p">[</span><span class="s2">&quot;rdzv_endpoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdzv_endpoint</span>
+    <span class="n">rep</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># num replicas only</span>
+        <span class="n">nnodes</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">nproc_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">nnodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">nproc_per_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rep</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid format for -j, usage example: 1x4. Given: </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">retry_policy</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span>
-
-    <span class="n">ddp_role</span> <span class="o">=</span> <span class="n">torch_dist_role</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
-        <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-        <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
-        <span class="n">resource</span><span class="o">=</span><span class="n">resource</span> <span class="ow">or</span> <span class="n">specs</span><span class="o">.</span><span class="n">NULL_RESOURCE</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">script_args</span><span class="p">),</span>
-        <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
-        <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
-        <span class="n">max_retries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">retry_policy</span><span class="o">=</span><span class="n">retry_policy</span><span class="p">,</span>
-        <span class="n">port_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">launch_kwargs</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">ddp_role</span><span class="p">])</span></div>
+    <span class="n">script_name_noext</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">script</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>  <span class="c1"># script name no extension</span>
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="n">script_name_noext</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">script_name_noext</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">named_resources</span><span class="p">[</span><span class="n">h</span><span class="p">],</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--rdzv_backend&quot;</span><span class="p">,</span>
+                    <span class="p">(</span><span class="s2">&quot;c10d&quot;</span> <span class="k">if</span> <span class="n">nnodes</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;etcd&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;--rdzv_endpoint&quot;</span><span class="p">,</span>
+                    <span class="n">rdzv_endpoint</span><span class="p">,</span>  <span class="c1"># no effect when rdzv_backend=c10d</span>
+                    <span class="s2">&quot;--rdzv_id&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--nnodes&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
+                    <span class="s2">&quot;--nproc_per_node&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">nproc_per_node</span><span class="p">),</span>
+                    <span class="n">script</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">script_args</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span></div>
 </pre></div>
 
      </article>
