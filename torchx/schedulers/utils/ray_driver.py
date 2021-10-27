@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
         if ready:
             logging.debug("Placement group has started.")
-            # ray.init(address="auto", namespace=actor_dict["name"])
+            # ray.init() fails if ran twice in a row
+            ray.init(address="auto", namespace=actor_dict["name"])
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
