@@ -1,6 +1,5 @@
 import os
 import json
-from json import JSONEncoder
 import dataclasses
 from dataclasses import dataclass, field
 import ray
@@ -31,7 +30,7 @@ def serialize(actor : RayActor) -> None:
             json.dump(actor, f, ensure_ascii=False, indent=4)
     write_json(actor_json, 'actor.json')
 
-def load_actor_json(filename : str) -> Dict:
+def load_actor_json(filename : str) -> List[Dict]:
     with open(filename) as f:
         actor = json.load(f)
         actor = json.loads(actor)
@@ -41,32 +40,46 @@ if __name__ == "__main__":
     # 1. Load json actor
     # 2. Create placement groups per actor
     # 3. Start Ray actor in each placement group 
+    
+    # On ray_scheduler.py
     actor = RayActor("ray", "up")
     serialize(actor)
-    logger("actor.json is being read.")
-    actor_dict = load_actor_json('actor.json')
 
-    bundle = {"CPU": actor_dict[num_cpus], "GPU": actor_dict[num_gpus]}
-    bundles = [bundle] * actor_dict[num_workers]
-    pg = ray.util.placement_group(bundles, strategy="SPREAD")
+    # On driver.py
+    logger("Reading actor.json")
+    actors_dict = load_actor_json('actor.json')
 
-    logger.debug("Waiting for placement group to start.")
-    ready, _ = ray.wait([pg.ready()], timeout=100)
+    for actor_dict in actors_dict:
 
-    if ready:
-        logger.debug("Placement group has started.")
-        ray.init()
+        bundle = {"CPU": actor_dict["num_cpus"], "GPU": actor_dict["num_gpus"]}
+        bundles = [bundle] * actor_dict["num_workers"]
+        pg = ray.util.placement_group(bundles, strategy="SPREAD")
 
-        # Should we introspect the script and get the nn module?
-        RemoteNetwork = ray.remote(actor_dict[scripts])
-        ray.get([NetworkActor.train.remote()])
+        logger.debug("Waiting for placement group to start.")
+        ready, _ = ray.wait([pg.ready()], timeout=100)
 
+        if ready:
+            logger.debug("Placement group has started.")
+            ray.init()
 
-    else:
-        raise TimeoutError(
-            "Placement group creation timed out. Make sure "
-            "your cluster either has enough resources or use "
-            "an autoscaling cluster. Current resources "
-            "available: {}, resources requested by the "
-            "placement group: {}".format(ray.available_resources(),
-                                        pg.bundle_specs))
+            for key, value in actor_dict["env"]:
+                os.environ[key] = value
+
+            logger.debug("Environment variables set")
+
+            logger.debug("Starting remote function")
+
+            ## TODO: Not sure about this part
+            ## Do we need to introspect the script to get the nn.module?
+            RemoteNetwork = ray.remote(actor_dict["command"])
+            ray.get([NetworkActor.train.remote()])
+            logger.debug("Remote function is running")
+
+        else:
+            raise TimeoutError(
+                "Placement group creation timed out. Make sure "
+                "your cluster either has enough resources or use "
+                "an autoscaling cluster. Current resources "
+                "available: {}, resources requested by the "
+                "placement group: {}".format(ray.available_resources(),
+                                            pg.bundle_specs))
