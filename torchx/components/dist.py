@@ -32,21 +32,19 @@ training script is called ``main.py``, launch it as:
 .. code:: shell-session
 
     # locally, 1 node x 4 workers
-    $ torchx run -s local_cwd dist.ddp --entrypoint main.py --nproc_per_node 4
+    $ torchx run -s local_cwd dist.ddp -j 1x4 --script main.py
 
     # locally, 2 node x 4 workers (8 total)
-    $ torchx run -s local_cwd dist.ddp --entrypoint main.py \\
-        --rdzv_backend c10d \\
-        --nnodes 2 \\
-        --nproc_per_node 4 \\
+    # remote (needs you to start a local etcd server on port 2379!)
+    $ torchx run -s local_cwd dist.ddp
+        -j 2x4 \\
+        --rdzv_endpoint localhost:2379 \\
+        --script main.py \\
 
     # remote (needs you to setup an etcd server first!)
     $ torchx run -s kubernetes -cfg queue=default dist.ddp \\
-        --entrypoint main.py \\
-        --rdzv_backend etcd \\
-        --rdzv_endpoint etcd-server.default.svc.cluster.local:2379 \\
-        --nnodes 2 \\
-        --nproc_per_node 4 \\
+        -j 2x4 \\
+        --script main.py \\
 
 
 There is a lot happening under the hood so we strongly encourage you
@@ -129,26 +127,22 @@ not TorchX. Read more about rendezvous `here <https://pytorch.org/docs/stable/el
 Components APIs
 -----------------
 """
-
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Optional
 
 import torchx.specs as specs
-from torchx.components.base import torch_dist_role
+from torchx.specs import macros
 from torchx.version import TORCHX_IMAGE
 
 
 def ddp(
     *script_args: str,
-    entrypoint: str,
+    script: str,
     image: str = TORCHX_IMAGE,
-    rdzv_backend: Optional[str] = None,
-    rdzv_endpoint: Optional[str] = None,
-    resource: Optional[str] = None,
-    nnodes: int = 1,
-    nproc_per_node: int = 1,
-    name: str = "test-name",
-    role: str = "worker",
-    env: Optional[Dict[str, str]] = None,
+    name: Optional[str] = None,
+    h: str = "aws_t3.medium",
+    j: str = "1x2",
+    rdzv_endpoint: str = "etcd-server.default.svc.cluster.local:2379",
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -156,51 +150,51 @@ def ddp(
     to launch and coordinate pytorch worker processes.
 
     Args:
-        script_args: Script arguments.
-        image: container image.
-        entrypoint: script or binary to run within the image.
-        rdzv_backend: rendezvous backend to use, allowed values can be found in the
-             `rdzv registry docs <https://github.com/pytorch/pytorch/blob/master/torch/distributed/elastic/rendezvous/registry.py>`_
-             The default backend is `c10d`
-        rdzv_endpoint: Controller endpoint. In case of rdzv_backend is etcd, this is a etcd
-            endpoint, in case of c10d, this is the endpoint of one of the hosts.
-            The default entdpoint it `localhost:29500`
-        resource: Optional named resource identifier. The resource parameter
-            gets ignored when running on the local scheduler.
-        nnodes: Number of nodes.
-        nproc_per_node: Number of processes per node.
-        name: Name of the application.
-        role: Name of the ddp role.
-        env: Env variables.
-
-    Returns:
-        specs.AppDef: Torchx AppDef
+        script_args: arguments to the main module
+        script: script or binary to run within the image
+        image: image (e.g. docker)
+        name: job name override (uses the script name if not specified)
+        h: a registered named resource
+        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
+        rdzv_endpoint: etcd server endpoint (only matters when nnodes > 1)
     """
 
-    launch_kwargs: Dict[str, Any] = {
-        "nnodes": nnodes,
-        "nproc_per_node": nproc_per_node,
-        "max_restarts": 0,
-    }
-    if rdzv_backend:
-        launch_kwargs["rdzv_backend"] = rdzv_backend
-    if rdzv_endpoint:
-        launch_kwargs["rdzv_endpoint"] = rdzv_endpoint
+    rep = j.split("x")
+    if len(rep) == 1:  # num replicas only
+        nnodes = 1
+        nproc_per_node = int(rep[0])
+    elif len(rep) == 2:
+        nnodes = int(rep[0])
+        nproc_per_node = int(rep[1])
+    else:
+        raise ValueError(f"Invalid format for -j, usage example: 1x4. Given: {j}")
 
-    retry_policy: specs.RetryPolicy = specs.RetryPolicy.APPLICATION
-
-    ddp_role = torch_dist_role(
-        name=role,
-        image=image,
-        entrypoint=entrypoint,
-        resource=resource or specs.NULL_RESOURCE,
-        args=list(script_args),
-        env=env,
-        num_replicas=nnodes,
-        max_retries=0,
-        retry_policy=retry_policy,
-        port_map=None,
-        **launch_kwargs,
+    script_name_noext = Path(script).stem  # script name no extension
+    return specs.AppDef(
+        name=name or script_name_noext,
+        roles=[
+            specs.Role(
+                name=script_name_noext,
+                image=image,
+                entrypoint="python",
+                num_replicas=nnodes,
+                resource=specs.named_resources[h],
+                args=[
+                    "-m",
+                    "torch.distributed.run",
+                    "--rdzv_backend",
+                    ("c10d" if nnodes == 1 else "etcd"),
+                    "--rdzv_endpoint",
+                    rdzv_endpoint,  # no effect when rdzv_backend=c10d
+                    "--rdzv_id",
+                    f"{macros.app_id}",
+                    "--nnodes",
+                    str(nnodes),
+                    "--nproc_per_node",
+                    str(nproc_per_node),
+                    script,
+                    *script_args,
+                ],
+            )
+        ],
     )
-
-    return specs.AppDef(name, roles=[ddp_role])
