@@ -137,6 +137,7 @@ class RoleBuilderTest(unittest.TestCase):
         self.assertEqual(1, default.num_replicas)
         self.assertEqual(0, default.max_retries)
         self.assertEqual(RetryPolicy.APPLICATION, default.retry_policy)
+        self.assertEqual({}, default.metadata)
 
     def test_build_role(self) -> None:
         # runs: ENV_VAR_1=FOOBAR /bin/echo hello world
@@ -152,6 +153,7 @@ class RoleBuilderTest(unittest.TestCase):
             max_retries=5,
             resource=resource,
             port_map={"foo": 8080},
+            metadata={"foo": "bar"},
         )
 
         self.assertEqual("trainer", trainer.name)
@@ -159,6 +161,7 @@ class RoleBuilderTest(unittest.TestCase):
         self.assertEqual("/bin/echo", trainer.entrypoint)
         self.assertEqual({"ENV_VAR_1": "FOOBAR"}, trainer.env)
         self.assertEqual(["hello", "world"], trainer.args)
+        self.assertDictEqual({"foo": "bar"}, trainer.metadata)
         self.assertDictEqual({"foo": 8080}, trainer.port_map)
         self.assertEqual(resource, trainer.resource)
         self.assertEqual(2, trainer.num_replicas)
