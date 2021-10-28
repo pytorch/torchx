@@ -60,3 +60,19 @@ def simple(
     )
 
     return specs.AppDef(name="my_train_job", roles=[trainer, ps, reader])
+
+
+def echo_stderr(msg: str) -> specs.AppDef:
+    touch = specs.Role(
+        name="echo",
+        image="/tmp",
+        entrypoint="python3",
+        args=[
+            "-c",
+            "import sys; sys.stderr.write(sys.argv[1])",
+            msg,
+        ],
+        num_replicas=1,
+    )
+
+    return specs.AppDef(name="echo", roles=[touch])

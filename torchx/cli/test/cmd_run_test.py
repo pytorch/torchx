@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import io
 import os
 import shutil
 import signal
@@ -70,6 +71,26 @@ class CmdRunTest(unittest.TestCase):
 
             self.cmd_run.run(args)
             self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.testv2")))
+
+    @patch("sys.stdout", new_callable=io.StringIO)
+    def test_run_with_log(self, stdout: MagicMock) -> None:
+        with cwd(str(Path(__file__).parent)):
+            args = self.parser.parse_args(
+                [
+                    "--log",
+                    "--wait",
+                    "--scheduler",
+                    "local_cwd",
+                    "-cfg",
+                    f"log_dir={self.tmpdir}",
+                    str(Path(__file__).parent / "components.py:echo_stderr"),
+                    "--msg",
+                    "toast",
+                ]
+            )
+
+            self.cmd_run.run(args)
+        self.assertRegex(stdout.getvalue(), "echo/0.*toast")
 
     @patch(
         "torchx.runner.Runner.wait", side_effect=SignalException("msg", signal.SIGTERM)

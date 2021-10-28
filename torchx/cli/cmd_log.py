@@ -10,16 +10,16 @@ import logging
 import re
 import sys
 import threading
+import time
 from queue import Queue
 from typing import Optional, List, Tuple
-from urllib.parse import urlparse
 
 from pyre_extensions import none_throws
 from torchx import specs
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.colors import GREEN, ENDC
 from torchx.runner import Runner, get_runner
-from torchx.specs.api import make_app_handle
+from torchx.specs.api import make_app_handle, is_started
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -53,25 +53,37 @@ def print_log_lines(
         raise
 
 
-def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -> None:
+def get_logs(
+    identifier: str,
+    regex: Optional[str],
+    should_tail: bool = False,
+    runner: Optional[Runner] = None,
+) -> None:
     validate(identifier)
-    url = urlparse(identifier)
-    scheduler_backend = url.scheme
-    session_name = url.netloc or "default"
+    scheduler_backend, _, path_str = identifier.partition("://")
 
     # path is of the form ["", "app_id", "master", "0"]
-    path = url.path.split("/")
+    path = path_str.split("/")
+    session_name = path[0] or "default"
     app_id = path[1]
     role_name = path[2] if len(path) > 2 else None
 
-    runner = get_runner(name=session_name)
+    if not runner:
+        runner = get_runner(name=session_name)
     app_handle = make_app_handle(scheduler_backend, session_name, app_id)
-
-    app = none_throws(runner.describe(app_handle))
 
     if len(path) == 4:
         replica_ids = [(role_name, int(id)) for id in path[3].split(",") if id]
     else:
+        for i in range(10):
+            status = runner.status(app_handle)
+            if status and is_started(status.state):
+                break
+            if i == 0:
+                logger.info("Waiting for app to start before logging...")
+            time.sleep(1)
+
+        app = none_throws(runner.describe(app_handle))
         # print all replicas for the role
         replica_ids = find_role_replicas(app, role_name)
 

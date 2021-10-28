@@ -11,7 +11,7 @@ from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_log import ENDC, GREEN, get_logs, validate
-from torchx.specs import AppDef, Role, parse_app_handle
+from torchx.specs import AppDef, Role, parse_app_handle, AppStatus, AppState
 
 
 class SentinelError(Exception):
@@ -38,6 +38,9 @@ class MockRunner:
                 Role(name="trainer", image="test_image", num_replicas=3),
             ],
         )
+
+    def status(self, app_handle: str) -> AppStatus:
+        return AppStatus(state=AppState.RUNNING)
 
     def log_lines(
         self,
