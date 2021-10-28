@@ -6,7 +6,7 @@
 
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Generator, Type, cast
+from typing import Any, Iterator, Type, cast
 from unittest import TestCase, skipIf
 from unittest.mock import patch
 
@@ -19,7 +19,7 @@ try:
 except ImportError:
     should_skip = True
 
-from torchx.specs import AppDef, Resource, Role, RunConfig, runopt
+from torchx.specs import AppDef, Resource, Role, RunConfig, runopt, runopts
 
 
 @skipIf(should_skip, "Ray is not installed.")
@@ -88,7 +88,7 @@ class RaySchedulerTest(TestCase):
         self.assertEqual(self._scheduler.session_name, "test_session")
 
     def test_run_opts_returns_expected_options(self) -> None:
-        opts = self._scheduler.run_opts()
+        opts: runopts = self._scheduler.run_opts()
 
         @dataclass
         class Option:
@@ -142,7 +142,7 @@ class RaySchedulerTest(TestCase):
             self._scheduler._validate(self._app_def, scheduler="dummy")
 
     @contextmanager
-    def _assert_log_message(self, level: str, msg: str) -> Generator:
+    def _assert_log_message(self, level: str, msg: str) -> Iterator[None]:
         with self.assertLogs(logger) as cm:
             yield
 
@@ -200,6 +200,7 @@ class RaySchedulerTest(TestCase):
         ):
             self._scheduler._submit_dryrun(self._app_def, self._run_cfg)
 
+    # pyre-ignore[2]: Parameter `value` must have a type other than `Any`
     def _assert_config_value(self, name: str, value: Any, type_name: str) -> None:
         self._run_cfg.set(name, value)
 

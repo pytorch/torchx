@@ -143,9 +143,10 @@ class RayScheduler(Scheduler):
         if not isinstance(cluster_cfg, str) or not os.path.isfile(cluster_cfg):
             raise ValueError("The cluster configuration file must be a YAML file.")
 
-        job = RayJob(app_id, cluster_cfg)
+        job: RayJob = RayJob(app_id, cluster_cfg)
 
-        def set_job_attr(cfg_name: str, cfg_type: Type) -> None:
+        # pyre-ignore[24]: Generic type `type` expects 1 type parameter
+        def set_job_attr(cfg_name: str, cfg_type: Type) -> None:  # pyre-ignore: 
             cfg_value = cfg.get(cfg_name)
             if cfg_value is None:
                 return
@@ -229,7 +230,7 @@ class RayScheduler(Scheduler):
         should_tail: bool = False,
     ) -> Iterable[str]:
         # TBD
-        pass
+        return []
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
