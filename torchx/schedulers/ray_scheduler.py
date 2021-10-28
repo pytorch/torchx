@@ -16,9 +16,19 @@ from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, macros, runopts
 
+from ray._private.job_manager import JobStatus
+from ray.dashboard.modules.job.data_types import (
+    JobSubmitRequest, JobSubmitResponse, JobStatusRequest, JobStatusResponse,
+    JobLogsRequest, JobLogsResponse, JobSpec)
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+def _setup_webui_url(ray_start_with_dashboard):
+    webui_url = ray_start_with_dashboard["webui_url"]
+    assert wait_until_server_available(webui_url)
+    webui_url = format_web_url(webui_url)
+    return webui_url
 
 @dataclass
 class RayActor:
@@ -153,7 +163,19 @@ class RayScheduler(Scheduler):
         #
         # 5. Start `ray_main.py` as a background process on the head node using
         #    `ray exec`.
+        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/tests/test_http_job_server.py?L35
+        job_spec = JobSpec(
+        runtime_env=working_dir["runtime_env"],
+        entrypoint=working_dir["entrypoint"],
+        metadata=dict())
+        submit_request = JobSubmitRequest(job_spec=job_spec, job_id=str(uuid4()))
 
+        resp = requests.post(f"{webui_url}/submit", json=submit_request.dict())
+        resp.raise_for_status()
+        data = resp.json()["data"]["data"]
+        response = JobSubmitResponse(**data)
+        assert response.job_id == submit_request.job_id
+        
         return cfg.app_id
 
     def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[RayJob]:
@@ -279,8 +301,13 @@ class RayScheduler(Scheduler):
         #  4. In order to avoid race conditions, before returning the value from
         #     steps 2 or 3, repeats step 1 and ensures that status file does not
         #     exist.
-
-        return None
+        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/tests/test_http_job_server.py?L47
+        status_request = JobStatusRequest(job_id=submit_request.job_id)
+        resp = requests.get(f"{webui_url}/status", json=status_request.dict())
+        resp.raise_for_status()
+        data = resp.json()["data"]["data"]
+        response = JobStatusResponse(**data)
+        return response
 
     def log_iter(
         self,
@@ -293,7 +320,13 @@ class RayScheduler(Scheduler):
         should_tail: bool = False,
     ) -> Iterable[str]:
         # TBD
-        pass
+        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/tests/test_http_job_server.py?L54
+        logs_request = JobLogsRequest(job_id=submit_request.job_id)
+        resp = requests.get(f"{webui_url}/logs", json=logs_request.dict())
+        resp.raise_for_status()
+        data = resp.json()["data"]["data"]
+        response = JobLogsResponse(**data)
+    return response
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
