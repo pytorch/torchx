@@ -319,6 +319,22 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         self.assertEqual(f"{expected_app_id}", app_id)
         self.assertEqual(AppState.FAILED, desc.state)
         self.assertTrue(os.path.exists(self.test_dir))
+        self.assertFalse(self.scheduler._created_tmp_log_dir)
+
+    def test_submit_cleanup(self) -> None:
+        test_file_name = f"{macros.app_id}_{macros.replica_id}"
+        role = Role(
+            "role1",
+            image=self.test_dir,
+            entrypoint="touch.sh",
+            args=[join(f"{macros.img_root}", test_file_name)],
+            num_replicas=1,
+        )
+        app = AppDef(name="test_app", roles=[role])
+        app_id = self.scheduler.submit(app, RunConfig())
+        self.scheduler.close()
+        self.assertFalse(os.path.exists(self.scheduler._base_log_dir))
+        self.assertTrue(self.scheduler._created_tmp_log_dir)
 
     def test_macros_env(self) -> None:
         # make sure the macro substitution works

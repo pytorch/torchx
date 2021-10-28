@@ -11,6 +11,7 @@ import logging
 import os
 import pprint
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -611,6 +612,7 @@ class LocalScheduler(Scheduler):
 
         # sets lazily on submit or dryrun based on log_dir cfg
         self._base_log_dir: Optional[str] = None
+        self._created_tmp_log_dir: bool = False
 
     def run_opts(self) -> runopts:
         opts = runopts()
@@ -746,6 +748,7 @@ class LocalScheduler(Scheduler):
         redirect_std = True
         if not self._base_log_dir:
             self._base_log_dir = tempfile.mkdtemp(prefix="torchx_")
+            self._created_tmp_log_dir = True
             redirect_std = False
 
         return (
@@ -925,6 +928,9 @@ class LocalScheduler(Scheduler):
         for (app_id, app) in self._apps.items():
             log.debug(f"Terminating app: {app_id}")
             app.kill()
+        # delete logdir if torchx created a log dir
+        if self._base_log_dir and self._created_tmp_log_dir:
+            shutil.rmtree(self._base_log_dir, ignore_errors=True)
 
     def __del__(self) -> None:
         self.close()
