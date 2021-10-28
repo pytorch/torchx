@@ -200,7 +200,8 @@ class Role:
                     args = ["--arg", "foo", ENV_VAR="FOOBAR"],
                     num_replicas = 4,
                     resource = Resource(cpu=1, gpu=1, memMB=500),
-                    port_map={"tcp_store":8080, "tensorboard": 8081})
+                    port_map={"tcp_store":8080, "tensorboard": 8081},
+                    metadata={"local_cwd.property", value})
 
     Args:
             name: name of the role
@@ -216,6 +217,8 @@ class Role:
                 least ``resource`` guarantees.
             port_map: Port mapping for the role. The key is the unique identifier of the port
                 e.g. "tensorboard": 9090
+            metadata: Free form information that is associated with the role, for example
+                scheduler specific data. The key should follow the pattern: ``$scheduler.$key``
     """
 
     name: str
@@ -229,6 +232,7 @@ class Role:
     retry_policy: RetryPolicy = RetryPolicy.APPLICATION
     resource: Resource = NULL_RESOURCE
     port_map: Dict[str, int] = field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def pre_proc(
         self,
