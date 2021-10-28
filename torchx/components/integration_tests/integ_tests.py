@@ -31,7 +31,7 @@ class AppDefRun:
     provider: ComponentProvider
     scheduler_info: SchedulerInfo
     app_def: AppDef
-    future: Future
+    future: Optional[Future] = None
 
 
 _SUCCESS_APP_FORMAT_TEMPLATE = """
@@ -81,6 +81,7 @@ class IntegComponentTest:
         module: ModuleType,
         scheduler_infos: List[SchedulerInfo],
         dryrun: bool = False,
+        run_in_parallel: bool = True,
     ) -> None:
         component_providers_cls = self._get_component_providers(module)
         app_runs: List[AppDefRun] = []
@@ -107,6 +108,43 @@ class IntegComponentTest:
         return providers
 
     def _run_component_providers(
+        self,
+        executor: ThreadPoolExecutor,
+        component_providers_cls: List[Type[ComponentProvider]],
+        scheduler_info: SchedulerInfo,
+        dryrun: bool = False,
+        run_in_parallel: bool = True,
+    ) -> List[AppDefRun]:
+        if run_in_parallel:
+            return self._run_component_providers_in_parallel(
+                executor, component_providers_cls, scheduler_info, dryrun
+            )
+        else:
+            return self._run_component_providers_in_sequence(
+                component_providers_cls, scheduler_info, dryrun
+            )
+
+    def _run_component_providers_in_sequence(
+        self,
+        component_providers_cls: List[Type[ComponentProvider]],
+        scheduler_info: SchedulerInfo,
+        dryrun: bool = False,
+    ) -> List[AppDefRun]:
+        app_runs: List[AppDefRun] = []
+        for provider_cls in component_providers_cls:
+            provider = self._get_app_def_provider(provider_cls, scheduler_info)
+            self._run_component_provider(provider, scheduler_info, dryrun)
+            app_runs.append(
+                AppDefRun(
+                    provider=provider,
+                    scheduler_info=scheduler_info,
+                    future=None,
+                    app_def=provider.get_app_def(),
+                )
+            )
+        return app_runs
+
+    def _run_component_providers_in_parallel(
         self,
         executor: ThreadPoolExecutor,
         component_providers_cls: List[Type[ComponentProvider]],
@@ -199,7 +237,8 @@ class IntegComponentTest:
     ) -> Optional[str]:
         try:
             print(f"Retrieving {app_def_run.app_def.name}: {app_def_run.provider}")
-            app_def_run.future.result(timeout=timeout)
+            if app_def_run.future:
+                app_def_run.future.result(timeout=timeout)
             return None
         except Exception:
             stack_trace_msg = traceback.format_exc().replace("\n", "\n  ")

@@ -64,10 +64,21 @@ def main() -> None:
         component_provider,
         scheduler_infos=[
             get_local_cwd_sched_info(os.getcwd()),
-            get_local_docker_sched_info(torchx_image),
             get_k8s_sched_info(torchx_image),
         ],
         dryrun=dryrun,
+    )
+
+    # Run components on `local_docker`  scheduler in sequence due to
+    # docker APIs are not atomic. Some of the APIs, e.g. `create_network`
+    # cause a race condition, making several networks with the same name to be created.
+    test_suite.run_components(
+        component_provider,
+        scheduler_infos=[
+            get_local_docker_sched_info(torchx_image),
+        ],
+        dryrun=dryrun,
+        run_in_parallel=False,
     )
 
     test_suite.run_components(
