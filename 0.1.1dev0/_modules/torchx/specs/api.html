@@ -557,7 +557,8 @@
 <span class="sd">                    args = [&quot;--arg&quot;, &quot;foo&quot;, ENV_VAR=&quot;FOOBAR&quot;],</span>
 <span class="sd">                    num_replicas = 4,</span>
 <span class="sd">                    resource = Resource(cpu=1, gpu=1, memMB=500),</span>
-<span class="sd">                    port_map={&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081})</span>
+<span class="sd">                    port_map={&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081},</span>
+<span class="sd">                    metadata={&quot;local_cwd.property&quot;, value})</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">            name: name of the role</span>
@@ -573,6 +574,8 @@
 <span class="sd">                least ``resource`` guarantees.</span>
 <span class="sd">            port_map: Port mapping for the role. The key is the unique identifier of the port</span>
 <span class="sd">                e.g. &quot;tensorboard&quot;: 9090</span>
+<span class="sd">            metadata: Free form information that is associated with the role, for example</span>
+<span class="sd">                scheduler specific data. The key should follow the pattern: ``$scheduler.$key``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -586,6 +589,7 @@
     <span class="n">retry_policy</span><span class="p">:</span> <span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
     <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
