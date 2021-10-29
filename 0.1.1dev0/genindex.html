@@ -451,6 +451,8 @@
       <li><a href="runner.html#torchx.runner.Runner.describe">describe() (torchx.runner.Runner method)</a>
 
       <ul>
+        <li><a href="schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.describe">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
+</li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.describe">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.describe">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
@@ -462,7 +464,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider">DockerImageProvider (class in torchx.schedulers.local_scheduler)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler">DockerScheduler (class in torchx.schedulers.docker_scheduler)</a>
 </li>
       <li><a href="runner.html#torchx.runner.Runner.dryrun">dryrun() (torchx.runner.Runner method)</a>
 </li>
@@ -489,8 +491,6 @@
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.fetch">fetch() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.fetch">(torchx.schedulers.local_scheduler.DockerImageProvider method)</a>
-</li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch">(torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
       </ul></li>
@@ -526,12 +526,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.get_named_resources">get_named_resources() (in module torchx.specs)</a>
 </li>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.get_replica_param">get_replica_param() (torchx.schedulers.local_scheduler.DockerImageProvider method)</a>
-
-      <ul>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_replica_param">(torchx.schedulers.local_scheduler.ImageProvider method)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_replica_param">get_replica_param() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
-      </ul></li>
       <li><a href="runner.html#torchx.runner.get_runner">get_runner() (in module torchx.runner)</a>
 </li>
       <li><a href="schedulers.html#torchx.schedulers.get_scheduler_factories">get_scheduler_factories() (in module torchx.schedulers)</a>
@@ -570,16 +566,18 @@
 </li>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler">LocalScheduler (class in torchx.schedulers.local_scheduler)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.log_iter">log_iter() (torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.log_iter">log_iter() (torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 
       <ul>
+        <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.log_iter">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
+</li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.log_iter">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
 </li>
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.log_iter">(torchx.schedulers.Scheduler method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.log_lines">log_lines() (torchx.runner.Runner method)</a>
 </li>
   </ul></td>
@@ -634,6 +632,8 @@
 </li>
         <li><a href="schedulers.html#module-torchx.schedulers">torchx.schedulers</a>
 </li>
+        <li><a href="schedulers/local.html#module-torchx.schedulers.docker_scheduler">torchx.schedulers.docker_scheduler</a>
+</li>
         <li><a href="schedulers/kubernetes.html#module-torchx.schedulers.kubernetes_scheduler">torchx.schedulers.kubernetes_scheduler</a>
 </li>
         <li><a href="schedulers/local.html#module-torchx.schedulers.local_scheduler">torchx.schedulers.local_scheduler</a>
@@ -677,13 +677,15 @@
 </li>
       <li><a href="runner.html#torchx.runner.Runner.run">run() (torchx.runner.Runner method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.run_component">run_component() (torchx.runner.Runner method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.run_opts">run_opts() (torchx.runner.Runner method)</a>
 
       <ul>
+        <li><a href="schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.run_opts">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
+</li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.run_opts">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.run_opts">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
@@ -708,6 +710,8 @@
       <li><a href="runner.html#torchx.runner.Runner.schedule">schedule() (torchx.runner.Runner method)</a>
 
       <ul>
+        <li><a href="schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.schedule">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
+</li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.schedule">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.schedule">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
@@ -838,8 +842,6 @@
         <li><a href="runner.html#module-torchx.runner">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.runner.config
 
@@ -847,6 +849,8 @@
         <li><a href="experimental/runner.config.html#module-torchx.runner.config">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.runtime
 
@@ -880,6 +884,13 @@
 
       <ul>
         <li><a href="schedulers.html#module-torchx.schedulers">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchx.schedulers.docker_scheduler
+
+      <ul>
+        <li><a href="schedulers/local.html#module-torchx.schedulers.docker_scheduler">module</a>
 </li>
       </ul></li>
       <li>

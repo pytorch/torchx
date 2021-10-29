@@ -585,80 +585,6 @@
         <span class="k">return</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span></div></div>
 
 
-<div class="viewcode-block" id="DockerImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider">[docs]</a><span class="k">class</span> <span class="nc">DockerImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calls into docker CLI to pull and run the specified image.</span>
-
-<span class="sd">    Example:</span>
-
-<span class="sd">       ``fetch(Image(name=&quot;pytorch/pytorch:latest&quot;))`` pulls docker image, returns &quot;&quot;</span>
-<span class="sd">       ``get_command(image=&quot;pytorch/pytorch:latest&quot;, ..)`` return ``docker run ...``&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_has_docker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">has_docker</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span>
-                <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">],</span>
-                    <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
-                    <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">returncode</span>
-                <span class="o">==</span> <span class="mi">0</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="nf">_assert_docker</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_docker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_docker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_docker</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_docker</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;Docker is required to use the local_docker scheduler.</span>
-
-<span class="sd">Please see https://docs.docker.com/get-docker/ for information on how to install it on your local system.&quot;&quot;&quot;</span>
-            <span class="p">)</span>
-
-<div class="viewcode-block" id="DockerImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_docker</span><span class="p">()</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;pull&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">],</span>
-                <span class="n">stdout</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-                <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;failed to fetch image </span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2">, falling back to local: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="DockerImageProvider.get_replica_param"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.DockerImageProvider.get_replica_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_replica_param</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
-        <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReplicaParam</span><span class="p">:</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">env</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--env&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">ReplicaParam</span><span class="p">(</span>
-            <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span>
-            <span class="o">+</span> <span class="n">env</span>
-            <span class="o">+</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span>
-            <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
-            <span class="c1"># role envs go as --env arg to docker not to subprocess.Popen([&quot;docker&quot;,...])</span>
-            <span class="n">env</span><span class="o">=</span><span class="p">{},</span>
-            <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span>
-            <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">,</span>
-            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">),</span>
-        <span class="p">)</span></div></div>
-
-
 <span class="c1"># aliases to make clear what the mappings are</span>
 <span class="n">AppId</span> <span class="o">=</span> <span class="nb">str</span>
 <span class="n">AppName</span> <span class="o">=</span> <span class="nb">str</span>
@@ -918,12 +844,8 @@
 <span class="sd">    Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.</span>
 <span class="sd">    The scheduler will terminate the spawned processes.</span>
 
-<span class="sd">    This is exposed via the schedulers `local_cwd` and `local_docker`.</span>
+<span class="sd">    This is exposed via the scheduler `local_cwd`.</span>
 
-<span class="sd">    * `local_docker` runs the provided app via the local docker runtime using</span>
-<span class="sd">      the specified images in the AppDef. Docker must be installed. This</span>
-<span class="sd">      provides the closest environment to schedulers that natively use Docker</span>
-<span class="sd">      such as Kubernetes.</span>
 <span class="sd">    * `local_cwd` runs the provided app relative to the current working</span>
 <span class="sd">      directory and ignores the images field for faster iteration and testing</span>
 <span class="sd">      purposes.</span>
@@ -1357,14 +1279,6 @@
         <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
         <span class="n">cache_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_size&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
         <span class="n">image_provider_class</span><span class="o">=</span><span class="n">CWDImageProvider</span><span class="p">,</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">create_docker_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LocalScheduler</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">LocalScheduler</span><span class="p">(</span>
-        <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
-        <span class="n">cache_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_size&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-        <span class="n">image_provider_class</span><span class="o">=</span><span class="n">DockerImageProvider</span><span class="p">,</span>
     <span class="p">)</span>
 </pre></div>
 

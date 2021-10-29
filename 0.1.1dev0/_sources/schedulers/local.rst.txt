@@ -7,13 +7,18 @@ Local
 .. autoclass:: LocalScheduler
    :members:
 
+.. automodule:: torchx.schedulers.docker_scheduler
+.. currentmodule:: torchx.schedulers.docker_scheduler
+
+.. autoclass:: DockerScheduler
+   :members:
+
 Image Providers
 ~~~~~~~~~~~~~~~~~
 
-.. autoclass:: ImageProvider
-   :members:
+.. currentmodule:: torchx.schedulers.local_scheduler
 
-.. autoclass:: DockerImageProvider
+.. autoclass:: ImageProvider
    :members:
 
 .. autoclass:: CWDImageProvider
