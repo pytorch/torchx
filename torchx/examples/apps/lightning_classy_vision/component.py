@@ -120,7 +120,7 @@ def trainer(
                 image=image,
                 resource=named_resources[resource]
                 if resource
-                else specs.Resource(cpu=1, gpu=0, memMB=3000),
+                else specs.Resource(cpu=1, gpu=0, memMB=4000),
             )
         ],
     )
