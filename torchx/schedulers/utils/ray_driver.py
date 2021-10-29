@@ -57,6 +57,7 @@ if __name__ == "__main__":
     logging.debug("Reading actor.json")
     actors_dict = load_actor_json('actor.json')
     pgs = []
+    ray.init(address="auto", namespace="torchx-ray")
 
     for actor_dict in actors_dict:
 
@@ -66,11 +67,10 @@ if __name__ == "__main__":
         pgs.append(pg)
 
         logging.debug("Waiting for placement group to start.")
-        ready, _ = ray.wait([pg.ready()], timeout=100)
+        ready = pg.wait(timeout_seconds=100)
 
         if ready:
             logging.debug("Placement group has started.")
-            ray.init(address="auto", namespace=actor_dict["name"], ignore_reinit_error=True)
 
             for key, value in actor_dict["env"]:
                 os.environ[key] = value
@@ -88,7 +88,20 @@ if __name__ == "__main__":
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
 
-    # actor = CommandActor.options(placement_group=pg).remote(actor_dict["command"])
-    # ray.get([actor.run_command.remote()])
-    actors = [CommandActor.options(placement_group=pgs[i]).remote(actors_dict[i]["command"]) for i in range(len(actors_dict))]
+    actors = [CommandActor.options(placement_group=pgs[i], num_cpus=actor_dict[i]["num_cpus"], num_gpus=actor_dict[i]["num_gpus"]).remote(actors_dict[i]["command"]) for i in range(len(actors_dict) * actor_dict["num_replicas"])]
     ray.get([a.run_command.remote() for a in actors])
+    unfinished = [a.run_command.remote() for a in actors]
+    
+    while len(unfinished) > 0:
+        finished, unfinished = ray.wait(unfinished)
+        # If a failure occurs the ObjectRef will be marked as finished.
+        # Calling ray.get will expose the failure as a RayActorError.
+        for object_ref in finished:
+            try:
+                status_code = ray.get(object_ref)
+            except ray.RayActorError as exc:
+                status_code = 1
+
+            if status_code != 0:
+                raise RuntimeError("Job failed")
+
