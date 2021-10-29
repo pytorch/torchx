@@ -146,7 +146,7 @@ class RayScheduler(Scheduler):
         job: RayJob = RayJob(app_id, cluster_cfg)
 
         # pyre-ignore[24]: Generic type `type` expects 1 type parameter
-        def set_job_attr(cfg_name: str, cfg_type: Type) -> None:  # pyre-ignore: 
+        def set_job_attr(cfg_name: str, cfg_type: Type) -> None:
             cfg_value = cfg.get(cfg_name)
             if cfg_value is None:
                 return
