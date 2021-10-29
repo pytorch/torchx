@@ -370,51 +370,25 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">get_runner</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
-    <span class="n">SchedulerBackend</span><span class="p">,</span>
-    <span class="n">RunConfig</span><span class="p">,</span>
-    <span class="n">AppState</span><span class="p">,</span>
-    <span class="n">AppHandle</span><span class="p">,</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
+    <span class="n">AppHandle</span><span class="p">,</span>
+    <span class="n">AppState</span><span class="p">,</span>
+    <span class="n">RunConfig</span><span class="p">,</span>
+    <span class="n">SchedulerBackend</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.specs.file_linter</span> <span class="kn">import</span> <span class="n">validate</span><span class="p">,</span> <span class="n">LinterMessage</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">_create_args_parser</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.finder</span> <span class="kn">import</span> <span class="n">get_component</span>
 
 
 <span class="k">class</span> <span class="nc">ComponentUtils</span><span class="p">:</span>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_linter_errors</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LinterMessage</span><span class="p">]:</span>
-        <span class="n">linter_errors</span> <span class="o">=</span> <span class="n">validate</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">linter_errors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">linter_error</span> <span class="ow">in</span> <span class="n">linter_errors</span><span class="p">:</span>
-                <span class="n">error_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Lint Error: </span><span class="si">{</span><span class="n">linter_error</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">linter_errors</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_linter_errors_for_component</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LinterMessage</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        _validate_component takes in a function that produces a component</span>
-<span class="sd">        and validates that it is a valid component def.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">module_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="vm">__module__</span>
-        <span class="n">function_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__file__</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_linter_errors</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
-
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">run_appdef_on_scheduler</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -449,25 +423,37 @@
 <span class="sd">    ComponentTestCase is an extension of TestCase with helper methods for use</span>
 <span class="sd">    with testing component definitions.</span>
 
-<span class="sd">    &gt;&gt;&gt; import unittest</span>
-<span class="sd">    &gt;&gt;&gt; from torchx.components.component_test_base import ComponentTestCase</span>
-<span class="sd">    &gt;&gt;&gt; from torchx.components import utils</span>
-<span class="sd">    &gt;&gt;&gt; class MyComponentTest(ComponentTestCase):</span>
-<span class="sd">    ...     def test_my_comp(self):</span>
-<span class="sd">    ...         self._validate(utils, &quot;copy&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; MyComponentTest(&quot;test_my_comp&quot;).run()</span>
-<span class="sd">    &lt;unittest.result.TestResult run=1 errors=0 failures=0&gt;</span>
+<span class="sd">    .. doctest:: [component_test_case]</span>
+
+<span class="sd">     import unittest</span>
+<span class="sd">     from torchx.components.component_test_base import ComponentTestCase</span>
+<span class="sd">     from torchx.components import utils</span>
+<span class="sd">     class MyComponentTest(ComponentTestCase):</span>
+<span class="sd">         def test_my_comp(self):</span>
+<span class="sd">             self.validate(utils, &quot;copy&quot;)</span>
+<span class="sd">     MyComponentTest(&quot;test_my_comp&quot;).run()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ComponentTestCase._validate"><a class="viewcode-back" href="../../../component_best_practices.html#torchx.components.component_test_base.ComponentTestCase._validate">[docs]</a>    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ComponentTestCase.validate"><a class="viewcode-back" href="../../../component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">ModuleType</span><span class="p">,</span> <span class="n">function_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        _validate takes in a module and the name of a component function</span>
-<span class="sd">        definition defined in that module and validates that it is a valid</span>
-<span class="sd">        component def.</span>
+<span class="sd">        Validates the component by effectively running:</span>
+
+<span class="sd">        .. code-block:: shell-session</span>
+
+<span class="sd">         $ torchx run COMPONENT.py:FN --help</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
-        <span class="n">linter_errors</span> <span class="o">=</span> <span class="n">ComponentUtils</span><span class="o">.</span><span class="n">get_linter_errors</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">([],</span> <span class="n">linter_errors</span><span class="p">)</span></div></div>
+
+        <span class="c1"># make it the same as a custom component (e.g. /abs/path/to/component.py:train)</span>
+        <span class="n">component_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">component_def</span> <span class="o">=</span> <span class="n">get_component</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
+
+        <span class="c1"># on `--help` argparse will print the help message and exit 0</span>
+        <span class="c1"># just make sure that happens; if the component has errors then</span>
+        <span class="c1"># this will raise an exception and the test will fail</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--help&quot;</span><span class="p">])</span></div></div>
 </pre></div>
 
      </article>

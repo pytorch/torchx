@@ -477,22 +477,22 @@ args.</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.components.component_test_base.</span></span><span class="sig-name descname"><span class="pre">ComponentTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/components/component_test_base.html#ComponentTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.component_test_base.ComponentTestCase" title="Permalink to this definition">¶</a></dt>
 <dd><p>ComponentTestCase is an extension of TestCase with helper methods for use
 with testing component definitions.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">unittest</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components.component_test_base</span> <span class="kn">import</span> <span class="n">ComponentTestCase</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.components</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyComponentTest</span><span class="p">(</span><span class="n">ComponentTestCase</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">test_my_comp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">utils</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">MyComponentTest</span><span class="p">(</span><span class="s2">&quot;test_my_comp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="go">&lt;unittest.result.TestResult run=1 errors=0 failures=0&gt;</span>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go">import unittest</span>
+<span class="go">from torchx.components.component_test_base import ComponentTestCase</span>
+<span class="go">from torchx.components import utils</span>
+<span class="go">class MyComponentTest(ComponentTestCase):</span>
+<span class="go">    def test_my_comp(self):</span>
+<span class="go">        self.validate(utils, &quot;copy&quot;)</span>
+<span class="go">MyComponentTest(&quot;test_my_comp&quot;).run()</span>
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.components.component_test_base.ComponentTestCase._validate">
-<span class="sig-name descname"><span class="pre">_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/components/component_test_base.html#ComponentTestCase._validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.component_test_base.ComponentTestCase._validate" title="Permalink to this definition">¶</a></dt>
-<dd><p>_validate takes in a module and the name of a component function
-definition defined in that module and validates that it is a valid
-component def.</p>
+<dt class="sig sig-object py" id="torchx.components.component_test_base.ComponentTestCase.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/components/component_test_base.html#ComponentTestCase.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.component_test_base.ComponentTestCase.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the component by effectively running:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run COMPONENT.py:FN --help
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
