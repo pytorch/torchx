@@ -672,9 +672,17 @@
     <span class="n">AppState</span><span class="o">.</span><span class="n">CANCELLED</span><span class="p">,</span>
 <span class="p">]</span>
 
+<span class="n">_STARTED_STATES</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="n">_TERMINAL_STATES</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
+<span class="p">]</span>
+
 
 <span class="k">def</span> <span class="nf">is_terminal</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">_TERMINAL_STATES</span>
+
+
+<span class="k">def</span> <span class="nf">is_started</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">_STARTED_STATES</span>
 
 
 <span class="c1"># =======================</span>
