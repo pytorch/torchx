@@ -10,4 +10,4 @@ from torchx.components.component_test_base import ComponentTestCase
 
 class DatapreprocComponentTest(ComponentTestCase):
     def test_trainer(self) -> None:
-        self._validate(datapreproc, "data_preproc")
+        self.validate(datapreproc, "data_preproc")

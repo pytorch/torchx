@@ -10,4 +10,4 @@ from torchx.components.component_test_base import ComponentTestCase
 
 class DistributedComponentTest(ComponentTestCase):
     def test_ddp(self) -> None:
-        self._validate(dist, "ddp")
+        self.validate(dist, "ddp")
