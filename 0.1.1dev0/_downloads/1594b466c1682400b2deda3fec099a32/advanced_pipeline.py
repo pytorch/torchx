@@ -32,13 +32,13 @@ parser = argparse.ArgumentParser(description="example kfp pipeline")
 # the standard built in apps. If you modify the torchx example code you'll
 # need to rebuild the container before launching it on KFP
 
-from torchx.version import TORCHX_IMAGE
+import torchx
 
 parser.add_argument(
     "--image",
     type=str,
     help="docker image to use for the examples apps",
-    default=TORCHX_IMAGE,
+    default=torchx.IMAGE,
 )
 
 # %%
@@ -116,7 +116,6 @@ copy_app: specs.AppDef = copy(
 #
 # datapreproc outputs the data to a specified fsspec path. These paths are all
 # specified ahead of time so we have a fully static pipeline.
-
 
 from torchx.examples.apps.datapreproc.component import data_preproc
 

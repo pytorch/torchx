@@ -32,11 +32,11 @@ Before executing examples, install torchx and dependencies necessary to run exam
 
 # Importing torchx api specifications
 
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
-import torchx.specs.api as torchx
-from torchx.specs import macros, named_resources, Resource
-from torchx.version import TORCHX_IMAGE
+import torchx
+import torchx.specs as specs
+from torchx.specs import Resource, macros, named_resources
 
 
 # %%
@@ -57,7 +57,7 @@ from torchx.version import TORCHX_IMAGE
 
 def trainer(
     output_path: Optional[str] = None,
-    image: str = TORCHX_IMAGE,
+    image: str = torchx.IMAGE,
     data_path: Optional[str] = None,
     load_path: str = "",
     log_path: str = "/tmp/logs",
@@ -68,7 +68,7 @@ def trainer(
     layers: Optional[List[int]] = None,
     learning_rate: Optional[float] = None,
     num_samples: int = 200,
-) -> torchx.AppDef:
+) -> specs.AppDef:
     """Runs the example lightning_classy_vision app.
 
     Args:
@@ -109,10 +109,10 @@ def trainer(
         args += ["--data_path", data_path]
     if skip_export:
         args.append("--skip_export")
-    return torchx.AppDef(
+    return specs.AppDef(
         name="cv-trainer",
         roles=[
-            torchx.Role(
+            specs.Role(
                 name="worker",
                 entrypoint="python",
                 args=args,
@@ -120,7 +120,7 @@ def trainer(
                 image=image,
                 resource=named_resources[resource]
                 if resource
-                else torchx.Resource(cpu=1, gpu=0, memMB=3000),
+                else specs.Resource(cpu=1, gpu=0, memMB=3000),
             )
         ],
     )
@@ -134,7 +134,7 @@ def trainer(
 
 def trainer_dist(
     output_path: Optional[str] = None,
-    image: str = TORCHX_IMAGE,
+    image: str = torchx.IMAGE,
     data_path: Optional[str] = None,
     load_path: str = "",
     log_path: str = "/tmp/logs",
@@ -146,7 +146,7 @@ def trainer_dist(
     nproc_per_node: int = 1,
     rdzv_backend: str = "etcd",
     rdzv_endpoint: str = "etcd-server:2379",
-) -> torchx.AppDef:
+) -> specs.AppDef:
     """Runs the example lightning_classy_vision app.
 
     Args:
@@ -204,10 +204,10 @@ def trainer_dist(
         if resource
         else Resource(cpu=nnodes, gpu=0, memMB=3000)
     )
-    return torchx.AppDef(
+    return specs.AppDef(
         name="cv-trainer",
         roles=[
-            torchx.Role(
+            specs.Role(
                 name="worker",
                 entrypoint="python",
                 args=args,
@@ -239,9 +239,9 @@ def interpret(
     load_path: str,
     output_path: str,
     data_path: Optional[str] = None,
-    image: str = TORCHX_IMAGE,
+    image: str = torchx.IMAGE,
     resource: Optional[str] = None,
-) -> torchx.AppDef:
+) -> specs.AppDef:
     """Runs the model interpretability app on the model outputted by the training
     component.
 
@@ -266,17 +266,17 @@ def interpret(
             data_path,
         ]
 
-    return torchx.AppDef(
+    return specs.AppDef(
         name="cv-interpret",
         roles=[
-            torchx.Role(
+            specs.Role(
                 name="worker",
                 entrypoint="python",
                 args=args,
                 image=image,
                 resource=named_resources[resource]
                 if resource
-                else torchx.Resource(cpu=1, gpu=0, memMB=1024),
+                else specs.Resource(cpu=1, gpu=0, memMB=1024),
             )
         ],
     )

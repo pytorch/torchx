@@ -402,13 +402,13 @@ you’re using this can vary but for KFP these images are specified as
 docker containers. We have one container for the example apps and one for
 the standard built in apps. If you modify the torchx example code you’ll
 need to rebuild the container before launching it on KFP</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.version</span> <span class="kn">import</span> <span class="n">TORCHX_IMAGE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx</span>
 
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
     <span class="s2">&quot;--image&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;docker image to use for the examples apps&quot;</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="n">TORCHX_IMAGE</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>

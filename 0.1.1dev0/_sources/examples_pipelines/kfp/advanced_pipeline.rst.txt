@@ -41,13 +41,13 @@ need to rebuild the container before launching it on KFP
 .. code-block:: default
 
 
-    from torchx.version import TORCHX_IMAGE
+    import torchx
 
     parser.add_argument(
         "--image",
         type=str,
         help="docker image to use for the examples apps",
-        default=TORCHX_IMAGE,
+        default=torchx.IMAGE,
     )
 
 
@@ -144,7 +144,6 @@ specified ahead of time so we have a fully static pipeline.
 
 
 .. code-block:: default
-
 
 
     from torchx.examples.apps.datapreproc.component import data_preproc
