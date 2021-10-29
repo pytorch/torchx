@@ -32,7 +32,7 @@ def random_id() -> str:
     Generates an alphanumeric string ID that matches the requirements from
     https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
     """
-    START_CANDIDATES = "abcdefghijklmnopqrstuvwxyz"
+    START_CANDIDATES = "bcdfghjklmnpqrstvwxz"
     END_CANDIDATES = START_CANDIDATES + "012345679"
 
     out = ""

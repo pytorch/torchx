@@ -11,22 +11,20 @@ import multiprocessing as mp
 import os
 import shutil
 import signal
-import sys
 import tempfile
 import time
 import unittest
 from contextlib import contextmanager
 from datetime import datetime
 from os.path import join
-from typing import Generator, Optional
+from typing import Generator, Optional, Callable
 from unittest import mock
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     CWDImageProvider,
-    DockerImageProvider,
     LocalDirectoryImageProvider,
     LocalScheduler,
     ReplicaParam,
@@ -170,56 +168,6 @@ class CWDImageProviderTest(unittest.TestCase):
         self.assertEqual(sched._image_provider_class, CWDImageProvider)
 
 
-class DockerImageProviderTest(unittest.TestCase):
-    @patch("torchx.schedulers.local_scheduler.DockerImageProvider.has_docker")
-    @patch("subprocess.run")
-    def test_fetch(self, run: MagicMock, has_docker: MagicMock) -> None:
-        has_docker.return_value = True
-
-        cfg = RunConfig()
-        provider = DockerImageProvider(cfg)
-        img = "pytorch/pytorch:latest"
-        self.assertEqual(provider.fetch(img), "")
-        self.assertEqual(run.call_count, 1)
-        self.assertEqual(
-            run.call_args, call(["docker", "pull", img], stdout=sys.stderr, check=True)
-        )
-
-    def test_get_replica_param(self) -> None:
-        role = Role(
-            name="foo",
-            image="pytorch/pytorch:latest",
-            entrypoint="main.py",
-            args=["--a", "b"],
-            env={
-                "FOO": "bar",
-                "FOO2": "bar3",
-            },
-        )
-        cmd = (
-            DockerImageProvider(RunConfig())
-            .get_replica_param(img_root="ignored", role=role)
-            .args
-        )
-        self.assertEqual(
-            cmd,
-            [
-                "docker",
-                "run",
-                "-i",
-                "--rm",
-                "--env",
-                "FOO=bar",
-                "--env",
-                "FOO2=bar3",
-                "pytorch/pytorch:latest",
-                "main.py",
-                "--a",
-                "b",
-            ],
-        )
-
-
 LOCAL_SCHEDULER_MAKE_UNIQUE = "torchx.schedulers.local_scheduler.make_unique"
 
 ERR_FILE_ENV = "TORCHELASTIC_ERROR_FILE"
@@ -233,6 +181,7 @@ class LocalSchedulerTestUtil(abc.ABC):
         app_id: str,
         scheduler: Optional[LocalScheduler] = None,
         timeout: float = 30,
+        wait_for: Callable[[AppState], bool] = is_terminal,
     ) -> Optional[DescribeAppResponse]:
         """
         Waits for the app to finish or raise TimeoutError upon timeout (in seconds).
@@ -250,7 +199,7 @@ class LocalSchedulerTestUtil(abc.ABC):
 
             if desc is None:
                 return None
-            elif is_terminal(desc.state):
+            elif wait_for(desc.state):
                 return desc
 
             time.sleep(interval)
@@ -917,54 +866,3 @@ def _temp_setenv(k: str, v: str) -> Generator[None, None, None]:
         yield
     finally:
         os.environ[k] = old
-
-
-if DockerImageProvider.has_docker():
-
-    class LocalDockerSchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
-        def setUp(self) -> None:
-            self.scheduler = LocalScheduler(
-                session_name="test_session",
-                image_provider_class=DockerImageProvider,
-            )
-
-        def _docker_app(self, entrypoint: str, *args: str) -> AppDef:
-            return AppDef(
-                name="test-app",
-                roles=[
-                    Role(
-                        name="image_test_role",
-                        image="busybox",
-                        entrypoint=entrypoint,
-                        args=list(args),
-                    ),
-                ],
-            )
-
-        def test_docker_submit(self) -> None:
-            app = self._docker_app("echo", "foo")
-            cfg = RunConfig({"image_type": "docker"})
-            app_id = self.scheduler.submit(app, cfg)
-
-            desc = self.wait(app_id)
-            assert desc is not None
-            self.assertEqual(AppState.SUCCEEDED, desc.state)
-
-        def test_docker_submit_error(self) -> None:
-            app = self._docker_app("sh", "-c", "exit 1")
-            cfg = RunConfig({"image_type": "docker"})
-            app_id = self.scheduler.submit(app, cfg)
-
-            desc = self.wait(app_id)
-            assert desc is not None
-            self.assertEqual(AppState.FAILED, desc.state)
-
-        def test_no_docker(self) -> None:
-            with _temp_setenv("PATH", ""):
-                with self.assertRaisesRegex(
-                    FileNotFoundError,
-                    "Docker is required to use the local_docker scheduler.",
-                ):
-                    app = self._docker_app("echo", "foo")
-                    cfg = RunConfig({"image_type": "docker"})
-                    app_id = self.scheduler.submit(app, cfg)

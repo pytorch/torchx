@@ -7,6 +7,7 @@
 
 from typing import Dict
 
+import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
 import torchx.schedulers.slurm_scheduler as slurm_scheduler
@@ -29,7 +30,7 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
     The first scheduler in the dictionary is used as the default scheduler.
     """
     default_schedulers: Dict[str, SchedulerFactory] = {
-        "local_docker": local_scheduler.create_docker_scheduler,
+        "local_docker": docker_scheduler.create_scheduler,
         "local_cwd": local_scheduler.create_cwd_scheduler,
         "slurm": slurm_scheduler.create_scheduler,
         "kubernetes": kubernetes_scheduler.create_scheduler,

@@ -75,7 +75,7 @@ class CmdLogTest(unittest.TestCase):
     ) -> None:
         with self.assertRaises(SentinelError):
             get_logs(
-                "local://default/SparseNNAppDef/unknown_role",
+                "local_docker://default/SparseNNAppDef/unknown_role",
                 regex=None,
             )
 
@@ -86,7 +86,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_all_roles(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNAppDef", regex="INFO")
+        get_logs("local_docker://test-session/SparseNNAppDef", regex="INFO")
         self.assertSetEqual(
             {
                 f"{GREEN}master/0{ENDC} INFO foo",
@@ -105,7 +105,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_all_replicas(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNAppDef/trainer", regex="INFO")
+        get_logs("local_docker://test-session/SparseNNAppDef/trainer", regex="INFO")
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} INFO foo",
@@ -123,7 +123,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_one_replica(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNAppDef/trainer/0", regex=None)
+        get_logs("local_docker://test-session/SparseNNAppDef/trainer/0", regex=None)
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} INFO foo",
@@ -141,7 +141,7 @@ class CmdLogTest(unittest.TestCase):
     def test_cmd_log_some_replicas(
         self, stdout_mock: MagicMock, mock_runner: MagicMock
     ) -> None:
-        get_logs("local://test-session/SparseNNAppDef/trainer/0,2", regex="WARN")
+        get_logs("local_docker://test-session/SparseNNAppDef/trainer/0,2", regex="WARN")
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} WARN baz",
@@ -167,6 +167,7 @@ class CmdLogTest(unittest.TestCase):
         validate("kubernetes://session/queue:name-1234/role")
         validate("kubernetes://session/queue:name-1234/role/1")
         validate("kubernetes://session/queue:name-1234/role/1,2,3")
+        validate("two_part://session/queue:name-1234/role/1,2,3")
 
         with self.assertRaisesRegex(SystemExit, "1"):
             validate("kubernetes://session")
