@@ -130,15 +130,15 @@ Components APIs
 from pathlib import Path
 from typing import Optional
 
+import torchx
 import torchx.specs as specs
 from torchx.specs import macros
-from torchx.version import TORCHX_IMAGE
 
 
 def ddp(
     *script_args: str,
     script: str,
-    image: str = TORCHX_IMAGE,
+    image: str = torchx.IMAGE,
     name: Optional[str] = None,
     h: str = "aws_t3.medium",
     j: str = "1x2",

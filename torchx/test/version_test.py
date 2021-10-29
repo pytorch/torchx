@@ -13,6 +13,7 @@ class VersionTest(unittest.TestCase):
         import torchx
 
         self.assertIsNotNone(torchx.__version__)
+        self.assertIsNotNone(torchx.IMAGE)
 
     def test_images(self) -> None:
         from torchx.version import __version__, TORCHX_IMAGE, EXAMPLES_IMAGE
