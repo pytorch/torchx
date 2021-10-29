@@ -136,7 +136,6 @@ Unit Tests
 
 .. autoclass:: torchx.components.component_test_base.ComponentTestCase
    :members:
-   :private-members: _validate
 
 Integration Tests
 -------------------

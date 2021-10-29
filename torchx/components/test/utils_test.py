@@ -10,19 +10,19 @@ from torchx.components.component_test_base import ComponentTestCase
 
 class UtilsComponentTest(ComponentTestCase):
     def test_sh(self) -> None:
-        self._validate(utils, "sh")
+        self.validate(utils, "sh")
 
     def test_python(self) -> None:
-        self._validate(utils, "python")
+        self.validate(utils, "python")
 
     def test_touch(self) -> None:
-        self._validate(utils, "touch")
+        self.validate(utils, "touch")
 
     def test_echo(self) -> None:
-        self._validate(utils, "echo")
+        self.validate(utils, "echo")
 
     def test_copy(self) -> None:
-        self._validate(utils, "copy")
+        self.validate(utils, "copy")
 
     def test_booth(self) -> None:
-        self._validate(utils, "booth")
+        self.validate(utils, "booth")

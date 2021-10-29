@@ -10,7 +10,7 @@ from torchx.components.component_test_base import ComponentTestCase
 
 class DistributedComponentTest(ComponentTestCase):
     def test_trainer(self) -> None:
-        self._validate(lightning_classy_vision, "trainer")
+        self.validate(lightning_classy_vision, "trainer")
 
     def test_interpret(self) -> None:
-        self._validate(lightning_classy_vision, "interpret")
+        self.validate(lightning_classy_vision, "interpret")

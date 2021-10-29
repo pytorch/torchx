@@ -15,51 +15,25 @@ args.
 """
 
 import os
-import sys
 import unittest
 from types import ModuleType
-from typing import Callable, Union, List
+from typing import Union
 
 from pyre_extensions import none_throws
 from torchx.runner import get_runner
 from torchx.specs import (
     AppDef,
-    SchedulerBackend,
-    RunConfig,
-    AppState,
-    AppHandle,
     AppDryRunInfo,
+    AppHandle,
+    AppState,
+    RunConfig,
+    SchedulerBackend,
 )
-from torchx.specs.file_linter import validate, LinterMessage
+from torchx.specs.api import _create_args_parser
+from torchx.specs.finder import get_component
 
 
 class ComponentUtils:
-    @classmethod
-    def get_linter_errors(
-        cls, file_path: str, function_name: str
-    ) -> List[LinterMessage]:
-        linter_errors = validate(file_path, function_name)
-        if len(linter_errors) != 0:
-            error_msg = ""
-            for linter_error in linter_errors:
-                error_msg += f"Lint Error: {linter_error.description}\n"
-            raise ValueError(error_msg)
-        return linter_errors
-
-    @classmethod
-    def get_linter_errors_for_component(
-        cls, component: Callable[..., AppDef]
-    ) -> List[LinterMessage]:
-        """
-        _validate_component takes in a function that produces a component
-        and validates that it is a valid component def.
-        """
-        module_name = component.__module__
-        function_name = component.__name__
-        module = sys.modules[module_name]
-        file_path = module.__file__
-        return cls.get_linter_errors(file_path, function_name)
-
     @classmethod
     def run_appdef_on_scheduler(
         cls,
@@ -94,22 +68,34 @@ class ComponentTestCase(unittest.TestCase):
     ComponentTestCase is an extension of TestCase with helper methods for use
     with testing component definitions.
 
-    >>> import unittest
-    >>> from torchx.components.component_test_base import ComponentTestCase
-    >>> from torchx.components import utils
-    >>> class MyComponentTest(ComponentTestCase):
-    ...     def test_my_comp(self):
-    ...         self._validate(utils, "copy")
-    >>> MyComponentTest("test_my_comp").run()
-    <unittest.result.TestResult run=1 errors=0 failures=0>
+    .. doctest:: [component_test_case]
+
+     import unittest
+     from torchx.components.component_test_base import ComponentTestCase
+     from torchx.components import utils
+     class MyComponentTest(ComponentTestCase):
+         def test_my_comp(self):
+             self.validate(utils, "copy")
+     MyComponentTest("test_my_comp").run()
+
     """
 
-    def _validate(self, module: ModuleType, function_name: str) -> None:
+    def validate(self, module: ModuleType, function_name: str) -> None:
         """
-        _validate takes in a module and the name of a component function
-        definition defined in that module and validates that it is a valid
-        component def.
+        Validates the component by effectively running:
+
+        .. code-block:: shell-session
+
+         $ torchx run COMPONENT.py:FN --help
+
         """
-        file_path = os.path.abspath(module.__file__)
-        linter_errors = ComponentUtils.get_linter_errors(file_path, function_name)
-        self.assertListEqual([], linter_errors)
+
+        # make it the same as a custom component (e.g. /abs/path/to/component.py:train)
+        component_id = f"{os.path.abspath(module.__file__)}:{function_name}"
+        component_def = get_component(component_id)
+
+        # on `--help` argparse will print the help message and exit 0
+        # just make sure that happens; if the component has errors then
+        # this will raise an exception and the test will fail
+        with self.assertRaises(SystemExit):
+            _ = _create_args_parser(component_def.fn).parse_args(["--help"])
