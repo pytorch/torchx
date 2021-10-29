@@ -19,7 +19,7 @@ try:
 except ImportError:
     should_skip = True
 
-from torchx.specs import AppDef, Resource, Role, RunConfig, runopt, runopts
+from torchx.specs import AppDef, Resource, Role, RunConfig, runopts
 
 
 @skipIf(should_skip, "Ray is not installed.")
