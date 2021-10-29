@@ -98,11 +98,9 @@ class RaySchedulerTest(TestCase):
             default: Any = None
 
         def assert_option(expected_opt: Option) -> None:
-            opt_opt = opts.get(expected_opt.name)
+            opt = opts.get(expected_opt.name)
 
-            self.assertIsNotNone(opt_opt)
-
-            opt = cast(runopt, opt_opt)
+            self.assertIsNotNone(opt)
 
             self.assertEqual(opt.opt_type, expected_opt.opt_type)
             self.assertEqual(opt.is_required, expected_opt.is_required)
