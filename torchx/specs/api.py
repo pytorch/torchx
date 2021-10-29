@@ -315,9 +315,17 @@ _TERMINAL_STATES: List[AppState] = [
     AppState.CANCELLED,
 ]
 
+_STARTED_STATES: List[AppState] = _TERMINAL_STATES + [
+    AppState.RUNNING,
+]
+
 
 def is_terminal(state: AppState) -> bool:
     return state in _TERMINAL_STATES
+
+
+def is_started(state: AppState) -> bool:
+    return state in _STARTED_STATES
 
 
 # =======================

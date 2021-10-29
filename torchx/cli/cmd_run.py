@@ -8,6 +8,7 @@ import argparse
 import logging
 import os
 import sys
+import threading
 from dataclasses import asdict
 from pprint import pformat
 from typing import Dict, List, Optional, Type, cast
@@ -15,6 +16,7 @@ from typing import Dict, List, Optional, Type, cast
 import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
+from torchx.cli.cmd_log import get_logs
 from torchx.runner import Runner, config, get_runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs.finder import (
@@ -107,6 +109,12 @@ class CmdRun(SubCommand):
             help="Wait for the app to finish before exiting.",
         )
         subparser.add_argument(
+            "--log",
+            action="store_true",
+            default=False,
+            help="Stream logs while waiting for app to finish.",
+        )
+        subparser.add_argument(
             "conf_args",
             nargs=argparse.REMAINDER,
         )
@@ -173,7 +181,7 @@ class CmdRun(SubCommand):
             print(app_handle)
 
             if args.scheduler.startswith("local"):
-                self._wait_and_exit(runner, app_handle)
+                self._wait_and_exit(args, runner, app_handle)
             else:
                 logger.info(f"Launched app: {app_handle}")
                 status = runner.status(app_handle)
@@ -181,7 +189,7 @@ class CmdRun(SubCommand):
                 logger.info(f"Job URL: {none_throws(status).ui_url}")
 
                 if args.wait:
-                    self._wait_and_exit(runner, app_handle)
+                    self._wait_and_exit(args, runner, app_handle)
             return app_handle
 
     def run(self, args: argparse.Namespace) -> None:
@@ -189,8 +197,12 @@ class CmdRun(SubCommand):
         with get_runner() as runner:
             self._run(runner, args)
 
-    def _wait_and_exit(self, runner: Runner, app_handle: str) -> None:
+    def _wait_and_exit(
+        self, args: argparse.Namespace, runner: Runner, app_handle: str
+    ) -> None:
         logger.info("Waiting for the app to finish...")
+
+        log_thread = self._start_log_thread(runner, app_handle) if args.log else None
 
         status = runner.wait(app_handle, wait_interval=1)
         if not status:
@@ -198,8 +210,25 @@ class CmdRun(SubCommand):
 
         logger.info(f"Job finished: {status.state}")
 
+        if log_thread:
+            log_thread.join()
+
         if status.state != specs.AppState.SUCCEEDED:
             logger.error(status)
             sys.exit(1)
         else:
             logger.debug(status)
+
+    def _start_log_thread(self, runner: Runner, app_handle: str) -> threading.Thread:
+        thread = threading.Thread(
+            target=get_logs,
+            kwargs={
+                "runner": runner,
+                "identifier": app_handle,
+                "regex": None,
+                "should_tail": True,
+            },
+        )
+        thread.daemon = True
+        thread.start()
+        return thread
