@@ -20,11 +20,12 @@ class RayActor:
 
 @ray.remote
 class CommandActor:
-    def __init__(self, command):
+    def __init__(self, command, env):
         self.command = command
+        self.env = env
 
     def run_command(self):
-        return subprocess.run(self.command)
+        return subprocess.run(self.command, env = self.env)
 
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
@@ -69,14 +70,9 @@ if __name__ == "__main__":
         logging.debug("Waiting for placement group to start.")
         ready = pg.wait(timeout_seconds=100)
 
+
         if ready:
             logging.debug("Placement group has started.")
-
-            for key, value in actor_dict["env"]:
-                os.environ[key] = value
-
-            logging.debug("Environment variables set")
-
             logging.debug("Starting remote function")
         
         else:
@@ -88,10 +84,10 @@ if __name__ == "__main__":
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
 
-    actors = [CommandActor.options(placement_group=pgs[i], num_cpus=actor_dict[i]["num_cpus"], num_gpus=actor_dict[i]["num_gpus"]).remote(actors_dict[i]["command"]) for i in range(len(actors_dict) * actor_dict["num_replicas"])]
+    actors = [CommandActor.options(placement_group=pgs[i], num_cpus=actor_dict[i]["num_cpus"], num_gpus=actor_dict[i]["num_gpus"]).remote(actors_dict[i]["command"], actor_dict["env"]) for i in range(len(actors_dict) * actor_dict["num_replicas"])]
     ray.get([a.run_command.remote() for a in actors])
     unfinished = [a.run_command.remote() for a in actors]
-    
+
     while len(unfinished) > 0:
         finished, unfinished = ray.wait(unfinished)
         # If a failure occurs the ObjectRef will be marked as finished.
