@@ -11,14 +11,14 @@ tools such as `torchserve <https://pytorch.org/serve/>`_.
 
 from typing import Dict, Optional
 
+import torchx
 import torchx.specs as specs
-from torchx.version import TORCHX_IMAGE
 
 
 def torchserve(
     model_path: str,
     management_api: str,
-    image: str = TORCHX_IMAGE,
+    image: str = torchx.IMAGE,
     params: Optional[Dict[str, object]] = None,
     dryrun: bool = False,
 ) -> specs.AppDef:
