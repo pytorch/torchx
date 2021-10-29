@@ -39,8 +39,8 @@ class IdsTest(unittest.TestCase):
 
     @patch("os.urandom", return_value=bytes(range(8)))
     def test_random_id_seed(self, urandom: MagicMock) -> None:
-        self.assertEqual(random_id(), "xfik3yru3e")
+        self.assertEqual(random_id(), "fzfjxlmln9")
 
     @patch("os.urandom", return_value=bytes(range(8)))
     def test_make_unique_seed(self, urandom: MagicMock) -> None:
-        self.assertEqual(make_unique("test"), "test-xfik3yru3e")
+        self.assertEqual(make_unique("test"), "test-fzfjxlmln9")

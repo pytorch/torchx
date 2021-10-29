@@ -17,3 +17,4 @@ importlib-metadata
 ax-platform[mysql]>=0.2.2
 fsspec[s3]>=2021.09.0
 torch-model-archiver>=0.4.2
+filelock

@@ -12,7 +12,6 @@ import sys
 import threading
 from queue import Queue
 from typing import Optional, List, Tuple
-from urllib.parse import urlparse
 
 from pyre_extensions import none_throws
 from torchx import specs
@@ -55,12 +54,11 @@ def print_log_lines(
 
 def get_logs(identifier: str, regex: Optional[str], should_tail: bool = False) -> None:
     validate(identifier)
-    url = urlparse(identifier)
-    scheduler_backend = url.scheme
-    session_name = url.netloc or "default"
+    scheduler_backend, _, path_str = identifier.partition("://")
 
     # path is of the form ["", "app_id", "master", "0"]
-    path = url.path.split("/")
+    path = path_str.split("/")
+    session_name = path[0] or "default"
     app_id = path[1]
     role_name = path[2] if len(path) > 2 else None
 

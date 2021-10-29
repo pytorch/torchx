@@ -228,80 +228,6 @@ class CWDImageProvider(ImageProvider):
         return role.entrypoint
 
 
-class DockerImageProvider(ImageProvider):
-    """
-    Calls into docker CLI to pull and run the specified image.
-
-    Example:
-
-       ``fetch(Image(name="pytorch/pytorch:latest"))`` pulls docker image, returns ""
-       ``get_command(image="pytorch/pytorch:latest", ..)`` return ``docker run ...``"""
-
-    def __init__(self, cfg: RunConfig) -> None:
-        self._has_docker: Optional[bool] = None
-
-    @staticmethod
-    def has_docker() -> bool:
-        try:
-            return (
-                subprocess.run(
-                    ["docker", "version"],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                ).returncode
-                == 0
-            )
-        except FileNotFoundError:
-            return False
-
-    def _assert_docker(self) -> None:
-        if self._has_docker is None:
-            self._has_docker = self.has_docker()
-
-        if not self._has_docker:
-            raise FileNotFoundError(
-                """Docker is required to use the local_docker scheduler.
-
-Please see https://docs.docker.com/get-docker/ for information on how to install it on your local system."""
-            )
-
-    def fetch(self, image: str) -> str:
-        self._assert_docker()
-
-        try:
-            subprocess.run(
-                ["docker", "pull", image],
-                stdout=sys.stderr,
-                check=True,
-            )
-        except Exception as e:
-            log.warning(f"failed to fetch image {image}, falling back to local: {e}")
-        return ""
-
-    def get_replica_param(
-        self,
-        img_root: str,
-        role: Role,
-        stdout: Optional[str] = None,
-        stderr: Optional[str] = None,
-    ) -> ReplicaParam:
-        env = []
-        for k, v in role.env.items():
-            env += ["--env", f"{k}={v}"]
-
-        return ReplicaParam(
-            args=["docker", "run", "-i", "--rm"]
-            + env
-            + [role.image, role.entrypoint]
-            + role.args,
-            # role envs go as --env arg to docker not to subprocess.Popen(["docker",...])
-            env={},
-            stdout=stdout,
-            stderr=stderr,
-            cwd=self.get_cwd(role.image),
-        )
-
-
 # aliases to make clear what the mappings are
 AppId = str
 AppName = str
@@ -561,12 +487,8 @@ class LocalScheduler(Scheduler):
     Scheduler support orphan processes cleanup on receiving SIGTERM or SIGINT.
     The scheduler will terminate the spawned processes.
 
-    This is exposed via the schedulers `local_cwd` and `local_docker`.
+    This is exposed via the scheduler `local_cwd`.
 
-    * `local_docker` runs the provided app via the local docker runtime using
-      the specified images in the AppDef. Docker must be installed. This
-      provides the closest environment to schedulers that natively use Docker
-      such as Kubernetes.
     * `local_cwd` runs the provided app relative to the current working
       directory and ignores the images field for faster iteration and testing
       purposes.
@@ -1000,12 +922,4 @@ def create_cwd_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
         session_name=session_name,
         cache_size=kwargs.get("cache_size", 100),
         image_provider_class=CWDImageProvider,
-    )
-
-
-def create_docker_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
-    return LocalScheduler(
-        session_name=session_name,
-        cache_size=kwargs.get("cache_size", 100),
-        image_provider_class=DockerImageProvider,
     )
