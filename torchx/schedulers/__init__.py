@@ -10,6 +10,7 @@ from typing import Dict
 import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
+import torchx.schedulers.ray_scheduler as ray_scheduler
 import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import SchedulerBackend
@@ -20,17 +21,6 @@ from typing_extensions import Protocol
 class SchedulerFactory(Protocol):
     def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
         ...
-
-
-def add_optional_ray_scheduler_factory(factories: Dict[str, SchedulerFactory]) -> None:
-    # Since the Ray scheduler is an optional feature our import statement might
-    # fail if it is not enabled.
-    try:
-        import torchx.schedulers.ray_scheduler as ray_scheduler
-
-        factories["ray"] = ray_scheduler.create_scheduler
-    except ImportError:
-        pass
 
 
 def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
@@ -47,7 +37,8 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
 
-    add_optional_ray_scheduler_factory(default_schedulers)
+    if ray_scheduler.has_ray():
+        default_schedulers["ray"] = ray_scheduler.create_scheduler
 
     return load_group(
         "torchx.schedulers",

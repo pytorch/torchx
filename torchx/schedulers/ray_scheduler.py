@@ -10,12 +10,23 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
+try:
+    import ray  # noqa: F401
+
+    _has_ray = True
+except ImportError:
+    _has_ray = False
+
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, macros, runopts
 
+_logger: logging.Logger = logging.getLogger(__name__)
 
-logger: logging.Logger = logging.getLogger(__name__)
+
+def has_ray() -> bool:
+    """Indicates whether Ray is installed in the current Python environment."""
+    return _has_ray
 
 
 @dataclass
@@ -130,11 +141,7 @@ class RayScheduler(Scheduler):
         return opts
 
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
-        cfg: RayJob = dryrun_info.request
-
-        # TBD
-
-        return cfg.app_id
+        raise NotImplementedError()
 
     def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[RayJob]:
         app_id = make_unique(app.name)
@@ -197,27 +204,25 @@ class RayScheduler(Scheduler):
             )
 
         if app.metadata:
-            logger.warning("The Ray scheduler does not use metadata information.")
+            _logger.warning("The Ray scheduler does not use metadata information.")
 
         for role in app.roles:
             if role.resource.capabilities:
-                logger.warning(
+                _logger.warning(
                     "The Ray scheduler does not support custom resource capabilities."
                 )
                 break
 
         for role in app.roles:
             if role.port_map:
-                logger.warning("The Ray scheduler does not support port mapping.")
+                _logger.warning("The Ray scheduler does not support port mapping.")
                 break
 
     def _cancel_existing(self, app_id: str) -> None:
-        # TBD
-        pass
+        raise NotImplementedError()
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        # TBD
-        return None
+        raise NotImplementedError()
 
     def log_iter(
         self,
@@ -229,9 +234,11 @@ class RayScheduler(Scheduler):
         until: Optional[datetime] = None,
         should_tail: bool = False,
     ) -> Iterable[str]:
-        # TBD
-        return []
+        raise NotImplementedError()
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
+    if not has_ray():
+        raise RuntimeError("Ray is not installed in the current Python environment.")
+
     return RayScheduler(session_name=session_name)
