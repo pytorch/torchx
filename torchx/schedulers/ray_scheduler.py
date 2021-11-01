@@ -68,8 +68,6 @@ class RayJob:
             The Ray cluster configuration file.
         cluster_name:
             The cluster name to use.
-        start_cluster:
-            A boolean value indicating whether to start the cluster if needed.
         copy_script:
             A boolean value indicating whether to copy the script files to the
             cluster.
@@ -89,7 +87,6 @@ class RayJob:
     app_id: str
     cluster_config_file: str
     cluster_name: Optional[str] = None
-    start_cluster: bool = False
     copy_scripts: bool = False
     copy_script_dirs: bool = False
     scripts: Set[str] = field(default_factory=set)
@@ -113,12 +110,6 @@ class RayScheduler(Scheduler):
             "cluster_name",
             type_=str,
             help="Override the configured cluster name.",
-        )
-        opts.add(
-            "start_cluster",
-            type_=bool,
-            default=False,
-            help="Start the cluster if needed.",
         )
         opts.add(
             "copy_scripts",
@@ -166,7 +157,6 @@ class RayScheduler(Scheduler):
             setattr(job, cfg_name, cfg_value)
 
         set_job_attr("cluster_name", str)
-        set_job_attr("start_cluster", bool)
         set_job_attr("copy_scripts", bool)
         set_job_attr("copy_script_dirs", bool)
         set_job_attr("verbose", bool)

@@ -59,7 +59,6 @@ if has_ray():
             self._run_cfg = RunConfig()
             self._run_cfg.set("cluster_config_file", "dummy_file")
             self._run_cfg.set("cluster_name", "dummy_name")
-            self._run_cfg.set("start_cluster", True)
             self._run_cfg.set("copy_scripts", True)
             self._run_cfg.set("copy_script_dirs", True)
             self._run_cfg.set("verbose", True)
@@ -104,7 +103,6 @@ if has_ray():
             expected_opts = [
                 Option("cluster_config_file", str, is_required=True),
                 Option("cluster_name", str),
-                Option("start_cluster", bool, default=False),
                 Option("copy_scripts", bool, default=False),
                 Option("copy_script_dirs", bool, default=False),
                 Option("verbose", bool, default=False),
@@ -204,9 +202,6 @@ if has_ray():
         def test_submit_dryrun_raises_error_if_cluster_name_is_not_str(self) -> None:
             self._assert_config_value("cluster_name", 1, "str")
 
-        def test_submit_dryrun_raises_error_if_start_cluster_is_not_bool(self) -> None:
-            self._assert_config_value("start_cluster", "dummy_value", "bool")
-
         def test_submit_dryrun_raises_error_if_copy_scripts_is_not_bool(self) -> None:
             self._assert_config_value("copy_scripts", "dummy_value", "bool")
 
@@ -230,9 +225,6 @@ if has_ray():
                 job.cluster_config_file, self._run_cfg.get("cluster_config_file")
             )
             self.assertEqual(job.cluster_name, self._run_cfg.get("cluster_name"))
-            self.assertEqual(
-                job.start_cluster, self._run_cfg.get("start_cluster") or False
-            )
             self.assertEqual(
                 job.copy_scripts, self._run_cfg.get("copy_scripts") or False
             )
