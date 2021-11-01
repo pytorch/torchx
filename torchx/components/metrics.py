@@ -26,3 +26,55 @@ Reference
 * PyTorch Lightning Loggers https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html
 
 """
+
+import torchx
+import torchx.specs as specs
+
+
+def tensorboard(
+    logdir: str,
+    image: str = torchx.IMAGE,
+    timeout: float = 60 * 60,  # 1 hour
+    port: int = 6006,
+    start_on_file: str = "",
+    exit_on_file: str = "",
+) -> specs.AppDef:
+    """
+    Runs a tensorboard server.
+
+    Args:
+        logdir: fsspec path to the Tensorboard logs
+        image: image to use
+        timeout: maximum time to run before exiting (seconds)
+        start_on_file: start the server when the fsspec path is created
+        exit_on_file: shutdown the server when the fsspec path is created
+    """
+
+    return specs.AppDef(
+        name="tensorboard",
+        roles=[
+            specs.Role(
+                name="tensorboard",
+                image=image,
+                entrypoint="python",
+                args=[
+                    "-m",
+                    "torchx.apps.utils.process_monitor",
+                    "--timeout",
+                    str(timeout),
+                    "--start_on_file",
+                    start_on_file,
+                    "--exit_on_file",
+                    exit_on_file,
+                    "--",
+                    "tensorboard",
+                    "--bind_all",
+                    "--port",
+                    str(port),
+                    "--logdir",
+                    logdir,
+                ],
+                port_map={"http": port},
+            )
+        ],
+    )

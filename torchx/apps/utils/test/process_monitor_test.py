@@ -35,6 +35,16 @@ class ProcessTest(unittest.TestCase):
         with self.assertRaisesRegex(SystemExit, r"^123$"):
             main(["--timeout", "60", "--", "bash", "-c", "exit 123"])
 
+    def test_proccess_args(self) -> None:
+        with self.assertRaisesRegex(SystemExit, r"^0$"):
+            main(
+                [
+                    "echo",
+                    "--some",
+                    "-args",
+                ]
+            )
+
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_timeout(self, stdout: MagicMock) -> None:
         with self.assertRaisesRegex(SystemExit, r"^-15$"):
