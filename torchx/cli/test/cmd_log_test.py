@@ -6,12 +6,16 @@
 # LICENSE file in the root directory of this source tree.
 
 import io
+import sys
 import unittest
+from datetime import datetime
 from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_log import ENDC, GREEN, get_logs, validate
-from torchx.specs import AppDef, Role, parse_app_handle, AppStatus, AppState
+from torchx.runner.api import Runner
+from torchx.schedulers.api import Stream
+from torchx.specs import AppDef, Role, parse_app_handle, AppStatus, AppState, AppHandle
 
 
 class SentinelError(Exception):
@@ -25,7 +29,10 @@ class SentinelError(Exception):
 RUNNER = "torchx.cli.cmd_log.get_runner"
 
 
-class MockRunner:
+class MockRunner(Runner):
+    def __init__(self) -> None:
+        pass
+
     def __call__(self, name: Optional[str] = None) -> "MockRunner":
         return self
 
@@ -44,13 +51,14 @@ class MockRunner:
 
     def log_lines(
         self,
-        app_id: str,
+        app_handle: AppHandle,
         role_name: str,
-        k: str,
-        regex: str,
-        since: Optional[int] = None,
-        until: Optional[int] = None,
+        k: int = 0,
+        regex: Optional[str] = None,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterator[str]:
         import re
 
@@ -65,7 +73,7 @@ class CmdLogTest(unittest.TestCase):
     @patch("sys.exit", side_effect=SentinelError)
     def test_cmd_log_bad_job_identifier(self, exit_mock: MagicMock) -> None:
         with self.assertRaises(SentinelError):
-            get_logs("local:///SparseNNAppDef/", "QPS.*")
+            get_logs(sys.stdout, "local:///SparseNNAppDef/", "QPS.*")
         exit_mock.assert_called_once_with(1)
 
     @patch(RUNNER, new_callable=MockRunner)
@@ -75,6 +83,7 @@ class CmdLogTest(unittest.TestCase):
     ) -> None:
         with self.assertRaises(SentinelError):
             get_logs(
+                sys.stdout,
                 "local_docker://default/SparseNNAppDef/unknown_role",
                 regex=None,
             )
@@ -82,11 +91,13 @@ class CmdLogTest(unittest.TestCase):
         exit_mock.assert_called_once_with(1)
 
     @patch(RUNNER, new_callable=MockRunner)
-    @patch("sys.stdout", new_callable=io.StringIO)
-    def test_cmd_log_all_roles(
-        self, stdout_mock: MagicMock, mock_runner: MagicMock
-    ) -> None:
-        get_logs("local_docker://test-session/SparseNNAppDef", regex="INFO")
+    def test_cmd_log_all_roles(self, mock_runner: MagicMock) -> None:
+        out = io.StringIO()
+        get_logs(
+            out,
+            "local_docker://test-session/SparseNNAppDef",
+            regex="INFO",
+        )
         self.assertSetEqual(
             {
                 f"{GREEN}master/0{ENDC} INFO foo",
@@ -97,15 +108,15 @@ class CmdLogTest(unittest.TestCase):
                 # end up with an empty string when we split by \n
                 "",
             },
-            set(stdout_mock.getvalue().split("\n")),
+            set(out.getvalue().split("\n")),
         )
 
     @patch(RUNNER, new_callable=MockRunner)
-    @patch("sys.stdout", new_callable=io.StringIO)
-    def test_cmd_log_all_replicas(
-        self, stdout_mock: MagicMock, mock_runner: MagicMock
-    ) -> None:
-        get_logs("local_docker://test-session/SparseNNAppDef/trainer", regex="INFO")
+    def test_cmd_log_all_replicas(self, mock_runner: MagicMock) -> None:
+        out = io.StringIO()
+        get_logs(
+            out, "local_docker://test-session/SparseNNAppDef/trainer", regex="INFO"
+        )
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} INFO foo",
@@ -115,15 +126,15 @@ class CmdLogTest(unittest.TestCase):
                 # end up with an empty string when we split by \n
                 "",
             },
-            set(stdout_mock.getvalue().split("\n")),
+            set(out.getvalue().split("\n")),
         )
 
     @patch(RUNNER, new_callable=MockRunner)
-    @patch("sys.stdout", new_callable=io.StringIO)
-    def test_cmd_log_one_replica(
-        self, stdout_mock: MagicMock, mock_runner: MagicMock
-    ) -> None:
-        get_logs("local_docker://test-session/SparseNNAppDef/trainer/0", regex=None)
+    def test_cmd_log_one_replica(self, mock_runner: MagicMock) -> None:
+        out = io.StringIO()
+        get_logs(
+            out, "local_docker://test-session/SparseNNAppDef/trainer/0", regex=None
+        )
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} INFO foo",
@@ -133,15 +144,15 @@ class CmdLogTest(unittest.TestCase):
                 # end up with an empty string when we split by \n
                 "",
             },
-            set(stdout_mock.getvalue().split("\n")),
+            set(out.getvalue().split("\n")),
         )
 
     @patch(RUNNER, new_callable=MockRunner)
-    @patch("sys.stdout", new_callable=io.StringIO)
-    def test_cmd_log_some_replicas(
-        self, stdout_mock: MagicMock, mock_runner: MagicMock
-    ) -> None:
-        get_logs("local_docker://test-session/SparseNNAppDef/trainer/0,2", regex="WARN")
+    def test_cmd_log_some_replicas(self, mock_runner: MagicMock) -> None:
+        out = io.StringIO()
+        get_logs(
+            out, "local_docker://test-session/SparseNNAppDef/trainer/0,2", regex="WARN"
+        )
         self.assertSetEqual(
             {
                 f"{GREEN}trainer/0{ENDC} WARN baz",
@@ -150,7 +161,7 @@ class CmdLogTest(unittest.TestCase):
                 # end up with an empty string when we split by \n
                 "",
             },
-            set(stdout_mock.getvalue().split("\n")),
+            set(out.getvalue().split("\n")),
         )
 
     @patch(RUNNER, new_callable=MockRunner)
@@ -160,7 +171,11 @@ class CmdLogTest(unittest.TestCase):
         with patch.object(mock_runner, "log_lines") as log_lines_mock:
             log_lines_mock.side_effect = RuntimeError
             with self.assertRaises(RuntimeError):
-                get_logs("local://test-session/SparseNNAppDef/trainer/0,1", regex=None)
+                get_logs(
+                    sys.stdout,
+                    "local://test-session/SparseNNAppDef/trainer/0,1",
+                    regex=None,
+                )
 
     def test_validate(self) -> None:
         validate("kubernetes://session/queue:name-1234")

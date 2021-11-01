@@ -12,13 +12,14 @@ import sys
 import threading
 import time
 from queue import Queue
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, TextIO
 
 from pyre_extensions import none_throws
 from torchx import specs
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.colors import GREEN, ENDC
 from torchx.runner import Runner, get_runner
+from torchx.schedulers.api import Stream
 from torchx.specs.api import make_app_handle, is_started
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ def validate(job_identifier: str) -> None:
 
 
 def print_log_lines(
+    file: TextIO,
     runner: Runner,
     app_handle: str,
     role_name: str,
@@ -42,22 +44,30 @@ def print_log_lines(
     regex: str,
     should_tail: bool,
     exceptions: "Queue[Exception]",
+    streams: Optional[Stream],
 ) -> None:
     try:
         for line in runner.log_lines(
-            app_handle, role_name, replica_id, regex, should_tail=should_tail
+            app_handle,
+            role_name,
+            replica_id,
+            regex,
+            should_tail=should_tail,
+            streams=streams,
         ):
-            print(f"{GREEN}{role_name}/{replica_id}{ENDC} {line}")
+            print(f"{GREEN}{role_name}/{replica_id}{ENDC} {line}", file=file)
     except Exception as e:
         exceptions.put(e)
         raise
 
 
 def get_logs(
+    file: TextIO,
     identifier: str,
     regex: Optional[str],
     should_tail: bool = False,
     runner: Optional[Runner] = None,
+    streams: Optional[Stream] = None,
 ) -> None:
     validate(identifier)
     scheduler_backend, _, path_str = identifier.partition("://")
@@ -107,6 +117,7 @@ def get_logs(
         thread = threading.Thread(
             target=print_log_lines,
             args=(
+                file,
                 runner,
                 app_handle,
                 role_name,
@@ -114,6 +125,7 @@ def get_logs(
                 regex,
                 should_tail,
                 exceptions,
+                streams,
             ),
         )
         thread.daemon = True
@@ -153,14 +165,19 @@ class CmdLog(SubCommand):
             type=str,
             help="regex filter",
         )
-
         subparser.add_argument(
             "-t",
             "--tail",
             action="store_true",
             help="Tail logs",
         )
-
+        subparser.add_argument(
+            "--streams",
+            type=Stream,
+            choices=list(s.value for s in Stream),
+            default=None,
+            help="IO streams to use. Default is scheduler specific.",
+        )
         subparser.add_argument(
             "identifier",
             type=str,
@@ -169,4 +186,6 @@ class CmdLog(SubCommand):
         )
 
     def run(self, args: argparse.Namespace) -> None:
-        get_logs(args.identifier, args.regex, args.tail)
+        get_logs(
+            sys.stdout, args.identifier, args.regex, args.tail, streams=args.streams
+        )

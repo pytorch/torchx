@@ -227,6 +227,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
     def tearDown(self) -> None:
+        self.scheduler.close()
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_submit(self) -> None:
@@ -341,7 +342,12 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             role_name="ignored",
             replica_id=ignored,
             replica_params=ReplicaParam(
-                args=["a", "b"], env={}, cwd="/home/bob", stdout=None, stderr=None
+                args=["a", "b"],
+                env={},
+                cwd="/home/bob",
+                stdout=None,
+                stderr=None,
+                combined=None,
             ),
             prepend_cwd=False,
         )
@@ -362,7 +368,12 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             role_name="ignored",
             replica_id=ignored,
             replica_params=ReplicaParam(
-                args=["a", "b"], env={}, cwd="/home/bob", stdout=None, stderr=None
+                args=["a", "b"],
+                env={},
+                cwd="/home/bob",
+                stdout=None,
+                stderr=None,
+                combined=None,
             ),
             prepend_cwd=True,
         )
@@ -381,7 +392,12 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             role_name="ignored",
             replica_id=ignored,
             replica_params=ReplicaParam(
-                args=["a", "b"], env={}, cwd="/home/bob", stdout=None, stderr=None
+                args=["a", "b"],
+                env={},
+                cwd="/home/bob",
+                stdout=None,
+                stderr=None,
+                combined=None,
             ),
             prepend_cwd=True,
         )
@@ -391,7 +407,12 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             role_name="ignored",
             replica_id=ignored,
             replica_params=ReplicaParam(
-                args=["a", "b"], env={}, cwd=None, stdout=None, stderr=None
+                args=["a", "b"],
+                env={},
+                cwd=None,
+                stdout=None,
+                stderr=None,
+                combined=None,
             ),
             prepend_cwd=True,
         )
@@ -511,8 +532,9 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                     },
                     replica_param.env,
                 )
-                self.assertIsNone(replica_param.stdout)
-                self.assertIsNone(replica_param.stderr)
+                self.assertIsNotNone(replica_param.stdout)
+                self.assertIsNotNone(replica_param.stderr)
+                self.assertIsNotNone(replica_param.combined)
 
     @patch(LOCAL_DIR_IMAGE_PROVIDER_FETCH, return_value="")
     def test_submit_dryrun_with_log_dir_cfg(
@@ -604,9 +626,9 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
 
         app = AppDef(name="test_app", roles=[role])
 
-        with self.assertRaises(RuntimeError, msg="log_dir must be set to iterate logs"):
-            app_id = self.scheduler.submit(app, RunConfig())
-            self.scheduler.log_iter(app_id, "role1", k=0)
+        app_id = self.scheduler.submit(app, RunConfig())
+        logs = list(self.scheduler.log_iter(app_id, "role1", k=0))
+        self.assertEqual(len(logs), 11)
 
     def test_submit_multiple_roles(self) -> None:
         test_file1 = join(self.test_dir, "test_file_1")
@@ -719,9 +741,10 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
         app = AppDef(name="test_app", roles=[role])
         cfg = RunConfig({"log_dir": self.test_dir})
-        scheduler.submit(app, cfg)
+        app_id = scheduler.submit(app, cfg)
         with self.assertRaises(IndexError):
             scheduler.submit(app, cfg)
+        scheduler.close()
 
     def test_cache_evict(self) -> None:
         scheduler = LocalScheduler(

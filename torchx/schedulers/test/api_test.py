@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Iterable, Optional, Union
 from unittest.mock import MagicMock, patch
 
-from torchx.schedulers.api import DescribeAppResponse, Scheduler
+from torchx.schedulers.api import DescribeAppResponse, Scheduler, Stream
 from torchx.specs.api import (
     NULL_RESOURCE,
     AppDef,
@@ -51,6 +51,7 @@ class SchedulerTest(unittest.TestCase):
             since: Optional[datetime] = None,
             until: Optional[datetime] = None,
             should_tail: bool = False,
+            streams: Optional[Stream] = None,
         ) -> Iterable[str]:
             return iter([])
 

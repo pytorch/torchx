@@ -72,8 +72,8 @@ class CmdRunTest(unittest.TestCase):
             self.cmd_run.run(args)
             self.assertTrue(os.path.isfile(str(self.tmpdir / "foobar.txt.testv2")))
 
-    @patch("sys.stdout", new_callable=io.StringIO)
-    def test_run_with_log(self, stdout: MagicMock) -> None:
+    @patch("sys.stderr", new_callable=io.StringIO)
+    def test_run_with_log(self, stderr: io.StringIO) -> None:
         with cwd(str(Path(__file__).parent)):
             args = self.parser.parse_args(
                 [
@@ -90,7 +90,7 @@ class CmdRunTest(unittest.TestCase):
             )
 
             self.cmd_run.run(args)
-        self.assertRegex(stdout.getvalue(), "echo/0.*toast")
+        self.assertRegex(stderr.getvalue(), "echo/0.*toast")
 
     @patch(
         "torchx.runner.Runner.wait", side_effect=SignalException("msg", signal.SIGTERM)

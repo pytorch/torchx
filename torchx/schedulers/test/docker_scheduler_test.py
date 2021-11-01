@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 from docker.types import DeviceRequest
 from torchx import specs
+from torchx.schedulers.api import Stream
 from torchx.schedulers.docker_scheduler import (
     has_docker,
     DockerScheduler,
@@ -149,8 +150,6 @@ if has_docker():
             # docker truncates to the second so pad out 1 extra second
             end = datetime.utcnow() + timedelta(seconds=1)
 
-            print(start.isoformat(), end.isoformat())
-
             self.assertEqual(AppState.SUCCEEDED, desc.state)
 
             logs = list(
@@ -203,6 +202,67 @@ if has_docker():
                 )
             )
             self.assertEqual(logs, [])
+
+        def test_docker_logs_streams(self) -> None:
+            app = self._docker_app("sh", "-c", "echo stdout; >&2 echo stderr")
+            cfg = RunConfig()
+
+            start = datetime.utcnow()
+            app_id = self.scheduler.submit(app, cfg)
+            desc = self.wait(app_id)
+            self.assertIsNotNone(desc)
+
+            logs = set(
+                self.scheduler.log_iter(app_id, "image_test_role", 0, streams=None)
+            )
+            self.assertEqual(
+                logs,
+                {
+                    "stdout",
+                    "stderr",
+                    "",
+                },
+            )
+
+            logs = set(
+                self.scheduler.log_iter(
+                    app_id, "image_test_role", 0, streams=Stream.COMBINED
+                )
+            )
+            self.assertEqual(
+                logs,
+                {
+                    "stdout",
+                    "stderr",
+                    "",
+                },
+            )
+
+            logs = list(
+                self.scheduler.log_iter(
+                    app_id, "image_test_role", 0, streams=Stream.STDERR
+                )
+            )
+            self.assertEqual(
+                logs,
+                [
+                    "stderr",
+                    "",
+                ],
+            )
+
+            logs = list(
+                self.scheduler.log_iter(
+                    app_id, "image_test_role", 0, streams=Stream.STDOUT
+                )
+            )
+            self.assertEqual(
+                logs,
+                [
+                    "stdout",
+                    "",
+                ],
+            )
 
         def test_docker_cancel(self) -> None:
             app = self._docker_app("sleep", "10000")

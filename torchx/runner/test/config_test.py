@@ -17,7 +17,7 @@ from unittest.mock import patch
 
 from torchx.runner.config import apply, dump, load
 from torchx.schedulers import Scheduler, get_schedulers
-from torchx.schedulers.api import DescribeAppResponse
+from torchx.schedulers.api import DescribeAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, RunConfig, runopts
 
 
@@ -46,6 +46,7 @@ class TestScheduler(Scheduler):
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterable[str]:
         raise NotImplementedError()
 
