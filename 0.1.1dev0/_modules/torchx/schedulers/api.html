@@ -366,6 +366,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
@@ -380,6 +381,12 @@
     <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Stream</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">STDOUT</span> <span class="o">=</span> <span class="s2">&quot;stdout&quot;</span>
+    <span class="n">STDERR</span> <span class="o">=</span> <span class="s2">&quot;stderr&quot;</span>
+    <span class="n">COMBINED</span> <span class="o">=</span> <span class="s2">&quot;combined&quot;</span>
 
 
 <span class="nd">@dataclass</span>
@@ -550,6 +557,7 @@
         <span class="n">since</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">until</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">should_tail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">streams</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stream</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an iterator to the log lines of the ``k``th replica of the ``role``.</span>
@@ -600,6 +608,12 @@
 
 <span class="sd">        7. Some schedulers may support line cursors by supporting ``__getitem__``</span>
 <span class="sd">           (e.g. ``iter[50]`` seeks to the 50th log line).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            streams: The IO output streams to select.</span>
+<span class="sd">                One of: combined, stdout, stderr.</span>
+<span class="sd">                If the selected stream isn&#39;t supported by the scheduler it will</span>
+<span class="sd">                throw an ValueError.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ``Iterator`` over log lines of the specified role replica</span>

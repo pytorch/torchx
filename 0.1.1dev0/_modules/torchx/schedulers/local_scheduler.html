@@ -363,6 +363,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -379,11 +380,22 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FrameType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Pattern</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Pattern</span><span class="p">,</span>
+    <span class="n">TextIO</span><span class="p">,</span>
+    <span class="n">BinaryIO</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">AppDryRunInfo</span><span class="p">,</span> <span class="n">DescribeAppResponse</span><span class="p">,</span> <span class="n">Scheduler</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">AppDryRunInfo</span><span class="p">,</span> <span class="n">DescribeAppResponse</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">,</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.streams</span> <span class="kn">import</span> <span class="n">Tee</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">NONE</span><span class="p">,</span>
     <span class="n">AppDef</span><span class="p">,</span>
@@ -399,9 +411,9 @@
 
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-
-<span class="k">def</span> <span class="nf">make_unique</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">STDOUT_LOG</span> <span class="o">=</span> <span class="s2">&quot;stdout.log&quot;</span>
+<span class="n">STDERR_LOG</span> <span class="o">=</span> <span class="s2">&quot;stderr.log&quot;</span>
+<span class="n">COMBINED_LOG</span> <span class="o">=</span> <span class="s2">&quot;combined.log&quot;</span>
 
 
 <span class="n">NA</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span>
@@ -439,8 +451,12 @@
 
     <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+    <span class="c1"># IO stream files</span>
     <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">combined</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
     <span class="n">cwd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
@@ -477,6 +493,7 @@
         <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
         <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">combined</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReplicaParam</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given the role replica&#39;s specs returns ``ReplicaParam`` holder</span>
@@ -492,6 +509,7 @@
             <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
             <span class="n">stdout</span><span class="p">,</span>
             <span class="n">stderr</span><span class="p">,</span>
+            <span class="n">combined</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_cwd</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">),</span>
         <span class="p">)</span></div>
 
@@ -601,8 +619,13 @@
     <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="c1"># pyre-fixme[24]: Generic type `subprocess.Popen` expects 1 type parameter.</span>
     <span class="n">proc</span><span class="p">:</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span>
-    <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span>  <span class="c1"># None means no log_dir (out to console)</span>
-    <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span>  <span class="c1"># None means no log_dir (out to console)</span>
+
+    <span class="c1"># IO streams:</span>
+    <span class="c1"># None means no log_dir (out to console)</span>
+    <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">]</span>
+    <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">]</span>
+    <span class="n">combined</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">]</span>
+
     <span class="n">error_file</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -622,6 +645,8 @@
             <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
             <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
+            <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -698,6 +723,11 @@
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replicas</span><span class="p">:</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
+                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">_get_error_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">error_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">min_timestamp</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
@@ -730,7 +760,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">_fmt_io_filename</span><span class="p">(</span><span class="n">std_io</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">_fmt_io_filename</span><span class="p">(</span><span class="n">std_io</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">std_io</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">std_io</span><span class="o">.</span><span class="n">name</span>
             <span class="k">else</span><span class="p">:</span>
@@ -940,7 +970,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no apps evicted, all </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">)</span><span class="si">}</span><span class="s2"> apps are running&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_get_file_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_get_file_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a file name, opens the file for write and returns the IO.</span>
 <span class="sd">        If no file name is given, then returns ``None``</span>
@@ -957,7 +987,7 @@
             <span class="p">)</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_popen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -973,6 +1003,12 @@
 
         <span class="n">stdout_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
         <span class="n">stderr_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">combined_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">combined_</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stdout_</span><span class="p">:</span>
+                <span class="n">stdout_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span><span class="n">stdout_</span><span class="p">,</span> <span class="n">combined_</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stderr_</span><span class="p">:</span>
+                <span class="n">stderr_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span><span class="n">stderr_</span><span class="p">,</span> <span class="n">combined_</span><span class="p">)</span>
 
         <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
         <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
@@ -1010,12 +1046,13 @@
             <span class="n">proc</span><span class="p">,</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">stdout_</span><span class="p">,</span>
             <span class="n">stderr</span><span class="o">=</span><span class="n">stderr_</span><span class="p">,</span>
+            <span class="n">combined</span><span class="o">=</span><span class="n">combined_</span><span class="p">,</span>
             <span class="n">error_file</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span><span class="p">),</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the log dir and a bool (should_redirect_std). We redirect stdout/err</span>
+<span class="sd">        Returns the log dir. We redirect stdout/err</span>
 <span class="sd">        to a log file ONLY if the log_dir is user-provided in the cfg</span>
 
 <span class="sd">        1. if cfg.get(&quot;log_dir&quot;) -&gt; (user-specified log dir, True)</span>
@@ -1024,16 +1061,11 @@
 
         <span class="c1"># pyre-ignore[8]: cfg type already validated with runopt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;log_dir&quot;</span><span class="p">)</span>
-        <span class="n">redirect_std</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx_&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_created_tmp_log_dir</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">redirect_std</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">),</span>
-            <span class="n">redirect_std</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LocalScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span><span class="p">:</span>
@@ -1089,7 +1121,7 @@
 
         <span class="n">app_id</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">image_provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_provider_class</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-        <span class="n">app_log_dir</span><span class="p">,</span> <span class="n">redirect_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_app_log_dir</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+        <span class="n">app_log_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_app_log_dir</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
 
         <span class="n">role_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ReplicaParam</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">role_log_dirs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1115,17 +1147,14 @@
                         <span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;error.json&quot;</span>
                     <span class="p">)</span>
 
-                <span class="n">stdout</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">stderr</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">redirect_std</span><span class="p">:</span>
-                    <span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;stdout.log&quot;</span><span class="p">)</span>
-                    <span class="n">stderr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;stderr.log&quot;</span><span class="p">)</span>
-                    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting stdout log dir: </span><span class="si">{</span><span class="n">stdout</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting stderr log dir: </span><span class="si">{</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="n">STDOUT_LOG</span><span class="p">)</span>
+                <span class="n">stderr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="n">STDERR_LOG</span><span class="p">)</span>
+                <span class="n">combined</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="n">COMBINED_LOG</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log files located in: </span><span class="si">{</span><span class="n">replica_log_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="n">replica_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">image_provider</span><span class="o">.</span><span class="n">get_replica_param</span><span class="p">(</span>
-                        <span class="n">img_root</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span>
+                        <span class="n">img_root</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">combined</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">replica_log_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">)</span>
@@ -1178,6 +1207,7 @@
         <span class="n">since</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">until</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">should_tail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">streams</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stream</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">since</span> <span class="ow">or</span> <span class="n">until</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -1186,7 +1216,13 @@
             <span class="p">)</span>
 
         <span class="n">app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">[</span><span class="n">app_id</span><span class="p">]</span>
-        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">role_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="s2">&quot;stderr.log&quot;</span><span class="p">)</span>
+        <span class="n">STREAM_FILES</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="kc">None</span><span class="p">:</span> <span class="n">COMBINED_LOG</span><span class="p">,</span>
+            <span class="n">Stream</span><span class="o">.</span><span class="n">COMBINED</span><span class="p">:</span> <span class="n">COMBINED_LOG</span><span class="p">,</span>
+            <span class="n">Stream</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">:</span> <span class="n">STDOUT_LOG</span><span class="p">,</span>
+            <span class="n">Stream</span><span class="o">.</span><span class="n">STDERR</span><span class="p">:</span> <span class="n">STDERR_LOG</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">role_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">STREAM_FILES</span><span class="p">[</span><span class="n">streams</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">log_file</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -1250,7 +1286,7 @@
                     <span class="sa">f</span><span class="s2">&quot;app: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_app_id</span><span class="si">}</span><span class="s2"> finished without writing: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_file</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
 
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1266,7 +1302,7 @@
 
                 <span class="c1"># if app is still running we need to wait for more possible log lines</span>
                 <span class="c1"># sleep for 1 sec to avoid thrashing the follow</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_check_finished</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># strip the trailing newline</span>
