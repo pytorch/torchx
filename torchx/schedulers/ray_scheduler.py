@@ -6,6 +6,7 @@
 
 import logging
 import os
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
@@ -23,6 +24,18 @@ from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, macros, runopt
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
+class EnhancedJSONEncoder(json.JSONEncoder):
+        def default(self, o):
+            if dataclasses.is_dataclass(o):
+                return dataclasses.asdict(o)
+            return super().default(o)
+
+def serialize(actor : List[RayActor]) -> None:
+    actor_json = json.dumps(actor, cls= EnhancedJSONEncoder)
+    def write_json(actor, output_filename):
+        with open(f"{output_filename}", 'w', encoding='utf-8') as f:
+            json.dump(actor, f)
+    write_json(actor_json, 'actor.json')
 
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
