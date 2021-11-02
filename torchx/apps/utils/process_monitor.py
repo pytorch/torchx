@@ -56,7 +56,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         "args",
         type=str,
         help="program args",
-        nargs="+",
+        nargs=argparse.REMAINDER,
     )
     return parser.parse_args(argv)
 
