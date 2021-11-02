@@ -350,7 +350,7 @@ class RunnerTest(unittest.TestCase):
 
             self.assertEqual(["hello", "world"], lines)
             scheduler_mock.log_iter.assert_called_once_with(
-                app_id, role_name, replica_id, regex, since, until, False
+                app_id, role_name, replica_id, regex, since, until, False, streams=None
             )
 
     @patch("json.dumps")

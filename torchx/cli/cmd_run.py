@@ -181,7 +181,7 @@ class CmdRun(SubCommand):
             print(app_handle)
 
             if args.scheduler.startswith("local"):
-                self._wait_and_exit(args, runner, app_handle)
+                self._wait_and_exit(runner, app_handle, log=True)
             else:
                 logger.info(f"Launched app: {app_handle}")
                 status = runner.status(app_handle)
@@ -189,7 +189,7 @@ class CmdRun(SubCommand):
                 logger.info(f"Job URL: {none_throws(status).ui_url}")
 
                 if args.wait:
-                    self._wait_and_exit(args, runner, app_handle)
+                    self._wait_and_exit(runner, app_handle, log=args.log)
             return app_handle
 
     def run(self, args: argparse.Namespace) -> None:
@@ -197,12 +197,10 @@ class CmdRun(SubCommand):
         with get_runner() as runner:
             self._run(runner, args)
 
-    def _wait_and_exit(
-        self, args: argparse.Namespace, runner: Runner, app_handle: str
-    ) -> None:
+    def _wait_and_exit(self, runner: Runner, app_handle: str, log: bool) -> None:
         logger.info("Waiting for the app to finish...")
 
-        log_thread = self._start_log_thread(runner, app_handle) if args.log else None
+        log_thread = self._start_log_thread(runner, app_handle) if log else None
 
         status = runner.wait(app_handle, wait_interval=1)
         if not status:
@@ -223,6 +221,7 @@ class CmdRun(SubCommand):
         thread = threading.Thread(
             target=get_logs,
             kwargs={
+                "file": sys.stderr,
                 "runner": runner,
                 "identifier": app_handle,
                 "regex": None,

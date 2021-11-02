@@ -9,6 +9,7 @@ import abc
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 from typing import Iterable, List, Optional
 
 from torchx.specs.api import (
@@ -23,6 +24,12 @@ from torchx.specs.api import (
     SchedulerBackend,
     runopts,
 )
+
+
+class Stream(str, Enum):
+    STDOUT = "stdout"
+    STDERR = "stderr"
+    COMBINED = "combined"
 
 
 @dataclass
@@ -193,6 +200,7 @@ class Scheduler(abc.ABC):
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterable[str]:
         """
         Returns an iterator to the log lines of the ``k``th replica of the ``role``.
@@ -243,6 +251,12 @@ class Scheduler(abc.ABC):
 
         7. Some schedulers may support line cursors by supporting ``__getitem__``
            (e.g. ``iter[50]`` seeks to the 50th log line).
+
+        Args:
+            streams: The IO output streams to select.
+                One of: combined, stdout, stderr.
+                If the selected stream isn't supported by the scheduler it will
+                throw an ValueError.
 
         Returns:
             An ``Iterator`` over log lines of the specified role replica

@@ -18,6 +18,7 @@ from torchx.schedulers.api import (
     DescribeAppResponse,
     Scheduler,
     filter_regex,
+    Stream,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
@@ -334,6 +335,7 @@ class DockerScheduler(Scheduler):
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterable[str]:
         c = self._get_container(app_id, role_name, k)
 
@@ -341,6 +343,8 @@ class DockerScheduler(Scheduler):
             since=since,
             until=until,
             stream=should_tail,
+            stderr=streams != Stream.STDOUT,
+            stdout=streams != Stream.STDERR,
         )
         if len(logs) == 0:
             logs = []

@@ -15,7 +15,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
 from torchx.schedulers import get_schedulers
-from torchx.schedulers.api import Scheduler
+from torchx.schedulers.api import Scheduler, Stream
 from torchx.specs.api import (
     AppDef,
     AppDryRunInfo,
@@ -420,6 +420,7 @@ class Runner:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterable[str]:
         """
         Returns an iterator over the log lines of the specified job container.
@@ -484,7 +485,14 @@ class Runner:
             if not self.status(app_handle):
                 raise UnknownAppException(app_handle)
             log_iter = scheduler.log_iter(
-                app_id, role_name, k, regex, since, until, should_tail
+                app_id,
+                role_name,
+                k,
+                regex,
+                since,
+                until,
+                should_tail,
+                streams=streams,
             )
             return log_iter
 

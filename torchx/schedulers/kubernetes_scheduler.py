@@ -45,6 +45,7 @@ from torchx.schedulers.api import (
     DescribeAppResponse,
     Scheduler,
     filter_regex,
+    Stream,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
@@ -485,8 +486,12 @@ class KubernetesScheduler(Scheduler):
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterable[str]:
         assert until is None, "kubernetes API doesn't support until"
+
+        if streams not in (None, Stream.COMBINED):
+            raise ValueError("KubernetesScheduler only supports COMBINED log stream")
 
         from kubernetes import client, watch
 

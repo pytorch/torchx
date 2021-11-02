@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import abc
+import io
 import json
 import logging
 import os
@@ -22,11 +23,22 @@ import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
-from typing import Any, Callable, Dict, Iterable, List, Optional, Pattern, TextIO, Tuple
-from uuid import uuid4
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Pattern,
+    TextIO,
+    BinaryIO,
+)
 
 from pyre_extensions import none_throws
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.ids import make_unique
+from torchx.schedulers.streams import Tee
 from torchx.specs.api import (
     NONE,
     AppDef,
@@ -42,9 +54,9 @@ from torchx.specs.api import (
 
 log: logging.Logger = logging.getLogger(__name__)
 
-
-def make_unique(app_name: str) -> str:
-    return f"{app_name}_{str(uuid4()).split('-')[0]}"
+STDOUT_LOG = "stdout.log"
+STDERR_LOG = "stderr.log"
+COMBINED_LOG = "combined.log"
 
 
 NA: str = "<N/A>"
@@ -82,8 +94,12 @@ class ReplicaParam:
 
     args: List[str]
     env: Dict[str, str]
+
+    # IO stream files
     stdout: Optional[str]
     stderr: Optional[str]
+    combined: Optional[str]
+
     cwd: Optional[str] = None
 
 
@@ -120,6 +136,7 @@ class ImageProvider(abc.ABC):
         role: Role,
         stdout: Optional[str] = None,
         stderr: Optional[str] = None,
+        combined: Optional[str] = None,
     ) -> ReplicaParam:
         """
         Given the role replica's specs returns ``ReplicaParam`` holder
@@ -135,6 +152,7 @@ class ImageProvider(abc.ABC):
             role.env,
             stdout,
             stderr,
+            combined,
             self.get_cwd(role.image),
         )
 
@@ -244,8 +262,13 @@ class _LocalReplica:
     replica_id: int
     # pyre-fixme[24]: Generic type `subprocess.Popen` expects 1 type parameter.
     proc: subprocess.Popen
-    stdout: Optional[TextIO]  # None means no log_dir (out to console)
-    stderr: Optional[TextIO]  # None means no log_dir (out to console)
+
+    # IO streams:
+    # None means no log_dir (out to console)
+    stdout: Optional[BinaryIO]
+    stderr: Optional[BinaryIO]
+    combined: Optional[BinaryIO]
+
     error_file: str
 
     def terminate(self) -> None:
@@ -265,6 +288,8 @@ class _LocalReplica:
             none_throws(self.stdout).close()
         if self.stderr:
             none_throws(self.stderr).close()
+        if self.combined:
+            none_throws(self.combined).close()
 
     def is_alive(self) -> bool:
         return self.proc.poll() is None
@@ -341,6 +366,11 @@ class _LocalAppDef:
             for r in replicas:
                 r.proc.wait()
 
+                if r.stdout:
+                    r.stdout.close()
+                if r.stderr:
+                    r.stderr.close()
+
     def _get_error_file(self) -> Optional[str]:
         error_file = None
         min_timestamp = sys.maxsize
@@ -373,7 +403,7 @@ class _LocalAppDef:
         """
         self.kill()
 
-        def _fmt_io_filename(std_io: Optional[TextIO]) -> str:
+        def _fmt_io_filename(std_io: Optional[BinaryIO]) -> str:
             if std_io:
                 return std_io.name
             else:
@@ -583,7 +613,7 @@ class LocalScheduler(Scheduler):
             log.debug(f"no apps evicted, all {len(self._apps)} apps are running")
             return False
 
-    def _get_file_io(self, file: Optional[str]) -> Optional[TextIO]:
+    def _get_file_io(self, file: Optional[str]) -> Optional[io.FileIO]:
         """
         Given a file name, opens the file for write and returns the IO.
         If no file name is given, then returns ``None``
@@ -600,7 +630,7 @@ class LocalScheduler(Scheduler):
             )
 
         os.makedirs(os.path.dirname(file), exist_ok=True)
-        return open(file, mode="w")
+        return io.open(file, mode="wb", buffering=0)
 
     def _popen(
         self,
@@ -616,6 +646,12 @@ class LocalScheduler(Scheduler):
 
         stdout_ = self._get_file_io(replica_params.stdout)
         stderr_ = self._get_file_io(replica_params.stderr)
+        combined_ = self._get_file_io(replica_params.combined)
+        if combined_:
+            if stdout_:
+                stdout_ = Tee(stdout_, combined_)
+            if stderr_:
+                stderr_ = Tee(stderr_, combined_)
 
         # inherit parent's env vars since 99.9% of the time we want this behavior
         # just make sure we override the parent's env vars with the user_defined ones
@@ -653,12 +689,13 @@ class LocalScheduler(Scheduler):
             proc,
             stdout=stdout_,
             stderr=stderr_,
+            combined=combined_,
             error_file=env.get("TORCHELASTIC_ERROR_FILE", "<N/A>"),
         )
 
-    def _get_app_log_dir(self, app_id: str, cfg: RunConfig) -> Tuple[str, bool]:
+    def _get_app_log_dir(self, app_id: str, cfg: RunConfig) -> str:
         """
-        Returns the log dir and a bool (should_redirect_std). We redirect stdout/err
+        Returns the log dir. We redirect stdout/err
         to a log file ONLY if the log_dir is user-provided in the cfg
 
         1. if cfg.get("log_dir") -> (user-specified log dir, True)
@@ -667,16 +704,11 @@ class LocalScheduler(Scheduler):
 
         # pyre-ignore[8]: cfg type already validated with runopt
         self._base_log_dir = cfg.get("log_dir")
-        redirect_std = True
         if not self._base_log_dir:
             self._base_log_dir = tempfile.mkdtemp(prefix="torchx_")
             self._created_tmp_log_dir = True
-            redirect_std = False
 
-        return (
-            os.path.join(str(self._base_log_dir), self.session_name, app_id),
-            redirect_std,
-        )
+        return os.path.join(str(self._base_log_dir), self.session_name, app_id)
 
     def schedule(self, dryrun_info: AppDryRunInfo[PopenRequest]) -> str:
         if len(self._apps) == self._cache_size:
@@ -732,7 +764,7 @@ class LocalScheduler(Scheduler):
 
         app_id = make_unique(app.name)
         image_provider = self._image_provider_class(cfg)
-        app_log_dir, redirect_std = self._get_app_log_dir(app_id, cfg)
+        app_log_dir = self._get_app_log_dir(app_id, cfg)
 
         role_params: Dict[str, List[ReplicaParam]] = {}
         role_log_dirs: Dict[str, List[str]] = {}
@@ -758,17 +790,14 @@ class LocalScheduler(Scheduler):
                         replica_log_dir, "error.json"
                     )
 
-                stdout = None
-                stderr = None
-                if redirect_std:
-                    stdout = os.path.join(replica_log_dir, "stdout.log")
-                    stderr = os.path.join(replica_log_dir, "stderr.log")
-                    log.info(f"Setting stdout log dir: {stdout}")
-                    log.info(f"Setting stderr log dir: {stderr}")
+                stdout = os.path.join(replica_log_dir, STDOUT_LOG)
+                stderr = os.path.join(replica_log_dir, STDERR_LOG)
+                combined = os.path.join(replica_log_dir, COMBINED_LOG)
+                log.info(f"Log files located in: {replica_log_dir}")
 
                 replica_params.append(
                     image_provider.get_replica_param(
-                        img_root, replica_role, stdout, stderr
+                        img_root, replica_role, stdout, stderr, combined
                     )
                 )
                 replica_log_dirs.append(replica_log_dir)
@@ -821,6 +850,7 @@ class LocalScheduler(Scheduler):
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         should_tail: bool = False,
+        streams: Optional[Stream] = None,
     ) -> Iterable[str]:
         if since or until:
             warnings.warn(
@@ -829,7 +859,13 @@ class LocalScheduler(Scheduler):
             )
 
         app = self._apps[app_id]
-        log_file = os.path.join(app.log_dir, role_name, str(k), "stderr.log")
+        STREAM_FILES = {
+            None: COMBINED_LOG,
+            Stream.COMBINED: COMBINED_LOG,
+            Stream.STDOUT: STDOUT_LOG,
+            Stream.STDERR: STDERR_LOG,
+        }
+        log_file = os.path.join(app.log_dir, role_name, str(k), STREAM_FILES[streams])
 
         if not os.path.isfile(log_file):
             raise RuntimeError(
@@ -893,7 +929,7 @@ class LogIterator:
                     f"app: {self._app_id} finished without writing: {self._log_file}"
                 )
 
-            time.sleep(1)
+            time.sleep(0.1)
         return self
 
     def __next__(self) -> str:
@@ -909,7 +945,7 @@ class LogIterator:
 
                 # if app is still running we need to wait for more possible log lines
                 # sleep for 1 sec to avoid thrashing the follow
-                time.sleep(1)
+                time.sleep(0.1)
                 self._check_finished()
             else:
                 line = line.rstrip("\n")  # strip the trailing newline
