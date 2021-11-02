@@ -4,12 +4,13 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import fnmatch
 import logging
 import os.path
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, List
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, List, Union
 
 import torchx
 import yaml
@@ -101,6 +102,8 @@ class DockerScheduler(Scheduler):
     .. note:: docker doesn't provide gang scheduling mechanisms. If one replica
               in a job fails, only that replica will be restarted.
 
+
+
     .. compatibility::
         type: scheduler
         features:
@@ -173,6 +176,18 @@ class DockerScheduler(Scheduler):
     def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[DockerJob]:
         from docker.types import DeviceRequest
 
+        default_env = {}
+        copy_env = cfg.get("copy_env")
+        if copy_env:
+            assert isinstance(
+                copy_env, list
+            ), f"copy_env must be a list, got {copy_env}"
+            keys = set()
+            for pattern in copy_env:
+                keys |= set(fnmatch.filter(os.environ.keys(), pattern))
+            for k in keys:
+                default_env[k] = os.environ[k]
+
         app_id = make_unique(app.name)
         req = DockerJob(app_id=app_id, containers=[])
         for role in app.roles:
@@ -184,12 +199,17 @@ class DockerScheduler(Scheduler):
                 )
                 replica_role = values.apply(role)
                 name = f"{app_id}-{role.name}-{replica_id}"
+
+                env = default_env.copy()
+                if replica_role.env:
+                    env.update(replica_role.env)
+
                 c = DockerContainer(
                     image=replica_role.image,
                     command=[replica_role.entrypoint] + replica_role.args,
                     kwargs={
                         "name": name,
-                        "environment": replica_role.env,
+                        "environment": env,
                         "labels": {
                             LABEL_VERSION: torchx.__version__,
                             LABEL_APP_ID: app_id,
@@ -267,6 +287,12 @@ class DockerScheduler(Scheduler):
 
     def run_opts(self) -> runopts:
         opts = runopts()
+        opts.add(
+            "copy_env",
+            type_=List[str],
+            default=None,
+            help="list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*",
+        )
         return opts
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
@@ -346,17 +372,29 @@ class DockerScheduler(Scheduler):
             stderr=streams != Stream.STDOUT,
             stdout=streams != Stream.STDERR,
         )
-        if len(logs) == 0:
-            logs = []
-        if isinstance(logs, bytes):
-            logs = logs.decode("utf-8")
-        if isinstance(logs, str):
-            logs = logs.split("\n")
+
+        if isinstance(logs, (bytes, str)):
+            logs = _to_str(logs)
+
+            if len(logs) == 0:
+                logs = []
+            else:
+                logs = logs.split("\n")
+
+        logs = map(_to_str, logs)
 
         if regex:
             return filter_regex(regex, logs)
         else:
             return logs
+
+
+def _to_str(a: Union[str, bytes]) -> str:
+    if isinstance(a, bytes):
+        a = a.decode("utf-8")
+    if a.endswith("\n"):
+        a = a[:-1]
+    return a
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> DockerScheduler:
