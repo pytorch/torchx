@@ -361,12 +361,13 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="kn">import</span> <span class="nn">fnmatch</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torchx</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -458,6 +459,8 @@
 <span class="sd">    .. note:: docker doesn&#39;t provide gang scheduling mechanisms. If one replica</span>
 <span class="sd">              in a job fails, only that replica will be restarted.</span>
 
+
+
 <span class="sd">    .. compatibility::</span>
 <span class="sd">        type: scheduler</span>
 <span class="sd">        features:</span>
@@ -530,6 +533,18 @@
     <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">DockerJob</span><span class="p">]:</span>
         <span class="kn">from</span> <span class="nn">docker.types</span> <span class="kn">import</span> <span class="n">DeviceRequest</span>
 
+        <span class="n">default_env</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">copy_env</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;copy_env&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">copy_env</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">copy_env</span><span class="p">,</span> <span class="nb">list</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;copy_env must be a list, got </span><span class="si">{</span><span class="n">copy_env</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">copy_env</span><span class="p">:</span>
+                <span class="n">keys</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">pattern</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="n">default_env</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
         <span class="n">app_id</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">DockerJob</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="p">[])</span>
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
@@ -541,12 +556,17 @@
                 <span class="p">)</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span>
+
+                <span class="n">env</span> <span class="o">=</span> <span class="n">default_env</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">:</span>
+                    <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+
                 <span class="n">c</span> <span class="o">=</span> <span class="n">DockerContainer</span><span class="p">(</span>
                     <span class="n">image</span><span class="o">=</span><span class="n">replica_role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
                     <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="n">replica_role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span> <span class="o">+</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
                     <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
                         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-                        <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+                        <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="n">env</span><span class="p">,</span>
                         <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">{</span>
                             <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
                             <span class="n">LABEL_APP_ID</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span>
@@ -624,6 +644,12 @@
 
 <div class="viewcode-block" id="DockerScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;copy_env&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
 <div class="viewcode-block" id="DockerScheduler.describe"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
@@ -703,17 +729,29 @@
             <span class="n">stderr</span><span class="o">=</span><span class="n">streams</span> <span class="o">!=</span> <span class="n">Stream</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">streams</span> <span class="o">!=</span> <span class="n">Stream</span><span class="o">.</span><span class="n">STDERR</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logs</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">logs</span> <span class="o">=</span> <span class="n">logs</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">logs</span> <span class="o">=</span> <span class="n">logs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logs</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="n">_to_str</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logs</span> <span class="o">=</span> <span class="n">logs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">logs</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_to_str</span><span class="p">,</span> <span class="n">logs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">logs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">logs</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_to_str</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">a</span>
 
 
 <span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DockerScheduler</span><span class="p">:</span>
