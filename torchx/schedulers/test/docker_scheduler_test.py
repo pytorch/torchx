@@ -99,6 +99,24 @@ class DockerSchedulerTest(unittest.TestCase):
         )
         self.assertEqual(str(info), str(want))
 
+    @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})
+    def test_copy_env(self) -> None:
+        app = _test_app()
+        cfg = specs.RunConfig(
+            {
+                "copy_env": ["FOO_*", "BAR_*"],
+            }
+        )
+        info = self.scheduler._submit_dryrun(app, cfg)
+        self.assertEqual(
+            info.request.containers[0].kwargs["environment"],
+            {
+                "FOO": "bar",
+                "FOO_1": "f1",
+                "BAR_1": "b1",
+            },
+        )
+
 
 if has_docker():
     # These are the live tests that require a local docker instance.
@@ -166,7 +184,6 @@ if has_docker():
                 [
                     "foo",
                     "bar",
-                    "",
                 ],
             )
             logs = list(
@@ -202,6 +219,21 @@ if has_docker():
                 )
             )
             self.assertEqual(logs, [])
+            logs = list(
+                self.scheduler.log_iter(
+                    app_id,
+                    "image_test_role",
+                    0,
+                    should_tail=True,
+                )
+            )
+            self.assertEqual(
+                logs,
+                [
+                    "foo",
+                    "bar",
+                ],
+            )
 
         def test_docker_logs_streams(self) -> None:
             app = self._docker_app("sh", "-c", "echo stdout; >&2 echo stderr")
@@ -220,7 +252,6 @@ if has_docker():
                 {
                     "stdout",
                     "stderr",
-                    "",
                 },
             )
 
@@ -234,7 +265,6 @@ if has_docker():
                 {
                     "stdout",
                     "stderr",
-                    "",
                 },
             )
 
@@ -247,7 +277,6 @@ if has_docker():
                 logs,
                 [
                     "stderr",
-                    "",
                 ],
             )
 
@@ -260,7 +289,6 @@ if has_docker():
                 logs,
                 [
                     "stdout",
-                    "",
                 ],
             )
 
