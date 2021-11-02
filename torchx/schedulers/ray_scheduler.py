@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
 try:
-    import ray  # @manual # noqa: F401 # pyre-ignore[21]
+    import ray  # @manual # noqa: F401
 
     _has_ray = True
 except ImportError:
