@@ -1,1 +1,0 @@
-"[{\"name\": \"resnet\", \"command\": [\"echo\", \"hello resnet\"], \"env\": {}, \"num_replicas\": 1, \"num_cpus\": 1, \"num_gpus\": 0, \"memory_size\": 1}, {\"name\": \"bert\", \"command\": [\"echo\", \"hello bert\"], \"env\": {}, \"num_replicas\": 1, \"num_cpus\": 1, \"num_gpus\": 0, \"memory_size\": 1}]"
