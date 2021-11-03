@@ -19,7 +19,7 @@ class CommandActor:
         self.env = env
 
     def run_command(self):
-        return subprocess.run(self.command, env = self.env)
+        return exec(object = self.command, globals = self.env)
 
 def load_actor_json(filename : str) -> List[Dict]:
     with open(filename) as f:
