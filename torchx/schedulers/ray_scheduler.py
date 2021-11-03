@@ -32,9 +32,9 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actors : List[RayActor], output_filename='actors.json') -> None:
+def serialize(actors : List[RayActor], output_filename='actors') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
-    with NamedTemporaryFile as tmp:
+    with NamedTemporaryFile(prefix=output_filename, suffix='.json' dir='/tmp') as tmp:
         json.dump(actors_json, tmp)
 
 def has_ray() -> bool:
