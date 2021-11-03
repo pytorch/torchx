@@ -13,18 +13,42 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from utils.ray_common import RayActor
 
+
 try:
     import ray  # @manual # noqa: F401
-
+    from ray._private.job_manager import JobStatus
+    from ray.dashboard.modules.job.data_types import (
+        JobSubmitRequest, JobSubmitResponse, JobStatusRequest, JobStatusResponse,
+        JobLogsRequest, JobLogsResponse, JobSpec)
+    from ray.python.tests.conftest import ray_start_with_dashboard
+    from ray.dashboard.modules.job.job_head import submit, status, logs # upload_package, get_package
+    
     _has_ray = True
+
 except ImportError:
     _has_ray = False
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.ids import make_unique
-from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, macros, runopts
+from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, AppState, macros, runopts∂ 
 
 _logger: logging.Logger = logging.getLogger(__name__)
+
+# TODO: Not sure if this is needed or if ray up or ray init in driver takes care of this
+def _setup_webui_url(ray_start_with_dashboard):
+    webui_url = ray_start_with_dashboard["webui_url"]
+    assert wait_until_server_available(webui_url)
+    webui_url = format_web_url(webui_url)
+    return webui_url
+
+# TODO: feels brittle
+class RayStatusResponseToTorchXAppState(Enum, Enum):
+    JobStatus.PENDING = AppState.PENDING
+    JobStatus.RUNNING = AppState.RUNNING
+    JobStatus.SUCCEEDED = AppState.SUCCEEDED
+    JobStatus.FAILED = AppState.FAILED 
+    JobStatus.STOPPED = AppState.CANCELLED
+
 
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
@@ -193,10 +217,29 @@ class RayScheduler(Scheduler):
                 break
 
     def _cancel_existing(self, app_id: str) -> None:
+        # No implementation in Job API yet
         raise NotImplementedError()
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        raise NotImplementedError()
+        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/tests/test_http_job_server.py?L47
+
+        status_request = JobStatusRequest(job_id=app_id)
+
+        try:
+            resp = requests.get(f"{webui_url}/status", json=status_request.dict())
+            resp.raise_for_status()
+            data = resp.json()["data"]["data"]
+            response = JobStatusResponse(**data)
+
+            # Can make this a dict instead as well
+            state = RayStatusResponseToTorchXAppState.response
+                
+            # TODO: what to do with role
+            return DesribeAppResponse(app_id = app_id, state=state, ui_url=webui_url, msg="describe called")
+
+        except TimeoutError(f"Job {job_id} could not find a Ray cluster"):
+            return DescribeAppResponse(app_id=app_id, state=AppState.UNSUBMITTED)
+
 
     def log_iter(
         self,
@@ -208,8 +251,12 @@ class RayScheduler(Scheduler):
         until: Optional[datetime] = None,
         should_tail: bool = False,
         streams: Optional[Stream] = None,
-    ) -> Iterable[str]:
-        raise NotImplementedError()
+    ) -> str:
+        # Most parameters here unused
+        # Log streaming not supported yet in Ray Job API
+        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/job_head.py?L109
+        # logs return an aiohttp web response need to convert to string
+        return logs(job_id=app_id)
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
@@ -217,3 +264,12 @@ def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
         raise RuntimeError("Ray is not installed in the current Python environment.")
 
     return RayScheduler(session_name=session_name)
+
+
+def ray_start_with_dashboard(request):
+    # https://sourcegraph.com/github.com/ray-project/ray/-/blob/python/ray/tests/conftest.py?L25
+    param = getattr(request, "param", {})
+    if param.get("num_cpus") is None:
+        param["num_cpus"] = 1
+    with _ray_start(include_dashboard=True, **param) as address_info:
+        yield address_info

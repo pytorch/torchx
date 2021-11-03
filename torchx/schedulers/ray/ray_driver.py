@@ -63,8 +63,13 @@ def _main(job_id):
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
-
-    actors = [CommandActor.options(placement_group=pgs[i], num_cpus=actor_dict[i]["num_cpus"], num_gpus=actor_dict[i]["num_gpus"]).remote(actors_dict[i]["command"], actor_dict["env"]) for i in range(len(actors_dict) * actor_dict["num_replicas"])]
+    
+    actors = [CommandActor.options(
+        placement_group=pgs[i],
+        num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"])
+        .remote(actors_dict[i]["command"], actors_dict[i]["env"])
+        for actors_dict[i]["num_replicas"] for i in range(len(actors_dict))]
+    
     ray.get([a.run_command.remote() for a in actors])
     unfinished = [a.run_command.remote() for a in actors]
 

@@ -270,20 +270,17 @@ if has_ray():
         """
         --Untested--
         1. Setup a local Ray cluster
-        2. Make sure cluster is healthy
-        3. Test driver.py
+        2. Make sure cluster is healthy (Job API has _ensure_ray_initialized())
+        3. Test driver.py (/submit)
         4. Launch a DDP job on local Ray cluster
-        5. Examine logs (http response and stdout) and output to confirm everything works 
-        6. Tear down cluster
+        5. Examine logs (http response and stdout) and output to confirm everything works (/logs)
+        6. Tear down cluster (Done)
         """
 
         def setup_ray_cluster(self) -> None:
             # ray_driver.py calls ray.init()
             _main()
             assert ray.is_initialized() == True
-
-        def ping_health(self) -> None:
-            return pass
 
         def schedule_ray_job(self) -> None:
             return pass
