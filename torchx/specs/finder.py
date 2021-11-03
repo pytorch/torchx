@@ -7,19 +7,21 @@
 import abc
 import glob
 import importlib
+import inspect
 import logging
 import os
 from collections import OrderedDict
 from dataclasses import dataclass
 from inspect import getmembers, isfunction
 from types import ModuleType
-from typing import Dict, List, Optional, Union, Callable
+from typing import Callable, Dict, List, Optional, Union
 
 from pyre_extensions import none_throws
 from torchx.specs import AppDef
 from torchx.specs.file_linter import get_fn_docstring, validate
 from torchx.util import entrypoints
 from torchx.util.io import read_conf_file
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -305,3 +307,39 @@ def get_component(name: str) -> _Component:
             f"Component {name} has validation errors: \n {validation_msg}"
         )
     return component
+
+
+def get_builtin_source(name: str) -> str:
+    """
+    Returns a string of the the builtin component's function source code
+    with all the import statements. Intended to be used to make a copy
+    of the builtin component to use as a template for further customization.
+
+    For simplicity import statements are read literally from the python file
+    where the builtin component is defined. All lines that start with
+    "import " and "from " preceding the function declaration
+    (e.g. ``def builtin_name(...):`` are considered necessary import statements
+    and hence included in the returned string.
+
+    Therefore, it is possible to get additional unused import statements,
+    which can happen if multiple builtins are defined in the same file.
+    Make sure to pass the copy through a linter so that import statements
+    are optimized and formatting adheres to your organization's standards.
+    """
+
+    component = get_component(name)
+    fn = component.fn
+    fn_name = component.name.split(".")[-1]
+
+    # grab only the literal import statements BEFORE the builtin function def
+    with open(inspect.getfile(component.fn), "r") as f:
+        import_stmts = []
+        for line in f.readlines():
+            if line.startswith("import ") or line.startswith("from "):
+                import_stmts.append(line.rstrip("\n"))
+            elif line.startswith(f"def {fn_name}("):
+                break
+
+    fn_src = inspect.getsource(fn)
+
+    return "\n".join([*import_stmts, "\n", fn_src, "\n"])
