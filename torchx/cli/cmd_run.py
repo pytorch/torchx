@@ -23,9 +23,11 @@ from torchx.specs.finder import (
     ComponentNotFoundException,
     ComponentValidationException,
     _Component,
+    get_builtin_source,
     get_components,
 )
 from torchx.util.types import to_dict
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -60,17 +62,25 @@ def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfi
 
 class CmdBuiltins(SubCommand):
     def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
-        pass
+        subparser.add_argument(
+            "--print",
+            type=str,
+            help="prints the builtin's component def to stdout",
+        )
 
     def _builtins(self) -> Dict[str, _Component]:
         return get_components()
 
     def run(self, args: argparse.Namespace) -> None:
-        builtin_components = self._builtins()
-        num_builtins = len(builtin_components)
-        print(f"Found {num_builtins} builtin components:")
-        for i, component in enumerate(builtin_components.values()):
-            print(f" {i + 1:2d}. {component.name}")
+        builtin_name = args.print
+        if not builtin_name:
+            builtin_components = self._builtins()
+            num_builtins = len(builtin_components)
+            print(f"Found {num_builtins} builtin components:")
+            for i, component in enumerate(builtin_components.values()):
+                print(f" {i + 1:2d}. {component.name}")
+        else:
+            print(get_builtin_source(builtin_name))
 
 
 class CmdRun(SubCommand):
