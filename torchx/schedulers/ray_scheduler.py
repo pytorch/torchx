@@ -7,9 +7,11 @@
 import logging
 import os
 import json
+from tempfile import NamedTemporaryFile
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from utils.ray_common import RayActor
 
 try:
     import ray  # @manual # noqa: F401
@@ -30,45 +32,14 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actor : List[RayActor]) -> None:
-    actor_json = json.dumps(actor, cls= EnhancedJSONEncoder)
-    def write_json(actor, output_filename):
-        with open(f"{output_filename}", 'w', encoding='utf-8') as f:
-            json.dump(actor, f)
-    write_json(actor_json, 'actor.json')
+def serialize(actors : List[RayActor], output_filename='actors.json') -> None:
+    actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
+    with NamedTemporaryFile as tmp:
+        json.dump(actors_json, tmp)
 
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
     return _has_ray
-
-
-@dataclass
-class RayActor:
-    """Describes an actor (a.k.a. role in TorchX terms).
-
-    Attributes:
-        name:
-            The name of the actor.
-        command:
-            The command that the actor should run as a subprocess.
-        env:
-            The environment variables to set before executing the command.
-        num_replicas:
-            The number of replicas (i.e. Ray actors) to run.
-        num_cpus:
-            The number of CPUs to allocate.
-        num_gpus:
-            The number of GPUs to allocate.
-    """
-
-    name: str
-    command: str
-    env: Dict[str, str] = field(default_factory=dict)
-    num_replicas: int = 1
-    num_cpus: int = 1
-    num_gpus: int = 0
-    # TODO: memory_size, max_retries, retry_policy
-
 
 @dataclass
 class RayJob:

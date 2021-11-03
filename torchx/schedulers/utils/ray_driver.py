@@ -22,7 +22,7 @@ def load_actor_json(filename : str) -> List[Dict]:
         actor = json.loads(actor)
         return actor
 
-if __name__ == "__main__":
+def _main():
 
     # Move to scheduler
     actor1 = RayActor("resnet", ["echo", "hello resnet"])
