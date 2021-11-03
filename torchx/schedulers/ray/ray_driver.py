@@ -3,7 +3,6 @@ import json
 import dataclasses
 import ray
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
-import logging
 import subprocess
 from ray_common import RayActor
 
@@ -22,19 +21,16 @@ def load_actor_json(filename : str) -> List[Dict]:
         actor = json.loads(actor)
         return actor
 
-def _main():
+def _main(job_id):
 
     # Move to scheduler
     actor1 = RayActor("resnet", ["echo", "hello resnet"])
     actor2 = RayActor("bert", ["echo", "hello bert"])
     serialize([actor1, actor2])
 
-    logging.basicConfig(filename='driver.log', encoding='utf-8', level=logging.DEBUG)
-
-
     # On driver.py
-    logging.debug("Reading actor.json")
-    actors_dict = load_actor_json('actor.json')
+    print("Reading actor.json")
+    actors_dict = load_actor_json(os.path.join(job_id,'actor.json'))
     pgs = []
     ray.init(address="auto", namespace="torchx-ray")
 
@@ -45,13 +41,13 @@ def _main():
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
 
-        logging.debug("Waiting for placement group to start.")
+        print("Waiting for placement group to start.")
         ready = pg.wait(timeout_seconds=100)
 
 
         if ready:
-            logging.debug("Placement group has started.")
-            logging.debug("Starting remote function")
+            print("Placement group has started.")
+            print("Starting remote function")
         
         else:
             raise TimeoutError(
