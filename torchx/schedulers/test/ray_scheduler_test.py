@@ -13,6 +13,7 @@ from unittest.mock import patch
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray
 from torchx.specs import AppDef, Resource, Role, RunConfig, runopts
+from torchx.schedulers.ray.ray_driver import _main
 
 if has_ray():
 
@@ -264,3 +265,34 @@ if has_ray():
             self.assertEqual(
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
+
+    class RayIntegrationTest(TestCase):
+        """
+        --Untested--
+        1. Setup a local Ray cluster
+        2. Make sure cluster is healthy
+        3. Test driver.py
+        4. Launch a DDP job on local Ray cluster
+        5. Examine logs (http response and stdout) and output to confirm everything works 
+        6. Tear down cluster
+        """
+
+        def setup_ray_cluster(self) -> None:
+            # ray_driver.py calls ray.init()
+            _main()
+            assert ray.is_initialized() == True
+
+        def ping_health(self) -> None:
+            return pass
+
+        def schedule_ray_job(self) -> None:
+            return pass
+
+        def check_logs(self) -> None:
+            return pass
+        
+        def teardown_ray_cluster(self) -> None:
+            ray.shutdown()
+            assert ray.is_initialized() == False
+
+
