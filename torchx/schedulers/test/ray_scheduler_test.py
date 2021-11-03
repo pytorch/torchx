@@ -266,6 +266,14 @@ if has_ray():
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
 
+
+    class DriverTest(TestCase):
+        # TODO: Do this
+        def test_serialization(self) -> None:
+            actor1 = RayActor("resnet", ["echo", "hello resnet"])
+            actor2 = RayActor("bert", ["echo", "hello bert"])
+            serialize([actor1, actor2])
+            
     class RayIntegrationTest(TestCase):
         """
         --Untested--
