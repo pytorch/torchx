@@ -267,7 +267,7 @@ class _LocalReplica:
     # None means no log_dir (out to console)
     stdout: Optional[BinaryIO]
     stderr: Optional[BinaryIO]
-    combined: Optional[BinaryIO]
+    combined: Optional[Tee]
 
     error_file: str
 
@@ -365,11 +365,7 @@ class _LocalAppDef:
         for replicas in self.role_replicas.values():
             for r in replicas:
                 r.proc.wait()
-
-                if r.stdout:
-                    r.stdout.close()
-                if r.stderr:
-                    r.stderr.close()
+                r.terminate()
 
     def _get_error_file(self) -> Optional[str]:
         error_file = None
@@ -646,12 +642,14 @@ class LocalScheduler(Scheduler):
 
         stdout_ = self._get_file_io(replica_params.stdout)
         stderr_ = self._get_file_io(replica_params.stderr)
-        combined_ = self._get_file_io(replica_params.combined)
-        if combined_:
-            if stdout_:
-                stdout_ = Tee(stdout_, combined_)
-            if stderr_:
-                stderr_ = Tee(stderr_, combined_)
+        combined_: Optional[Tee] = None
+        combined_file = self._get_file_io(replica_params.combined)
+        if combined_file:
+            combined_ = Tee(
+                combined_file,
+                none_throws(replica_params.stdout),
+                none_throws(replica_params.stderr),
+            )
 
         # inherit parent's env vars since 99.9% of the time we want this behavior
         # just make sure we override the parent's env vars with the user_defined ones
