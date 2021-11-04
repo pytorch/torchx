@@ -7,11 +7,12 @@
 import logging
 import os
 import json
+import requests
 from tempfile import NamedTemporaryFile
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
-from utils.ray_common import RayActor
+from ray.ray_common import RayActor
 
 
 try:
@@ -42,12 +43,16 @@ def _setup_webui_url(ray_start_with_dashboard):
     return webui_url
 
 # TODO: feels brittle
-class RayStatusResponseToTorchXAppState(Enum, Enum):
-    JobStatus.PENDING = AppState.PENDING
-    JobStatus.RUNNING = AppState.RUNNING
-    JobStatus.SUCCEEDED = AppState.SUCCEEDED
-    JobStatus.FAILED = AppState.FAILED 
-    JobStatus.STOPPED = AppState.CANCELLED
+def RayStatusResponseToTorchXAppState(jobstatus : JobStatusResponse) -> AppState:
+    mapping = {
+        JobStatus.PENDING : AppState.PENDING,
+        JobStatus.RUNNING : AppState.RUNNING,
+        JobStatus.SUCCEEDED : AppState.SUCCEEDED,
+        JobStatus.FAILED : AppState.FAILED ,
+        JobStatus.STOPPED : AppState.CANCELLED
+    }
+
+    return mapping[jobstatus]
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
@@ -58,7 +63,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
 
 def serialize(actors : List[RayActor], output_filename='actors') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
-    with NamedTemporaryFile(prefix=output_filename, suffix='.json' dir='/tmp') as tmp:
+    with NamedTemporaryFile(prefix=output_filename, suffix='.json') as tmp:
         json.dump(actors_json, tmp)
 
 def has_ray() -> bool:

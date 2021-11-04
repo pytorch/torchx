@@ -29,7 +29,7 @@ def load_actor_json(filename : str) -> List[Dict]:
 
 def _main(job_id):
     print("Reading actor.json")
-    actors_dict = load_actor_json(os.path.join(job_id,'actor.json'))
+    actors_dict = load_actor_json('actor.json')
     pgs = []
     ray.init(address="auto", namespace="torchx-ray")
 
