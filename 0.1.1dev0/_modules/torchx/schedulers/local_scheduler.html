@@ -624,7 +624,7 @@
     <span class="c1"># None means no log_dir (out to console)</span>
     <span class="n">stdout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">]</span>
     <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">]</span>
-    <span class="n">combined</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BinaryIO</span><span class="p">]</span>
+    <span class="n">combined</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tee</span><span class="p">]</span>
 
     <span class="n">error_file</span><span class="p">:</span> <span class="nb">str</span>
 
@@ -722,11 +722,7 @@
         <span class="k">for</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replicas</span><span class="p">:</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-
-                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
-                    <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
-                    <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_get_error_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">error_file</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1003,12 +999,14 @@
 
         <span class="n">stdout_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
         <span class="n">stderr_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="n">combined_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">combined_</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">stdout_</span><span class="p">:</span>
-                <span class="n">stdout_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span><span class="n">stdout_</span><span class="p">,</span> <span class="n">combined_</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">stderr_</span><span class="p">:</span>
-                <span class="n">stderr_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span><span class="n">stderr_</span><span class="p">,</span> <span class="n">combined_</span><span class="p">)</span>
+        <span class="n">combined_</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tee</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">combined_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">combined_file</span><span class="p">:</span>
+            <span class="n">combined_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span>
+                <span class="n">combined_file</span><span class="p">,</span>
+                <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
+                <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
+            <span class="p">)</span>
 
         <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
         <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
