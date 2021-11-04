@@ -57,9 +57,8 @@ def _main(job_id):
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
     
-    actors = [CommandActor.options(placement_group=pgs[i],num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"]).remote(actors_dict[i]["command"], actors_dict[i]["env"]) for actors_dict[i]["num_replicas"] in i for i in range(len(actors_dict))]
+    actors = [[CommandActor.options(placement_group=pgs[i],num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"]).remote(actors_dict[i]["command"], actors_dict[i]["env"]) for actors_dict[i]["num_replicas"] in i] for i in range(len(actors_dict))]
     
-    ray.get([a.run_command.remote() for a in actors])
     unfinished = [a.run_command.remote() for a in actors]
 
     while len(unfinished) > 0:
@@ -68,7 +67,9 @@ def _main(job_id):
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in finished:
             try:
-                status_code = ray.get(object_ref)
+                ray.get(object_ref)
+
+            # TODO: Add retry logic in scheduler script
             except ray.RayActorError as exc:
                 status_code = 1
 

@@ -9,6 +9,7 @@ import os
 import json
 import requests
 from tempfile import NamedTemporaryFile
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
@@ -17,12 +18,8 @@ from ray.ray_common import RayActor
 
 try:
     import ray  # @manual # noqa: F401
+    from ray.dashboard.modules.job.sdk import JobSubmissionClient
     from ray._private.job_manager import JobStatus
-    from ray.dashboard.modules.job.data_types import (
-        JobSubmitRequest, JobSubmitResponse, JobStatusRequest, JobStatusResponse,
-        JobLogsRequest, JobLogsResponse, JobSpec)
-    from ray.python.tests.conftest import ray_start_with_dashboard
-    from ray.dashboard.modules.job.job_head import submit, status, logs # upload_package, get_package
     
     _has_ray = True
 
@@ -31,24 +28,16 @@ except ImportError:
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.ids import make_unique
-from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, AppState, macros, runopts∂ 
+from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, AppState, macros, runopts 
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
-# TODO: Not sure if this is needed or if ray up or ray init in driver takes care of this
-def _setup_webui_url(ray_start_with_dashboard):
-    webui_url = ray_start_with_dashboard["webui_url"]
-    assert wait_until_server_available(webui_url)
-    webui_url = format_web_url(webui_url)
-    return webui_url
-
-# TODO: feels brittle
-def RayStatusResponseToTorchXAppState(jobstatus : JobStatusResponse) -> AppState:
+def RayStatusResponseToTorchXAppState(jobstatus : JobStatus) -> AppState:
     mapping = {
         JobStatus.PENDING : AppState.PENDING,
         JobStatus.RUNNING : AppState.RUNNING,
         JobStatus.SUCCEEDED : AppState.SUCCEEDED,
-        JobStatus.FAILED : AppState.FAILED ,
+        JobStatus.FAILED : AppState.FAILED,
         JobStatus.STOPPED : AppState.CANCELLED
     }
 
@@ -61,9 +50,9 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actors : List[RayActor], output_filename='actors') -> None:
+def serialize(actors : List[RayActor], output_filename='actors.json') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
-    with NamedTemporaryFile(prefix=output_filename, suffix='.json') as tmp:
+    with open(os.path.join("./ray", output_filename)) as tmp:
         json.dump(actors_json, tmp)
 
 def has_ray() -> bool:
@@ -110,6 +99,10 @@ class RayJob:
 class RayScheduler(Scheduler):
     def __init__(self, session_name: str) -> None:
         super().__init__("ray", session_name)
+        # TODO: Users can run ray.status() to figure out the right URL 
+        # But for now Ray team will explore finding a programmatic way of offering this
+        self.client = JobSubmissionClient("http://127.0.0.1:8265")
+
 
     def run_opts(self) -> runopts:
         opts = runopts()
@@ -145,7 +138,44 @@ class RayScheduler(Scheduler):
         return opts
 
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
-        raise NotImplementedError()
+        # TODO: What to do with cfg
+        cfg: RayJob = dryrun_info.request
+
+        # TODO: figure out how to use
+        # app_id not needed here - ray will return a job_id
+        app_id: str
+
+        # no cluser config is needed since users will call ray up
+        cluster_config_file: str
+
+        # can set this in driver script
+        cluster_name: Optional[str] = None
+        
+        # not sure what to do with this
+        verbose: bool = False
+
+        # not needed?
+        cfg.copy_script_dirs = True
+        cfg.copy_scripts = True
+
+        actors = cfg.actors
+        scripts = cfg.scripts
+
+        # Create serialized actors in ./ray/actors.json
+        serialize(actors)
+
+
+        job_id : str = self.client.submit_job(
+            # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
+            # and use it to configure your job execution.
+            # TODO: Make this work for windows
+            # TODO: How is ray/train.py called and pointed to 
+            # TODO: How is train.py called in DDP fashion
+            entrypoint="python ray/ray_driver.py",
+            runtime_env={"working_dir" : "./ray"}
+        )
+
+        return job_id
 
     def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[RayJob]:
         app_id = make_unique(app.name)
@@ -222,28 +252,13 @@ class RayScheduler(Scheduler):
                 break
 
     def _cancel_existing(self, app_id: str) -> None:
-        # No implementation in Job API yet
+        # TODO: SDK implementation in Job API coming soon
         raise NotImplementedError()
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/tests/test_http_job_server.py?L47
-
-        status_request = JobStatusRequest(job_id=app_id)
-
-        try:
-            resp = requests.get(f"{webui_url}/status", json=status_request.dict())
-            resp.raise_for_status()
-            data = resp.json()["data"]["data"]
-            response = JobStatusResponse(**data)
-
-            # Can make this a dict instead as well
-            state = RayStatusResponseToTorchXAppState.response
-                
-            # TODO: what to do with role
-            return DesribeAppResponse(app_id = app_id, state=state, ui_url=webui_url, msg="describe called")
-
-        except TimeoutError(f"Job {job_id} could not find a Ray cluster"):
-            return DescribeAppResponse(app_id=app_id, state=AppState.UNSUBMITTED)
+        status = self.client.get_job_status(app_id)
+        status = RayStatusResponseToTorchXAppState(status)
+        return DescribeAppResponse(app_id = app_id, state=status)
 
 
     def log_iter(
@@ -256,12 +271,11 @@ class RayScheduler(Scheduler):
         until: Optional[datetime] = None,
         should_tail: bool = False,
         streams: Optional[Stream] = None,
-    ) -> str:
-        # Most parameters here unused
-        # Log streaming not supported yet in Ray Job API
-        # https://sourcegraph.com/github.com/ray-project/ray/-/blob/dashboard/modules/job/job_head.py?L109
-        # logs return an aiohttp web response need to convert to string
-        return logs(job_id=app_id)
+    ) -> List[str]:
+        # TODO: support regex, tailing, streams etc..
+        stdout, stderr = self.client.get_job_logs(app_id)
+        return [stdout, stderr]
+ 
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
@@ -271,11 +285,4 @@ def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
     return RayScheduler(session_name=session_name)
 
 
-def ray_start_with_dashboard(request):
-    # https://sourcegraph.com/github.com/ray-project/ray/-/blob/python/ray/tests/conftest.py?L25
-    param = getattr(request, "param", {})
-    if param.get("num_cpus") is None:
-        param["num_cpus"] = 1
-    with _ray_start(include_dashboard=True, **param) as address_info:
-        yield address_info
 

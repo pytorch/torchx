@@ -9,11 +9,16 @@ from dataclasses import dataclass
 from typing import Any, Iterator, Type, cast
 from unittest import TestCase
 from unittest.mock import patch
+import os
+import ray
 
 from torchx.schedulers import get_schedulers
-from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray
+from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
 from torchx.specs import AppDef, Resource, Role, RunConfig, runopts
 from torchx.schedulers.ray.ray_driver import _main
+from ray.dashboard.modules.job.sdk import JobSubmissionClient
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+
 
 if has_ray():
 
@@ -265,14 +270,6 @@ if has_ray():
             self.assertEqual(
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
-
-
-    class DriverTest(TestCase):
-        # TODO: Do this
-        def test_serialization(self) -> None:
-            actor1 = RayActor("resnet", ["echo", "hello resnet"])
-            actor2 = RayActor("bert", ["echo", "hello bert"])
-            serialize([actor1, actor2])
             
     class RayIntegrationTest(TestCase):
         """
@@ -286,18 +283,27 @@ if has_ray():
         """
 
         def setup_ray_cluster(self) -> None:
-            # ray_driver.py calls ray.init()
-            _main()
-            assert ray.is_initialized() == True
+            # TODO: Setup a remote multinode ray cluster
+            os.system("ray start --head")
+            ray.init(address="auto")
+            self.ray_scheduler = RayScheduler()
+            self.client = JobSubmissionClient("http://127.0.0.1:8265")
+            assert ray.is_initialized() == True and self.client is not None
 
         def schedule_ray_job(self) -> None:
-            return pass
+            app_info = AppDryRunInfo[RayJob(app_id="123", cluster_config_file="test.yaml")]
+            job_id = self.ray_scheduler.schedule(app_info)
+            assert job_id is not None
 
-        def check_logs(self) -> None:
-            return pass
+        def check_logs(self, appId) -> None:
+            stdout, stderr = self.client.get_job_logs(appId)
+            assert stdout is not None and stderr is not None
         
         def teardown_ray_cluster(self) -> None:
-            ray.shutdown()
-            assert ray.is_initialized() == False
+            os.system("ray stop")
+
+            # Will raise error if ray was not stopped
+            os.system("ray status")
+            assert True == True
 
 
