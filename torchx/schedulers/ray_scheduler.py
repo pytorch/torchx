@@ -20,6 +20,8 @@ try:
     import ray  # @manual # noqa: F401
     from ray.dashboard.modules.job.sdk import JobSubmissionClient
     from ray._private.job_manager import JobStatus
+    from ray.autoscaler import sdk as ray_autoscaler_sdk
+
     
     _has_ray = True
 
@@ -102,6 +104,11 @@ class RayScheduler(Scheduler):
         # TODO: Users can run ray.status() to figure out the right URL 
         # But for now Ray team will explore finding a programmatic way of offering this
         self.client = JobSubmissionClient("http://127.0.0.1:8265")
+        if path_to_ray_cluster_yaml:
+            ip_address = ray_autoscaler_sdk.get_head_node_ip(path_to_ray_cluster_yaml)
+
+        # Create Job Client
+        client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
 
 
     def run_opts(self) -> runopts:
