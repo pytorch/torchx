@@ -14,12 +14,11 @@ from ray_common import RayActor
 
 @ray.remote
 class CommandActor:
-    def __init__(self, command, env):
-        self.command = command
-        self.env = env
+    def __init__(self, train_script):
+        self.train_script = train_script
 
     def run_command(self):
-        return exec(object = self.command, globals = self.env)
+        return exec(open(self.train_script))
 
 def load_actor_json(filename : str) -> List[Dict]:
     with open(filename) as f:
@@ -27,7 +26,7 @@ def load_actor_json(filename : str) -> List[Dict]:
         actor = json.loads(actor)
         return actor
 
-def _main(job_id):
+def _main(job_id = None):
     print("Reading actor.json")
     actors_dict = load_actor_json('actor.json')
     pgs = []

@@ -13,7 +13,7 @@ import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
-from ray.ray_common import RayActor
+from .ray.ray_common import RayActor
 
 
 try:
