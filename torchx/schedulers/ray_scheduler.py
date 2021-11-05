@@ -8,12 +8,14 @@ import logging
 import os
 import json
 import requests
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, mkdtemp
 import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from .ray.ray_common import RayActor
+from shutil import copy2
+
 
 
 # try:
@@ -96,12 +98,7 @@ class RayJob:
 class RayScheduler(Scheduler):
     def __init__(self, session_name: str) -> None:
         super().__init__("ray", session_name)
-        self.client = JobSubmissionClient("http://127.0.0.1:8265")
-        if path_to_ray_cluster_yaml:
-            ip_address = ray_autoscaler_sdk.get_head_node_ip(path_to_ray_cluster_yaml)
-
-        # Create Job Client
-        client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
+        self.client = None
 
 
     def run_opts(self) -> runopts:
@@ -141,18 +138,13 @@ class RayScheduler(Scheduler):
         # TODO: What to do with cfg
         cfg: RayJob = dryrun_info.request
 
-        # TODO: figure out how to use
-        # app_id not needed here - ray will return a job_id
-        app_id: str
-
-        # no cluser config is needed since users will call ray up
         cluster_config_file: str
 
-        # can set this in driver script
         cluster_name: Optional[str] = None
         
         # not sure what to do with this
         verbose: bool = False
+        appId: str = ""
 
         # not needed?
         cfg.copy_script_dirs = True
@@ -163,16 +155,34 @@ class RayScheduler(Scheduler):
 
         # Create serialized actors in ./ray/actors.json
         serialize(actors)
+        
+        if cluster_config_file:
+            ip_address = ray_autoscaler_sdk.get_head_node_ip(cluster_config_file)
+        else:
+            ip_address = "127.0.0.1"
+        
+        dashboard_port = 8265
+        # Create Job Client
+        self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
+        entrypoint = os.path.join("ray", "ray_driver.py")
 
+        # TODO: would be nice to have support for multiple directories in ray runtime_env directly
+        dirpath = mkdtemp()
+        if cfg.scripts:
+            for script in cfg.scripts:
+                if cfg.copy_script_dirs:
+                    script_path = os.path.dirname(script)
+                    copy2(script_path,dirpath)
+                else:
+                    copy2(script,dirpath)
+        copy2("./ray", dirpath)
 
         job_id : str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
-            # TODO: Make this work for windows
-            # TODO: How is ray/train.py called and pointed to 
-            # TODO: How is train.py called in DDP fashion
-            entrypoint="python ray/ray_driver.py",
-            runtime_env={"working_dir" : "./ray"}
+
+            entrypoint=f"python {entrypoint}",
+            runtime_env={"working_dir" : dirpath}
         )
 
         return job_id

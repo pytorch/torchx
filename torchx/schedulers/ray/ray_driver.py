@@ -27,8 +27,6 @@ class CommandActor:
 
 def load_actor_json(filename : str) -> List[RayActor]:
     with open(filename) as f:
-        actor = json.load(f)
-        actor = json.loads(actor)
         actors = []
         for actor_dict in json.load(f):
             actors.append(RayActor(**actor_dict))
@@ -68,8 +66,8 @@ def _main(job_id = None):
     actors = []
     for i in range(len(actors_dict)):
         for _ in range(actors_dict[i]["num_replicas"]):
-            actors.append(CommandActor.options(
-                placement_group=pgs[i],num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"])
+            actors.append(
+                CommandActor.options(placement_group=pgs[i],num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"])
                 .remote(actors_dict[i]["command"], actors_dict[i]["env"]))
     
     unfinished = [a.run_command.remote() for a in actors]
