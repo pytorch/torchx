@@ -6,7 +6,7 @@
 
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Type, cast
+from typing import Any, Iterator, Type, List, cast
 from unittest import TestCase
 from unittest.mock import patch
 import os
@@ -278,24 +278,25 @@ if has_ray():
             assert ray.is_initialized() == True
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
-            stdout, stderr = self.test_check_logs(job_id)
+            stdout, stderr = self.test_check_logs(ray_scheduler, job_id)
             assert (stdout and stderr) is not None
             self.teardown_ray_cluster()
 
 
         def setup_ray_cluster(self) -> None:
-            # TODO: Setup a remote multinode ray cluster
+            os.system("ray stop")
             os.system("ray start --head")
             ray.init(address="auto")
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
         def schedule_ray_job(self,ray_scheduler, app_id="123",cluster_config_file="test.yaml") -> str:
-            app_info = AppDryRunInfo[RayJob(app_id=app_id, cluster_config_file=cluster_config_file)]
+            ray_job = RayJob(app_id=app_id, cluster_config_file=cluster_config_file)
+            app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
             return job_id
 
-        def test_check_logs(self, ray_scheduler,appId) -> None:
+        def test_check_logs(self, ray_scheduler,appId) -> List[str]:
             stdout, stderr = ray_scheduler.logs(appId)
             return stdout, stderr
         

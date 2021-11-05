@@ -148,18 +148,13 @@ class RayScheduler(Scheduler):
         # TODO: What to do with cfg
         cfg: RayJob = dryrun_info.request
 
-   
-
-        
         # not sure what to do with this
         verbose: bool = False
         appId: str = ""
         cluster_name: Optional[str] = None
 
-
-        actors = cfg.actors
-
         # Create serialized actors for ray_driver.py
+        actors = cfg.actors
         serialize(actors)
         
         if cfg.cluster_config_file:
