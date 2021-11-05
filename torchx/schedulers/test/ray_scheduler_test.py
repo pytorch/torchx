@@ -272,38 +272,35 @@ if has_ray():
             )
             
     class RayIntegrationTest(TestCase):
-        """
-        --Untested--
-        1. Setup a local Ray cluster
-        2. Make sure cluster is healthy (Job API has _ensure_ray_initialized())
-        3. Test driver.py (/submit)
-        4. Launch a DDP job on local Ray cluster
-        5. Examine logs (http response and stdout) and output to confirm everything works (/logs)
-        6. Tear down cluster (Done)
-        """
+
+        def test_ray_cluster(self) -> None:
+            self.setup_ray_cluster()
+            assert ray.is_initialized() == True and self.client is not None
+            job_id = self.schedule_ray_job()
+            assert job_id is not None
+            logs = self.test_check_logs()
+            assert logs is not None
+            self.teardown_ray_cluster()
+
 
         def setup_ray_cluster(self) -> None:
             # TODO: Setup a remote multinode ray cluster
             os.system("ray start --head")
             ray.init(address="auto")
             self.ray_scheduler = RayScheduler()
-            self.client = JobSubmissionClient("http://127.0.0.1:8265")
-            assert ray.is_initialized() == True and self.client is not None
 
-        def schedule_ray_job(self) -> None:
-            app_info = AppDryRunInfo[RayJob(app_id="123", cluster_config_file="test.yaml")]
+        def schedule_ray_job(self,app_id="123",cluster_config_file="test.yaml") -> str:
+            app_info = AppDryRunInfo[RayJob(app_id=app_id, cluster_config_file=cluster_config_file)]
             job_id = self.ray_scheduler.schedule(app_info)
-            assert job_id is not None
+            return job_id
 
-        def check_logs(self, appId) -> None:
+        def test_check_logs(self, appId) -> None:
             stdout, stderr = self.client.get_job_logs(appId)
             assert stdout is not None and stderr is not None
         
         def teardown_ray_cluster(self) -> None:
             os.system("ray stop")
-
             # Will raise error if ray was not stopped
             os.system("ray status")
-            assert True == True
 
 
