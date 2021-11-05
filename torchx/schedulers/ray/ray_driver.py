@@ -14,17 +14,26 @@ from .ray_common import RayActor
 
 @ray.remote
 class CommandActor:
-    def __init__(self, train_script):
-        self.train_script = train_script
+    def __init__(self, command: str, env: Dict[str, str]):
+        self.args = command.split(" ")
+        self.path = self.args[0]
 
-    def run_command(self):
-        return exec(open(self.train_script))
+        # Set up the environment variables to be passed to the user's command.
+        self.env = os.environ.copy()
+        self.env.update(env)
 
-def load_actor_json(filename : str) -> List[Dict]:
+    def run_command(self) -> None:
+        os.execve(self.path, self.args, self.env)
+
+def load_actor_json(filename : str) -> List[RayActor]:
     with open(filename) as f:
         actor = json.load(f)
         actor = json.loads(actor)
-        return actor
+        actors = []
+        for actor_dict in json.load(f):
+            actors.append(RayActor(**actor_dict))
+
+        return actors
 
 def _main(job_id = None):
     print("Reading actor.json")
@@ -56,7 +65,12 @@ def _main(job_id = None):
                 "placement group: {}".format(ray.available_resources(),
                                             pg.bundle_specs))
     
-    actors = [[CommandActor.options(placement_group=pgs[i],num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"]).remote(actors_dict[i]["command"], actors_dict[i]["env"]) for actors_dict[i]["num_replicas"] in i] for i in range(len(actors_dict))]
+    actors = []
+    for i in range(len(actors_dict)):
+        for _ in range(actors_dict[i]["num_replicas"]):
+            actors.append(CommandActor.options(
+                placement_group=pgs[i],num_cpus=actors_dict[i]["num_cpus"],num_gpus=actors_dict[i]["num_gpus"])
+                .remote(actors_dict[i]["command"], actors_dict[i]["env"]))
     
     unfinished = [a.run_command.remote() for a in actors]
 

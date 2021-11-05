@@ -33,17 +33,13 @@ from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, AppState, macr
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
-def RayStatusResponseToTorchXAppState(jobstatus : JobStatus) -> AppState:
-    mapping = {
-        JobStatus.PENDING : AppState.PENDING,
-        JobStatus.RUNNING : AppState.RUNNING,
-        JobStatus.SUCCEEDED : AppState.SUCCEEDED,
-        JobStatus.FAILED : AppState.FAILED,
-        JobStatus.STOPPED : AppState.CANCELLED
-    }
-
-    return mapping[jobstatus]
-
+ray_status_to_torchx_appstate = {
+    JobStatus.PENDING : AppState.PENDING,
+    JobStatus.RUNNING : AppState.RUNNING,
+    JobStatus.SUCCEEDED : AppState.SUCCEEDED,
+    JobStatus.FAILED : AppState.FAILED,
+    JobStatus.STOPPED : AppState.CANCELLED
+}
 
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
@@ -100,8 +96,6 @@ class RayJob:
 class RayScheduler(Scheduler):
     def __init__(self, session_name: str) -> None:
         super().__init__("ray", session_name)
-        # TODO: Users can run ray.status() to figure out the right URL 
-        # But for now Ray team will explore finding a programmatic way of offering this
         self.client = JobSubmissionClient("http://127.0.0.1:8265")
         if path_to_ray_cluster_yaml:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(path_to_ray_cluster_yaml)
@@ -263,7 +257,7 @@ class RayScheduler(Scheduler):
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         status = self.client.get_job_status(app_id)
-        status = RayStatusResponseToTorchXAppState(status)
+        status = ray_status_to_torchx_appstate[status]
         return DescribeAppResponse(app_id = app_id, state=status)
 
 
