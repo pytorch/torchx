@@ -274,12 +274,12 @@ if has_ray():
     class RayIntegrationTest(TestCase):
 
         def test_ray_cluster(self) -> None:
-            self.setup_ray_cluster()
-            assert ray.is_initialized() == True and self.client is not None
-            job_id = self.schedule_ray_job()
+            ray_scheduler = self.setup_ray_cluster()
+            assert ray.is_initialized() == True
+            job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
-            logs = self.test_check_logs()
-            assert logs is not None
+            stdout, stderr = self.test_check_logs(job_id)
+            assert (stdout and stderr) is not None
             self.teardown_ray_cluster()
 
 
@@ -287,16 +287,17 @@ if has_ray():
             # TODO: Setup a remote multinode ray cluster
             os.system("ray start --head")
             ray.init(address="auto")
-            self.ray_scheduler = RayScheduler()
+            ray_scheduler = RayScheduler(session_name="test")
+            return ray_scheduler
 
-        def schedule_ray_job(self,app_id="123",cluster_config_file="test.yaml") -> str:
+        def schedule_ray_job(self,ray_scheduler, app_id="123",cluster_config_file="test.yaml") -> str:
             app_info = AppDryRunInfo[RayJob(app_id=app_id, cluster_config_file=cluster_config_file)]
-            job_id = self.ray_scheduler.schedule(app_info)
+            job_id = ray_scheduler.schedule(app_info)
             return job_id
 
-        def test_check_logs(self, appId) -> None:
-            stdout, stderr = self.client.get_job_logs(appId)
-            assert stdout is not None and stderr is not None
+        def test_check_logs(self, ray_scheduler,appId) -> None:
+            stdout, stderr = ray_scheduler.logs(appId)
+            return stdout, stderr
         
         def teardown_ray_cluster(self) -> None:
             os.system("ray stop")
