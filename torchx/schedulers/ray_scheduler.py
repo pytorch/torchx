@@ -16,17 +16,16 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from .ray.ray_common import RayActor
 
 
-try:
-    import ray  # @manual # noqa: F401
-    from ray.dashboard.modules.job.sdk import JobSubmissionClient
-    from ray._private.job_manager import JobStatus
-    from ray.autoscaler import sdk as ray_autoscaler_sdk
+# try:
+import ray  # @manual # noqa: F401
+from ray.dashboard.modules.job.sdk import JobSubmissionClient
+from ray._private.job_manager import JobStatus
+from ray._private.job_manager import JobStatus
+from ray.autoscaler import sdk as ray_autoscaler_sdk 
+_has_ray = True
 
-    
-    _has_ray = True
-
-except ImportError:
-    _has_ray = False
+# except ImportError:
+#     _has_ray = False
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.ids import make_unique

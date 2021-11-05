@@ -10,7 +10,7 @@ import dataclasses
 import ray
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 import subprocess
-from ray_common import RayActor
+from .ray_common import RayActor
 
 @ray.remote
 class CommandActor:
