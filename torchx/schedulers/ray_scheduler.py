@@ -15,6 +15,7 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from .ray.ray_common import RayActor
 from shutil import copy2
+import fnmatch
 
 
 
@@ -43,15 +44,24 @@ ray_status_to_torchx_appstate = {
     JobStatus.STOPPED : AppState.CANCELLED
 }
 
+def find_file(pattern, path):
+    result = []
+    for root, dirs, files in os.walk(path):
+        for name in files:
+            if fnmatch.fnmatch(name, pattern):
+                result.append(os.path.join(root, name))
+    return result
+
+
 class EnhancedJSONEncoder(json.JSONEncoder):
         def default(self, o):
             if dataclasses.is_dataclass(o):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actors : List[RayActor], output_filename='actors.json') -> None:
+def serialize(actors : List[RayActor], output_filename='actors') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
-    with open(os.path.join("./ray", output_filename)) as tmp:
+    with NamedTemporaryFile(prefix=output_filename, suffix=".json", delete=False) as tmp:
         json.dump(actors_json, tmp)
 
 def has_ray() -> bool:
@@ -138,26 +148,22 @@ class RayScheduler(Scheduler):
         # TODO: What to do with cfg
         cfg: RayJob = dryrun_info.request
 
-        cluster_config_file: str
+   
 
-        cluster_name: Optional[str] = None
         
         # not sure what to do with this
         verbose: bool = False
         appId: str = ""
+        cluster_name: Optional[str] = None
 
-        # not needed?
-        cfg.copy_script_dirs = True
-        cfg.copy_scripts = True
 
         actors = cfg.actors
-        scripts = cfg.scripts
 
-        # Create serialized actors in ./ray/actors.json
+        # Create serialized actors for ray_driver.py
         serialize(actors)
         
-        if cluster_config_file:
-            ip_address = ray_autoscaler_sdk.get_head_node_ip(cluster_config_file)
+        if cfg.cluster_config_file:
+            ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
         else:
             ip_address = "127.0.0.1"
         
@@ -167,6 +173,7 @@ class RayScheduler(Scheduler):
         entrypoint = os.path.join("ray", "ray_driver.py")
 
         # TODO: would be nice to have support for multiple directories in ray runtime_env directly
+        # 1. Copy scripts and directories
         dirpath = mkdtemp()
         if cfg.scripts:
             for script in cfg.scripts:
@@ -175,12 +182,17 @@ class RayScheduler(Scheduler):
                     copy2(script_path,dirpath)
                 else:
                     copy2(script,dirpath)
+
+        # 2. Copy Ray driver utilities
         copy2("./ray", dirpath)
+
+        # 3. Copy actor.json
+        actor_path = find_file("actor", "/tmp")
+        copy2(actor_path, dirpath)
 
         job_id : str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
-
             entrypoint=f"python {entrypoint}",
             runtime_env={"working_dir" : dirpath}
         )
