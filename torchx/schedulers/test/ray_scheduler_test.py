@@ -276,6 +276,7 @@ if has_ray():
         def test_ray_cluster(self) -> None:
             ray_scheduler = self.setup_ray_cluster()
             assert ray.is_initialized() == True
+
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
             stdout, stderr = self.test_check_logs(ray_scheduler, job_id)
@@ -290,8 +291,8 @@ if has_ray():
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
-        def schedule_ray_job(self,ray_scheduler, app_id="123",cluster_config_file="test.yaml") -> str:
-            ray_job = RayJob(app_id=app_id, cluster_config_file=cluster_config_file)
+        def schedule_ray_job(self,ray_scheduler, app_id="123") -> str:
+            ray_job = RayJob(app_id=app_id)
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
             return job_id
