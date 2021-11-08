@@ -107,8 +107,9 @@ if has_ray():
                     self.assertEqual(opt.default, expected_opt.default)
 
             expected_opts = [
-                Option("cluster_config_file", str, is_required=True),
+                Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
+                Option("cluster_address",str),
                 Option("copy_scripts", bool, default=False),
                 Option("copy_script_dirs", bool, default=False),
                 Option("verbose", bool, default=False),
@@ -297,7 +298,7 @@ if has_ray():
             job_id = ray_scheduler.schedule(app_info)
             return job_id
 
-        def test_check_logs(self, ray_scheduler,appId) -> List[str]:
+        def test_check_logs(self, ray_scheduler,appId="123") -> List[str]:
             stdout, stderr = ray_scheduler.logs(appId)
             return stdout, stderr
         
