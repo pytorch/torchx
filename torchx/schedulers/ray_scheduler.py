@@ -269,8 +269,7 @@ class RayScheduler(Scheduler):
                 break
 
     def _cancel_existing(self, app_id: str) -> None:
-        # TODO: SDK implementation in Job API coming soon
-        raise NotImplementedError()
+        self.client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         status = self.client.get_job_status(app_id)
