@@ -18,7 +18,6 @@ from shutil import copy2
 import fnmatch
 
 
-
 # try:
 import ray  # @manual # noqa: F401
 from ray.dashboard.modules.job.sdk import JobSubmissionClient
@@ -96,7 +95,7 @@ class RayJob:
     """
 
     app_id: str
-    cluster_config_file: str
+    cluster_config_file: Optional[str] = None
     cluster_name: Optional[str] = None
     copy_scripts: bool = False
     copy_script_dirs: bool = False
@@ -110,19 +109,25 @@ class RayScheduler(Scheduler):
         super().__init__("ray", session_name)
         self.client = None
 
-
+    # TODO: Add address as a potential CLI argument after writing ray.status() or passing in config file
     def run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "cluster_config_file",
             type_=str,
-            required=True,
+            required=False,
             help="Use CLUSTER_CONFIG_FILE to access or create the Ray cluster.",
         )
         opts.add(
             "cluster_name",
             type_=str,
             help="Override the configured cluster name.",
+        )
+        opts.add(
+            "cluster_address",
+            type_=str,
+            required=False,
+            help="Use ray status to get the cluster_address"
         )
         opts.add(
             "copy_scripts",
@@ -145,7 +150,6 @@ class RayScheduler(Scheduler):
         return opts
 
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
-        # TODO: What to do with cfg
         cfg: RayJob = dryrun_info.request
 
         # not sure what to do with this
@@ -159,6 +163,10 @@ class RayScheduler(Scheduler):
         
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
+
+        elif cfg.cluster_address:
+            ip_address = cfg.cluster_address
+
         else:
             ip_address = "127.0.0.1"
         
