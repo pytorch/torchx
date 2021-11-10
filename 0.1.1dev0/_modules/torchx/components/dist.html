@@ -547,7 +547,7 @@
                     <span class="s2">&quot;--rdzv_backend&quot;</span><span class="p">,</span>
                     <span class="p">(</span><span class="s2">&quot;c10d&quot;</span> <span class="k">if</span> <span class="n">nnodes</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;etcd&quot;</span><span class="p">),</span>
                     <span class="s2">&quot;--rdzv_endpoint&quot;</span><span class="p">,</span>
-                    <span class="n">rdzv_endpoint</span><span class="p">,</span>  <span class="c1"># no effect when rdzv_backend=c10d</span>
+                    <span class="p">(</span><span class="s2">&quot;localhost:29500&quot;</span> <span class="k">if</span> <span class="n">nnodes</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">rdzv_endpoint</span><span class="p">),</span>
                     <span class="s2">&quot;--rdzv_id&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;--nnodes&quot;</span><span class="p">,</span>
