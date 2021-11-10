@@ -185,7 +185,7 @@ def ddp(
                     "--rdzv_backend",
                     ("c10d" if nnodes == 1 else "etcd"),
                     "--rdzv_endpoint",
-                    rdzv_endpoint,  # no effect when rdzv_backend=c10d
+                    ("localhost:29500" if nnodes == 1 else rdzv_endpoint),
                     "--rdzv_id",
                     f"{macros.app_id}",
                     "--nnodes",
