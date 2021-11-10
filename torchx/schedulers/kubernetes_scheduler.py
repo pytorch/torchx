@@ -7,6 +7,9 @@
 
 """
 
+This contains the TorchX Kubernetes scheduler which can be used to run TorchX
+components on a Kubernetes cluster.
+
 Prerequisites
 ==============
 

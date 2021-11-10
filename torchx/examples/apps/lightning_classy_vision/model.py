@@ -128,3 +128,6 @@ def export_inference_model(
     fs, _, rpaths = fsspec.get_fs_token_paths(remote_path)
     assert len(rpaths) == 1, "must have single path"
     fs.put(mar_path, rpaths[0])
+
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-lib.png'

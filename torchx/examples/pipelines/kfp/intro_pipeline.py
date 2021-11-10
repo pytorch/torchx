@@ -77,3 +77,5 @@ with open("pipeline.yaml", "rt") as f:
 # %%
 # See the :ref:`examples_pipelines/kfp/advanced_pipeline:Advanced KubeFlow Pipelines Example` for how to chain multiple
 # components together and use builtin components.
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-kfp.png'
