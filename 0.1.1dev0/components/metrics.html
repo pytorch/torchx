@@ -372,10 +372,10 @@ tensorboard instance locally to monitor your model progress:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tensorboard --log-dir provider://path/to/logs
 </pre></div>
 </div>
+<p>Or you can use the <a class="reference internal" href="#torchx.components.metrics.tensorboard" title="torchx.components.metrics.tensorboard"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.components.metrics.tensorboard()</span></code></a> component as
+part of your pipeline.</p>
 <p>See the <a class="reference internal" href="../examples_apps/lightning_classy_vision/train.html#trainer-app-example"><span class="std std-ref">Trainer App Example</span></a> for an example on how to use the PyTorch
 Lightning TensorboardLogger.</p>
-<p>A TorchX Tensorboard builtin component is being tracked via
-<a class="reference external" href="https://github.com/pytorch/torchx/issues/128">https://github.com/pytorch/torchx/issues/128</a>.</p>
 <section id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -383,6 +383,30 @@ Lightning TensorboardLogger.</p>
 <li><p>PyTorch Lightning Loggers <a class="reference external" href="https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html">https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html</a></p></li>
 </ul>
 </section>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.metrics.tensorboard">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.metrics.</span></span><span class="sig-name descname"><span class="pre">tensorboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logdir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.1dev0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">3600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">6006</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_on_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_on_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/metrics.html#tensorboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.metrics.tensorboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>This component runs a Tensorboard server which will render the logs
+specified by logdir.</p>
+<p>Since Tensorboard runs as a service you need to specify the termination
+conditions. This consists of a timeout as well as an optional
+<code class="docutils literal notranslate"><span class="pre">exit_on_file</span></code> which will cause the service to quit when that path is
+created.</p>
+<p>The files are periodically polled for existence via fsspec and will trigger
+the corresponding behavior when created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logdir</strong> – fsspec path to the Tensorboard logs</p></li>
+<li><p><strong>image</strong> – image to use</p></li>
+<li><p><strong>timeout</strong> – maximum time to run before exiting (seconds)</p></li>
+<li><p><strong>start_on_file</strong> – start the server when the fsspec path is created</p></li>
+<li><p><strong>exit_on_file</strong> – shutdown the server when the fsspec path is created</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

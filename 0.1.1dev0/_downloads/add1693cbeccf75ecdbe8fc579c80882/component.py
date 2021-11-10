@@ -5,8 +5,8 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-Trainer Component Examples
-==========================
+Trainer Examples Components
+====================================
 
 Component definitions that run the example lightning_classy_vision app
 in a single or distributed manner.
@@ -280,3 +280,6 @@ def interpret(
             )
         ],
     )
+
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-component.png'

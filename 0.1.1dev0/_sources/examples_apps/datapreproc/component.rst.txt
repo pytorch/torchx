@@ -9,8 +9,8 @@
     .. _sphx_glr_examples_apps_datapreproc_component.py:
 
 
-Datapreproc Component Example
-=============================
+Data Preprocessing Example Components
+======================================
 
 This is a component definition that runs the example datapreproc app.
 
@@ -73,6 +73,9 @@ This is a component definition that runs the example datapreproc app.
                 )
             ],
         )
+
+
+    # sphinx_gallery_thumbnail_path = '_static/img/gallery-component.png'
 
 
 .. rst-class:: sphx-glr-timing

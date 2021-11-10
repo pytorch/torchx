@@ -109,6 +109,9 @@ images via torchvision and then reuploads it via fsspec.
         main(sys.argv[1:])
 
 
+    # sphinx_gallery_thumbnail_path = '_static/img/gallery-app.png'
+
+
 .. rst-class:: sphx-glr-timing
 
    **Total running time of the script:** ( 0 minutes  0.000 seconds)

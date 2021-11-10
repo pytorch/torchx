@@ -257,3 +257,5 @@ with open("pipeline.yaml", "rt") as f:
 # Once this has all run you should have a pipeline file (typically
 # pipeline.yaml) that you can upload to your KFP cluster via the UI or
 # a kfp.Client.
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-kfp.png'

@@ -6,11 +6,10 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Pipelines Examples &mdash; PyTorch/TorchX main documentation</title>
+  <title>torchx.components.metrics &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -26,23 +25,21 @@
 
   
 
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Distributed KubeFlow Pipelines Example" href="kfp/dist_pipeline.html" />
-    <link rel="prev" title="Trainer Examples Components" href="../examples_apps/lightning_classy_vision/component.html" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -58,16 +55,16 @@
   
 
   
-  <script src="../_static/js/modernizr.min.js"></script>
+  <script src="../../../_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -220,7 +217,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -237,58 +234,58 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../examples_apps/index.html">Application Examples</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Pipelines Examples</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../components/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/slurm.html">Slurm</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Experimental Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -321,7 +318,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="../index.html">
+        <a href="../../../index.html">
           
             Docs
           
@@ -329,14 +326,12 @@
       </li>
 
         
-      <li>Pipelines Examples</li>
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>torchx.components.metrics</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
-        
-            
-            <a href="../_sources/examples_pipelines/index.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
-          
         
       </li>
     
@@ -356,26 +351,6 @@
 
         
   
-  <div class="pytorch-call-to-action-links">
-    <div id="tutorial-type">examples_pipelines/index</div>
-
-    <div id="torchx-google-colab-link">
-      <img class="call-to-action-img" src="../_static/images/pytorch-colab.svg"/>
-      <div class="call-to-action-desktop-view">Run in Google Colab</div>
-      <div class="call-to-action-mobile-view">Colab</div>
-    </div>
-    <div id="torchx-download-notebook-link">
-      <img class="call-to-action-notebook-img" src="../_static/images/pytorch-download.svg"/>
-      <div class="call-to-action-desktop-view">Download Notebook</div>
-      <div class="call-to-action-mobile-view">Notebook</div>
-    </div>
-    <div id="torchx-github-view-link">
-      <img class="call-to-action-img" src="../_static/images/pytorch-github.svg"/>
-      <div class="call-to-action-desktop-view">View on GitHub</div>
-      <div class="call-to-action-mobile-view">GitHub</div>
-    </div>
-  </div>
-  
 
   <!-- copied from pytorch_sphinx_theme -->
   
@@ -384,64 +359,102 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="pipelines-examples">
-<span id="sphx-glr-examples-pipelines"></span><h1>Pipelines Examples<a class="headerlink" href="#pipelines-examples" title="Permalink to this headline">¶</a></h1>
-<p>This contains examples of using TorchX components as part of pipelines.</p>
-<div class="sphx-glr-clear"></div><section id="kubeflow-pipelines-examples">
-<span id="sphx-glr-examples-pipelines-kfp"></span><h2>KubeFlow Pipelines Examples<a class="headerlink" href="#kubeflow-pipelines-examples" title="Permalink to this headline">¶</a></h2>
-<p>Each of these files is a python file that generates a Kubeflow Pipeline
-definition that uses TorchX components. The generated <code class="docutils literal notranslate"><span class="pre">pipeline.yaml</span></code> files
-can be uploaded to a KFP cluster to run the pipeline.</p>
-<div class="sphx-glr-thumbcontainer" tooltip="This is an example KFP pipeline that uses resource_from_app to launch a distributed operator us..."><figure class="align-default" id="id1">
-<img alt="Distributed KubeFlow Pipelines Example" src="../_images/sphx_glr_dist_pipeline_thumb.png" />
-<figcaption>
-<p><span class="caption-text"><a class="reference internal" href="kfp/dist_pipeline.html#sphx-glr-examples-pipelines-kfp-dist-pipeline-py"><span class="std std-ref">Distributed KubeFlow Pipelines Example</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div class="toctree-wrapper compound">
-</div>
-<div class="sphx-glr-thumbcontainer" tooltip="This an introductory pipeline using KubeFlow Pipelines built with only TorchX components."><figure class="align-default" id="id2">
-<img alt="Intro KubeFlow Pipelines Example" src="../_images/sphx_glr_intro_pipeline_thumb.png" />
-<figcaption>
-<p><span class="caption-text"><a class="reference internal" href="kfp/intro_pipeline.html#sphx-glr-examples-pipelines-kfp-intro-pipeline-py"><span class="std std-ref">Intro KubeFlow Pipelines Example</span></a></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div class="toctree-wrapper compound">
-</div>
-<div class="sphx-glr-thumbcontainer" tooltip="This is an example pipeline using KubeFlow Pipelines built with only TorchX components."><figure class="align-default" id="id3">
-<img alt="Advanced KubeFlow Pipelines Example" src="../_images/sphx_glr_advanced_pipeline_thumb.png" />
-<figcaption>
-<p><span class="caption-text"><a class="reference internal" href="kfp/advanced_pipeline.html#sphx-glr-examples-pipelines-kfp-advanced-pipeline-py"><span class="std std-ref">Advanced KubeFlow Pipelines Example</span></a></span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-</div><div class="toctree-wrapper compound">
-</div>
-<div class="sphx-glr-clear"></div><div class="sphx-glr-footer class sphx-glr-footer-gallery docutils container">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/3d78ac59c117d4c58eca135c8ee3f34a/examples_pipelines_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">examples_pipelines_python.zip</span></code></a></p>
-</div>
-<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/7e7e4caf540a83f1776a6e62b5c440ff/examples_pipelines_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">examples_pipelines_jupyter.zip</span></code></a></p>
-</div>
-</div>
-<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</section>
-</section>
+  <h1>Source code for torchx.components.metrics</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the BSD-style license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">For metrics we recommend using Tensorboard to log metrics directly to cloud</span>
+<span class="sd">storage along side your model. As the model trains you can use launch a</span>
+<span class="sd">tensorboard instance locally to monitor your model progress:</span>
+
+<span class="sd">.. code-block:: shell-session</span>
+
+<span class="sd"> $ tensorboard --log-dir provider://path/to/logs</span>
+
+<span class="sd">Or you can use the :py:meth:`torchx.components.metrics.tensorboard` component as</span>
+<span class="sd">part of your pipeline.</span>
+
+<span class="sd">See the :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example` for an example on how to use the PyTorch</span>
+<span class="sd">Lightning TensorboardLogger.</span>
+
+<span class="sd">Reference</span>
+<span class="sd">----------------</span>
+
+<span class="sd">* PyTorch Tensorboard Tutorial https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html</span>
+<span class="sd">* PyTorch Lightning Loggers https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">torchx</span>
+<span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+
+
+<div class="viewcode-block" id="tensorboard"><a class="viewcode-back" href="../../../components/metrics.html#torchx.components.metrics.tensorboard">[docs]</a><span class="k">def</span> <span class="nf">tensorboard</span><span class="p">(</span>
+    <span class="n">logdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span>  <span class="c1"># 1 hour</span>
+    <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6006</span><span class="p">,</span>
+    <span class="n">start_on_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">exit_on_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This component runs a Tensorboard server which will render the logs</span>
+<span class="sd">    specified by logdir.</span>
+
+<span class="sd">    Since Tensorboard runs as a service you need to specify the termination</span>
+<span class="sd">    conditions. This consists of a timeout as well as an optional</span>
+<span class="sd">    ``exit_on_file`` which will cause the service to quit when that path is</span>
+<span class="sd">    created.</span>
+
+<span class="sd">    The files are periodically polled for existence via fsspec and will trigger</span>
+<span class="sd">    the corresponding behavior when created.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        logdir: fsspec path to the Tensorboard logs</span>
+<span class="sd">        image: image to use</span>
+<span class="sd">        timeout: maximum time to run before exiting (seconds)</span>
+<span class="sd">        start_on_file: start the server when the fsspec path is created</span>
+<span class="sd">        exit_on_file: shutdown the server when the fsspec path is created</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
+        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;torchx.apps.utils.process_monitor&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--timeout&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">timeout</span><span class="p">),</span>
+                    <span class="s2">&quot;--start_on_file&quot;</span><span class="p">,</span>
+                    <span class="n">start_on_file</span><span class="p">,</span>
+                    <span class="s2">&quot;--exit_on_file&quot;</span><span class="p">,</span>
+                    <span class="n">exit_on_file</span><span class="p">,</span>
+                    <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--bind_all&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--port&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
+                    <span class="s2">&quot;--logdir&quot;</span><span class="p">,</span>
+                    <span class="n">logdir</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">port_map</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;http&quot;</span><span class="p">:</span> <span class="n">port</span><span class="p">},</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">)</span></div>
+</pre></div>
 
      </article>
      
     </div>
     <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="kfp/dist_pipeline.html" class="btn btn-neutral float-right" title="Distributed KubeFlow Pipelines Example" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="../examples_apps/lightning_classy_vision/component.html" class="btn btn-neutral" title="Trainer Examples Components" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -470,15 +483,7 @@ can be uploaded to a KFP cluster to run the pipeline.</p>
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              <ul>
-<li><a class="reference internal" href="#">Pipelines Examples</a><ul>
-<li><a class="reference internal" href="#kubeflow-pipelines-examples">KubeFlow Pipelines Examples</a><ul>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
+              
             </div>
           </div>
         </div>
@@ -491,24 +496,24 @@ can be uploaded to a KFP cluster to run the pipeline.</p>
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-         <script src="../_static/jquery.js"></script>
-         <script src="../_static/underscore.js"></script>
-         <script src="../_static/doctools.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
-         <script src="../_static/katex_autorenderer.js"></script>
+         <script src="../../../_static/katex_autorenderer.js"></script>
          <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-         <script src="../_static/js/torchx.js"></script>
+         <script src="../../../_static/js/torchx.js"></script>
      
 
   
 
-  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -620,7 +625,7 @@ can be uploaded to a KFP cluster to run the pipeline.</p>
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="../_static/images/pytorch-x.svg">
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -735,7 +740,7 @@ can be uploaded to a KFP cluster to run the pipeline.</p>
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {

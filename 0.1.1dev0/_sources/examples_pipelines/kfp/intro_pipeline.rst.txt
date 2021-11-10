@@ -88,6 +88,12 @@ See the :ref:`examples_pipelines/kfp/advanced_pipeline:Advanced KubeFlow Pipelin
 components together and use builtin components.
 
 
+.. code-block:: default
+
+
+    # sphinx_gallery_thumbnail_path = '_static/img/gallery-kfp.png'
+
+
 .. rst-class:: sphx-glr-timing
 
    **Total running time of the script:** ( 0 minutes  0.000 seconds)

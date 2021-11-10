@@ -61,6 +61,9 @@ output is used for HPO optimization with Ax.
             return ""
 
 
+    # sphinx_gallery_thumbnail_path = '_static/img/gallery-lib.png'
+
+
 .. rst-class:: sphx-glr-timing
 
    **Total running time of the script:** ( 0 minutes  0.000 seconds)

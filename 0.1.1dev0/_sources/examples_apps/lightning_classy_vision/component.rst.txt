@@ -9,8 +9,8 @@
     .. _sphx_glr_examples_apps_lightning_classy_vision_component.py:
 
 
-Trainer Component Examples
-==========================
+Trainer Examples Components
+====================================
 
 Component definitions that run the example lightning_classy_vision app
 in a single or distributed manner.
@@ -297,6 +297,9 @@ And use the following cmd to try out:
                 )
             ],
         )
+
+
+    # sphinx_gallery_thumbnail_path = '_static/img/gallery-component.png'
 
 
 .. rst-class:: sphx-glr-timing

@@ -7,6 +7,11 @@
 Application Examples
 ====================
 
+This contains the example applications and component definitions for TorchX.
+These components and apps can be launched by themselves or part of a pipeline.
+
+See the Pipelines Examples for how to use the components in a pipeline.
+
 
 .. raw:: html
 
@@ -19,6 +24,12 @@ Application Examples
 Data Preprocessing Example
 ##########################
 
+This is a simple TorchX app that downloads some data via HTTP, normalizes the
+images via torchvision and then reuploads it via fsspec.
+
+This examples has two Python files: the app which actually does the
+preprocessing and the component definition which can be used with TorchX to
+launch the app.
 
 
 
@@ -29,7 +40,7 @@ Data Preprocessing Example
 .. only:: html
 
  .. figure:: /examples_apps/datapreproc/images/thumb/sphx_glr_component_thumb.png
-     :alt: Datapreproc Component Example
+     :alt: Data Preprocessing Example Components
 
      :ref:`sphx_glr_examples_apps_datapreproc_component.py`
 
@@ -73,6 +84,15 @@ Data Preprocessing Example
 
 Lightning + Classy Vision Trainer Example
 #########################################
+
+This example consists of model training and interpretability apps that uses
+PyTorch Lightning and ClassyVision. The apps have shared logic so are split
+across several files.
+
+You can see the different component definitions for the apps in the components
+file.
+
+
 
 
 
@@ -188,7 +208,7 @@ Lightning + Classy Vision Trainer Example
 .. only:: html
 
  .. figure:: /examples_apps/lightning_classy_vision/images/thumb/sphx_glr_component_thumb.png
-     :alt: Trainer Component Examples
+     :alt: Trainer Examples Components
 
      :ref:`sphx_glr_examples_apps_lightning_classy_vision_component.py`
 
