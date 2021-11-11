@@ -222,10 +222,9 @@ class GetBuiltinSourceTest(unittest.TestCase):
         runner = get_runner()
         app_handle = runner.run_component(
             scheduler="local_cwd",
-            component_name=f"{str(echo_copy)}:echo",
-            app_args=["--msg", "hello world"],
+            component=f"{str(echo_copy)}:echo",
+            component_args=["--msg", "hello world"],
         )
-        # pyre-ignore[6]: remove this line after https://github.com/pytorch/torchx/issues/331
         status = runner.wait(app_handle, wait_interval=0.1)
         self.assertIsNotNone(status)
         self.assertEqual(AppState.SUCCEEDED, status.state)
@@ -249,15 +248,14 @@ class GetBuiltinSourceTest(unittest.TestCase):
         app_handle = runner.run_component(
             scheduler="local_cwd",
             cfg=RunConfig({"prepend_cwd": True}),
-            component_name=f"{str(booth_copy)}:booth",
-            app_args=[
+            component=f"{str(booth_copy)}:booth",
+            component_args=[
                 "--x1=1",
                 "--x2=3",
                 f"--trial_idx={trial_idx}",
                 f"--tracker_base={tracker_base}",
             ],
         )
-        # pyre-ignore[6]: remove this line after https://github.com/pytorch/torchx/issues/331
         status = runner.wait(app_handle, wait_interval=0.1)
         self.assertIsNotNone(status)
         self.assertEqual(AppState.SUCCEEDED, status.state)

@@ -11,7 +11,7 @@ import sys
 import threading
 from dataclasses import asdict
 from pprint import pformat
-from typing import Dict, List, Optional, Type, cast
+from typing import Dict, List, Optional, Type
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
@@ -129,7 +129,7 @@ class CmdRun(SubCommand):
             nargs=argparse.REMAINDER,
         )
 
-    def _run(self, runner: Runner, args: argparse.Namespace) -> Optional[str]:
+    def _run(self, runner: Runner, args: argparse.Namespace) -> None:
         if args.scheduler == "local":
             logger.warning(
                 "`local` scheduler is deprecated and will be"
@@ -153,18 +153,41 @@ class CmdRun(SubCommand):
         # parse component arguments.
         conf_file, conf_args = args.conf_args[0], args.conf_args[1:]
         try:
-            result = runner.run_component(
-                conf_file,
-                conf_args,
-                args.scheduler,
-                cfg,
-                dryrun=args.dryrun,
-            )
+            if args.dryrun:
+                dryrun_info = runner.dryrun_component(
+                    conf_file, conf_args, args.scheduler, cfg
+                )
+                logger.info(
+                    "\n=== APPLICATION ===\n"
+                    f"{pformat(asdict(dryrun_info._app), indent=2, width=80)}"
+                )
+
+                logger.info("\n=== SCHEDULER REQUEST ===\n" f"{dryrun_info}")
+            else:
+                app_handle = runner.run_component(
+                    conf_file,
+                    conf_args,
+                    args.scheduler,
+                    cfg,
+                )
+                # DO NOT delete this line. It is used by slurm tests to retrieve the app id
+                print(app_handle)
+
+                if args.scheduler.startswith("local"):
+                    self._wait_and_exit(runner, app_handle, log=True)
+                else:
+                    logger.info(f"Launched app: {app_handle}")
+                    status = runner.status(app_handle)
+                    logger.info(status)
+                    logger.info(f"Job URL: {none_throws(status).ui_url}")
+
+                    if args.wait:
+                        self._wait_and_exit(runner, app_handle, log=args.log)
+
         except (ComponentValidationException, ComponentNotFoundException) as e:
             error_msg = f"\nFailed to run component `{conf_file}` got errors: \n {e}"
             logger.error(error_msg)
             sys.exit(1)
-            return
         except specs.InvalidRunConfigException as e:
             error_msg = (
                 f"Scheduler arg is incorrect or missing required option: `{e.cfg_key}`\n"
@@ -174,33 +197,6 @@ class CmdRun(SubCommand):
             )
             logger.error(error_msg)
             sys.exit(1)
-            return
-
-        if args.dryrun:
-            app_dryrun_info = cast(specs.AppDryRunInfo, result)
-            logger.info(
-                "\n=== APPLICATION ===\n"
-                f"{pformat(asdict(app_dryrun_info._app), indent=2, width=80)}"
-            )
-
-            logger.info("\n=== SCHEDULER REQUEST ===\n" f"{app_dryrun_info}")
-            return
-        else:
-            app_handle = cast(specs.AppHandle, result)
-            # do not delete this line. It is used by slurm tests to retrieve the app id
-            print(app_handle)
-
-            if args.scheduler.startswith("local"):
-                self._wait_and_exit(runner, app_handle, log=True)
-            else:
-                logger.info(f"Launched app: {app_handle}")
-                status = runner.status(app_handle)
-                logger.info(status)
-                logger.info(f"Job URL: {none_throws(status).ui_url}")
-
-                if args.wait:
-                    self._wait_and_exit(runner, app_handle, log=args.log)
-            return app_handle
 
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
