@@ -373,18 +373,19 @@ class RunnerTest(unittest.TestCase):
             local_sched_mock.submit.called_once_with(app, cfg)
 
     def test_run_from_module(self, _) -> None:
-        local_sched_mock = MagicMock()
-        schedulers = {"local_dir": local_sched_mock, "local": local_sched_mock}
-        with Runner(name="test_session", schedulers=schedulers) as runner:
-            app_args = ["--image", "dummy_image", "--script", "test.py"]
-            with patch.object(runner, "run") as run_mock:
-                _ = runner.run_component("dist.ddp", app_args, "local")
-                args, kwargs = run_mock.call_args
-                actual_app = args[0]
+        runner = get_runner(name="test_session")
+        app_args = ["--image", "dummy_image", "--script", "test.py"]
+        with patch.object(runner, "schedule") as schedule_mock, patch.object(
+            runner, "dryrun"
+        ) as dryrun_mock:
+            _ = runner.run_component("dist.ddp", app_args, "local")
+            args, kwargs = dryrun_mock.call_args
+            actual_app = args[0]
 
-            self.assertEqual(actual_app.name, "test")
-            self.assertEqual(1, len(actual_app.roles))
-            self.assertEqual("test", actual_app.roles[0].name)
+        print(actual_app)
+        self.assertEqual(actual_app.name, "test")
+        self.assertEqual(1, len(actual_app.roles))
+        self.assertEqual("test", actual_app.roles[0].name)
 
     def test_run_from_file_no_function_found(self, _) -> None:
         local_sched_mock = MagicMock()
