@@ -293,7 +293,7 @@ if has_ray():
             return ray_scheduler
 
         def schedule_ray_job(self,ray_scheduler, app_id="123") -> str:
-            ray_job = RayJob(app_id=app_id)
+            ray_job = RayJob(app_id=app_id, copy_scripts=True, scripts=set(["train.py"]))
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
             return job_id
