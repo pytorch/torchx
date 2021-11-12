@@ -16,6 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from .ray.ray_common import RayActor
 from shutil import copy2
 import fnmatch
+import pathlib
 
 
 # try:
@@ -58,10 +59,13 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actors : List[RayActor], output_filename='actors') -> None:
+def serialize(actors : List[RayActor], dirpath, output_filename='actors') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
     with NamedTemporaryFile(mode="w", prefix=output_filename, suffix=".json") as tmp:
+        print(tmp.name)
         json.dump(actors_json, tmp)
+        copy2(tmp.name, dirpath)
+
 
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
@@ -97,6 +101,7 @@ class RayJob:
     app_id: str
     cluster_config_file: Optional[str] = None
     cluster_name: Optional[str] = None
+    cluster_address: Optional[str] = None
     copy_scripts: bool = False
     copy_script_dirs: bool = False
     scripts: Set[str] = field(default_factory=set)
@@ -159,7 +164,10 @@ class RayScheduler(Scheduler):
 
         # Create serialized actors for ray_driver.py
         actors = cfg.actors
-        serialize(actors)
+
+        dirpath = mkdtemp()
+
+        serialize(actors, dirpath)
         
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
@@ -177,7 +185,6 @@ class RayScheduler(Scheduler):
 
         # TODO: would be nice to have support for multiple directories in ray runtime_env directly
         # 1. Copy scripts and directories
-        dirpath = mkdtemp()
         if cfg.scripts:
             for script in cfg.scripts:
                 if cfg.copy_script_dirs:
@@ -187,17 +194,23 @@ class RayScheduler(Scheduler):
                     copy2(script,dirpath)
 
         # 2. Copy Ray driver utilities
-        copy2("./ray", dirpath)
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        copy2(os.path.join(current_directory,"ray", "ray_driver.py"), dirpath)
+        copy2(os.path.join(current_directory,"ray", "ray_common.py"), dirpath)
+
 
         # 3. Copy actor.json
-        actor_path = find_file("actor", "/tmp")
-        copy2(actor_path, dirpath)
+        # actor_path = find_file("actor", "/tmp")
+        # print("ACTOR PATH")
+        # print(f"actor path: {actor_path}")
+        # copy2(actor_path, dirpath)
 
         job_id : str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
             entrypoint=f"python {entrypoint}",
-            runtime_env={"working_dir" : dirpath}
+            runtime_env={"working_dir" : dirpath},
+            job_id = cfg.app_id
         )
 
         return job_id
@@ -288,7 +301,7 @@ class RayScheduler(Scheduler):
     def log_iter(
         self,
         app_id: str,
-        role_name: str,
+        role_name: Optional[str] = None,
         k: int = 0,
         regex: Optional[str] = None,
         since: Optional[datetime] = None,
@@ -297,8 +310,8 @@ class RayScheduler(Scheduler):
         streams: Optional[Stream] = None,
     ) -> List[str]:
         # TODO: support regex, tailing, streams etc..
-        stdout, stderr = self.client.get_job_logs(app_id)
-        return [stdout, stderr]
+        logs = self.client.get_job_logs(app_id)
+        return logs
  
 
 

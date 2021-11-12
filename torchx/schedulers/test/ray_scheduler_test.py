@@ -280,8 +280,8 @@ if has_ray():
 
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
-            stdout, stderr = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
-            assert (stdout and stderr) is not None
+            logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
+            assert logs is not None
             self.teardown_ray_cluster()
 
 
@@ -297,6 +297,9 @@ if has_ray():
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
             return job_id
+        
+        def describe(self, ray_scheduler, app_id="123"):
+            return ray_scheduler.describe(app_id)
 
         def check_logs(self, ray_scheduler,app_id="123") -> List[str]:
             stdout, stderr = ray_scheduler.log_iter(app_id=app_id)
