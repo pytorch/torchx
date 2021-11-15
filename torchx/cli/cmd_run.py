@@ -19,6 +19,7 @@ from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
 from torchx.runner import Runner, config, get_runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
+from torchx.specs import CfgVal
 from torchx.specs.finder import (
     ComponentNotFoundException,
     ComponentValidationException,
@@ -33,8 +34,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 def _convert_to_option_type(
-    value: str, option_type: Type[specs.ConfigValue]
-) -> specs.ConfigValue:
+    value: str, option_type: Type[specs.CfgVal]
+) -> specs.CfgVal:
     if option_type == bool:
         return value.lower() == "true"
     elif option_type == List[str]:
@@ -44,8 +45,8 @@ def _convert_to_option_type(
         return option_type(value)
 
 
-def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfig:
-    conf = specs.RunConfig()
+def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> Dict[str, CfgVal]:
+    conf: Dict[str, CfgVal] = {}
     if not arg:
         return conf
 
@@ -55,8 +56,7 @@ def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfi
             raise ValueError(f"Unknown {key}, run `torchx runopts` for more info")
         option_type = option.opt_type
         typed_value = _convert_to_option_type(value, option_type)
-        conf.set(key, typed_value)
-
+        conf[key] = typed_value
     return conf
 
 

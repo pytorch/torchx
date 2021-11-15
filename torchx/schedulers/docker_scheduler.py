@@ -10,7 +10,7 @@ import os.path
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, List, Union
+from typing import Mapping, TYPE_CHECKING, Any, Dict, Iterable, Optional, List, Union
 
 import torchx
 import yaml
@@ -28,11 +28,11 @@ from torchx.specs.api import (
     ReplicaStatus,
     Role,
     RoleStatus,
-    RunConfig,
     SchedulerBackend,
     macros,
     runopts,
     is_terminal,
+    CfgVal,
 )
 
 if TYPE_CHECKING:
@@ -173,7 +173,9 @@ class DockerScheduler(Scheduler):
 
         return req.app_id
 
-    def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[DockerJob]:
+    def _submit_dryrun(
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
+    ) -> AppDryRunInfo[DockerJob]:
         from docker.types import DeviceRequest
 
         default_env = {}

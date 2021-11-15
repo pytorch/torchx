@@ -8,22 +8,22 @@ import inspect
 import time
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from string import Template
 from types import ModuleType
-from typing import List, Optional, Tuple, Type, Callable, cast
+from typing import Callable, List, Mapping, Optional, Tuple, Type, cast
 
 from pyre_extensions import none_throws
 from torchx.components.component_test_base import ComponentUtils
 from torchx.components.integration_tests.component_provider import ComponentProvider
-from torchx.specs import RunConfig, SchedulerBackend, AppDef
+from torchx.specs import AppDef, CfgVal, SchedulerBackend
 
 
 @dataclass
 class SchedulerInfo:
     name: SchedulerBackend
     image: str
-    runconfig: RunConfig
+    cfg: Mapping[str, CfgVal] = field(default_factory=dict)
 
 
 @dataclass
@@ -186,7 +186,7 @@ class IntegComponentTest:
             ComponentUtils.run_appdef_on_scheduler(
                 provider.get_app_def(),
                 scheduler_info.name,
-                scheduler_info.runconfig,
+                scheduler_info.cfg,
                 dryrun,
             )
         finally:

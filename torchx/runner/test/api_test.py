@@ -25,7 +25,6 @@ from torchx.specs.api import (
     AppState,
     Resource,
     Role,
-    RunConfig,
     UnknownAppException,
 )
 from torchx.specs.finder import ComponentNotFoundException
@@ -59,7 +58,7 @@ class RunnerTest(unittest.TestCase):
         self.scheduler = LocalScheduler(
             SESSION_NAME, image_provider_class=LocalDirectoryImageProvider
         )
-        self.cfg = RunConfig({})
+        self.cfg = {}
 
         # resource ignored for local scheduler; adding as an example
 
@@ -368,14 +367,13 @@ class RunnerTest(unittest.TestCase):
                 args=["60"],
             )
             app = AppDef("sleeper", roles=[role])
-            cfg = RunConfig()
-            runner.run(app, scheduler="local", cfg=cfg)
-            local_sched_mock.submit.called_once_with(app, cfg)
+            runner.run(app, scheduler="local")
+            local_sched_mock.submit.called_once_with(app, {})
 
     def test_run_from_module(self, _) -> None:
         runner = get_runner(name="test_session")
         app_args = ["--image", "dummy_image", "--script", "test.py"]
-        with patch.object(runner, "schedule") as schedule_mock, patch.object(
+        with patch.object(runner, "schedule"), patch.object(
             runner, "dryrun"
         ) as dryrun_mock:
             _ = runner.run_component("dist.ddp", app_args, "local")
@@ -392,7 +390,7 @@ class RunnerTest(unittest.TestCase):
         schedulers = {"local_dir": local_sched_mock, "local": local_sched_mock}
         with Runner(name="test_session", schedulers=schedulers) as runner:
             component_path = get_full_path("distributed.py")
-            with patch.object(runner, "run") as run_mock:
+            with patch.object(runner, "run"):
                 with self.assertRaises(ComponentNotFoundException):
                     runner.run_component(
                         f"{component_path}:unknown_function", [], "local"

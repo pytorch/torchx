@@ -17,7 +17,7 @@ import torchx.specs.finder as finder
 from pyre_extensions import none_throws
 from torchx.runner import get_runner
 from torchx.runtime.tracking import FsspecResultTracker
-from torchx.specs.api import AppDef, AppState, Role, RunConfig
+from torchx.specs.api import AppDef, AppState, Role
 from torchx.specs.finder import (
     ComponentNotFoundException,
     ComponentValidationException,
@@ -247,7 +247,7 @@ class GetBuiltinSourceTest(unittest.TestCase):
 
         app_handle = runner.run_component(
             scheduler="local_cwd",
-            cfg=RunConfig({"prepend_cwd": True}),
+            cfg={"prepend_cwd": True},
             component=f"{str(booth_copy)}:booth",
             component_args=[
                 "--x1=1",

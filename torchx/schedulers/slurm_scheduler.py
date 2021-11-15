@@ -19,16 +19,16 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
-from torchx.specs.api import (
+from torchx.specs import (
     NONE,
     AppDef,
     AppState,
+    CfgVal,
+    ReplicaStatus,
     Role,
-    RunConfig,
+    RoleStatus,
     SchedulerBackend,
     macros,
-    RoleStatus,
-    ReplicaStatus,
     runopts,
 )
 
@@ -76,8 +76,10 @@ class SlurmReplicaRequest:
     env: Dict[str, str]
 
     @classmethod
-    def from_role(cls, name: str, role: Role, cfg: RunConfig) -> "SlurmReplicaRequest":
-        sbatch_opts = {k: str(v) for k, v in cfg.cfgs.items() if v is not None}
+    def from_role(
+        cls, name: str, role: Role, cfg: Mapping[str, CfgVal]
+    ) -> "SlurmReplicaRequest":
+        sbatch_opts = {k: str(v) for k, v in cfg.items() if v is not None}
         sbatch_opts.setdefault("ntasks-per-node", "1")
         resource = role.resource
 
@@ -234,7 +236,7 @@ class SlurmScheduler(Scheduler):
             return p.stdout.decode("utf-8").strip()
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: RunConfig
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[SlurmBatchRequest]:
         replicas = {}
         for role in app.roles:
