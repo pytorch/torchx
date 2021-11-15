@@ -21,6 +21,8 @@ Before executing examples, install torchx and dependencies necessary to run exam
    pip install torchx
    git clone https://github.com/pytorch/torchx.git
    cd torchx
+   torchx --version # prints torchx-0.1.1
+   git checkout v0.1.1
    pip install -r dev-requirements.txt
 
 .. note::
@@ -50,7 +52,7 @@ from torchx.specs import Resource, macros, named_resources
 #
 #    torchx run --scheduler local_cwd \
 #    ./torchx/examples/apps/lightning_classy_vision/component.py:trainer \
-#    --output_path /tmp
+#    --output_path /tmp --skip_export True
 #
 # Single trainer component code:
 
