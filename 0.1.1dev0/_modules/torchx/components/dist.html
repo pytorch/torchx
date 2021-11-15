@@ -397,7 +397,7 @@
 <span class="sd">    $ torchx run -s local_cwd dist.ddp -j 1x4 --script main.py</span>
 
 <span class="sd">    # locally, 2 node x 4 workers (8 total)</span>
-<span class="sd">    # remote (needs you to start a local etcd server on port 2379!)</span>
+<span class="sd">    # remote (needs you to start a local etcd server on port 2379! and have a `python-etcd` library installed)</span>
 <span class="sd">    $ torchx run -s local_cwd dist.ddp</span>
 <span class="sd">        -j 2x4 \\</span>
 <span class="sd">        --rdzv_endpoint localhost:2379 \\</span>
@@ -437,17 +437,11 @@
 
 <span class="sd">.. code:: shell-session</span>
 
-<span class="sd">   $ torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
+<span class="sd">   $ torchx run -s local_docker ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\</span>
 <span class="sd">        --nnodes 2 \\</span>
 <span class="sd">        --nproc_per_node 2 \\</span>
 <span class="sd">        --rdzv_backend c10d \\</span>
 <span class="sd">        --rdzv_endpoint localhost:29500</span>
-
-
-<span class="sd">.. warning:: There is a known issue with ``local_docker`` (the default scheduler when no ``-s``</span>
-<span class="sd">             argument is supplied), hence we use ``-s local_cwd`` instead. Please track</span>
-<span class="sd">             the progress of the fix on `issue-286 &lt;https://github.com/pytorch/torchx/issues/286&gt;`_,</span>
-<span class="sd">             `issue-287 &lt;https://github.com/pytorch/torchx/issues/287&gt;`_.</span>
 
 
 <span class="sd">Remote Launching</span>

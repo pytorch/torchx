@@ -388,7 +388,7 @@ training script is called <code class="docutils literal notranslate"><span class
 <span class="gp">$ </span>torchx run -s local_cwd dist.ddp -j 1x4 --script main.py
 
 <span class="gp"># </span>locally, <span class="m">2</span> node x <span class="m">4</span> workers <span class="o">(</span><span class="m">8</span> total<span class="o">)</span>
-<span class="gp"># </span>remote <span class="o">(</span>needs you to start a <span class="nb">local</span> etcd server on port <span class="m">2379</span>!<span class="o">)</span>
+<span class="gp"># </span>remote <span class="o">(</span>needs you to start a <span class="nb">local</span> etcd server on port <span class="m">2379</span>! and have a <span class="sb">`</span>python-etcd<span class="sb">`</span> library installed<span class="o">)</span>
 <span class="gp">$ </span>torchx run -s local_cwd dist.ddp
 <span class="go">    -j 2x4 \</span>
 <span class="go">    --rdzv_endpoint localhost:2379 \</span>
@@ -424,19 +424,12 @@ replica (<code class="docutils literal notranslate"><span class="pre">--nodes</s
 as the main entrypoint of each node, which in turn spawns <code class="docutils literal notranslate"><span class="pre">--nprocs_per_node</span></code> number
 of trainers. In total you’ll see <code class="docutils literal notranslate"><span class="pre">nnodes*nprocs_per_node</span></code> trainer processes and <code class="docutils literal notranslate"><span class="pre">nnodes</span></code>
 elastic agent procesess created on your local host.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_docker ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist <span class="se">\</span>
      --nnodes <span class="m">2</span> <span class="se">\</span>
      --nproc_per_node <span class="m">2</span> <span class="se">\</span>
      --rdzv_backend c10d <span class="se">\</span>
      --rdzv_endpoint localhost:29500
 </pre></div>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>There is a known issue with <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> (the default scheduler when no <code class="docutils literal notranslate"><span class="pre">-s</span></code>
-argument is supplied), hence we use <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">local_cwd</span></code> instead. Please track
-the progress of the fix on <a class="reference external" href="https://github.com/pytorch/torchx/issues/286">issue-286</a>,
-<a class="reference external" href="https://github.com/pytorch/torchx/issues/287">issue-287</a>.</p>
 </div>
 </section>
 <section id="remote-launching">

@@ -400,6 +400,8 @@ in a single or distributed manner.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install torchx
 git clone https://github.com/pytorch/torchx.git
 <span class="nb">cd</span> torchx
+torchx --version <span class="c1"># prints torchx-0.1.1</span>
+git checkout v0.1.1
 pip install -r dev-requirements.txt
 </pre></div>
 </div>
@@ -422,7 +424,7 @@ pip install -r dev-requirements.txt
 <p>Use the following cmd to try out:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd <span class="se">\</span>
 ./torchx/examples/apps/lightning_classy_vision/component.py:trainer <span class="se">\</span>
---output_path /tmp
+--output_path /tmp --skip_export True
 </pre></div>
 </div>
 <p>Single trainer component code:</p>
