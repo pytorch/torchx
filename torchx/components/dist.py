@@ -35,7 +35,7 @@ training script is called ``main.py``, launch it as:
     $ torchx run -s local_cwd dist.ddp -j 1x4 --script main.py
 
     # locally, 2 node x 4 workers (8 total)
-    # remote (needs you to start a local etcd server on port 2379!)
+    # remote (needs you to start a local etcd server on port 2379! and have a `python-etcd` library installed)
     $ torchx run -s local_cwd dist.ddp
         -j 2x4 \\
         --rdzv_endpoint localhost:2379 \\
@@ -75,17 +75,11 @@ elastic agent procesess created on your local host.
 
 .. code:: shell-session
 
-   $ torchx run -s local_cwd ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
+   $ torchx run -s local_docker ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
         --nnodes 2 \\
         --nproc_per_node 2 \\
         --rdzv_backend c10d \\
         --rdzv_endpoint localhost:29500
-
-
-.. warning:: There is a known issue with ``local_docker`` (the default scheduler when no ``-s``
-             argument is supplied), hence we use ``-s local_cwd`` instead. Please track
-             the progress of the fix on `issue-286 <https://github.com/pytorch/torchx/issues/286>`_,
-             `issue-287 <https://github.com/pytorch/torchx/issues/287>`_.
 
 
 Remote Launching
