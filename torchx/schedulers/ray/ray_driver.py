@@ -35,7 +35,7 @@ def load_actor_json(filename : str) -> List[RayActor]:
 
 def _main(job_id = None):
     print("Reading actor.json")
-    actors_dict = load_actor_json(str.startswith('actor'))
+    actors_dict = load_actor_json('actors.json')
     pgs = []
     ray.init(address="auto", namespace="torchx-ray")
 

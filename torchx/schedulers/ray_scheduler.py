@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from .ray.ray_common import RayActor
-from shutil import copy2
+from shutil import copy2, rmtree
 import fnmatch
 import pathlib
 
@@ -59,12 +59,10 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return dataclasses.asdict(o)
             return super().default(o)
 
-def serialize(actors : List[RayActor], dirpath, output_filename='actors') -> None:
+def serialize(actors : List[RayActor], dirpath, output_filename='actors.json') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
-    with NamedTemporaryFile(mode="w", prefix=output_filename, suffix=".json") as tmp:
+    with open(os.path.join(dirpath, output_filename), 'w') as tmp:
         json.dump(actors_json, tmp)
-        copy2(tmp.name, dirpath)
-
 
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
@@ -188,6 +186,8 @@ class RayScheduler(Scheduler):
             runtime_env={"working_dir" : dirpath},
             # job_id = cfg.app_id
         )
+
+        rmtree(dirpath)
 
         return job_id
 
