@@ -41,6 +41,6 @@ class CopyTest(unittest.TestCase):
     def test_different_fs(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             src = "memory://foo"
-            dst = "file://" + os.path.join(tmpdir, "bar")
+            dst = "file://" + os.path.join(tmpdir, "foo", "bar")
 
             self._copy(src, dst)
