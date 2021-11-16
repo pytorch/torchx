@@ -368,7 +368,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">ax.core</span> <span class="kn">import</span> <span class="n">Trial</span>
@@ -382,7 +382,7 @@
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">Runner</span><span class="p">,</span> <span class="n">get_runner</span>
 <span class="kn">from</span> <span class="nn">torchx.runtime.tracking</span> <span class="kn">import</span> <span class="n">FsspecResultTracker</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">AppStatus</span><span class="p">,</span> <span class="n">RunConfig</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppState</span><span class="p">,</span> <span class="n">AppStatus</span><span class="p">,</span> <span class="n">CfgVal</span>
 
 
 <span class="n">_TORCHX_APP_HANDLE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx_app_handle&quot;</span>
@@ -529,11 +529,11 @@
         <span class="n">component</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span>
         <span class="n">component_const_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
-        <span class="n">scheduler_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">scheduler</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">scheduler_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cfg</span>
         <span class="c1"># need to use the same runner in case it has state</span>
         <span class="c1"># e.g. torchx&#39;s local_scheduler has state hence need to poll status</span>
         <span class="c1"># on the same scheduler instance</span>
@@ -564,9 +564,7 @@
             <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;tracker_base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracker_base</span>
 
         <span class="n">appdef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
-        <span class="n">app_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_torchx_runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="n">appdef</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_args</span>
-        <span class="p">)</span>
+        <span class="n">app_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_torchx_runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">appdef</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">_TORCHX_APP_HANDLE</span><span class="p">:</span> <span class="n">app_handle</span><span class="p">,</span>
             <span class="n">_TORCHX_RUNNER</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_torchx_runner</span><span class="p">,</span>

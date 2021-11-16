@@ -368,7 +368,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">You can store the scheduler :py:class:`torchx.specs.RunConfig` for your project</span>
+<span class="sd">You can store the scheduler run cfg (run configs) for your project</span>
 <span class="sd">by storing them in the ``.torchxconfig`` file. Currently this file is only read</span>
 <span class="sd">and honored when running the component from the CLI.</span>
 
@@ -446,8 +446,7 @@
 <span class="sd">    pass</span>
 
 <span class="sd"> scheduler = &quot;local_cwd&quot;</span>
-<span class="sd"> cfg = specs.RunConfig()</span>
-<span class="sd"> cfg.set(&quot;log_dir&quot;, &quot;/these/take/outmost/precedence&quot;)</span>
+<span class="sd"> cfg = {&quot;log_dir&quot;: &quot;/these/take/outmost/precedence&quot;}</span>
 
 <span class="sd"> apply(scheduler, cfg, dirs=[&quot;/home/bob&quot;])  # looks for /home/bob/.torchxconfig</span>
 <span class="sd"> get_runner().run(my_component(1), scheduler, cfg)</span>
@@ -459,10 +458,10 @@
 <span class="kn">import</span> <span class="nn">configparser</span> <span class="k">as</span> <span class="nn">configparser</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
 
 <span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">Scheduler</span><span class="p">,</span> <span class="n">get_schedulers</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">get_type_name</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">get_type_name</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">runopt</span>
 
 
@@ -565,7 +564,9 @@
     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">space_around_delimiters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="apply"><a class="viewcode-back" href="../../../experimental/runner.config.html#torchx.runner.config.apply">[docs]</a><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="apply"><a class="viewcode-back" href="../../../experimental/runner.config.html#torchx.runner.config.apply">[docs]</a><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span>
+    <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span> <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a ``.torchxconfig`` INI file from the specified directories in</span>
 <span class="sd">    preceding order and applies the run configs for the scheduler onto</span>
@@ -607,7 +608,7 @@
                 <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;loaded configs from </span><span class="si">{</span><span class="n">configfile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../experimental/runner.config.html#torchx.runner.config.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">RunConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../experimental/runner.config.html#torchx.runner.config.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    loads the section ``[{scheduler}]`` from the given</span>
 <span class="sd">    configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding</span>
@@ -623,14 +624,14 @@
     <span class="n">section</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">cfgs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="c1"># DO NOT OVERRIDE existing configs</span>
                 <span class="k">continue</span>
 
             <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="n">_NONE</span><span class="p">:</span>
                 <span class="c1"># should map to None (not str &#39;None&#39;)</span>
                 <span class="c1"># this also handles empty or None lists</span>
-                <span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">runopt</span> <span class="o">=</span> <span class="n">runopts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
@@ -644,12 +645,12 @@
                     <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
                         <span class="c1"># need to handle bool specially since str -&gt; bool is based on</span>
                         <span class="c1"># str emptiness not value (e.g. bool(&quot;False&quot;) == True)</span>
-                        <span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-                        <span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">))</span>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># pyre-ignore[29]</span>
-                        <span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 </pre></div>
 
      </article>

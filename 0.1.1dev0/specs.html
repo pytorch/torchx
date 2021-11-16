@@ -382,8 +382,7 @@ to submit this app to the scheduler.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – Name of application</p></li>
 <li><p><strong>roles</strong> – List of roles</p></li>
-<li><p><strong>metadata</strong> – AppDef specific configuration, in comparison
-<code class="docutils literal notranslate"><span class="pre">RunConfig</span></code> is runtime specific configuration.</p></li>
+<li><p><strong>metadata</strong> – metadata to the app (treament of metadata is scheduler dependent)</p></li>
 </ul>
 </dd>
 </dl>
@@ -596,7 +595,7 @@ have <code class="docutils literal notranslate"><span class="pre">replica_id=1</
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># runs: hello_world.py --app_id ${app_id}</span>
 <span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;hello_world.py&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--app_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">])</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="s2">&quot;train_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">trainer</span><span class="p">])</span>
-<span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">())</span>
+<span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="p">{})</span>
 </pre></div>
 </div>
 <dl class="py class">
@@ -622,52 +621,12 @@ have <code class="docutils literal notranslate"><span class="pre">replica_id=1</
 <section id="run-configs">
 <h2>Run Configs<a class="headerlink" href="#run-configs" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="torchx.specs.RunConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">RunConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cfgs:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">Optional[Union[str</span></em>, <em class="sig-param"><span class="pre">int</span></em>, <em class="sig-param"><span class="pre">float</span></em>, <em class="sig-param"><span class="pre">bool</span></em>, <em class="sig-param"><span class="pre">List[str]]]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#RunConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.RunConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Additional run configs for the app. These are typically
-scheduler runtime configs/arguments that do not bind
-to <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> nor the <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code>. For example
-a particular cluster (within the scheduler) the application
-should be submitted to. Since the same app can be launched
-into multiple types of clusters (dev, prod) the
-cluster id config does not bind to the app. Neither
-does this bind to the scheduler since the cluster can
-be partitioned by size of the instances (S, M, L) or by
-a preemption setting (e.g. on-demand vs spot).</p>
-<p>Since <code class="docutils literal notranslate"><span class="pre">Session</span></code> allows the application to be submitted
-to multiple schedulers, users who want to submit the same
-app into multiple schedulers from the same session can
-union all the <code class="docutils literal notranslate"><span class="pre">RunConfigs</span></code> into a single object. The
-scheduler implementation will selectively read the configs
-it needs.</p>
-<p>This class is intended to be trivially serialized and
-passed around or saved hence only allow primitives
-as config values. Should the scheduler need more than
-simple primitives (e.g. list of str) it is up to the
-scheduler to document a way to encode this value as a
-str and parse it (e.g. representing list of str as
-comma delimited str).</p>
-<p>Usage:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># write</span>
-<span class="n">config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">()</span>
-<span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;run_as_user&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">)</span>
-<span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-
-<span class="c1"># read</span>
-<span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_as_user&quot;</span><span class="p">)</span> <span class="c1"># &quot;prod&quot;</span>
-<span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)</span> <span class="c1"># 10</span>
-<span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;never_set&quot;</span><span class="p">)</span> <span class="c1"># None</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="torchx.specs.runopts">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">runopts</span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Holds the accepted scheduler run configuration
 keys, default value (if any), and help message string.
 These options are provided by the <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code> and validated
-in <code class="docutils literal notranslate"><span class="pre">Session.run</span></code> against user provided <code class="docutils literal notranslate"><span class="pre">RunConfig</span></code>.
+in <code class="docutils literal notranslate"><span class="pre">Session.run</span></code> against user provided run cfg.
 Allows <code class="docutils literal notranslate"><span class="pre">None</span></code> default values. Required opts must NOT have a
 non-None default.</p>
 <div class="admonition important">
@@ -688,7 +647,7 @@ and printed out as a “help” tool or as part of an exception msg.</p>
 <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;illegal&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;bad_type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
-<span class="n">opts</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">RunConfig</span><span class="p">)</span>
+<span class="n">opts</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -715,7 +674,7 @@ tp = List[str], thus can be used to validate ConfigValue.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.specs.runopts.resolve">
-<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#torchx.specs.RunConfig" title="torchx.specs.api.RunConfig"><span class="pre">torchx.specs.api.RunConfig</span></a><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.resolve" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.resolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks the given config against this <code class="docutils literal notranslate"><span class="pre">runopts</span></code> and sets default configs
 if not set.</p>
 <div class="admonition warning">
