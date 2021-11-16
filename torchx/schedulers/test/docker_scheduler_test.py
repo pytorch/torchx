@@ -13,14 +13,14 @@ from docker.types import DeviceRequest
 from torchx import specs
 from torchx.schedulers.api import Stream
 from torchx.schedulers.docker_scheduler import (
-    has_docker,
-    DockerScheduler,
-    create_scheduler,
     DockerContainer,
     DockerJob,
+    DockerScheduler,
+    create_scheduler,
+    has_docker,
 )
 from torchx.schedulers.test.local_scheduler_test import LocalSchedulerTestUtil
-from torchx.specs.api import AppDef, AppState, Role, RunConfig
+from torchx.specs.api import AppDef, AppState, Role
 
 
 def _test_app() -> specs.AppDef:
@@ -51,10 +51,9 @@ class DockerSchedulerTest(unittest.TestCase):
 
     def test_submit_dryrun(self) -> None:
         app = _test_app()
-        cfg = specs.RunConfig()
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app_name_42"
-            info = self.scheduler._submit_dryrun(app, cfg)
+            info = self.scheduler._submit_dryrun(app, cfg={})
 
         want = DockerJob(
             "app_name_42",
@@ -102,11 +101,7 @@ class DockerSchedulerTest(unittest.TestCase):
     @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})
     def test_copy_env(self) -> None:
         app = _test_app()
-        cfg = specs.RunConfig(
-            {
-                "copy_env": ["FOO_*", "BAR_*"],
-            }
-        )
+        cfg = {"copy_env": ["FOO_*", "BAR_*"]}
         info = self.scheduler._submit_dryrun(app, cfg)
         self.assertEqual(
             info.request.containers[0].kwargs["environment"],
@@ -142,8 +137,7 @@ if has_docker():
 
         def test_docker_submit(self) -> None:
             app = self._docker_app("echo", "foo")
-            cfg = RunConfig()
-            app_id = self.scheduler.submit(app, cfg)
+            app_id = self.scheduler.submit(app, cfg={})
 
             desc = self.wait(app_id)
             self.assertIsNotNone(desc)
@@ -159,10 +153,8 @@ if has_docker():
 
         def test_docker_logs(self) -> None:
             app = self._docker_app("echo", "foo\nbar")
-            cfg = RunConfig()
-
             start = datetime.utcnow()
-            app_id = self.scheduler.submit(app, cfg)
+            app_id = self.scheduler.submit(app, cfg={})
             desc = self.wait(app_id)
             self.assertIsNotNone(desc)
             # docker truncates to the second so pad out 1 extra second
@@ -237,10 +229,9 @@ if has_docker():
 
         def test_docker_logs_streams(self) -> None:
             app = self._docker_app("sh", "-c", "echo stdout; >&2 echo stderr")
-            cfg = RunConfig()
 
             start = datetime.utcnow()
-            app_id = self.scheduler.submit(app, cfg)
+            app_id = self.scheduler.submit(app, cfg={})
             desc = self.wait(app_id)
             self.assertIsNotNone(desc)
 
@@ -294,9 +285,8 @@ if has_docker():
 
         def test_docker_cancel(self) -> None:
             app = self._docker_app("sleep", "10000")
-            cfg = RunConfig()
-            app_id = self.scheduler.submit(app, cfg)
-            status = self.scheduler.describe(app_id)
+            app_id = self.scheduler.submit(app, cfg={})
+            _ = self.scheduler.describe(app_id)
 
             self.wait(app_id, wait_for=lambda state: state == AppState.RUNNING)
             self.scheduler.cancel(app_id)
@@ -307,8 +297,7 @@ if has_docker():
 
         def test_docker_submit_error(self) -> None:
             app = self._docker_app("sh", "-c", "exit 1")
-            cfg = RunConfig()
-            app_id = self.scheduler.submit(app, cfg)
+            app_id = self.scheduler.submit(app, cfg={})
 
             desc = self.wait(app_id)
             self.assertIsNotNone(desc)
@@ -321,16 +310,13 @@ if has_docker():
         def test_docker_submit_error_retries(self) -> None:
             app = self._docker_app("sh", "-c", "exit 1")
             app.roles[0].max_retries = 1
-            cfg = RunConfig()
-            app_id = self.scheduler.submit(app, cfg)
+            app_id = self.scheduler.submit(app, cfg={})
 
             desc = self.wait(app_id)
             self.assertIsNotNone(desc)
             self.assertEqual(AppState.FAILED, desc.state)
 
         def test_docker_submit_dist(self) -> None:
-            app = self._docker_app("echo", "foo")
-
             app = AppDef(
                 name="test-app",
                 roles=[
@@ -346,8 +332,7 @@ if has_docker():
                     ),
                 ],
             )
-            cfg = RunConfig()
-            app_id = self.scheduler.submit(app, cfg)
+            app_id = self.scheduler.submit(app, cfg={})
             print(app_id)
 
             desc = self.wait(app_id)

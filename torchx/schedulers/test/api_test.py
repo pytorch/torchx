@@ -8,7 +8,7 @@
 
 import unittest
 from datetime import datetime
-from typing import Iterable, Optional, Union
+from typing import Iterable, Mapping, Optional, Union
 from unittest.mock import MagicMock, patch
 
 from torchx.schedulers.api import DescribeAppResponse, Scheduler, Stream
@@ -16,9 +16,9 @@ from torchx.specs.api import (
     NULL_RESOURCE,
     AppDef,
     AppDryRunInfo,
+    CfgVal,
     InvalidRunConfigException,
     Resource,
-    RunConfig,
     runopts,
 )
 
@@ -33,7 +33,11 @@ class SchedulerTest(unittest.TestCase):
             assert app is not None
             return app.name
 
-        def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[None]:
+        def _submit_dryrun(
+            self,
+            app: AppDef,
+            cfg: Mapping[str, CfgVal],
+        ) -> AppDryRunInfo[None]:
             return AppDryRunInfo(None, lambda t: "None")
 
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
@@ -68,34 +72,31 @@ class SchedulerTest(unittest.TestCase):
         app_mock = MagicMock()
 
         with self.assertRaises(InvalidRunConfigException):
-            empty_cfg = RunConfig()
+            empty_cfg = {}
             scheduler_mock.submit(app_mock, empty_cfg)
 
         with self.assertRaises(InvalidRunConfigException):
-            bad_type_cfg = RunConfig()
-            bad_type_cfg.set("foo", 100)
-            scheduler_mock.submit(app_mock, empty_cfg)
+            bad_type_cfg = {"foo": 100}
+            scheduler_mock.submit(app_mock, bad_type_cfg)
 
     def test_invalid_dryrun_cfg(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
         app_mock = MagicMock()
 
         with self.assertRaises(InvalidRunConfigException):
-            empty_cfg = RunConfig()
+            empty_cfg = {}
             scheduler_mock.submit_dryrun(app_mock, empty_cfg)
 
         with self.assertRaises(InvalidRunConfigException):
-            bad_type_cfg = RunConfig()
-            bad_type_cfg.set("foo", 100)
-            scheduler_mock.submit_dryrun(app_mock, empty_cfg)
+            bad_type_cfg = {"foo": 100}
+            scheduler_mock.submit_dryrun(app_mock, bad_type_cfg)
 
     def test_role_preproc_called(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
         app_mock = MagicMock()
         app_mock.roles = [MagicMock()]
 
-        cfg = RunConfig()
-        cfg.set("foo", "bar")
+        cfg = {"foo": "bar"}
         scheduler_mock.submit_dryrun(app_mock, cfg)
         role_mock = app_mock.roles[0]
         role_mock.pre_proc.assert_called_once()

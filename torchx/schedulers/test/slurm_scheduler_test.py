@@ -6,15 +6,15 @@
 
 import subprocess
 import unittest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 from torchx import specs
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.slurm_scheduler import (
-    create_scheduler,
-    SlurmScheduler,
-    SlurmReplicaRequest,
     SlurmBatchRequest,
+    SlurmReplicaRequest,
+    SlurmScheduler,
+    create_scheduler,
 )
 
 
@@ -40,7 +40,7 @@ class SlurmSchedulerTest(unittest.TestCase):
             ),
         )
         sbatch, srun = SlurmReplicaRequest.from_role(
-            "role-name", role, specs.RunConfig()
+            "role-name", role, cfg={}
         ).materialize()
         self.assertEqual(
             sbatch,
@@ -64,9 +64,7 @@ class SlurmSchedulerTest(unittest.TestCase):
             entrypoint="echo",
             args=[f"hello {specs.macros.app_id}"],
         )
-        _, srun = SlurmReplicaRequest.from_role(
-            "role-name", role, specs.RunConfig()
-        ).materialize()
+        _, srun = SlurmReplicaRequest.from_role("role-name", role, cfg={}).materialize()
         self.assertIn(
             "echo 'hello '\"$SLURM_JOB_ID\"''",
             " ".join(srun),
@@ -74,21 +72,22 @@ class SlurmSchedulerTest(unittest.TestCase):
 
     def test_replica_request_run_config(self) -> None:
         scheduler = create_scheduler("foo")
-
         role = specs.Role(
             name="foo",
             image="/some/path",
             entrypoint="echo",
             args=["hello"],
         )
-        cfg = specs.RunConfig()
-        cfg.set("partition", "bubblegum")
-        cfg.set("time", "5:13")
+        cfg = {
+            "partition": "bubblegum",
+            "time": "5:13",
+        }
+
         sbatch, _ = SlurmReplicaRequest.from_role("role-name", role, cfg).materialize()
 
         run_opts = scheduler.run_opts()
 
-        for k, v in cfg.cfgs.items():
+        for k, v in cfg.items():
             self.assertIsNotNone(run_opts.get(k))
             self.assertIn(
                 f"--{k}={v}",
@@ -114,7 +113,7 @@ class SlurmSchedulerTest(unittest.TestCase):
                 ),
             ],
         )
-        info = scheduler.submit_dryrun(app, specs.RunConfig())
+        info = scheduler.submit_dryrun(app, cfg={})
         req = info.request
         self.assertIsInstance(req, SlurmBatchRequest)
         self.assertEqual(req.cmd, ["sbatch", "--parsable"])
@@ -163,7 +162,7 @@ srun --chdir=/some/path echo 0 'hello '"$SLURM_JOB_ID"'' :\\
                 ),
             ],
         )
-        app_id = scheduler.submit(app, specs.RunConfig())
+        app_id = scheduler.submit(app, cfg={})
         self.assertEqual(app_id, "1234")
 
         self.assertEqual(run.call_count, 1)

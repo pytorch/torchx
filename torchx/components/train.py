@@ -17,4 +17,19 @@ generic components you can use to run your custom training app.
 4. See :py:mod:`torchx.components` to learn more about authoring components
 5. For more information on distributed training see :py:mod:`torchx.components.dist`.
 
+Embedded Train Script
+#######################
+
+For simple apps you can use the :py:meth:`torchx.components.utils.python`
+component to embed the training script as a command line argument to the Python
+command. This has a size limitation but works for many smaller apps.
+
+>>> from torchx.components.utils import python
+>>> app = \"\"\"
+... import sys
+... print(f"Hello, {sys.argv[0]}")
+... \"\"\"
+>>> python("TorchX user", c=app)
+AppDef(..., entrypoint='python', ...)
+
 """

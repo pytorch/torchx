@@ -61,7 +61,6 @@ find ``x1`` and ``x2`` that minimizes the booth function.
  from pyre_extensions import none_throws
  from torchx.components import utils
  from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
- from torchx.specs import RunConfig
 
  # Run HPO on the booth function (https://en.wikipedia.org/wiki/Test_functions_for_optimization)
 
@@ -89,7 +88,7 @@ find ``x1`` and ``x2`` that minimizes the booth function.
         "image": "ghcr.io/pytorch/torchx:0.1.0rc0",
     },
     scheduler="local", # can also be [kubernetes, slurm, etc]
-    scheduler_args=RunConfig({"log_dir": tmpdir, "image_type": "docker"}),
+    scheduler_args={"log_dir": tmpdir, "image_type": "docker"},
  )
 
  experiment = Experiment(

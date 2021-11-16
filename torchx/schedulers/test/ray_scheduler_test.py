@@ -176,7 +176,7 @@ if has_ray():
         def test_submit_dryrun_raises_error_if_cluster_config_file_is_not_str(
             self,
         ) -> None:
-            self._run_cfg.set("cluster_config_file", 1)
+            self._run_cfg["cluster_config_file"] = 1
 
             with self.assertRaisesRegex(
                 ValueError,
@@ -197,7 +197,7 @@ if has_ray():
 
         # pyre-ignore[2]: Parameter `value` must have a type other than `Any`
         def _assert_config_value(self, name: str, value: Any, type_name: str) -> None:
-            self._run_cfg.set(name, value)
+            self._run_cfg[name] = value
 
             with self.assertRaisesRegex(
                 TypeError,

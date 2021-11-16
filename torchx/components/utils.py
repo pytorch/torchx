@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-Utility components that are `ready-to-use` out of the box. These are
+This contains TorchX utility components that are `ready-to-use` out of the box. These are
 components that simply execute well known binaries (e.g. ``cp``)
 and are meant to be used as tutorial materials or glue operations between
 meaningful stages in a workflow.

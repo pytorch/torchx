@@ -6,8 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-Datapreproc Component Example
-=============================
+Data Preprocessing Example Components
+======================================
 
 This is a component definition that runs the example datapreproc app.
 """
@@ -67,3 +67,6 @@ def data_preproc(
             )
         ],
     )
+
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-component.png'

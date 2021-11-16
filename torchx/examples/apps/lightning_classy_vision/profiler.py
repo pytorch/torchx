@@ -53,3 +53,6 @@ class SimpleLoggingProfiler(BaseProfiler):
 
     def summary(self) -> str:
         return ""
+
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-lib.png'

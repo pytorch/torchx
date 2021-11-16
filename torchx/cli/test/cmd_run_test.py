@@ -217,3 +217,12 @@ class CmdBuiltinTest(unittest.TestCase):
         self.assertTrue(len(builtins) > 0)
         for component in builtins.values():
             self.assertListEqual([], component.validation_errors)
+
+    def test_print_builtin(self) -> None:
+        parser = argparse.ArgumentParser()
+
+        cmd_builtins = CmdBuiltins()
+        cmd_builtins.add_arguments(parser)
+
+        cmd_builtins.run(parser.parse_args(["--print", "dist.ddp"]))
+        # nothing to assert, just make sure it runs

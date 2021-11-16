@@ -19,6 +19,7 @@ from typing import (
     Generic,
     Iterator,
     List,
+    Mapping,
     Optional,
     Tuple,
     Type,
@@ -113,7 +114,7 @@ class macros:
      # runs: hello_world.py --app_id ${app_id}
      trainer = Role(name="trainer", entrypoint="hello_world.py", args=["--app_id", macros.app_id])
      app = AppDef("train_app", roles=[trainer])
-     app_handle = session.run(app, scheduler="local", cfg=RunConfig())
+     app_handle = session.run(app, scheduler="local", cfg={})
 
     """
 
@@ -260,8 +261,7 @@ class AppDef:
     Args:
         name: Name of application
         roles: List of roles
-        metadata: AppDef specific configuration, in comparison
-            ``RunConfig`` is runtime specific configuration.
+        metadata: metadata to the app (treament of metadata is scheduler dependent)
     """
 
     name: str
@@ -406,72 +406,11 @@ class AppStatus:
         return yaml.dump({"AppStatus": app_status_dict})
 
 
-# valid ``RunConfig`` values; only support primitives (str, int, float, bool, List[str])
+# valid run cfg values; only support primitives (str, int, float, bool, List[str])
 # TODO(wilsonhong): python 3.9+ supports list[T] in typing, which can be used directly
 # in isinstance(). Should replace with that.
 # see: https://docs.python.org/3/library/stdtypes.html#generic-alias-type
-ConfigValue = Union[str, int, float, bool, List[str], None]
-
-
-# =======================
-# ==== Run Config =======
-# =======================
-@dataclass(frozen=True)
-class RunConfig:
-    """
-    Additional run configs for the app. These are typically
-    scheduler runtime configs/arguments that do not bind
-    to ``AppDef`` nor the ``Scheduler``. For example
-    a particular cluster (within the scheduler) the application
-    should be submitted to. Since the same app can be launched
-    into multiple types of clusters (dev, prod) the
-    cluster id config does not bind to the app. Neither
-    does this bind to the scheduler since the cluster can
-    be partitioned by size of the instances (S, M, L) or by
-    a preemption setting (e.g. on-demand vs spot).
-
-    Since ``Session`` allows the application to be submitted
-    to multiple schedulers, users who want to submit the same
-    app into multiple schedulers from the same session can
-    union all the ``RunConfigs`` into a single object. The
-    scheduler implementation will selectively read the configs
-    it needs.
-
-    This class is intended to be trivially serialized and
-    passed around or saved hence only allow primitives
-    as config values. Should the scheduler need more than
-    simple primitives (e.g. list of str) it is up to the
-    scheduler to document a way to encode this value as a
-    str and parse it (e.g. representing list of str as
-    comma delimited str).
-
-    Usage:
-
-    .. code-block:: python
-
-     # write
-     config = RunConfig()
-     config.set("run_as_user", "prod")
-     config.set("priority", 10)
-
-     # read
-     config.get("run_as_user") # "prod"
-     config.get("priority") # 10
-     config.get("never_set") # None
-
-    """
-
-    cfgs: Dict[str, ConfigValue] = field(default_factory=dict)
-
-    def set(self, cfg_key: str, cfg_val: ConfigValue) -> None:
-        self.cfgs[cfg_key] = cfg_val
-
-    def get(self, key: str) -> ConfigValue:
-        return self.cfgs.get(key, None)
-
-    def __repr__(self) -> str:
-        return self.cfgs.__repr__()
-
+CfgVal = Union[str, int, float, bool, List[str], None]
 
 T = TypeVar("T")
 
@@ -499,14 +438,14 @@ class AppDryRunInfo(Generic[T]):
         # DO NOT create getters or make these public
         # unless there is a good reason to
         self._app: Optional[AppDef] = None
-        self._cfg: Optional[RunConfig] = None
+        self._cfg: Mapping[str, CfgVal] = {}
         self._scheduler: Optional[SchedulerBackend] = None
 
     def __repr__(self) -> str:
         return self._fmt(self.request)
 
 
-def get_type_name(tp: Type[ConfigValue]) -> str:
+def get_type_name(tp: Type[CfgVal]) -> str:
     """
     Gets the type's name as a string. If ``tp` is a primitive class like int, str, etc, then
     uses its attribute ``__name__``. Otherwise, use ``str(tp)``.
@@ -525,8 +464,8 @@ class runopt:
     Represents the metadata about the specific run option
     """
 
-    default: ConfigValue
-    opt_type: Type[ConfigValue]
+    default: CfgVal
+    opt_type: Type[CfgVal]
     is_required: bool
     help: str
 
@@ -536,7 +475,7 @@ class runopts:
     Holds the accepted scheduler run configuration
     keys, default value (if any), and help message string.
     These options are provided by the ``Scheduler`` and validated
-    in ``Session.run`` against user provided ``RunConfig``.
+    in ``Session.run`` against user provided run cfg.
     Allows ``None`` default values. Required opts must NOT have a
     non-None default.
 
@@ -559,7 +498,7 @@ class runopts:
      opts.add("illegal", default=10, required=True)
      opts.add("bad_type", type=str, default=10)
 
-     opts.check(RunConfig)
+     opts.check(cfg)
      print(opts)
 
     """
@@ -574,7 +513,7 @@ class runopts:
         return len(self._opts)
 
     @staticmethod
-    def is_type(obj: ConfigValue, tp: Type[ConfigValue]) -> bool:
+    def is_type(obj: CfgVal, tp: Type[CfgVal]) -> bool:
         """
         Returns True if ``obj`` is type of ``tp``. Similar to isinstance() but supports
         tp = List[str], thus can be used to validate ConfigValue.
@@ -593,12 +532,48 @@ class runopts:
         """
         return self._opts.get(name, None)
 
+    def resolve(self, cfg: Mapping[str, CfgVal]) -> Dict[str, CfgVal]:
+        """
+        Checks the given config against this ``runopts`` and sets default configs
+        if not set.
+
+        .. warning:: This method mutates the provided config!
+
+        """
+
+        resolved_cfg: Dict[str, CfgVal] = {**cfg}
+
+        for cfg_key, runopt in self._opts.items():
+            val = resolved_cfg.get(cfg_key)
+
+            # check required opt
+            if runopt.is_required and val is None:
+                raise InvalidRunConfigException(
+                    f"Required run option: {cfg_key}, must be provided and not `None`",
+                    cfg_key,
+                    cfg,
+                )
+
+            # check type (None matches all types)
+            if val is not None and not runopts.is_type(val, runopt.opt_type):
+                raise InvalidRunConfigException(
+                    f"Run option: {cfg_key}, must be of type: {get_type_name(runopt.opt_type)},"
+                    f" but was: {val} ({type(val).__name__})",
+                    cfg_key,
+                    cfg,
+                )
+
+            # not required and not set, set to default
+            if val is None:
+                resolved_cfg[cfg_key] = runopt.default
+        return resolved_cfg
+
     def add(
         self,
         cfg_key: str,
-        type_: Type[ConfigValue],
+        type_: Type[CfgVal],
         help: str,
-        default: ConfigValue = None,
+        default: CfgVal = None,
         required: bool = False,
     ) -> None:
         """
@@ -618,43 +593,6 @@ class runopts:
                 )
 
         self._opts[cfg_key] = runopt(default, type_, required, help)
-
-    def resolve(self, config: RunConfig) -> RunConfig:
-        """
-        Checks the given config against this ``runopts`` and sets default configs
-        if not set.
-
-        .. warning:: This method mutates the provided config!
-
-        """
-
-        # make a copy; don't need to be deep b/c the values are primitives
-        resolved_cfg = RunConfig(config.cfgs.copy())
-
-        for cfg_key, runopt in self._opts.items():
-            val = resolved_cfg.get(cfg_key)
-
-            # check required opt
-            if runopt.is_required and val is None:
-                raise InvalidRunConfigException(
-                    f"Required run option: {cfg_key}, must be provided and not `None`",
-                    cfg_key,
-                    config,
-                )
-
-            # check type (None matches all types)
-            if val is not None and not runopts.is_type(val, runopt.opt_type):
-                raise InvalidRunConfigException(
-                    f"Run option: {cfg_key}, must be of type: {get_type_name(runopt.opt_type)},"
-                    f" but was: {val} ({type(val).__name__})",
-                    cfg_key,
-                    config,
-                )
-
-            # not required and not set, set to default
-            if val is None:
-                resolved_cfg.set(cfg_key, runopt.default)
-        return resolved_cfg
 
     def __repr__(self) -> str:
         required = [(key, opt) for key, opt in self._opts.items() if opt.is_required]
@@ -687,13 +625,15 @@ class runopts:
 
 class InvalidRunConfigException(Exception):
     """
-    Raised when the supplied ``RunConfig`` does not satisfy the
+    Raised when the supplied run cfg does not satisfy the
     ``runopts``, either due to missing required configs or value
     type mismatch.
     """
 
-    def __init__(self, invalid_reason: str, cfg_key: str, cfg: RunConfig) -> None:
-        given = str(cfg) if cfg.cfgs else "<EMPTY>"
+    def __init__(
+        self, invalid_reason: str, cfg_key: str, cfg: Mapping[str, CfgVal]
+    ) -> None:
+        given = str(cfg) if cfg else "<EMPTY>"
         super().__init__(f"{invalid_reason}. Given: {given}")
         self.cfg_key = cfg_key
 

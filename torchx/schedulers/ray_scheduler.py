@@ -204,7 +204,9 @@ class RayScheduler(Scheduler):
 
         return job_id
 
-    def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[RayJob]:
+    def _submit_dryrun(
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
+    ) -> AppDryRunInfo[RayJob]:
         app_id = make_unique(app.name)
 
         cluster_cfg = cfg.get("cluster_config_file")

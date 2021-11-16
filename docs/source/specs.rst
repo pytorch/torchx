@@ -41,9 +41,6 @@ Macros
 
 Run Configs
 --------------
-.. autoclass:: RunConfig
-   :members:
-
 .. autoclass:: runopts
    :members:
 

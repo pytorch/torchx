@@ -101,3 +101,6 @@ def main(argv: List[str]) -> None:
 
 if __name__ == "__main__" and "NOTEBOOK" not in globals():
     main(sys.argv[1:])
+
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-app.png'
