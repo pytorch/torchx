@@ -40,14 +40,14 @@ def load_actor_json(filename: str) -> List[RayActor]:
 
 def _main(job_id=None):
     print("Reading actor.json")
-    actors_dict = load_actor_json("actors.json")
+    actors = load_actor_json("actors.json")
     pgs = []
     ray.init(address="auto", namespace="torchx-ray")
 
-    for actor_dict in actors_dict:
+    for actor in actors:
 
-        bundle = {"CPU": actor_dict["num_cpus"], "GPU": actor_dict["num_gpus"]}
-        bundles = [bundle] * actor_dict["num_replicas"]
+        bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
+        bundles = [bundle] * actor.num_replicas
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
 
@@ -67,18 +67,17 @@ def _main(job_id=None):
                 "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
             )
 
-    actors = []
-    for i in range(len(actors_dict)):
-        for _ in range(actors_dict[i]["num_replicas"]):
+    for i in range(len(actors)):
+        for _ in range(actors[i].num_replicas):
             actors.append(
                 CommandActor.options(
                     placement_group=pgs[i],
-                    num_cpus=actors_dict[i]["num_cpus"],
-                    num_gpus=actors_dict[i]["num_gpus"],
-                ).remote(actors_dict[i]["command"], actors_dict[i]["env"])
+                    num_cpus=actors[i].num_cpus,
+                    num_gpus=actors[i].num_gpus,
+                ).remote(actors[i].command, actors[i].env)
             )
 
-    unfinished = [a.run_command.remote() for a in actors]
+    unfinished = [actor.run_command.remote() for actor in actors]
 
     while len(unfinished) > 0:
         finished, unfinished = ray.wait(unfinished)
@@ -88,7 +87,6 @@ def _main(job_id=None):
             try:
                 ray.get(object_ref)
 
-            # TODO: Add retry logic in scheduler script
             except ray.RayActorError as exc:
                 status_code = 1
 
