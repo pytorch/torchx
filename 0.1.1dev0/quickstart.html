@@ -760,7 +760,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-n572r631wgrqwc
+local_cwd://torchx/hello_world-h4pfrqw4rfppm
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -770,10 +770,10 @@ local_cwd://torchx/hello_world-n572r631wgrqwc
 <div class="highlight"><pre>
 /opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:77: UserWarning: redis-py works best with hiredis. Please consider installing
   warnings.warn(msg)
-torchx 2021-11-16 19:13:40 INFO     Log files located in: /tmp/torchx_rg_bw13a/torchx/hello_world-n572r631wgrqwc/greeter/0
-torchx 2021-11-16 19:13:40 INFO     Waiting for the app to finish...
+torchx 2021-11-16 21:27:52 INFO     Log files located in: /tmp/torchx_35jhr8a2/torchx/hello_world-h4pfrqw4rfppm/greeter/0
+torchx 2021-11-16 21:27:52 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2021-11-16 19:13:41 INFO     Job finished: SUCCEEDED
+torchx 2021-11-16 21:27:53 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -828,14 +828,11 @@ eccbe17c44e1: Pulling fs layer
 d4c7af0d4fa7: Pulling fs layer
 06b5edd6bf52: Pulling fs layer
 f18d016c4ccc: Pulling fs layer
-6009a622672a: Waiting
 c0ad16d9fa05: Pulling fs layer
 30587ba7fd6b: Pulling fs layer
 909695be1d50: Pulling fs layer
 f119a6d0a466: Pulling fs layer
 88d87059c913: Pulling fs layer
-143f80195431: Waiting
-eccbe17c44e1: Waiting
 d4c7af0d4fa7: Waiting
 06b5edd6bf52: Waiting
 f18d016c4ccc: Waiting
@@ -844,10 +841,13 @@ c0ad16d9fa05: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
 88d87059c913: Waiting
-d2e110be24e1: Verifying Checksum
-d2e110be24e1: Download complete
+6009a622672a: Waiting
+eccbe17c44e1: Waiting
+143f80195431: Waiting
 889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
+d2e110be24e1: Verifying Checksum
+d2e110be24e1: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
 6009a622672a: Verifying Checksum
@@ -862,19 +862,19 @@ c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
 30587ba7fd6b: Verifying Checksum
 30587ba7fd6b: Download complete
+4bbfd2c87b75: Pull complete
 909695be1d50: Verifying Checksum
 909695be1d50: Download complete
 f119a6d0a466: Verifying Checksum
 f119a6d0a466: Download complete
+d2e110be24e1: Pull complete
 88d87059c913: Verifying Checksum
 88d87059c913: Download complete
-4bbfd2c87b75: Pull complete
-f18d016c4ccc: Verifying Checksum
-f18d016c4ccc: Download complete
+889a7173dcfe: Pull complete
 143f80195431: Verifying Checksum
 143f80195431: Download complete
-d2e110be24e1: Pull complete
-889a7173dcfe: Pull complete
+f18d016c4ccc: Verifying Checksum
+f18d016c4ccc: Download complete
 6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
@@ -890,8 +890,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; 21e623e709bb
-Successfully built 21e623e709bb
+ ---&gt; a601fb8ddd19
+Successfully built a601fb8ddd19
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -911,7 +911,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-zvtgr692zg090c
+local_docker://torchx/hello_world-kn9vb3k9z73tq
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -921,11 +921,11 @@ local_docker://torchx/hello_world-zvtgr692zg090c
 <div class="highlight"><pre>
 /opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:77: UserWarning: redis-py works best with hiredis. Please consider installing
   warnings.warn(msg)
-torchx 2021-11-16 19:15:58 INFO     Pulling container image: my_app:latest (this may take a while)
-torchx 2021-11-16 19:15:58 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2021-11-16 19:15:59 INFO     Waiting for the app to finish...
+torchx 2021-11-16 21:30:26 INFO     Pulling container image: my_app:latest (this may take a while)
+torchx 2021-11-16 21:30:27 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2021-11-16 21:30:28 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2021-11-16 19:16:00 INFO     Job finished: SUCCEEDED
+torchx 2021-11-16 21:30:29 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -989,7 +989,7 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-wkvklqs2cnl9qd
+local_docker://torchx/echo-w601hszh9l9kq
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -999,10 +999,10 @@ local_docker://torchx/echo-wkvklqs2cnl9qd
 <div class="highlight"><pre>
 /opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:77: UserWarning: redis-py works best with hiredis. Please consider installing
   warnings.warn(msg)
-torchx 2021-11-16 19:16:03 INFO     Pulling container image: ghcr.io/pytorch/torchx:0.1.1dev0 (this may take a while)
-torchx 2021-11-16 19:17:54 INFO     Waiting for the app to finish...
-torchx 2021-11-16 19:17:54 INFO     Job finished: SUCCEEDED
+torchx 2021-11-16 21:30:33 INFO     Pulling container image: ghcr.io/pytorch/torchx:0.1.1dev0 (this may take a while)
+torchx 2021-11-16 21:32:55 INFO     Waiting for the app to finish...
 echo/0 Hello :)
+torchx 2021-11-16 21:32:56 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 </section>
