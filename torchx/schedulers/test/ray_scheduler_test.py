@@ -4,21 +4,21 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Iterator, Type, List, cast
 from unittest import TestCase
 from unittest.mock import patch
-import os
-import ray
-import time
 
+import ray
+from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers import get_schedulers
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.ray.ray_driver import _main
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
 from torchx.specs import AppDef, Resource, Role, RunConfig, runopts
-from torchx.schedulers.ray.ray_driver import _main
-from ray.dashboard.modules.job.sdk import JobSubmissionClient
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 
 
 if has_ray():
@@ -109,7 +109,7 @@ if has_ray():
             expected_opts = [
                 Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
-                Option("cluster_address",str, default="127.0.0.1"),
+                Option("cluster_address", str, default="127.0.0.1"),
                 Option("copy_scripts", bool, default=False),
                 Option("copy_script_dirs", bool, default=False),
             ]
@@ -265,21 +265,19 @@ if has_ray():
             self.assertEqual(
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
-            
-    class RayIntegrationTest(TestCase):
 
+    class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
             ray_scheduler = self.setup_ray_cluster()
             assert ray.is_initialized() == True
 
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
-            
+
             time.sleep(60)
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             assert logs is not None
             self.teardown_ray_cluster()
-
 
         def setup_ray_cluster(self) -> None:
             os.system("ray stop")
@@ -288,20 +286,23 @@ if has_ray():
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
-        def schedule_ray_job(self,ray_scheduler, app_id="123") -> str:
-            ray_job = RayJob(app_id=app_id, copy_scripts=True, cluster_address="127.0.0.1", scripts=set(["train.py"]))
+        def schedule_ray_job(self, ray_scheduler, app_id="123") -> str:
+            ray_job = RayJob(
+                app_id=app_id,
+                copy_scripts=True,
+                cluster_address="127.0.0.1",
+                scripts=set(["train.py"]),
+            )
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
             return job_id
-        
+
         def describe(self, ray_scheduler, app_id="123"):
             return ray_scheduler.describe(app_id)
 
-        def check_logs(self, ray_scheduler,app_id="123") -> List[str]:
+        def check_logs(self, ray_scheduler, app_id="123") -> List[str]:
             stdout, stderr = ray_scheduler.log_iter(app_id=app_id)
             return stdout, stderr
-        
+
         def teardown_ray_cluster(self) -> None:
             os.system("ray stop")
-
-

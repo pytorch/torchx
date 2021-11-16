@@ -3,12 +3,12 @@
 import os
 import sys
 import tempfile
+
 import torch
 import torch.distributed as dist
+import torch.multiprocessing as mp
 import torch.nn as nn
 import torch.optim as optim
-import torch.multiprocessing as mp
-
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 # On Windows platform, the torch.distributed package only
@@ -23,15 +23,18 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 #    world_size=world_size)
 # For TcpStore, same way as on Linux.
 
+
 def setup(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
 
     # initialize the process group
     dist.init_process_group("gloo", rank=rank, world_size=world_size)
 
+
 def cleanup():
     dist.destroy_process_group()
+
 
 class ToyModel(nn.Module):
     def __init__(self):
@@ -65,7 +68,4 @@ def demo_basic(rank, world_size):
 
 
 def run_demo(demo_fn, world_size):
-    mp.spawn(demo_fn,
-             args=(world_size,),
-             nprocs=world_size,
-             join=True)
+    mp.spawn(demo_fn, args=(world_size,), nprocs=world_size, join=True)

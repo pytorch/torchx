@@ -4,27 +4,28 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import dataclasses
+import fnmatch
+import json
 import logging
 import os
-import json
-import requests
-from tempfile import NamedTemporaryFile, mkdtemp
-import dataclasses
+import pathlib
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
-from .ray.ray_common import RayActor
 from shutil import copy2, rmtree
-import fnmatch
-import pathlib
-
+from tempfile import NamedTemporaryFile, mkdtemp
+from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
 # try:
 import ray  # @manual # noqa: F401
+import requests
+from ray._private.job_manager import JobStatus
+from ray._private.job_manager import JobStatus
+from ray.autoscaler import sdk as ray_autoscaler_sdk
 from ray.dashboard.modules.job.sdk import JobSubmissionClient
-from ray._private.job_manager import JobStatus
-from ray._private.job_manager import JobStatus
-from ray.autoscaler import sdk as ray_autoscaler_sdk 
+
+from .ray.ray_common import RayActor
+
 _has_ray = True
 
 # except ImportError:
@@ -32,17 +33,25 @@ _has_ray = True
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.ids import make_unique
-from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, AppState, macros, runopts 
+from torchx.specs.api import (
+    AppDef,
+    RunConfig,
+    SchedulerBackend,
+    AppState,
+    macros,
+    runopts,
+)
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
 ray_status_to_torchx_appstate = {
-    JobStatus.PENDING : AppState.PENDING,
-    JobStatus.RUNNING : AppState.RUNNING,
-    JobStatus.SUCCEEDED : AppState.SUCCEEDED,
-    JobStatus.FAILED : AppState.FAILED,
-    JobStatus.STOPPED : AppState.CANCELLED
+    JobStatus.PENDING: AppState.PENDING,
+    JobStatus.RUNNING: AppState.RUNNING,
+    JobStatus.SUCCEEDED: AppState.SUCCEEDED,
+    JobStatus.FAILED: AppState.FAILED,
+    JobStatus.STOPPED: AppState.CANCELLED,
 }
+
 
 def find_file(pattern, path):
     result = []
@@ -54,19 +63,22 @@ def find_file(pattern, path):
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
-        def default(self, o):
-            if dataclasses.is_dataclass(o):
-                return dataclasses.asdict(o)
-            return super().default(o)
+    def default(self, o):
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+        return super().default(o)
 
-def serialize(actors : List[RayActor], dirpath, output_filename='actors.json') -> None:
-    actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
-    with open(os.path.join(dirpath, output_filename), 'w') as tmp:
+
+def serialize(actors: List[RayActor], dirpath, output_filename="actors.json") -> None:
+    actors_json = json.dumps(actors, cls=EnhancedJSONEncoder)
+    with open(os.path.join(dirpath, output_filename), "w") as tmp:
         json.dump(actors_json, tmp)
+
 
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
     return _has_ray
+
 
 @dataclass
 class RayJob:
@@ -104,6 +116,7 @@ class RayJob:
     scripts: Set[str] = field(default_factory=set)
     actors: List[RayActor] = field(default_factory=list)
 
+
 class RayScheduler(Scheduler):
     def __init__(self, session_name: str) -> None:
         super().__init__("ray", session_name)
@@ -128,7 +141,7 @@ class RayScheduler(Scheduler):
             type_=str,
             required=False,
             default="127.0.0.1",
-            help="Use ray status to get the cluster_address"
+            help="Use ray status to get the cluster_address",
         )
         opts.add(
             "copy_scripts",
@@ -153,12 +166,12 @@ class RayScheduler(Scheduler):
         dirpath = mkdtemp()
 
         serialize(actors, dirpath)
-        
+
         ip_address = cfg.cluster_address
 
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
-        
+
         dashboard_port = 8265
         # Create Job Client
         self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
@@ -170,20 +183,20 @@ class RayScheduler(Scheduler):
             for script in cfg.scripts:
                 if cfg.copy_script_dirs:
                     script_path = os.path.dirname(script)
-                    copy2(script_path,dirpath)
+                    copy2(script_path, dirpath)
                 else:
-                    copy2(script,dirpath)
+                    copy2(script, dirpath)
 
         # 2. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
-        copy2(os.path.join(current_directory,"ray", "ray_driver.py"), dirpath)
-        copy2(os.path.join(current_directory,"ray", "ray_common.py"), dirpath)
+        copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
+        copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
 
-        job_id : str = self.client.submit_job(
+        job_id: str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
             entrypoint=f"python {entrypoint}",
-            runtime_env={"working_dir" : dirpath},
+            runtime_env={"working_dir": dirpath},
             # job_id = cfg.app_id
         )
 
@@ -270,8 +283,7 @@ class RayScheduler(Scheduler):
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         status = self.client.get_job_status(app_id)
         status = ray_status_to_torchx_appstate[status]
-        return DescribeAppResponse(app_id = app_id, state=status)
-
+        return DescribeAppResponse(app_id=app_id, state=status)
 
     def log_iter(
         self,
@@ -287,7 +299,6 @@ class RayScheduler(Scheduler):
         # TODO: support regex, tailing, streams etc..
         logs = self.client.get_job_logs(app_id)
         return logs
- 
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
@@ -295,6 +306,3 @@ def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
         raise RuntimeError("Ray is not installed in the current Python environment.")
 
     return RayScheduler(session_name=session_name)
-
-
-

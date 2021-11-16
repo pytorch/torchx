@@ -5,7 +5,8 @@
 # LICENSE file in the root directory of this source tree.
 
 from dataclasses import dataclass, field
-from typing import Dict 
+from typing import Dict
+
 
 @dataclass
 class RayActor:
