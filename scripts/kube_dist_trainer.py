@@ -12,18 +12,16 @@ Kubernetes integration tests.
 import argparse
 import os
 
-# pyre-ignore-all-errors[21] # Cannot find module utils
-# pyre-ignore-all-errors[11]
-from integ_test_utils import (
-    MissingEnvError,
-    build_images,
-    push_images,
-    BuildInfo,
-)
+from integ_test_utils import BuildInfo, MissingEnvError, build_images, push_images
 from pyre_extensions import none_throws
 from torchx.examples.apps.lightning_classy_vision.component import trainer_dist
 from torchx.runner import get_runner
-from torchx.specs import Resource, named_resources, RunConfig, AppState
+from torchx.specs import AppState, Resource, named_resources
+
+
+# pyre-ignore-all-errors[21] # Cannot find module utils
+# pyre-ignore-all-errors[11]
+
 
 GiB: int = 1024
 
@@ -64,9 +62,10 @@ def run_job(dryrun: bool = False) -> None:
         nproc_per_node=1,
     )
     print(f"Starting Trainer with args: {args}")
-    cfg = RunConfig()
-    cfg.set("namespace", "default")
-    cfg.set("queue", "default")
+    cfg = {
+        "namespace": "default",
+        "queue": "default",
+    }
     print("Submitting pods")
     if dryrun:
         dryrun_info = runner.dryrun(train_app, "kubernetes", cfg)

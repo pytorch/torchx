@@ -210,3 +210,6 @@ def process_images(img_root: str) -> None:
         f = Image.open(path)
         f = transform(f)
         f.save(path)
+
+
+# sphinx_gallery_thumbnail_path = '_static/img/gallery-lib.png'

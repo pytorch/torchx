@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Any, Callable, Dict, Optional, Set, cast
+from typing import Any, Callable, Dict, Mapping, Optional, Set, cast
 
 import pandas as pd
 from ax.core import Trial
@@ -20,7 +20,7 @@ from ax.utils.common.typeutils import not_none
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
 from torchx.runtime.tracking import FsspecResultTracker
-from torchx.specs import AppDef, AppState, AppStatus, RunConfig
+from torchx.specs import AppDef, AppState, AppStatus, CfgVal
 
 
 _TORCHX_APP_HANDLE: str = "torchx_app_handle"
@@ -167,11 +167,11 @@ class TorchXRunner(ax_Runner):
         component: Callable[..., AppDef],
         component_const_params: Optional[Dict[str, Any]] = None,
         scheduler: str = "local",
-        scheduler_args: Optional[RunConfig] = None,
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> None:
         self._component: Callable[..., AppDef] = component
         self._scheduler: str = scheduler
-        self._scheduler_args: Optional[RunConfig] = scheduler_args
+        self._cfg: Optional[Mapping[str, CfgVal]] = cfg
         # need to use the same runner in case it has state
         # e.g. torchx's local_scheduler has state hence need to poll status
         # on the same scheduler instance
@@ -202,9 +202,7 @@ class TorchXRunner(ax_Runner):
             parameters["tracker_base"] = self._tracker_base
 
         appdef = self._component(**parameters)
-        app_handle = self._torchx_runner.run(
-            appdef, self._scheduler, self._scheduler_args
-        )
+        app_handle = self._torchx_runner.run(appdef, self._scheduler, self._cfg)
         return {
             _TORCHX_APP_HANDLE: app_handle,
             _TORCHX_RUNNER: self._torchx_runner,

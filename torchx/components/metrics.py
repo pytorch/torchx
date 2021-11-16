@@ -13,11 +13,11 @@ tensorboard instance locally to monitor your model progress:
 
  $ tensorboard --log-dir provider://path/to/logs
 
+Or you can use the :py:meth:`torchx.components.metrics.tensorboard` component as
+part of your pipeline.
+
 See the :ref:`examples_apps/lightning_classy_vision/train:Trainer App Example` for an example on how to use the PyTorch
 Lightning TensorboardLogger.
-
-A TorchX Tensorboard builtin component is being tracked via
-https://github.com/pytorch/torchx/issues/128.
 
 Reference
 ----------------
@@ -40,7 +40,16 @@ def tensorboard(
     exit_on_file: str = "",
 ) -> specs.AppDef:
     """
-    Runs a tensorboard server.
+    This component runs a Tensorboard server which will render the logs
+    specified by logdir.
+
+    Since Tensorboard runs as a service you need to specify the termination
+    conditions. This consists of a timeout as well as an optional
+    ``exit_on_file`` which will cause the service to quit when that path is
+    created.
+
+    The files are periodically polled for existence via fsspec and will trigger
+    the corresponding behavior when created.
 
     Args:
         logdir: fsspec path to the Tensorboard logs

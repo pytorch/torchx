@@ -8,20 +8,19 @@ import importlib
 import sys
 import unittest
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import torchx
-from torchx import schedulers
-from torchx import specs
+from torchx import schedulers, specs
 
 # @manual=//torchx/schedulers:kubernetes_scheduler
 from torchx.schedulers import kubernetes_scheduler
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.kubernetes_scheduler import (
-    create_scheduler,
-    role_to_pod,
     app_to_resource,
     cleanup_str,
+    create_scheduler,
+    role_to_pod,
 )
 
 
@@ -57,10 +56,15 @@ class KubernetesSchedulerTest(unittest.TestCase):
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
-        resource = app_to_resource(app, "test_queue")
-        # pyre-ignore [16]
-        actual_cmd = resource["spec"]["tasks"][0]["template"].spec.containers[0].command
-        expected_cmd = ["main", "--output-path", "", "--app-id", unique_app_name]
+            resource = app_to_resource(app, "test_queue")
+            actual_cmd = (
+                # pyre-ignore [16]
+                resource["spec"]["tasks"][0]["template"]
+                .spec.containers[0]
+                .command
+            )
+            expected_cmd = ["main", "--output-path", "", "--app-id", unique_app_name]
+            self.assertEqual(expected_cmd, actual_cmd)
 
     def test_retry_policy_not_set(self) -> None:
         app = _test_app()
@@ -148,8 +152,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = specs.RunConfig()
-        cfg.set("queue", "testqueue")
+        cfg = {"queue": "testqueue"}
         with patch(
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -226,9 +229,11 @@ spec:
         }
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = specs.RunConfig()
-        cfg.set("namespace", "testnamespace")
-        cfg.set("queue", "testqueue")
+        cfg = {
+            "namespace": "testnamespace",
+            "queue": "testqueue",
+        }
+
         info = scheduler._submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "testnamespace:testid")
@@ -252,9 +257,10 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = specs.RunConfig()
-        cfg.set("namespace", "testnamespace")
-        cfg.set("queue", "testqueue")
+        cfg = {
+            "namespace": "testnamespace",
+            "queue": "testqueue",
+        }
         info = scheduler._submit_dryrun(app, cfg)
         with self.assertRaises(ValueError):
             scheduler.schedule(info)
@@ -426,8 +432,10 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
     def test_dryrun(self) -> None:
         scheduler = kubernetes_scheduler.create_scheduler("foo")
         app = _test_app()
-        cfg = specs.RunConfig()
-        cfg.set("namespace", "testnamespace")
-        cfg.set("queue", "testqueue")
+        cfg = {
+            "namespace": "testnamespace",
+            "queue": "testqueue",
+        }
+
         with self.assertRaises(ModuleNotFoundError):
             scheduler._submit_dryrun(app, cfg)

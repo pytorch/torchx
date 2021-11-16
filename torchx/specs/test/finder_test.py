@@ -6,21 +6,26 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import shutil
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import torchx.specs.finder as finder
 from pyre_extensions import none_throws
-from torchx.specs.api import AppDef, Role
+from torchx.runner import get_runner
+from torchx.runtime.tracking import FsspecResultTracker
+from torchx.specs.api import AppDef, AppState, Role
 from torchx.specs.finder import (
-    ModuleComponentsFinder,
+    ComponentNotFoundException,
+    ComponentValidationException,
     CustomComponentsFinder,
+    ModuleComponentsFinder,
+    _load_components,
     get_component,
     get_components,
-    ComponentValidationException,
-    ComponentNotFoundException,
-    _load_components,
 )
 
 
@@ -191,3 +196,70 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
     def test_get_component_invalid(self) -> None:
         with self.assertRaises(ComponentValidationException):
             get_component(f"{current_file_path()}:invalid_component")
+
+
+class GetBuiltinSourceTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.test_dir = Path(tempfile.mkdtemp("torchx_specs_finder_test"))
+
+        # this is so that the test can pick up penv python (fb-only)
+        # which is added as a test resource
+        self.orig_cwd = os.getcwd()
+        os.chdir(os.path.dirname(__file__))
+
+    def tearDown(self) -> None:
+        os.chdir(self.orig_cwd)
+        shutil.rmtree(self.test_dir)
+
+    def test_get_builtin_source_with_echo(self) -> None:
+        echo_src = finder.get_builtin_source("utils.echo")
+
+        # save it to a file and try running it
+        echo_copy = self.test_dir / "echo_copy.py"
+        with open(echo_copy, "w") as f:
+            f.write(echo_src)
+
+        runner = get_runner()
+        app_handle = runner.run_component(
+            scheduler="local_cwd",
+            component=f"{str(echo_copy)}:echo",
+            component_args=["--msg", "hello world"],
+        )
+        status = runner.wait(app_handle, wait_interval=0.1)
+        self.assertIsNotNone(status)
+        self.assertEqual(AppState.SUCCEEDED, status.state)
+
+    def test_get_builtin_source_with_booth(self) -> None:
+        # try copying and running a builtin that is NOT the first
+        # defined function in the file
+
+        booth_src = finder.get_builtin_source("utils.booth")
+
+        # save it to a file and try running it
+        booth_copy = self.test_dir / "booth_copy.py"
+        with open(booth_copy, "w") as f:
+            f.write(booth_src)
+
+        runner = get_runner()
+
+        trial_idx = 0
+        tracker_base = str(self.test_dir / "tracking")
+
+        app_handle = runner.run_component(
+            scheduler="local_cwd",
+            cfg={"prepend_cwd": True},
+            component=f"{str(booth_copy)}:booth",
+            component_args=[
+                "--x1=1",
+                "--x2=3",
+                f"--trial_idx={trial_idx}",
+                f"--tracker_base={tracker_base}",
+            ],
+        )
+        status = runner.wait(app_handle, wait_interval=0.1)
+        self.assertIsNotNone(status)
+        self.assertEqual(AppState.SUCCEEDED, status.state)
+
+        tracker = FsspecResultTracker(tracker_base)
+        # booth function has global min of 0 at (1, 3)
+        self.assertEqual(0, tracker[trial_idx]["booth_eval"])

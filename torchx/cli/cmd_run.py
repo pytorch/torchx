@@ -11,7 +11,7 @@ import sys
 import threading
 from dataclasses import asdict
 from pprint import pformat
-from typing import Dict, List, Optional, Type, cast
+from typing import Dict, List, Optional, Type
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
@@ -19,20 +19,23 @@ from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
 from torchx.runner import Runner, config, get_runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
+from torchx.specs import CfgVal
 from torchx.specs.finder import (
     ComponentNotFoundException,
     ComponentValidationException,
     _Component,
+    get_builtin_source,
     get_components,
 )
 from torchx.util.types import to_dict
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 def _convert_to_option_type(
-    value: str, option_type: Type[specs.ConfigValue]
-) -> specs.ConfigValue:
+    value: str, option_type: Type[specs.CfgVal]
+) -> specs.CfgVal:
     if option_type == bool:
         return value.lower() == "true"
     elif option_type == List[str]:
@@ -42,8 +45,8 @@ def _convert_to_option_type(
         return option_type(value)
 
 
-def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfig:
-    conf = specs.RunConfig()
+def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> Dict[str, CfgVal]:
+    conf: Dict[str, CfgVal] = {}
     if not arg:
         return conf
 
@@ -53,24 +56,31 @@ def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> specs.RunConfi
             raise ValueError(f"Unknown {key}, run `torchx runopts` for more info")
         option_type = option.opt_type
         typed_value = _convert_to_option_type(value, option_type)
-        conf.set(key, typed_value)
-
+        conf[key] = typed_value
     return conf
 
 
 class CmdBuiltins(SubCommand):
     def add_arguments(self, subparser: argparse.ArgumentParser) -> None:
-        pass
+        subparser.add_argument(
+            "--print",
+            type=str,
+            help="prints the builtin's component def to stdout",
+        )
 
     def _builtins(self) -> Dict[str, _Component]:
         return get_components()
 
     def run(self, args: argparse.Namespace) -> None:
-        builtin_components = self._builtins()
-        num_builtins = len(builtin_components)
-        print(f"Found {num_builtins} builtin components:")
-        for i, component in enumerate(builtin_components.values()):
-            print(f" {i + 1:2d}. {component.name}")
+        builtin_name = args.print
+        if not builtin_name:
+            builtin_components = self._builtins()
+            num_builtins = len(builtin_components)
+            print(f"Found {num_builtins} builtin components:")
+            for i, component in enumerate(builtin_components.values()):
+                print(f" {i + 1:2d}. {component.name}")
+        else:
+            print(get_builtin_source(builtin_name))
 
 
 class CmdRun(SubCommand):
@@ -119,7 +129,7 @@ class CmdRun(SubCommand):
             nargs=argparse.REMAINDER,
         )
 
-    def _run(self, runner: Runner, args: argparse.Namespace) -> Optional[str]:
+    def _run(self, runner: Runner, args: argparse.Namespace) -> None:
         if args.scheduler == "local":
             logger.warning(
                 "`local` scheduler is deprecated and will be"
@@ -143,18 +153,41 @@ class CmdRun(SubCommand):
         # parse component arguments.
         conf_file, conf_args = args.conf_args[0], args.conf_args[1:]
         try:
-            result = runner.run_component(
-                conf_file,
-                conf_args,
-                args.scheduler,
-                cfg,
-                dryrun=args.dryrun,
-            )
+            if args.dryrun:
+                dryrun_info = runner.dryrun_component(
+                    conf_file, conf_args, args.scheduler, cfg
+                )
+                logger.info(
+                    "\n=== APPLICATION ===\n"
+                    f"{pformat(asdict(dryrun_info._app), indent=2, width=80)}"
+                )
+
+                logger.info("\n=== SCHEDULER REQUEST ===\n" f"{dryrun_info}")
+            else:
+                app_handle = runner.run_component(
+                    conf_file,
+                    conf_args,
+                    args.scheduler,
+                    cfg,
+                )
+                # DO NOT delete this line. It is used by slurm tests to retrieve the app id
+                print(app_handle)
+
+                if args.scheduler.startswith("local"):
+                    self._wait_and_exit(runner, app_handle, log=True)
+                else:
+                    logger.info(f"Launched app: {app_handle}")
+                    status = runner.status(app_handle)
+                    logger.info(status)
+                    logger.info(f"Job URL: {none_throws(status).ui_url}")
+
+                    if args.wait:
+                        self._wait_and_exit(runner, app_handle, log=args.log)
+
         except (ComponentValidationException, ComponentNotFoundException) as e:
             error_msg = f"\nFailed to run component `{conf_file}` got errors: \n {e}"
             logger.error(error_msg)
             sys.exit(1)
-            return
         except specs.InvalidRunConfigException as e:
             error_msg = (
                 f"Scheduler arg is incorrect or missing required option: `{e.cfg_key}`\n"
@@ -164,33 +197,6 @@ class CmdRun(SubCommand):
             )
             logger.error(error_msg)
             sys.exit(1)
-            return
-
-        if args.dryrun:
-            app_dryrun_info = cast(specs.AppDryRunInfo, result)
-            logger.info(
-                "\n=== APPLICATION ===\n"
-                f"{pformat(asdict(app_dryrun_info._app), indent=2, width=80)}"
-            )
-
-            logger.info("\n=== SCHEDULER REQUEST ===\n" f"{app_dryrun_info}")
-            return
-        else:
-            app_handle = cast(specs.AppHandle, result)
-            # do not delete this line. It is used by slurm tests to retrieve the app id
-            print(app_handle)
-
-            if args.scheduler.startswith("local"):
-                self._wait_and_exit(runner, app_handle, log=True)
-            else:
-                logger.info(f"Launched app: {app_handle}")
-                status = runner.status(app_handle)
-                logger.info(status)
-                logger.info(f"Job URL: {none_throws(status).ui_url}")
-
-                if args.wait:
-                    self._wait_and_exit(runner, app_handle, log=args.log)
-            return app_handle
 
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")

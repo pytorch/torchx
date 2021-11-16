@@ -1,6 +1,9 @@
 Basic Concepts
 =======================
 
+This describes the high level concepts behind TorchX and the project structure.
+For how to create and run an app check out the `Quickstart Guide <quickstart.md>`_.
+
 Project Structure
 -------------------
 The top level modules in TorchX are:

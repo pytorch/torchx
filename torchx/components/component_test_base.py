@@ -17,7 +17,7 @@ args.
 import os
 import unittest
 from types import ModuleType
-from typing import Union
+from typing import Mapping, Union
 
 from pyre_extensions import none_throws
 from torchx.runner import get_runner
@@ -26,7 +26,7 @@ from torchx.specs import (
     AppDryRunInfo,
     AppHandle,
     AppState,
-    RunConfig,
+    CfgVal,
     SchedulerBackend,
 )
 from torchx.specs.api import _create_args_parser
@@ -39,7 +39,7 @@ class ComponentUtils:
         cls,
         app_def: AppDef,
         scheduler: SchedulerBackend,
-        scheduler_cfg: RunConfig,
+        cfg: Mapping[str, CfgVal],
         dryrun: bool = False,
     ) -> Union[AppHandle, AppDryRunInfo]:
         """
@@ -48,11 +48,11 @@ class ComponentUtils:
 
         runner = get_runner("test-runner")
         if dryrun:
-            dryrun_info = runner.dryrun(app_def, scheduler, scheduler_cfg)
+            dryrun_info = runner.dryrun(app_def, scheduler, cfg)
             print(f"Dryrun info: {dryrun_info}")
             return dryrun_info
         else:
-            app_handle = runner.run(app_def, scheduler, scheduler_cfg)
+            app_handle = runner.run(app_def, scheduler, cfg)
             print(f"AppHandle: {app_handle}")
             app_status = runner.wait(app_handle)
             print(f"Final status: {app_status}")

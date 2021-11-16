@@ -10,18 +10,18 @@ import logging
 import time
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
 
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler, Stream
-from torchx.specs.api import (
+from torchx.specs import (
     AppDef,
     AppDryRunInfo,
     AppHandle,
     AppStatus,
-    RunConfig,
+    CfgVal,
     SchedulerBackend,
     UnknownAppException,
     from_function,
@@ -36,11 +36,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 NONE: str = "<NONE>"
-
-# Unique identifier of the component, can be either
-# component name, e.g.: utils.echo or path to component function:
-# /tmp/foobar.py:component
-ComponentId = str
 
 
 class Runner:
@@ -100,18 +95,15 @@ class Runner:
 
     def run_component(
         self,
-        component_name: ComponentId,
-        app_args: List[str],
+        component: str,
+        component_args: List[str],
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
-        dryrun: bool = False,
-        # pyre-ignore[24]: Allow generic AppDryRunInfo
-    ) -> Union[AppHandle, AppDryRunInfo]:
-        """Resolves and runs the application in the specified mode.
+        cfg: Optional[Mapping[str, CfgVal]] = None,
+    ) -> AppHandle:
+        """
+        Runs a component.
 
-        Retrieves application based on ``component_name`` and runs it in the specified mode.
-
-        The ``component_name`` has the following resolution order(from high-pri to low-pri):
+        ``component`` has the following resolution order(high to low):
             * User-registered components. Users can register components via
                 https://packaging.python.org/specifications/entry-points/. Method looks for
                 entrypoints in the group ``torchx.components``.
@@ -123,43 +115,46 @@ class Runner:
 
         Usage:
 
-        ::
+        .. code-block:: python
 
-         runner.run_component("distributed.ddp", ...) - will be resolved to
-            ``torchx.components.distributed`` module and ``ddp`` function.
+         # resolved to torchx.components.distributed.ddp()
+         runner.run_component("distributed.ddp", ...)
 
-
-         runner.run_component("~/home/components.py:my_component", ...) - will be resolved to
-            ``~/home/components.py`` file and ``my_component`` function.
-
-        Args:
-            component_name: The name of the component to lookup
-            app_args: Arguments of the component function
-            scheduler: Scheduler to execute component
-            cfg: Scheduler run configuration
-            dryrun: If True, the will return ``torchx.specs.AppDryRunInfo``
+         # resolved to my_component() function in ~/home/components.py
+         runner.run_component("~/home/components.py:my_component", ...)
 
 
         Returns:
-            An application handle that is used to call other action APIs on the app, or ``<NONE>``
-            if it dryrun specified.
+            An application handle that is used to call other action APIs on the app
 
         Raises:
             ComponentValidationException: if component is invalid.
             ComponentNotFoundException: if the ``component_path`` is failed to resolve.
         """
-        component_def = get_component(component_name)
-        app = from_function(component_def.fn, app_args)
-        if dryrun:
-            return self.dryrun(app, scheduler, cfg)
-        else:
-            return self.run(app, scheduler, cfg)
+
+        dryrun_info = self.dryrun_component(component, component_args, scheduler, cfg)
+        return self.schedule(dryrun_info)
+
+    def dryrun_component(
+        self,
+        component: str,
+        component_args: List[str],
+        scheduler: SchedulerBackend,
+        cfg: Optional[Mapping[str, CfgVal]] = None,
+    ) -> AppDryRunInfo:
+        """
+        Dryrun version of :py:func:`run_component`. Will not actually run the
+        component, but just returns what "would" have run.
+        """
+        component_def = get_component(component)
+        app = from_function(component_def.fn, component_args)
+        return self.dryrun(app, scheduler, cfg)
 
     def run(
         self,
         app: AppDef,
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> AppHandle:
         """
         Runs the given application in the specified mode.
@@ -174,7 +169,6 @@ class Runner:
         dryrun_info = self.dryrun(app, scheduler, cfg)
         return self.schedule(dryrun_info)
 
-    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
         """
         Actually runs the application from the given dryrun info.
@@ -207,7 +201,7 @@ class Runner:
         """
         scheduler_backend = none_throws(dryrun_info._scheduler)
         cfg = dryrun_info._cfg
-        runcfg = json.dumps(cfg.cfgs) if cfg else None
+        runcfg = json.dumps(cfg) if cfg else None
         with log_event("schedule", scheduler_backend, runcfg=runcfg) as logger_context:
             sched = self._scheduler(scheduler_backend)
             app_id = sched.schedule(dryrun_info)
@@ -225,8 +219,7 @@ class Runner:
         self,
         app: AppDef,
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
-        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> AppDryRunInfo:
         """
         Dry runs an app on the given scheduler with the provided run configs.
@@ -260,7 +253,7 @@ class Runner:
                     f" Did you forget to set role.num_replicas?"
                 )
 
-        cfg = cfg or RunConfig()
+        cfg = cfg or dict()
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)
         dryrun_info = sched.submit_dryrun(app, cfg)
@@ -442,7 +435,7 @@ class Runner:
 
         ::
 
-         app_handle = session.run(app, scheduler="local", cfg=RunConfig())
+         app_handle = session.run(app, scheduler="local", cfg=Dict[str, ConfigValue]())
 
          print("== trainer node 0 logs ==")
          for line in session.log_lines(app_handle, "trainer", k=0):
