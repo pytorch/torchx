@@ -5,35 +5,36 @@
 # LICENSE file in the root directory of this source tree.
 
 import dataclasses
-import fnmatch
 import json
 import logging
 import os
-import pathlib
 from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
-from tempfile import NamedTemporaryFile, mkdtemp
-from typing import Mapping, Any, Dict, Iterable, List, Optional, Set, Type
+from tempfile import mkdtemp
+from typing import Any, List, Mapping, Optional, Set, Type
 
-# try:
-import ray  # @manual # noqa: F401
-import requests
-from ray._private.job_manager import JobStatus
-from ray._private.job_manager import JobStatus
-from ray.autoscaler import sdk as ray_autoscaler_sdk
-from ray.dashboard.modules.job.sdk import JobSubmissionClient
-
-from .ray.ray_common import RayActor
-
-_has_ray = True
-
-# except ImportError:
-#     _has_ray = False
-
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream, AppState
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    AppState,
+    DescribeAppResponse,
+    Scheduler,
+    Stream,
+)
 from torchx.schedulers.ids import make_unique
+from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
+
+try:
+    import ray  # @manual # noqa: F401
+    from ray.autoscaler import sdk as ray_autoscaler_sdk
+    from ray.dashboard.modules.job.sdk import JobSubmissionClient
+    from ray._private.job_manager import JobStatus
+
+    _has_ray = True
+except ImportError:
+    _has_ray = False
+
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
@@ -46,24 +47,17 @@ ray_status_to_torchx_appstate = {
 }
 
 
-def find_file(pattern, path):
-    result = []
-    for root, dirs, files in os.walk(path):
-        for name in files:
-            if fnmatch.fnmatch(name, pattern):
-                result.append(os.path.join(root, name))
-    return result
-
-
-class EnhancedJSONEncoder(json.JSONEncoder):
+class _EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if dataclasses.is_dataclass(o):
             return dataclasses.asdict(o)
         return super().default(o)
 
 
-def serialize(actors: List[RayActor], dirpath, output_filename="actors.json") -> None:
-    actors_json = json.dumps(actors, cls=EnhancedJSONEncoder)
+def _serialize(
+    actors: List[RayActor], dirpath: str, output_filename: str = "actors.json"
+) -> None:
+    actors_json = json.dumps(actors, cls=_EnhancedJSONEncoder)
     with open(os.path.join(dirpath, output_filename), "w") as tmp:
         json.dump(actors_json, tmp)
 
@@ -111,9 +105,10 @@ class RayJob:
 
 
 class RayScheduler(Scheduler):
+    client: JobSubmissionClient
+
     def __init__(self, session_name: str) -> None:
         super().__init__("ray", session_name)
-        self.client = None
 
     # TODO: Add address as a potential CLI argument after writing ray.status() or passing in config file
     def run_opts(self) -> runopts:
@@ -158,25 +153,25 @@ class RayScheduler(Scheduler):
 
         dirpath = mkdtemp()
 
-        serialize(actors, dirpath)
+        _serialize(actors, dirpath)
 
         ip_address = cfg.cluster_address
-
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
 
         dashboard_port = 8265
+
         # Create Job Client
         self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
+
         entrypoint = os.path.join("ray", "ray_driver.py")
 
-        # TODO: would be nice to have support for multiple directories in ray runtime_env directly
         # 1. Copy scripts and directories
         if cfg.scripts:
             for script in cfg.scripts:
                 if cfg.copy_script_dirs:
-                    script_path = os.path.dirname(script)
-                    copy2(script_path, dirpath)
+                    script_dir = os.path.dirname(script)
+                    copy2(script_dir, dirpath)
                 else:
                     copy2(script, dirpath)
 

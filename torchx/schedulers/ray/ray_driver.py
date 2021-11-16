@@ -4,12 +4,10 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import dataclasses
 import json
 import logging
 import os
-import subprocess
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from typing import Dict, List
 
 import ray
 
@@ -20,7 +18,7 @@ _logger: logging.Logger = logging.getLogger(__name__)
 
 @ray.remote
 class CommandActor:
-    def __init__(self, command: str, env: Dict[str, str]):
+    def __init__(self, command: str, env: Dict[str, str]) -> None:
         self.args = command.split(" ")
         self.path = self.args[0]
 
@@ -41,14 +39,14 @@ def load_actor_json(filename: str) -> List[RayActor]:
         return actors
 
 
-def _main(job_id=None):
+def _main(job_id: str = None) -> None:
     _logger.info("Reading actor.json")
     actors = load_actor_json("actors.json")
-    pgs = []
+
     ray.init(address="auto", namespace="torchx-ray")
 
+    pgs = []
     for actor in actors:
-
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
@@ -60,7 +58,6 @@ def _main(job_id=None):
         if ready:
             _logger.info("Placement group has started.")
             _logger.info("Starting remote function")
-
         else:
             raise TimeoutError(
                 "Placement group creation timed out. Make sure "
@@ -89,8 +86,7 @@ def _main(job_id=None):
         for object_ref in finished:
             try:
                 ray.get(object_ref)
-
-            except ray.RayActorError as exc:
+            except ray.exceptions.RayActorError as exc:
                 status_code = 1
 
             if status_code != 0:
