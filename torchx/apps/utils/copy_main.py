@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import os
 import shutil
 import sys
 from typing import List
@@ -45,6 +46,12 @@ def main(argv: List[str]) -> None:
 
     src_fs, src_path = fsspec.core.url_to_fs(args.src)
     dst_fs, dst_path = fsspec.core.url_to_fs(args.dst)
+    dst_dir_path = os.path.dirname(dst_path)
+    try:
+        dst_fs.mkdir(dst_dir_path, create_parents=True)
+    except FileExistsError:
+        # Some fs, e.g. memory://, raise this exception if the dir already exists.
+        pass
 
     if src_fs == dst_fs:
         print("filesystems are the same, using fs.copy() method")
