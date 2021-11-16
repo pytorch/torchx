@@ -1,54 +1,71 @@
-# https://pytorch.org/tutorials/beginner/pytorch_with_examples.html
-# -*- coding: utf-8 -*-
+# https://pytorch.org/tutorials/intermediate/ddp_tutorial.html
+# TODO: BERT and Resnet example for release
+import os
+import sys
+import tempfile
 import torch
-import math
+import torch.distributed as dist
+import torch.nn as nn
+import torch.optim as optim
+import torch.multiprocessing as mp
+
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+# On Windows platform, the torch.distributed package only
+# supports Gloo backend, FileStore and TcpStore.
+# For FileStore, set init_method parameter in init_process_group
+# to a local file. Example as follow:
+# init_method="file:///f:/libtmp/some_file"
+# dist.init_process_group(
+#    "gloo",
+#    rank=rank,
+#    init_method=init_method,
+#    world_size=world_size)
+# For TcpStore, same way as on Linux.
+
+def setup(rank, world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+
+    # initialize the process group
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
+
+def cleanup():
+    dist.destroy_process_group()
+
+class ToyModel(nn.Module):
+    def __init__(self):
+        super(ToyModel, self).__init__()
+        self.net1 = nn.Linear(10, 10)
+        self.relu = nn.ReLU()
+        self.net2 = nn.Linear(10, 5)
+
+    def forward(self, x):
+        return self.net2(self.relu(self.net1(x)))
 
 
-# Create Tensors to hold input and outputs.
-x = torch.linspace(-math.pi, math.pi, 2000)
-y = torch.sin(x)
+def demo_basic(rank, world_size):
+    print(f"Running basic DDP example on rank {rank}.")
+    setup(rank, world_size)
 
-# Prepare the input tensor (x, x^2, x^3).
-p = torch.tensor([1, 2, 3])
-xx = x.unsqueeze(-1).pow(p)
+    # create model and move it to GPU with id rank
+    model = ToyModel().to(rank)
+    ddp_model = DDP(model, device_ids=[rank])
 
-# Use the nn package to define our model and loss function.
-model = torch.nn.Sequential(
-    torch.nn.Linear(3, 1),
-    torch.nn.Flatten(0, 1)
-)
-loss_fn = torch.nn.MSELoss(reduction='sum')
+    loss_fn = nn.MSELoss()
+    optimizer = optim.SGD(ddp_model.parameters(), lr=0.001)
 
-# Use the optim package to define an Optimizer that will update the weights of
-# the model for us. Here we will use RMSprop; the optim package contains many other
-# optimization algorithms. The first argument to the RMSprop constructor tells the
-# optimizer which Tensors it should update.
-learning_rate = 1e-3
-optimizer = torch.optim.RMSprop(model.parameters(), lr=learning_rate)
-for t in range(2000):
-    # Forward pass: compute predicted y by passing x to the model.
-    y_pred = model(xx)
-
-    # Compute and print loss.
-    loss = loss_fn(y_pred, y)
-    if t % 100 == 99:
-        print(t, loss.item())
-
-    # Before the backward pass, use the optimizer object to zero all of the
-    # gradients for the variables it will update (which are the learnable
-    # weights of the model). This is because by default, gradients are
-    # accumulated in buffers( i.e, not overwritten) whenever .backward()
-    # is called. Checkout docs of torch.autograd.backward for more details.
     optimizer.zero_grad()
-
-    # Backward pass: compute gradient of the loss with respect to model
-    # parameters
-    loss.backward()
-
-    # Calling the step function on an Optimizer makes an update to its
-    # parameters
+    outputs = ddp_model(torch.randn(20, 10))
+    labels = torch.randn(20, 5).to(rank)
+    loss_fn(outputs, labels).backward()
     optimizer.step()
 
+    cleanup()
 
-linear_layer = model[0]
-print(f'Result: y = {linear_layer.bias.item()} + {linear_layer.weight[:, 0].item()} x + {linear_layer.weight[:, 1].item()} x^2 + {linear_layer.weight[:, 2].item()} x^3')
+
+def run_demo(demo_fn, world_size):
+    mp.spawn(demo_fn,
+             args=(world_size,),
+             nprocs=world_size,
+             join=True)
