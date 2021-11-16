@@ -96,7 +96,7 @@ if has_ray():
             def assert_option(expected_opt: Option) -> None:
                 opt = opts.get(expected_opt.name)
 
-                # self.assertIsNotNone(opt)
+                self.assertIsNotNone(opt)
 
                 self.assertEqual(opt.opt_type, expected_opt.opt_type)
                 self.assertEqual(opt.is_required, expected_opt.is_required)
@@ -109,7 +109,7 @@ if has_ray():
             expected_opts = [
                 Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
-                Option("cluster_address",str),
+                Option("cluster_address",str, default="127.0.0.1"),
                 Option("copy_scripts", bool, default=False),
                 Option("copy_script_dirs", bool, default=False),
             ]
@@ -275,7 +275,7 @@ if has_ray():
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
             
-            time.sleep(60)
+            # time.sleep(60)
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             assert logs is not None
             self.teardown_ray_cluster()
