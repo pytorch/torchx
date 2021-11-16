@@ -210,7 +210,7 @@ class RayScheduler(Scheduler):
             # and use it to configure your job execution.
             entrypoint=f"python {entrypoint}",
             runtime_env={"working_dir" : dirpath},
-            job_id = cfg.app_id
+            # job_id = cfg.app_id
         )
 
         return job_id
