@@ -132,6 +132,7 @@ class RayScheduler(Scheduler):
             "cluster_address",
             type_=str,
             required=False,
+            default="127.0.0.1",
             help="Use ray status to get the cluster_address"
         )
         opts.add(
@@ -146,21 +147,10 @@ class RayScheduler(Scheduler):
             default=False,
             help="Copy the directories containing the Python scripts to the cluster.",
         )
-        opts.add(
-            "verbose",
-            type_=bool,
-            default=False,
-            help="Enable verbose output.",
-        )
         return opts
 
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
         cfg: RayJob = dryrun_info.request
-
-        # not sure what to do with this
-        verbose: bool = False
-        appId: str = ""
-        cluster_name: Optional[str] = None
 
         # Create serialized actors for ray_driver.py
         actors = cfg.actors
@@ -174,9 +164,6 @@ class RayScheduler(Scheduler):
 
         elif cfg.cluster_address:
             ip_address = cfg.cluster_address
-
-        else:
-            ip_address = "127.0.0.1"
         
         dashboard_port = 8265
         # Create Job Client
@@ -197,13 +184,6 @@ class RayScheduler(Scheduler):
         current_directory = os.path.dirname(os.path.abspath(__file__))
         copy2(os.path.join(current_directory,"ray", "ray_driver.py"), dirpath)
         copy2(os.path.join(current_directory,"ray", "ray_common.py"), dirpath)
-
-
-        # 3. Copy actor.json
-        # actor_path = find_file("actor", "/tmp")
-        # print("ACTOR PATH")
-        # print(f"actor path: {actor_path}")
-        # copy2(actor_path, dirpath)
 
         job_id : str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
