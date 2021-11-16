@@ -11,6 +11,7 @@ from unittest import TestCase
 from unittest.mock import patch
 import os
 import ray
+import time
 
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
@@ -67,7 +68,6 @@ if has_ray():
             self._run_cfg.set("cluster_name", "dummy_name")
             self._run_cfg.set("copy_scripts", True)
             self._run_cfg.set("copy_script_dirs", True)
-            self._run_cfg.set("verbose", True)
 
             self._scheduler = RayScheduler("test_session")
 
@@ -96,7 +96,7 @@ if has_ray():
             def assert_option(expected_opt: Option) -> None:
                 opt = opts.get(expected_opt.name)
 
-                self.assertIsNotNone(opt)
+                # self.assertIsNotNone(opt)
 
                 self.assertEqual(opt.opt_type, expected_opt.opt_type)
                 self.assertEqual(opt.is_required, expected_opt.is_required)
@@ -112,7 +112,6 @@ if has_ray():
                 Option("cluster_address",str),
                 Option("copy_scripts", bool, default=False),
                 Option("copy_script_dirs", bool, default=False),
-                Option("verbose", bool, default=False),
             ]
 
             self.assertEqual(len(opts), len(expected_opts))
@@ -217,9 +216,6 @@ if has_ray():
         ) -> None:
             self._assert_config_value("copy_script_dirs", "dummy_value", "bool")
 
-        def test_submit_dryrun_raises_error_if_verbose_is_not_bool(self) -> None:
-            self._assert_config_value("verbose", "dummy_value", "bool")
-
         def _assert_submit_dryrun_constructs_job_definition(self) -> None:
             run_info = self._scheduler._submit_dryrun(self._app_def, self._run_cfg)
 
@@ -238,7 +234,6 @@ if has_ray():
             self.assertEqual(
                 job.copy_script_dirs, self._run_cfg.get("copy_script_dirs") or False
             )
-            self.assertEqual(job.verbose, self._run_cfg.get("verbose") or False)
 
             for actor, role in zip(job.actors, self._app_def.roles):
                 self.assertEqual(actor.name, role.name)
@@ -259,7 +254,6 @@ if has_ray():
             self._run_cfg.set("cluster_name", None)
             self._run_cfg.set("copy_scripts", False)
             self._run_cfg.set("copy_script_dirs", False)
-            self._run_cfg.set("verbose", None)
 
             self._assert_submit_dryrun_constructs_job_definition()
 
@@ -280,6 +274,8 @@ if has_ray():
 
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
+            
+            time.sleep(60)
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             assert logs is not None
             self.teardown_ray_cluster()
@@ -293,7 +289,7 @@ if has_ray():
             return ray_scheduler
 
         def schedule_ray_job(self,ray_scheduler, app_id="123") -> str:
-            ray_job = RayJob(app_id=app_id, copy_scripts=True, scripts=set(["train.py"]))
+            ray_job = RayJob(app_id=app_id, copy_scripts=True, cluster_address="127.0.0.1", scripts=set(["train.py"]))
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
             return job_id

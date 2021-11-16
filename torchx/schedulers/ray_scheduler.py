@@ -156,11 +156,10 @@ class RayScheduler(Scheduler):
 
         serialize(actors, dirpath)
         
+        ip_address = cfg.cluster_address
+
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
-
-        elif cfg.cluster_address:
-            ip_address = cfg.cluster_address
         
         dashboard_port = 8265
         # Create Job Client
@@ -217,7 +216,6 @@ class RayScheduler(Scheduler):
         set_job_attr("cluster_name", str)
         set_job_attr("copy_scripts", bool)
         set_job_attr("copy_script_dirs", bool)
-        set_job_attr("verbose", bool)
 
         for role in app.roles:
             # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
