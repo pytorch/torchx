@@ -10,17 +10,17 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Mapping, Optional
 
-from torchx.specs.api import (
+from torchx.specs import (
     NONE,
     NULL_RESOURCE,
     AppDef,
     AppDryRunInfo,
     AppState,
+    CfgVal,
     Role,
     RoleStatus,
-    RunConfig,
     SchedulerBackend,
     runopts,
 )
@@ -90,7 +90,7 @@ class Scheduler(abc.ABC):
         """
         pass
 
-    def submit(self, app: AppDef, cfg: RunConfig) -> str:
+    def submit(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> str:
         """
         Submits the application to be run by the scheduler.
 
@@ -101,7 +101,6 @@ class Scheduler(abc.ABC):
         return self.schedule(dryrun_info)
 
     @abc.abstractmethod
-    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
     def schedule(self, dryrun_info: AppDryRunInfo) -> str:
         """
         Same as ``submit`` except that it takes an ``AppDryRunInfo``.
@@ -118,8 +117,7 @@ class Scheduler(abc.ABC):
 
         raise NotImplementedError()
 
-    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
-    def submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo:
+    def submit_dryrun(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> AppDryRunInfo:
         """
         Rather than submitting the request to run the app, returns the
         request object that would have been submitted to the underlying
@@ -136,8 +134,7 @@ class Scheduler(abc.ABC):
         dryrun_info._cfg = resolved_cfg
         return dryrun_info
 
-    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
-    def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo:
+    def _submit_dryrun(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> AppDryRunInfo:
         raise NotImplementedError()
 
     def run_opts(self) -> runopts:

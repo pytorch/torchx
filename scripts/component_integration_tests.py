@@ -10,22 +10,17 @@ Kubernetes integration tests.
 """
 import os
 
-# pyre-ignore-all-errors[21] # Cannot find module utils
-# pyre-ignore-all-errors[11]
-
 import example_app_defs as examples_app_defs_providers
 import torchx.components.integration_tests.component_provider as component_provider
-from integ_test_utils import (
-    MissingEnvError,
-    build_images,
-    push_images,
-    BuildInfo,
-)
+from integ_test_utils import BuildInfo, MissingEnvError, build_images, push_images
 from torchx.components.integration_tests.integ_tests import (
     IntegComponentTest,
     SchedulerInfo,
 )
-from torchx.specs import RunConfig
+
+
+# pyre-ignore-all-errors[21] # Cannot find module utils
+# pyre-ignore-all-errors[11]
 
 
 def build_and_push_image() -> BuildInfo:
@@ -35,18 +30,19 @@ def build_and_push_image() -> BuildInfo:
 
 
 def get_k8s_sched_info(image: str) -> SchedulerInfo:
-    cfg = RunConfig()
-    cfg.set("namespace", "torchx-dev")
-    cfg.set("queue", "default")
-    return SchedulerInfo(name="kubernetes", image=image, runconfig=cfg)
+    cfg = {
+        "namespace": "torchx-dev",
+        "queue": "default",
+    }
+    return SchedulerInfo(name="kubernetes", image=image, cfg=cfg)
 
 
 def get_local_cwd_sched_info(image: str) -> SchedulerInfo:
-    return SchedulerInfo(name="local_cwd", image=image, runconfig=RunConfig())
+    return SchedulerInfo(name="local_cwd", image=image)
 
 
 def get_local_docker_sched_info(image: str) -> SchedulerInfo:
-    return SchedulerInfo(name="local_docker", image=image, runconfig=RunConfig())
+    return SchedulerInfo(name="local_docker", image=image)
 
 
 def main() -> None:

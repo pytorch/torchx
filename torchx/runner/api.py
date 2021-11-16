@@ -10,18 +10,18 @@ import logging
 import time
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
 
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import Scheduler, Stream
-from torchx.specs.api import (
+from torchx.specs import (
     AppDef,
     AppDryRunInfo,
     AppHandle,
     AppStatus,
-    RunConfig,
+    CfgVal,
     SchedulerBackend,
     UnknownAppException,
     from_function,
@@ -98,7 +98,7 @@ class Runner:
         component: str,
         component_args: List[str],
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> AppHandle:
         """
         Runs a component.
@@ -140,8 +140,7 @@ class Runner:
         component: str,
         component_args: List[str],
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
-        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> AppDryRunInfo:
         """
         Dryrun version of :py:func:`run_component`. Will not actually run the
@@ -155,7 +154,7 @@ class Runner:
         self,
         app: AppDef,
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> AppHandle:
         """
         Runs the given application in the specified mode.
@@ -170,7 +169,6 @@ class Runner:
         dryrun_info = self.dryrun(app, scheduler, cfg)
         return self.schedule(dryrun_info)
 
-    # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
         """
         Actually runs the application from the given dryrun info.
@@ -203,7 +201,7 @@ class Runner:
         """
         scheduler_backend = none_throws(dryrun_info._scheduler)
         cfg = dryrun_info._cfg
-        runcfg = json.dumps(cfg.cfgs) if cfg else None
+        runcfg = json.dumps(cfg) if cfg else None
         with log_event("schedule", scheduler_backend, runcfg=runcfg) as logger_context:
             sched = self._scheduler(scheduler_backend)
             app_id = sched.schedule(dryrun_info)
@@ -221,8 +219,7 @@ class Runner:
         self,
         app: AppDef,
         scheduler: SchedulerBackend,
-        cfg: Optional[RunConfig] = None,
-        # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
+        cfg: Optional[Mapping[str, CfgVal]] = None,
     ) -> AppDryRunInfo:
         """
         Dry runs an app on the given scheduler with the provided run configs.
@@ -256,7 +253,7 @@ class Runner:
                     f" Did you forget to set role.num_replicas?"
                 )
 
-        cfg = cfg or RunConfig()
+        cfg = cfg or dict()
         sched = self._scheduler(scheduler)
         sched._validate(app, scheduler)
         dryrun_info = sched.submit_dryrun(app, cfg)
@@ -438,7 +435,7 @@ class Runner:
 
         ::
 
-         app_handle = session.run(app, scheduler="local", cfg=RunConfig())
+         app_handle = session.run(app, scheduler="local", cfg=Dict[str, ConfigValue]())
 
          print("== trainer node 0 logs ==")
          for line in session.log_lines(app_handle, "trainer", k=0):

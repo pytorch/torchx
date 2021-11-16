@@ -17,7 +17,7 @@ import unittest
 from contextlib import contextmanager
 from datetime import datetime
 from os.path import join
-from typing import Generator, Optional, Callable
+from typing import Callable, Generator, Optional
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
@@ -32,7 +32,7 @@ from torchx.schedulers.local_scheduler import (
     join_PATH,
     make_unique,
 )
-from torchx.specs.api import AppDef, AppState, Role, RunConfig, is_terminal, macros
+from torchx.specs.api import AppDef, AppState, Role, is_terminal, macros
 
 from .test_util import write_shell_script
 
@@ -61,7 +61,7 @@ def start_sleep_processes(
     )
 
     app = AppDef(name="test_app", roles=[role])
-    cfg = RunConfig({"log_dir": test_dir})
+    cfg = {"log_dir": test_dir}
 
     scheduler = LocalScheduler(
         session_name="test_session", image_provider_class=LocalDirectoryImageProvider
@@ -107,25 +107,22 @@ class LocalDirImageProviderTest(unittest.TestCase):
         shutil.rmtree(self.test_dir)
 
     def test_fetch_abs_path(self) -> None:
-        cfg = RunConfig()
-        provider = LocalDirectoryImageProvider(cfg)
+        provider = LocalDirectoryImageProvider(cfg={})
         self.assertEqual(self.test_dir, provider.fetch(self.test_dir))
 
     def test_fetch_relative_path_should_throw(self) -> None:
-        cfg = RunConfig()
-        provider = LocalDirectoryImageProvider(cfg)
+        provider = LocalDirectoryImageProvider(cfg={})
         with self.assertRaises(ValueError):
             provider.fetch(self.test_dir_name)
 
     def test_fetch_does_not_exist_should_throw(self) -> None:
         non_existent_dir = join(self.test_dir, "non_existent_dir")
-        cfg = RunConfig()
-        provider = LocalDirectoryImageProvider(cfg)
+        provider = LocalDirectoryImageProvider(cfg={})
         with self.assertRaises(ValueError):
             provider.fetch(non_existent_dir)
 
     def test_get_replica_param(self) -> None:
-        provider = LocalDirectoryImageProvider(RunConfig())
+        provider = LocalDirectoryImageProvider(cfg={})
         role = Role(name="foo", image="/tmp", entrypoint="a", args=["b", "c"])
         self.assertEqual(
             ["a", "b", "c"],
@@ -138,8 +135,7 @@ class LocalDirImageProviderTest(unittest.TestCase):
 class CWDImageProviderTest(unittest.TestCase):
     def setUp(self) -> None:
         self.maxDiff = None  # get full diff on assertion error
-        cfg = RunConfig()
-        self.provider = CWDImageProvider(cfg)
+        self.provider = CWDImageProvider(cfg={})
 
     def test_fetch(self) -> None:
         self.assertEqual(os.getcwd(), self.provider.fetch("/strawberry/toast"))
@@ -244,8 +240,9 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
         app = AppDef(name="test_app", roles=[role])
         expected_app_id = make_unique(app.name)
+        cfg = {"log_dir": self.test_dir}
         with patch(LOCAL_SCHEDULER_MAKE_UNIQUE, return_value=expected_app_id):
-            cfg = RunConfig({"log_dir": self.test_dir})
+
             app_id = self.scheduler.submit(app, cfg)
 
         self.assertEqual(f"{expected_app_id}", app_id)
@@ -281,7 +278,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             num_replicas=1,
         )
         app = AppDef(name="test_app", roles=[role])
-        app_id = self.scheduler.submit(app, RunConfig())
+        self.scheduler.submit(app, cfg={})
         self.scheduler.close()
         self.assertFalse(os.path.exists(self.scheduler._base_log_dir))
         self.assertTrue(self.scheduler._created_tmp_log_dir)
@@ -302,7 +299,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app = AppDef(name="test_app", roles=[role])
         expected_app_id = make_unique(app.name)
         with patch(LOCAL_SCHEDULER_MAKE_UNIQUE, return_value=expected_app_id):
-            cfg = RunConfig({"log_dir": self.test_dir})
+            cfg = {"log_dir": self.test_dir}
             app_id = self.scheduler.submit(app, cfg)
 
         self.assertEqual(f"{expected_app_id}", app_id)
@@ -324,7 +321,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
     def test_submit_inherit_parent_envs(self) -> None:
         role = Role("echo_foo", image=self.test_dir, entrypoint="echo_env_foo.sh")
         app = AppDef(name="check_foo_env_var", roles=[role])
-        app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
+        app_id = self.scheduler.submit(app, {"log_dir": self.test_dir})
         for line in self.scheduler.log_iter(app_id, "echo_foo"):
             self.assertEqual("bar", line)
 
@@ -428,7 +425,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             env={"FOO": "new_bar"},
         )
         app = AppDef(name="check_foo_env_var", roles=[role])
-        app_id = self.scheduler.submit(app, RunConfig({"log_dir": self.test_dir}))
+        app_id = self.scheduler.submit(app, {"log_dir": self.test_dir})
         for line in self.scheduler.log_iter(app_id, "echo_foo"):
             self.assertEqual("new_bar", line)
 
@@ -446,7 +443,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         for std_stream in ["stdout", "stderr"]:
             with self.subTest(std_stream=std_stream):
                 log_dir = join(self.test_dir, f"test_{std_stream}_log")
-                cfg = RunConfig({"log_dir": log_dir})
+                cfg = {"log_dir": log_dir}
 
                 role = Role(
                     "role1",
@@ -479,9 +476,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                         )
 
     @patch(LOCAL_DIR_IMAGE_PROVIDER_FETCH, return_value="")
-    def test_submit_dryrun_without_log_dir_cfg(
-        self, img_provider_fetch_mock: mock.Mock
-    ) -> None:
+    def test_submit_dryrun_without_log_dir_cfg(self, _) -> None:
         master = Role(
             "master",
             image=self.test_dir,
@@ -494,8 +489,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
         app = AppDef(name="test_app", roles=[master, trainer])
-        cfg = RunConfig()
-        info = self.scheduler.submit_dryrun(app, cfg)
+        info = self.scheduler.submit_dryrun(app, cfg={})
         # intentional print (to make sure it actually prints with no errors)
         print(info)
 
@@ -545,7 +539,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
         app = AppDef(name="test_app", roles=[trainer])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
         info = self.scheduler.submit_dryrun(app, cfg)
         # intentional print (to make sure it actually prints with no errors)
         print(info)
@@ -595,7 +589,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
         log_dir = join(self.test_dir, "log")
-        cfg = RunConfig({"log_dir": log_dir})
+        cfg = {"log_dir": log_dir}
         app = AppDef(name="test_app", roles=[role])
         app_id = self.scheduler.submit(app, cfg)
 
@@ -626,7 +620,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
 
         app = AppDef(name="test_app", roles=[role])
 
-        app_id = self.scheduler.submit(app, RunConfig())
+        app_id = self.scheduler.submit(app, cfg={})
         logs = list(self.scheduler.log_iter(app_id, "role1", k=0))
         self.assertEqual(len(logs), 11)
 
@@ -648,7 +642,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             num_replicas=1,
         )
         app = AppDef(name="test_app", roles=[role1, role2])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
         app_id = self.scheduler.submit(app, cfg)
 
         desc = self.wait(app_id)
@@ -666,7 +660,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             num_replicas=1,
         )
         app = AppDef(name="test_app", roles=[role])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
         self.assertIsNone(self.scheduler.describe("test_app_0"))
         app_id = self.scheduler.submit(app, cfg)
         desc = self.scheduler.describe(app_id)
@@ -685,7 +679,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             num_replicas=1,
         )
         app = AppDef(name="test_app", roles=[role])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
         app_id = self.scheduler.submit(app, cfg)
         desc = self.scheduler.describe(app_id)
         assert desc is not None
@@ -704,7 +698,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             num_replicas=1,
         )
         app = AppDef(name="test_app", roles=[role])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
         app_id = self.scheduler.submit(app, cfg)
 
         self.assertTrue(self.scheduler.exists(app_id))
@@ -740,7 +734,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             num_replicas=1,
         )
         app = AppDef(name="test_app", roles=[role])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
         app_id = scheduler.submit(app, cfg)
         with self.assertRaises(IndexError):
             scheduler.submit(app, cfg)
@@ -763,7 +757,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
         app1 = AppDef(name="touch_test_file1", roles=[role1])
         app2 = AppDef(name="touch_test_file2", roles=[role2])
-        cfg = RunConfig({"log_dir": self.test_dir})
+        cfg = {"log_dir": self.test_dir}
 
         app_id1 = scheduler.submit(app1, cfg)
         resp1 = self.wait(app_id1, scheduler)
@@ -799,8 +793,8 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             ],
         )
 
-        self.scheduler.submit(sleep_60sec, RunConfig())
-        self.scheduler.submit(sleep_60sec, RunConfig())
+        self.scheduler.submit(sleep_60sec, cfg={})
+        self.scheduler.submit(sleep_60sec, cfg={})
 
         pids = []
         for app_id, app in self.scheduler._apps.items():
@@ -829,15 +823,15 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             ],
         )
 
-        self.scheduler.submit(sleep_60sec, RunConfig())
+        self.scheduler.submit(sleep_60sec, cfg={})
         self.scheduler.close()
         self.scheduler.close()
         # nothing to validate just make sure no errors are raised
 
     def test_no_orphan_process_function(self) -> None:
-        self._test_orphan_workflow(signal.SIGTERM)
+        self._test_orphan_workflow()
 
-    def _test_orphan_workflow(self, signal_to_send: signal.Signals) -> None:
+    def _test_orphan_workflow(self) -> None:
         mp_queue = mp.get_context("spawn").Queue()
         child_nproc = 2
 

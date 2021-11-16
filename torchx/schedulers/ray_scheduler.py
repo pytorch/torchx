@@ -8,7 +8,12 @@ import logging
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from typing import Mapping, Any, Dict, Iterable, List, Optional, Set, Type
+
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.ids import make_unique
+from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
+
 
 try:
     import ray  # @manual # noqa: F401
@@ -17,9 +22,6 @@ try:
 except ImportError:
     _has_ray = False
 
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
-from torchx.schedulers.ids import make_unique
-from torchx.specs.api import AppDef, RunConfig, SchedulerBackend, macros, runopts
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
@@ -134,7 +136,9 @@ class RayScheduler(Scheduler):
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
         raise NotImplementedError()
 
-    def _submit_dryrun(self, app: AppDef, cfg: RunConfig) -> AppDryRunInfo[RayJob]:
+    def _submit_dryrun(
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
+    ) -> AppDryRunInfo[RayJob]:
         app_id = make_unique(app.name)
 
         cluster_cfg = cfg.get("cluster_config_file")

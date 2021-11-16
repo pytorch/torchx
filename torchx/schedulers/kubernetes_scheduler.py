@@ -47,8 +47,8 @@ from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     Scheduler,
-    filter_regex,
     Stream,
+    filter_regex,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
@@ -59,11 +59,12 @@ from torchx.specs.api import (
     RetryPolicy,
     Role,
     RoleStatus,
-    RunConfig,
     SchedulerBackend,
     macros,
     runopts,
+    CfgVal,
 )
+
 
 if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
@@ -400,7 +401,7 @@ class KubernetesScheduler(Scheduler):
         return f'{namespace}:{resp["metadata"]["name"]}'
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: RunConfig
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[KubernetesJob]:
         queue = cfg.get("queue")
         if not isinstance(queue, str):

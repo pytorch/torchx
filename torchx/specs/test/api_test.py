@@ -9,7 +9,7 @@ import argparse
 import sys
 import unittest
 from dataclasses import asdict
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch
 
 import torchx.specs.named_resources_aws as named_resources_aws
@@ -23,19 +23,19 @@ from torchx.specs.api import (
     AppDryRunInfo,
     AppState,
     AppStatus,
+    CfgVal,
     InvalidRunConfigException,
     MalformedAppHandleException,
     Resource,
     RetryPolicy,
     Role,
-    RunConfig,
+    _create_args_parser,
     from_function,
     get_type_name,
     macros,
     make_app_handle,
     parse_app_handle,
     runopts,
-    _create_args_parser,
 )
 
 
@@ -224,13 +224,13 @@ class AppDefTest(unittest.TestCase):
 
 
 class RunConfigTest(unittest.TestCase):
-    def get_cfg(self) -> RunConfig:
-        cfg = RunConfig()
-        cfg.set("run_as", "root")
-        cfg.set("cluster_id", 123)
-        cfg.set("priority", 0.5)
-        cfg.set("preemptible", True)
-        return cfg
+    def get_cfg(self) -> Mapping[str, CfgVal]:
+        return {
+            "run_as": "root",
+            "cluster_id": 123,
+            "priority": 0.5,
+            "preemptible": True,
+        }
 
     def test_valid_values(self) -> None:
         cfg = self.get_cfg()
@@ -240,19 +240,6 @@ class RunConfigTest(unittest.TestCase):
         self.assertEqual(0.5, cfg.get("priority"))
         self.assertTrue(cfg.get("preemptible"))
         self.assertIsNone(cfg.get("unknown"))
-
-    def test_serde(self) -> None:
-        """
-        tests trivial serialization into dict then back
-        """
-        cfg = self.get_cfg()
-        ser = asdict(cfg)
-        deser = RunConfig(**ser)
-
-        self.assertEqual("root", deser.get("run_as"))
-        self.assertEqual(123, deser.get("cluster_id"))
-        self.assertEqual(0.5, deser.get("priority"))
-        self.assertTrue(deser.get("preemptible"))
 
     def test_runopts_add(self) -> None:
         """
@@ -287,9 +274,7 @@ class RunConfigTest(unittest.TestCase):
 
     def test_runopts_resolve_minimal(self) -> None:
         opts = self.get_runopts()
-
-        cfg = RunConfig()
-        cfg.set("run_as", "foobar")
+        cfg = {"run_as": "foobar"}
 
         resolved = opts.resolve(cfg)
         self.assertEqual("foobar", resolved.get("run_as"))
@@ -303,11 +288,11 @@ class RunConfigTest(unittest.TestCase):
 
     def test_runopts_resolve_override(self) -> None:
         opts = self.get_runopts()
-
-        cfg = RunConfig()
-        cfg.set("run_as", "foobar")
-        cfg.set("priority", 20)
-        cfg.set("cluster_id", "test_cluster")
+        cfg = {
+            "run_as": "foobar",
+            "priority": 20,
+            "cluster_id": "test_cluster",
+        }
 
         resolved = opts.resolve(cfg)
         self.assertEqual("foobar", resolved.get("run_as"))
@@ -317,9 +302,10 @@ class RunConfigTest(unittest.TestCase):
     def test_runopts_resolve_missing_required(self) -> None:
         opts = self.get_runopts()
 
-        cfg = RunConfig()
-        cfg.set("priority", 20)
-        cfg.set("cluster_id", "test_cluster")
+        cfg = {
+            "priority": 20,
+            "cluster_id": "test_cluster",
+        }
 
         with self.assertRaises(InvalidRunConfigException):
             opts.resolve(cfg)
@@ -327,9 +313,10 @@ class RunConfigTest(unittest.TestCase):
     def test_runopts_resolve_bad_type(self) -> None:
         opts = self.get_runopts()
 
-        cfg = RunConfig()
-        cfg.set("run_as", "foobar")
-        cfg.set("cluster_id", 123)
+        cfg = {
+            "run_as": "foobar",
+            "cluster_id": 123,
+        }
 
         with self.assertRaises(InvalidRunConfigException):
             opts.resolve(cfg)
@@ -339,10 +326,10 @@ class RunConfigTest(unittest.TestCase):
         # make sure  opts resolves run configs that have more
         # configs than it knows about
         opts = self.get_runopts()
-
-        cfg = RunConfig()
-        cfg.set("run_as", "foobar")
-        cfg.set("some_other_opt", "baz")
+        cfg = {
+            "run_as": "foobar",
+            "some_other_opt": "baz",
+        }
 
         resolved = opts.resolve(cfg)
         self.assertEqual("foobar", resolved.get("run_as"))

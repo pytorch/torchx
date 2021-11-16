@@ -29,7 +29,9 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
 from typing import (
+    Mapping,
     Any,
+    BinaryIO,
     Callable,
     Dict,
     Iterable,
@@ -37,7 +39,6 @@ from typing import (
     Optional,
     Pattern,
     TextIO,
-    BinaryIO,
 )
 
 from pyre_extensions import none_throws
@@ -48,8 +49,8 @@ from torchx.specs.api import (
     NONE,
     AppDef,
     AppState,
+    CfgVal,
     Role,
-    RunConfig,
     SchedulerBackend,
     is_terminal,
     macros,
@@ -191,7 +192,7 @@ class LocalDirectoryImageProvider(ImageProvider):
 
     """
 
-    def __init__(self, cfg: RunConfig) -> None:
+    def __init__(self, cfg: Mapping[str, CfgVal]) -> None:
         pass
 
     def fetch(self, image: str) -> str:
@@ -238,7 +239,7 @@ class CWDImageProvider(ImageProvider):
 
     """
 
-    def __init__(self, cfg: RunConfig) -> None:
+    def __init__(self, cfg: Mapping[str, CfgVal]) -> None:
         pass
 
     def fetch(self, image: str) -> str:
@@ -546,7 +547,7 @@ class LocalScheduler(Scheduler):
     def __init__(
         self,
         session_name: str,
-        image_provider_class: Callable[[RunConfig], ImageProvider],
+        image_provider_class: Callable[[Mapping[str, CfgVal]], ImageProvider],
         cache_size: int = 100,
         extra_paths: Optional[List[str]] = None,
     ) -> None:
@@ -696,7 +697,7 @@ class LocalScheduler(Scheduler):
             error_file=env.get("TORCHELASTIC_ERROR_FILE", "<N/A>"),
         )
 
-    def _get_app_log_dir(self, app_id: str, cfg: RunConfig) -> str:
+    def _get_app_log_dir(self, app_id: str, cfg: Mapping[str, CfgVal]) -> str:
         """
         Returns the log dir. We redirect stdout/err
         to a log file ONLY if the log_dir is user-provided in the cfg
@@ -742,16 +743,15 @@ class LocalScheduler(Scheduler):
                     role_name,
                     replica_id,
                     replica_params,
-                    dryrun_info._cfg.get(  # pyre-ignore[16] _cfg is always set
-                        "prepend_cwd"
-                    ),
+                    # pyre-ignore[6] cfg type checked by runopt.resolve()
+                    dryrun_info._cfg.get("prepend_cwd"),
                 )
                 local_app.add_replica(role_name, replica)
         self._apps[app_id] = local_app
         return app_id
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: RunConfig
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[PopenRequest]:
         request = self._to_popen_request(app, cfg)
         return AppDryRunInfo(request, lambda p: pprint.pformat(p, indent=2, width=80))
@@ -759,7 +759,7 @@ class LocalScheduler(Scheduler):
     def _to_popen_request(
         self,
         app: AppDef,
-        cfg: RunConfig,
+        cfg: Mapping[str, CfgVal],
     ) -> PopenRequest:
         """
         Converts the application and cfg into a ``PopenRequest``.
@@ -873,7 +873,7 @@ class LocalScheduler(Scheduler):
         if not os.path.isfile(log_file):
             raise RuntimeError(
                 f"app: {app_id} was not configured to log into a file."
-                f" Did you run it with log_dir set in RunConfig?"
+                f" Did you run it with log_dir set in Dict[str, CfgVal]?"
             )
 
         return LogIterator(app_id, regex or ".*", log_file, self)

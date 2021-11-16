@@ -29,7 +29,6 @@ from ax.utils.common.constants import Keys
 from pyre_extensions import none_throws
 from torchx.components import utils
 from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
-from torchx.specs import RunConfig
 
 
 class TorchXSchedulerTest(unittest.TestCase):
@@ -66,7 +65,7 @@ class TorchXSchedulerTest(unittest.TestCase):
             tracker_base=self.test_dir,
             component=utils.booth,
             scheduler="local_cwd",
-            scheduler_args=RunConfig({"prepend_cwd": True}),
+            cfg={"prepend_cwd": True},
         )
 
     def tearDown(self) -> None:
@@ -85,7 +84,7 @@ class TorchXSchedulerTest(unittest.TestCase):
             properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
         )
 
-        # maybe add-on RunConfig into SchedulerOption?
+        # maybe add-on cfg into SchedulerOption?
         # so that we can pass it from one place
         scheduler = TorchXScheduler(
             experiment=experiment,
@@ -130,7 +129,7 @@ class TorchXSchedulerTest(unittest.TestCase):
             properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
         )
 
-        # maybe add-on RunConfig into SchedulerOption?
+        # maybe add-on cfg into SchedulerOption?
         # so that we can pass it from one place
         scheduler = TorchXScheduler(
             experiment=experiment,

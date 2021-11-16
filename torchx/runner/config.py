@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-You can store the scheduler :py:class:`torchx.specs.RunConfig` for your project
+You can store the scheduler run cfg (run configs) for your project
 by storing them in the ``.torchxconfig`` file. Currently this file is only read
 and honored when running the component from the CLI.
 
@@ -84,8 +84,7 @@ Below is an example
     pass
 
  scheduler = "local_cwd"
- cfg = specs.RunConfig()
- cfg.set("log_dir", "/these/take/outmost/precedence")
+ cfg = {"log_dir": "/these/take/outmost/precedence"}
 
  apply(scheduler, cfg, dirs=["/home/bob"])  # looks for /home/bob/.torchxconfig
  get_runner().run(my_component(1), scheduler, cfg)
@@ -97,10 +96,10 @@ you want to keep personal config overrides on top of a project defined default.
 import configparser as configparser
 import logging
 from pathlib import Path
-from typing import List, Optional, TextIO
+from typing import Dict, List, Optional, TextIO
 
 from torchx.schedulers import Scheduler, get_schedulers
-from torchx.specs import RunConfig, get_type_name
+from torchx.specs import CfgVal, get_type_name
 from torchx.specs.api import runopt
 
 
@@ -203,7 +202,9 @@ def dump(
     config.write(f, space_around_delimiters=True)
 
 
-def apply(scheduler: str, cfg: RunConfig, dirs: Optional[List[str]] = None) -> None:
+def apply(
+    scheduler: str, cfg: Dict[str, CfgVal], dirs: Optional[List[str]] = None
+) -> None:
     """
     Loads a ``.torchxconfig`` INI file from the specified directories in
     preceding order and applies the run configs for the scheduler onto
@@ -245,7 +246,7 @@ def apply(scheduler: str, cfg: RunConfig, dirs: Optional[List[str]] = None) -> N
                 log.info(f"loaded configs from {configfile}")
 
 
-def load(scheduler: str, f: TextIO, cfg: RunConfig) -> None:
+def load(scheduler: str, f: TextIO, cfg: Dict[str, CfgVal]) -> None:
     """
     loads the section ``[{scheduler}]`` from the given
     configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding
@@ -261,14 +262,14 @@ def load(scheduler: str, f: TextIO, cfg: RunConfig) -> None:
     section = f"{scheduler}"
     if config.has_section(section):
         for name, value in config.items(section):
-            if name in cfg.cfgs:
+            if name in cfg.keys():
                 # DO NOT OVERRIDE existing configs
                 continue
 
             if value == _NONE:
                 # should map to None (not str 'None')
                 # this also handles empty or None lists
-                cfg.set(name, None)
+                cfg[name] = None
             else:
                 runopt = runopts.get(name)
 
@@ -282,9 +283,9 @@ def load(scheduler: str, f: TextIO, cfg: RunConfig) -> None:
                     if runopt.opt_type is bool:
                         # need to handle bool specially since str -> bool is based on
                         # str emptiness not value (e.g. bool("False") == True)
-                        cfg.set(name, config.getboolean(section, name))
+                        cfg[name] = config.getboolean(section, name)
                     elif runopt.opt_type is List[str]:
-                        cfg.set(name, value.split(";"))
+                        cfg[name] = value.split(";")
                     else:
                         # pyre-ignore[29]
-                        cfg.set(name, runopt.opt_type(value))
+                        cfg[name] = runopt.opt_type(value)
