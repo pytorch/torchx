@@ -62,7 +62,6 @@ class EnhancedJSONEncoder(json.JSONEncoder):
 def serialize(actors : List[RayActor], dirpath, output_filename='actors') -> None:
     actors_json = json.dumps(actors, cls= EnhancedJSONEncoder)
     with NamedTemporaryFile(mode="w", prefix=output_filename, suffix=".json") as tmp:
-        print(tmp.name)
         json.dump(actors_json, tmp)
         copy2(tmp.name, dirpath)
 
@@ -82,6 +81,8 @@ class RayJob:
             The Ray cluster configuration file.
         cluster_name:
             The cluster name to use.
+        cluster_address:
+            The existing cluster IP address to connect to
         copy_script:
             A boolean value indicating whether to copy the script files to the
             cluster.
@@ -94,8 +95,6 @@ class RayJob:
             The Ray actors which represent the job to be run. This attribute is
             dumped to a JSON file and copied to the cluster where `ray_main.py`
             uses it to initiate the job.
-        verbose:
-            A boolean value indicating whether to enable verbose output.
     """
 
     app_id: str
@@ -106,8 +105,6 @@ class RayJob:
     copy_script_dirs: bool = False
     scripts: Set[str] = field(default_factory=set)
     actors: List[RayActor] = field(default_factory=list)
-    verbose: bool = False
-
 
 class RayScheduler(Scheduler):
     def __init__(self, session_name: str) -> None:
