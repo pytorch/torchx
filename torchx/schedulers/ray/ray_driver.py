@@ -6,10 +6,10 @@
 
 import dataclasses
 import json
+import logging
 import os
 import subprocess
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
-import logging
 
 import ray
 

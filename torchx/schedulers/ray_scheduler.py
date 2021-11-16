@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
 from tempfile import NamedTemporaryFile, mkdtemp
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from typing import Mapping, Any, Dict, Iterable, List, Optional, Set, Type
 
 # try:
 import ray  # @manual # noqa: F401
@@ -31,16 +31,9 @@ _has_ray = True
 # except ImportError:
 #     _has_ray = False
 
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream, AppState
 from torchx.schedulers.ids import make_unique
-from torchx.specs.api import (
-    AppDef,
-    RunConfig,
-    SchedulerBackend,
-    AppState,
-    macros,
-    runopts,
-)
+from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
 
 _logger: logging.Logger = logging.getLogger(__name__)
 

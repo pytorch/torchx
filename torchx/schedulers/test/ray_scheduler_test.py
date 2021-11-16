@@ -8,7 +8,7 @@ import os
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Type, List, cast
+from typing import Any, Iterator, Type, List, cast, Dict
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -18,7 +18,7 @@ from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.ray.ray_driver import _main
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
-from torchx.specs import AppDef, Resource, Role, RunConfig, runopts
+from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
 
 if has_ray():
@@ -63,11 +63,12 @@ if has_ray():
                 ],
             )
 
-            self._run_cfg = RunConfig()
-            self._run_cfg.set("cluster_config_file", "dummy_file")
-            self._run_cfg.set("cluster_name", "dummy_name")
-            self._run_cfg.set("copy_scripts", True)
-            self._run_cfg.set("copy_script_dirs", True)
+            self._run_cfg: Dict[str, CfgVal] = {
+                "cluster_config_file": "dummy_file",
+                "cluster_name": "dummy_name",
+                "copy_scripts": True,
+                "copy_script_dirs": True,
+            }
 
             self._scheduler = RayScheduler("test_session")
 
@@ -251,9 +252,9 @@ if has_ray():
         def test_submit_dryrun_constructs_job_definition(self) -> None:
             self._assert_submit_dryrun_constructs_job_definition()
 
-            self._run_cfg.set("cluster_name", None)
-            self._run_cfg.set("copy_scripts", False)
-            self._run_cfg.set("copy_script_dirs", False)
+            self._run_cfg["cluster_name"] = None
+            self._run_cfg["copy_scripts"] = False
+            self._run_cfg["copy_script_dirs"] = False
 
             self._assert_submit_dryrun_constructs_job_definition()
 
