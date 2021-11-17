@@ -25,15 +25,12 @@ from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
 
-try:
-    import ray  # @manual # noqa: F401
-    from ray.autoscaler import sdk as ray_autoscaler_sdk
-    from ray.dashboard.modules.job.sdk import JobSubmissionClient
-    from ray._private.job_manager import JobStatus
+import ray  # @manual # noqa: F401
+from ray.autoscaler import sdk as ray_autoscaler_sdk
+from ray.dashboard.modules.job.sdk import JobSubmissionClient
+from ray._private.job_manager import JobStatus
 
-    _has_ray = True
-except ImportError:
-    _has_ray = False
+_has_ray = True
 
 
 _logger: logging.Logger = logging.getLogger(__name__)
