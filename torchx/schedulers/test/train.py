@@ -1,3 +1,4 @@
+# pyre-unsafe
 # https://pytorch.org/tutorials/intermediate/ddp_tutorial.html
 # TODO: BERT and Resnet example for release
 import os
