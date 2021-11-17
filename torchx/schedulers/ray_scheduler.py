@@ -15,7 +15,7 @@ from tempfile import mkdtemp
 from typing import Any, List, Mapping, Optional, Set, Type
 
 import ray  # @manual # noqa: F401
-from ray._private.job_manager import JobStatus
+from ray.dashboard.modules.job.common import JobStatus
 from ray.autoscaler import sdk as ray_autoscaler_sdk
 from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers.api import (

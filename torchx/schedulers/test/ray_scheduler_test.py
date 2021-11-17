@@ -273,7 +273,7 @@ if has_ray():
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
 
-            time.sleep(60)
+            time.sleep(20)
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             assert logs is not None
             self.teardown_ray_cluster()
