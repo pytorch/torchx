@@ -52,7 +52,6 @@ class ToyModel(nn.Module):
     def forward(self, x):
         return self.net2(self.relu(self.net1(x)))
 
-
 def demo_basic(rank, world_size):
     print(f"Running basic DDP example on rank {rank}.")
     setup(rank, world_size)
@@ -71,7 +70,13 @@ def demo_basic(rank, world_size):
     optimizer.step()
 
     cleanup()
+    print(f"completed Training")
 
+def run_demo(demo_basic, world_size):
+    mp.spawn(demo_basic,
+             args=(world_size,),
+             nprocs=world_size,
+             join=True)
 
-def run_demo(demo_fn, world_size):
-    mp.spawn(demo_fn, args=(world_size,), nprocs=world_size, join=True)
+if __name__ =="__main__":
+    run_demo()
