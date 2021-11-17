@@ -633,7 +633,7 @@ torchx --help
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -653,15 +653,6 @@ sub-commands:
   Use the following commands to run operations, e.g.: torchx run ${JOB_NAME}
 
   {describe,log,run,builtins,runopts,status,configure}
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:72: UserWarning: redis-py works best with hiredis. Please consider installing
-  warnings.warn(msg)
 </pre></div></div>
 </div>
 </section>
@@ -760,7 +751,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-pm1rxwd5bq63nd
+local_cwd://torchx/hello_world-grtncq7kmt153
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -768,12 +759,10 @@ local_cwd://torchx/hello_world-pm1rxwd5bq63nd
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:72: UserWarning: redis-py works best with hiredis. Please consider installing
-  warnings.warn(msg)
-torchx 2021-11-17 21:57:04 INFO     Log files located in: /tmp/torchx_er1x_imv/torchx/hello_world-pm1rxwd5bq63nd/greeter/0
-torchx 2021-11-17 21:57:04 INFO     Waiting for the app to finish...
+torchx 2021-11-17 23:08:08 INFO     Log files located in: /tmp/torchx_0us6yce8/torchx/hello_world-grtncq7kmt153/greeter/0
+torchx 2021-11-17 23:08:08 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2021-11-17 21:57:05 INFO     Job finished: SUCCEEDED
+torchx 2021-11-17 23:08:09 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -833,9 +822,9 @@ c0ad16d9fa05: Pulling fs layer
 909695be1d50: Pulling fs layer
 f119a6d0a466: Pulling fs layer
 88d87059c913: Pulling fs layer
-6009a622672a: Waiting
 143f80195431: Waiting
 eccbe17c44e1: Waiting
+6009a622672a: Waiting
 d4c7af0d4fa7: Waiting
 06b5edd6bf52: Waiting
 f18d016c4ccc: Waiting
@@ -844,16 +833,16 @@ c0ad16d9fa05: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
 88d87059c913: Waiting
-d2e110be24e1: Verifying Checksum
-d2e110be24e1: Download complete
 889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
+d2e110be24e1: Verifying Checksum
+d2e110be24e1: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
-6009a622672a: Verifying Checksum
-6009a622672a: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
+6009a622672a: Verifying Checksum
+6009a622672a: Download complete
 06b5edd6bf52: Verifying Checksum
 06b5edd6bf52: Download complete
 d4c7af0d4fa7: Verifying Checksum
@@ -866,6 +855,7 @@ c0ad16d9fa05: Download complete
 909695be1d50: Download complete
 f119a6d0a466: Verifying Checksum
 f119a6d0a466: Download complete
+88d87059c913: Verifying Checksum
 88d87059c913: Download complete
 4bbfd2c87b75: Pull complete
 f18d016c4ccc: Verifying Checksum
@@ -889,8 +879,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; bd12f6e95da5
-Successfully built bd12f6e95da5
+ ---&gt; d7c1cff5cdba
+Successfully built d7c1cff5cdba
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -910,7 +900,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-gw9qqdfg3w0pj
+local_docker://torchx/hello_world-wm62bnf1nmwkt
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -918,13 +908,11 @@ local_docker://torchx/hello_world-gw9qqdfg3w0pj
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:72: UserWarning: redis-py works best with hiredis. Please consider installing
-  warnings.warn(msg)
-torchx 2021-11-17 21:59:36 INFO     Pulling container image: my_app:latest (this may take a while)
-torchx 2021-11-17 21:59:36 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2021-11-17 21:59:36 INFO     Waiting for the app to finish...
+torchx 2021-11-17 23:10:39 INFO     Pulling container image: my_app:latest (this may take a while)
+torchx 2021-11-17 23:10:39 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2021-11-17 23:10:40 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2021-11-17 21:59:37 INFO     Job finished: SUCCEEDED
+torchx 2021-11-17 23:10:41 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -946,7 +934,7 @@ torchx builtins
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -961,15 +949,6 @@ Found 9 builtin components:
   7. utils.sh
   8. utils.touch
   9. dist.ddp
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:72: UserWarning: redis-py works best with hiredis. Please consider installing
-  warnings.warn(msg)
 </pre></div></div>
 </div>
 <p>You can use these either from the CLI, from a pipeline or programmatically like you would any other component.</p>
@@ -988,7 +967,7 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-n51rnc54b0xlg
+local_docker://torchx/echo-zl60j6vxqlfbdd
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -996,12 +975,10 @@ local_docker://torchx/echo-n51rnc54b0xlg
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages/redis/connection.py:72: UserWarning: redis-py works best with hiredis. Please consider installing
-  warnings.warn(msg)
-torchx 2021-11-17 21:59:41 INFO     Pulling container image: ghcr.io/pytorch/torchx:0.1.1dev0 (this may take a while)
-torchx 2021-11-17 22:01:49 INFO     Waiting for the app to finish...
-torchx 2021-11-17 22:01:50 INFO     Job finished: SUCCEEDED
+torchx 2021-11-17 23:10:43 INFO     Pulling container image: ghcr.io/pytorch/torchx:0.1.1dev0 (this may take a while)
+torchx 2021-11-17 23:12:45 INFO     Waiting for the app to finish...
 echo/0 Hello :)
+torchx 2021-11-17 23:12:46 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 </section>

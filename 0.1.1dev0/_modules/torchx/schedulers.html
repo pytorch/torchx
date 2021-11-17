@@ -372,7 +372,6 @@
 <span class="kn">import</span> <span class="nn">torchx.schedulers.docker_scheduler</span> <span class="k">as</span> <span class="nn">docker_scheduler</span>
 <span class="kn">import</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="k">as</span> <span class="nn">kubernetes_scheduler</span>
 <span class="kn">import</span> <span class="nn">torchx.schedulers.local_scheduler</span> <span class="k">as</span> <span class="nn">local_scheduler</span>
-<span class="kn">import</span> <span class="nn">torchx.schedulers.ray_scheduler</span> <span class="k">as</span> <span class="nn">ray_scheduler</span>
 <span class="kn">import</span> <span class="nn">torchx.schedulers.slurm_scheduler</span> <span class="k">as</span> <span class="nn">slurm_scheduler</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">Scheduler</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">SchedulerBackend</span>
@@ -398,9 +397,6 @@
         <span class="s2">&quot;slurm&quot;</span><span class="p">:</span> <span class="n">slurm_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;kubernetes&quot;</span><span class="p">:</span> <span class="n">kubernetes_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
     <span class="p">}</span>
-
-    <span class="k">if</span> <span class="n">ray_scheduler</span><span class="o">.</span><span class="n">has_ray</span><span class="p">():</span>
-        <span class="n">default_schedulers</span><span class="p">[</span><span class="s2">&quot;ray&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ray_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span>
 
     <span class="k">return</span> <span class="n">load_group</span><span class="p">(</span>
         <span class="s2">&quot;torchx.schedulers&quot;</span><span class="p">,</span>
