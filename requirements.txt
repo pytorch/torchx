@@ -3,3 +3,4 @@ docstring-parser==0.8.1
 pyyaml
 docker
 filelock
+fsspec
