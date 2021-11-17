@@ -369,13 +369,27 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">posixpath</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+    <span class="n">IO</span><span class="p">,</span>
+<span class="p">)</span>
 
+<span class="kn">import</span> <span class="nn">fsspec</span>
 <span class="kn">import</span> <span class="nn">torchx</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
@@ -752,7 +766,22 @@
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">logs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">logs</span></div></div>
+            <span class="k">return</span> <span class="n">logs</span></div>
+
+<div class="viewcode-block" id="DockerScheduler.build_workspace_image"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.docker_scheduler.DockerScheduler.build_workspace_image">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        build_workspace_image creates a new image with the files in workspace</span>
+<span class="sd">        overlaid on top of it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img: a Docker image to use as a base</span>
+<span class="sd">            workspace: a fsspec path to a directory with contents to be overlaid</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The new Docker image ID.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_build_container_from_workspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">(),</span> <span class="n">img</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_to_str</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -767,6 +796,62 @@
     <span class="k">return</span> <span class="n">DockerScheduler</span><span class="p">(</span>
         <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
     <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># TODO(d4l3k) implement docker ignore files</span>
+
+    <span class="n">fs</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">url_to_fs</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
+
+    <span class="k">for</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">fs</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">tinfo</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+                <span class="n">tinfo</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">tinfo</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_build_context</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+    <span class="c1"># f is closed by parent, NamedTemporaryFile auto closes on GC</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>  <span class="c1"># noqa P201</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx-context&quot;</span><span class="p">,</span>
+        <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.tar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dockerfile</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FROM </span><span class="si">{</span><span class="n">img</span><span class="si">}</span><span class="se">\n</span><span class="s2">COPY . .</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tf</span><span class="p">:</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="s2">&quot;Dockerfile&quot;</span><span class="p">)</span>
+        <span class="n">info</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">))</span>
+
+        <span class="n">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">tf</span><span class="p">)</span>
+
+    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span>
+
+
+<span class="k">def</span> <span class="nf">_build_container_from_workspace</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="s2">&quot;DockerClient&quot;</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">_build_context</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">image</span><span class="p">,</span> <span class="n">logs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+            <span class="n">fileobj</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="n">custom_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">pull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">rm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
+                <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span>
 </pre></div>
 
      </article>
