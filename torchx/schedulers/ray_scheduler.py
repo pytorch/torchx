@@ -14,6 +14,10 @@ from shutil import copy2, rmtree
 from tempfile import mkdtemp
 from typing import Any, List, Mapping, Optional, Set, Type
 
+import ray  # @manual # noqa: F401
+from ray._private.job_manager import JobStatus
+from ray.autoscaler import sdk as ray_autoscaler_sdk
+from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers.api import (
     AppDryRunInfo,
     AppState,
@@ -24,11 +28,6 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
-
-import ray  # @manual # noqa: F401
-from ray.autoscaler import sdk as ray_autoscaler_sdk
-from ray.dashboard.modules.job.sdk import JobSubmissionClient
-from ray._private.job_manager import JobStatus
 
 _has_ray = True
 

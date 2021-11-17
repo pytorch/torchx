@@ -13,10 +13,8 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import ray
-from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers import get_schedulers
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
-from torchx.schedulers.ray.ray_driver import _main
+from torchx.schedulers.api import AppDryRunInfo
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
 from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
@@ -270,7 +268,7 @@ if has_ray():
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
             ray_scheduler = self.setup_ray_cluster()
-            assert ray.is_initialized() == True
+            assert ray.is_initialized() is True
 
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
