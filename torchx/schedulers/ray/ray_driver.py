@@ -8,12 +8,14 @@ import json
 import logging
 import os
 from typing import Dict, List
-
+import sys
 import ray
 
 from ray_common import RayActor
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 _logger: logging.Logger = logging.getLogger(__name__)
+# _logger.setLevel(logging.INFO)
 
 
 @ray.remote
@@ -39,8 +41,8 @@ def load_actor_json(filename: str) -> List[RayActor]:
         return actors
 
 
-def _main(job_id: str = None) -> None:
-    _logger.info("Reading actor.json")
+if __name__ == "__main__":
+    print("Reading actor.json")
     actors = load_actor_json("actors.json")
 
     ray.init(address="auto", namespace="torchx-ray")
@@ -52,12 +54,12 @@ def _main(job_id: str = None) -> None:
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
 
-        _logger.info("Waiting for placement group to start.")
+        print("Waiting for placement group to start.")
         ready = pg.wait(timeout_seconds=100)
 
         if ready:
-            _logger.info("Placement group has started.")
-            _logger.info("Starting remote function")
+            print("Placement group has started.")
+            print("Starting remote function")
         else:
             raise TimeoutError(
                 "Placement group creation timed out. Make sure "
