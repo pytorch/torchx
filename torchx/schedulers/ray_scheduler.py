@@ -161,7 +161,7 @@ class RayScheduler(Scheduler):
         # Create Job Client
         self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
 
-        entrypoint = os.path.join("ray", "ray_driver.py")
+        # entrypoint = os.path.join("ray", "ray_driver.py")
 
         # 1. Copy scripts and directories
         if cfg.scripts:
@@ -176,11 +176,11 @@ class RayScheduler(Scheduler):
         current_directory = os.path.dirname(os.path.abspath(__file__))
         copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
         copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
-
+        print("DIR PATH")
         job_id: str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
-            entrypoint=f"python {entrypoint}",
+            entrypoint=f"python ray_driver.py",
             runtime_env={"working_dir": dirpath},
             # job_id = cfg.app_id
         )

@@ -11,7 +11,7 @@ from typing import Dict, List
 
 import ray
 
-from .ray_common import RayActor
+from ray_common import RayActor
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
