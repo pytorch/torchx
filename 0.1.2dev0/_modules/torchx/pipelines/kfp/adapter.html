@@ -1,0 +1,944 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torchx.pipelines.kfp.adapter &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
+                  <span class="dropdown-title">TorchElastic</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  <div id="redirect-banner" style="display: none">
+    <p>
+      This is the public documentation. There's an internal wiki with extra
+      information for Meta employees at
+      <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+    </p>
+  </div>
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.1.2dev0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/utils.html">Utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../runtime/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../schedulers/slurm.html">Slurm</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../component_best_practices.html">Component Best Practices</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Experimental Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../../index.html">Module code</a> &gt;</li>
+        
+      <li>torchx.pipelines.kfp.adapter</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <h1>Source code for torchx.pipelines.kfp.adapter</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the BSD-style license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">kfp</span> <span class="kn">import</span> <span class="n">components</span><span class="p">,</span> <span class="n">dsl</span>
+
+<span class="c1"># @manual=fbsource//third-party/pypi/kfp:kfp</span>
+<span class="kn">from</span> <span class="nn">kfp.components.structures</span> <span class="kn">import</span> <span class="n">ComponentSpec</span><span class="p">,</span> <span class="n">OutputSpec</span>
+<span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">V1ContainerPort</span><span class="p">,</span>
+    <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
+    <span class="n">V1Volume</span><span class="p">,</span>
+    <span class="n">V1VolumeMount</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="kn">import</span> <span class="n">app_to_resource</span><span class="p">,</span> <span class="n">pod_labels</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">api</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">__version__</span>  <span class="c1"># noqa F401</span>
+
+
+<div class="viewcode-block" id="component_spec_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.component_spec_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_spec_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">Role</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    component_spec_from_app takes in a TorchX component and generates the yaml</span>
+<span class="sd">    spec for it. Notably this doesn&#39;t apply resources or port_maps since those</span>
+<span class="sd">    must be applied at runtime which is why it returns the role spec as well.</span>
+
+<span class="sd">    &gt;&gt;&gt; from torchx import specs</span>
+<span class="sd">    &gt;&gt;&gt; from torchx.pipelines.kfp.adapter import component_spec_from_app</span>
+<span class="sd">    &gt;&gt;&gt; app_def = specs.AppDef(</span>
+<span class="sd">    ...     name=&quot;trainer&quot;,</span>
+<span class="sd">    ...     roles=[specs.Role(&quot;trainer&quot;, image=&quot;foo:latest&quot;)],</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; component_spec_from_app(app_def)</span>
+<span class="sd">    (&#39;description: ...&#39;, Role(...))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;KFP adapter only support one role, got </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">role</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;KFP adapter only supports one replica, got </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">num_replicas</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">,</span> <span class="o">*</span><span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;KFP wrapper for TorchX component </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;implementation&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
+                <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span> <span class="n">role</span></div>
+
+
+<div class="viewcode-block" id="ContainerFactory"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.ContainerFactory">[docs]</a><span class="k">class</span> <span class="nc">ContainerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ContainerFactory is a protocol that represents a function that when called produces a</span>
+<span class="sd">    kfp.dsl.ContainerOp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span>
+        <span class="o">...</span></div>
+
+
+<span class="k">class</span> <span class="nc">KFPContainerFactory</span><span class="p">(</span><span class="n">ContainerFactory</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    KFPContainerFactory is a ContainerFactory that also has some KFP metadata</span>
+<span class="sd">    attached to it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">component_spec</span><span class="p">:</span> <span class="n">ComponentSpec</span>
+
+
+<span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">&quot;/tmp/outputs/mlpipeline-ui-metadata/data.json&quot;</span>
+
+
+<div class="viewcode-block" id="component_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.component_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_from_app</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span> <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContainerFactory</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    component_from_app takes in a TorchX component/AppDef and returns a KFP</span>
+<span class="sd">    ContainerOp factory. This is equivalent to the</span>
+<span class="sd">    `kfp.components.load_component_from_*</span>
+<span class="sd">    &lt;https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.load_component_from_text&gt;`_</span>
+<span class="sd">    methods.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        app: The AppDef to generate a KFP container factory for.</span>
+<span class="sd">        ui_metadata: KFP UI Metadata to output so you can have model results show</span>
+<span class="sd">            up in the UI. See</span>
+<span class="sd">            https://www.kubeflow.org/docs/components/pipelines/sdk/output-viewer/</span>
+<span class="sd">            for more info on the format.</span>
+
+<span class="sd">    &gt;&gt;&gt; from torchx import specs</span>
+<span class="sd">    &gt;&gt;&gt; from torchx.pipelines.kfp.adapter import component_from_app</span>
+<span class="sd">    &gt;&gt;&gt; app_def = specs.AppDef(</span>
+<span class="sd">    ...     name=&quot;trainer&quot;,</span>
+<span class="sd">    ...     roles=[specs.Role(&quot;trainer&quot;, image=&quot;foo:latest&quot;)],</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; component_from_app(app_def)</span>
+<span class="sd">    &lt;function component_from_app...&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">role_spec</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">Role</span>
+    <span class="n">spec</span><span class="p">,</span> <span class="n">role_spec</span> <span class="o">=</span> <span class="n">component_spec_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+    <span class="n">resources</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">Resource</span> <span class="o">=</span> <span class="n">role_spec</span><span class="o">.</span><span class="n">resource</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">capabilities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;KFP doesn&#39;t support capabilities, got </span><span class="si">{</span><span class="n">resources</span><span class="o">.</span><span class="n">capabilities</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">component_factory</span><span class="p">:</span> <span class="n">KFPContainerFactory</span> <span class="o">=</span> <span class="n">components</span><span class="o">.</span><span class="n">load_component_from_text</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ui_metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># pyre-fixme[16]: `ComponentSpec` has no attribute `outputs`</span>
+        <span class="n">component_factory</span><span class="o">.</span><span class="n">component_spec</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">OutputSpec</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mlpipeline-ui-metadata&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;MLPipeline UI Metadata&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;ui metadata&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">factory_wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">component_factory</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">container</span>
+
+        <span class="k">if</span> <span class="n">ui_metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># We generate the UI metadata from the sidecar so we need to make</span>
+            <span class="c1"># both the container and the sidecar share the same tmp directory so</span>
+            <span class="c1"># the outputs appear in the original container.</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">add_volume</span><span class="p">(</span><span class="n">V1Volume</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tmp&quot;</span><span class="p">,</span> <span class="n">empty_dir</span><span class="o">=</span><span class="n">V1EmptyDirVolumeSource</span><span class="p">()))</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">add_volume_mount</span><span class="p">(</span>
+                <span class="n">V1VolumeMount</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tmp&quot;</span><span class="p">,</span>
+                    <span class="n">mount_path</span><span class="o">=</span><span class="s2">&quot;/tmp/&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">output_artifact_paths</span><span class="p">[</span><span class="s2">&quot;mlpipeline-ui-metadata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">METADATA_FILE</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">add_sidecar</span><span class="p">(</span><span class="n">_ui_metadata_sidecar</span><span class="p">(</span><span class="n">ui_metadata</span><span class="p">))</span>
+
+        <span class="n">cpu</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">cpu</span>
+        <span class="k">if</span> <span class="n">cpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cpu_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">cpu</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span><span class="si">}</span><span class="s2">m&quot;</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">set_cpu_request</span><span class="p">(</span><span class="n">cpu_str</span><span class="p">)</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">set_cpu_limit</span><span class="p">(</span><span class="n">cpu_str</span><span class="p">)</span>
+        <span class="n">mem</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">memMB</span>
+        <span class="k">if</span> <span class="n">mem</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mem_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span><span class="si">}</span><span class="s2">M&quot;</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">set_memory_request</span><span class="p">(</span><span class="n">mem_str</span><span class="p">)</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">set_memory_limit</span><span class="p">(</span><span class="n">mem_str</span><span class="p">)</span>
+        <span class="n">gpu</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">gpu</span>
+        <span class="k">if</span> <span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">set_gpu_limit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">gpu</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">role_spec</span><span class="o">.</span><span class="n">port_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">add_port</span><span class="p">(</span>
+                <span class="n">V1ContainerPort</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">container_port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">c</span><span class="o">.</span><span class="n">pod_labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">role_spec</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="k">return</span> <span class="n">factory_wrapper</span></div>
+
+
+<span class="k">def</span> <span class="nf">_ui_metadata_sidecar</span><span class="p">(</span>
+    <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;alpine&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">Sidecar</span><span class="p">:</span>
+    <span class="n">shell_encoded</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ui_metadata</span><span class="p">))</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">METADATA_FILE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dsl</span><span class="o">.</span><span class="n">Sidecar</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ui-metadata-sidecar&quot;</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+        <span class="n">command</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;sh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;mkdir -p </span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">; echo </span><span class="si">{</span><span class="n">shell_encoded</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">METADATA_FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">mirror_volume_mounts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="container_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.container_from_app">[docs]</a><span class="k">def</span> <span class="nf">container_from_app</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ContainerOp</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    container_from_app transforms the app into a KFP component and returns a</span>
+<span class="sd">    corresponding ContainerOp instance.</span>
+
+<span class="sd">    See component_from_app for description on the arguments. Any unspecified</span>
+<span class="sd">    arguments are passed through to the KFP container factory method.</span>
+
+<span class="sd">    &gt;&gt;&gt; import kfp</span>
+<span class="sd">    &gt;&gt;&gt; from torchx import specs</span>
+<span class="sd">    &gt;&gt;&gt; from torchx.pipelines.kfp.adapter import container_from_app</span>
+<span class="sd">    &gt;&gt;&gt; app_def = specs.AppDef(</span>
+<span class="sd">    ...     name=&quot;trainer&quot;,</span>
+<span class="sd">    ...     roles=[specs.Role(&quot;trainer&quot;, image=&quot;foo:latest&quot;)],</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; def pipeline():</span>
+<span class="sd">    ...     trainer = container_from_app(app_def)</span>
+<span class="sd">    ...     print(trainer)</span>
+<span class="sd">    &gt;&gt;&gt; kfp.compiler.Compiler().compile(</span>
+<span class="sd">    ...     pipeline_func=pipeline,</span>
+<span class="sd">    ...     package_path=&quot;/tmp/pipeline.yaml&quot;,</span>
+<span class="sd">    ... )</span>
+<span class="sd">    {&#39;ContainerOp&#39;: {... &#39;name&#39;: &#39;trainer-trainer&#39;, ...}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">factory</span> <span class="o">=</span> <span class="n">component_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">ui_metadata</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">factory</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resource_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.resource_from_app">[docs]</a><span class="k">def</span> <span class="nf">resource_from_app</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span>
+    <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ResourceOp</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    resource_from_app generates a KFP ResourceOp from the provided app that uses</span>
+<span class="sd">    the Volcano job scheduler on Kubernetes to run distributed apps. See</span>
+<span class="sd">    https://volcano.sh/en/docs/ for more info on Volcano and how to install.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        app: The torchx AppDef to adapt.</span>
+<span class="sd">        queue: the Volcano queue to schedule the operator in.</span>
+
+<span class="sd">    &gt;&gt;&gt; import kfp</span>
+<span class="sd">    &gt;&gt;&gt; from torchx import specs</span>
+<span class="sd">    &gt;&gt;&gt; from torchx.pipelines.kfp.adapter import resource_from_app</span>
+<span class="sd">    &gt;&gt;&gt; app_def = specs.AppDef(</span>
+<span class="sd">    ...     name=&quot;trainer&quot;,</span>
+<span class="sd">    ...     roles=[specs.Role(&quot;trainer&quot;, image=&quot;foo:latest&quot;, num_replicas=3)],</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; def pipeline():</span>
+<span class="sd">    ...     trainer = resource_from_app(app_def, queue=&quot;test&quot;)</span>
+<span class="sd">    ...     print(trainer)</span>
+<span class="sd">    &gt;&gt;&gt; kfp.compiler.Compiler().compile(</span>
+<span class="sd">    ...     pipeline_func=pipeline,</span>
+<span class="sd">    ...     package_path=&quot;/tmp/pipeline.yaml&quot;,</span>
+<span class="sd">    ... )</span>
+<span class="sd">    {&#39;ResourceOp&#39;: {... &#39;name&#39;: &#39;trainer-0&#39;, ... &#39;name&#39;: &#39;trainer-1&#39;, ... &#39;name&#39;: &#39;trainer-2&#39;, ...}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ResourceOp</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+        <span class="n">success_condition</span><span class="o">=</span><span class="s2">&quot;status.state.phase = Completed&quot;</span><span class="p">,</span>
+        <span class="n">failure_condition</span><span class="o">=</span><span class="s2">&quot;status.state.phase = Failed&quot;</span><span class="p">,</span>
+        <span class="n">k8s_resource</span><span class="o">=</span><span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">),</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+     </article>
+     
+    </div>
+    <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+         <script src="../../../../_static/jquery.js"></script>
+         <script src="../../../../_static/underscore.js"></script>
+         <script src="../../../../_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="../../../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+         <script src="../../../../_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../../../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>

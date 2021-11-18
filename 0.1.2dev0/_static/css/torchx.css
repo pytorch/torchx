@@ -1,0 +1,52 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/* fixes the python3 type annotation rendering */
+article.pytorch-article .py dt a[title] {
+  position: initial;
+}
+article.pytorch-article .py dt span.pre {
+  padding: 0;
+}
+
+#torchx-google-colab-link, #torchx-download-notebook-link,
+#torchx-github-view-link {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f3f4f7;
+  padding-right: 40px;
+  display: flex;
+  align-items: center;
+}
+#torchx-google-colab-link:hover, #torchx-download-notebook-link:hover,
+#torchx-github-view-link:hover {
+  border-bottom-color: #e44c2c;
+  color: #e44c2c;
+}
+
+.output_area.stderr.docutils.container::before {
+    content: "stderr";
+    font-weight: bold;
+    opacity: 0.8;
+    margin: 0 5px;
+}
+.output_area.stderr.docutils.container {
+  background-color: #fed !important;
+}
+.note .admonition-title > p {
+  margin: 0 !important;
+  font: inherit;
+  color: inherit;
+}
+
+#redirect-banner {
+  border-bottom: 1px solid #e2e2e2;
+}
+#redirect-banner > p {
+  margin: 0.8rem;
+  text-align: center;
+}
