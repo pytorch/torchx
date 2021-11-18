@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+from torchx.schedulers.ray.ray_common import RayActor
 import os
 import time
 from contextlib import contextmanager
@@ -274,25 +275,28 @@ if has_ray():
             assert job_id is not None
 
             for _ in range(10):
-                time.sleep(20)
+                time.sleep(5)
                 logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
                 print(logs)
             assert logs is not None
             self.teardown_ray_cluster()
 
         def setup_ray_cluster(self) -> None:
-            os.system("ray stop")
+            os.system("ray stop --force")
             os.system("ray start --head")
             ray.init(address="auto")
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
         def schedule_ray_job(self, ray_scheduler, app_id="123") -> str:
+            actor = RayActor(name="ddp", command="python train.py")
+
             ray_job = RayJob(
                 app_id=app_id,
                 copy_scripts=True,
                 cluster_address="127.0.0.1",
                 scripts=set(["train.py"]),
+                actors=[actor]
             )
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)

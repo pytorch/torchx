@@ -58,7 +58,6 @@ def _serialize(
     with open(os.path.join(dirpath, output_filename), "w") as tmp:
         json.dump(actors_json, tmp)
 
-
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
     return _has_ray
@@ -147,9 +146,7 @@ class RayScheduler(Scheduler):
 
         # Create serialized actors for ray_driver.py
         actors = cfg.actors
-
         dirpath = mkdtemp()
-
         _serialize(actors, dirpath)
 
         ip_address = cfg.cluster_address
@@ -184,7 +181,6 @@ class RayScheduler(Scheduler):
             runtime_env={"working_dir": dirpath},
             # job_id = cfg.app_id
         )
-
         rmtree(dirpath)
 
         return job_id

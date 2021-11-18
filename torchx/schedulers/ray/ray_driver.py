@@ -35,9 +35,11 @@ class CommandActor:
 def load_actor_json(filename: str) -> List[RayActor]:
     with open(filename) as f:
         actors = []
-        for actor_dict in json.load(f):
-            actors.append(RayActor(**actor_dict))
-
+        # Yes this is gross but it works
+        actor_dict = json.load(f)
+        actor_dict = json.loads(actor_dict)
+        for actor in actor_dict:
+            actors.append(RayActor(**actor))
         return actors
 
 
@@ -68,10 +70,10 @@ if __name__ == "__main__":
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
             )
-
+    command_actors = []
     for i in range(len(actors)):
         for _ in range(actors[i].num_replicas):
-            actors.append(
+            command_actors.append(
                 CommandActor.options(
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
@@ -79,7 +81,7 @@ if __name__ == "__main__":
                 ).remote(actors[i].command, actors[i].env)
             )
 
-    unfinished = [actor.run_command.remote() for actor in actors]
+    unfinished = [command_actor.run_command.remote() for command_actor in command_actors]
 
     while len(unfinished) > 0:
         finished, unfinished = ray.wait(unfinished)
