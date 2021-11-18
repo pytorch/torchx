@@ -20,7 +20,7 @@ _logger: logging.Logger = logging.getLogger(__name__)
 
 @ray.remote
 class CommandActor:
-    def __init__(self, command: str, env: Dict[str, str]) -> None:
+    def __init__(self, command: str, env: Dict[str, str]):
         self.args = command.split(" ")
         self.path = self.args[0]
 
@@ -29,7 +29,8 @@ class CommandActor:
         self.env.update(env)
 
     def run_command(self) -> None:
-        exec(open(self.path).read())
+        os.chmod(self.path, 0o777)
+        os.execve(self.path, self.args, self.env)
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
