@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## torchx-0.1.1
+
+* Milestone: https://github.com/pytorch/torchx/milestone/2
+
+* `torchx.schedulers`
+  * #287, #286 - Implement `local_docker` scheduler using docker client lib
+
+* Docs
+  * #336 - Add context/intro to each docs page
+  * Minor document corrections
+
+* `torchx`
+  * #267 - Make torchx.version.TORCHX_IMAGE follow the same semantics as __version__
+  * #299 - Use base docker image `pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime`
+
+* `torchx.specs`
+  * #301 - Add `metadata` field to `torchx.specs.Role` dataclass
+  * #302 - Deprecate RunConfig in favor of raw `Dict[str, ConfigValue]`
+
+* `torchx.cli`
+  * #316 - Implement `torchx builtins --print` that prints the source code of the component
+
+* `torchx.runner`
+  * #331 - Split run_component into run_component and dryrun_component
+
 ## torchx-0.1.0
 
 * `torchx.schedulers`
