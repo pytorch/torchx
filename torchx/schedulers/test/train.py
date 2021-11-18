@@ -29,11 +29,14 @@ import torch.multiprocessing as mp
 import torch.nn as nn
 import torch.optim as optim
 from torch.nn.parallel import DistributedDataParallel as DDP
+import socketserver
+
 
 
 def setup(rank, world_size):
     os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
+    with socketserver.TCPServer(("localhost", 0), None) as s:
+        os.environ["MASTER_PORT"] = s.server_address[1]
 
     # initialize the process group
     dist.init_process_group("gloo", rank=rank, world_size=world_size)
@@ -80,13 +83,5 @@ def run_demo(demo_basic, world_size):
              join=True)
 
 if __name__ =="__main__":
-    # TODO: temporary workaround
-    import os
-    import torch
-    import torch.distributed as dist
-    import torch.multiprocessing as mp
-    import torch.nn as nn
-    import torch.optim as optim
-    from torch.nn.parallel import DistributedDataParallel as DDP
     # world_size should be related to how user sets up placement groups
     run_demo(demo_basic=demo_basic, world_size=2)
