@@ -82,7 +82,7 @@ class DockerSchedulerTest(unittest.TestCase):
                             "torchx.pytorch.org/app-id": "app_name_42",
                             "torchx.pytorch.org/replica-id": "0",
                             "torchx.pytorch.org/role-name": "trainer",
-                            "torchx.pytorch.org/version": "0.1.1",
+                            "torchx.pytorch.org/version": "0.1.2dev0",
                         },
                         "mem_limit": "3000m",
                         "name": "app_name_42-trainer-0",
