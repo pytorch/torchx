@@ -8,14 +8,6 @@
 
 # https://pytorch.org/tutorials/intermediate/ddp_tutorial.html
 # TODO: BERT and Resnet example for release
-import os
-
-import torch
-import torch.distributed as dist
-import torch.multiprocessing as mp
-import torch.nn as nn
-import torch.optim as optim
-from torch.nn.parallel import DistributedDataParallel as DDP
 
 # On Windows platform, the torch.distributed package only
 # supports Gloo backend, FileStore and TcpStore.
@@ -28,6 +20,14 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 #    init_method=init_method,
 #    world_size=world_size)
 # For TcpStore, same way as on Linux.
+
+import os
+import torch
+import torch.distributed as dist
+import torch.multiprocessing as mp
+import torch.nn as nn
+import torch.optim as optim
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 
 def setup(rank, world_size):
@@ -73,10 +73,19 @@ def demo_basic(rank, world_size):
     print(f"completed Training")
 
 def run_demo(demo_basic, world_size):
-    mp.spawn(demo_basic,
+    torch.multiprocessing.spawn(demo_basic,
              args=(world_size,),
              nprocs=world_size,
              join=True)
 
 if __name__ =="__main__":
-    run_demo()
+    # TODO: temporary workaround
+    import os
+    import torch
+    import torch.distributed as dist
+    import torch.multiprocessing as mp
+    import torch.nn as nn
+    import torch.optim as optim
+    from torch.nn.parallel import DistributedDataParallel as DDP
+    # world_size should be related to how user sets up placement groups
+    run_demo(demo_basic=demo_basic, world_size=2)

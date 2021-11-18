@@ -29,7 +29,7 @@ class CommandActor:
         self.env.update(env)
 
     def run_command(self) -> None:
-        os.execve(self.path, self.args, self.env)
+        exec(open(self.path).read())
 
 
 def load_actor_json(filename: str) -> List[RayActor]:

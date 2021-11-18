@@ -289,7 +289,7 @@ if has_ray():
             return ray_scheduler
 
         def schedule_ray_job(self, ray_scheduler, app_id="123") -> str:
-            actor = RayActor(name="ddp", command="python train.py")
+            actor = RayActor(name="ddp", command="train.py")
 
             ray_job = RayJob(
                 app_id=app_id,
