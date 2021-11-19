@@ -456,8 +456,12 @@
 
 <div class="viewcode-block" id="macros"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros">[docs]</a><span class="k">class</span> <span class="nc">macros</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Defines macros that can be used with ``Role.entrypoint`` and ``Role.args``.</span>
-<span class="sd">    The macros will be substituted at runtime to their actual values.</span>
+<span class="sd">    Defines macros that can be used in the elements of ``Role.args``</span>
+<span class="sd">    values of ``Role.env``. The macros will be substituted at runtime</span>
+<span class="sd">    to their actual values.</span>
+
+<span class="sd">    .. warning:: Macros used fields of :py:class:`Role` other than the ones</span>
+<span class="sd">                 mentioned above, are NOT substituted.</span>
 
 <span class="sd">    Available macros:</span>
 
@@ -476,9 +480,13 @@
 <span class="sd">    ::</span>
 
 <span class="sd">     # runs: hello_world.py --app_id ${app_id}</span>
-<span class="sd">     trainer = Role(name=&quot;trainer&quot;, entrypoint=&quot;hello_world.py&quot;, args=[&quot;--app_id&quot;, macros.app_id])</span>
+<span class="sd">     trainer = Role(</span>
+<span class="sd">                name=&quot;trainer&quot;,</span>
+<span class="sd">                entrypoint=&quot;hello_world.py&quot;,</span>
+<span class="sd">                args=[&quot;--app_id&quot;, macros.app_id],</span>
+<span class="sd">                env={&quot;IMAGE_ROOT_DIR&quot;: macros.img_root})</span>
 <span class="sd">     app = AppDef(&quot;train_app&quot;, roles=[trainer])</span>
-<span class="sd">     app_handle = session.run(app, scheduler=&quot;local&quot;, cfg={})</span>
+<span class="sd">     app_handle = session.run(app, scheduler=&quot;local_docker&quot;, cfg={})</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

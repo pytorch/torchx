@@ -574,8 +574,14 @@ to set up named resources.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.specs.macros">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">macros</span></span><a class="reference internal" href="_modules/torchx/specs/api.html#macros"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.macros" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines macros that can be used with <code class="docutils literal notranslate"><span class="pre">Role.entrypoint</span></code> and <code class="docutils literal notranslate"><span class="pre">Role.args</span></code>.
-The macros will be substituted at runtime to their actual values.</p>
+<dd><p>Defines macros that can be used in the elements of <code class="docutils literal notranslate"><span class="pre">Role.args</span></code>
+values of <code class="docutils literal notranslate"><span class="pre">Role.env</span></code>. The macros will be substituted at runtime
+to their actual values.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Macros used fields of <a class="reference internal" href="#torchx.specs.Role" title="torchx.specs.Role"><code class="xref py py-class docutils literal notranslate"><span class="pre">Role</span></code></a> other than the ones
+mentioned above, are NOT substituted.</p>
+</div>
 <p>Available macros:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">img_root</span></code> - root directory of the pulled container.image</p></li>
@@ -593,9 +599,13 @@ have <code class="docutils literal notranslate"><span class="pre">replica_id=1</
 </ol>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># runs: hello_world.py --app_id ${app_id}</span>
-<span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;hello_world.py&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--app_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">])</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span>
+           <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+           <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;hello_world.py&quot;</span><span class="p">,</span>
+           <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--app_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">],</span>
+           <span class="n">env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;IMAGE_ROOT_DIR&quot;</span><span class="p">:</span> <span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">})</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="s2">&quot;train_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">trainer</span><span class="p">])</span>
-<span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="p">{})</span>
+<span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local_docker&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="p">{})</span>
 </pre></div>
 </div>
 <dl class="py class">
