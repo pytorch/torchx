@@ -380,7 +380,7 @@ class MacrosTest(unittest.TestCase):
         role = Role(
             name="test",
             image="test_image",
-            entrypoint="foo.py",
+            entrypoint=f"{macros.img_root}/foo.py",
             args=[macros.img_root],
             env={"FOO": macros.app_id},
         )
@@ -394,6 +394,7 @@ class MacrosTest(unittest.TestCase):
         self.assertNotEqual(newrole, role)
         self.assertEqual(newrole.args, ["img_root"])
         self.assertEqual(newrole.env, {"FOO": "app_id"})
+        self.assertEqual(newrole.entrypoint, "img_root/foo.py")
 
 
 def get_dummy_application(role: str) -> AppDef:

@@ -138,6 +138,7 @@ class macros:
             role = copy.deepcopy(role)
             role.args = [self.substitute(arg) for arg in role.args]
             role.env = {key: self.substitute(arg) for key, arg in role.env.items()}
+            role.entrypoint = self.substitute(role.entrypoint)
             return role
 
         def substitute(self, arg: str) -> str:
