@@ -10,6 +10,8 @@ import os
 from typing import Dict, List
 import sys
 import ray
+import importlib 
+import contextlib
 
 from ray_common import RayActor
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -17,6 +19,12 @@ from ray_common import RayActor
 _logger: logging.Logger = logging.getLogger(__name__)
 # _logger.setLevel(logging.INFO)
 
+@contextlib.contextmanager
+def redirect_argv(args):
+    _argv = sys.argv[:]
+    sys.argv=args
+    yield
+    sys.argv = _argv
 
 @ray.remote
 class CommandActor:
@@ -24,13 +32,15 @@ class CommandActor:
         self.args = command.split(" ")
         self.path = self.args[0]
 
-        # Set up the environment variables to be passed to the user's command.
-        self.env = os.environ.copy()
-        self.env.update(env)
+        for k, v in env.items():
+            os.environ[k] = v
 
     def run_command(self) -> None:
-        os.chmod(self.path, 0o777)
-        os.execve(self.path, self.args, self.env)
+        spec = importlib.util.spec_from_file_location("__main__",
+                                                      self.path)
+        train = importlib.util.module_from_spec(spec)
+        with redirect_argv(self.args):
+            spec.loader.exec_module(train)
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
@@ -92,7 +102,4 @@ if __name__ == "__main__":
             try:
                 ray.get(object_ref)
             except ray.exceptions.RayActorError as exc:
-                status_code = 1
-
-            if status_code != 0:
-                raise RuntimeError("Job failed")
+                print("Ray Actor Error")
