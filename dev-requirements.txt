@@ -10,12 +10,7 @@ kfp>=1.8.7
 moto>=2.2.12
 pyre-extensions>=0.0.21
 pytorch-lightning>=1.4.9
-ray @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp37-cp37-manylinux2014_x86_64.whl ; python_version == '3.7' and sys_platform == "linux"
-ray @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp38-cp38-manylinux2014_x86_64.whl ; python_version == '3.8' and sys_platform == "linux"
-ray @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp39-cp39-manylinux2014_x86_64.whl ; python_version == '3.9' and sys_platform == "linux"
-ray @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp37-cp37-macosx_10_15_x86_64.whl ; python_version == '3.7' and sys_platform == "darwin"
-ray @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp38-cp38-macosx_10_15_x86_64.whl ; python_version == '3.8' and sys_platform == "darwin"
-ray @ https://s3-us-west-2.amazonaws.com/ray-wheels/latest/ray-2.0.0.dev0-cp39-cp39-macosx_10_15_x86_64.whl ; python_version == '3.9' and sys_platform == "darwin"
+ray[default]
 s3fs>=2021.10.1
 torch-model-archiver>=0.4.2
 torch>=1.10.0

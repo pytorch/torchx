@@ -274,10 +274,10 @@ if has_ray():
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
 
-            for _ in range(10):
-                time.sleep(5)
-                logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
-                print(logs)
+            ray_scheduler.wait_until_finish(job_id)
+
+            logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
+            print(logs)
             assert logs is not None
             self.teardown_ray_cluster()
 
@@ -306,8 +306,8 @@ if has_ray():
             return ray_scheduler.describe(app_id)
 
         def check_logs(self, ray_scheduler, app_id="123") -> List[str]:
-            stdout, stderr = ray_scheduler.log_iter(app_id=app_id)
-            return stdout, stderr
+            logs = ray_scheduler.log_iter(app_id=app_id)
+            return logs
 
         def teardown_ray_cluster(self) -> None:
             os.system("ray stop")
