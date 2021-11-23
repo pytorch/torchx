@@ -8,6 +8,7 @@ import dataclasses
 import json
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
@@ -158,22 +159,21 @@ class RayScheduler(Scheduler):
         # Create Job Client
         self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
 
-        # entrypoint = os.path.join("ray", "ray_driver.py")
-
-        # 1. Copy scripts and directories
+        # 1. Copy scripts
         if cfg.scripts:
             for script in cfg.scripts:
-                if cfg.copy_script_dirs:
-                    script_dir = os.path.dirname(script)
-                    copy2(script_dir, dirpath)
-                else:
-                    copy2(script, dirpath)
+                copy2(script, dirpath)
+        
+        # 2. Copy directories
+        if cfg.copy_script_dirs:
+            script_dir = os.path.dirname(script)
+            copy2(script_dir, dirpath)
 
-        # 2. Copy Ray driver utilities
+        # 3. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
         copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
         copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
-        print("DIR PATH")
+
         job_id: str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
@@ -259,6 +259,17 @@ class RayScheduler(Scheduler):
             if role.port_map:
                 _logger.warning("The Ray scheduler does not support port mapping.")
                 break
+    
+    def wait_until_finish(self, app_id : str):
+        start = time.time()
+        timeout = 5
+        while time.time() - start <= timeout:
+            status_info = self.client.get_job_status(app_id)
+            status = status_info.status
+            print(f"status: {status}")
+            if status in {JobStatus.SUCCEEDED, JobStatus.STOPPED, JobStatus.FAILED}:
+                break
+            time.sleep(1)
 
     def _cancel_existing(self, app_id: str) -> None:
         self.client.stop_job(app_id)
