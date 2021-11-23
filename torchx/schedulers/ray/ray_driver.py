@@ -13,7 +13,7 @@ import ray
 import importlib 
 import contextlib
 
-from .ray_common import RayActor
+from ray_common import RayActor
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 _logger: logging.Logger = logging.getLogger(__name__)
