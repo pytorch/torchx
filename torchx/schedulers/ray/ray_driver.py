@@ -13,11 +13,11 @@ import ray
 import importlib 
 import contextlib
 
-from ray_common import RayActor
+from .ray_common import RayActor
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 _logger: logging.Logger = logging.getLogger(__name__)
-# _logger.setLevel(logging.INFO)
+_logger.setLevel(logging.INFO)
 
 @contextlib.contextmanager
 def redirect_argv(args):
@@ -55,7 +55,7 @@ def load_actor_json(filename: str) -> List[RayActor]:
 
 
 if __name__ == "__main__":
-    print("Reading actor.json")
+    _logger.info("Reading actor.json")
     actors = load_actor_json("actors.json")
 
     ray.init(address="auto", namespace="torchx-ray")
@@ -67,12 +67,12 @@ if __name__ == "__main__":
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
 
-        print("Waiting for placement group to start.")
+        _logger.info("Waiting for placement group to start.")
         ready = pg.wait(timeout_seconds=100)
 
         if ready:
-            print("Placement group has started.")
-            print("Starting remote function")
+            _logger.info("Placement group has started.")
+            _logger.info("Starting remote function")
         else:
             raise TimeoutError(
                 "Placement group creation timed out. Make sure "
@@ -102,4 +102,4 @@ if __name__ == "__main__":
             try:
                 ray.get(object_ref)
             except ray.exceptions.RayActorError as exc:
-                print("Ray Actor Error")
+                _logger.info("Ray Actor Error")
