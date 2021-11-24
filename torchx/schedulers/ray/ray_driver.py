@@ -12,6 +12,7 @@ import sys
 import ray
 import importlib 
 import contextlib
+from ray.train.utils import get_address_and_port 
 
 from ray_common import RayActor
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -81,15 +82,31 @@ if __name__ == "__main__":
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
             )
+    address, port = get_address_and_port()
+    _logger.info("Got master address and port")
+
     command_actors = []
     for i in range(len(actors)):
-        for _ in range(actors[i].num_replicas):
+        world_size = actors[i].num_replicas
+
+        for rank in range(world_size):
+
+            # Environment variables for distributed training
+            rank_env = {
+                "WORLD_SIZE" : str(world_size),
+                "MASTER_PORT" : str(port),
+                "MASTER_ADDR" : address,
+                "RANK" : str(rank)
+            }
+
+            actor_and_rank_env = {**actors[i].env, **rank_env}
+
             command_actors.append(
                 CommandActor.options(
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
-                ).remote(actors[i].command, actors[i].env)
+                ).remote(actors[i].command, actor_and_rank_env )
             )
 
     unfinished = [command_actor.run_command.remote() for command_actor in command_actors]

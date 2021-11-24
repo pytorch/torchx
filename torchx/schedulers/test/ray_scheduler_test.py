@@ -274,7 +274,7 @@ if has_ray():
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
 
-            ray_scheduler.wait_until_finish(job_id)
+            ray_scheduler.wait_until_finish(job_id, 30)
 
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             print(logs)

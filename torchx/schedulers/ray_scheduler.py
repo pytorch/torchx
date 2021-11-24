@@ -260,9 +260,8 @@ class RayScheduler(Scheduler):
                 _logger.warning("The Ray scheduler does not support port mapping.")
                 break
     
-    def wait_until_finish(self, app_id : str):
+    def wait_until_finish(self, app_id : str, timeout : int = 5):
         start = time.time()
-        timeout = 5
         while time.time() - start <= timeout:
             status_info = self.client.get_job_status(app_id)
             status = status_info.status
