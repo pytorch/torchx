@@ -219,7 +219,9 @@ class TorchXScheduler(ax_Scheduler):
 
     """
 
-    def poll_trial_status(self) -> Dict[TrialStatus, Set[int]]:
+    def poll_trial_status(
+        self, poll_all_trial_statuses: bool = False
+    ) -> Dict[TrialStatus, Set[int]]:
         trial_statuses: Dict[TrialStatus, Set[int]] = {}
 
         for trial in self.running_trials:
