@@ -75,8 +75,8 @@ class RayJob:
             The Ray cluster configuration file.
         cluster_name:
             The cluster name to use.
-        cluster_address:
-            The existing cluster IP address to connect to
+        dashboard_address:
+            The existing dashboard IP address to connect to
         copy_script:
             A boolean value indicating whether to copy the script files to the
             cluster.
@@ -94,7 +94,7 @@ class RayJob:
     app_id: str
     cluster_config_file: Optional[str] = None
     cluster_name: Optional[str] = None
-    cluster_address: Optional[str] = None
+    dashboard_address: Optional[str] = None
     copy_scripts: bool = False
     copy_script_dirs: bool = False
     scripts: Set[str] = field(default_factory=set)
@@ -122,11 +122,11 @@ class RayScheduler(Scheduler):
             help="Override the configured cluster name.",
         )
         opts.add(
-            "cluster_address",
+            "dashboard_address",
             type_=str,
             required=False,
             default="127.0.0.1",
-            help="Use ray status to get the cluster_address",
+            help="Use ray status to get the dashboard_address",
         )
         opts.add(
             "copy_scripts",
@@ -150,7 +150,7 @@ class RayScheduler(Scheduler):
         dirpath = mkdtemp()
         _serialize(actors, dirpath)
 
-        ip_address = cfg.cluster_address
+        ip_address = cfg.dashboard_address
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
 

@@ -110,7 +110,7 @@ if has_ray():
             expected_opts = [
                 Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
-                Option("cluster_address", str, default="127.0.0.1"),
+                Option("dashboard_address", str, default="127.0.0.1"),
                 Option("copy_scripts", bool, default=False),
                 Option("copy_script_dirs", bool, default=False),
             ]
