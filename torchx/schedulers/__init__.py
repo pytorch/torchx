@@ -11,6 +11,7 @@ import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
 import torchx.schedulers.slurm_scheduler as slurm_scheduler
+import torchx.schedulers.ray_scheduler as ray_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import SchedulerBackend
 from torchx.util.entrypoints import load_group
@@ -35,6 +36,9 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "slurm": slurm_scheduler.create_scheduler,
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
+
+    if ray_scheduler.has_ray():
+        default_schedulers["ray"] = ray_scheduler.create_scheduler
 
     return load_group(
         "torchx.schedulers",
