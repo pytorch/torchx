@@ -295,7 +295,7 @@ if has_ray():
             ray_job = RayJob(
                 app_id=app_id,
                 copy_scripts=True,
-                cluster_address="127.0.0.1",
+                dashboard_address="127.0.0.1",
                 scripts=set(["train.py"]),
                 actors=[actor]
             )
