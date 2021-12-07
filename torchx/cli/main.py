@@ -58,8 +58,6 @@ def get_sub_cmds() -> Dict[str, SubCommand]:
         ignore_missing=True,
     )
     for cmd_name, cmd_cls in override_sub_cmds.items():
-        if cmd_name in sub_cmds:
-            print(f"Overwriting default {cmd_name} with implementation {cmd_cls}")
         sub_cmds[cmd_name] = cmd_cls()
     return sub_cmds
 

@@ -92,8 +92,12 @@ NONE: str = "<NONE>"
 
 class macros:
     """
-    Defines macros that can be used with ``Role.entrypoint`` and ``Role.args``.
-    The macros will be substituted at runtime to their actual values.
+    Defines macros that can be used in the elements of ``Role.args``
+    values of ``Role.env``. The macros will be substituted at runtime
+    to their actual values.
+
+    .. warning:: Macros used fields of :py:class:`Role` other than the ones
+                 mentioned above, are NOT substituted.
 
     Available macros:
 
@@ -112,9 +116,13 @@ class macros:
     ::
 
      # runs: hello_world.py --app_id ${app_id}
-     trainer = Role(name="trainer", entrypoint="hello_world.py", args=["--app_id", macros.app_id])
+     trainer = Role(
+                name="trainer",
+                entrypoint="hello_world.py",
+                args=["--app_id", macros.app_id],
+                env={"IMAGE_ROOT_DIR": macros.img_root})
      app = AppDef("train_app", roles=[trainer])
-     app_handle = session.run(app, scheduler="local", cfg={})
+     app_handle = session.run(app, scheduler="local_docker", cfg={})
 
     """
 

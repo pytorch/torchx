@@ -10,7 +10,6 @@ from typing import Any, Callable, Dict, Mapping, Optional, Set, cast
 
 import pandas as pd
 from ax.core import Trial
-from ax.core.abstract_data import AbstractDataFrameData
 from ax.core.base_trial import BaseTrial
 from ax.core.data import Data
 from ax.core.metric import Metric
@@ -57,9 +56,7 @@ class AppMetric(Metric):
 
     """
 
-    def fetch_trial_data(
-        self, trial: BaseTrial, **kwargs: Any
-    ) -> AbstractDataFrameData:
+    def fetch_trial_data(self, trial: BaseTrial, **kwargs: Any) -> Data:
         tracker_base = trial.run_metadata[_TORCHX_TRACKER_BASE]
         tracker = FsspecResultTracker(tracker_base)
         res = tracker[trial.index]

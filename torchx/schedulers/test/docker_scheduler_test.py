@@ -9,6 +9,7 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+import fsspec
 from docker.types import DeviceRequest
 from torchx import specs
 from torchx.schedulers.api import Stream
@@ -81,7 +82,7 @@ class DockerSchedulerTest(unittest.TestCase):
                             "torchx.pytorch.org/app-id": "app_name_42",
                             "torchx.pytorch.org/replica-id": "0",
                             "torchx.pytorch.org/role-name": "trainer",
-                            "torchx.pytorch.org/version": "0.1.1dev0",
+                            "torchx.pytorch.org/version": "0.1.2dev0",
                         },
                         "mem_limit": "3000m",
                         "name": "app_name_42-trainer-0",
@@ -347,3 +348,34 @@ if has_docker():
             self.assertEqual(
                 desc.roles_statuses[0].replicas[1].state, AppState.SUCCEEDED
             )
+
+        def test_docker_workspace(self) -> None:
+            fs = fsspec.filesystem("memory")
+            fs.mkdirs("test_workspace/bar", exist_ok=True)
+            with fs.open("test_workspace/bar/foo.sh", "w") as f:
+                f.write("exit 0")
+
+            img = self.scheduler.build_workspace_image(
+                "busybox",
+                "memory://test_workspace",
+            )
+
+            app = AppDef(
+                name="test-app",
+                roles=[
+                    Role(
+                        name="ping",
+                        image=img,
+                        entrypoint="sh",
+                        args=[
+                            "bar/foo.sh",
+                        ],
+                    ),
+                ],
+            )
+            app_id = self.scheduler.submit(app, {})
+            print(app_id)
+
+            desc = self.wait(app_id)
+            self.assertIsNotNone(desc)
+            self.assertEqual(AppState.SUCCEEDED, desc.state)

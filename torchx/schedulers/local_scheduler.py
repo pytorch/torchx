@@ -894,7 +894,14 @@ class LocalScheduler(Scheduler):
             shutil.rmtree(self._base_log_dir, ignore_errors=True)
 
     def __del__(self) -> None:
-        self.close()
+        try:
+            self.close()
+        except Exception as e:
+            # When the `__del__` method is invoked, we cannot rely on presence of object attributes,
+            # More info: https://stackoverflow.com/questions/18058730/python-attributeerror-on-del
+            log.warning(
+                f"Exception {e} occurred while trying to clean `LocalScheduler` via `__del__` method"
+            )
 
 
 class LogIterator:

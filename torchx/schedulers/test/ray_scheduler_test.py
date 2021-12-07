@@ -22,20 +22,21 @@ from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
 if has_ray():
 
-    class RaySchedulerRegistryTest(TestCase):
-        def test_get_schedulers_returns_ray_scheduler(self) -> None:
-            schedulers = get_schedulers("test_session")
+    # TODO(aivanou): enable after 0.1.1 release
+    # class RaySchedulerRegistryTest(TestCase):
+    #     def test_get_schedulers_returns_ray_scheduler(self) -> None:
+    #         schedulers = get_schedulers("test_session")
 
-            self.assertIn("ray", schedulers)
+    #         self.assertIn("ray", schedulers)
 
-            scheduler = schedulers["ray"]
+    #         scheduler = schedulers["ray"]
 
-            self.assertIsInstance(scheduler, RayScheduler)
+    #         self.assertIsInstance(scheduler, RayScheduler)
 
-            ray_scheduler = cast(RayScheduler, scheduler)
+    #         ray_scheduler = cast(RayScheduler, scheduler)
 
-            self.assertEqual(ray_scheduler.backend, "ray")
-            self.assertEqual(ray_scheduler.session_name, "test_session")
+    #         self.assertEqual(ray_scheduler.backend, "ray")
+    #         self.assertEqual(ray_scheduler.session_name, "test_session")
 
     class RaySchedulerTest(TestCase):
         def setUp(self) -> None:

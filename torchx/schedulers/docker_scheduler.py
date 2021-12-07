@@ -5,13 +5,27 @@
 # LICENSE file in the root directory of this source tree.
 
 import fnmatch
+import io
 import logging
 import os.path
+import posixpath
+import tarfile
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Mapping, TYPE_CHECKING, Any, Dict, Iterable, Optional, List, Union
+from typing import (
+    Mapping,
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Optional,
+    List,
+    Union,
+    IO,
+)
 
+import fsspec
 import torchx
 import yaml
 from torchx.schedulers.api import (
@@ -390,6 +404,21 @@ class DockerScheduler(Scheduler):
         else:
             return logs
 
+    def build_workspace_image(self, img: str, workspace: str) -> str:
+        """
+        build_workspace_image creates a new image with the files in workspace
+        overlaid on top of it.
+
+        Args:
+            img: a Docker image to use as a base
+            workspace: a fsspec path to a directory with contents to be overlaid
+
+        Returns:
+            The new Docker image ID.
+
+        """
+        return _build_container_from_workspace(self._client(), img, workspace)
+
 
 def _to_str(a: Union[str, bytes]) -> str:
     if isinstance(a, bytes):
@@ -403,3 +432,59 @@ def create_scheduler(session_name: str, **kwargs: Any) -> DockerScheduler:
     return DockerScheduler(
         session_name=session_name,
     )
+
+
+def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
+    # TODO(d4l3k) implement docker ignore files
+
+    fs, path = fsspec.core.url_to_fs(workspace)
+    assert isinstance(path, str), "path must be str"
+
+    for dir, dirs, files in fs.walk(path, detail=True):
+        assert isinstance(dir, str), "path must be str"
+        relpath = posixpath.relpath(dir, path)
+        for file, info in files.items():
+            print(relpath, dir, file, info)
+            with fs.open(info["name"], "rb") as f:
+                tinfo = tarfile.TarInfo(posixpath.join(relpath, file))
+                tinfo.size = info["size"]
+                tf.addfile(tinfo, f)
+
+
+def _build_context(img: str, workspace: str) -> IO[bytes]:
+    # f is closed by parent, NamedTemporaryFile auto closes on GC
+    f = tempfile.NamedTemporaryFile(  # noqa P201
+        prefix="torchx-context",
+        suffix=".tar",
+    )
+    dockerfile = bytes(f"FROM {img}\nCOPY . .\n", encoding="utf-8")
+    with tarfile.open(fileobj=f, mode="w") as tf:
+        info = tarfile.TarInfo("Dockerfile")
+        info.size = len(dockerfile)
+        tf.addfile(info, io.BytesIO(dockerfile))
+
+        _copy_to_tarfile(workspace, tf)
+
+    f.seek(0)
+    return f
+
+
+def _build_container_from_workspace(
+    client: "DockerClient", img: str, workspace: str
+) -> str:
+    context = _build_context(img, workspace)
+
+    try:
+        image, logs = client.images.build(
+            fileobj=context,
+            custom_context=True,
+            pull=True,
+            rm=True,
+            labels={
+                LABEL_VERSION: torchx.__version__,
+            },
+        )
+    finally:
+        context.close()
+    print(image)
+    return image.id
