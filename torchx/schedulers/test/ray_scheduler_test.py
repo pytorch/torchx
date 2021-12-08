@@ -7,7 +7,7 @@
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Type, List, Dict
+from typing import Any, Iterator, Type, List, Dict, cast
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -279,7 +279,7 @@ if has_ray():
             assert logs is not None
             self.teardown_ray_cluster()
 
-        def setup_ray_cluster(self) -> None:
+        def setup_ray_cluster(self) -> RayScheduler:
             os.system("ray stop --force")
             os.system("ray start --head")
             ray.init(address="auto")
@@ -306,10 +306,10 @@ if has_ray():
             job_id = ray_scheduler.schedule(app_info)
             return job_id
 
-        def describe(self, ray_scheduler, app_id="123"):
+        def describe(self, ray_scheduler, app_id="123") -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
 
-        def check_logs(self, ray_scheduler, app_id="123") -> List[str]:
+        def check_logs(self, ray_scheduler, app_id="123") -> str:
             logs = ray_scheduler.log_iter(app_id=app_id)
             return logs
 

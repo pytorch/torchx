@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
 from tempfile import mkdtemp
-from typing import Any, List, Mapping, Optional, Set, Type
+from typing import Any, Dict, List, Mapping, Optional, Set, Type
 
 from ray.autoscaler import sdk as ray_autoscaler_sdk
 from ray.dashboard.modules.job.common import JobStatus
@@ -38,7 +38,7 @@ except:
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
-ray_status_to_torchx_appstate = {
+ray_status_to_torchx_appstate : Dict[JobStatus,AppState] = {
     JobStatus.PENDING: AppState.PENDING,
     JobStatus.RUNNING: AppState.RUNNING,
     JobStatus.SUCCEEDED: AppState.SUCCEEDED,
@@ -162,15 +162,13 @@ class RayScheduler(Scheduler):
         # Create Job Client
         self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
 
-        # 1. Copy scripts
+        # 1. Copy scripts and directories
         if cfg.scripts:
             for script in cfg.scripts:
                 copy2(script, dirpath)
-
-        # 2. Copy directories
-        if cfg.copy_script_dirs:
-            script_dir = os.path.dirname(script)
-            copy2(script_dir, dirpath)
+            if cfg.copy_script_dirs:
+                script_dir = os.path.dirname(script)
+                copy2(script_dir, dirpath)
 
         # 3. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
