@@ -49,7 +49,7 @@ class CommandActor:
 
 def load_actor_json(filename: str) -> List[RayActor]: # pyre-ignore[11]
     with open(filename) as f:
-        actors = []
+        actors : List[RayActor] = []
         # Yes this is gross but it works
         actor_dict = json.load(f)
         actor_dict = json.loads(actor_dict)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     ray.init(address="auto", namespace="torchx-ray")
 
-    pgs = []
+    pgs : List[ray.util.placement_group] = []
     for actor in actors:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
@@ -85,10 +85,10 @@ if __name__ == "__main__":
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
             )
-    address : str, port : int = get_address_and_port()
+    address, port = get_address_and_port() # pyre-ignore[5]
     _logger.info("Got master address and port")
 
-    command_actors = []
+    command_actors : List[CommandActor] = []
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
 
