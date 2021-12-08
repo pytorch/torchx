@@ -291,7 +291,12 @@ if has_ray():
 
         def schedule_ray_job(self, ray_scheduler, app_id="123") -> str:
             current_dir = os.path.dirname(os.path.realpath(__file__))
-            actor = RayActor(name="ddp", num_cpus=2, num_replicas=2, command=os.path.join(current_dir, "train.py"))
+            actor = RayActor(
+                name="ddp",
+                num_cpus=2,
+                num_replicas=2,
+                command=os.path.join(current_dir, "train.py"),
+            )
 
             ray_job = RayJob(
                 app_id=app_id,
