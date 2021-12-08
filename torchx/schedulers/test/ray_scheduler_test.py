@@ -290,13 +290,14 @@ if has_ray():
             return ray_scheduler
 
         def schedule_ray_job(self, ray_scheduler, app_id="123") -> str:
-            actor = RayActor(name="ddp", num_cpus=2, num_replicas=2, command="train.py")
+            current_dir = os.path.dirname(os.path.realpath(__file__))
+            actor = RayActor(name="ddp", num_cpus=2, num_replicas=2, command=os.path.join(current_dir, "train.py"))
 
             ray_job = RayJob(
                 app_id=app_id,
                 copy_scripts=True,
                 dashboard_address="127.0.0.1",
-                scripts=set(["train.py"]),
+                scripts=set([os.path.join(current_dir, "train.py")]),
                 actors=[actor],
             )
             app_info = AppDryRunInfo(ray_job, repr)

@@ -272,7 +272,6 @@ class RayScheduler(Scheduler):
         while time.time() - start <= timeout:
             status_info = self.client.get_job_status(app_id)
             status = status_info.status
-            print(f"status: {status}")
             if status in {JobStatus.SUCCEEDED, JobStatus.STOPPED, JobStatus.FAILED}:
                 break
             time.sleep(1)
