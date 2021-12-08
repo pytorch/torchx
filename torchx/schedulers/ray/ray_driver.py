@@ -10,11 +10,11 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import ray
 from ray.train.utils import get_address_and_port
-from ray_common import RayActor
+from ray_common import RayActor # pyre-ignore[21]
 
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -28,25 +28,26 @@ def redirect_argv(args):
     sys.argv = args
     yield
     sys.argv = _argv
+    breakpoint()
 
 
 @ray.remote
 class CommandActor:
     def __init__(self, command: str, env: Dict[str, str]):
-        self.args = command.split(" ")
-        self.path = self.args[0]
+        self.args : List[str] = command.split(" ")
+        self.path : str = self.args[0]
 
         for k, v in env.items():
             os.environ[k] = v
 
     def run_command(self) -> None:
-        spec = importlib.util.spec_from_file_location("__main__", self.path)
+        spec : Optional[importlib.machinery.ModuleSpec] = importlib.util.spec_from_file_location("__main__", self.path)
         train = importlib.util.module_from_spec(spec)
         with redirect_argv(self.args):
             spec.loader.exec_module(train)
 
 
-def load_actor_json(filename: str) -> List[RayActor]:
+def load_actor_json(filename: str) -> List[RayActor]: # pyre-ignore[11]
     with open(filename) as f:
         actors = []
         # Yes this is gross but it works
@@ -84,7 +85,7 @@ if __name__ == "__main__":
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
             )
-    address, port = get_address_and_port()
+    address : str, port : int = get_address_and_port()
     _logger.info("Got master address and port")
 
     command_actors = []

@@ -271,7 +271,11 @@ if has_ray():
             assert ray.is_initialized() is True
 
             job_id = self.schedule_ray_job(ray_scheduler)
+            print(f"job_id in test is {job_id}")
             assert job_id is not None
+
+            _ , job_id = job_id.split("-")
+            print(f"job_id in test after parse is {job_id}")
 
             ray_scheduler.wait_until_finish(job_id, 30)
 

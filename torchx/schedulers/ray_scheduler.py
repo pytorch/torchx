@@ -278,19 +278,20 @@ class RayScheduler(Scheduler):
                 break
             time.sleep(1)
 
-    def _cancel_existing(self, app_id: str) -> None:
+    def _parse_app_id(self, app_id : str) -> List[str]:
         job_client_url, app_id = app_id.split("-")
-        client = JobSubmissionClient(job_client_url)
         job_client_url = "http://" + job_client_url
+        return app_id, job_client_url
 
+    def _cancel_existing(self, app_id: str) -> None:
+        app_id, job_client_url = self._parse_app_id(app_id)
+        client = JobSubmissionClient(job_client_url)
         logs = client.get_job_logs(app_id)
         client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         print(f"APP_ID in describe() is {app_id}")
-        job_client_url, app_id = app_id.split("-")
-        job_client_url = "http://" + job_client_url
-
+        app_id, job_client_url = self._parse_app_id(app_id)
         client = JobSubmissionClient(job_client_url)
         status = client.get_job_status(app_id).status
         status = _ray_status_to_torchx_appstate[status]
@@ -308,10 +309,10 @@ class RayScheduler(Scheduler):
         streams: Optional[Stream] = None,
     ) -> List[str]:
         # TODO: support regex, tailing, streams etc..
-        job_client_url, app_id = app_id.split("-")
-        job_client_url = "http://" + job_client_url
-        client = JobSubmissionClient(job_client_url)
-        logs = client.get_job_logs(app_id)
+        # print(f"APP_ID IN LOG STATEMENT is {app_id}")
+        # app_id, job_client_url = self._parse_app_id(app_id)
+        # client = JobSubmissionClient(job_client_url)
+        logs = self.client.get_job_logs(app_id)
         return logs
 
 
