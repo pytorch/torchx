@@ -32,13 +32,14 @@ from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
 try:
     import ray
     _has_ray = True
-except:
+
+except ImportError:
     _has_ray = False
 
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
-ray_status_to_torchx_appstate : Dict[JobStatus,AppState] = {
+_ray_status_to_torchx_appstate: Dict[JobStatus, AppState] = {
     JobStatus.PENDING: AppState.PENDING,
     JobStatus.RUNNING: AppState.RUNNING,
     JobStatus.SUCCEEDED: AppState.SUCCEEDED,
@@ -160,7 +161,8 @@ class RayScheduler(Scheduler):
         dashboard_port = 8265
 
         # Create Job Client
-        self.client = JobSubmissionClient(f"http://{ip_address}:{dashboard_port}")
+        job_client_url = f"http://{ip_address}:{dashboard_port}"
+        self.client = JobSubmissionClient(job_client_url)
 
         # 1. Copy scripts and directories
         if cfg.scripts:
@@ -184,7 +186,9 @@ class RayScheduler(Scheduler):
         )
         rmtree(dirpath)
 
-        return job_id
+        # Encode job submission client in job_id
+        dashboard_url_and_port = job_client_url.replace("http://", "")
+        return f"{dashboard_url_and_port}-{job_id}"
 
     def _submit_dryrun(
         self, app: AppDef, cfg: Mapping[str, CfgVal]
@@ -275,12 +279,17 @@ class RayScheduler(Scheduler):
             time.sleep(1)
 
     def _cancel_existing(self, app_id: str) -> None:
-        self.client.stop_job(app_id)
+        job_client_url, app_id = app_id.split("-")
+        client = JobSubmissionClient(job_client_url)
+        logs = client.get_job_logs(app_id)
+        client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        status = self.client.get_job_status(app_id).status
-        print(f"Status is {status}")
-        status = ray_status_to_torchx_appstate[status]
+        print(f"APP_ID in describe() is {app_id}")
+        job_client_url, app_id = app_id.split("-")
+        client = JobSubmissionClient(job_client_url)
+        status = client.get_job_status(app_id).status
+        status = _ray_status_to_torchx_appstate[status]
         return DescribeAppResponse(app_id=app_id, state=status)
 
     def log_iter(
@@ -295,7 +304,9 @@ class RayScheduler(Scheduler):
         streams: Optional[Stream] = None,
     ) -> List[str]:
         # TODO: support regex, tailing, streams etc..
-        logs = self.client.get_job_logs(app_id)
+        job_client_url, app_id = app_id.split("-")
+        client = JobSubmissionClient(job_client_url)
+        logs = client.get_job_logs(app_id)
         return logs
 
 

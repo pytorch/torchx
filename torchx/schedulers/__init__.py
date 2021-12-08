@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict
+from typing import Dict, Optional
 
 import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
@@ -22,6 +22,14 @@ class SchedulerFactory(Protocol):
     def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
         ...
 
+def try_get_ray_scheduler() -> Optional[ray_scheduler.RayScheduler]:
+    try:
+        import torchx.schedulers.ray_scheduler as ray_scheduler
+        return ray_scheduler.create_scheduler
+
+    except ImportError:
+        return None    
+
 
 def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
     """
@@ -30,6 +38,7 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
 
     The first scheduler in the dictionary is used as the default scheduler.
     """
+
     default_schedulers: Dict[str, SchedulerFactory] = {
         "local_docker": docker_scheduler.create_scheduler,
         "local_cwd": local_scheduler.create_cwd_scheduler,
@@ -37,9 +46,10 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
 
-    if ray_scheduler.has_ray():
-        default_schedulers["ray"] = ray_scheduler.create_scheduler
-
+    ray_scheduler : ray_scheduler.RayScheduler = try_get_ray_scheduler()
+    if try_get_ray_scheduler():
+        default_schedulers["ray"] = ray_scheduler
+ 
     return load_group(
         "torchx.schedulers",
         default=default_schedulers,

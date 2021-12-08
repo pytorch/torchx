@@ -7,19 +7,20 @@
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Type, List, Dict, cast
+from typing import Any, Iterator, Type, Optional, Dict, cast
 from unittest import TestCase
 from unittest.mock import patch
 
 import ray
 from torchx.schedulers import get_schedulers
-from torchx.schedulers.api import AppDryRunInfo
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
 from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
 
 if has_ray():
+
     class RaySchedulerRegistryTest(TestCase):
         def test_get_schedulers_returns_ray_scheduler(self) -> None:
             schedulers = get_schedulers("test_session")
@@ -306,7 +307,9 @@ if has_ray():
             job_id = ray_scheduler.schedule(app_info)
             return job_id
 
-        def describe(self, ray_scheduler, app_id="123") -> Optional[DescribeAppResponse]:
+        def describe(
+            self, ray_scheduler, app_id="123"
+        ) -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
 
         def check_logs(self, ray_scheduler, app_id="123") -> str:
