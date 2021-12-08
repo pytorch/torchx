@@ -8,9 +8,8 @@
 import os
 from typing import Optional
 
-
 import torch
-import torch.distributed
+from torch.distributed import init_process_group, all_reduce, get_rank, get_world_size
 import torch.nn.functional as F
 
 
@@ -23,7 +22,7 @@ def compute_world_size() -> int:
     backend = "gloo"
 
     print(f"initializing `{backend}` process group")
-    torch.distributed.init_process_group(
+    init_process_group(
         backend=backend,
         init_method=f"tcp://{master_addr}:{master_port}",
         rank=rank,
@@ -31,11 +30,11 @@ def compute_world_size() -> int:
     )
     print("successfully initialized process group")
 
-    rank = torch.distributed.get_rank()
-    world_size = torch.distributed.get_world_size()
+    rank = get_rank()
+    world_size = get_world_size()
 
     t = F.one_hot(torch.tensor(rank), num_classes=world_size)
-    torch.distributed.all_reduce(t)
+    all_reduce(t)
     computed_world_size = int(torch.sum(t).item())
     print(
         f"rank: {rank}, actual world_size: {world_size}, computed world_size: {computed_world_size}"

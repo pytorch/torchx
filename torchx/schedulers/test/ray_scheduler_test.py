@@ -274,8 +274,8 @@ if has_ray():
             print(f"job_id in test is {job_id}")
             assert job_id is not None
 
-            _ , job_id = job_id.split("-")
-            print(f"job_id in test after parse is {job_id}")
+            # _ , job_id = job_id.split("-")
+            # print(f"job_id in test after parse is {job_id}")
 
             ray_scheduler.wait_until_finish(job_id, 30)
 
@@ -291,7 +291,7 @@ if has_ray():
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
-        def schedule_ray_job(self, ray_scheduler, app_id="123") -> str:
+        def schedule_ray_job(self, ray_scheduler : RayScheduler, app_id : str ="123") -> str:
             current_dir = os.path.dirname(os.path.realpath(__file__))
             actor = RayActor(
                 name="ddp",
@@ -312,12 +312,12 @@ if has_ray():
             return job_id
 
         def describe(
-            self, ray_scheduler, app_id="123"
+            self, ray_scheduler : RayScheduler, app_id : str ="123"
         ) -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
 
-        def check_logs(self, ray_scheduler, app_id="123") -> str:
-            logs = ray_scheduler.log_iter(app_id=app_id)
+        def check_logs(self, ray_scheduler : RayScheduler, app_id : str ="123") -> str:
+            logs : str = ray_scheduler.log_iter(app_id=app_id)
             return logs
 
         def teardown_ray_cluster(self) -> None:

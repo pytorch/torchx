@@ -16,20 +16,16 @@ import ray
 from ray.train.utils import get_address_and_port
 from ray_common import RayActor # pyre-ignore[21]
 
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
 
 @contextlib.contextmanager
-def redirect_argv(args):
+def redirect_argv(args) -> None:
     _argv = sys.argv[:]
     sys.argv = args
     yield
     sys.argv = _argv
-    breakpoint()
-
 
 @ray.remote
 class CommandActor:
@@ -64,7 +60,7 @@ if __name__ == "__main__":
 
     ray.init(address="auto", namespace="torchx-ray")
 
-    pgs : List[ray.util.placement_group] = []
+    pgs = []  # pyre-ignore[5]
     for actor in actors:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
@@ -113,7 +109,7 @@ if __name__ == "__main__":
             )
 
     unfinished = [
-        command_actor.run_command.remote() for command_actor in command_actors
+        command_actor.run_command.remote() for command_actor in command_actors # pyre-ignore[16]
     ]
 
     while len(unfinished) > 0:

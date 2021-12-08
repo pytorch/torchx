@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
 from tempfile import mkdtemp
-from typing import Any, Dict, List, Mapping, Optional, Set, Type
+from typing import Any, Dict, List, Tuple, Mapping, Optional, Set, Type
 
 from ray.autoscaler import sdk as ray_autoscaler_sdk
 from ray.dashboard.modules.job.common import JobStatus
@@ -149,6 +149,7 @@ class RayScheduler(Scheduler):
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
         cfg: RayJob = dryrun_info.request
 
+
         # Create serialized actors for ray_driver.py
         actors = cfg.actors
         dirpath = mkdtemp()
@@ -270,6 +271,8 @@ class RayScheduler(Scheduler):
                 break
 
     def wait_until_finish(self, app_id: str, timeout: int = 5):
+        app_id, job_client_url = self._parse_app_id(app_id)
+        client = JobSubmissionClient(job_client_url)
         start = time.time()
         while time.time() - start <= timeout:
             status_info = self.client.get_job_status(app_id)
@@ -278,7 +281,7 @@ class RayScheduler(Scheduler):
                 break
             time.sleep(1)
 
-    def _parse_app_id(self, app_id : str) -> List[str]:
+    def _parse_app_id(self, app_id : str) -> Tuple[str, str]:
         job_client_url, app_id = app_id.split("-")
         job_client_url = "http://" + job_client_url
         return app_id, job_client_url
@@ -307,12 +310,12 @@ class RayScheduler(Scheduler):
         until: Optional[datetime] = None,
         should_tail: bool = False,
         streams: Optional[Stream] = None,
-    ) -> List[str]:
+    ) -> str:
         # TODO: support regex, tailing, streams etc..
-        # print(f"APP_ID IN LOG STATEMENT is {app_id}")
-        # app_id, job_client_url = self._parse_app_id(app_id)
-        # client = JobSubmissionClient(job_client_url)
-        logs = self.client.get_job_logs(app_id)
+        print(f"APP_ID IN LOG STATEMENT is {app_id}")
+        app_id, job_client_url = self._parse_app_id(app_id)
+        client = JobSubmissionClient(job_client_url)
+        logs = client.get_job_logs(app_id)
         return logs
 
 
