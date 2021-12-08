@@ -2,13 +2,14 @@
 # (c) Facebook, Inc. and its affiliates. Confidential and proprietary.
 
 import argparse
+import os
 import sys
 from typing import List
-import os
 
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
+
 
 def compute_world_size() -> int:
 
@@ -39,7 +40,6 @@ def compute_world_size() -> int:
     return computed_world_size
 
 
-  
 def main() -> None:
     compute_world_size()
 

@@ -16,9 +16,10 @@ from tempfile import mkdtemp
 from typing import Any, List, Mapping, Optional, Set, Type
 
 import ray  # @manual # noqa: F401
-from ray.dashboard.modules.job.common import JobStatus, JobStatusInfo
+
 # from ray._private.job_manager import JobStatus
 from ray.autoscaler import sdk as ray_autoscaler_sdk
+from ray.dashboard.modules.job.common import JobStatus, JobStatusInfo
 from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -58,6 +59,7 @@ def _serialize(
     actors_json = json.dumps(actors, cls=_EnhancedJSONEncoder)
     with open(os.path.join(dirpath, output_filename), "w") as tmp:
         json.dump(actors_json, tmp)
+
 
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
@@ -163,7 +165,7 @@ class RayScheduler(Scheduler):
         if cfg.scripts:
             for script in cfg.scripts:
                 copy2(script, dirpath)
-        
+
         # 2. Copy directories
         if cfg.copy_script_dirs:
             script_dir = os.path.dirname(script)
@@ -259,8 +261,8 @@ class RayScheduler(Scheduler):
             if role.port_map:
                 _logger.warning("The Ray scheduler does not support port mapping.")
                 break
-    
-    def wait_until_finish(self, app_id : str, timeout : int = 5):
+
+    def wait_until_finish(self, app_id: str, timeout: int = 5):
         start = time.time()
         while time.time() - start <= timeout:
             status_info = self.client.get_job_status(app_id)

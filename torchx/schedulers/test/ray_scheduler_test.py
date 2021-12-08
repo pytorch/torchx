@@ -4,7 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from torchx.schedulers.ray.ray_common import RayActor
 import os
 import time
 from contextlib import contextmanager
@@ -16,6 +15,7 @@ from unittest.mock import patch
 import ray
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import AppDryRunInfo
+from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
 from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
@@ -297,7 +297,7 @@ if has_ray():
                 copy_scripts=True,
                 dashboard_address="127.0.0.1",
                 scripts=set(["train.py"]),
-                actors=[actor]
+                actors=[actor],
             )
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)

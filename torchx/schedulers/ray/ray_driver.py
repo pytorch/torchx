@@ -4,28 +4,31 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import contextlib
+import importlib
 import json
 import logging
 import os
-from typing import Dict, List
 import sys
-import ray
-import importlib 
-import contextlib
-from ray.train.utils import get_address_and_port 
+from typing import Dict, List
 
+import ray
+from ray.train.utils import get_address_and_port
 from ray_common import RayActor
+
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
+
 @contextlib.contextmanager
 def redirect_argv(args):
     _argv = sys.argv[:]
-    sys.argv=args
+    sys.argv = args
     yield
     sys.argv = _argv
+
 
 @ray.remote
 class CommandActor:
@@ -37,8 +40,7 @@ class CommandActor:
             os.environ[k] = v
 
     def run_command(self) -> None:
-        spec = importlib.util.spec_from_file_location("__main__",
-                                                      self.path)
+        spec = importlib.util.spec_from_file_location("__main__", self.path)
         train = importlib.util.module_from_spec(spec)
         with redirect_argv(self.args):
             spec.loader.exec_module(train)
@@ -93,10 +95,10 @@ if __name__ == "__main__":
 
             # Environment variables for distributed training
             rank_env = {
-                "WORLD_SIZE" : str(world_size),
-                "MASTER_PORT" : str(port),
-                "MASTER_ADDR" : address,
-                "RANK" : str(rank)
+                "WORLD_SIZE": str(world_size),
+                "MASTER_PORT": str(port),
+                "MASTER_ADDR": address,
+                "RANK": str(rank),
             }
 
             actor_and_rank_env = {**actors[i].env, **rank_env}
@@ -106,10 +108,12 @@ if __name__ == "__main__":
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
-                ).remote(actors[i].command, actor_and_rank_env )
+                ).remote(actors[i].command, actor_and_rank_env)
             )
 
-    unfinished = [command_actor.run_command.remote() for command_actor in command_actors]
+    unfinished = [
+        command_actor.run_command.remote() for command_actor in command_actors
+    ]
 
     while len(unfinished) > 0:
         finished, unfinished = ray.wait(unfinished)
