@@ -37,6 +37,14 @@ def get_k8s_sched_info(image: str) -> SchedulerInfo:
     return SchedulerInfo(name="kubernetes", image=image, cfg=cfg)
 
 
+def get_ray_sched_info(image: str) -> SchedulerInfo:
+    cfg = {
+        "namespace": "torchx-dev",
+        "queue": "default",
+    }
+    return SchedulerInfo(name="ray", image=image, cfg=cfg)
+
+
 def get_local_cwd_sched_info(image: str) -> SchedulerInfo:
     return SchedulerInfo(name="local_cwd", image=image)
 
