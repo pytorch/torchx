@@ -281,7 +281,8 @@ class RayScheduler(Scheduler):
         self.client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        status = self.client.get_job_status(app_id)
+        status = self.client.get_job_status(app_id).status
+        print(f"Status is {status}")
         status = ray_status_to_torchx_appstate[status]
         return DescribeAppResponse(app_id=app_id, state=status)
 
