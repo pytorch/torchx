@@ -311,4 +311,4 @@ if has_ray():
             return logs
 
         def teardown_ray_cluster(self) -> None:
-            os.system("ray stop")
+            os.system("ray stop --force")

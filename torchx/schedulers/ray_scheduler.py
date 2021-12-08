@@ -193,10 +193,15 @@ class RayScheduler(Scheduler):
         app_id = make_unique(app.name)
 
         cluster_cfg = cfg.get("cluster_config_file")
-        if not isinstance(cluster_cfg, str) or not os.path.isfile(cluster_cfg):
-            raise ValueError("The cluster configuration file must be a YAML file.")
+        if cluster_cfg:
+            if not isinstance(cluster_cfg, str) or not os.path.isfile(cluster_cfg):
+                raise ValueError("The cluster configuration file must be a YAML file.")    
+            job: RayJob = RayJob(app_id, cluster_cfg)
 
-        job: RayJob = RayJob(app_id, cluster_cfg)
+        else:
+            dashboard_address = cfg.get("dashboard_address")
+            job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
+
 
         # pyre-ignore[24]: Generic type `type` expects 1 type parameter
         def set_job_attr(cfg_name: str, cfg_type: Type) -> None:
