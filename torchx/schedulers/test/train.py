@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 # (c) Facebook, Inc. and its affiliates. Confidential and proprietary.
 
-import argparse
 import os
-import sys
-from typing import List
-
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F

@@ -15,11 +15,8 @@ from shutil import copy2, rmtree
 from tempfile import mkdtemp
 from typing import Any, List, Mapping, Optional, Set, Type
 
-import ray  # @manual # noqa: F401
-
-# from ray._private.job_manager import JobStatus
 from ray.autoscaler import sdk as ray_autoscaler_sdk
-from ray.dashboard.modules.job.common import JobStatus, JobStatusInfo
+from ray.dashboard.modules.job.common import JobStatus
 from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -32,7 +29,11 @@ from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
 
-_has_ray = True
+try:
+    import ray
+    _has_ray = True
+except:
+    _has_ray = False
 
 
 _logger: logging.Logger = logging.getLogger(__name__)
@@ -179,7 +180,7 @@ class RayScheduler(Scheduler):
         job_id: str = self.client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
-            entrypoint=f"python ray_driver.py",
+            entrypoint="python ray_driver.py",
             runtime_env={"working_dir": dirpath},
             # job_id = cfg.app_id
         )
