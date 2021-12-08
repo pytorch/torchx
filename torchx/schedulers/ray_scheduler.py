@@ -281,12 +281,16 @@ class RayScheduler(Scheduler):
     def _cancel_existing(self, app_id: str) -> None:
         job_client_url, app_id = app_id.split("-")
         client = JobSubmissionClient(job_client_url)
+        job_client_url = "http://" + job_client_url
+
         logs = client.get_job_logs(app_id)
         client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         print(f"APP_ID in describe() is {app_id}")
         job_client_url, app_id = app_id.split("-")
+        job_client_url = "http://" + job_client_url
+
         client = JobSubmissionClient(job_client_url)
         status = client.get_job_status(app_id).status
         status = _ray_status_to_torchx_appstate[status]
@@ -305,6 +309,7 @@ class RayScheduler(Scheduler):
     ) -> List[str]:
         # TODO: support regex, tailing, streams etc..
         job_client_url, app_id = app_id.split("-")
+        job_client_url = "http://" + job_client_url
         client = JobSubmissionClient(job_client_url)
         logs = client.get_job_logs(app_id)
         return logs
