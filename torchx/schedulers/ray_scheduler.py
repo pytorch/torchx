@@ -80,14 +80,10 @@ class RayJob:
             The cluster name to use.
         dashboard_address:
             The existing dashboard IP address to connect to
-        copy_script:
-            A boolean value indicating whether to copy the script files to the
-            cluster.
-        copy_script_dir:
-            A boolean value indicating whether to copy the directories
-            containing the scripts to the cluster.
-        scripts:
-            The set of scripts to copy to the cluster.
+        working_dir:
+           The working directory to copy to the cluster
+        requirements:
+            The libraries to install on the cluster per requirements.txt 
         actors:
             The Ray actors which represent the job to be run. This attribute is
             dumped to a JSON file and copied to the cluster where `ray_main.py`
@@ -98,8 +94,8 @@ class RayJob:
     cluster_config_file: Optional[str] = None
     cluster_name: Optional[str] = None
     dashboard_address: Optional[str] = None
-    copy_scripts: bool = False
-    copy_script_dirs: bool = False
+    working_dir: Optional[str] = None
+    requirements: Optional[str] = None
     scripts: Set[str] = field(default_factory=set)
     actors: List[RayActor] = field(default_factory=list)
 
@@ -127,19 +123,17 @@ class RayScheduler(Scheduler):
             type_=str,
             required=False,
             default="127.0.0.1",
-            help="Use ray status to get the dashboard address",
+            help="Use ray status to get the dashboard address you will submit jobs against",
         )
         opts.add(
-            "copy_scripts",
-            type_=bool,
-            default=False,
-            help="Copy the Python script(s) to the cluster.",
+            "working_dir",
+            type_=str,
+            help="Copy the the working directory containing the Python scripts to the cluster.",
         )
         opts.add(
-            "copy_script_dirs",
-            type_=bool,
-            default=False,
-            help="Copy the directories containing the Python scripts to the cluster.",
+            "requirements",
+            type_=str,
+            help="Path to requirements.txt"
         )
         return opts
 
@@ -161,24 +155,36 @@ class RayScheduler(Scheduler):
         job_client_url = f"http://{ip_address}:{dashboard_port}"
         client = JobSubmissionClient(job_client_url)
 
-        # 1. Copy scripts and directories
-        if cfg.scripts:
-            for script in cfg.scripts:
-                copy2(script, dirpath)
-                if cfg.copy_script_dirs:
-                    script_dir = os.path.dirname(script)
-                    copy2(script_dir, dirpath)
+        # 1. Copy working directory
+        if cfg.working_dir:
+            copy2(cfg.working_dir, dirpath)
+        # if cfg.scripts:
+        #     for script in cfg.scripts:
+        #         copy2(script, dirpath)
+        #         if cfg.copy_script_dirs:
+        #             script_dir = os.path.dirname(script)
+        #             copy2(script_dir, dirpath)
 
-        # 3. Copy Ray driver utilities
+        # 2. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
         copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
         copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
 
+        # 3. Parse requirements.txt
+        reqs : List[str] = []
+        if cfg.requirements:
+            with open(cfg.requirements) as f:
+                for line in f:
+                    reqs.append(line.strip())
+        print(reqs)
         job_id: str = client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
             entrypoint="python ray_driver.py",
-            runtime_env={"working_dir": dirpath},
+            runtime_env={
+                "working_dir": dirpath,
+                "pip": reqs
+            },
             # job_id = cfg.app_id
         )
         rmtree(dirpath)
@@ -216,8 +222,7 @@ class RayScheduler(Scheduler):
             setattr(job, cfg_name, cfg_value)
 
         set_job_attr("cluster_name", str)
-        set_job_attr("copy_scripts", bool)
-        set_job_attr("copy_script_dirs", bool)
+        set_job_attr("working_dir", str)
 
         for role in app.roles:
             # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
@@ -237,7 +242,7 @@ class RayScheduler(Scheduler):
 
             job.actors.append(actor)
 
-            if job.copy_scripts or job.copy_script_dirs:
+            if job.working_dir:
                 # Find out the actual user script.
                 for arg in role.args:
                     if arg.endswith(".py"):
@@ -266,7 +271,7 @@ class RayScheduler(Scheduler):
                 _logger.warning("The Ray scheduler does not support port mapping.")
                 break
 
-    def wait_until_finish(self, app_id: str, timeout: int = 5):
+    def wait_until_finish(self, app_id: str, timeout: int = 30):
         app_id, job_client_url = self._parse_app_id(app_id)
         client = JobSubmissionClient(job_client_url)
         start = time.time()
@@ -289,7 +294,6 @@ class RayScheduler(Scheduler):
         client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        print(f"APP_ID in describe() is {app_id}")
         app_id, job_client_url = self._parse_app_id(app_id)
         client = JobSubmissionClient(job_client_url)
         status = client.get_job_status(app_id).status
@@ -308,7 +312,6 @@ class RayScheduler(Scheduler):
         streams: Optional[Stream] = None,
     ) -> str:
         # TODO: support regex, tailing, streams etc..
-        print(f"APP_ID IN LOG STATEMENT is {app_id}")
         app_id, job_client_url = self._parse_app_id(app_id)
         client = JobSubmissionClient(job_client_url)
         logs = client.get_job_logs(app_id)

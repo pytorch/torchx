@@ -64,8 +64,8 @@ if has_ray():
             self._run_cfg: Dict[str, CfgVal] = {
                 "cluster_config_file": "dummy_file",
                 "cluster_name": "dummy_name",
-                "copy_scripts": True,
-                "copy_script_dirs": True,
+                "working_dir": None,
+                "requirements": None,
             }
 
             self._scheduler = RayScheduler("test_session")
@@ -109,8 +109,8 @@ if has_ray():
                 Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
                 Option("dashboard_address", str, default="127.0.0.1"),
-                Option("copy_scripts", bool, default=False),
-                Option("copy_script_dirs", bool, default=False),
+                Option("working_dir", str, is_required=False),
+                Option("requirements", str, is_required=False),
             ]
 
             self.assertEqual(len(opts), len(expected_opts))
@@ -207,14 +207,6 @@ if has_ray():
         def test_submit_dryrun_raises_error_if_cluster_name_is_not_str(self) -> None:
             self._assert_config_value("cluster_name", 1, "str")
 
-        def test_submit_dryrun_raises_error_if_copy_scripts_is_not_bool(self) -> None:
-            self._assert_config_value("copy_scripts", "dummy_value", "bool")
-
-        def test_submit_dryrun_raises_error_if_copy_script_dirs_is_not_bool(
-            self,
-        ) -> None:
-            self._assert_config_value("copy_script_dirs", "dummy_value", "bool")
-
         def _assert_submit_dryrun_constructs_job_definition(self) -> None:
             run_info = self._scheduler._submit_dryrun(self._app_def, self._run_cfg)
 
@@ -227,12 +219,6 @@ if has_ray():
                 job.cluster_config_file, self._run_cfg.get("cluster_config_file")
             )
             self.assertEqual(job.cluster_name, self._run_cfg.get("cluster_name"))
-            self.assertEqual(
-                job.copy_scripts, self._run_cfg.get("copy_scripts") or False
-            )
-            self.assertEqual(
-                job.copy_script_dirs, self._run_cfg.get("copy_script_dirs") or False
-            )
 
             for actor, role in zip(job.actors, self._app_def.roles):
                 self.assertEqual(actor.name, role.name)
@@ -241,18 +227,14 @@ if has_ray():
                 self.assertEqual(actor.num_replicas, max(1, role.num_replicas))
                 self.assertEqual(actor.num_cpus, max(1, role.resource.cpu))
                 self.assertEqual(actor.num_gpus, max(0, role.resource.gpu))
-
-            if job.copy_scripts:
-                self.assertEqual(job.scripts, set(self._scripts))
-            else:
                 self.assertEqual(job.scripts, set())
 
         def test_submit_dryrun_constructs_job_definition(self) -> None:
             self._assert_submit_dryrun_constructs_job_definition()
 
             self._run_cfg["cluster_name"] = None
-            self._run_cfg["copy_scripts"] = False
-            self._run_cfg["copy_script_dirs"] = False
+            self._run_cfg["working_dir"] = None
+            self._run_cfg["requirements"] = None
 
             self._assert_submit_dryrun_constructs_job_definition()
 
@@ -271,11 +253,7 @@ if has_ray():
             assert ray.is_initialized() is True
 
             job_id = self.schedule_ray_job(ray_scheduler)
-            print(f"job_id in test is {job_id}")
             assert job_id is not None
-
-            # _ , job_id = job_id.split("-")
-            # print(f"job_id in test after parse is {job_id}")
 
             ray_scheduler.wait_until_finish(job_id, 30)
 
@@ -304,8 +282,8 @@ if has_ray():
 
             ray_job = RayJob(
                 app_id=app_id,
-                copy_scripts=True,
                 dashboard_address="127.0.0.1",
+                # requirements=os.path.join(current_dir, "..", "..", "..", "requirements.txt"),
                 scripts=set([os.path.join(current_dir, "train.py")]),
                 actors=[actor],
             )
