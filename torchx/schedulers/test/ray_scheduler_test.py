@@ -108,7 +108,7 @@ if has_ray():
             expected_opts = [
                 Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
-                Option("dashboard_address", str, default="127.0.0.1"),
+                Option("dashboard_address", str, default="127.0.0.1:8265"),
                 Option("working_dir", str, is_required=False),
                 Option("requirements", str, is_required=False),
             ]
@@ -282,7 +282,7 @@ if has_ray():
 
             ray_job = RayJob(
                 app_id=app_id,
-                dashboard_address="127.0.0.1",
+                dashboard_address="127.0.0.1:8265",
                 # requirements=os.path.join(current_dir, "..", "..", "..", "requirements.txt"),
                 scripts=set([os.path.join(current_dir, "train.py")]),
                 actors=[actor],

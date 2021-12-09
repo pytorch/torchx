@@ -22,7 +22,7 @@ _logger.setLevel(logging.INFO)
 
 
 @contextlib.contextmanager
-def redirect_argv(args : List[str]) -> Generator[str]:
+def redirect_argv(args : List[str]):
     _argv = sys.argv[:]
     sys.argv = args
     yield

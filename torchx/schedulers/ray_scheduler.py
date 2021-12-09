@@ -120,7 +120,7 @@ class RayScheduler(Scheduler):
             "dashboard_address",
             type_=str,
             required=False,
-            default="127.0.0.1",
+            default="127.0.0.1:8265",
             help="Use ray status to get the dashboard address you will submit jobs against",
         )
         opts.add(
