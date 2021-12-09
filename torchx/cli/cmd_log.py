@@ -28,7 +28,7 @@ ID_FORMAT = "SCHEDULER://[SESSION_NAME]/APP_ID/[ROLE_NAME/[REPLICA_IDS,...]]"
 
 
 def validate(job_identifier: str) -> None:
-    if not re.match(r"^\w+://[^/.]*/[^/.]+(/[^/.]+(/(\d+,?)+)?)?$", job_identifier):
+    if not re.match(r"^\w+://[^/]*/[^/]+(/[^/]+(/(\d+,?)+)?)?$", job_identifier):
         logger.error(
             f"{job_identifier} is not of the form {ID_FORMAT}",
         )
@@ -95,6 +95,7 @@ def get_logs(
 
         app = none_throws(runner.describe(app_handle))
         # print all replicas for the role
+        # import pdb;pdb.set_trace()
         replica_ids = find_role_replicas(app, role_name)
 
         if not replica_ids:

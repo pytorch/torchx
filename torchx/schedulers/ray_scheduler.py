@@ -11,7 +11,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from shutil import copy2, rmtree
+from shutil import copy2, rmtree, copytree
 from tempfile import mkdtemp
 from typing import Any, Dict, List, Tuple, Mapping, Optional, Set, Type
 
@@ -24,17 +24,19 @@ from torchx.schedulers.api import (
 )
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
-from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
+from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts, Role, RoleStatus, ReplicaStatus, \
+    ReplicaState
 
 try:
     from ray.autoscaler import sdk as ray_autoscaler_sdk
     from ray.dashboard.modules.job.common import JobStatus
     from ray.dashboard.modules.job.sdk import JobSubmissionClient
+    import ray
+
     _has_ray = True
 
 except ImportError:
     _has_ray = False
-
 
 _logger: logging.Logger = logging.getLogger(__name__)
 
@@ -55,7 +57,7 @@ class _EnhancedJSONEncoder(json.JSONEncoder):
 
 
 def _serialize(
-    actors: List[RayActor], dirpath: str, output_filename: str = "actors.json"
+        actors: List[RayActor], dirpath: str, output_filename: str = "actors.json"
 ) -> None:
     actors_json = json.dumps(actors, cls=_EnhancedJSONEncoder)
     with open(os.path.join(dirpath, output_filename), "w") as tmp:
@@ -99,7 +101,7 @@ class RayJob:
     cluster_name: Optional[str] = None
     dashboard_address: Optional[str] = None
     copy_scripts: bool = False
-    copy_script_dirs: bool = False
+    copy_script_dirs: str = ""
     scripts: Set[str] = field(default_factory=set)
     actors: List[RayActor] = field(default_factory=list)
 
@@ -137,8 +139,7 @@ class RayScheduler(Scheduler):
         )
         opts.add(
             "copy_script_dirs",
-            type_=bool,
-            default=False,
+            type_=str,
             help="Copy the directories containing the Python scripts to the cluster.",
         )
         return opts
@@ -155,19 +156,11 @@ class RayScheduler(Scheduler):
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
 
-        dashboard_port = 8265
-
         # Create Job Client
-        job_client_url = f"http://{ip_address}:{dashboard_port}"
-        client = JobSubmissionClient(job_client_url)
+        self.client = JobSubmissionClient(f"http://{ip_address}")
 
-        # 1. Copy scripts and directories
-        if cfg.scripts:
-            for script in cfg.scripts:
-                copy2(script, dirpath)
-                if cfg.copy_script_dirs:
-                    script_dir = os.path.dirname(script)
-                    copy2(script_dir, dirpath)
+        if cfg.copy_script_dirs:
+            copytree(cfg.copy_script_dirs, dirpath, dirs_exist_ok=True)
 
         # 3. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -188,7 +181,7 @@ class RayScheduler(Scheduler):
         return f"{dashboard_url_and_port}-{job_id}"
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: Mapping[str, CfgVal]
+            self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[RayJob]:
         app_id = make_unique(app.name)
 
@@ -217,7 +210,7 @@ class RayScheduler(Scheduler):
 
         set_job_attr("cluster_name", str)
         set_job_attr("copy_scripts", bool)
-        set_job_attr("copy_script_dirs", bool)
+        set_job_attr("copy_script_dirs", str)
 
         for role in app.roles:
             # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
@@ -236,12 +229,6 @@ class RayScheduler(Scheduler):
             )
 
             job.actors.append(actor)
-
-            if job.copy_scripts or job.copy_script_dirs:
-                # Find out the actual user script.
-                for arg in role.args:
-                    if arg.endswith(".py"):
-                        job.scripts.add(arg)
 
         return AppDryRunInfo(job, repr)
 
@@ -289,30 +276,35 @@ class RayScheduler(Scheduler):
         client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        print(f"APP_ID in describe() is {app_id}")
-        app_id, job_client_url = self._parse_app_id(app_id)
-        client = JobSubmissionClient(job_client_url)
-        status = client.get_job_status(app_id).status
-        status = _ray_status_to_torchx_appstate[status]
-        return DescribeAppResponse(app_id=app_id, state=status)
+        addr, app_id = app_id.split("-")
+        self.client = JobSubmissionClient(f"http://{addr}")
+        status = self.client.get_job_status(app_id).status
+        print(f"Status is {status}")
+        status = ray_status_to_torchx_appstate[status]
+        roles = [
+            Role(name="ray", num_replicas=1, image="")
+        ]
+        roles_statuses = [
+            RoleStatus(role="ray", replicas=[ReplicaStatus(id=0, role="ray", hostname="", state=status)])
+        ]
+        return DescribeAppResponse(app_id=app_id, state=status, roles_statuses=roles_statuses, roles=roles)
 
     def log_iter(
-        self,
-        app_id: str,
-        role_name: Optional[str] = None,
-        k: int = 0,
-        regex: Optional[str] = None,
-        since: Optional[datetime] = None,
-        until: Optional[datetime] = None,
-        should_tail: bool = False,
-        streams: Optional[Stream] = None,
-    ) -> str:
+            self,
+            app_id: str,
+            role_name: Optional[str] = None,
+            k: int = 0,
+            regex: Optional[str] = None,
+            since: Optional[datetime] = None,
+            until: Optional[datetime] = None,
+            should_tail: bool = False,
+            streams: Optional[Stream] = None,
+    ) -> List[str]:
         # TODO: support regex, tailing, streams etc..
-        print(f"APP_ID IN LOG STATEMENT is {app_id}")
-        app_id, job_client_url = self._parse_app_id(app_id)
-        client = JobSubmissionClient(job_client_url)
-        logs = client.get_job_logs(app_id)
-        return logs
+        addr, app_id = app_id.split("-")
+        self.client = JobSubmissionClient(f"http://{addr}")
+        logs = self.client.get_job_logs(app_id)
+        return logs.split("\n")
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:

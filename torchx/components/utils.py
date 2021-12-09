@@ -19,7 +19,7 @@ import torchx.specs as specs
 
 
 def echo(
-    msg: str = "hello world", image: str = torchx.IMAGE, num_replicas: int = 1
+        msg: str = "hello world", image: str = torchx.IMAGE, num_replicas: int = 1
 ) -> specs.AppDef:
     """
     Echos a message to stdout (calls echo)
@@ -96,13 +96,13 @@ def sh(*args: str, image: str = torchx.IMAGE, num_replicas: int = 1) -> specs.Ap
 
 
 def python(
-    *args: str,
-    m: Optional[str] = None,
-    c: Optional[str] = None,
-    image: str = torchx.IMAGE,
-    name: str = "torchx_utils_python",
-    host: str = "aws_t3.medium",
-    num_replicas: int = 1,
+        *args: str,
+        m: Optional[str] = None,
+        c: Optional[str] = None,
+        image: str = torchx.IMAGE,
+        name: str = "torchx_utils_python",
+        host: str = "aws_t3.medium",
+        num_replicas: int = 1,
 ) -> specs.AppDef:
     """
     Runs ``python -c CMD`` or ``python -m MODULE`` on the specified
@@ -147,6 +147,38 @@ def python(
     )
 
 
+def binary(
+        *args: str,
+        entrypoint: str,
+        name: str = "torchx_utils_python",
+        num_replicas: int = 1,
+) -> specs.AppDef:
+    """
+    Test component
+
+    Args:
+        args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)
+        name: name of the job
+        num_replicas: number of copies to run (each on its own container)
+    :return:
+    """
+    return specs.AppDef(
+        name=name,
+        roles=[
+            specs.Role(
+                name="binary",
+                image="<NONE>",
+                entrypoint=entrypoint,
+                num_replicas=num_replicas,
+                resource=specs.Resource(cpu=2, gpu=0, memMB=4096),
+                args=[
+                    *args
+                ],
+            )
+        ],
+    )
+
+
 def copy(src: str, dst: str, image: str = torchx.IMAGE) -> specs.AppDef:
     """
     copy copies the file from src to dst. src and dst can be any valid fsspec
@@ -181,11 +213,11 @@ def copy(src: str, dst: str, image: str = torchx.IMAGE) -> specs.AppDef:
 
 
 def booth(
-    x1: float,
-    x2: float,
-    trial_idx: int = 0,
-    tracker_base: str = "/tmp/torchx-util-booth",
-    image: str = torchx.IMAGE,
+        x1: float,
+        x2: float,
+        trial_idx: int = 0,
+        tracker_base: str = "/tmp/torchx-util-booth",
+        image: str = torchx.IMAGE,
 ) -> specs.AppDef:
     """
     Evaluates the booth function, ``f(x1, x2) = (x1 + 2*x2 - 7)^2 + (2*x1 + x2 - 5)^2``.
