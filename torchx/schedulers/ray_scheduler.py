@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree, copytree
 from tempfile import mkdtemp
-from typing import Any, Dict, List, Tuple, Mapping, Optional, Set, Type
+from typing import Any, Dict, List, Mapping, Optional, Set, Type
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -24,15 +24,12 @@ from torchx.schedulers.api import (
 )
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
-from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts, Role, RoleStatus, ReplicaStatus, \
-    ReplicaState
+from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts, Role, RoleStatus, ReplicaStatus
 
 try:
     from ray.autoscaler import sdk as ray_autoscaler_sdk
     from ray.dashboard.modules.job.common import JobStatus
     from ray.dashboard.modules.job.sdk import JobSubmissionClient
-    import ray
-
     _has_ray = True
 
 except ImportError:
