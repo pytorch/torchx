@@ -10,7 +10,7 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Generator
 
 import ray
 from ray.train.utils import get_address_and_port
@@ -22,7 +22,7 @@ _logger.setLevel(logging.INFO)
 
 
 @contextlib.contextmanager
-def redirect_argv(args : List[str]) -> None:
+def redirect_argv(args : List[str]) -> Generator[str]:
     _argv = sys.argv[:]
     sys.argv = args
     yield
@@ -31,7 +31,7 @@ def redirect_argv(args : List[str]) -> None:
 
 @ray.remote
 class CommandActor:
-    def __init__(self, command: str, env: Dict[str, str]):
+    def __init__(self, command: str, env: Dict[str, str]) -> None:
         self.args: List[str] = command.split(" ")
         self.path: str = self.args[0]
 
@@ -42,9 +42,10 @@ class CommandActor:
         spec: Optional[
             importlib.machinery.ModuleSpec
         ] = importlib.util.spec_from_file_location("__main__", self.path)
-        train = importlib.util.module_from_spec(spec)
-        with redirect_argv(self.args):
-            spec.loader.exec_module(train) # pyre-ignore[16]
+        if spec:
+            train = importlib.util.module_from_spec(spec)
+            with redirect_argv(self.args):
+                spec.loader.exec_module(train) # pyre-ignore[16]
 
 
 def load_actor_json(filename: str) -> List[RayActor]:  # pyre-ignore[11]
@@ -60,7 +61,7 @@ def load_actor_json(filename: str) -> List[RayActor]:  # pyre-ignore[11]
 
 if __name__ == "__main__":
     _logger.info("Reading actor.json")
-    actors = load_actor_json("actors.json")
+    actors : List[RayActor] = load_actor_json("actors.json")
 
     ray.init(address="auto", namespace="torchx-ray")
 
@@ -112,10 +113,10 @@ if __name__ == "__main__":
                 ).remote(actors[i].command, actor_and_rank_env) # pyre-ignore [16]
             )
 
-    unfinished = [
+    unfinished = [ # pyre-ignore[16]
         command_actor.run_command.remote()
-        for command_actor in command_actors  # pyre-ignore[16]
-    ]
+        for command_actor in command_actors  
+    ] 
 
     while len(unfinished) > 0:
         finished, unfinished = ray.wait(unfinished)

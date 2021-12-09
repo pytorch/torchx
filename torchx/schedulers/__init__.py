@@ -48,7 +48,7 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
 
-    ray_scheduler: ray_scheduler.RayScheduler = try_get_ray_scheduler()
+    ray_scheduler: Optional[ray_scheduler.RayScheduler] = try_get_ray_scheduler()
     if try_get_ray_scheduler():
         default_schedulers["ray"] = ray_scheduler
 

@@ -47,7 +47,7 @@ _ray_status_to_torchx_appstate: Dict[JobStatus, AppState] = {
 
 
 class _EnhancedJSONEncoder(json.JSONEncoder):
-    def default(self, o: RayActor) -> Dict:
+    def default(self, o: RayActor):
         if dataclasses.is_dataclass(o):
             return dataclasses.asdict(o)
         return super().default(o)
@@ -149,11 +149,11 @@ class RayScheduler(Scheduler):
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
 
         # Create Job Client
-        self.client = JobSubmissionClient(f"http://{ip_address}")
+        client : JobSubmissionClient = JobSubmissionClient(f"http://{ip_address}")
 
         # 1. Copy working directory
         if cfg.working_dir:
-            copytree(cfg.working_dir, dirpath, dir_exist_ok=True)
+            copytree(cfg.working_dir, dirpath, dirs_exist_ok=True)
 
         # 2. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -195,7 +195,7 @@ class RayScheduler(Scheduler):
             job: RayJob = RayJob(app_id, cluster_cfg)
 
         else:
-            dashboard_address: str = cfg.get("dashboard_address")
+            dashboard_address: Optional[str] = cfg.get("dashboard_address")
             job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
 
         # pyre-ignore[24]: Generic type `type` expects 1 type parameter
@@ -258,7 +258,7 @@ class RayScheduler(Scheduler):
     def wait_until_finish(self, app_id: str, timeout: int = 30):
         addr, app_id = app_id.split("-")
 
-        self.client = JobSubmissionClient(f"http://{addr}")
+        client = JobSubmissionClient(f"http://{addr}")
         start = time.time()
         while time.time() - start <= timeout:
             status_info = client.get_job_status(app_id)
@@ -269,16 +269,16 @@ class RayScheduler(Scheduler):
 
     def _cancel_existing(self, app_id: str) -> None:
         addr, app_id = app_id.split("-")
-        self.client = JobSubmissionClient(f"http://{addr}")
+        client = JobSubmissionClient(f"http://{addr}")
         logs = client.get_job_logs(app_id)
         client.stop_job(app_id)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         addr, app_id = app_id.split("-")
-        self.client = JobSubmissionClient(f"http://{addr}")
-        status = self.client.get_job_status(app_id).status
+        client = JobSubmissionClient(f"http://{addr}")
+        status = client.get_job_status(app_id).status
         print(f"Status is {status}")
-        status = ray_status_to_torchx_appstate[status]
+        status = _ray_status_to_torchx_appstate[status]
         roles = [
             Role(name="ray", num_replicas=1, image="")
         ]
@@ -300,8 +300,8 @@ class RayScheduler(Scheduler):
     ) -> List[str]:
         # TODO: support regex, tailing, streams etc..
         addr, app_id = app_id.split("-")
-        self.client = JobSubmissionClient(f"http://{addr}")
-        logs = self.client.get_job_logs(app_id)
+        client : JobSubmissionClient = JobSubmissionClient(f"http://{addr}")
+        logs : str = client.get_job_logs(app_id)
         return logs.split("\n")
 
 
