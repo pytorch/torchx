@@ -52,7 +52,6 @@ class _EnhancedJSONEncoder(json.JSONEncoder):
             return dataclasses.asdict(o)
         return super().default(o)
 
-
 def _serialize(
         actors: List[RayActor], dirpath: str, output_filename: str = "actors.json"
 ) -> None:
@@ -166,7 +165,7 @@ class RayScheduler(Scheduler):
             with open(cfg.requirements) as f:
                 for line in f:
                     reqs.append(line.strip())
-        print(reqs)
+
         job_id: str = client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
@@ -180,8 +179,7 @@ class RayScheduler(Scheduler):
         rmtree(dirpath)
 
         # Encode job submission client in job_id
-        dashboard_url_and_port = job_client_url.replace("http://", "")
-        return f"{dashboard_url_and_port}-{job_id}"
+        return f"{ip_address}-{job_id}"
 
     def _submit_dryrun(
             self, app: AppDef, cfg: Mapping[str, CfgVal]
