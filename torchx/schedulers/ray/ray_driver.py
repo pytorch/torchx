@@ -14,6 +14,7 @@ from typing import Dict, List, Optional
 
 import ray
 from ray.train.utils import get_address_and_port
+from ray.util.placement_group import PlacementGroup
 from ray_common import RayActor  # pyre-ignore[21]
 
 _logger: logging.Logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ _logger.setLevel(logging.INFO)
 
 
 @contextlib.contextmanager
-def redirect_argv(args) -> None:
+def redirect_argv(args : List[str]) -> None:
     _argv = sys.argv[:]
     sys.argv = args
     yield
@@ -43,7 +44,7 @@ class CommandActor:
         ] = importlib.util.spec_from_file_location("__main__", self.path)
         train = importlib.util.module_from_spec(spec)
         with redirect_argv(self.args):
-            spec.loader.exec_module(train)
+            spec.loader.exec_module(train) # pyre-ignore[16]
 
 
 def load_actor_json(filename: str) -> List[RayActor]:  # pyre-ignore[11]
@@ -63,7 +64,7 @@ if __name__ == "__main__":
 
     ray.init(address="auto", namespace="torchx-ray")
 
-    pgs = []  # pyre-ignore[5]
+    pgs : List[PlacementGroup] = []
     for actor in actors:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
-                ).remote(actors[i].command, actor_and_rank_env)
+                ).remote(actors[i].command, actor_and_rank_env) # pyre-ignore [16]
             )
 
     unfinished = [

@@ -127,7 +127,7 @@ class RayScheduler(Scheduler):
             type_=str,
             required=False,
             default="127.0.0.1",
-            help="Use ray status to get the dashboard_address",
+            help="Use ray status to get the dashboard address",
         )
         opts.add(
             "copy_scripts",
@@ -151,7 +151,7 @@ class RayScheduler(Scheduler):
         dirpath = mkdtemp()
         _serialize(actors, dirpath)
 
-        ip_address = cfg.dashboard_address
+        ip_address : Optional[str] = cfg.dashboard_address
         if cfg.cluster_config_file:
             ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
 

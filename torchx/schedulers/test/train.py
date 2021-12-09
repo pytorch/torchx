@@ -26,14 +26,14 @@ def compute_world_size() -> int:
         init_method=f"tcp://{master_addr}:{master_port}",
         rank=rank,
         world_size=world_size,
-    )
+    ) # pyre-ignore[16]
     print("successfully initialized process group")
 
-    rank = get_rank()
-    world_size = get_world_size()
+    rank = get_rank() # pyre-ignore[16]
+    world_size = get_world_size() # pyre-ignore[16]
 
     t = F.one_hot(torch.tensor(rank), num_classes=world_size)
-    all_reduce(t)
+    all_reduce(t) # pyre-ignore[16]
     computed_world_size = int(torch.sum(t).item())
     print(
         f"rank: {rank}, actual world_size: {world_size}, computed world_size: {computed_world_size}"
