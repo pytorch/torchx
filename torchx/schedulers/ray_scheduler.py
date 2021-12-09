@@ -15,9 +15,6 @@ from shutil import copy2, rmtree
 from tempfile import mkdtemp
 from typing import Any, Dict, List, Tuple, Mapping, Optional, Set, Type
 
-from ray.autoscaler import sdk as ray_autoscaler_sdk
-from ray.dashboard.modules.job.common import JobStatus
-from ray.dashboard.modules.job.sdk import JobSubmissionClient
 from torchx.schedulers.api import (
     AppDryRunInfo,
     AppState,
@@ -30,7 +27,9 @@ from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import AppDef, CfgVal, SchedulerBackend, macros, runopts
 
 try:
-    import ray
+    from ray.autoscaler import sdk as ray_autoscaler_sdk
+    from ray.dashboard.modules.job.common import JobStatus
+    from ray.dashboard.modules.job.sdk import JobSubmissionClient
     _has_ray = True
 
 except ImportError:
@@ -49,7 +48,7 @@ _ray_status_to_torchx_appstate: Dict[JobStatus, AppState] = {
 
 
 class _EnhancedJSONEncoder(json.JSONEncoder):
-    def default(self, o):
+    def default(self, o: RayActor) -> Dict:
         if dataclasses.is_dataclass(o):
             return dataclasses.asdict(o)
         return super().default(o)
@@ -106,8 +105,6 @@ class RayJob:
 
 
 class RayScheduler(Scheduler):
-    client: JobSubmissionClient
-
     def __init__(self, session_name: str) -> None:
         super().__init__("ray", session_name)
 
@@ -149,7 +146,6 @@ class RayScheduler(Scheduler):
     def schedule(self, dryrun_info: AppDryRunInfo[RayJob]) -> str:
         cfg: RayJob = dryrun_info.request
 
-
         # Create serialized actors for ray_driver.py
         actors = cfg.actors
         dirpath = mkdtemp()
@@ -163,22 +159,22 @@ class RayScheduler(Scheduler):
 
         # Create Job Client
         job_client_url = f"http://{ip_address}:{dashboard_port}"
-        self.client = JobSubmissionClient(job_client_url)
+        client = JobSubmissionClient(job_client_url)
 
         # 1. Copy scripts and directories
         if cfg.scripts:
             for script in cfg.scripts:
                 copy2(script, dirpath)
-            if cfg.copy_script_dirs:
-                script_dir = os.path.dirname(script)
-                copy2(script_dir, dirpath)
+                if cfg.copy_script_dirs:
+                    script_dir = os.path.dirname(script)
+                    copy2(script_dir, dirpath)
 
         # 3. Copy Ray driver utilities
         current_directory = os.path.dirname(os.path.abspath(__file__))
         copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
         copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
 
-        job_id: str = self.client.submit_job(
+        job_id: str = client.submit_job(
             # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
             # and use it to configure your job execution.
             entrypoint="python ray_driver.py",
@@ -203,7 +199,7 @@ class RayScheduler(Scheduler):
             job: RayJob = RayJob(app_id, cluster_cfg)
 
         else:
-            dashboard_address = cfg.get("dashboard_address")
+            dashboard_address: str = cfg.get("dashboard_address")
             job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
 
         # pyre-ignore[24]: Generic type `type` expects 1 type parameter
@@ -275,13 +271,13 @@ class RayScheduler(Scheduler):
         client = JobSubmissionClient(job_client_url)
         start = time.time()
         while time.time() - start <= timeout:
-            status_info = self.client.get_job_status(app_id)
+            status_info = client.get_job_status(app_id)
             status = status_info.status
             if status in {JobStatus.SUCCEEDED, JobStatus.STOPPED, JobStatus.FAILED}:
                 break
             time.sleep(1)
 
-    def _parse_app_id(self, app_id : str) -> Tuple[str, str]:
+    def _parse_app_id(self, app_id: str) -> Tuple[str, str]:
         job_client_url, app_id = app_id.split("-")
         job_client_url = "http://" + job_client_url
         return app_id, job_client_url

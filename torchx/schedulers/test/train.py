@@ -6,18 +6,17 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-from typing import Optional
 
 import torch
-from torch.distributed import init_process_group, all_reduce, get_rank, get_world_size
 import torch.nn.functional as F
+from torch.distributed import init_process_group, all_reduce, get_rank, get_world_size
 
 
 def compute_world_size() -> int:
 
-    rank = int(os.getenv("RANK")) # pyre-ignore[6]
-    world_size = int(os.getenv("WORLD_SIZE")) # pyre-ignore[6]
-    master_port = int(os.getenv("MASTER_PORT")) # pyre-ignore[6]
+    rank = int(os.getenv("RANK"))  # pyre-ignore[6]
+    world_size = int(os.getenv("WORLD_SIZE"))  # pyre-ignore[6]
+    master_port = int(os.getenv("MASTER_PORT"))  # pyre-ignore[6]
     master_addr = os.getenv("MASTER_ADDR")
     backend = "gloo"
 

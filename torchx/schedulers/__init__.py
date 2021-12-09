@@ -22,13 +22,15 @@ class SchedulerFactory(Protocol):
     def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
         ...
 
+
 def try_get_ray_scheduler() -> Optional[ray_scheduler.RayScheduler]:
     try:
         import torchx.schedulers.ray_scheduler as ray_scheduler
+
         return ray_scheduler.create_scheduler
 
     except ImportError:
-        return None    
+        return None
 
 
 def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
@@ -46,10 +48,10 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
 
-    ray_scheduler : ray_scheduler.RayScheduler = try_get_ray_scheduler()
+    ray_scheduler: ray_scheduler.RayScheduler = try_get_ray_scheduler()
     if try_get_ray_scheduler():
         default_schedulers["ray"] = ray_scheduler
- 
+
     return load_group(
         "torchx.schedulers",
         default=default_schedulers,

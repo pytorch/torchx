@@ -291,7 +291,9 @@ if has_ray():
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
-        def schedule_ray_job(self, ray_scheduler : RayScheduler, app_id : str ="123") -> str:
+        def schedule_ray_job(
+            self, ray_scheduler: RayScheduler, app_id: str = "123"
+        ) -> str:
             current_dir = os.path.dirname(os.path.realpath(__file__))
             actor = RayActor(
                 name="ddp",
@@ -312,12 +314,12 @@ if has_ray():
             return job_id
 
         def describe(
-            self, ray_scheduler : RayScheduler, app_id : str ="123"
+            self, ray_scheduler: RayScheduler, app_id: str = "123"
         ) -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
 
-        def check_logs(self, ray_scheduler : RayScheduler, app_id : str ="123") -> str:
-            logs : str = ray_scheduler.log_iter(app_id=app_id)
+        def check_logs(self, ray_scheduler: RayScheduler, app_id: str = "123") -> str:
+            logs: str = ray_scheduler.log_iter(app_id=app_id)
             return logs
 
         def teardown_ray_cluster(self) -> None:
