@@ -49,7 +49,7 @@ if _has_ray:
 
 
     class _EnhancedJSONEncoder(json.JSONEncoder):
-        def default(self, o: RayActor):
+        def default(self, o: RayActor): # pyre-ignore[3]
             if dataclasses.is_dataclass(o):
                 return dataclasses.asdict(o)
             return super().default(o)
@@ -145,7 +145,8 @@ if _has_ray:
             dirpath = mkdtemp()
             _serialize(actors, dirpath)
 
-            ip_address : Optional[str] = cfg.dashboard_address
+            if cfg.dashboard_address:
+                ip_address : str = cfg.dashboard_address
             if cfg.cluster_config_file:
                 ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
 
@@ -255,7 +256,7 @@ if _has_ray:
                     _logger.warning("The Ray scheduler does not support port mapping.")
                     break
 
-        def wait_until_finish(self, app_id: str, timeout: int = 30):
+        def wait_until_finish(self, app_id: str, timeout: int = 30) -> None:
             addr, app_id = app_id.split("-")
 
             client = JobSubmissionClient(f"http://{addr}")

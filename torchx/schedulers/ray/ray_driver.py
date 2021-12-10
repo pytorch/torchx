@@ -22,7 +22,7 @@ _logger.setLevel(logging.INFO)
 
 
 @contextlib.contextmanager
-def redirect_argv(args : List[str]):
+def redirect_argv(args : List[str]): # pyre-ignore[3]
     _argv = sys.argv[:]
     sys.argv = args
     yield
@@ -106,7 +106,7 @@ if __name__ == "__main__":
             actor_and_rank_env = {**actors[i].env, **rank_env}
 
             command_actors.append(
-                CommandActor.options(
+                CommandActor.options( # pyre-ignore[16]
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
@@ -114,7 +114,7 @@ if __name__ == "__main__":
             )
 
     unfinished = [ # pyre-ignore[16]
-        command_actor.run_command.remote()
+        command_actor.run_command.remote() # pyre-ignore[16]
         for command_actor in command_actors  
     ] 
 

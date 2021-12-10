@@ -21,12 +21,12 @@ def compute_world_size() -> int:
     backend = "gloo"
 
     print(f"initializing `{backend}` process group")
-    init_process_group(
+    init_process_group( # pyre-ignore[16]
         backend=backend,
         init_method=f"tcp://{master_addr}:{master_port}",
         rank=rank,
         world_size=world_size,
-    ) # pyre-ignore[16]
+    ) 
     print("successfully initialized process group")
 
     rank = get_rank() # pyre-ignore[16]

@@ -7,7 +7,7 @@
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Type, Optional, Dict, cast
+from typing import Any, Iterator, Type, Optional, Dict, List, cast
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -296,7 +296,7 @@ if has_ray():
         ) -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
 
-        def check_logs(self, ray_scheduler: RayScheduler, app_id: str = "123") -> str:
+        def check_logs(self, ray_scheduler: RayScheduler, app_id: str = "123") -> List[str]:
             logs: str = ray_scheduler.log_iter(app_id=app_id)
             return logs
 
