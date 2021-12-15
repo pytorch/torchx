@@ -199,17 +199,18 @@ class Runner:
          app_handle = session.submit(dryrun_info)
 
         """
-        scheduler_backend = none_throws(dryrun_info._scheduler)
+        scheduler = none_throws(dryrun_info._scheduler)
         cfg = dryrun_info._cfg
-        runcfg = json.dumps(cfg) if cfg else None
-        with log_event("schedule", scheduler_backend, runcfg=runcfg) as logger_context:
-            sched = self._scheduler(scheduler_backend)
+        with log_event(
+            "schedule", scheduler, runcfg=json.dumps(cfg) if cfg else None
+        ) as ctx:
+            sched = self._scheduler(scheduler)
             app_id = sched.schedule(dryrun_info)
-            app_handle = make_app_handle(scheduler_backend, self._name, app_id)
+            app_handle = make_app_handle(scheduler, self._name, app_id)
             app = none_throws(dryrun_info._app)
             self._apps[app_handle] = app
             _, _, app_id = parse_app_handle(app_handle)
-            logger_context._torchx_event.app_id = app_id
+            ctx._torchx_event.app_id = app_id
             return app_handle
 
     def name(self) -> str:
@@ -254,11 +255,12 @@ class Runner:
                 )
 
         cfg = cfg or dict()
-        sched = self._scheduler(scheduler)
-        sched._validate(app, scheduler)
-        dryrun_info = sched.submit_dryrun(app, cfg)
-        dryrun_info._scheduler = scheduler
-        return dryrun_info
+        with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
+            sched = self._scheduler(scheduler)
+            sched._validate(app, scheduler)
+            dryrun_info = sched.submit_dryrun(app, cfg)
+            dryrun_info._scheduler = scheduler
+            return dryrun_info
 
     def run_opts(self) -> Dict[str, runopts]:
         """
