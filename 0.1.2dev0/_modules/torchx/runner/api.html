@@ -561,17 +561,18 @@
 <span class="sd">         app_handle = session.submit(dryrun_info)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">scheduler_backend</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">)</span>
+        <span class="n">scheduler</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">)</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
-        <span class="n">runcfg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;schedule&quot;</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">runcfg</span><span class="o">=</span><span class="n">runcfg</span><span class="p">)</span> <span class="k">as</span> <span class="n">logger_context</span><span class="p">:</span>
-            <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler_backend</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span>
+            <span class="s2">&quot;schedule&quot;</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">runcfg</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
             <span class="n">app_id</span> <span class="o">=</span> <span class="n">sched</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span>
-            <span class="n">app_handle</span> <span class="o">=</span> <span class="n">make_app_handle</span><span class="p">(</span><span class="n">scheduler_backend</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
+            <span class="n">app_handle</span> <span class="o">=</span> <span class="n">make_app_handle</span><span class="p">(</span><span class="n">scheduler</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
             <span class="n">app</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">[</span><span class="n">app_handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">app</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">app_id</span> <span class="o">=</span> <span class="n">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
-            <span class="n">logger_context</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">app_id</span> <span class="o">=</span> <span class="n">app_id</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">app_id</span> <span class="o">=</span> <span class="n">app_id</span>
             <span class="k">return</span> <span class="n">app_handle</span></div>
 
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -616,11 +617,12 @@
                 <span class="p">)</span>
 
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
-        <span class="n">sched</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">)</span>
-        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="n">sched</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
-        <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span> <span class="o">=</span> <span class="n">scheduler</span>
-        <span class="k">return</span> <span class="n">dryrun_info</span></div>
+        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;dryrun&quot;</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">runcfg</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+            <span class="n">sched</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">)</span>
+            <span class="n">dryrun_info</span> <span class="o">=</span> <span class="n">sched</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+            <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span> <span class="o">=</span> <span class="n">scheduler</span>
+            <span class="k">return</span> <span class="n">dryrun_info</span></div>
 
 <div class="viewcode-block" id="Runner.run_opts"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopts</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
