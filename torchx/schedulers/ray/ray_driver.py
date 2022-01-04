@@ -58,13 +58,7 @@ def load_actor_json(filename: str) -> List[RayActor]:  # pyre-ignore[11]
             actors.append(RayActor(**actor))
         return actors
 
-
-if __name__ == "__main__":
-    _logger.info("Reading actor.json")
-    actors : List[RayActor] = load_actor_json("actors.json")
-
-    ray.init(address="auto", namespace="torchx-ray")
-
+def create_placement_groups() -> List[PlacementGroup]:
     pgs : List[PlacementGroup] = []
     for actor in actors:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
@@ -85,10 +79,10 @@ if __name__ == "__main__":
                 "an autoscaling cluster. Current resources "
                 "available: {}, resources requested by the "
                 "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
-            )
-    address, port = get_address_and_port()  # pyre-ignore[5]
-    _logger.info("Got master address and port")
+            )           
+    return pgs
 
+def create_command_actors(pgs : List[PlacementGroup], address :str, port :int) -> List[CommandActor]:
     command_actors: List[CommandActor] = []
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
@@ -112,18 +106,34 @@ if __name__ == "__main__":
                     num_gpus=actors[i].num_gpus,
                 ).remote(actors[i].command, actor_and_rank_env) # pyre-ignore [16]
             )
+    return command_actors
 
-    unfinished = [ # pyre-ignore[16]
-        command_actor.run_command.remote() # pyre-ignore[16]
-        for command_actor in command_actors  
-    ] 
 
+if __name__ == "__main__": # pragma: no cover
+    _logger.info("Reading actor.json")
+    actors : List[RayActor] = load_actor_json("actors.json")
+
+    _logger.info("Creating Ray placement groups")
+    ray.init(address="auto", namespace="torchx-ray")
+    pgs : List[PlacementGroup] = create_placement_groups()
+
+    _logger.info("Getting Ray dashboard address and port")
+    address, port = get_address_and_port()  # pyre-ignore[5]
+
+    _logger.info("Getting command actors")
+    command_actors : List[CommandActor] = create_command_actors(pgs, address, port)
+
+    _logger.info("Running Ray actors")
+    unfinished = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16] 
+
+    # Await return result of remote ray function
     while len(unfinished) > 0:
-        finished, unfinished = ray.wait(unfinished)
+        finished, unfinished = ray.wait(unfinished) # pyre-ignore[5]
         # If a failure occurs the ObjectRef will be marked as finished.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in finished:
             try:
                 ray.get(object_ref)
+                _logger.info(f"Ray remote function promise succesfully returned")
             except ray.exceptions.RayActorError as exc:
                 _logger.info("Ray Actor Error")
