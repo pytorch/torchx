@@ -574,7 +574,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -627,8 +627,7 @@ $ pip install torchx<span class="o">[</span>dev<span class="o">]</span>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
-<span></span>%%sh
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
 torchx --help
 </pre></div>
 </div>
@@ -665,8 +664,7 @@ sub-commands:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%writefile</span> my_app.py
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> my_app.py
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
@@ -704,8 +702,7 @@ Writing my_app.py
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%writefile</span> my_component.py
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> my_component.py
 
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
 
@@ -740,8 +737,7 @@ Writing my_component.py
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
-<span></span>%%sh
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
 torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&quot;your name&quot;</span>
 </pre></div>
 </div>
@@ -751,7 +747,7 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-vq0cqfjj7ppnrd
+local_cwd://torchx/hello_world-z17vhf0qj10f2
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -759,10 +755,10 @@ local_cwd://torchx/hello_world-vq0cqfjj7ppnrd
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-12-28 21:58:40 INFO     Log files located in: /tmp/torchx_ex3bb_gg/torchx/hello_world-vq0cqfjj7ppnrd/greeter/0
-torchx 2021-12-28 21:58:40 INFO     Waiting for the app to finish...
+torchx 2022-01-04 19:54:57 INFO     Log files located in: /tmp/torchx_1ufqqu3y/torchx/hello_world-z17vhf0qj10f2/greeter/0
+torchx 2022-01-04 19:54:58 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2021-12-28 21:58:41 INFO     Job finished: SUCCEEDED
+torchx 2022-01-04 19:54:59 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -772,8 +768,7 @@ torchx 2021-12-28 21:58:41 INFO     Job finished: SUCCEEDED
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%writefile</span> Dockerfile
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> Dockerfile
 
 <span class="n">FROM</span> <span class="n">ghcr</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">pytorch</span><span class="o">/</span><span class="n">torchx</span><span class="p">:</span><span class="mf">0.1.0</span><span class="n">rc1</span>
 
@@ -794,8 +789,7 @@ Writing Dockerfile
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
-<span></span>%%sh
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
 docker build -t my_app:latest -f Dockerfile .
 </pre></div>
 </div>
@@ -829,40 +823,42 @@ d4c7af0d4fa7: Waiting
 06b5edd6bf52: Waiting
 f18d016c4ccc: Waiting
 c0ad16d9fa05: Waiting
-30587ba7fd6b: Waiting
-909695be1d50: Waiting
 f119a6d0a466: Waiting
+30587ba7fd6b: Waiting
 88d87059c913: Waiting
-889a7173dcfe: Verifying Checksum
-889a7173dcfe: Download complete
+909695be1d50: Waiting
 d2e110be24e1: Verifying Checksum
 d2e110be24e1: Download complete
+889a7173dcfe: Verifying Checksum
+889a7173dcfe: Download complete
+4bbfd2c87b75: Verifying Checksum
+4bbfd2c87b75: Download complete
 6009a622672a: Verifying Checksum
 6009a622672a: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
-d4c7af0d4fa7: Download complete
-4bbfd2c87b75: Verifying Checksum
-4bbfd2c87b75: Download complete
 06b5edd6bf52: Verifying Checksum
 06b5edd6bf52: Download complete
+d4c7af0d4fa7: Verifying Checksum
+d4c7af0d4fa7: Download complete
 c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
 30587ba7fd6b: Verifying Checksum
 30587ba7fd6b: Download complete
-4bbfd2c87b75: Pull complete
 909695be1d50: Verifying Checksum
 909695be1d50: Download complete
+f119a6d0a466: Verifying Checksum
 f119a6d0a466: Download complete
 88d87059c913: Verifying Checksum
 88d87059c913: Download complete
-d2e110be24e1: Pull complete
-889a7173dcfe: Pull complete
-6009a622672a: Pull complete
+4bbfd2c87b75: Pull complete
 f18d016c4ccc: Verifying Checksum
 f18d016c4ccc: Download complete
 143f80195431: Verifying Checksum
 143f80195431: Download complete
+d2e110be24e1: Pull complete
+889a7173dcfe: Pull complete
+6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
 d4c7af0d4fa7: Pull complete
@@ -877,8 +873,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; 85d4dfbe7172
-Successfully built 85d4dfbe7172
+ ---&gt; b186c72e1778
+Successfully built b186c72e1778
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -887,8 +883,7 @@ Successfully tagged my_app:latest
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
-<span></span>%%sh
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
 torchx run --scheduler local_docker my_component.py:greet --image <span class="s2">&quot;my_app:latest&quot;</span> --user <span class="s2">&quot;your name&quot;</span>
 </pre></div>
 </div>
@@ -898,7 +893,7 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-k754lrj7f4bc1
+local_docker://torchx/hello_world-q4jk53j145g4jd
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -906,11 +901,11 @@ local_docker://torchx/hello_world-k754lrj7f4bc1
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-12-28 22:01:37 INFO     Pulling container image: my_app:latest (this may take a while)
-torchx 2021-12-28 22:01:38 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2021-12-28 22:01:38 INFO     Waiting for the app to finish...
+torchx 2022-01-04 19:57:22 INFO     Pulling container image: my_app:latest (this may take a while)
+torchx 2022-01-04 19:57:23 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-01-04 19:57:23 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2021-12-28 22:01:39 INFO     Job finished: SUCCEEDED
+torchx 2022-01-04 19:57:24 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -926,8 +921,7 @@ $ torchx run --scheduler kubernetes my_component.py:greet --image <span class="s
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
-<span></span>%%sh
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
 torchx builtins
 </pre></div>
 </div>
@@ -954,8 +948,7 @@ Found 9 builtin components:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre>
-<span></span>%%sh
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
 torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </pre></div>
 </div>
@@ -965,7 +958,7 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-rrgh027rc3cpsd
+local_docker://torchx/echo-ft2q775x1c6kcc
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -973,10 +966,10 @@ local_docker://torchx/echo-rrgh027rc3cpsd
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2021-12-28 22:01:41 INFO     Pulling container image: ghcr.io/pytorch/torchx:0.1.2dev0 (this may take a while)
-torchx 2021-12-28 22:03:41 INFO     Waiting for the app to finish...
+torchx 2022-01-04 19:57:26 INFO     Pulling container image: ghcr.io/pytorch/torchx:0.1.2dev0 (this may take a while)
+torchx 2022-01-04 19:59:24 INFO     Waiting for the app to finish...
 echo/0 Hello :)
-torchx 2021-12-28 22:03:42 INFO     Job finished: SUCCEEDED
+torchx 2022-01-04 19:59:25 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 </section>
