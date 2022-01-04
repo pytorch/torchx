@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) Facebook, Inc. and its affiliates.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
@@ -219,7 +219,9 @@ class TorchXScheduler(ax_Scheduler):
 
     """
 
-    def poll_trial_status(self) -> Dict[TrialStatus, Set[int]]:
+    def poll_trial_status(
+        self, poll_all_trial_statuses: bool = False
+    ) -> Dict[TrialStatus, Set[int]]:
         trial_statuses: Dict[TrialStatus, Set[int]] = {}
 
         for trial in self.running_trials:

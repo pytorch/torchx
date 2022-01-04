@@ -1,0 +1,3 @@
+[local_cwd]
+log_dir = None
+prepend_cwd = False

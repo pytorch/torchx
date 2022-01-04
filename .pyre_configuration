@@ -2,11 +2,12 @@
   "exclude": [
     ".*/build/.*",
     ".*/docs/.*",
-    ".*/setup.py"
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*"
   ],
   "source_directories": [
     "."
   ],
   "strict": true,
-  "version": "0.0.101638274202"
+  "version": "0.0.101640693434"
 }
