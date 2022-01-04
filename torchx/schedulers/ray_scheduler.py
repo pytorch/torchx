@@ -54,7 +54,7 @@ if _has_ray:
                 return dataclasses.asdict(o)
             return super().default(o)
 
-    def _serialize(
+    def serialize(
             actors: List[RayActor], dirpath: str, output_filename: str = "actors.json"
     ) -> None:
         actors_json = json.dumps(actors, cls=_EnhancedJSONEncoder)
@@ -143,7 +143,7 @@ if _has_ray:
             # Create serialized actors for ray_driver.py
             actors = cfg.actors
             dirpath = mkdtemp()
-            _serialize(actors, dirpath)
+            serialize(actors, dirpath)
 
             if cfg.dashboard_address:
                 ip_address : str = cfg.dashboard_address

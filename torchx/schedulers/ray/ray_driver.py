@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Generator
 import ray
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
-from ray_common import RayActor  # pyre-ignore[21]
+from torchx.schedulers.ray.ray_common import RayActor
 
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
@@ -58,7 +58,7 @@ def load_actor_json(filename: str) -> List[RayActor]:  # pyre-ignore[11]
             actors.append(RayActor(**actor))
         return actors
 
-def create_placement_groups() -> List[PlacementGroup]:
+def create_placement_groups(actors : List[RayActor]) -> List[PlacementGroup]:
     pgs : List[PlacementGroup] = []
     for actor in actors:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
@@ -82,8 +82,9 @@ def create_placement_groups() -> List[PlacementGroup]:
             )           
     return pgs
 
-def create_command_actors(pgs : List[PlacementGroup], address :str, port :int) -> List[CommandActor]:
+def create_command_actors(actors : List[RayActor], pgs : List[PlacementGroup]) -> List[CommandActor]:
     command_actors: List[CommandActor] = []
+    address, port = get_address_and_port() # pyre-ignore[5]
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
 
@@ -104,7 +105,7 @@ def create_command_actors(pgs : List[PlacementGroup], address :str, port :int) -
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
-                ).remote(actors[i].command, actor_and_rank_env) # pyre-ignore [16]
+                ).remote(actors[i].command, actor_and_rank_env) # pyre-ignore[16]
             )
     return command_actors
 
@@ -115,13 +116,10 @@ if __name__ == "__main__": # pragma: no cover
 
     _logger.info("Creating Ray placement groups")
     ray.init(address="auto", namespace="torchx-ray")
-    pgs : List[PlacementGroup] = create_placement_groups()
-
-    _logger.info("Getting Ray dashboard address and port")
-    address, port = get_address_and_port()  # pyre-ignore[5]
+    pgs : List[PlacementGroup] = create_placement_groups(actors)
 
     _logger.info("Getting command actors")
-    command_actors : List[CommandActor] = create_command_actors(pgs, address, port)
+    command_actors : List[CommandActor] = create_command_actors(actors, pgs)
 
     _logger.info("Running Ray actors")
     unfinished = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16] 

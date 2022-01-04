@@ -15,8 +15,10 @@ import ray
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
-from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob
+from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob, serialize
 from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
+
+from torchx.schedulers.ray import ray_driver
 
 
 if has_ray():
@@ -246,6 +248,24 @@ if has_ray():
             self.assertEqual(
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
+    
+    class RayDriverTest(TestCase):
+        def test_command_actor_setup(self):
+            actor1 = RayActor(name="test_actor1", command="python")
+            actor2 = RayActor(name="test_actor1", command="python")
+            actors = [actor1, actor2]
+            current_dir = os.path.dirname(os.path.realpath(__file__))
+            serialize(actors, current_dir)
+
+            
+            loaded_actor = ray_driver.load_actor_json(os.path.join(current_dir, "actors.json"))
+            assert loaded_actor == actors
+
+            pgs = ray_driver.create_placement_groups(actors)
+            assert len(pgs) >= 1
+
+            command_actors = ray_driver.create_command_actors(actors, pgs)
+            assert len(command_actors) >= 1 
 
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
@@ -265,7 +285,7 @@ if has_ray():
         def setup_ray_cluster(self) -> RayScheduler:
             os.system("ray stop --force")
             os.system("ray start --head")
-            ray.init(address="auto")
+            ray.init(address="auto", ignore_reinit_error=True)
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
