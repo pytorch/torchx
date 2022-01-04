@@ -2,7 +2,8 @@
   "exclude": [
     ".*/build/.*",
     ".*/docs/.*",
-    ".*/setup.py"
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*"
   ],
   "source_directories": [
     "."
