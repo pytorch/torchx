@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
@@ -10,7 +10,7 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, List, Optional, Generator
+from typing import Dict, List, Optional, Any
 
 import ray
 from ray.train.utils import get_address_and_port
@@ -122,7 +122,7 @@ if __name__ == "__main__": # pragma: no cover
     command_actors : List[CommandActor] = create_command_actors(actors, pgs)
 
     _logger.info("Running Ray actors")
-    unfinished = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16] 
+    unfinished : List[Any] = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16] 
 
     # Await return result of remote ray function
     while len(unfinished) > 0:
