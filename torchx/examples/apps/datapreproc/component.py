@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) Facebook, Inc. and its affiliates.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
@@ -14,12 +14,13 @@ This is a component definition that runs the example datapreproc app.
 
 from typing import Dict, Optional
 
+import torchx
 import torchx.specs as specs
 
 
 def data_preproc(
-    image: str,
     output_path: str,
+    image: str = torchx.IMAGE,
     input_path: str = "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
     env: Optional[Dict[str, str]] = None,
     resource: Optional[str] = None,
