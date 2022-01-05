@@ -31,7 +31,7 @@ import yaml
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
-    Scheduler,
+    WorkspaceScheduler,
     filter_regex,
     Stream,
 )
@@ -102,7 +102,7 @@ def has_docker() -> bool:
         return False
 
 
-class DockerScheduler(Scheduler):
+class DockerScheduler(WorkspaceScheduler):
     """
     DockerScheduler is a TorchX scheduling interface to Docker.
 
@@ -415,7 +415,6 @@ class DockerScheduler(Scheduler):
 
         Returns:
             The new Docker image ID.
-
         """
         return _build_container_from_workspace(self._client(), img, workspace)
 
@@ -444,7 +443,6 @@ def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
         assert isinstance(dir, str), "path must be str"
         relpath = posixpath.relpath(dir, path)
         for file, info in files.items():
-            print(relpath, dir, file, info)
             with fs.open(info["name"], "rb") as f:
                 tinfo = tarfile.TarInfo(posixpath.join(relpath, file))
                 tinfo.size = info["size"]
@@ -486,5 +484,5 @@ def _build_container_from_workspace(
         )
     finally:
         context.close()
-    print(image)
+
     return image.id

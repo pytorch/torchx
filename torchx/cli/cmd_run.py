@@ -17,7 +17,8 @@ import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
-from torchx.runner import Runner, config, get_runner
+from torchx.runner import Runner, config
+from torchx.runner.workspaces import get_workspace_runner, WorkspaceRunner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs import CfgVal
 from torchx.specs.finder import (
@@ -138,10 +139,14 @@ class CmdRun(SubCommand):
                 " (e.g. `local_cwd`)"
             )
 
-        run_opts = get_runner().run_opts()
+        run_opts = runner.run_opts()
         scheduler_opts = run_opts[args.scheduler]
         cfg = _parse_run_config(args.scheduler_args, scheduler_opts)
         config.apply(scheduler=args.scheduler, cfg=cfg)
+        config_files = config.find_configs()
+        workspace = (
+            "file://" + os.path.dirname(config_files[0]) if config_files else None
+        )
 
         if len(args.conf_args) < 1:
             none_throws(self._subparser).error(
@@ -154,9 +159,18 @@ class CmdRun(SubCommand):
         conf_file, conf_args = args.conf_args[0], args.conf_args[1:]
         try:
             if args.dryrun:
-                dryrun_info = runner.dryrun_component(
-                    conf_file, conf_args, args.scheduler, cfg
-                )
+                if isinstance(runner, WorkspaceRunner):
+                    dryrun_info = runner.dryrun_component(
+                        conf_file,
+                        conf_args,
+                        args.scheduler,
+                        workspace=workspace,
+                        cfg=cfg,
+                    )
+                else:
+                    dryrun_info = runner.dryrun_component(
+                        conf_file, conf_args, args.scheduler, cfg=cfg
+                    )
                 logger.info(
                     "\n=== APPLICATION ===\n"
                     f"{pformat(asdict(dryrun_info._app), indent=2, width=80)}"
@@ -164,12 +178,21 @@ class CmdRun(SubCommand):
 
                 logger.info("\n=== SCHEDULER REQUEST ===\n" f"{dryrun_info}")
             else:
-                app_handle = runner.run_component(
-                    conf_file,
-                    conf_args,
-                    args.scheduler,
-                    cfg,
-                )
+                if isinstance(runner, WorkspaceRunner):
+                    app_handle = runner.run_component(
+                        conf_file,
+                        conf_args,
+                        args.scheduler,
+                        workspace=workspace,
+                        cfg=cfg,
+                    )
+                else:
+                    app_handle = runner.run_component(
+                        conf_file,
+                        conf_args,
+                        args.scheduler,
+                        cfg=cfg,
+                    )
                 # DO NOT delete this line. It is used by slurm tests to retrieve the app id
                 print(app_handle)
 
@@ -200,7 +223,7 @@ class CmdRun(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
-        with get_runner() as runner:
+        with get_workspace_runner() as runner:
             self._run(runner, args)
 
     def _wait_and_exit(self, runner: Runner, app_handle: str, log: bool) -> None:

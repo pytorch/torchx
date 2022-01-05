@@ -96,12 +96,13 @@ you want to keep personal config overrides on top of a project defined default.
 import configparser as configparser
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, TextIO
+from typing import Dict, List, Optional, TextIO, Iterable
 
 from torchx.schedulers import Scheduler, get_schedulers
 from torchx.specs import CfgVal, get_type_name
 from torchx.specs.api import runopt
 
+CONFIG_FILE = ".torchxconfig"
 
 _NONE = "None"
 
@@ -235,15 +236,28 @@ def apply(
     Then after the method call, ``cfg={"foo":"bar","hello":"world"}``.
     """
 
+    for configfile in find_configs(dirs):
+        with open(configfile, "r") as f:
+            load(scheduler, f, cfg)
+            log.info(f"loaded configs from {configfile}")
+
+
+def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
+    """
+    find_configs returns all the .torchxconfig files it finds in the specified
+    directories. If directories is empty it checks the local directory.
+    """
     if not dirs:
         dirs = [str(Path.cwd())]
 
+    config_files = []
+
     for d in dirs:
-        configfile = Path(d) / ".torchxconfig"
+        configfile = Path(d) / CONFIG_FILE
         if configfile.exists():
-            with open(str(configfile), "r") as f:
-                load(scheduler, f, cfg)
-                log.info(f"loaded configs from {configfile}")
+            config_files.append(str(configfile))
+
+    return config_files
 
 
 def load(scheduler: str, f: TextIO, cfg: Dict[str, CfgVal]) -> None:
