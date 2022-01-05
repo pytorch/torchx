@@ -48,9 +48,9 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
 
-    ray_scheduler: Optional[ray_scheduler.RayScheduler] = try_get_ray_scheduler() # pyre-ignore: [7]
-    if try_get_ray_scheduler():
-        default_schedulers["ray"] = ray_scheduler
+    ray_scheduler_creator: Optional[ray_scheduler.RayScheduler] = try_get_ray_scheduler() # pyre-ignore: [7]
+    if ray_scheduler_creator:
+        default_schedulers["ray"] = ray_scheduler_creator
 
     return load_group(
         "torchx.schedulers",
