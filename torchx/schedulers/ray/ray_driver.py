@@ -126,9 +126,10 @@ if __name__ == "__main__":  # pragma: no cover
     command_actors: List[CommandActor] = create_command_actors(actors, pgs)
 
     _logger.info("Running Ray actors")
-    unfinished = [
-        command_actor.run_command.remote() for command_actor in command_actors
-    ]  # pyre-ignore
+    unfinished = [  # pyre-ignore
+        command_actor.run_command.remote()
+        for command_actor in command_actors  # pyre-ignore
+    ]
 
     # Await return result of remote ray function
     while len(unfinished) > 0:
