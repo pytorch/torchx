@@ -30,8 +30,8 @@ def redirect_argv(args : List[str]): # pyre-ignore[3]
 
 
 @ray.remote
-class CommandActor:
-    def __init__(self, command: str, env: Dict[str, str]) -> None:
+class CommandActor: # pragma: no cover
+    def __init__(self, command: str, env: Dict[str, str]) -> None: 
         self.args: List[str] = command.split(" ")
         self.path: str = self.args[0]
 

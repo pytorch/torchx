@@ -145,13 +145,12 @@ if _has_ray:
             dirpath = mkdtemp()
             serialize(actors, dirpath)
 
+            ip_address = "127.0.0.1:8265"
 
             if cfg.cluster_config_file:
-                ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
+                ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file) # pragma: no cover
             if cfg.dashboard_address:
                 ip_address = cfg.dashboard_address
-            else:
-                ip_address = "127.0.0.1:8265"
 
             # Create Job Client
             client : JobSubmissionClient = JobSubmissionClient(f"http://{ip_address}")
@@ -198,7 +197,7 @@ if _has_ray:
                     raise ValueError("The cluster configuration file must be a YAML file.")
                 job: RayJob = RayJob(app_id, cluster_cfg)
 
-            else:
+            else: # pragma: no cover
                 dashboard_address = cfg.get("dashboard_address")
                 job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
 
@@ -311,7 +310,7 @@ if _has_ray:
 
 
     def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
-        if not has_ray():
+        if not has_ray(): # pragma: no cover
             raise RuntimeError("Ray is not installed in the current Python environment.")
 
         return RayScheduler(session_name=session_name)
