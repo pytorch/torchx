@@ -198,8 +198,8 @@ if _has_ray:
                 job: RayJob = RayJob(app_id, cluster_cfg)
 
             else: # pragma: no cover
-                dashboard_address = cfg.get("dashboard_address") # pyre-ignore
-                job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
+                dashboard_address = cfg.get("dashboard_address")
+                job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address) # pyre-ignore[6]
 
             # pyre-ignore[24]: Generic type `type` expects 1 type parameter
             def set_job_attr(cfg_name: str, cfg_type: Type) -> None:
