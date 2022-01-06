@@ -251,9 +251,9 @@ if has_ray():
     
 
     class RayClusterSetup():  
-        _instance : Optional[RayClusterSetup] = None          
+        _instance = None          
 
-        def __new__(cls) -> RayClusterSetup:
+        def __new__(cls):
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 ray.shutdown()
@@ -272,10 +272,6 @@ if has_ray():
         
     class RayDriverTest(TestCase):
         def test_command_actor_setup(self) -> None:
-            
-            # os.system("ray stop --force")
-            # sleep(10)
-            # os.system("ray start --head")
             ray_cluster_setup = RayClusterSetup()
 
             actor1 = RayActor(name="test_actor_1", command="python")
@@ -315,9 +311,6 @@ if has_ray():
 
 
         def setup_ray_cluster(self) -> RayScheduler:
-            # os.system("ray stop --force")
-            # sleep(10)
-            # os.system("ray start --head")
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
