@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree, copytree
 from tempfile import mkdtemp
-from typing import Any, Dict, List, Mapping, Optional, Set, Type
+from typing import Any, Dict, List, Mapping, Optional, Set, Type, Union
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -198,7 +198,7 @@ if _has_ray:
                 job: RayJob = RayJob(app_id, cluster_cfg)
 
             else: # pragma: no cover
-                dashboard_address = cfg.get("dashboard_address")
+                dashboard_address : Union[None, List[str], bool, float, int, str] = cfg.get("dashboard_address")
                 job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
 
             # pyre-ignore[24]: Generic type `type` expects 1 type parameter
