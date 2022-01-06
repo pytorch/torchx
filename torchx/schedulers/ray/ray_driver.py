@@ -127,8 +127,8 @@ if __name__ == "__main__":  # pragma: no cover
 
     _logger.info("Running Ray actors")
     unfinished = [  # pyre-ignore
-        command_actor.run_command.remote() # pyre-ignore
-        for command_actor in command_actors  
+        command_actor.run_command.remote()  # pyre-ignore
+        for command_actor in command_actors
     ]
 
     # Await return result of remote ray function
