@@ -167,7 +167,7 @@ if _has_ray:
 
             # 3. Parse requirements.txt
             reqs : List[str] = []
-            if cfg.requirements:
+            if cfg.requirements: # pragma: no cover
                 with open(cfg.requirements) as f:
                     for line in f:
                         reqs.append(line.strip())
@@ -271,11 +271,12 @@ if _has_ray:
                     break
                 time.sleep(1)
 
-        def _cancel_existing(self, app_id: str) -> None:
+        def _cancel_existing(self, app_id: str) -> None: # pragma: no cover
             addr, app_id = app_id.split("-")
             client = JobSubmissionClient(f"http://{addr}")
             logs = client.get_job_logs(app_id)
             client.stop_job(app_id)
+
 
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
             addr, app_id = app_id.split("-")

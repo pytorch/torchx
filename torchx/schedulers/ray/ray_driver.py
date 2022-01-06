@@ -13,7 +13,6 @@ import sys
 from typing import Dict, List, Optional
 
 import ray
-from ray import ObjectRef
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 from torchx.schedulers.ray.ray_common import RayActor
@@ -43,7 +42,7 @@ class CommandActor:
         spec: Optional[
             importlib.machinery.ModuleSpec
         ] = importlib.util.spec_from_file_location("__main__", self.path)
-        if spec:
+        if spec: # pragma: no cover
             train = importlib.util.module_from_spec(spec)
             with redirect_argv(self.args):
                 spec.loader.exec_module(train) # pyre-ignore[16]
@@ -73,7 +72,7 @@ def create_placement_groups(actors : List[RayActor]) -> List[PlacementGroup]:
         if ready:
             _logger.info("Placement group has started.")
             _logger.info("Starting remote function")
-        else:
+        else: # pragma: no cover
             raise TimeoutError(
                 "Placement group creation timed out. Make sure "
                 "your cluster either has enough resources or use "
@@ -123,7 +122,7 @@ if __name__ == "__main__": # pragma: no cover
     command_actors : List[CommandActor] = create_command_actors(actors, pgs)
 
     _logger.info("Running Ray actors")
-    unfinished : List[ObjectRef] = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16]
+    unfinished = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16]
 
     # Await return result of remote ray function
     while len(unfinished) > 0:

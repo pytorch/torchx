@@ -251,9 +251,9 @@ if has_ray():
     
 
     class RayClusterSetup():  
-        _instance = None          
+        _instance = None # pyre-ignore[4]      
 
-        def __new__(cls):
+        def __new__(cls): # pyre-ignore[3]
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 ray.shutdown()
@@ -274,8 +274,8 @@ if has_ray():
         def test_command_actor_setup(self) -> None:
             ray_cluster_setup = RayClusterSetup()
 
-            actor1 = RayActor(name="test_actor_1", command="python")
-            actor2 = RayActor(name="test_actor_2", command="python")
+            actor1 = RayActor(name="test_actor_1", command="python 1 2", env={"fake" : "1"})
+            actor2 = RayActor(name="test_actor_2", command="python 3 4", env={"fake" : "2"})
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
             serialize(actors, current_dir)
@@ -302,11 +302,15 @@ if has_ray():
             job_id = self.schedule_ray_job(ray_scheduler)
             assert job_id is not None
 
-            ray_scheduler.wait_until_finish(job_id, 30)
+            ray_scheduler.wait_until_finish(job_id, 100)
 
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             print(logs)
             assert logs is not None
+
+            status = self.describe(ray_scheduler, job_id)
+            assert status is not None
+
             ray_cluster_setup.decrement_reference()
 
 
@@ -340,7 +344,7 @@ if has_ray():
             self, ray_scheduler: RayScheduler, app_id: str = "123"
         ) -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
-
+        
         def check_logs(self, ray_scheduler: RayScheduler, app_id: str = "123") -> List[str]:
             logs: List[str] = ray_scheduler.log_iter(app_id=app_id)
             return logs

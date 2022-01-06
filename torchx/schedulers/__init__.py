@@ -28,7 +28,7 @@ def try_get_ray_scheduler(): #pyre-ignore[3]
             import torchx.schedulers.ray_scheduler as ray_scheduler
             return ray_scheduler.create_scheduler
 
-    except ImportError:
+    except ImportError: # pragma: no cover
         return None
 
 
