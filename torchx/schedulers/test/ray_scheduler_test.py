@@ -257,7 +257,7 @@ if has_ray():
         def __new__(cls):
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
-                os.system("ray stop --force")
+                ray.shutdown()
                 os.system("ray start --head")
                 ray.init(address="auto", ignore_reinit_error=True)
                 cls.reference_count = 2
@@ -269,8 +269,7 @@ if has_ray():
                 cls.teardown_ray_cluster()
         
         def teardown_ray_cluster(cls) -> None:
-            os.system("ray stop --force")
-            os.system("ray stop --force")
+            ray.shutdown()
         
     class RayDriverTest(TestCase):
         def test_command_actor_setup(self) -> None:
