@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Any, Iterator, Type, Optional, Dict, List, cast
 from unittest import TestCase
 from unittest.mock import patch
+from time import sleep
 
 import ray
 from torchx.schedulers import get_schedulers
@@ -249,10 +250,38 @@ if has_ray():
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
     
+
+    class RayClusterSetup():  
+        _instance = None          
+
+        def __new__(cls):
+            if cls._instance is None:
+                cls._instance = super(RayClusterSetup, cls).__new__(cls)
+                os.system("ray stop --force")
+                os.system("ray start --head")
+                ray.init(address="auto", ignore_reinit_error=True)
+                cls.reference_count = 2
+            return cls._instance
+        
+        def decrement_reference(cls) -> None:
+            cls.reference_count = cls.reference_count - 1
+            if cls.reference_count == 0:
+                cls.teardown_ray_cluster()
+        
+        def teardown_ray_cluster(cls) -> None:
+            os.system("ray stop --force")
+            os.system("ray stop --force")
+        
     class RayDriverTest(TestCase):
-        def test_command_actor_setup(self):
-            actor1 = RayActor(name="test_actor1", command="python")
-            actor2 = RayActor(name="test_actor1", command="python")
+        def test_command_actor_setup(self) -> None:
+            
+            # os.system("ray stop --force")
+            # sleep(10)
+            # os.system("ray start --head")
+            ray_cluster_setup = RayClusterSetup()
+
+            actor1 = RayActor(name="test_actor_1", command="python")
+            actor2 = RayActor(name="test_actor_2", command="python")
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
             serialize(actors, current_dir)
@@ -266,9 +295,13 @@ if has_ray():
 
             command_actors = ray_driver.create_command_actors(actors, pgs)
             assert len(command_actors) >= 1 
+            ray_cluster_setup.decrement_reference()
+
 
     class RayIntegrationTest(TestCase):
+
         def test_ray_cluster(self) -> None:
+            ray_cluster_setup = RayClusterSetup()
             ray_scheduler = self.setup_ray_cluster()
             assert ray.is_initialized() is True
 
@@ -280,12 +313,13 @@ if has_ray():
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             print(logs)
             assert logs is not None
-            self.teardown_ray_cluster()
+            ray_cluster_setup.decrement_reference()
+
 
         def setup_ray_cluster(self) -> RayScheduler:
-            os.system("ray stop --force")
-            os.system("ray start --head")
-            ray.init(address="auto", ignore_reinit_error=True)
+            # os.system("ray stop --force")
+            # sleep(10)
+            # os.system("ray start --head")
             ray_scheduler = RayScheduler(session_name="test")
             return ray_scheduler
 
@@ -320,5 +354,4 @@ if has_ray():
             logs: str = ray_scheduler.log_iter(app_id=app_id)
             return logs
 
-        def teardown_ray_cluster(self) -> None:
-            os.system("ray stop --force")
+

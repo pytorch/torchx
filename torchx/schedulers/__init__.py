@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 
 import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
@@ -23,11 +23,12 @@ class SchedulerFactory(Protocol):
         ...
 
 
-def try_get_ray_scheduler() -> Optional[ray_scheduler.RayScheduler]:
+def try_get_ray_scheduler():
     try:
-        import torchx.schedulers.ray_scheduler as ray_scheduler
-
-        return ray_scheduler.create_scheduler
+        from torchx.schedulers.ray_scheduler import _has_ray
+        if _has_ray:
+            import torchx.schedulers.ray_scheduler as ray_scheduler
+            return ray_scheduler.create_scheduler
 
     except ImportError:
         return None
@@ -48,7 +49,7 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "kubernetes": kubernetes_scheduler.create_scheduler,
     }
 
-    ray_scheduler_creator: Optional[ray_scheduler.RayScheduler] = try_get_ray_scheduler() # pyre-ignore: [7]
+    ray_scheduler_creator = try_get_ray_scheduler()
     if ray_scheduler_creator:
         default_schedulers["ray"] = ray_scheduler_creator
 

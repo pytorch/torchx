@@ -48,7 +48,7 @@ class CommandActor:
                 spec.loader.exec_module(train) # pyre-ignore[16]
 
 
-def load_actor_json(filename: str) -> List[RayActor]:  # pyre-ignore[11]
+def load_actor_json(filename: str) -> List[RayActor]:
     with open(filename) as f:
         actors: List[RayActor] = []
         # Yes this is gross but it works
@@ -84,7 +84,7 @@ def create_placement_groups(actors : List[RayActor]) -> List[PlacementGroup]:
 
 def create_command_actors(actors : List[RayActor], pgs : List[PlacementGroup]) -> List[CommandActor]:
     command_actors: List[CommandActor] = []
-    address, port = get_address_and_port() # pyre-ignore[5]
+    address, port = get_address_and_port()
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
 
@@ -105,7 +105,7 @@ def create_command_actors(actors : List[RayActor], pgs : List[PlacementGroup]) -
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
-                ).remote(actors[i].command, actor_and_rank_env) # pyre-ignore[16]
+                ).remote(actors[i].command, actor_and_rank_env)
             )
     return command_actors
 
@@ -122,11 +122,11 @@ if __name__ == "__main__": # pragma: no cover
     command_actors : List[CommandActor] = create_command_actors(actors, pgs)
 
     _logger.info("Running Ray actors")
-    unfinished : List[Any] = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16] 
+    unfinished = [command_actor.run_command.remote() for command_actor in command_actors] 
 
     # Await return result of remote ray function
     while len(unfinished) > 0:
-        finished, unfinished = ray.wait(unfinished) # pyre-ignore[5]
+        finished, unfinished = ray.wait(unfinished)
         # If a failure occurs the ObjectRef will be marked as finished.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in finished:

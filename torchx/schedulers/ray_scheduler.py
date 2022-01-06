@@ -145,10 +145,13 @@ if _has_ray:
             dirpath = mkdtemp()
             serialize(actors, dirpath)
 
-            if cfg.dashboard_address:
-                ip_address : str = cfg.dashboard_address
+
             if cfg.cluster_config_file:
                 ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
+            if cfg.dashboard_address:
+                ip_address : str = cfg.dashboard_address
+            else:
+                ip_address = "127.0.0.1:8265"
 
             # Create Job Client
             client : JobSubmissionClient = JobSubmissionClient(f"http://{ip_address}")
