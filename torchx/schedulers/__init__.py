@@ -21,14 +21,17 @@ class SchedulerFactory(Protocol):
     def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
         ...
 
-def try_get_ray_scheduler(): #pyre-ignore[3]
+
+def try_get_ray_scheduler():  # pyre-ignore[3]
     try:
         from torchx.schedulers.ray_scheduler import _has_ray
+
         if _has_ray:
             import torchx.schedulers.ray_scheduler as ray_scheduler
+
             return ray_scheduler.create_scheduler
 
-    except ImportError: # pragma: no cover
+    except ImportError:  # pragma: no cover
         return None
 
 

@@ -19,7 +19,7 @@ import torchx.specs as specs
 
 
 def echo(
-        msg: str = "hello world", image: str = torchx.IMAGE, num_replicas: int = 1
+    msg: str = "hello world", image: str = torchx.IMAGE, num_replicas: int = 1
 ) -> specs.AppDef:
     """
     Echos a message to stdout (calls echo)
@@ -96,13 +96,13 @@ def sh(*args: str, image: str = torchx.IMAGE, num_replicas: int = 1) -> specs.Ap
 
 
 def python(
-        *args: str,
-        m: Optional[str] = None,
-        c: Optional[str] = None,
-        image: str = torchx.IMAGE,
-        name: str = "torchx_utils_python",
-        host: str = "aws_t3.medium",
-        num_replicas: int = 1,
+    *args: str,
+    m: Optional[str] = None,
+    c: Optional[str] = None,
+    image: str = torchx.IMAGE,
+    name: str = "torchx_utils_python",
+    host: str = "aws_t3.medium",
+    num_replicas: int = 1,
 ) -> specs.AppDef:
     """
     Runs ``python -c CMD`` or ``python -m MODULE`` on the specified
@@ -148,10 +148,10 @@ def python(
 
 
 def binary(
-        *args: str,
-        entrypoint: str,
-        name: str = "torchx_utils_python",
-        num_replicas: int = 1,
+    *args: str,
+    entrypoint: str,
+    name: str = "torchx_utils_python",
+    num_replicas: int = 1,
 ) -> specs.AppDef:
     """
     Test component
@@ -171,9 +171,7 @@ def binary(
                 entrypoint=entrypoint,
                 num_replicas=num_replicas,
                 resource=specs.Resource(cpu=2, gpu=0, memMB=4096),
-                args=[
-                    *args
-                ],
+                args=[*args],
             )
         ],
     )
@@ -213,11 +211,11 @@ def copy(src: str, dst: str, image: str = torchx.IMAGE) -> specs.AppDef:
 
 
 def booth(
-        x1: float,
-        x2: float,
-        trial_idx: int = 0,
-        tracker_base: str = "/tmp/torchx-util-booth",
-        image: str = torchx.IMAGE,
+    x1: float,
+    x2: float,
+    trial_idx: int = 0,
+    tracker_base: str = "/tmp/torchx-util-booth",
+    image: str = torchx.IMAGE,
 ) -> specs.AppDef:
     """
     Evaluates the booth function, ``f(x1, x2) = (x1 + 2*x2 - 7)^2 + (2*x1 + x2 - 5)^2``.

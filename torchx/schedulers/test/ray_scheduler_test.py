@@ -14,11 +14,16 @@ from unittest.mock import patch
 import ray
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
-from torchx.schedulers.ray.ray_common import RayActor
-from torchx.schedulers.ray_scheduler import RayScheduler, _logger, has_ray, RayJob, serialize
-from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
-
 from torchx.schedulers.ray import ray_driver
+from torchx.schedulers.ray.ray_common import RayActor
+from torchx.schedulers.ray_scheduler import (
+    RayScheduler,
+    _logger,
+    has_ray,
+    RayJob,
+    serialize,
+)
+from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
 
 if has_ray():
@@ -248,52 +253,54 @@ if has_ray():
             self.assertEqual(
                 job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
             )
-    
 
-    class RayClusterSetup():  
-        _instance = None # pyre-ignore[4]      
+    class RayClusterSetup:
+        _instance = None  # pyre-ignore[4]
 
-        def __new__(cls): # pyre-ignore[3]
+        def __new__(cls):  # pyre-ignore[3]
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 ray.shutdown()
                 os.system("ray start --head")
                 ray.init(address="auto", ignore_reinit_error=True)
-                cls.reference_count : int = 2
+                cls.reference_count: int = 2
             return cls._instance
-        
+
         def decrement_reference(cls) -> None:
             cls.reference_count = cls.reference_count - 1
             if cls.reference_count == 0:
                 cls.teardown_ray_cluster()
-        
+
         def teardown_ray_cluster(cls) -> None:
             ray.shutdown()
-        
+
     class RayDriverTest(TestCase):
         def test_command_actor_setup(self) -> None:
             ray_cluster_setup = RayClusterSetup()
 
-            actor1 = RayActor(name="test_actor_1", command="python 1 2", env={"fake" : "1"})
-            actor2 = RayActor(name="test_actor_2", command="python 3 4", env={"fake" : "2"})
+            actor1 = RayActor(
+                name="test_actor_1", command="python 1 2", env={"fake": "1"}
+            )
+            actor2 = RayActor(
+                name="test_actor_2", command="python 3 4", env={"fake": "2"}
+            )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
             serialize(actors, current_dir)
 
-            
-            loaded_actor = ray_driver.load_actor_json(os.path.join(current_dir, "actors.json"))
+            loaded_actor = ray_driver.load_actor_json(
+                os.path.join(current_dir, "actors.json")
+            )
             assert loaded_actor == actors
 
             pgs = ray_driver.create_placement_groups(actors)
             assert len(pgs) >= 1
 
             command_actors = ray_driver.create_command_actors(actors, pgs)
-            assert len(command_actors) >= 1 
+            assert len(command_actors) >= 1
             ray_cluster_setup.decrement_reference()
 
-
     class RayIntegrationTest(TestCase):
-
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
             ray_scheduler = self.setup_ray_cluster()
@@ -312,7 +319,6 @@ if has_ray():
             assert status is not None
 
             ray_cluster_setup.decrement_reference()
-
 
         def setup_ray_cluster(self) -> RayScheduler:
             ray_scheduler = RayScheduler(session_name="test")
@@ -344,9 +350,9 @@ if has_ray():
             self, ray_scheduler: RayScheduler, app_id: str = "123"
         ) -> Optional[DescribeAppResponse]:
             return ray_scheduler.describe(app_id)
-        
-        def check_logs(self, ray_scheduler: RayScheduler, app_id: str = "123") -> List[str]:
+
+        def check_logs(
+            self, ray_scheduler: RayScheduler, app_id: str = "123"
+        ) -> List[str]:
             logs: List[str] = ray_scheduler.log_iter(app_id=app_id)
             return logs
-
-
