@@ -14,6 +14,9 @@ class UtilsComponentTest(ComponentTestCase):
 
     def test_python(self) -> None:
         self.validate(utils, "python")
+    
+    def test_binary(self) -> None:
+        self.validate(utils, "binary")
 
     def test_touch(self) -> None:
         self.validate(utils, "touch")
