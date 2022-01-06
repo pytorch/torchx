@@ -149,7 +149,7 @@ if _has_ray:
             if cfg.cluster_config_file:
                 ip_address = ray_autoscaler_sdk.get_head_node_ip(cfg.cluster_config_file)
             if cfg.dashboard_address:
-                ip_address : str = cfg.dashboard_address
+                ip_address = cfg.dashboard_address
             else:
                 ip_address = "127.0.0.1:8265"
 
@@ -199,7 +199,7 @@ if _has_ray:
                 job: RayJob = RayJob(app_id, cluster_cfg)
 
             else:
-                dashboard_address: Optional[str] = cfg.get("dashboard_address")
+                dashboard_address = cfg.get("dashboard_address")
                 job: RayJob = RayJob(app_id=app_id, dashboard_address=dashboard_address)
 
             # pyre-ignore[24]: Generic type `type` expects 1 type parameter

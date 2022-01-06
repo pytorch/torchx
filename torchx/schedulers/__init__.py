@@ -5,12 +5,11 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict, Optional, Callable
+from typing import Dict
 
 import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
-import torchx.schedulers.ray_scheduler as ray_scheduler
 import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.specs.api import SchedulerBackend
@@ -22,8 +21,7 @@ class SchedulerFactory(Protocol):
     def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
         ...
 
-
-def try_get_ray_scheduler():
+def try_get_ray_scheduler(): #pyre-ignore[3]
     try:
         from torchx.schedulers.ray_scheduler import _has_ray
         if _has_ray:

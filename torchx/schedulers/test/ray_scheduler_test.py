@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from typing import Any, Iterator, Type, Optional, Dict, List, cast
 from unittest import TestCase
 from unittest.mock import patch
-from time import sleep
 
 import ray
 from torchx.schedulers import get_schedulers
@@ -252,15 +251,15 @@ if has_ray():
     
 
     class RayClusterSetup():  
-        _instance = None          
+        _instance : Optional[RayClusterSetup] = None          
 
-        def __new__(cls):
+        def __new__(cls) -> RayClusterSetup:
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 ray.shutdown()
                 os.system("ray start --head")
                 ray.init(address="auto", ignore_reinit_error=True)
-                cls.reference_count = 2
+                cls.reference_count : int = 2
             return cls._instance
         
         def decrement_reference(cls) -> None:
@@ -350,7 +349,7 @@ if has_ray():
             return ray_scheduler.describe(app_id)
 
         def check_logs(self, ray_scheduler: RayScheduler, app_id: str = "123") -> List[str]:
-            logs: str = ray_scheduler.log_iter(app_id=app_id)
+            logs: List[str] = ray_scheduler.log_iter(app_id=app_id)
             return logs
 
 

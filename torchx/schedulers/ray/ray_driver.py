@@ -10,9 +10,10 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 import ray
+from ray import ObjectRef
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 from torchx.schedulers.ray.ray_common import RayActor
@@ -122,7 +123,7 @@ if __name__ == "__main__": # pragma: no cover
     command_actors : List[CommandActor] = create_command_actors(actors, pgs)
 
     _logger.info("Running Ray actors")
-    unfinished = [command_actor.run_command.remote() for command_actor in command_actors] 
+    unfinished : List[ObjectRef] = [command_actor.run_command.remote() for command_actor in command_actors] # pyre-ignore[16]
 
     # Await return result of remote ray function
     while len(unfinished) > 0:
@@ -132,6 +133,6 @@ if __name__ == "__main__": # pragma: no cover
         for object_ref in finished:
             try:
                 ray.get(object_ref)
-                _logger.info(f"Ray remote function promise succesfully returned")
+                _logger.info("Ray remote function promise succesfully returned")
             except ray.exceptions.RayActorError as exc:
                 _logger.info("Ray Actor Error")
