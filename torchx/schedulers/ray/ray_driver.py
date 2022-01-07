@@ -38,7 +38,7 @@ class CommandActor:  # pragma: no cover
         for k, v in env.items():
             os.environ[k] = v
 
-    def run_command(self) -> None:
+    def exec_module(self) -> None:
         spec: Optional[
             importlib.machinery.ModuleSpec
         ] = importlib.util.spec_from_file_location("__main__", self.path)
@@ -64,6 +64,8 @@ def create_placement_groups(actors: List[RayActor]) -> List[PlacementGroup]:
     for actor in actors:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
+
+        # To change the strategy type refer to available options here https://docs.ray.io/en/latest/placement-group.html#pgroup-strategy
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
 
@@ -115,30 +117,31 @@ def create_command_actors(
 
 
 if __name__ == "__main__":  # pragma: no cover
-    _logger.info("Reading actor.json")
+    _logger.debug("Reading actor.json")
     actors: List[RayActor] = load_actor_json("actors.json")
 
-    _logger.info("Creating Ray placement groups")
+    _logger.debug("Creating Ray placement groups")
     ray.init(address="auto", namespace="torchx-ray")
     pgs: List[PlacementGroup] = create_placement_groups(actors)
 
-    _logger.info("Getting command actors")
+    _logger.debug("Getting command actors")
     command_actors: List[CommandActor] = create_command_actors(actors, pgs)
 
-    _logger.info("Running Ray actors")
-    unfinished = [  # pyre-ignore
-        command_actor.run_command.remote()  # pyre-ignore
+    _logger.debug("Running Ray actors")
+    active_workers = [  # pyre-ignore
+        command_actor.exec_module.remote()  # pyre-ignore
         for command_actor in command_actors
     ]
 
     # Await return result of remote ray function
-    while len(unfinished) > 0:
-        finished, unfinished = ray.wait(unfinished)
-        # If a failure occurs the ObjectRef will be marked as finished.
+    while len(active_workers) > 0:
+        completed_workers, active_workers = ray.wait(active_workers)
+        # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
-        for object_ref in finished:
+        for object_ref in completed_workers:
             try:
                 ray.get(object_ref)
                 _logger.info("Ray remote function promise succesfully returned")
             except ray.exceptions.RayActorError as exc:
                 _logger.info("Ray Actor Error")
+                _logger.error("Ray Actor error", exc)

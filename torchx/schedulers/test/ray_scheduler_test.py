@@ -338,7 +338,6 @@ if has_ray():
             ray_job = RayJob(
                 app_id=app_id,
                 dashboard_address="127.0.0.1:8265",
-                # requirements=os.path.join(current_dir, "..", "..", "..", "requirements.txt"),
                 scripts=set([os.path.join(current_dir, "train.py")]),
                 actors=[actor],
             )
