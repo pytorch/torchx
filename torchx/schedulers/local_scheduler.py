@@ -676,6 +676,9 @@ class LocalScheduler(Scheduler):
             else:
                 env["PATH"] = join_PATH(env.get("PATH"), cwd)
 
+        # default to unbuffered python for faster responsiveness locally
+        env.setdefault("PYTHONUNBUFFERED", "x")
+
         args_pfmt = pprint.pformat(asdict(replica_params), indent=2, width=80)
         log.debug(f"Running {role_name} (replica {replica_id}):\n {args_pfmt}")
 
