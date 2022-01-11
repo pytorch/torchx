@@ -22,12 +22,9 @@ from ax.core import (
     SearchSpace,
 )
 from ax.modelbridge.dispatch_utils import choose_generation_strategy
-from ax.modelbridge.registry import Models
 from ax.service.scheduler import SchedulerOptions
-from ax.service.utils.best_point import get_best_parameters
 from ax.service.utils.report_utils import exp_to_df
 from ax.utils.common.constants import Keys
-from pyre_extensions import none_throws
 from torchx.components import utils
 from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
 
@@ -105,9 +102,7 @@ class TorchXSchedulerTest(unittest.TestCase):
 
         # AppMetrics always returns trial index; hence the best
         # experiment for min objective will be the params for trial 0
-        best_param, _ = none_throws(
-            get_best_parameters(experiment=experiment, models_enum=Models)
-        )
+        _report = scheduler.report_results()
         # nothing to assert, just make sure experiment runs
 
     def test_run_experiment_locally_in_batches(self) -> None:
@@ -153,9 +148,7 @@ class TorchXSchedulerTest(unittest.TestCase):
 
         # AppMetrics always returns trial index; hence the best
         # experiment for min objective will be the params for trial 0
-        best_param, _ = none_throws(
-            get_best_parameters(experiment=experiment, models_enum=Models)
-        )
+        _report = scheduler.report_results()
         # nothing to assert, just make sure experiment runs
 
     def test_runner_no_batch_trials(self) -> None:
