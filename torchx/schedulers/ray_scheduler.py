@@ -285,7 +285,7 @@ if _has_ray:
             addr, app_id = app_id.split("-")
             client = JobSubmissionClient(f"http://{addr}")
             status = client.get_job_status(app_id).status
-            print(f"Status is {status}")
+            _logger.debug(f"Status is {status}")
             status = _ray_status_to_torchx_appstate[status]
             roles = [Role(name="ray", num_replicas=1, image="")]
             roles_statuses = [

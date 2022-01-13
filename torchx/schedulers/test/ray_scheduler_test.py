@@ -261,7 +261,11 @@ if has_ray():
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 ray.shutdown()
-                os.system("ray start --head")
+                start_status: int = os.system("ray start --head")
+                if start_status != 0:
+                    raise AssertionError(
+                        "ray start --head command has failed. Cannot proceed with running tests"
+                    )
                 ray.init(address="auto", ignore_reinit_error=True)
                 cls.reference_count: int = 2
             return cls._instance
