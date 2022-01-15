@@ -458,13 +458,15 @@
 <span class="kn">import</span> <span class="nn">configparser</span> <span class="k">as</span> <span class="nn">configparser</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
 
 <span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">Scheduler</span><span class="p">,</span> <span class="n">get_schedulers</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">get_type_name</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">runopt</span>
 
+
 <span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;.torchxconfig&quot;</span>
+<span class="n">CONFIG_PREFIX_DELIM</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
 
 <span class="n">_NONE</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
 
@@ -602,6 +604,117 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;loaded configs from </span><span class="si">{</span><span class="n">configfile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">load_sections</span><span class="p">(</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the content of the sections in the given ``.torchxconfig`` file</span>
+<span class="sd">    that start with the specified prefix. Returns a map of maps of the</span>
+<span class="sd">    section name WITHOUT the prefix with the contents of the section loaded</span>
+<span class="sd">    into a map. ``&quot;:&quot;`` is used as the prefix delimiter.</span>
+
+<span class="sd">    Example config format for specifying defaults for the builtin</span>
+<span class="sd">    component ``dist.ddp`` is shown below:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     [component:dist.ddp]</span>
+<span class="sd">     j = 1x2</span>
+<span class="sd">     image = ghcr.io/foo:1</span>
+
+<span class="sd">     # calling `load_component_defaults(prefix=&quot;component&quot;)` returns</span>
+<span class="sd">     #  {</span>
+<span class="sd">     #    &quot;dist.ddp&quot;: {</span>
+<span class="sd">     #       &quot;j&quot;:&quot;1x2&quot;,</span>
+<span class="sd">     #       &quot;image&quot;:&quot;ghcr.io/foo:1&quot;,</span>
+<span class="sd">     #     },</span>
+<span class="sd">     #  }</span>
+
+
+<span class="sd">    The keys in the section must match the parameter name of the component function.</span>
+<span class="sd">    The example below shows how to represent the various types that are allowable</span>
+<span class="sd">    as component parameter types.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     [component:foo.bar]</span>
+<span class="sd">     int = 1</span>
+<span class="sd">     float = 1.2</span>
+<span class="sd">     bool = True # or False</span>
+<span class="sd">     str = foobar</span>
+<span class="sd">     list = a,b,c</span>
+<span class="sd">     map = A=B,C=D</span>
+<span class="sd">     vararg = -a b --c=d e</span>
+
+<span class="sd">     # to call the component as:</span>
+<span class="sd">     foo.bar(</span>
+<span class="sd">        &quot;-a&quot;, &quot;b&quot;, &quot;--c=d&quot;, &quot;e&quot;,</span>
+<span class="sd">        int=1,</span>
+<span class="sd">        float=1.2,</span>
+<span class="sd">        bool=True,</span>
+<span class="sd">        str=&quot;foobar&quot;,</span>
+<span class="sd">        list=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;],</span>
+<span class="sd">        map={&quot;A&quot;:&quot;B&quot;, &quot;C&quot;: &quot;D&quot;})</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">strip_prefix</span><span class="p">(</span><span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># returns the section_name with the prefix removed</span>
+        <span class="c1"># or None if the section name does not match the prefix</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">section_name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">CONFIG_PREFIX_DELIM</span><span class="p">)</span>
+
+        <span class="c1"># index guard (e.g &quot;:foo&quot; and &quot;foo:&quot; are bad, just return None)</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">section_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">prefix</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">section_name</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">sections</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">configfile</span> <span class="ow">in</span> <span class="n">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">_configparser</span><span class="p">()</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">strip_prefix</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="n">sections</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section_name</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
+                        <span class="n">section</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">sections</span>
+
+
+<span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the config value for the ``key`` in the section ``[&quot;{prefix}:{name}&quot;]``.</span>
+<span class="sd">    Or ``None`` if no section or key exists</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # for config file:</span>
+<span class="sd">     # [foo:bar]</span>
+<span class="sd">     # baz = 1</span>
+
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;bar&quot;, key=&quot;baz&quot;) == 1</span>
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;bar&quot;, key=&quot;bazz&quot;) == None</span>
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;barr&quot;, key=&quot;baz&quot;) == None</span>
+<span class="sd">     get_config(prefix=&quot;fooo&quot;, name=&quot;bar&quot;, key=&quot;baz&quot;) == None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sections</span> <span class="o">=</span> <span class="n">load_sections</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>

@@ -412,6 +412,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">],</span>
+        <span class="n">component_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a new runner instance.</span>
@@ -424,6 +425,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span> <span class="o">=</span> <span class="n">schedulers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># component_name -&gt; map of component_fn_param_name -&gt; user-specified default val encoded as str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component_defaults</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">component_defaults</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Runner&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -509,7 +513,11 @@
 <span class="sd">        component, but just returns what &quot;would&quot; have run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">component_def</span> <span class="o">=</span> <span class="n">get_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="n">app</span> <span class="o">=</span> <span class="n">from_function</span><span class="p">(</span><span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span> <span class="n">component_args</span><span class="p">)</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">from_function</span><span class="p">(</span>
+            <span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">component_args</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component_defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.run"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
@@ -883,7 +891,11 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Runner(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">, schedulers=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="si">}</span><span class="s2">, apps=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
-<div class="viewcode-block" id="get_runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.get_runner">[docs]</a><span class="k">def</span> <span class="nf">get_runner</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Runner</span><span class="p">:</span>
+<div class="viewcode-block" id="get_runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.get_runner">[docs]</a><span class="k">def</span> <span class="nf">get_runner</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">component_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Runner</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience method to construct and get a Runner object. Usage:</span>
 
@@ -916,7 +928,7 @@
         <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;torchx&quot;</span>
 
     <span class="n">schedulers</span> <span class="o">=</span> <span class="n">get_schedulers</span><span class="p">(</span><span class="n">session_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">Runner</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">schedulers</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Runner</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">schedulers</span><span class="p">,</span> <span class="n">component_defaults</span><span class="p">)</span></div>
 </pre></div>
 
      </article>
