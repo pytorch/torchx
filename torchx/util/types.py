@@ -4,7 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, List, Type, Union
+import inspect
+from typing import Any, Callable, Dict, List, Type, Union
 
 import typing_inspect
 
@@ -165,3 +166,10 @@ def decode_optional(param_type: Any) -> Any:
         return key_type
     else:
         return param_type
+
+
+def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], object]:
+    if is_primitive(parameter.annotation):
+        return parameter.annotation
+    else:
+        return str

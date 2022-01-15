@@ -50,6 +50,7 @@ class Runner:
         self,
         name: str,
         schedulers: Dict[SchedulerBackend, Scheduler],
+        component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
     ) -> None:
         """
         Creates a new runner instance.
@@ -62,6 +63,9 @@ class Runner:
         self._name: str = name
         self._schedulers = schedulers
         self._apps: Dict[AppHandle, AppDef] = {}
+
+        # component_name -> map of component_fn_param_name -> user-specified default val encoded as str
+        self._component_defaults: Dict[str, Dict[str, str]] = component_defaults or {}
 
     def __enter__(self) -> "Runner":
         return self
@@ -147,7 +151,11 @@ class Runner:
         component, but just returns what "would" have run.
         """
         component_def = get_component(component)
-        app = from_function(component_def.fn, component_args)
+        app = from_function(
+            component_def.fn,
+            component_args,
+            self._component_defaults.get(component, None),
+        )
         return self.dryrun(app, scheduler, cfg)
 
     def run(
@@ -521,7 +529,11 @@ class Runner:
         return f"Runner(name={self._name}, schedulers={self._schedulers}, apps={self._apps})"
 
 
-def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
+def get_runner(
+    name: Optional[str] = None,
+    component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
+    **scheduler_params: Any,
+) -> Runner:
     """
     Convenience method to construct and get a Runner object. Usage:
 
@@ -554,4 +566,4 @@ def get_runner(name: Optional[str] = None, **scheduler_params: Any) -> Runner:
         name = "torchx"
 
     schedulers = get_schedulers(session_name=name, **scheduler_params)
-    return Runner(name, schedulers)
+    return Runner(name, schedulers, component_defaults)

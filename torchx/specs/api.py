@@ -29,7 +29,13 @@ from typing import (
 
 import yaml
 from torchx.specs.file_linter import TorchXArgumentHelpFormatter, get_fn_docstring
-from torchx.util.types import decode_from_string, decode_optional, is_bool, is_primitive
+from torchx.util.types import (
+    decode_from_string,
+    decode_optional,
+    get_argparse_param_type,
+    is_bool,
+    is_primitive,
+)
 
 
 SchedulerBackend = str
@@ -706,68 +712,13 @@ def parse_app_handle(app_handle: AppHandle) -> Tuple[SchedulerBackend, str, str]
     return gd["scheduler_backend"], gd["session_name"], gd["app_id"]
 
 
-def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], object]:
-    if is_primitive(parameter.annotation):
-        return parameter.annotation
-    else:
-        return str
-
-
-def _create_args_parser(app_fn: Callable[..., AppDef]) -> argparse.ArgumentParser:
-    parameters = inspect.signature(app_fn).parameters
-    function_desc, args_desc = get_fn_docstring(app_fn)
-    script_parser = argparse.ArgumentParser(
-        prog=f"torchx run <run args...> {app_fn.__name__} ",
-        description=function_desc,
-        formatter_class=TorchXArgumentHelpFormatter,
-        # enables components to have "h" as a parameter
-        # otherwise argparse by default adds -h/--help as the help argument
-        # we still add --help but reserve "-"h" to be used as a component argument
-        add_help=False,
-    )
-
-    # add help manually since we disabled auto help to allow "h" in component arg
-    script_parser.add_argument(
-        "--help",
-        action="help",
-        default=argparse.SUPPRESS,
-        help="show this help message and exit",
-    )
-
-    remainder_arg = []
-
-    for param_name, parameter in parameters.items():
-        param_desc = args_desc[parameter.name]
-        args: Dict[str, Any] = {
-            "help": param_desc,
-            "type": get_argparse_param_type(parameter),
-        }
-        if parameter.default != inspect.Parameter.empty:
-            if is_bool(type(parameter.default)):
-                args["default"] = str(parameter.default)
-            else:
-                args["default"] = parameter.default
-        if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
-            args["nargs"] = argparse.REMAINDER
-            arg_name = param_name
-            remainder_arg = [arg_name, args]
-        else:
-            arg_names = [f"--{param_name}"]
-            if len(param_name) == 1:
-                arg_names = [f"-{param_name}"] + arg_names
-            if "default" not in args:
-                args["required"] = True
-            script_parser.add_argument(*arg_names, **args)
-    if len(remainder_arg) > 0:
-        script_parser.add_argument(remainder_arg[0], **remainder_arg[1])
-    return script_parser
-
-
 def _get_function_args(
-    app_fn: Callable[..., AppDef], app_args: List[str]
+    app_fn: Callable[..., AppDef],
+    app_args: List[str],
+    app_arg_defaults: Optional[Dict[str, str]],
 ) -> Tuple[List[object], List[str], Dict[str, object]]:
-    script_parser = _create_args_parser(app_fn)
 
+    script_parser = _create_args_parser(app_fn, app_arg_defaults)
     parsed_args = script_parser.parse_args(app_args)
 
     function_args = []
@@ -796,7 +747,67 @@ def _get_function_args(
     return function_args, var_arg, kwargs
 
 
-def from_function(app_fn: Callable[..., AppDef], app_args: List[str]) -> AppDef:
+def _create_args_parser(
+    cmpnt_fn: Callable[..., AppDef], cmpnt_defaults: Optional[Dict[str, str]] = None
+) -> argparse.ArgumentParser:
+    parameters = inspect.signature(cmpnt_fn).parameters
+    function_desc, args_desc = get_fn_docstring(cmpnt_fn)
+    script_parser = argparse.ArgumentParser(
+        prog=f"torchx run <run args...> {cmpnt_fn.__name__} ",
+        description=function_desc,
+        formatter_class=TorchXArgumentHelpFormatter,
+        # enables components to have "h" as a parameter
+        # otherwise argparse by default adds -h/--help as the help argument
+        # we still add --help but reserve "-"h" to be used as a component argument
+        add_help=False,
+    )
+    # add help manually since we disabled auto help to allow "h" in component arg
+    script_parser.add_argument(
+        "--help",
+        action="help",
+        default=argparse.SUPPRESS,
+        help="show this help message and exit",
+    )
+    for param_name, parameter in parameters.items():
+        param_desc = args_desc[parameter.name]
+        args: Dict[str, Any] = {
+            "help": param_desc,
+            "type": get_argparse_param_type(parameter),
+        }
+        # set defaults specified in the component function declaration
+        if parameter.default != inspect.Parameter.empty:
+            if is_bool(type(parameter.default)):
+                args["default"] = str(parameter.default)
+            else:
+                args["default"] = parameter.default
+
+        # set defaults supplied directly to this method (overwrites the declared defaults)
+        # the defaults are given as str (as option values passed from CLI) since
+        # these are typically read from .torchxconfig
+        if cmpnt_defaults and param_name in cmpnt_defaults:
+            args["default"] = cmpnt_defaults[param_name]
+
+        if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
+            args["nargs"] = argparse.REMAINDER
+            script_parser.add_argument(param_name, **args)
+        else:
+            arg_names = [f"--{param_name}"]
+            if len(param_name) == 1:
+                arg_names = [f"-{param_name}"] + arg_names
+            if "default" not in args:
+                args["required"] = True
+            script_parser.add_argument(*arg_names, **args)
+    return script_parser
+
+
+# FIXME this function invokes the component fn to materialize the AppDef
+#      rename to something more appropriate like - materialize_appdef or eval_component_fn
+#      seee: https://github.com/pytorch/torchx/issues/368
+def from_function(
+    cmpnt_fn: Callable[..., AppDef],
+    cmpnt_args: List[str],
+    cmpnt_defaults: Optional[Dict[str, str]] = None,
+) -> AppDef:
     """
     Creates an application by running user defined ``app_fn``.
 
@@ -816,11 +827,17 @@ def from_function(app_fn: Callable[..., AppDef], app_args: List[str]) -> AppDef:
         * The return object must be ``AppDef``
 
     Args:
-        app_fn: Component function
-        app_args: Function args
-
+        cmpnt_fn: Component function
+        cmpnt_args: Function args
+        cmpnt_defaults: Additional default values for parameters of ``app_fn``
+                          (overrides the defaults set on the fn declaration)
     Returns:
         An application spec
     """
-    function_args, var_arg, kwargs = _get_function_args(app_fn, app_args)
-    return app_fn(*function_args, *var_arg, **kwargs)
+
+    function_args, var_arg, kwargs = _get_function_args(
+        cmpnt_fn,
+        cmpnt_args,
+        cmpnt_defaults,
+    )
+    return cmpnt_fn(*function_args, *var_arg, **kwargs)

@@ -96,13 +96,15 @@ you want to keep personal config overrides on top of a project defined default.
 import configparser as configparser
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, TextIO, Iterable
+from typing import Dict, Iterable, List, Optional, TextIO
 
 from torchx.schedulers import Scheduler, get_schedulers
 from torchx.specs import CfgVal, get_type_name
 from torchx.specs.api import runopt
 
+
 CONFIG_FILE = ".torchxconfig"
+CONFIG_PREFIX_DELIM = ":"
 
 _NONE = "None"
 
@@ -240,6 +242,117 @@ def apply(
         with open(configfile, "r") as f:
             load(scheduler, f, cfg)
             log.info(f"loaded configs from {configfile}")
+
+
+def load_sections(
+    prefix: str,
+    dirs: Optional[List[str]] = None,
+) -> Dict[str, Dict[str, str]]:
+    """
+    Loads the content of the sections in the given ``.torchxconfig`` file
+    that start with the specified prefix. Returns a map of maps of the
+    section name WITHOUT the prefix with the contents of the section loaded
+    into a map. ``":"`` is used as the prefix delimiter.
+
+    Example config format for specifying defaults for the builtin
+    component ``dist.ddp`` is shown below:
+
+    ::
+
+     [component:dist.ddp]
+     j = 1x2
+     image = ghcr.io/foo:1
+
+     # calling `load_component_defaults(prefix="component")` returns
+     #  {
+     #    "dist.ddp": {
+     #       "j":"1x2",
+     #       "image":"ghcr.io/foo:1",
+     #     },
+     #  }
+
+
+    The keys in the section must match the parameter name of the component function.
+    The example below shows how to represent the various types that are allowable
+    as component parameter types.
+
+    ::
+
+     [component:foo.bar]
+     int = 1
+     float = 1.2
+     bool = True # or False
+     str = foobar
+     list = a,b,c
+     map = A=B,C=D
+     vararg = -a b --c=d e
+
+     # to call the component as:
+     foo.bar(
+        "-a", "b", "--c=d", "e",
+        int=1,
+        float=1.2,
+        bool=True,
+        str="foobar",
+        list=["a", "b", "c"],
+        map={"A":"B", "C": "D"})
+
+    """
+
+    def strip_prefix(section_name: str) -> Optional[str]:
+        # returns the section_name with the prefix removed
+        # or None if the section name does not match the prefix
+        idx = section_name.find(CONFIG_PREFIX_DELIM)
+
+        # index guard (e.g ":foo" and "foo:" are bad, just return None)
+        if 0 < idx < len(section_name) - 1:
+            if section_name[0:idx] == prefix:
+                return section_name[idx + 1 :]
+        return None
+
+    sections: Dict[str, Dict[str, str]] = {}
+    for configfile in find_configs(dirs):
+        with open(configfile, "r") as f:
+            config = _configparser()
+            config.read_file(f)
+        for section_name in config.sections():
+            name = strip_prefix(section_name)
+            if name:
+                section = sections.setdefault(name, {})
+                for key, value in config.items(section_name):
+                    if key not in section:
+                        section[key] = value
+
+    return sections
+
+
+def get_config(
+    prefix: str,
+    name: str,
+    key: str,
+    dirs: Optional[List[str]] = None,
+) -> Optional[str]:
+    """
+    Gets the config value for the ``key`` in the section ``["{prefix}:{name}"]``.
+    Or ``None`` if no section or key exists
+
+    Example:
+
+    ::
+
+     # for config file:
+     # [foo:bar]
+     # baz = 1
+
+     get_config(prefix="foo", name="bar", key="baz") == 1
+     get_config(prefix="foo", name="bar", key="bazz") == None
+     get_config(prefix="foo", name="barr", key="baz") == None
+     get_config(prefix="fooo", name="bar", key="baz") == None
+
+    """
+    sections = load_sections(prefix, dirs)
+    section = sections.get(name, {})
+    return section.get(key, None)
 
 
 def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:

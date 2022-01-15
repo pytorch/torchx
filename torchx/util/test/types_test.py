@@ -6,14 +6,15 @@
 
 import inspect
 import unittest
-from typing import Dict, List, Union, Optional, cast
+from typing import Dict, List, Optional, Union, cast
 
 import typing_inspect
 from torchx.util.types import (
     decode_from_string,
     decode_optional,
-    is_primitive,
+    get_argparse_param_type,
     is_bool,
+    is_primitive,
     to_dict,
     to_list,
 )
@@ -144,3 +145,26 @@ class TypesTest(unittest.TestCase):
 
     def test_to_list_empty(self) -> None:
         self.assertListEqual([], to_list(""))
+
+    def test_get_argparse_param_type(self) -> None:
+        def fake_component(
+            i: int,
+            f: float,
+            s: str,
+            b: bool,
+            l: List[str],
+            m: Dict[str, str],
+            o: Optional[int],
+        ) -> None:
+            # component has to return an AppDef
+            # but ok here since we're simply testing the parameter types
+            pass
+
+        params = inspect.signature(fake_component).parameters
+        self.assertEqual(int, get_argparse_param_type(params["i"]))
+        self.assertEqual(float, get_argparse_param_type(params["f"]))
+        self.assertEqual(str, get_argparse_param_type(params["s"]))
+        self.assertEqual(str, get_argparse_param_type(params["b"]))
+        self.assertEqual(str, get_argparse_param_type(params["l"]))
+        self.assertEqual(str, get_argparse_param_type(params["m"]))
+        self.assertEqual(str, get_argparse_param_type(params["o"]))

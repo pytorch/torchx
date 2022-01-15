@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional
 from unittest.mock import patch
 
-from torchx.runner.config import apply, dump, load
+from torchx.runner.config import apply, dump, get_config, load, load_sections
 from torchx.schedulers import Scheduler, get_schedulers
 from torchx.schedulers.api import DescribeAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
@@ -103,25 +103,58 @@ class TestScheduler(Scheduler):
         return opts
 
 
-_CONFIG = """[local_cwd]
+_CONFIG = """#
+[local_cwd]
 log_dir = /home/bob/logs
 prepend_cwd = True
 """
 
-_CONFIG_INVALID = """[test]
+_CONFIG_INVALID = """#
+[test]
 a_run_opt_that = does_not_exist
 s = option_that_exists
 """
 
-_TEAM_CONFIG = """[test]
+_TEAM_CONFIG = """#
+[test]
 s = team_default
 i = 50
 f = 1.2
 """
 
-_MY_CONFIG = """[test]
+_MY_CONFIG = """#
+[test]
 s = my_default
 i = 100
+"""
+
+_COMPONENT_CONFIG_0 = """#
+[component:dist.ddp]
+image = barbaz
+script_args = a b c --d=e --f g
+
+[component:utils.echo]
+msg = abracadabra
+
+# bad section
+[component:]
+foo = bar
+
+[:bad]
+leads = with delimiter
+
+[local]
+1 = 2
+"""
+
+_COMPONENT_CONFIG_1 = """#
+[component:dist.ddp]
+j = 1x2
+image = foobar
+env = A=B,C=D
+
+[component:utils.touch]
+file = tmp.txt
 """
 
 PATH_CWD = "torchx.runner.config.Path.cwd"
@@ -149,6 +182,61 @@ class ConfigTest(unittest.TestCase):
         with open(f, "w") as fp:
             fp.write(content)
         return f
+
+    def test_load_component_defaults(self) -> None:
+        configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
+        configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
+        configdir0.mkdir(parents=True, exist_ok=True)
+        configdir1.mkdir(parents=True, exist_ok=True)
+        self._write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
+        self._write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
+
+        defaults = load_sections(
+            prefix="component", dirs=[str(configdir0), str(configdir1)]
+        )
+
+        self.assertDictEqual(
+            {
+                "dist.ddp": {
+                    "j": "1x2",
+                    "image": "barbaz",
+                    "env": "A=B,C=D",
+                    "script_args": "a b c --d=e --f g",
+                },
+                "utils.echo": {
+                    "msg": "abracadabra",
+                },
+                "utils.touch": {"file": "tmp.txt"},
+            },
+            defaults,
+        )
+
+    def test_get_config(self) -> None:
+        configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
+        configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
+        configdir0.mkdir(parents=True, exist_ok=True)
+        configdir1.mkdir(parents=True, exist_ok=True)
+        self._write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
+        self._write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
+        dirs = [str(configdir0), str(configdir1)]
+
+        self.assertEqual(
+            "1x2",
+            get_config(prefix="component", name="dist.ddp", key="j", dirs=dirs),
+        )
+        self.assertEqual(
+            "barbaz",
+            get_config(prefix="component", name="dist.ddp", key="image", dirs=dirs),
+        )
+        self.assertIsNone(
+            get_config(prefix="component", name="dist.ddp", key="badkey", dirs=dirs),
+        )
+        self.assertIsNone(
+            get_config(prefix="component", name="badname", key="j", dirs=dirs),
+        )
+        self.assertIsNone(
+            get_config(prefix="badprefix", name="dist.ddp", key="j", dirs=dirs),
+        )
 
     def test_load(self) -> None:
         cfg = {}

@@ -20,3 +20,20 @@ enableGracefulPreemption = False
 secure_group = pytorch_r2p
 entitlement = default
 proxy_workflow_image = None
+
+[cli:run]
+component = fb.dist.hpc
+
+# TODO need to add hydra to bento_kernel_torchx and make that the default img
+[component:fb.dist.ddp]
+img = bento_kernel_pytorch_lightning
+m = fb/compute_world_size/main.py
+
+[component:fb.dist.ddp2]
+img = bento_kernel_pytorch_lightning
+m = fb/compute_world_size/main.py
+
+[component:fb.dist.hpc]
+img = bento_kernel_pytorch_lightning
+m = fb/compute_world_size/main.py
+

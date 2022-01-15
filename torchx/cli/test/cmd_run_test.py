@@ -17,7 +17,13 @@ from pathlib import Path
 from typing import Generator, List
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_run_config, logger
+from torchx.cli.cmd_run import (
+    CmdBuiltins,
+    CmdRun,
+    _parse_component_name_and_args,
+    _parse_run_config,
+    logger,
+)
 from torchx.schedulers.local_scheduler import SignalException
 from torchx.specs import runopts
 
@@ -197,6 +203,63 @@ class CmdRunTest(unittest.TestCase):
         runconfig = _parse_run_config(test_arg, opts)
         for k, v in expected_args.items():
             self.assertEqual(v, runconfig.get(k))
+
+    def test_parse_component_name_and_args_no_default(self) -> None:
+        sp = argparse.ArgumentParser(prog="test")
+        self.assertEqual(
+            ("utils.echo", []),
+            _parse_component_name_and_args(["utils.echo"], sp),
+        )
+        self.assertEqual(
+            ("utils.echo", []),
+            _parse_component_name_and_args(["--", "utils.echo"], sp),
+        )
+        self.assertEqual(
+            ("utils.echo", ["--msg", "hello"]),
+            _parse_component_name_and_args(["utils.echo", "--msg", "hello"], sp),
+        )
+
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(["--msg", "hello"], sp)
+
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(["-m", "hello"], sp)
+
+    def test_parse_component_name_and_args_with_default(self) -> None:
+        sp = argparse.ArgumentParser(prog="test")
+        dirs = [str(self.tmpdir)]
+
+        with open(Path(self.tmpdir) / ".torchxconfig", "w") as f:
+            f.write(
+                """#
+[cli:run]
+component = custom.echo
+            """
+            )
+
+        self.assertEqual(
+            ("utils.echo", []), _parse_component_name_and_args(["utils.echo"], sp, dirs)
+        )
+        self.assertEqual(
+            ("utils.echo", ["--msg", "hello"]),
+            _parse_component_name_and_args(["utils.echo", "--msg", "hello"], sp, dirs),
+        )
+        self.assertEqual(
+            ("custom.echo", []),
+            _parse_component_name_and_args([], sp, dirs),
+        )
+        self.assertEqual(
+            ("custom.echo", ["--msg", "hello"]),
+            _parse_component_name_and_args(["--", "--msg", "hello"], sp, dirs),
+        )
+        self.assertEqual(
+            ("custom.echo", ["--msg", "hello"]),
+            _parse_component_name_and_args(["--msg", "hello"], sp, dirs),
+        )
+        self.assertEqual(
+            ("custom.echo", ["-m", "hello"]),
+            _parse_component_name_and_args(["-m", "hello"], sp, dirs),
+        )
 
 
 class CmdBuiltinTest(unittest.TestCase):

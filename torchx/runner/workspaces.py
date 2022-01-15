@@ -17,20 +17,21 @@ as well as local file systems.
 
 import logging
 import warnings
-from typing import List, Mapping, Optional
+from typing import Dict, List, Mapping, Optional
 
 from torchx.runner.api import Runner
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import WorkspaceScheduler
 from torchx.specs import (
-    from_function,
     AppDef,
-    SchedulerBackend,
+    AppDryRunInfo,
     AppHandle,
     CfgVal,
-    AppDryRunInfo,
+    SchedulerBackend,
+    from_function,
 )
 from torchx.specs.finder import get_component
+
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -110,7 +111,9 @@ class WorkspaceRunner(Runner):
 
 
 def get_workspace_runner(
-    name: Optional[str] = None, **scheduler_params: object
+    name: Optional[str] = None,
+    component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
+    **scheduler_params: object,
 ) -> WorkspaceRunner:
     """
     Returns a WorkspaceRunner. See torchx.runner.get_runner for more info.
@@ -119,4 +122,8 @@ def get_workspace_runner(
         name = "torchx"
 
     schedulers = get_schedulers(session_name=name, **scheduler_params)
-    return WorkspaceRunner(name, schedulers)
+    return WorkspaceRunner(
+        name=name,
+        schedulers=schedulers,
+        component_defaults=component_defaults,
+    )

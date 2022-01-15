@@ -39,7 +39,6 @@ from .api import (  # noqa: F401 F403
     UnknownAppException,
     UnknownSchedulerException,
     from_function,
-    get_argparse_param_type,
     get_type_name,
     is_terminal,
     macros,
