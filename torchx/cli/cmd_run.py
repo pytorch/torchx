@@ -102,6 +102,7 @@ def _parse_component_name_and_args(
         if args[0] == "--":
             args = args[1:]
 
+    if len(args) > 0:  # check len again in case we removed the leading "--" above
         if args[0].startswith("-"):
             component_args = args
         else:  # first element is NOT an option; then it must be a component name

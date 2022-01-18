@@ -220,6 +220,9 @@ class CmdRunTest(unittest.TestCase):
         )
 
         with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(["--"], sp)
+
+        with self.assertRaises(SystemExit):
             _parse_component_name_and_args(["--msg", "hello"], sp)
 
         with self.assertRaises(SystemExit):
@@ -247,6 +250,10 @@ component = custom.echo
         self.assertEqual(
             ("custom.echo", []),
             _parse_component_name_and_args([], sp, dirs),
+        )
+        self.assertEqual(
+            ("custom.echo", []),
+            _parse_component_name_and_args(["--"], sp, dirs),
         )
         self.assertEqual(
             ("custom.echo", ["--msg", "hello"]),
