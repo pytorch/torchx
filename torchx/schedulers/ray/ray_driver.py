@@ -46,14 +46,13 @@ class CommandActor:  # pragma: no cover
             train = importlib.util.module_from_spec(spec)
             with redirect_argv(self.args):
                 spec.loader.exec_module(train)  # pyre-ignore[16]
-    
+
     def get_actor_address_and_port(self) -> Tuple[str, int]:
         return get_address_and_port()
-    
-    def set_address_and_port(self, address: str, port: int) -> None:
-        os.environ["MASTER_PORT"] = str(port) 
-        os.environ["MASTER_ADDR"] = address
 
+    def set_address_and_port(self, address: str, port: int) -> None:
+        os.environ["MASTER_PORT"] = str(port)
+        os.environ["MASTER_ADDR"] = address
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
@@ -73,7 +72,7 @@ def create_placement_groups(actors: List[RayActor]) -> List[PlacementGroup]:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
 
-        # To change the strategy type 
+        # To change the strategy type
         # refer to available options here https://docs.ray.io/en/latest/placement-group.html#pgroup-strategy
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
@@ -101,13 +100,12 @@ def create_command_actors(
 
     # 1. Create actors
     # 2. For each actor get rank 0 address and port
-    # 3. Set address and port in command actor 
+    # 3. Set address and port in command actor
     command_actors: List[CommandActor] = []
     # address, port = get_address_and_port()
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
         actors_for_this_group = []
-
 
         for rank in range(world_size):
 
@@ -127,12 +125,13 @@ def create_command_actors(
                 ).remote(actors[i].command, actor_and_rank_env)
             )
 
-            rank_0_address, rank_0_port = ray.get(actors_for_this_group[0].get_actor_address_and_port.remote())
-
+            rank_0_address, rank_0_port = ray.get(
+                actors_for_this_group[0].get_actor_address_and_port.remote()
+            )
 
             for actor in actors_for_this_group:
                 ray.get(actor.set_address_and_port.remote(rank_0_address, rank_0_port))
-            
+
             command_actors.extend(actors_for_this_group)
 
     return command_actors
@@ -168,7 +167,7 @@ if __name__ == "__main__":  # pragma: no cover
                 _logger.info("Ray remote function promise succesfully returned")
 
             # If an error occurs during the actor execution, this error will get propagated as-is to the driver when you call ray.get().
-            # For example, if a ValueError is raised in the actor method call, this will be raised as a ValueError on the driver. 
+            # For example, if a ValueError is raised in the actor method call, this will be raised as a ValueError on the driver.
             # These exceptions will not be caught in this try-except clause
             except ray.exceptions.RayActorError as exc:
                 _logger.info("Ray Actor Error")

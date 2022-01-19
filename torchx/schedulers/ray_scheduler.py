@@ -186,7 +186,7 @@ if _has_ray:
                 )
 
             except Exception as e:
-                raise 
+                raise
 
             finally:
                 rmtree(dirpath)
