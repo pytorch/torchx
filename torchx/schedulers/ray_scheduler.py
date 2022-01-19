@@ -156,7 +156,7 @@ if _has_ray:
             if cfg.dashboard_address:
                 ip_address = cfg.dashboard_address
 
-            # Create Job Client
+            # 0. Create Job Client
             client: JobSubmissionClient = JobSubmissionClient(f"http://{ip_address}")
 
             # 1. Copy working directory
@@ -175,17 +175,24 @@ if _has_ray:
                     for line in f:
                         reqs.append(line.strip())
 
-            job_id: str = client.submit_job(
-                # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
-                # and use it to configure your job execution.
-                entrypoint="python ray_driver.py",
-                runtime_env={"working_dir": dirpath, "pip": reqs},
-                # job_id = cfg.app_id
-            )
-            rmtree(dirpath)
+            # 4. Submit Job via the Ray Job Submission API
+            try:
+                job_id: str = client.submit_job(
+                    # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
+                    # and use it to configure your job execution.
+                    entrypoint="python ray_driver.py",
+                    runtime_env={"working_dir": dirpath, "pip": reqs},
+                    # job_id = cfg.app_id
+                )
 
-            # Encode job submission client in job_id
-            return f"{ip_address}-{job_id}"
+            except Exception as e:
+                raise 
+
+            finally:
+                rmtree(dirpath)
+
+                # Encode job submission client in job_id
+                return f"{ip_address}-{job_id}"
 
         def _submit_dryrun(
             self, app: AppDef, cfg: Mapping[str, CfgVal]
@@ -278,7 +285,6 @@ if _has_ray:
         def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover
             addr, app_id = app_id.split("-")
             client = JobSubmissionClient(f"http://{addr}")
-            logs = client.get_job_logs(app_id)
             client.stop_job(app_id)
 
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:

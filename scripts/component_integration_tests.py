@@ -40,7 +40,6 @@ def get_k8s_sched_info(image: str) -> SchedulerInfo:
 def get_ray_sched_info(image: str) -> SchedulerInfo:
     cfg = {
         "namespace": "torchx-dev",
-        "queue": "default",
     }
     return SchedulerInfo(name="ray", image=image, cfg=cfg)
 

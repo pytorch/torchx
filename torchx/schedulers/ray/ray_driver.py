@@ -10,7 +10,7 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import ray
 from ray.train.utils import get_address_and_port
@@ -46,6 +46,14 @@ class CommandActor:  # pragma: no cover
             train = importlib.util.module_from_spec(spec)
             with redirect_argv(self.args):
                 spec.loader.exec_module(train)  # pyre-ignore[16]
+    
+    def get_actor_address_and_port(self) -> Tuple[str, int]:
+        return get_address_and_port()
+    
+    def set_address_and_port(self, address: str, port: int) -> None:
+        os.environ["MASTER_PORT"] = str(port) 
+        os.environ["MASTER_ADDR"] = address
+
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
@@ -65,7 +73,8 @@ def create_placement_groups(actors: List[RayActor]) -> List[PlacementGroup]:
         bundle = {"CPU": actor.num_cpus, "GPU": actor.num_gpus}
         bundles = [bundle] * actor.num_replicas
 
-        # To change the strategy type refer to available options here https://docs.ray.io/en/latest/placement-group.html#pgroup-strategy
+        # To change the strategy type 
+        # refer to available options here https://docs.ray.io/en/latest/placement-group.html#pgroup-strategy
         pg = ray.util.placement_group(bundles, strategy="SPREAD")
         pgs.append(pg)
 
@@ -89,36 +98,51 @@ def create_placement_groups(actors: List[RayActor]) -> List[PlacementGroup]:
 def create_command_actors(
     actors: List[RayActor], pgs: List[PlacementGroup]
 ) -> List[CommandActor]:
+
+    # 1. Create actors
+    # 2. For each actor get rank 0 address and port
+    # 3. Set address and port in command actor 
     command_actors: List[CommandActor] = []
-    address, port = get_address_and_port()
+    # address, port = get_address_and_port()
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
+        actors_for_this_group = []
+
 
         for rank in range(world_size):
 
             # Environment variables for distributed training
             rank_env = {
                 "WORLD_SIZE": str(world_size),
-                "MASTER_PORT": str(port),
-                "MASTER_ADDR": address,
                 "RANK": str(rank),
             }
 
             actor_and_rank_env = {**actors[i].env, **rank_env}
 
-            command_actors.append(
+            actors_for_this_group.append(
                 CommandActor.options(  # pyre-ignore[16]
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
                     num_gpus=actors[i].num_gpus,
                 ).remote(actors[i].command, actor_and_rank_env)
             )
+
+            rank_0_address, rank_0_port = ray.get(actors_for_this_group[0].get_actor_address_and_port.remote())
+
+
+            for actor in actors_for_this_group:
+                ray.get(actor.set_address_and_port.remote(rank_0_address, rank_0_port))
+            
+            command_actors.extend(actors_for_this_group)
+
     return command_actors
 
 
 if __name__ == "__main__":  # pragma: no cover
     _logger.debug("Reading actor.json")
+
     actors: List[RayActor] = load_actor_json("actors.json")
+    os.remove("actors.json")
 
     _logger.debug("Creating Ray placement groups")
     ray.init(address="auto", namespace="torchx-ray")
@@ -142,6 +166,10 @@ if __name__ == "__main__":  # pragma: no cover
             try:
                 ray.get(object_ref)
                 _logger.info("Ray remote function promise succesfully returned")
+
+            # If an error occurs during the actor execution, this error will get propagated as-is to the driver when you call ray.get().
+            # For example, if a ValueError is raised in the actor method call, this will be raised as a ValueError on the driver. 
+            # These exceptions will not be caught in this try-except clause
             except ray.exceptions.RayActorError as exc:
                 _logger.info("Ray Actor Error")
                 _logger.error("Ray Actor error", exc)
