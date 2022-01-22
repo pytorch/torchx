@@ -51,6 +51,11 @@ SLURM_STATES: Mapping[str, AppState] = {
     "TIMEOUT": AppState.FAILED,
 }
 
+SBATCH_OPTIONS = {
+    "partition",
+    "time",
+}
+
 
 def _apply_app_id_env(s: str) -> str:
     """
@@ -68,7 +73,6 @@ class SlurmReplicaRequest:
     """
 
     name: str
-    dir: str
     entrypoint: str
     args: List[str]
     srun_opts: Dict[str, str]
@@ -79,21 +83,25 @@ class SlurmReplicaRequest:
     def from_role(
         cls, name: str, role: Role, cfg: Mapping[str, CfgVal]
     ) -> "SlurmReplicaRequest":
-        sbatch_opts = {k: str(v) for k, v in cfg.items() if v is not None}
+        sbatch_opts = {}
+        for k, v in cfg.items():
+            if v is None:
+                continue
+            if k in SBATCH_OPTIONS:
+                sbatch_opts[k] = str(v)
         sbatch_opts.setdefault("ntasks-per-node", "1")
         resource = role.resource
 
         if resource != NONE:
             if resource.cpu > 0:
                 sbatch_opts.setdefault("cpus-per-task", str(resource.cpu))
-            if resource.memMB > 0:
+            if not cfg.get("nomem") and resource.memMB > 0:
                 sbatch_opts.setdefault("mem", str(resource.memMB))
             if resource.gpu > 0:
                 sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
 
         return cls(
             name=name,
-            dir=role.image,
             entrypoint=role.entrypoint,
             args=list(role.args),
             sbatch_opts=sbatch_opts,
@@ -109,11 +117,9 @@ class SlurmReplicaRequest:
         sbatch_args = [
             f"--job-name={self.name}",
         ] + [f"--{key}={value}" for key, value in self.sbatch_opts.items()]
-        srun_args = (
-            [f"--chdir={self.dir}"]
-            + [f"--{key}={value}" for key, value in self.srun_opts.items()]
-            + [f"--export={key}={value}" for key, value in self.env.items()]
-        )
+        srun_args = [f"--{key}={value}" for key, value in self.srun_opts.items()] + [
+            f"--export={key}={value}" for key, value in self.env.items()
+        ]
 
         srun_group = srun_args + [self.entrypoint] + self.args
         srun_group = [_apply_app_id_env(arg) for arg in srun_group]
@@ -172,9 +178,13 @@ class SlurmScheduler(Scheduler):
 
     Logs are written to the default slurm log file.
 
-    Any scheduler options passed to it are added as SBATCH arguments to each
+    Some of the config options passed to it are added as SBATCH arguments to each
     replica. See https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS for info
     on the arguments.
+
+    Slurm jobs inherit the currently active ``conda`` or ``virtualenv`` and run
+    in the current working directory. This matches the behavior of the
+    ``local_cwd`` scheduler.
 
     For more info see:
 
@@ -218,6 +228,12 @@ class SlurmScheduler(Scheduler):
             type_=str,
             default=None,
             help="The maximum time the job is allowed to run for.",
+        )
+        opts.add(
+            "nomem",
+            type_=bool,
+            default=False,
+            help="disables memory request to workaround https://github.com/aws/aws-parallelcluster/issues/2198",
         )
         return opts
 
