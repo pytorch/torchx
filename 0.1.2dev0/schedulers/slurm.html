@@ -378,9 +378,12 @@ Each replica of each role has a unique shell script generated with it’s
 resource allocations and args and then sbatch is used to launch all of them
 together.</p>
 <p>Logs are written to the default slurm log file.</p>
-<p>Any scheduler options passed to it are added as SBATCH arguments to each
+<p>Some of the config options passed to it are added as SBATCH arguments to each
 replica. See <a class="reference external" href="https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS">https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS</a> for info
 on the arguments.</p>
+<p>Slurm jobs inherit the currently active <code class="docutils literal notranslate"><span class="pre">conda</span></code> or <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> and run
+in the current working directory. This matches the behavior of the
+<code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler.</p>
 <p>For more info see:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://slurm.schedmd.com/sbatch.html">https://slurm.schedmd.com/sbatch.html</a></p></li>
