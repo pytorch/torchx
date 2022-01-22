@@ -54,7 +54,21 @@ class SlurmSchedulerTest(unittest.TestCase):
         )
         self.assertEqual(
             srun,
-            ["--chdir=/some/path", "--export=FOO=bar", "echo", "'hello slurm'", "test"],
+            ["--export=FOO=bar", "echo", "'hello slurm'", "test"],
+        )
+
+        # test nomem option
+        sbatch, srun = SlurmReplicaRequest.from_role(
+            "role-name", role, cfg={"nomem": True}
+        ).materialize()
+        self.assertEqual(
+            sbatch,
+            [
+                "--job-name=role-name",
+                "--ntasks-per-node=1",
+                "--cpus-per-task=2",
+                "--gpus-per-task=3",
+            ],
         )
 
     def test_replica_request_app_id(self) -> None:
@@ -135,9 +149,9 @@ class SlurmSchedulerTest(unittest.TestCase):
 # exit on error
 set -e
 
-srun --chdir=/some/path echo 0 'hello '"$SLURM_JOB_ID"'' :\\
-     --chdir=/some/path echo 1 'hello '"$SLURM_JOB_ID"'' :\\
-     --chdir=/some/path echo
+srun echo 0 'hello '"$SLURM_JOB_ID"'' :\\
+     echo 1 'hello '"$SLURM_JOB_ID"'' :\\
+     echo
 """,
         )
 
