@@ -18,12 +18,12 @@ source "$VENV"/bin/activate
 python --version
 pip install "$REMOTE_WHEEL"
 
-APP_ID="$(torchx run --wait --scheduler slurm --scheduler_args partition=compute,time=10 utils.echo --image /tmp --num_replicas 3)"
+APP_ID="$(torchx run --wait --scheduler slurm --scheduler_args partition=compute,time=10 utils.echo --num_replicas 3)"
 torchx status "$APP_ID"
 torchx describe "$APP_ID"
-LOG_FILE="slurm-$(basename "$APP_ID").out"
-cat "$LOG_FILE"
-LINES="$(wc -l "$LOG_FILE" | cut -d' ' -f1)"
+sacct -j "$(basename "$APP_ID")"
+torchx log "$APP_ID"
+LINES="$(torchx log "$APP_ID" | wc -l)"
 
 if [ "$LINES" -ne 3 ]
 then

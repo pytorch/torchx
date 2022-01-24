@@ -15,10 +15,13 @@ import os.path
 import shlex
 import subprocess
 import tempfile
+import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Iterable
 
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.local_scheduler import LogIterator
 from torchx.specs import (
     NONE,
     AppDef,
@@ -100,14 +103,27 @@ class SlurmReplicaRequest:
             if resource.gpu > 0:
                 sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
 
+        srun_opts = {
+            "output": f"slurm-{macros.app_id}-{name}.out",
+        }
+
         return cls(
             name=name,
             entrypoint=role.entrypoint,
             args=list(role.args),
             sbatch_opts=sbatch_opts,
-            srun_opts={},
+            srun_opts=srun_opts,
             env=dict(role.env),
         )
+
+    def _opts_to_strs(self, opts: Dict[str, str]) -> List[str]:
+        out = []
+        for key, value in opts.items():
+            if value is not None:
+                out.append(f"--{key}={value}")
+            else:
+                out.append(f"--{key}")
+        return out
 
     def materialize(self) -> Tuple[List[str], List[str]]:
         """
@@ -116,10 +132,12 @@ class SlurmReplicaRequest:
         """
         sbatch_args = [
             f"--job-name={self.name}",
-        ] + [f"--{key}={value}" for key, value in self.sbatch_opts.items()]
-        srun_args = [f"--{key}={value}" for key, value in self.srun_opts.items()] + [
-            f"--export={key}={value}" for key, value in self.env.items()
-        ]
+        ] + self._opts_to_strs(self.sbatch_opts)
+        srun_args = self._opts_to_strs(self.srun_opts)
+
+        if len(self.env) > 0:
+            kvs = [f"{key}={value}" for key, value in self.env.items()]
+            srun_args += ["--export=ALL," + ",".join(kvs)]
 
         srun_group = srun_args + [self.entrypoint] + self.args
         srun_group = [_apply_app_id_env(arg) for arg in srun_group]
@@ -160,6 +178,9 @@ class SlurmBatchRequest:
 # exit on error
 set -e
 
+export PYTHONUNBUFFERED=1
+export SLURM_UNBUFFEREDIO=1
+
 srun {" ".join(srun_groups)}
 """
         sbatch_cmd = self.cmd + sbatch_groups
@@ -176,7 +197,11 @@ class SlurmScheduler(Scheduler):
     resource allocations and args and then sbatch is used to launch all of them
     together.
 
-    Logs are written to the default slurm log file.
+    Logs are available in combined form via ``torchx log``, the programmatic API
+    as well as in the job launch directory as
+    ``slurm-<jobid>-<role>-<replica_id>.out``. If TorchX is running in a
+    different directory than where the job was created the logs won't be able to
+    be found.
 
     Some of the config options passed to it are added as SBATCH arguments to each
     replica. See https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS for info
@@ -203,9 +228,7 @@ class SlurmScheduler(Scheduler):
         type: scheduler
         features:
             cancel: true
-            logs: |
-                Logs are accessible via the default slurm log file but not the
-                programmatic API.
+            logs: true
             distributed: true
             describe: |
                 Partial support. SlurmScheduler will return job and replica
@@ -262,7 +285,7 @@ class SlurmScheduler(Scheduler):
                     app_id=macros.app_id,
                     replica_id=str(replica_id),
                 )
-                name = f"{app.name}-{role.name}-{replica_id}"
+                name = f"{role.name}-{replica_id}"
                 replica_role = values.apply(role)
                 replicas[name] = SlurmReplicaRequest.from_role(name, replica_role, cfg)
         req = SlurmBatchRequest(
@@ -308,19 +331,19 @@ class SlurmScheduler(Scheduler):
             ), f"failed to translate slurm state {state} to torchx state"
             app_state = state_enum
 
-            name_parts = row["JobName"].split("-")
-            if len(name_parts) < 3:
+            role, _, replica_id = row["JobName"].rpartition("-")
+            if not replica_id or not role:
                 # name should always have at least 3 parts but sometimes sacct
                 # is slow to update
                 continue
-            role = name_parts[-2]
-            replica_id = int(name_parts[-1])
             if role not in roles:
                 roles[role] = Role(name=role, num_replicas=0, image="")
                 roles_statuses[role] = RoleStatus(role, [])
             roles[role].num_replicas += 1
             roles_statuses[role].replicas.append(
-                ReplicaStatus(id=replica_id, role=role, state=app_state, hostname=""),
+                ReplicaStatus(
+                    id=int(replica_id), role=role, state=app_state, hostname=""
+                ),
             )
 
         return DescribeAppResponse(
@@ -329,6 +352,34 @@ class SlurmScheduler(Scheduler):
             roles_statuses=list(roles_statuses.values()),
             state=app_state,
             msg=msg,
+        )
+
+    def log_iter(
+        self,
+        app_id: str,
+        role_name: str,
+        k: int = 0,
+        regex: Optional[str] = None,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+        should_tail: bool = False,
+        streams: Optional[Stream] = None,
+    ) -> Iterable[str]:
+        if since or until:
+            warnings.warn(
+                "since and/or until times specified for SlurmScheduler.log_iter."
+                " These will be ignored and all log lines will be returned"
+            )
+        if streams is not None and streams != Stream.COMBINED:
+            warnings.warn(
+                "streams specified for SlurmScheduler.log_iter."
+                " These will be ignored and all log lines will be returned"
+            )
+
+        log_file = f"slurm-{app_id}-{role_name}-{k}.out"
+
+        return LogIterator(
+            app_id, regex or ".*", log_file, self, should_tail=should_tail
         )
 
 

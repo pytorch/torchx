@@ -4,18 +4,34 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import datetime
+import os
 import subprocess
+import tempfile
 import unittest
+from contextlib import contextmanager
+from typing import Generator
 from unittest.mock import MagicMock, call, patch
 
 from torchx import specs
-from torchx.schedulers.api import DescribeAppResponse
+from torchx.schedulers.api import DescribeAppResponse, Stream
 from torchx.schedulers.slurm_scheduler import (
     SlurmBatchRequest,
     SlurmReplicaRequest,
     SlurmScheduler,
     create_scheduler,
 )
+
+
+@contextmanager
+def tmp_cwd() -> Generator[None, None, None]:
+    with tempfile.TemporaryDirectory() as path:
+        cwd = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(cwd)
 
 
 class SlurmSchedulerTest(unittest.TestCase):
@@ -40,12 +56,12 @@ class SlurmSchedulerTest(unittest.TestCase):
             ),
         )
         sbatch, srun = SlurmReplicaRequest.from_role(
-            "role-name", role, cfg={}
+            "role-0", role, cfg={}
         ).materialize()
         self.assertEqual(
             sbatch,
             [
-                "--job-name=role-name",
+                "--job-name=role-0",
                 "--ntasks-per-node=1",
                 "--cpus-per-task=2",
                 "--mem=10",
@@ -54,7 +70,13 @@ class SlurmSchedulerTest(unittest.TestCase):
         )
         self.assertEqual(
             srun,
-            ["--export=FOO=bar", "echo", "'hello slurm'", "test"],
+            [
+                '--output=slurm-"$SLURM_JOB_ID"-role-0.out',
+                "--export=ALL,FOO=bar",
+                "echo",
+                "'hello slurm'",
+                "test",
+            ],
         )
 
         # test nomem option
@@ -133,25 +155,28 @@ class SlurmSchedulerTest(unittest.TestCase):
         self.assertEqual(req.cmd, ["sbatch", "--parsable"])
         self.assertEqual(
             set(req.replicas.keys()),
-            {"foo-a-0", "foo-a-1", "foo-b-0"},
+            {"a-0", "a-1", "b-0"},
         )
 
         script = req.materialize()
         self.assertEqual(
             script,
             """#!/bin/bash
-#SBATCH --job-name=foo-a-0 --ntasks-per-node=1
+#SBATCH --job-name=a-0 --ntasks-per-node=1
 #SBATCH hetjob
-#SBATCH --job-name=foo-a-1 --ntasks-per-node=1
+#SBATCH --job-name=a-1 --ntasks-per-node=1
 #SBATCH hetjob
-#SBATCH --job-name=foo-b-0 --ntasks-per-node=1
+#SBATCH --job-name=b-0 --ntasks-per-node=1
 
 # exit on error
 set -e
 
-srun echo 0 'hello '"$SLURM_JOB_ID"'' :\\
-     echo 1 'hello '"$SLURM_JOB_ID"'' :\\
-     echo
+export PYTHONUNBUFFERED=1
+export SLURM_UNBUFFEREDIO=1
+
+srun --output=slurm-"$SLURM_JOB_ID"-a-0.out echo 0 'hello '"$SLURM_JOB_ID"'' :\\
+     --output=slurm-"$SLURM_JOB_ID"-a-1.out echo 1 'hello '"$SLURM_JOB_ID"'' :\\
+     --output=slurm-"$SLURM_JOB_ID"-b-0.out echo
 """,
         )
 
@@ -205,33 +230,80 @@ srun echo 0 'hello '"$SLURM_JOB_ID"'' :\\
     @patch("subprocess.run")
     def test_describe_completed(self, run: MagicMock) -> None:
         run.return_value.stdout = b"""
-JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode|
-176+0|echo-echo-0|compute||1|COMPLETED|0:0|
-176+0.batch|batch|||1|COMPLETED|0:0|
-176+0.0|echo|||1|COMPLETED|0:0|
-176+1|echo-echo-1|compute||1|COMPLETED|0:0|
-176+1.0|echo|||1|COMPLETED|0:0|
-176+2|echo-echo-2|compute||1|COMPLETED|0:0|
-176+2.0|echo|||1|COMPLETED|0:0|
+JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
+1853+0|echo-0|compute||1|COMPLETED|0:0
+1853+0.batch|batch|||1|COMPLETED|0:0
+1853+0.0|echo|||1|COMPLETED|0:0
+1853+1|echo-1|compute||1|COMPLETED|0:0
+1853+1.0|echo|||1|COMPLETED|0:0
+1853+2|echo-2|compute||1|COMPLETED|0:0
+1853+2.0|echo|||1|COMPLETED|0:0
 """.strip()
 
         scheduler = create_scheduler("foo")
-        out = scheduler.describe(app_id="176")
+        out = scheduler.describe(app_id="1853")
 
         self.assertEqual(run.call_count, 1)
         self.assertEqual(
             run.call_args,
             call(
-                ["sacct", "--parsable2", "-j", "176"],
+                ["sacct", "--parsable2", "-j", "1853"],
                 stdout=subprocess.PIPE,
                 check=True,
             ),
         )
 
         self.assertIsNotNone(out)
-        self.assertEqual(out.app_id, "176")
+        self.assertEqual(out.app_id, "1853")
         self.assertEqual(out.msg, "COMPLETED")
         self.assertEqual(out.state, specs.AppState.SUCCEEDED)
+        self.assertEqual(
+            out.roles,
+            [
+                specs.Role(
+                    name="echo",
+                    image="",
+                    num_replicas=3,
+                )
+            ],
+        )
+
+    @patch("subprocess.run")
+    def test_describe_single_replica(self, run: MagicMock) -> None:
+        run.return_value.stdout = b"""
+JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
+1902|sh-0|compute||1|FAILED|2:0
+1902.batch|batch|||1|FAILED|2:0
+1902.0|sh|||1|FAILED|2:0
+""".strip()
+
+        scheduler = create_scheduler("foo")
+        out = scheduler.describe(app_id="1902")
+
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(
+            run.call_args,
+            call(
+                ["sacct", "--parsable2", "-j", "1902"],
+                stdout=subprocess.PIPE,
+                check=True,
+            ),
+        )
+
+        self.assertIsNotNone(out)
+        self.assertEqual(out.app_id, "1902")
+        self.assertEqual(out.msg, "FAILED")
+        self.assertEqual(out.state, specs.AppState.FAILED)
+        self.assertEqual(
+            out.roles,
+            [
+                specs.Role(
+                    name="sh",
+                    image="",
+                    num_replicas=1,
+                )
+            ],
+        )
 
     @patch("subprocess.run")
     def test_describe_running(self, run: MagicMock) -> None:
@@ -253,3 +325,22 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode|
         self.assertEqual(out.app_id, "54")
         self.assertEqual(out.msg, "RUNNING")
         self.assertEqual(out.state, specs.AppState.RUNNING)
+
+    @patch("subprocess.run")
+    def test_log_iter(self, run: MagicMock) -> None:
+        scheduler = create_scheduler("foo")
+
+        with tmp_cwd():
+            with open("slurm-54-echo-1.out", "wt") as f:
+                f.write("hello\nworld\n")
+
+            logs = list(
+                scheduler.log_iter(
+                    "54",
+                    "echo",
+                    1,
+                    streams=Stream.STDERR,
+                    since=datetime.datetime.now(),
+                )
+            )
+            self.assertEqual(logs, ["hello", "world"])
