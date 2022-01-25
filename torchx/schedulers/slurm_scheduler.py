@@ -199,6 +199,13 @@ class SlurmScheduler(Scheduler):
         $ less slurm-1234.out
         ...
 
+    **Config Options**
+
+    .. runopts::
+        class: torchx.schedulers.slurm_scheduler.SlurmScheduler
+
+    **Compatibility**
+
     .. compatibility::
         type: scheduler
         features:
@@ -210,6 +217,7 @@ class SlurmScheduler(Scheduler):
             describe: |
                 Partial support. SlurmScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
+
     """
 
     def __init__(self, session_name: str) -> None:
