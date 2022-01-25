@@ -909,14 +909,19 @@ class LocalScheduler(Scheduler):
 
 class LogIterator:
     def __init__(
-        self, app_id: str, regex: str, log_file: str, scheduler: LocalScheduler
+        self,
+        app_id: str,
+        regex: str,
+        log_file: str,
+        scheduler: Scheduler,
+        should_tail: bool = True,
     ) -> None:
         self._app_id: str = app_id
         self._regex: Pattern[str] = re.compile(regex)
         self._log_file: str = log_file
         self._log_fp: Optional[TextIO] = None
-        self._scheduler: LocalScheduler = scheduler
-        self._app_finished: bool = False
+        self._scheduler: Scheduler = scheduler
+        self._app_finished: bool = not should_tail
 
     def _check_finished(self) -> None:
         # either the app (already finished) was evicted from the LRU cache
