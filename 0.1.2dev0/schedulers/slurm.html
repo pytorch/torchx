@@ -377,7 +377,11 @@ that slurm CLI tools are locally installed and job accounting is enabled.</p>
 Each replica of each role has a unique shell script generated with it’s
 resource allocations and args and then sbatch is used to launch all of them
 together.</p>
-<p>Logs are written to the default slurm log file.</p>
+<p>Logs are available in combined form via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">log</span></code>, the programmatic API
+as well as in the job launch directory as
+<code class="docutils literal notranslate"><span class="pre">slurm-&lt;jobid&gt;-&lt;role&gt;-&lt;replica_id&gt;.out</span></code>. If TorchX is running in a
+different directory than where the job was created the logs won’t be able to
+be found.</p>
 <p>Some of the config options passed to it are added as SBATCH arguments to each
 replica. See <a class="reference external" href="https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS">https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS</a> for info
 on the arguments.</p>
@@ -408,9 +412,7 @@ $ less slurm-1234.out
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Fetch Logs</p></td>
-<td><p>Logs are accessible via the default slurm log file but not the
-programmatic API.
-</p></td>
+<td><p>✔️</p></td>
 </tr>
 <tr class="row-odd"><td><p>Distributed Jobs</p></td>
 <td><p>✔️</p></td>
@@ -431,6 +433,68 @@ status but does not provide the complete original AppSpec.</p></td>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>AppDef description or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the app does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter">
+<span class="sig-name descname"><span class="pre">log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime.datetime</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime.datetime</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_tail</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.Stream</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.log_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator to the log lines of the <code class="docutils literal notranslate"><span class="pre">k``th</span> <span class="pre">replica</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">``role</span></code>.
+The iterator ends end all qualifying log lines have been read.</p>
+<p>If the scheduler supports time-based cursors fetching log lines
+for custom time ranges, then the <code class="docutils literal notranslate"><span class="pre">since</span></code>, <code class="docutils literal notranslate"><span class="pre">until</span></code> fields are
+honored, otherwise they are ignored. Not specifying <code class="docutils literal notranslate"><span class="pre">since</span></code> and <code class="docutils literal notranslate"><span class="pre">until</span></code>
+is equivalent to getting all available log lines. If the <code class="docutils literal notranslate"><span class="pre">until</span></code> is
+empty, then the iterator behaves like <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">-f</span></code>, following the log output
+until the job reaches a terminal state.</p>
+<p>The exact definition of what constitutes a log is scheduler specific. Some
+schedulers may consider stderr or stdout as the log, others may read the logs
+from a log file.</p>
+<p>Behaviors and assumptions:</p>
+<ol class="arabic simple">
+<li><p>Produces an undefined-behavior if called on an app that does not exist
+The caller should check that the app exists using <code class="docutils literal notranslate"><span class="pre">exists(app_id)</span></code>
+prior to calling this method.</p></li>
+<li><p>Is not stateful, calling this method twice with same parameters
+returns a new iterator. Prior iteration
+progress is lost.</p></li>
+<li><p>Does not always support log-tailing. Not all schedulers support live
+log iteration (e.g. tailing logs while the app is running). Refer to
+the specific scheduler’s documentation for the iterator’s behavior.</p></li>
+</ol>
+<dl class="simple">
+<dt>3.1 If the scheduler supports log-tailing, it should be controlled</dt><dd><p>by``should_tail`` parameter.</p>
+</dd>
+</dl>
+<ol class="arabic" start="4">
+<li><p>Does not guarantee log retention. It is possible that by the time this
+method is called, the underlying scheduler may have purged the log records
+for this application. If so this method raises an arbitrary exception.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">should_tail</span></code> is True, the method only raises a <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code> exception
+when the accessible log lines have been fully exhausted and the app has reached
+a final state. For instance, if the app gets stuck and does not produce any log lines,
+then the iterator blocks until the app eventually gets killed (either via
+timeout or manually) at which point it raises a <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">should_tail</span></code> is False, the method raises <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code>
+when there are no more logs.</p>
+</li>
+<li><p>Need not be supported by all schedulers.</p></li>
+<li><p>Some schedulers may support line cursors by supporting <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>
+(e.g. <code class="docutils literal notranslate"><span class="pre">iter[50]</span></code> seeks to the 50th log line).</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>streams</strong> – The IO output streams to select.
+One of: combined, stdout, stderr.
+If the selected stream isn’t supported by the scheduler it will
+throw an ValueError.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An <code class="docutils literal notranslate"><span class="pre">Iterator</span></code> over log lines of the specified role replica</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – if the scheduler does not support log iteration</p>
 </dd>
 </dl>
 </dd></dl>

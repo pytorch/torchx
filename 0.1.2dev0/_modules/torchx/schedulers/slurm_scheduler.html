@@ -379,10 +379,13 @@
 <span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span>
 
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">AppDryRunInfo</span><span class="p">,</span> <span class="n">DescribeAppResponse</span><span class="p">,</span> <span class="n">Scheduler</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">AppDryRunInfo</span><span class="p">,</span> <span class="n">DescribeAppResponse</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">,</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.local_scheduler</span> <span class="kn">import</span> <span class="n">LogIterator</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">NONE</span><span class="p">,</span>
     <span class="n">AppDef</span><span class="p">,</span>
@@ -464,14 +467,27 @@
             <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;gpus-per-task&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
 
+        <span class="n">srun_opts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;slurm-</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.out&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">entrypoint</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">,</span>
             <span class="n">args</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">),</span>
             <span class="n">sbatch_opts</span><span class="o">=</span><span class="n">sbatch_opts</span><span class="p">,</span>
-            <span class="n">srun_opts</span><span class="o">=</span><span class="p">{},</span>
+            <span class="n">srun_opts</span><span class="o">=</span><span class="n">srun_opts</span><span class="p">,</span>
             <span class="n">env</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">),</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_opts_to_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
 
     <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -480,10 +496,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sbatch_args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="sa">f</span><span class="s2">&quot;--job-name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbatch_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
-        <span class="n">srun_args</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">srun_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span> <span class="o">+</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;--export=</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">]</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts_to_strs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sbatch_opts</span><span class="p">)</span>
+        <span class="n">srun_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts_to_strs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">srun_opts</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">kvs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="n">srun_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--export=ALL,&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kvs</span><span class="p">)]</span>
 
         <span class="n">srun_group</span> <span class="o">=</span> <span class="n">srun_args</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span>
         <span class="n">srun_group</span> <span class="o">=</span> <span class="p">[</span><span class="n">_apply_app_id_env</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">srun_group</span><span class="p">]</span>
@@ -524,6 +542,9 @@
 <span class="s2"># exit on error</span>
 <span class="s2">set -e</span>
 
+<span class="s2">export PYTHONUNBUFFERED=1</span>
+<span class="s2">export SLURM_UNBUFFEREDIO=1</span>
+
 <span class="s2">srun </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srun_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="n">sbatch_cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+</span> <span class="n">sbatch_groups</span>
@@ -540,7 +561,11 @@
 <span class="sd">    resource allocations and args and then sbatch is used to launch all of them</span>
 <span class="sd">    together.</span>
 
-<span class="sd">    Logs are written to the default slurm log file.</span>
+<span class="sd">    Logs are available in combined form via ``torchx log``, the programmatic API</span>
+<span class="sd">    as well as in the job launch directory as</span>
+<span class="sd">    ``slurm-&lt;jobid&gt;-&lt;role&gt;-&lt;replica_id&gt;.out``. If TorchX is running in a</span>
+<span class="sd">    different directory than where the job was created the logs won&#39;t be able to</span>
+<span class="sd">    be found.</span>
 
 <span class="sd">    Some of the config options passed to it are added as SBATCH arguments to each</span>
 <span class="sd">    replica. See https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS for info</span>
@@ -567,9 +592,7 @@
 <span class="sd">        type: scheduler</span>
 <span class="sd">        features:</span>
 <span class="sd">            cancel: true</span>
-<span class="sd">            logs: |</span>
-<span class="sd">                Logs are accessible via the default slurm log file but not the</span>
-<span class="sd">                programmatic API.</span>
+<span class="sd">            logs: true</span>
 <span class="sd">            distributed: true</span>
 <span class="sd">            describe: |</span>
 <span class="sd">                Partial support. SlurmScheduler will return job and replica</span>
@@ -626,7 +649,7 @@
                     <span class="n">app_id</span><span class="o">=</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">,</span>
                     <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
                 <span class="p">)</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
                 <span class="n">replicas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SlurmReplicaRequest</span><span class="o">.</span><span class="n">from_role</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">SlurmBatchRequest</span><span class="p">(</span>
@@ -672,19 +695,19 @@
             <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;failed to translate slurm state </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2"> to torchx state&quot;</span>
             <span class="n">app_state</span> <span class="o">=</span> <span class="n">state_enum</span>
 
-            <span class="n">name_parts</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;JobName&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">role</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">replica_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;JobName&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">replica_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">role</span><span class="p">:</span>
                 <span class="c1"># name should always have at least 3 parts but sometimes sacct</span>
                 <span class="c1"># is slow to update</span>
                 <span class="k">continue</span>
-            <span class="n">role</span> <span class="o">=</span> <span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">replica_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">name_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
                 <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleStatus</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">ReplicaStatus</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">replica_id</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">ReplicaStatus</span><span class="p">(</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+                <span class="p">),</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
@@ -693,6 +716,34 @@
             <span class="n">roles_statuses</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles_statuses</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
             <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span>
             <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SlurmScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">since</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">until</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">should_tail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">streams</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stream</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">since</span> <span class="ow">or</span> <span class="n">until</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;since and/or until times specified for SlurmScheduler.log_iter.&quot;</span>
+                <span class="s2">&quot; These will be ignored and all log lines will be returned&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">streams</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">streams</span> <span class="o">!=</span> <span class="n">Stream</span><span class="o">.</span><span class="n">COMBINED</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;streams specified for SlurmScheduler.log_iter.&quot;</span>
+                <span class="s2">&quot; These will be ignored and all log lines will be returned&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">log_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;slurm-</span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">.out&quot;</span>
+
+        <span class="k">return</span> <span class="n">LogIterator</span><span class="p">(</span>
+            <span class="n">app_id</span><span class="p">,</span> <span class="n">regex</span> <span class="ow">or</span> <span class="s2">&quot;.*&quot;</span><span class="p">,</span> <span class="n">log_file</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">should_tail</span><span class="o">=</span><span class="n">should_tail</span>
         <span class="p">)</span></div></div>
 
 
