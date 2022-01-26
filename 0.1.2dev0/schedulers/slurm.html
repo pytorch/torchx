@@ -400,6 +400,20 @@ $ less slurm-1234.out
 ...
 </pre></div>
 </div>
+<p><strong>Config Options</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
+        <span class="p">[</span><span class="n">partition</span><span class="o">=</span><span class="n">PARTITION</span><span class="p">],[</span><span class="n">time</span><span class="o">=</span><span class="n">TIME</span><span class="p">],[</span><span class="n">nomem</span><span class="o">=</span><span class="n">NOMEM</span><span class="p">]</span>
+
+    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+        <span class="n">partition</span><span class="o">=</span><span class="n">PARTITION</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">The</span> <span class="n">partition</span> <span class="n">to</span> <span class="n">run</span> <span class="n">the</span> <span class="n">job</span> <span class="ow">in</span><span class="o">.</span>
+        <span class="n">time</span><span class="o">=</span><span class="n">TIME</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">The</span> <span class="n">maximum</span> <span class="n">time</span> <span class="n">the</span> <span class="n">job</span> <span class="ow">is</span> <span class="n">allowed</span> <span class="n">to</span> <span class="n">run</span> <span class="k">for</span><span class="o">.</span>
+        <span class="n">nomem</span><span class="o">=</span><span class="n">NOMEM</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">disables</span> <span class="n">memory</span> <span class="n">request</span> <span class="n">to</span> <span class="n">workaround</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">aws</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">parallelcluster</span><span class="o">/</span><span class="n">issues</span><span class="o">/</span><span class="mi">2198</span>
+</pre></div>
+</div>
+<p><strong>Compatibility</strong></p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 20%" />

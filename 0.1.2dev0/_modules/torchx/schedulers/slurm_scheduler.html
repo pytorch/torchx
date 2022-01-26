@@ -588,6 +588,13 @@
 <span class="sd">        $ less slurm-1234.out</span>
 <span class="sd">        ...</span>
 
+<span class="sd">    **Config Options**</span>
+
+<span class="sd">    .. runopts::</span>
+<span class="sd">        class: torchx.schedulers.slurm_scheduler.SlurmScheduler</span>
+
+<span class="sd">    **Compatibility**</span>
+
 <span class="sd">    .. compatibility::</span>
 <span class="sd">        type: scheduler</span>
 <span class="sd">        features:</span>
@@ -597,6 +604,7 @@
 <span class="sd">            describe: |</span>
 <span class="sd">                Partial support. SlurmScheduler will return job and replica</span>
 <span class="sd">                status but does not provide the complete original AppSpec.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

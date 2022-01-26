@@ -892,10 +892,16 @@
 <span class="sd">    .. note::</span>
 <span class="sd">        The orphan cleanup only works if `LocalScheduler` is instantiated from the main thread.</span>
 
+<span class="sd">    **Config Options**</span>
+
+<span class="sd">    .. runopts::</span>
+<span class="sd">        class: torchx.schedulers.local_scheduler.LocalScheduler</span>
+
+<span class="sd">    **Compatibility**</span>
+
 <span class="sd">    .. note::</span>
-<span class="sd">        Use this scheduler sparingly since an application that runs successfully</span>
-<span class="sd">        on a session backed by this scheduler may not work on an actual</span>
-<span class="sd">        production cluster using a different scheduler.</span>
+<span class="sd">        Due to scheduler differences jobs that run locally may not work when</span>
+<span class="sd">        using a different scheduler due to network or software dependencies.</span>
 
 <span class="sd">    .. compatibility::</span>
 <span class="sd">        type: scheduler</span>

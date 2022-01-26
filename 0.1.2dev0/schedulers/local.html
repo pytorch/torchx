@@ -394,11 +394,22 @@ purposes.</p></li>
 <p class="admonition-title">Note</p>
 <p>The orphan cleanup only works if <cite>LocalScheduler</cite> is instantiated from the main thread.</p>
 </div>
+<p><strong>Config Options</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
+        <span class="p">[</span><span class="n">log_dir</span><span class="o">=</span><span class="n">LOG_DIR</span><span class="p">],[</span><span class="n">prepend_cwd</span><span class="o">=</span><span class="n">PREPEND_CWD</span><span class="p">]</span>
+
+    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+        <span class="n">log_dir</span><span class="o">=</span><span class="n">LOG_DIR</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="nb">dir</span> <span class="n">to</span> <span class="n">write</span> <span class="n">stdout</span><span class="o">/</span><span class="n">stderr</span> <span class="n">log</span> <span class="n">files</span> <span class="n">of</span> <span class="n">replicas</span>
+        <span class="n">prepend_cwd</span><span class="o">=</span><span class="n">PREPEND_CWD</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">,</span> <span class="n">prepends</span> <span class="n">CWD</span> <span class="n">to</span> <span class="n">replica</span><span class="s1">&#39;s PATH env var making any binaries in CWD take precedence over those in PATH</span>
+</pre></div>
+</div>
+<p><strong>Compatibility</strong></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Use this scheduler sparingly since an application that runs successfully
-on a session backed by this scheduler may not work on an actual
-production cluster using a different scheduler.</p>
+<p>Due to scheduler differences jobs that run locally may not work when
+using a different scheduler due to network or software dependencies.</p>
 </div>
 <table class="docutils align-default">
 <colgroup>
