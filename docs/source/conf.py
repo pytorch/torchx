@@ -61,6 +61,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_gallery.gen_gallery",
     "compatibility",
+    "runopts",
     "nbsphinx",
     "IPython.sphinxext.ipython_console_highlighting",
 ]

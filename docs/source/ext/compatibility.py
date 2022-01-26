@@ -25,25 +25,6 @@ class CompatibilityDirective(SphinxDirective):
     has_content = True
 
     def run(self):
-        """
-        targetid = "todo-%d" % self.env.new_serialno("todo")
-        targetnode = nodes.target("", "", ids=[targetid])
-        todo_node = todo("\n".join(self.content))
-        todo_node += nodes.title(_("Todo"), _("Todo"))
-        self.state.nested_parse(self.content, self.content_offset, todo_node)
-        if not hasattr(self.env, "todo_all_todos"):
-            self.env.todo_all_todos = []
-
-        self.env.todo_all_todos.append(
-            {
-                "docname": self.env.docname,
-                "lineno": self.lineno,
-                "todo": todo_node.deepcopy(),
-                "target": targetnode,
-            }
-        )
-        """
-
         raw_content = "\n".join(self.content)
         args = yaml.safe_load(raw_content)
         fields = COMPATIBILITY_SETS[args["type"]]

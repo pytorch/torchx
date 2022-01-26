@@ -331,6 +331,13 @@ class KubernetesScheduler(Scheduler):
         $ torchx status kubernetes://torchx_user/1234
         ...
 
+    **Config Options**
+
+    .. runopts::
+        class: torchx.schedulers.kubernetes_scheduler.KubernetesScheduler
+
+    **Compatibility**
+
     .. compatibility::
         type: scheduler
         features:
