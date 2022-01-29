@@ -10,6 +10,7 @@ import os
 import sys
 import threading
 from dataclasses import asdict
+from pathlib import Path
 from pprint import pformat
 from typing import Dict, List, Optional, Tuple, Type
 
@@ -196,15 +197,19 @@ class CmdRun(SubCommand):
         run_opts = runner.run_opts()
         scheduler_opts = run_opts[args.scheduler]
         cfg = _parse_run_config(args.scheduler_args, scheduler_opts)
-        config.apply(scheduler=args.scheduler, cfg=cfg)
+        config_dirs = [str(Path.home()), str(Path.cwd())]
 
-        config_files = config.find_configs()
+        config.apply(scheduler=args.scheduler, cfg=cfg, dirs=config_dirs)
+
+        config_files = config.find_configs(dirs=config_dirs)
         workspace = (
             "file://" + os.path.dirname(config_files[0]) if config_files else None
         )
+
         component, component_args = _parse_component_name_and_args(
             args.component_name_and_args,
             none_throws(self._subparser),
+            dirs=config_dirs,
         )
 
         try:
