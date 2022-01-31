@@ -10,8 +10,8 @@ kfp==1.8.9
 moto==2.2.12
 pyre-extensions==0.0.21
 pytorch-lightning==1.5.6
-ray==1.9.0
 s3fs==2021.10.1
+ray[default]==1.9.2
 torch-model-archiver==0.4.2
 torch==1.10.0
 torchserve==0.4.2

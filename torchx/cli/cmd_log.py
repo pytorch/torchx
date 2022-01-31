@@ -28,7 +28,7 @@ ID_FORMAT = "SCHEDULER://[SESSION_NAME]/APP_ID/[ROLE_NAME/[REPLICA_IDS,...]]"
 
 
 def validate(job_identifier: str) -> None:
-    if not re.match(r"^\w+://[^/.]*/[^/.]+(/[^/.]+(/(\d+,?)+)?)?$", job_identifier):
+    if not re.match(r"^\w+://[^/]*/[^/]+(/[^/]+(/(\d+,?)+)?)?$", job_identifier):
         logger.error(
             f"{job_identifier} is not of the form {ID_FORMAT}",
         )

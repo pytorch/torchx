@@ -96,6 +96,7 @@ Works With
    schedulers/local
    schedulers/kubernetes
    schedulers/slurm
+   schedulers/ray
 
 .. _Pipelines:
 .. toctree::
