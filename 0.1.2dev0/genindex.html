@@ -266,6 +266,7 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
@@ -468,6 +469,8 @@
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.describe">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
 </li>
+        <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.describe">(torchx.schedulers.ray_scheduler.RayScheduler method)</a>
+</li>
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.describe">(torchx.schedulers.Scheduler method)</a>
 </li>
         <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.describe">(torchx.schedulers.slurm_scheduler.SlurmScheduler method)</a>
@@ -586,6 +589,8 @@
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.log_iter">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
 </li>
+        <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.log_iter">(torchx.schedulers.ray_scheduler.RayScheduler method)</a>
+</li>
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.log_iter">(torchx.schedulers.Scheduler method)</a>
 </li>
         <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter">(torchx.schedulers.slurm_scheduler.SlurmScheduler method)</a>
@@ -653,6 +658,8 @@
 </li>
         <li><a href="schedulers/local.html#module-torchx.schedulers.local_scheduler">torchx.schedulers.local_scheduler</a>
 </li>
+        <li><a href="schedulers/ray.html#module-torchx.schedulers.ray_scheduler">torchx.schedulers.ray_scheduler</a>
+</li>
         <li><a href="schedulers/slurm.html#module-torchx.schedulers.slurm_scheduler">torchx.schedulers.slurm_scheduler</a>
 </li>
         <li><a href="specs.html#module-torchx.specs">torchx.specs</a>
@@ -680,6 +687,8 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler">RayScheduler (class in torchx.schedulers.ray_scheduler)</a>
+</li>
       <li><a href="specs.html#torchx.specs.ReplicaState">ReplicaState (in module torchx.specs)</a>
 </li>
       <li><a href="specs.html#torchx.specs.runopts.resolve">resolve() (torchx.specs.runopts method)</a>
@@ -709,6 +718,8 @@
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.run_opts">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
 </li>
+        <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.run_opts">(torchx.schedulers.ray_scheduler.RayScheduler method)</a>
+</li>
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.run_opts">(torchx.schedulers.Scheduler method)</a>
 </li>
         <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts">(torchx.schedulers.slurm_scheduler.SlurmScheduler method)</a>
@@ -733,6 +744,8 @@
 </li>
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.schedule">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
 </li>
+        <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.schedule">(torchx.schedulers.ray_scheduler.RayScheduler method)</a>
+</li>
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.schedule">(torchx.schedulers.Scheduler method)</a>
 </li>
         <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.schedule">(torchx.schedulers.slurm_scheduler.SlurmScheduler method)</a>
@@ -740,10 +753,10 @@
       </ul></li>
       <li><a href="schedulers.html#torchx.schedulers.Scheduler">Scheduler (class in torchx.schedulers)</a>
 </li>
-      <li><a href="runner.html#torchx.runner.Runner.scheduler_backends">scheduler_backends() (torchx.runner.Runner method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runner.html#torchx.runner.Runner.scheduler_backends">scheduler_backends() (torchx.runner.Runner method)</a>
+</li>
       <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
 </li>
       <li><a href="components/utils.html#torchx.components.utils.sh">sh() (in module torchx.components.utils)</a>
@@ -861,8 +874,6 @@
         <li><a href="runner.html#module-torchx.runner">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.runner.config
 
@@ -870,6 +881,8 @@
         <li><a href="experimental/runner.config.html#module-torchx.runner.config">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.runtime
 
@@ -924,6 +937,13 @@
 
       <ul>
         <li><a href="schedulers/local.html#module-torchx.schedulers.local_scheduler">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchx.schedulers.ray_scheduler
+
+      <ul>
+        <li><a href="schedulers/ray.html#module-torchx.schedulers.ray_scheduler">module</a>
 </li>
       </ul></li>
       <li>

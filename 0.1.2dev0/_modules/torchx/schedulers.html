@@ -266,6 +266,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers/kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/ray.html">Ray</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
@@ -367,7 +368,7 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torchx.schedulers.docker_scheduler</span> <span class="k">as</span> <span class="nn">docker_scheduler</span>
 <span class="kn">import</span> <span class="nn">torchx.schedulers.kubernetes_scheduler</span> <span class="k">as</span> <span class="nn">kubernetes_scheduler</span>
@@ -384,6 +385,19 @@
         <span class="o">...</span></div>
 
 
+<span class="k">def</span> <span class="nf">try_get_ray_scheduler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SchedulerFactory</span><span class="p">]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">torchx.schedulers.ray_scheduler</span> <span class="kn">import</span> <span class="n">_has_ray</span>  <span class="c1"># @manual</span>
+
+        <span class="k">if</span> <span class="n">_has_ray</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">torchx.schedulers.ray_scheduler</span> <span class="k">as</span> <span class="nn">ray_scheduler</span>  <span class="c1"># @manual</span>
+
+            <span class="k">return</span> <span class="n">ray_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span>
+
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
 <div class="viewcode-block" id="get_scheduler_factories"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_scheduler_factories">[docs]</a><span class="k">def</span> <span class="nf">get_scheduler_factories</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    get_scheduler_factories returns all the available schedulers names and the</span>
@@ -391,12 +405,17 @@
 
 <span class="sd">    The first scheduler in the dictionary is used as the default scheduler.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">default_schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;local_docker&quot;</span><span class="p">:</span> <span class="n">docker_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;local_cwd&quot;</span><span class="p">:</span> <span class="n">local_scheduler</span><span class="o">.</span><span class="n">create_cwd_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;slurm&quot;</span><span class="p">:</span> <span class="n">slurm_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
         <span class="s2">&quot;kubernetes&quot;</span><span class="p">:</span> <span class="n">kubernetes_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
     <span class="p">}</span>
+
+    <span class="n">ray_scheduler_creator</span> <span class="o">=</span> <span class="n">try_get_ray_scheduler</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ray_scheduler_creator</span><span class="p">:</span>
+        <span class="n">default_schedulers</span><span class="p">[</span><span class="s2">&quot;ray&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ray_scheduler_creator</span>
 
     <span class="k">return</span> <span class="n">load_group</span><span class="p">(</span>
         <span class="s2">&quot;torchx.schedulers&quot;</span><span class="p">,</span>
