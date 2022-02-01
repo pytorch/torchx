@@ -8,6 +8,7 @@
 import json
 import logging
 import unittest
+from typing import List
 from unittest.mock import patch, MagicMock
 
 from torchx.runner.events import (
@@ -15,7 +16,15 @@ from torchx.runner.events import (
     SourceType,
     TorchxEvent,
     log_event,
+    record,
 )
+
+try:
+    from torch import monitor
+
+    SKIP_MONITOR: bool = False
+except ImportError:
+    SKIP_MONITOR: bool = True
 
 
 class TorchxEventLibTest(unittest.TestCase):
@@ -56,6 +65,51 @@ class TorchxEventLibTest(unittest.TestCase):
         json_event = event.serialize()
         deser_event = TorchxEvent.deserialize(json_event)
         self.assert_event(event, deser_event)
+
+    @unittest.skipIf(SKIP_MONITOR, "no torch.monitor available")
+    def test_monitor(self) -> None:
+        event = TorchxEvent(
+            session="test_session",
+            scheduler="test_scheduler",
+            api="test_api",
+            source=SourceType.EXTERNAL,
+        )
+        monitor_event = event.to_monitor_event()
+        self.assertEqual(
+            monitor_event.data,
+            {
+                "session": "test_session",
+                "scheduler": "test_scheduler",
+                "api": "test_api",
+                "source": "EXTERNAL",
+            },
+        )
+        self.assertEqual(monitor_event.name, "torch.runner.Event")
+
+    @unittest.skipIf(SKIP_MONITOR, "no torch.monitor available")
+    @patch("torchx.runner.events._get_or_create_logger")
+    def test_monitor_record(self, get_logging_handler: MagicMock) -> None:
+        event = TorchxEvent(
+            session="test_session",
+            scheduler="test_scheduler",
+            api="test_api",
+            source=SourceType.EXTERNAL,
+        )
+        events: List[monitor.Event] = []
+
+        def handler(e: monitor.Event) -> None:
+            events.append(e)
+
+        handle = monitor.register_event_handler(handler)
+
+        try:
+            record(event)
+        finally:
+            monitor.unregister_event_handler(handle)
+
+        self.assertEqual(get_logging_handler.call_count, 1)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].data["session"], "test_session")
 
 
 @patch("torchx.runner.events.record")

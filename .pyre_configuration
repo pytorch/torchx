@@ -6,6 +6,7 @@
     ".*/IPython/core/tests/nonascii.*"
   ],
   "source_directories": [
+    "typestubs",
     "."
   ],
   "strict": true,
