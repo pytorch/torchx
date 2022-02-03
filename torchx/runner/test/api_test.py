@@ -370,7 +370,7 @@ class RunnerTest(unittest.TestCase):
             runner.run(app, scheduler="local")
             local_sched_mock.submit.called_once_with(app, {})
 
-    def test_run_from_module(self, _) -> None:
+    def test_run_from_module(self, _: str) -> None:
         runner = get_runner(name="test_session")
         app_args = ["--image", "dummy_image", "--script", "test.py"]
         with patch.object(runner, "schedule"), patch.object(

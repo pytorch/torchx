@@ -51,7 +51,9 @@ def _get_key(arg: str, spos: int, kv_delimiter: str = "=") -> str:
     return arg[spos:epos]
 
 
-def _get_value(arg: str, spos: int, kv_delimiter="=", pair_delimiter=",") -> str:
+def _get_value(
+    arg: str, spos: int, kv_delimiter: str = "=", pair_delimiter: str = ","
+) -> str:
     epos: int = spos + 1
     while epos < len(arg) and arg[epos] != kv_delimiter:
         epos += 1

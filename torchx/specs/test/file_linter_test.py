@@ -24,8 +24,7 @@ def _test_empty_fn() -> "AppDef":
 
 
 # Note if the function is moved, the tests need to be updated with new lineno
-# pyre-ignore[3]: Omit return value for testing purposes
-def _test_fn_no_return():
+def _test_fn_no_return() -> None:
     """
     Function description
     """

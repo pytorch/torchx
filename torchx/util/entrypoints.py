@@ -49,7 +49,7 @@ def load(group: str, name: str, default=None):
 
 # pyre-ignore-all-errors[3, 2]
 def load_group(
-    group: str, default: Optional[Dict[str, Any]] = None, ignore_missing=False
+    group: str, default: Optional[Dict[str, Any]] = None, ignore_missing: bool = False
 ):
     """
     Loads all the entry points specified by ``group`` and returns
