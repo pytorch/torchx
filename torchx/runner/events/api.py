@@ -7,8 +7,12 @@
 
 import json
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from torch import monitor
 
 
 class SourceType(str, Enum):
@@ -60,3 +64,12 @@ class TorchxEvent:
 
     def serialize(self) -> str:
         return json.dumps(asdict(self))
+
+    def to_monitor_event(self) -> "monitor.Event":
+        from torch import monitor
+
+        return monitor.Event(
+            name="torch.runner.Event",
+            timestamp=datetime.now(),
+            data={k: v for k, v in self.__dict__.items() if v is not None},
+        )

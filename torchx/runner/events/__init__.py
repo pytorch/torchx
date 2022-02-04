@@ -59,6 +59,15 @@ def _get_or_create_logger(destination: str = "null") -> logging.Logger:
 def record(event: TorchxEvent, destination: str = "null") -> None:
     _get_or_create_logger(destination).info(event.serialize())
 
+    if destination != "console":
+        # if using torch>1.11 log the event to torch.monitor
+        try:
+            from torch import monitor
+
+            monitor.log_event(event.to_monitor_event())
+        except ImportError:
+            pass
+
 
 class log_event:
     """
