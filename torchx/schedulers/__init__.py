@@ -7,6 +7,7 @@
 
 from typing import Dict, Optional
 
+import torchx.schedulers.aws_batch_scheduler as aws_batch_scheduler
 import torchx.schedulers.docker_scheduler as docker_scheduler
 import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
@@ -48,6 +49,7 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "local_cwd": local_scheduler.create_cwd_scheduler,
         "slurm": slurm_scheduler.create_scheduler,
         "kubernetes": kubernetes_scheduler.create_scheduler,
+        "aws_batch": aws_batch_scheduler.create_scheduler,
     }
 
     ray_scheduler_creator = try_get_ray_scheduler()
