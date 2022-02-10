@@ -160,7 +160,8 @@ class CmdRunTest(unittest.TestCase):
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
 
-    def test_runopts_not_found(self) -> None:
+    @patch("torchx.runner.workspaces.WorkspaceRunner._patch_app")
+    def test_runopts_not_found(self, patch_app: MagicMock) -> None:
         args = self.parser.parse_args(
             [
                 "--dryrun",

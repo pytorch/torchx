@@ -10,18 +10,29 @@ import unittest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
+import fsspec
 import torchx
 from torchx import schedulers, specs
 
 # @manual=//torchx/schedulers:kubernetes_scheduler
 from torchx.schedulers import kubernetes_scheduler
-from torchx.schedulers.api import DescribeAppResponse
+from torchx.schedulers.api import (
+    DescribeAppResponse,
+    AppDryRunInfo,
+)
+from torchx.schedulers.docker_scheduler import (
+    has_docker,
+)
 from torchx.schedulers.kubernetes_scheduler import (
     app_to_resource,
     cleanup_str,
     create_scheduler,
     role_to_pod,
+    KubernetesScheduler,
+    KubernetesJob,
 )
+
+SKIP_DOCKER: bool = not has_docker()
 
 
 def _test_app() -> specs.AppDef:
@@ -222,6 +233,31 @@ spec:
 """,
         )
 
+    def test_submit_dryrun_patch(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        app.roles[0].image = "sha256:testhash"
+        cfg = {
+            "queue": "testqueue",
+            "image_repo": "example.com/some/repo",
+        }
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.make_unique"
+        ) as make_unique_ctx:
+            make_unique_ctx.return_value = "app-name-42"
+            info = scheduler._submit_dryrun(app, cfg)
+
+        self.assertIn("example.com/some/repo:testhash", str(info.request.resource))
+        self.assertEqual(
+            info.request.images_to_push,
+            {
+                "sha256:testhash": (
+                    "example.com/some/repo",
+                    "testhash",
+                ),
+            },
+        )
+
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
     def test_submit(self, create_namespaced_custom_object: MagicMock) -> None:
         create_namespaced_custom_object.return_value = {
@@ -252,7 +288,7 @@ spec:
         from kubernetes.client.rest import ApiException
 
         api_exc = ApiException(status=409, reason="Conflict")
-        api_exc.body = "{'details':{'name': 'test_job'}}"
+        api_exc.body = '{"details":{"name": "test_job"}}'
         create_namespaced_custom_object.side_effect = api_exc
 
         scheduler = create_scheduler("test")
@@ -344,7 +380,14 @@ spec:
     def test_runopts(self) -> None:
         scheduler = kubernetes_scheduler.create_scheduler("foo")
         runopts = scheduler.run_opts()
-        self.assertEqual(set(runopts._opts.keys()), {"queue", "namespace"})
+        self.assertEqual(
+            set(runopts._opts.keys()),
+            {
+                "queue",
+                "namespace",
+                "image_repo",
+            },
+        )
 
     @patch("kubernetes.client.CustomObjectsApi.delete_namespaced_custom_object")
     def test_cancel_existing(self, delete_namespaced_custom_object: MagicMock) -> None:
@@ -393,6 +436,49 @@ spec:
                 "timestamps": True,
             },
         )
+
+    def test_build_workspace_image(self) -> None:
+        img = MagicMock()
+        img.id = "testimage"
+        client = MagicMock()
+        client.images.build.return_value = (img, [])
+        scheduler = KubernetesScheduler(
+            "foo",
+            docker_client=client,
+        )
+
+        fs = fsspec.filesystem("memory")
+        fs.mkdirs("test_workspace/bar", exist_ok=True)
+        with fs.open("test_workspace/bar/foo.sh", "w") as f:
+            f.write("exit 0")
+
+        img = scheduler.build_workspace_image(
+            "busybox",
+            "memory://test_workspace",
+        )
+        self.assertEqual(img, "testimage")
+
+    def test_push_patches(self) -> None:
+        client = MagicMock()
+        scheduler = KubernetesScheduler(
+            "foo",
+            client=MagicMock(),
+            docker_client=client,
+        )
+
+        job = KubernetesJob(
+            images_to_push={
+                "sha256:testimage": ("repo.com/img", "testimage"),
+            },
+            resource={},
+        )
+
+        out = scheduler.schedule(AppDryRunInfo(job, repr))
+        self.assertTrue(out)
+
+        self.assertEqual(client.images.get.call_count, 1)
+        self.assertEqual(client.images.get().tag.call_count, 1)
+        self.assertEqual(client.images.push.call_count, 1)
 
 
 class KubernetesSchedulerNoImportTest(unittest.TestCase):

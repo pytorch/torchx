@@ -127,6 +127,7 @@ class DockerScheduler(WorkspaceScheduler):
             describe: |
                 Partial support. DockerScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
+            workspaces: true
     """
 
     def __init__(self, session_name: str) -> None:
@@ -416,7 +417,7 @@ class DockerScheduler(WorkspaceScheduler):
         Returns:
             The new Docker image ID.
         """
-        return _build_container_from_workspace(self._client(), img, workspace)
+        return build_container_from_workspace(self._client(), img, workspace)
 
 
 def _to_str(a: Union[str, bytes]) -> str:
@@ -467,9 +468,13 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
     return f
 
 
-def _build_container_from_workspace(
+def build_container_from_workspace(
     client: "DockerClient", img: str, workspace: str
 ) -> str:
+    """
+    build_container_from_workspace creates a new Docker container with the
+    workspace filesystem applied as a layer on top of the provided base image.
+    """
     context = _build_context(img, workspace)
 
     try:

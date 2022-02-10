@@ -240,6 +240,11 @@ class SlurmScheduler(Scheduler):
             describe: |
                 Partial support. SlurmScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
+            workspaces: |
+                Partial support. Typical Slurm usage is from a shared NFS mount
+                so code will automatically be updated on the workers.
+                SlurmScheduler does not support programmatic patching via
+                WorkspaceScheduler.
 
     """
 

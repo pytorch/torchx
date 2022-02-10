@@ -103,6 +103,7 @@ class WorkspaceRunner(Runner):
             img = images.get(role.image)
             if not img:
                 img = sched.build_workspace_image(role.image, workspace)
+                log.info(f"built image {img} from {role.image}")
                 images[role.image] = img
             role.image = img
 
