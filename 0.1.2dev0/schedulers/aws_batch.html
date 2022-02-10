@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Utils &mdash; PyTorch/TorchX main documentation</title>
+  <title>AWS Batch &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Overview" href="../runtime/overview.html" />
-    <link rel="prev" title="Serve" href="serve.html" />
+    <link rel="next" title="Kubeflow Pipelines" href="../pipelines/kfp.html" />
+    <link rel="prev" title="Ray" href="ray.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -248,15 +248,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples_pipelines/index.html">Pipelines Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Components</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="train.html">Train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="interpret.html">Interpret</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hpo.html">HPO</a></li>
-<li class="toctree-l1"><a class="reference internal" href="serve.html">Serve</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/hpo.html">HPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
@@ -265,12 +265,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/aws_batch.html">AWS Batch</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AWS Batch</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Pipelines</span></p>
 <ul>
@@ -331,13 +331,13 @@
       </li>
 
         
-      <li>Utils</li>
+      <li>AWS Batch</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/components/utils.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/schedulers/aws_batch.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -366,114 +366,170 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.components.utils">
-<span id="utils"></span><h1>Utils<a class="headerlink" href="#module-torchx.components.utils" title="Permalink to this headline">¶</a></h1>
-<p>This contains TorchX utility components that are <cite>ready-to-use</cite> out of the box. These are
-components that simply execute well known binaries (e.g. <code class="docutils literal notranslate"><span class="pre">cp</span></code>)
-and are meant to be used as tutorial materials or glue operations between
-meaningful stages in a workflow.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.echo">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">echo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'hello</span> <span class="pre">world'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.2dev0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#echo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.echo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Echos a message to stdout (calls echo)</p>
+  <section id="module-torchx.schedulers.aws_batch_scheduler">
+<span id="aws-batch"></span><h1>AWS Batch<a class="headerlink" href="#module-torchx.schedulers.aws_batch_scheduler" title="Permalink to this headline">¶</a></h1>
+<p>This contains the TorchX AWS Batch scheduler which can be used to run TorchX
+components directly on AWS Batch.</p>
+<p>This scheduler is in prototype stage and may change without notice.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>You’ll need to create an AWS Batch queue configured for multi-node parallel jobs.</p>
+<p>See
+<a class="reference external" href="https://docs.aws.amazon.com/batch/latest/userguide/Batch_GetStarted.html#first-run-step-2">https://docs.aws.amazon.com/batch/latest/userguide/Batch_GetStarted.html#first-run-step-2</a>
+for how to setup a job queue and compute environment. It needs to be backed by
+EC2 for multi-node parallel jobs.</p>
+<p>See
+<a class="reference external" href="https://docs.aws.amazon.com/batch/latest/userguide/multi-node-parallel-jobs.html">https://docs.aws.amazon.com/batch/latest/userguide/multi-node-parallel-jobs.html</a>
+for more information on distributed jobs.</p>
+<p>If you want to use workspaces and container patching you’ll also need to
+configure a docker registry to store the patched containers with your changes
+such as AWS ECR.</p>
+<p>See
+<a class="reference external" href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository">https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository</a>
+for how to create a image repository.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.aws_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">AWSBatchScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install torchx<span class="o">[</span>kubernetes<span class="o">]</span>
+$ torchx run --scheduler aws_batch --scheduler_args <span class="nv">queue</span><span class="o">=</span>torchx utils.echo --image alpine:latest --msg hello
+aws_batch://torchx_user/1234
+$ torchx status aws_batch://torchx_user/1234
+...
+</pre></div>
+</div>
+<p>Authentication is loaded from the environment using the <code class="docutils literal notranslate"><span class="pre">boto3</span></code> credential
+handling.</p>
+<p><strong>Config Options</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
+        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span>
+
+    <span class="n">required</span> <span class="n">arguments</span><span class="p">:</span>
+        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span> <span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+            <span class="n">queue</span> <span class="n">to</span> <span class="n">schedule</span> <span class="n">job</span> <span class="ow">in</span>
+</pre></div>
+</div>
+<p><strong>Compatibility</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Scheduler Support</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Fetch Logs</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-odd"><td><p>Distributed Jobs</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-even"><td><p>Cancel Job</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-odd"><td><p>Describe Job</p></td>
+<td><p>Partial support. AWSBatchScheduler will return job and replica
+status but does not provide the complete original AppSpec.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.DescribeAppResponse</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.describe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describes the specified application.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>msg</strong> – message to echo</p></li>
-<li><p><strong>image</strong> – image to use</p></li>
-<li><p><strong>num_replicas</strong> – number of replicas to run</p></li>
-</ul>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>AppDef description or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the app does not exist.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.touch">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">touch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.2dev0'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#touch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.touch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Touches a file (calls touch)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>file</strong> – file to create</p></li>
-<li><p><strong>image</strong> – the image to use</p></li>
-</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.log_iter">
+<span class="sig-name descname"><span class="pre">log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime.datetime</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime.datetime</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_tail</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.Stream</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.log_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.log_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator to the log lines of the <code class="docutils literal notranslate"><span class="pre">k``th</span> <span class="pre">replica</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">``role</span></code>.
+The iterator ends end all qualifying log lines have been read.</p>
+<p>If the scheduler supports time-based cursors fetching log lines
+for custom time ranges, then the <code class="docutils literal notranslate"><span class="pre">since</span></code>, <code class="docutils literal notranslate"><span class="pre">until</span></code> fields are
+honored, otherwise they are ignored. Not specifying <code class="docutils literal notranslate"><span class="pre">since</span></code> and <code class="docutils literal notranslate"><span class="pre">until</span></code>
+is equivalent to getting all available log lines. If the <code class="docutils literal notranslate"><span class="pre">until</span></code> is
+empty, then the iterator behaves like <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">-f</span></code>, following the log output
+until the job reaches a terminal state.</p>
+<p>The exact definition of what constitutes a log is scheduler specific. Some
+schedulers may consider stderr or stdout as the log, others may read the logs
+from a log file.</p>
+<p>Behaviors and assumptions:</p>
+<ol class="arabic simple">
+<li><p>Produces an undefined-behavior if called on an app that does not exist
+The caller should check that the app exists using <code class="docutils literal notranslate"><span class="pre">exists(app_id)</span></code>
+prior to calling this method.</p></li>
+<li><p>Is not stateful, calling this method twice with same parameters
+returns a new iterator. Prior iteration
+progress is lost.</p></li>
+<li><p>Does not always support log-tailing. Not all schedulers support live
+log iteration (e.g. tailing logs while the app is running). Refer to
+the specific scheduler’s documentation for the iterator’s behavior.</p></li>
+</ol>
+<dl class="simple">
+<dt>3.1 If the scheduler supports log-tailing, it should be controlled</dt><dd><p>by``should_tail`` parameter.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.sh">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">sh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.2dev0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#sh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.sh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs the provided command via sh. Currently sh does not support
-environment variable substitution.</p>
+<ol class="arabic" start="4">
+<li><p>Does not guarantee log retention. It is possible that by the time this
+method is called, the underlying scheduler may have purged the log records
+for this application. If so this method raises an arbitrary exception.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">should_tail</span></code> is True, the method only raises a <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code> exception
+when the accessible log lines have been fully exhausted and the app has reached
+a final state. For instance, if the app gets stuck and does not produce any log lines,
+then the iterator blocks until the app eventually gets killed (either via
+timeout or manually) at which point it raises a <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">should_tail</span></code> is False, the method raises <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code>
+when there are no more logs.</p>
+</li>
+<li><p>Need not be supported by all schedulers.</p></li>
+<li><p>Some schedulers may support line cursors by supporting <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>
+(e.g. <code class="docutils literal notranslate"><span class="pre">iter[50]</span></code> seeks to the 50th log line).</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> – bash arguments</p></li>
-<li><p><strong>image</strong> – image to use</p></li>
-<li><p><strong>num_replicas</strong> – number of replicas to run</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.copy">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.2dev0'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>copy copies the file from src to dst. src and dst can be any valid fsspec
-url.</p>
-<p>This does not support recursive copies or directories.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> – the source fsspec file location</p></li>
-<li><p><strong>dst</strong> – the destination fsspec file location</p></li>
-<li><p><strong>image</strong> – the image that contains the copy app</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.python">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">python</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.2dev0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'torchx_utils_python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'aws_t3.medium'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#python"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.python" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">CMD</span></code> or <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">MODULE</span></code> on the specified
-image and host. Use <code class="docutils literal notranslate"><span class="pre">--</span></code> to separate component args and program args
-(e.g. <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">utils.python</span> <span class="pre">--m</span> <span class="pre">foo.main</span> <span class="pre">--</span> <span class="pre">--args</span> <span class="pre">to</span> <span class="pre">--main</span></code>)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> – arguments passed to the program in sys.argv[1:] (ignored with <cite>–c</cite>)</p></li>
-<li><p><strong>m</strong> – run library module as a script</p></li>
-<li><p><strong>c</strong> – program passed as string (may error if scheduler has a length limit on args)</p></li>
-<li><p><strong>image</strong> – image to run on</p></li>
-<li><p><strong>name</strong> – name of the job</p></li>
-<li><p><strong>host</strong> – a registered named resource</p></li>
-<li><p><strong>num_replicas</strong> – number of copies to run (each on its own container)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>streams</strong> – The IO output streams to select.
+One of: combined, stdout, stderr.
+If the selected stream isn’t supported by the scheduler it will
+throw an ValueError.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>An <code class="docutils literal notranslate"><span class="pre">Iterator</span></code> over log lines of the specified role replica</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – if the scheduler does not support log iteration</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.components.utils.booth">
-<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">booth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker_base</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'/tmp/torchx-util-booth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.1.2dev0'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#booth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.booth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates the booth function, <code class="docutils literal notranslate"><span class="pre">f(x1,</span> <span class="pre">x2)</span> <span class="pre">=</span> <span class="pre">(x1</span> <span class="pre">+</span> <span class="pre">2*x2</span> <span class="pre">-</span> <span class="pre">7)^2</span> <span class="pre">+</span> <span class="pre">(2*x1</span> <span class="pre">+</span> <span class="pre">x2</span> <span class="pre">-</span> <span class="pre">5)^2</span></code>.
-Output result is accessible via <code class="docutils literal notranslate"><span class="pre">FsspecResultTracker(outdir)[trial_idx]</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x1</strong> – x1</p></li>
-<li><p><strong>x2</strong> – x2</p></li>
-<li><p><strong>trial_idx</strong> – ignore if not running hpo</p></li>
-<li><p><strong>tracker_base</strong> – URI of the tracker’s base output directory (e.g. s3://foo/bar)</p></li>
-<li><p><strong>image</strong> – the image that contains the booth app</p></li>
-</ul>
-</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.run_opts">
+<span class="sig-name descname"><span class="pre">run_opts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.runopts" title="torchx.specs.api.runopts"><span class="pre">torchx.specs.api.runopts</span></a><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.run_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.run_opts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the run configuration options expected by the scheduler.
+Basically a <code class="docutils literal notranslate"><span class="pre">--help</span></code> for the <code class="docutils literal notranslate"><span class="pre">run</span></code> API.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.aws_batch_scheduler.BatchJob</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
+Implementors are encouraged to implement this method rather than
+directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
+implemented by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+<span class="k">return</span> <span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -486,10 +542,10 @@ Output result is accessible via <code class="docutils literal notranslate"><span
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../runtime/overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="../pipelines/kfp.html" class="btn btn-neutral float-right" title="Kubeflow Pipelines" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="serve.html" class="btn btn-neutral" title="Serve" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="ray.html" class="btn btn-neutral" title="Ray" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -521,7 +577,10 @@ Output result is accessible via <code class="docutils literal notranslate"><span
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Utils</a></li>
+<li><a class="reference internal" href="#">AWS Batch</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

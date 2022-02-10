@@ -97,6 +97,7 @@ Works With
    schedulers/kubernetes
    schedulers/slurm
    schedulers/ray
+   schedulers/aws_batch
 
 .. _Pipelines:
 .. toctree::
