@@ -16,6 +16,7 @@ COMPATIBILITY_SETS = {
         "distributed": "Distributed Jobs",
         "cancel": "Cancel Job",
         "describe": "Describe Job",
+        "workspaces": "Workspaces / Patching",
     },
 }
 

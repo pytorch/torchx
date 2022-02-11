@@ -548,6 +548,9 @@ class LocalScheduler(Scheduler):
                 LocalScheduler supports multiple replicas but all replicas will
                 execute on the local host.
             describe: true
+            workspaces: |
+                Partial support. LocalScheduler runs the app from a local
+                directory but does not support programmatic workspaces.
     """
 
     def __init__(
