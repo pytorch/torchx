@@ -20,20 +20,12 @@ jobs:
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
-      - name: Configure AWS
-        env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-        run: |
-          if [ -n "$AWS_ROLE_ARN" ]; then
-            export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/awscreds
-            export AWS_DEFAULT_REGION=us-west-2
-
-            echo AWS_WEB_IDENTITY_TOKEN_FILE=$AWS_WEB_IDENTITY_TOKEN_FILE >> $GITHUB_ENV
-            echo AWS_ROLE_ARN=$AWS_ROLE_ARN >> $GITHUB_ENV
-            echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $GITHUB_ENV
-
-            curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value' > $AWS_WEB_IDENTITY_TOKEN_FILE
-          fi
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-region: us-west-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-torchx
       - name: Install Dependencies
         run:
           set -ex
