@@ -146,6 +146,7 @@ class AWSBatchScheduler(Scheduler):
             describe: |
                 Partial support. AWSBatchScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
+            workspaces: false
     """
 
     def __init__(
