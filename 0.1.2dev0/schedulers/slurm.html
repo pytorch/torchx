@@ -438,7 +438,14 @@ $ less slurm-1234.out
 </tr>
 <tr class="row-odd"><td><p>Describe Job</p></td>
 <td><p>Partial support. SlurmScheduler will return job and replica
-status but does not provide the complete original AppSpec.</p></td>
+status but does not provide the complete original AppSpec.
+</p></td>
+</tr>
+<tr class="row-even"><td><p>Workspaces / Patching</p></td>
+<td><p>Partial support. Typical Slurm usage is from a shared NFS mount
+so code will automatically be updated on the workers.
+SlurmScheduler does not support programmatic patching via
+WorkspaceScheduler.</p></td>
 </tr>
 </tbody>
 </table>

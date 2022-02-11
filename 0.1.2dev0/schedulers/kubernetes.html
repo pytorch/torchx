@@ -386,7 +386,7 @@ This requires the installation of etcd service on your kubernetes cluster:</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">KubernetesScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">KubernetesScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker_client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DockerClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler" title="Permalink to this definition">¶</a></dt>
 <dd><p>KubernetesScheduler is a TorchX scheduling interface to Kubernetes.</p>
 <p>Important: Volcano is required to be installed on the Kubernetes cluster.
 TorchX requires gang scheduling for multi-replica/multi-role execution
@@ -410,7 +410,7 @@ $ torchx status kubernetes://torchx_user/1234
 </div>
 <p><strong>Config Options</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span><span class="p">,[</span><span class="n">namespace</span><span class="o">=</span><span class="n">NAMESPACE</span><span class="p">]</span>
+        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span><span class="p">,[</span><span class="n">namespace</span><span class="o">=</span><span class="n">NAMESPACE</span><span class="p">],[</span><span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span><span class="p">]</span>
 
     <span class="n">required</span> <span class="n">arguments</span><span class="p">:</span>
         <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span> <span class="p">(</span><span class="nb">str</span><span class="p">)</span>
@@ -419,6 +419,8 @@ $ torchx status kubernetes://torchx_user/1234
     <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
         <span class="n">namespace</span><span class="o">=</span><span class="n">NAMESPACE</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
             <span class="n">Kubernetes</span> <span class="n">namespace</span> <span class="n">to</span> <span class="n">schedule</span> <span class="n">job</span> <span class="ow">in</span>
+        <span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">The</span> <span class="n">image</span> <span class="n">repository</span> <span class="n">to</span> <span class="n">use</span> <span class="n">when</span> <span class="n">pushing</span> <span class="n">patched</span> <span class="n">images</span><span class="p">,</span> <span class="n">must</span> <span class="n">have</span> <span class="n">push</span> <span class="n">access</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">container</span>
 </pre></div>
 </div>
 <p><strong>Compatibility</strong></p>
@@ -444,10 +446,32 @@ $ torchx status kubernetes://torchx_user/1234
 </tr>
 <tr class="row-odd"><td><p>Describe Job</p></td>
 <td><p>Partial support. KubernetesScheduler will return job and replica
-status but does not provide the complete original AppSpec.</p></td>
+status but does not provide the complete original AppSpec.
+</p></td>
+</tr>
+<tr class="row-even"><td><p>Workspaces / Patching</p></td>
+<td><p>✔️</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.build_workspace_image">
+<span class="sig-name descname"><span class="pre">build_workspace_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler.build_workspace_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.build_workspace_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>build_workspace_image creates a new image with the files in workspace
+overlaid on top of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img</strong> – a Docker image to use as a base</p></li>
+<li><p><strong>workspace</strong> – a fsspec path to a directory with contents to be overlaid</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The new Docker image ID.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.describe">
 <span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.DescribeAppResponse</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.describe" title="Permalink to this definition">¶</a></dt>
