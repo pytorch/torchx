@@ -26,6 +26,7 @@ jobs:
           aws-region: us-west-2
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: github-torchx
+        continue-on-error: true
       - name: Configure Kube Config
         env:
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
