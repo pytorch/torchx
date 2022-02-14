@@ -7,14 +7,19 @@
 
 set -ex
 
-APP_ID="$(torchx run --wait --scheduler aws_batch -c queue=torchx utils.echo)"
-torchx status "$APP_ID"
-torchx describe "$APP_ID"
-torchx log "$APP_ID"
-LINES="$(torchx log "$APP_ID" | wc -l)"
+if [ -z "$AWS_ROLE_ARN" ]; then
+  # only dryrun if no secrets
+  torchx run --wait --scheduler aws_batch --dryrun -c queue=torchx utils.echo
+else
+  APP_ID="$(torchx run --wait --scheduler aws_batch -c queue=torchx utils.echo)"
+  torchx status "$APP_ID"
+  torchx describe "$APP_ID"
+  torchx log "$APP_ID"
+  LINES="$(torchx log "$APP_ID" | wc -l)"
 
-if [ "$LINES" -ne 1 ]
-then
-    echo "expected 1 log lines"
-    exit 1
+  if [ "$LINES" -ne 1 ]
+  then
+      echo "expected 1 log lines"
+      exit 1
+  fi
 fi

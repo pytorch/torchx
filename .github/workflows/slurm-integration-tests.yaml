@@ -26,6 +26,7 @@ jobs:
           aws-region: us-west-2
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: github-torchx
+        continue-on-error: true
       - name: Install Dependencies
         run:
           set -ex
