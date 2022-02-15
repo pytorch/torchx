@@ -29,13 +29,13 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
 from typing import (
-    Mapping,
     Any,
     BinaryIO,
     Callable,
     Dict,
     Iterable,
     List,
+    Mapping,
     Optional,
     Pattern,
     TextIO,
@@ -766,7 +766,9 @@ class LocalScheduler(Scheduler):
         self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[PopenRequest]:
         request = self._to_popen_request(app, cfg)
-        return AppDryRunInfo(request, lambda p: pprint.pformat(p, indent=2, width=80))
+        return AppDryRunInfo(
+            request, lambda p: pprint.pformat(asdict(p), indent=2, width=80)
+        )
 
     def _to_popen_request(
         self,

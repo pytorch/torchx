@@ -18,9 +18,8 @@ import torchx.specs as specs
 from pyre_extensions import none_throws
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
-from torchx.runner import Runner, config
+from torchx.runner import Runner, config, get_runner
 from torchx.runner.config import load_sections
-from torchx.runner.workspaces import WorkspaceRunner, get_workspace_runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs import CfgVal
 from torchx.specs.finder import (
@@ -36,6 +35,8 @@ from torchx.util.types import to_dict
 MISSING_COMPONENT_ERROR_MSG = (
     "missing component name, either provide it from the CLI or in .torchxconfig"
 )
+
+CONFIG_DIRS = [str(Path.home()), str(Path.cwd())]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -181,6 +182,12 @@ class CmdRun(SubCommand):
             help="Stream logs while waiting for app to finish.",
         )
         subparser.add_argument(
+            "--workspace",
+            "--buck-target",
+            default=f"file://{Path.cwd()}",
+            help="local workspace to build/patch (buck-target of main binary if using buck)",
+        )
+        subparser.add_argument(
             "component_name_and_args",
             nargs=argparse.REMAINDER,
         )
@@ -197,35 +204,23 @@ class CmdRun(SubCommand):
         run_opts = runner.run_opts()
         scheduler_opts = run_opts[args.scheduler]
         cfg = _parse_run_config(args.scheduler_args, scheduler_opts)
-        config_dirs = [str(Path.home()), str(Path.cwd())]
 
-        config.apply(scheduler=args.scheduler, cfg=cfg, dirs=config_dirs)
-
-        config_files = config.find_configs(dirs=config_dirs)
-        workspace = (
-            "file://" + os.path.dirname(config_files[0]) if config_files else None
-        )
+        config.apply(scheduler=args.scheduler, cfg=cfg, dirs=CONFIG_DIRS)
 
         component, component_args = _parse_component_name_and_args(
             args.component_name_and_args,
             none_throws(self._subparser),
-            dirs=config_dirs,
+            dirs=CONFIG_DIRS,
         )
-
         try:
             if args.dryrun:
-                if isinstance(runner, WorkspaceRunner):
-                    dryrun_info = runner.dryrun_component(
-                        component,
-                        component_args,
-                        args.scheduler,
-                        workspace=workspace,
-                        cfg=cfg,
-                    )
-                else:
-                    dryrun_info = runner.dryrun_component(
-                        component, component_args, args.scheduler, cfg=cfg
-                    )
+                dryrun_info = runner.dryrun_component(
+                    component,
+                    component_args,
+                    args.scheduler,
+                    workspace=args.workspace,
+                    cfg=cfg,
+                )
                 logger.info(
                     "\n=== APPLICATION ===\n"
                     f"{pformat(asdict(dryrun_info._app), indent=2, width=80)}"
@@ -233,21 +228,13 @@ class CmdRun(SubCommand):
 
                 logger.info("\n=== SCHEDULER REQUEST ===\n" f"{dryrun_info}")
             else:
-                if isinstance(runner, WorkspaceRunner):
-                    app_handle = runner.run_component(
-                        component,
-                        component_args,
-                        args.scheduler,
-                        workspace=workspace,
-                        cfg=cfg,
-                    )
-                else:
-                    app_handle = runner.run_component(
-                        component,
-                        component_args,
-                        args.scheduler,
-                        cfg=cfg,
-                    )
+                app_handle = runner.run_component(
+                    component,
+                    component_args,
+                    args.scheduler,
+                    workspace=args.workspace,
+                    cfg=cfg,
+                )
                 # DO NOT delete this line. It is used by slurm tests to retrieve the app id
                 print(app_handle)
 
@@ -278,8 +265,8 @@ class CmdRun(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
-        component_defaults = load_sections(prefix="component")
-        with get_workspace_runner(component_defaults=component_defaults) as runner:
+        component_defaults = load_sections(prefix="component", dirs=CONFIG_DIRS)
+        with get_runner(component_defaults=component_defaults) as runner:
             self._run(runner, args)
 
     def _wait_and_exit(self, runner: Runner, app_handle: str, log: bool) -> None:

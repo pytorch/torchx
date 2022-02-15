@@ -10,26 +10,20 @@ import unittest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-import fsspec
 import torchx
 from torchx import schedulers, specs
 
 # @manual=//torchx/schedulers:kubernetes_scheduler
 from torchx.schedulers import kubernetes_scheduler
-from torchx.schedulers.api import (
-    DescribeAppResponse,
-    AppDryRunInfo,
-)
-from torchx.schedulers.docker_scheduler import (
-    has_docker,
-)
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
+from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_scheduler import (
+    KubernetesJob,
+    KubernetesScheduler,
     app_to_resource,
     cleanup_str,
     create_scheduler,
     role_to_pod,
-    KubernetesScheduler,
-    KubernetesJob,
 )
 
 SKIP_DOCKER: bool = not has_docker()
@@ -436,27 +430,6 @@ spec:
                 "timestamps": True,
             },
         )
-
-    def test_build_workspace_image(self) -> None:
-        img = MagicMock()
-        img.id = "testimage"
-        client = MagicMock()
-        client.images.build.return_value = (img, [])
-        scheduler = KubernetesScheduler(
-            "foo",
-            docker_client=client,
-        )
-
-        fs = fsspec.filesystem("memory")
-        fs.mkdirs("test_workspace/bar", exist_ok=True)
-        with fs.open("test_workspace/bar/foo.sh", "w") as f:
-            f.write("exit 0")
-
-        img = scheduler.build_workspace_image(
-            "busybox",
-            "memory://test_workspace",
-        )
-        self.assertEqual(img, "testimage")
 
     def test_push_patches(self) -> None:
         client = MagicMock()
