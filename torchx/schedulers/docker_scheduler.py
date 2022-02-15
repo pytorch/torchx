@@ -5,49 +5,37 @@
 # LICENSE file in the root directory of this source tree.
 
 import fnmatch
-import io
 import logging
 import os.path
-import posixpath
-import tarfile
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import (
-    Mapping,
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    Optional,
-    List,
-    Union,
-    IO,
-)
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Mapping, Optional, Union
 
-import fsspec
 import torchx
 import yaml
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
-    WorkspaceScheduler,
-    filter_regex,
+    Scheduler,
     Stream,
+    filter_regex,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
     AppState,
+    CfgVal,
     ReplicaStatus,
     Role,
     RoleStatus,
     SchedulerBackend,
+    is_terminal,
     macros,
     runopts,
-    is_terminal,
-    CfgVal,
 )
+from torchx.workspace.docker_workspace import DockerWorkspace
+
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -84,10 +72,10 @@ class DockerJob:
         return str(self)
 
 
-LABEL_VERSION = "torchx.pytorch.org/version"
-LABEL_APP_ID = "torchx.pytorch.org/app-id"
-LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
-LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
+LABEL_VERSION: str = DockerWorkspace.LABEL_VERSION
+LABEL_APP_ID: str = "torchx.pytorch.org/app-id"
+LABEL_ROLE_NAME: str = "torchx.pytorch.org/role-name"
+LABEL_REPLICA_ID: str = "torchx.pytorch.org/replica-id"
 
 NETWORK = "torchx"
 
@@ -102,7 +90,7 @@ def has_docker() -> bool:
         return False
 
 
-class DockerScheduler(WorkspaceScheduler):
+class DockerScheduler(Scheduler, DockerWorkspace):
     """
     DockerScheduler is a TorchX scheduling interface to Docker.
 
@@ -405,20 +393,6 @@ class DockerScheduler(WorkspaceScheduler):
         else:
             return logs
 
-    def build_workspace_image(self, img: str, workspace: str) -> str:
-        """
-        build_workspace_image creates a new image with the files in workspace
-        overlaid on top of it.
-
-        Args:
-            img: a Docker image to use as a base
-            workspace: a fsspec path to a directory with contents to be overlaid
-
-        Returns:
-            The new Docker image ID.
-        """
-        return build_container_from_workspace(self._client(), img, workspace)
-
 
 def _to_str(a: Union[str, bytes]) -> str:
     if isinstance(a, bytes):
@@ -432,62 +406,3 @@ def create_scheduler(session_name: str, **kwargs: Any) -> DockerScheduler:
     return DockerScheduler(
         session_name=session_name,
     )
-
-
-def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
-    # TODO(d4l3k) implement docker ignore files
-
-    fs, path = fsspec.core.url_to_fs(workspace)
-    assert isinstance(path, str), "path must be str"
-
-    for dir, dirs, files in fs.walk(path, detail=True):
-        assert isinstance(dir, str), "path must be str"
-        relpath = posixpath.relpath(dir, path)
-        for file, info in files.items():
-            with fs.open(info["name"], "rb") as f:
-                tinfo = tarfile.TarInfo(posixpath.join(relpath, file))
-                tinfo.size = info["size"]
-                tf.addfile(tinfo, f)
-
-
-def _build_context(img: str, workspace: str) -> IO[bytes]:
-    # f is closed by parent, NamedTemporaryFile auto closes on GC
-    f = tempfile.NamedTemporaryFile(  # noqa P201
-        prefix="torchx-context",
-        suffix=".tar",
-    )
-    dockerfile = bytes(f"FROM {img}\nCOPY . .\n", encoding="utf-8")
-    with tarfile.open(fileobj=f, mode="w") as tf:
-        info = tarfile.TarInfo("Dockerfile")
-        info.size = len(dockerfile)
-        tf.addfile(info, io.BytesIO(dockerfile))
-
-        _copy_to_tarfile(workspace, tf)
-
-    f.seek(0)
-    return f
-
-
-def build_container_from_workspace(
-    client: "DockerClient", img: str, workspace: str
-) -> str:
-    """
-    build_container_from_workspace creates a new Docker container with the
-    workspace filesystem applied as a layer on top of the provided base image.
-    """
-    context = _build_context(img, workspace)
-
-    try:
-        image, logs = client.images.build(
-            fileobj=context,
-            custom_context=True,
-            pull=True,
-            rm=True,
-            labels={
-                LABEL_VERSION: torchx.__version__,
-            },
-        )
-    finally:
-        context.close()
-
-    return image.id

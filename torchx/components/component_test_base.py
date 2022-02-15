@@ -48,11 +48,11 @@ class ComponentUtils:
 
         runner = get_runner("test-runner")
         if dryrun:
-            dryrun_info = runner.dryrun(app_def, scheduler, cfg)
+            dryrun_info = runner.dryrun(app_def, scheduler, cfg=cfg)
             print(f"Dryrun info: {dryrun_info}")
             return dryrun_info
         else:
-            app_handle = runner.run(app_def, scheduler, cfg)
+            app_handle = runner.run(app_def, scheduler, cfg=cfg)
             print(f"AppHandle: {app_handle}")
             app_status = runner.wait(app_handle)
             print(f"Final status: {app_status}")

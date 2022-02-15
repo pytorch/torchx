@@ -134,6 +134,7 @@ class Scheduler(abc.ABC):
         dryrun_info._cfg = resolved_cfg
         return dryrun_info
 
+    @abc.abstractmethod
     def _submit_dryrun(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> AppDryRunInfo:
         raise NotImplementedError()
 
@@ -278,22 +279,6 @@ class Scheduler(abc.ABC):
                     f"No resource for role: {role.image}."
                     f" Did you forget to attach resource to the role"
                 )
-
-
-class WorkspaceScheduler(Scheduler):
-    """
-    WorkspaceScheduler is a Scheduler that has workspace support.
-
-    Experimental: this interface may change without notice.
-    """
-
-    @abc.abstractmethod
-    def build_workspace_image(self, img: str, workspace: str) -> str:
-        """
-        build_workspace_image builds a new image with the workspace filesystem
-        overlaid on it and returns the new image name.
-        """
-        ...
 
 
 def filter_regex(regex: str, data: Iterable[str]) -> Iterable[str]:

@@ -30,6 +30,7 @@ from torchx.specs import (
     runopts,
 )
 from torchx.specs.finder import get_component
+from torchx.workspace.api import Workspace
 
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -103,6 +104,7 @@ class Runner:
         component_args: List[str],
         scheduler: SchedulerBackend,
         cfg: Optional[Mapping[str, CfgVal]] = None,
+        workspace: Optional[str] = None,
     ) -> AppHandle:
         """
         Runs a component.
@@ -136,7 +138,13 @@ class Runner:
             ComponentNotFoundException: if the ``component_path`` is failed to resolve.
         """
 
-        dryrun_info = self.dryrun_component(component, component_args, scheduler, cfg)
+        dryrun_info = self.dryrun_component(
+            component,
+            component_args,
+            scheduler,
+            cfg=cfg,
+            workspace=workspace,
+        )
         return self.schedule(dryrun_info)
 
     def dryrun_component(
@@ -145,6 +153,7 @@ class Runner:
         component_args: List[str],
         scheduler: SchedulerBackend,
         cfg: Optional[Mapping[str, CfgVal]] = None,
+        workspace: Optional[str] = None,
     ) -> AppDryRunInfo:
         """
         Dryrun version of :py:func:`run_component`. Will not actually run the
@@ -156,13 +165,14 @@ class Runner:
             component_args,
             self._component_defaults.get(component, None),
         )
-        return self.dryrun(app, scheduler, cfg)
+        return self.dryrun(app, scheduler, cfg=cfg, workspace=workspace)
 
     def run(
         self,
         app: AppDef,
         scheduler: SchedulerBackend,
         cfg: Optional[Mapping[str, CfgVal]] = None,
+        workspace: Optional[str] = None,
     ) -> AppHandle:
         """
         Runs the given application in the specified mode.
@@ -174,7 +184,7 @@ class Runner:
             An application handle that is used to call other action APIs on the app.
         """
 
-        dryrun_info = self.dryrun(app, scheduler, cfg)
+        dryrun_info = self.dryrun(app, scheduler, cfg=cfg, workspace=workspace)
         return self.schedule(dryrun_info)
 
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
@@ -229,6 +239,7 @@ class Runner:
         app: AppDef,
         scheduler: SchedulerBackend,
         cfg: Optional[Mapping[str, CfgVal]] = None,
+        workspace: Optional[str] = None,
     ) -> AppDryRunInfo:
         """
         Dry runs an app on the given scheduler with the provided run configs.
@@ -265,6 +276,23 @@ class Runner:
         cfg = cfg or dict()
         with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
             sched = self._scheduler(scheduler)
+
+            if workspace and isinstance(sched, Workspace):
+                role = app.roles[0]
+                old_img = role.image
+                logger.info(
+                    f"Building workspace: {workspace} for role[0]: {role.name}, image: {old_img}"
+                )
+                sched.build_workspace_and_update_role(role, workspace)
+                logger.info("Done building workspace")
+                if old_img != role.image:
+                    logger.info(f"New image: {role.image} built from workspace")
+                else:
+                    logger.info(
+                        f"Reusing original image: {old_img} for role[0]: {role.name}."
+                        " Either a patch was built or no changes to workspace was detected."
+                    )
+
             sched._validate(app, scheduler)
             dryrun_info = sched.submit_dryrun(app, cfg)
             dryrun_info._scheduler = scheduler

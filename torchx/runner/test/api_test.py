@@ -10,24 +10,21 @@ import os
 import shutil
 import tempfile
 import unittest
+from typing import Mapping, Optional
 from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
-from torchx.schedulers.api import DescribeAppResponse
+from torchx.schedulers.api import DescribeAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
     LocalDirectoryImageProvider,
     LocalScheduler,
 )
 from torchx.schedulers.test.test_util import write_shell_script
-from torchx.specs.api import (
-    AppDef,
-    AppState,
-    Resource,
-    Role,
-    UnknownAppException,
-)
+from torchx.specs import AppDryRunInfo, CfgVal
+from torchx.specs.api import AppDef, AppState, Resource, Role, UnknownAppException
 from torchx.specs.finder import ComponentNotFoundException
+from torchx.workspace import Workspace
 
 
 GET_SCHEDULERS = "torchx.runner.api.get_schedulers"
@@ -135,6 +132,67 @@ class RunnerTest(unittest.TestCase):
             runner.dryrun(app, "local_dir", cfg=self.cfg)
             scheduler_mock.submit_dryrun.assert_called_once_with(app, self.cfg)
             scheduler_mock._validate.assert_called_once()
+
+    def test_dryrun_with_workspace(self, _) -> None:
+        class TestScheduler(Scheduler, Workspace):
+            def __init__(self, build_new_img: bool):
+                Scheduler.__init__(self, backend="ignored", session_name="ignored")
+                self.build_new_img = build_new_img
+
+            def schedule(self, dryrun_info: AppDryRunInfo) -> str:
+                pass
+
+            def _submit_dryrun(
+                self, app: AppDef, cfg: Mapping[str, CfgVal]
+            ) -> AppDryRunInfo[AppDef]:
+                return AppDryRunInfo(app, lambda s: s)
+
+            def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+                pass
+
+            def _cancel_existing(self, app_id: str) -> None:
+                pass
+
+            def build_workspace_and_update_role(
+                self, role: Role, workspace: str
+            ) -> None:
+                if self.build_new_img:
+                    role.image = f"{role.image}_new"
+
+        with Runner(
+            name=SESSION_NAME,
+            schedulers={
+                "no-build-img": TestScheduler(build_new_img=False),
+                "builds-img": TestScheduler(build_new_img=True),
+            },
+        ) as runner:
+            app = AppDef(
+                "ignored",
+                roles=[
+                    Role(
+                        name="sleep",
+                        image="foo",
+                        resource=resource.SMALL,
+                        entrypoint="sleep",
+                        args=["1"],
+                    ),
+                    Role(
+                        name="sleep",
+                        image="bar",
+                        resource=resource.SMALL,
+                        entrypoint="sleep",
+                        args=["1"],
+                    ),
+                ],
+            )
+            dryruninfo = runner.dryrun(app, "no-build-img", workspace="//workspace")
+            self.assertEqual("foo", dryruninfo.request.roles[0].image)
+            self.assertEqual("bar", dryruninfo.request.roles[1].image)
+
+            dryruninfo = runner.dryrun(app, "builds-img", workspace="//workspace")
+            # workspace is attached to role[0] by default
+            self.assertEqual("foo_new", dryruninfo.request.roles[0].image)
+            self.assertEqual("bar", dryruninfo.request.roles[1].image)
 
     def test_describe(self, _) -> None:
         with Runner(

@@ -22,7 +22,6 @@ from torchx.cli.cmd_run import (
     CmdRun,
     _parse_component_name_and_args,
     _parse_run_config,
-    logger,
 )
 from torchx.schedulers.local_scheduler import SignalException
 from torchx.specs import runopts
@@ -159,26 +158,6 @@ class CmdRunTest(unittest.TestCase):
         )
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
-
-    @patch("torchx.runner.workspaces.WorkspaceRunner._patch_app")
-    def test_runopts_not_found(self, patch_app: MagicMock) -> None:
-        args = self.parser.parse_args(
-            [
-                "--dryrun",
-                "--scheduler",
-                "kubernetes",
-                "utils.echo",
-                "--image",
-                "/tmp",
-            ]
-        )
-        with patch.object(logger, "error") as log_error:
-            with self.assertRaises(SystemExit) as e:
-                self.cmd_run.run(args)
-            msg = log_error.call_args[0][0]
-            self.assertTrue(
-                "Scheduler arg is incorrect or missing required option" in msg
-            )
 
     def _get_test_runopts(self) -> runopts:
         opts = runopts()
