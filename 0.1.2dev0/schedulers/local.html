@@ -602,24 +602,6 @@ status but does not provide the complete original AppSpec.
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler.build_workspace_image">
-<span class="sig-name descname"><span class="pre">build_workspace_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler.build_workspace_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler.build_workspace_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>build_workspace_image creates a new image with the files in workspace
-overlaid on top of it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>img</strong> – a Docker image to use as a base</p></li>
-<li><p><strong>workspace</strong> – a fsspec path to a directory with contents to be overlaid</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The new Docker image ID.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler.describe">
 <span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.DescribeAppResponse</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler.describe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Describes the specified application.</p>

@@ -412,17 +412,15 @@
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
-    <span class="n">WorkspaceScheduler</span><span class="p">,</span>
+    <span class="n">Scheduler</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.docker_scheduler</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">build_container_from_workspace</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
+    <span class="n">CfgVal</span><span class="p">,</span>
     <span class="n">ReplicaState</span><span class="p">,</span>
     <span class="n">ReplicaStatus</span><span class="p">,</span>
     <span class="n">RetryPolicy</span><span class="p">,</span>
@@ -431,8 +429,8 @@
     <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">macros</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
-    <span class="n">CfgVal</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspace</span>
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -674,7 +672,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="KubernetesScheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">[docs]</a><span class="k">class</span> <span class="nc">KubernetesScheduler</span><span class="p">(</span><span class="n">WorkspaceScheduler</span><span class="p">):</span>
+<div class="viewcode-block" id="KubernetesScheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">[docs]</a><span class="k">class</span> <span class="nc">KubernetesScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">,</span> <span class="n">DockerWorkspace</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    KubernetesScheduler is a TorchX scheduling interface to Kubernetes.</span>
 
@@ -961,21 +959,7 @@
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">iterator</span></div>
-
-<div class="viewcode-block" id="KubernetesScheduler.build_workspace_image"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.build_workspace_image">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        build_workspace_image creates a new image with the files in workspace</span>
-<span class="sd">        overlaid on top of it.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            img: a Docker image to use as a base</span>
-<span class="sd">            workspace: a fsspec path to a directory with contents to be overlaid</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The new Docker image ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">build_container_from_workspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="p">(),</span> <span class="n">img</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="n">iterator</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KubernetesScheduler</span><span class="p">:</span>
