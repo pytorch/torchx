@@ -54,9 +54,15 @@ SLURM_STATES: Mapping[str, AppState] = {
     "TIMEOUT": AppState.FAILED,
 }
 
-SBATCH_OPTIONS = {
+SBATCH_JOB_OPTIONS = {
+    "comment",
+    "mail-user",
+    "mail-type",
+}
+SBATCH_GROUP_OPTIONS = {
     "partition",
     "time",
+    "constraint",
 }
 
 
@@ -90,7 +96,7 @@ class SlurmReplicaRequest:
         for k, v in cfg.items():
             if v is None:
                 continue
-            if k in SBATCH_OPTIONS:
+            if k in SBATCH_GROUP_OPTIONS:
                 sbatch_opts[k] = str(v)
         sbatch_opts.setdefault("ntasks-per-node", "1")
         resource = role.resource
@@ -271,6 +277,26 @@ class SlurmScheduler(Scheduler):
             default=False,
             help="disables memory request to workaround https://github.com/aws/aws-parallelcluster/issues/2198",
         )
+        opts.add(
+            "comment",
+            type_=str,
+            help="Comment to set on the slurm job.",
+        )
+        opts.add(
+            "constraint",
+            type_=str,
+            help="Constraint to use for the slurm job.",
+        )
+        opts.add(
+            "mail-user",
+            type_=str,
+            help="User to mail on job end.",
+        )
+        opts.add(
+            "mail-type",
+            type_=str,
+            help="What events to mail users on.",
+        )
         return opts
 
     def schedule(self, dryrun_info: AppDryRunInfo[SlurmBatchRequest]) -> str:
@@ -301,8 +327,14 @@ class SlurmScheduler(Scheduler):
                 name = f"{role.name}-{replica_id}"
                 replica_role = values.apply(role)
                 replicas[name] = SlurmReplicaRequest.from_role(name, replica_role, cfg)
+        cmd = ["sbatch", "--parsable"]
+
+        for k in SBATCH_JOB_OPTIONS:
+            if k in cfg and cfg[k] is not None:
+                cmd += [f"--{k}={cfg[k]}"]
+
         req = SlurmBatchRequest(
-            cmd=["sbatch", "--parsable"],
+            cmd=cmd,
             replicas=replicas,
         )
         return AppDryRunInfo(req, repr)
