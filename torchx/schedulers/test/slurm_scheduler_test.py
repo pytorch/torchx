@@ -34,27 +34,51 @@ def tmp_cwd() -> Generator[None, None, None]:
             os.chdir(cwd)
 
 
+def simple_role() -> specs.Role:
+    return specs.Role(
+        name="foo",
+        image="/some/path",
+        entrypoint="echo",
+        args=["hello slurm", "test"],
+        env={
+            "FOO": "bar",
+        },
+        num_replicas=5,
+        resource=specs.Resource(
+            cpu=2,
+            memMB=10,
+            gpu=3,
+        ),
+    )
+
+
+def simple_app() -> specs.AppDef:
+    return specs.AppDef(
+        name="foo",
+        roles=[
+            specs.Role(
+                name="a",
+                image="/some/path",
+                entrypoint="echo",
+                args=[specs.macros.replica_id, f"hello {specs.macros.app_id}"],
+                num_replicas=2,
+            ),
+            specs.Role(
+                name="b",
+                image="/some/path",
+                entrypoint="echo",
+            ),
+        ],
+    )
+
+
 class SlurmSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         scheduler = create_scheduler("foo")
         self.assertIsInstance(scheduler, SlurmScheduler)
 
     def test_replica_request(self) -> None:
-        role = specs.Role(
-            name="foo",
-            image="/some/path",
-            entrypoint="echo",
-            args=["hello slurm", "test"],
-            env={
-                "FOO": "bar",
-            },
-            num_replicas=5,
-            resource=specs.Resource(
-                cpu=2,
-                memMB=10,
-                gpu=3,
-            ),
-        )
+        role = simple_role()
         sbatch, srun = SlurmReplicaRequest.from_role(
             "role-0", role, cfg={}
         ).materialize()
@@ -79,9 +103,9 @@ class SlurmSchedulerTest(unittest.TestCase):
             ],
         )
 
-        # test nomem option
+    def test_replica_request_nomem(self) -> None:
         sbatch, srun = SlurmReplicaRequest.from_role(
-            "role-name", role, cfg={"nomem": True}
+            "role-name", simple_role(), cfg={"nomem": True}
         ).materialize()
         self.assertEqual(
             sbatch,
@@ -91,6 +115,15 @@ class SlurmSchedulerTest(unittest.TestCase):
                 "--cpus-per-task=2",
                 "--gpus-per-task=3",
             ],
+        )
+
+    def test_replica_request_constraint(self) -> None:
+        sbatch, srun = SlurmReplicaRequest.from_role(
+            "role-name", simple_role(), cfg={"constraint": "orange"}
+        ).materialize()
+        self.assertIn(
+            "--constraint=orange",
+            sbatch,
         )
 
     def test_replica_request_app_id(self) -> None:
@@ -132,23 +165,7 @@ class SlurmSchedulerTest(unittest.TestCase):
 
     def test_dryrun_multi_role(self) -> None:
         scheduler = create_scheduler("foo")
-        app = specs.AppDef(
-            name="foo",
-            roles=[
-                specs.Role(
-                    name="a",
-                    image="/some/path",
-                    entrypoint="echo",
-                    args=[specs.macros.replica_id, f"hello {specs.macros.app_id}"],
-                    num_replicas=2,
-                ),
-                specs.Role(
-                    name="b",
-                    image="/some/path",
-                    entrypoint="echo",
-                ),
-            ],
-        )
+        app = simple_app()
         info = scheduler.submit_dryrun(app, cfg={})
         req = info.request
         self.assertIsInstance(req, SlurmBatchRequest)
@@ -344,3 +361,36 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
                 )
             )
             self.assertEqual(logs, ["hello", "world"])
+
+    def test_dryrun_comment(self) -> None:
+        scheduler = create_scheduler("foo")
+        app = simple_app()
+        info = scheduler.submit_dryrun(
+            app,
+            cfg={
+                "comment": "banana foo bar",
+            },
+        )
+        self.assertIn(
+            "--comment=banana foo bar",
+            info.request.cmd,
+        )
+
+    def test_dryrun_mail(self) -> None:
+        scheduler = create_scheduler("foo")
+        app = simple_app()
+        info = scheduler.submit_dryrun(
+            app,
+            cfg={
+                "mail-user": "foo@bar.com",
+                "mail-type": "END",
+            },
+        )
+        self.assertIn(
+            "--mail-user=foo@bar.com",
+            info.request.cmd,
+        )
+        self.assertIn(
+            "--mail-type=END",
+            info.request.cmd,
+        )
