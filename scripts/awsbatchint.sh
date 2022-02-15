@@ -7,11 +7,13 @@
 
 set -ex
 
+RUN_ARGS="--scheduler aws_batch -c queue=torchx,image_repo=495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/integration-tests utils.echo"
+
 if [ -z "$AWS_ROLE_ARN" ]; then
   # only dryrun if no secrets
-  torchx run --wait --scheduler aws_batch --dryrun -c queue=torchx utils.echo
+  torchx run --dryrun $RUN_ARGS
 else
-  APP_ID="$(torchx run --wait --scheduler aws_batch -c queue=torchx utils.echo)"
+  APP_ID="$(torchx run --wait $RUN_ARGS)"
   torchx status "$APP_ID"
   torchx describe "$APP_ID"
   torchx log "$APP_ID"

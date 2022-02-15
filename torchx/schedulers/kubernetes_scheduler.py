@@ -359,10 +359,10 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        super().__init__("kubernetes", session_name)
+        Scheduler.__init__(self, "kubernetes", session_name)
+        DockerWorkspace.__init__(self, docker_client)
 
         self._client = client
-        self.__docker_client = docker_client
 
     def _api_client(self) -> "ApiClient":
         from kubernetes import client, config
@@ -384,15 +384,6 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
 
         return client.CustomObjectsApi(self._api_client())
 
-    def _docker_client(self) -> "DockerClient":
-        client = self.__docker_client
-        if not client:
-            import docker
-
-            client = docker.from_env()
-            self.__docker_client = client
-        return client
-
     def _get_job_name_from_exception(self, e: "ApiException") -> Optional[str]:
         try:
             return json.loads(e.body)["details"]["name"]
@@ -408,19 +399,7 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
         namespace = cfg.get("namespace") or "default"
 
         images_to_push = dryrun_info.request.images_to_push
-        if len(images_to_push) > 0:
-            client = self._docker_client()
-            for local, (repo, tag) in images_to_push.items():
-                logger.info(f"pushing image {repo}:{tag}...")
-                img = client.images.get(local)
-                img.tag(repo, tag=tag)
-                for line in client.images.push(repo, tag=tag, stream=True, decode=True):
-                    ERROR_KEY = "error"
-                    if ERROR_KEY in line:
-                        raise RuntimeError(
-                            f"failed to push docker image: {line[ERROR_KEY]}"
-                        )
-                    logger.info(f"docker: {line}")
+        self._push_images(images_to_push)
 
         resource = dryrun_info.request.resource
         try:
@@ -450,24 +429,7 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
 
         # map any local images to the remote image
-        images_to_push = {}
-        for role in app.roles:
-            HASH_PREFIX = "sha256:"
-            if role.image.startswith(HASH_PREFIX):
-                image_repo = cfg.get("image_repo")
-                if not image_repo:
-                    raise KeyError(
-                        f"must specify the image repository via `image_repo` config to be able to upload local image {role.image}"
-                    )
-                assert isinstance(image_repo, str), "image_repo must be str"
-
-                image_hash = role.image[len(HASH_PREFIX) :]
-                remote_image = image_repo + ":" + image_hash
-                images_to_push[role.image] = (
-                    image_repo,
-                    image_hash,
-                )
-                role.image = remote_image
+        images_to_push = self._update_app_images(app, cfg)
 
         resource = app_to_resource(app, queue)
         req = KubernetesJob(
