@@ -4,58 +4,64 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import contextlib
-import importlib
 import json
 import logging
 import os
+import subprocess
 import sys
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import ray
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
-from torchx.schedulers.ray.ray_common import RayActor
+
+# Hack to make code work for tests as well as running ray job.
+# For tests the `torchx.schedulers.ray.ray_common` import must be used
+# For running ray jobs `ray_common` import must be used
+try:
+    # pyre-ignore[21]: Could not find a module corresponding to import `ray_common`
+    from ray_common import RayActor
+except ModuleNotFoundError:
+    from torchx.schedulers.ray.ray_common import RayActor
 
 _logger: logging.Logger = logging.getLogger(__name__)
-_logger.setLevel(logging.INFO)
-
-
-@contextlib.contextmanager
-def redirect_argv(args: List[str]):  # pyre-ignore[3]
-    _argv = sys.argv[:]
-    sys.argv = args
-    yield
-    sys.argv = _argv
+_logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
 @ray.remote
 class CommandActor:  # pragma: no cover
     def __init__(self, command: str, env: Dict[str, str]) -> None:
-        self.args: List[str] = command.split(" ")
-        self.path: str = self.args[0]
-
-        for k, v in env.items():
-            os.environ[k] = v
+        self.cmd: List[str] = command.split(" ")
+        self.env = env
+        self.master_addr: Optional[str] = None
+        self.master_port: Optional[int] = None
 
     def exec_module(self) -> None:
-        spec: Optional[
-            importlib.machinery.ModuleSpec
-        ] = importlib.util.spec_from_file_location("__main__", self.path)
-        if spec:  # pragma: no cover
-            train = importlib.util.module_from_spec(spec)
-            with redirect_argv(self.args):
-                spec.loader.exec_module(train)  # pyre-ignore[16]
+        if self.master_addr is None or self.master_port is None:
+            raise RuntimeError(
+                "Either MASTER_ADDR or MASTER_PORT are not set. This is most likely bug in torchx"
+                "Open issue at https://github.com/pytorch/torchx"
+            )
+        worker_evn = {}
+        worker_evn.update(os.environ)
+        worker_evn.update(self.env)
+        worker_evn["MASTER_ADDR"] = self.master_addr
+        worker_evn["MASTER_PORT"] = str(self.master_port)
+        popen = subprocess.Popen(self.cmd, env=worker_evn)
+        returncode = popen.wait()
+        _logger.info(f"Finished with code {returncode}")
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
         return get_address_and_port()
 
     def set_address_and_port(self, address: str, port: int) -> None:
-        os.environ["MASTER_PORT"] = str(port)
-        os.environ["MASTER_ADDR"] = address
+        self.master_addr = address
+        self.master_port = port
 
 
-def load_actor_json(filename: str) -> List[RayActor]:
+# pyre-ignore[11]
+def load_actor_json(filename: str) -> List["RayActor"]:
     with open(filename) as f:
         actors: List[RayActor] = []
         # Yes this is gross but it works
@@ -80,10 +86,7 @@ def create_placement_groups(actors: List[RayActor]) -> List[PlacementGroup]:
         _logger.info("Waiting for placement group to start.")
         ready = pg.wait(timeout_seconds=100)
 
-        if ready:
-            _logger.info("Placement group has started.")
-            _logger.info("Starting remote function")
-        else:  # pragma: no cover
+        if not ready:  # pragma: no cover
             raise TimeoutError(
                 "Placement group creation timed out. Make sure "
                 "your cluster either has enough resources or use "
@@ -97,15 +100,10 @@ def create_placement_groups(actors: List[RayActor]) -> List[PlacementGroup]:
 def create_command_actors(
     actors: List[RayActor], pgs: List[PlacementGroup]
 ) -> List[CommandActor]:
-
-    # 1. Create actors
-    # 2. For each actor get rank 0 address and port
-    # 3. Set address and port in command actor
-    command_actors: List[CommandActor] = []
-    # address, port = get_address_and_port()
+    cmd_actors: List[CommandActor] = []
     for i in range(len(actors)):
         world_size = actors[i].num_replicas
-        actors_for_this_group = []
+        actor_group = []
 
         for rank in range(world_size):
 
@@ -117,7 +115,7 @@ def create_command_actors(
 
             actor_and_rank_env = {**actors[i].env, **rank_env}
 
-            actors_for_this_group.append(
+            actor_group.append(
                 CommandActor.options(  # pyre-ignore[16]
                     placement_group=pgs[i],
                     num_cpus=actors[i].num_cpus,
@@ -126,32 +124,24 @@ def create_command_actors(
             )
 
             rank_0_address, rank_0_port = ray.get(
-                actors_for_this_group[0].get_actor_address_and_port.remote()
+                actor_group[0].get_actor_address_and_port.remote()
             )
 
-            for actor in actors_for_this_group:
+            for actor in actor_group:
                 ray.get(actor.set_address_and_port.remote(rank_0_address, rank_0_port))
 
-            command_actors.extend(actors_for_this_group)
+            cmd_actors.extend(actor_group)
 
-    return command_actors
+    return cmd_actors
 
 
-if __name__ == "__main__":  # pragma: no cover
-    _logger.debug("Reading actor.json")
-
+def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
-    os.remove("actors.json")
-
-    _logger.debug("Creating Ray placement groups")
     ray.init(address="auto", namespace="torchx-ray")
     pgs: List[PlacementGroup] = create_placement_groups(actors)
-
-    _logger.debug("Getting command actors")
     command_actors: List[CommandActor] = create_command_actors(actors, pgs)
 
-    _logger.debug("Running Ray actors")
-    active_workers = [  # pyre-ignore
+    active_workers = [
         command_actor.exec_module.remote()  # pyre-ignore
         for command_actor in command_actors
     ]
@@ -164,11 +154,14 @@ if __name__ == "__main__":  # pragma: no cover
         for object_ref in completed_workers:
             try:
                 ray.get(object_ref)
-                _logger.info("Ray remote function promise succesfully returned")
-
-            # If an error occurs during the actor execution, this error will get propagated as-is to the driver when you call ray.get().
-            # For example, if a ValueError is raised in the actor method call, this will be raised as a ValueError on the driver.
+            # If an error occurs during the actor execution,
+            # this error will get propagated as-is to the driver when you call ray.get().
+            # For example, if a ValueError is raised in the actor method call,
+            # this will be raised as a ValueError on the driver.
             # These exceptions will not be caught in this try-except clause
             except ray.exceptions.RayActorError as exc:
-                _logger.info("Ray Actor Error")
                 _logger.error("Ray Actor error", exc)
+
+
+if __name__ == "__main__":
+    main()
