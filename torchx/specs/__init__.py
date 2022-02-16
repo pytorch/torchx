@@ -11,7 +11,7 @@ used by components to define the apps which can then be launched via a TorchX
 scheduler or pipeline adapter.
 """
 
-from typing import Dict
+from typing import Dict, Optional
 
 import torchx.specs.named_resources_aws as aws_resources
 from torchx.util.entrypoints import load_group
@@ -70,6 +70,51 @@ def _load_named_resources() -> Dict[str, Resource]:
 
 
 named_resources: Dict[str, Resource] = _load_named_resources()
+
+
+def resource(
+    cpu: Optional[int] = None,
+    gpu: Optional[int] = None,
+    memMB: Optional[int] = None,
+    h: Optional[str] = None,
+) -> Resource:
+    """
+    Convenience method to create a ``Resource`` object from either the
+    raw resource specs (cpu, gpu, memMB) or the registered named resource (``h``).
+    Note that the (cpu, gpu, memMB) is mutually exclusive with ``h``
+    with ``h`` taking predecence if specified.
+
+    If ``h`` is specified then it is used to look up the
+    resource specs from the list of registered named resources.
+    See `registering named resource <https://pytorch.org/torchx/latest/advanced.html#registering-named-resources>`_.
+
+    Otherwise a ``Resource`` object is created from the raw resource specs.
+
+    Example:
+
+    .. code-block:: python
+     resource(cpu=1) # returns Resource(cpu=1)
+     resource(named_resource="foobar") # returns registered named resource "foo"
+     resource(cpu=1, named_resource="foobar") # returns registered named resource "foo" (cpu=1 ignored)
+     resource() # returns default resource values
+     resource(cpu=None, gpu=None, memMB=None) # throws
+    """
+
+    if h:
+        return get_named_resources(h)
+    else:
+        # could make these defaults customizable via entrypoint
+        # not doing that now since its not a requested feature and may just over complicate things
+        # keeping these defaults method local so that no one else takes a dep on it
+        DEFAULT_CPU = 2
+        DEFAULT_GPU = 0
+        DEFAULT_MEM_MB = 1024
+
+        return Resource(
+            cpu=cpu or DEFAULT_CPU,
+            gpu=gpu or DEFAULT_GPU,
+            memMB=memMB or DEFAULT_MEM_MB,
+        )
 
 
 def get_named_resources(res: str) -> Resource:
