@@ -498,7 +498,10 @@
     <span class="n">script</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">h</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aws_t3.medium&quot;</span><span class="p">,</span>
+    <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">j</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1x2&quot;</span><span class="p">,</span>
     <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etcd-server.default.svc.cluster.local:2379&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
@@ -507,12 +510,19 @@
 <span class="sd">    Uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_</span>
 <span class="sd">    to launch and coordinate pytorch worker processes.</span>
 
+<span class="sd">    Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where</span>
+<span class="sd">          ``h`` takes precedence if specified for setting resource requirements.</span>
+<span class="sd">          See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        script_args: arguments to the main module</span>
 <span class="sd">        script: script or binary to run within the image</span>
 <span class="sd">        image: image (e.g. docker)</span>
 <span class="sd">        name: job name override (uses the script name if not specified)</span>
-<span class="sd">        h: a registered named resource</span>
+<span class="sd">        cpu: number of cpus per replica</span>
+<span class="sd">        gpu: number of gpus per replica</span>
+<span class="sd">        memMB: cpu memory in MB per replica</span>
+<span class="sd">        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)</span>
 <span class="sd">        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus</span>
 <span class="sd">        rdzv_endpoint: etcd server endpoint (only matters when nnodes &gt; 1)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -536,7 +546,7 @@
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
-                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">named_resources</span><span class="p">[</span><span class="n">h</span><span class="p">],</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">),</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span>
                     <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">,</span>
