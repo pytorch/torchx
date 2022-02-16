@@ -101,7 +101,10 @@ def python(
     c: Optional[str] = None,
     image: str = torchx.IMAGE,
     name: str = "torchx_utils_python",
-    host: str = "aws_t3.medium",
+    cpu: int = 2,
+    gpu: int = 0,
+    memMB: int = 1024,
+    h: Optional[str] = None,
     num_replicas: int = 1,
 ) -> specs.AppDef:
     """
@@ -109,13 +112,20 @@ def python(
     image and host. Use ``--`` to separate component args and program args
     (e.g. ``torchx run utils.python --m foo.main -- --args to --main``)
 
+    Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
+          ``h`` takes precedence if specified for setting resource requirements.
+          See `registering named resources <https://pytorch.org/torchx/latest/advanced.html#registering-named-resources>`_.
+
     Args:
         args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)
         m: run library module as a script
         c: program passed as string (may error if scheduler has a length limit on args)
         image: image to run on
         name: name of the job
-        host: a registered named resource
+        cpu: number of cpus per replica
+        gpu: number of gpus per replica
+        memMB: cpu memory in MB per replica
+        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         num_replicas: number of copies to run (each on its own container)
     :return:
     """
@@ -134,7 +144,7 @@ def python(
                 image=image,
                 entrypoint="python",
                 num_replicas=num_replicas,
-                resource=specs.named_resources[host],
+                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
                 # pyre-ignore[6]: one of (only one of) m or c HAS to be not null
                 args=[
                     "-m" if m else "-c",

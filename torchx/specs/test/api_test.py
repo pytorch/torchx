@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 
 import torchx.specs.named_resources_aws as named_resources_aws
 from pyre_extensions import none_throws
-from torchx.specs import named_resources
+from torchx.specs import named_resources, resource
 from torchx.specs.api import (
     _TERMINAL_STATES,
     MISSING,
@@ -123,6 +123,18 @@ class ResourceTest(unittest.TestCase):
         self.assertEqual(
             named_resources_aws.aws_p3_8xlarge(), named_resources["aws_p3.8xlarge"]
         )
+
+    def test_resource_util_fn(self) -> None:
+        self.assertEqual(Resource(cpu=2, gpu=0, memMB=1024), resource())
+        self.assertEqual(Resource(cpu=1, gpu=0, memMB=1024), resource(cpu=1))
+        self.assertEqual(Resource(cpu=2, gpu=1, memMB=1024), resource(cpu=2, gpu=1))
+        self.assertEqual(
+            Resource(cpu=2, gpu=1, memMB=2048), resource(cpu=2, gpu=1, memMB=2048)
+        )
+
+        h = "aws_t3.medium"
+        self.assertEqual(named_resources[h], resource(h=h))
+        self.assertEqual(named_resources[h], resource(cpu=16, gpu=4, h="aws_t3.medium"))
 
 
 class RoleBuilderTest(unittest.TestCase):

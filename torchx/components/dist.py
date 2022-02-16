@@ -134,7 +134,10 @@ def ddp(
     script: str,
     image: str = torchx.IMAGE,
     name: Optional[str] = None,
-    h: str = "aws_t3.medium",
+    cpu: int = 2,
+    gpu: int = 0,
+    memMB: int = 1024,
+    h: Optional[str] = None,
     j: str = "1x2",
     rdzv_endpoint: str = "etcd-server.default.svc.cluster.local:2379",
 ) -> specs.AppDef:
@@ -143,12 +146,19 @@ def ddp(
     Uses `torch.distributed.run <https://pytorch.org/docs/stable/distributed.elastic.html>`_
     to launch and coordinate pytorch worker processes.
 
+    Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
+          ``h`` takes precedence if specified for setting resource requirements.
+          See `registering named resources <https://pytorch.org/torchx/latest/advanced.html#registering-named-resources>`_.
+
     Args:
         script_args: arguments to the main module
         script: script or binary to run within the image
         image: image (e.g. docker)
         name: job name override (uses the script name if not specified)
-        h: a registered named resource
+        cpu: number of cpus per replica
+        gpu: number of gpus per replica
+        memMB: cpu memory in MB per replica
+        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         rdzv_endpoint: etcd server endpoint (only matters when nnodes > 1)
     """
@@ -172,7 +182,7 @@ def ddp(
                 image=image,
                 entrypoint="python",
                 num_replicas=nnodes,
-                resource=specs.named_resources[h],
+                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
                 args=[
                     "-m",
                     "torch.distributed.run",
