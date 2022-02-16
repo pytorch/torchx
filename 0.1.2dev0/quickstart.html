@@ -749,10 +749,10 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-02-15 18:46:39 INFO     Log files located in: /tmp/torchx_baay9yuw/torchx/hello_world-mjvqng1tlftsfc/greeter/0
-torchx 2022-02-15 18:46:40 INFO     Waiting for the app to finish...
+torchx 2022-02-16 21:40:09 INFO     Log files located in: /tmp/torchx_ke4s2yy0/torchx/hello_world-cdff9jpr45j73/greeter/0
+torchx 2022-02-16 21:40:10 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-02-15 18:46:41 INFO     Job finished: SUCCEEDED
+torchx 2022-02-16 21:40:11 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -760,7 +760,7 @@ torchx 2022-02-15 18:46:41 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-mjvqng1tlftsfc
+local_cwd://torchx/hello_world-cdff9jpr45j73
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -835,10 +835,10 @@ d2e110be24e1: Download complete
 889a7173dcfe: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
-6009a622672a: Verifying Checksum
-6009a622672a: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
+6009a622672a: Verifying Checksum
+6009a622672a: Download complete
 06b5edd6bf52: Verifying Checksum
 06b5edd6bf52: Download complete
 d4c7af0d4fa7: Verifying Checksum
@@ -847,19 +847,20 @@ c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
 30587ba7fd6b: Verifying Checksum
 30587ba7fd6b: Download complete
-4bbfd2c87b75: Pull complete
-d2e110be24e1: Pull complete
-889a7173dcfe: Pull complete
-6009a622672a: Pull complete
 909695be1d50: Verifying Checksum
 909695be1d50: Download complete
+f119a6d0a466: Verifying Checksum
 f119a6d0a466: Download complete
 88d87059c913: Verifying Checksum
 88d87059c913: Download complete
-143f80195431: Verifying Checksum
-143f80195431: Download complete
+4bbfd2c87b75: Pull complete
 f18d016c4ccc: Verifying Checksum
 f18d016c4ccc: Download complete
+143f80195431: Verifying Checksum
+143f80195431: Download complete
+d2e110be24e1: Pull complete
+889a7173dcfe: Pull complete
+6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
 d4c7af0d4fa7: Pull complete
@@ -874,8 +875,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; 5ba2cff82035
-Successfully built 5ba2cff82035
+ ---&gt; 3b28c77195b7
+Successfully built 3b28c77195b7
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -894,14 +895,14 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-02-15 18:49:59 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: greeter, image: my_app:latest
-torchx 2022-02-15 18:50:08 INFO     Done building workspace
-torchx 2022-02-15 18:50:08 INFO     New image: sha256:26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1 built from workspace
-torchx 2022-02-15 18:50:10 INFO     Pulling container image: sha256:26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1 (this may take a while)
-torchx 2022-02-15 18:50:10 WARNING  failed to pull image sha256:26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-02-15 18:50:10 INFO     Waiting for the app to finish...
+torchx 2022-02-16 21:42:17 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: greeter, image: my_app:latest
+torchx 2022-02-16 21:42:25 INFO     Done building workspace
+torchx 2022-02-16 21:42:25 INFO     New image: sha256:d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097 built from workspace
+torchx 2022-02-16 21:42:26 INFO     Pulling container image: sha256:d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097 (this may take a while)
+torchx 2022-02-16 21:42:27 WARNING  failed to pull image sha256:d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-02-16 21:42:27 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-02-15 18:50:11 INFO     Job finished: SUCCEEDED
+torchx 2022-02-16 21:42:28 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -909,7 +910,7 @@ torchx 2022-02-15 18:50:11 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-x3ht6rqh9z6h5
+local_docker://torchx/hello_world-tz9z7tqxk3l6md
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -963,13 +964,13 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-02-15 18:50:15 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: echo, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-02-15 18:50:15 INFO     Done building workspace
-torchx 2022-02-15 18:50:15 INFO     New image: sha256:26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1 built from workspace
-torchx 2022-02-15 18:50:16 INFO     Pulling container image: sha256:26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1 (this may take a while)
-torchx 2022-02-15 18:50:16 WARNING  failed to pull image sha256:26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=26ea6174dd48495727568388c62283765c52bd94ecba55a2649fdf11cc0cadc1&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-02-15 18:50:17 INFO     Waiting for the app to finish...
-torchx 2022-02-15 18:50:17 INFO     Job finished: SUCCEEDED
+torchx 2022-02-16 21:42:31 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: echo, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-02-16 21:42:31 INFO     Done building workspace
+torchx 2022-02-16 21:42:31 INFO     New image: sha256:d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097 built from workspace
+torchx 2022-02-16 21:42:32 INFO     Pulling container image: sha256:d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097 (this may take a while)
+torchx 2022-02-16 21:42:33 WARNING  failed to pull image sha256:d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=d46728fac28b6e5193704080fe9f2a055f2cc1167154ce116af8605709422097&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-02-16 21:42:33 INFO     Waiting for the app to finish...
+torchx 2022-02-16 21:42:33 INFO     Job finished: SUCCEEDED
 echo/0 Hello :)
 </pre></div></div>
 </div>
@@ -978,7 +979,7 @@ echo/0 Hello :)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-hk2sp2hpdz174c
+local_docker://torchx/echo-ndc3wmrcfjnnkc
 </pre></div></div>
 </div>
 </section>
