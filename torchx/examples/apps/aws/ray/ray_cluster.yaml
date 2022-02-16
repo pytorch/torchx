@@ -52,8 +52,8 @@ auth:
 # The key is the name of the node type, which is just for debugging purposes.
 # The node config specifies the launch config and physical instance type.
 available_node_types:
-  # GPU head node.
-  ray.head.gpu:
+  # CPU head node.
+  ray.head.cpu:
     # worker_image: rayproject/ray:latest-gpu   # use this one if you don't need ML dependencies, it's faster to pull
     # The node type's CPU and GPU resources are auto-detected based on AWS instance type.
     # If desired, you can override the autodetected CPU and GPU resources advertised to the autoscaler.
@@ -66,13 +66,13 @@ available_node_types:
     # For more documentation on available fields, see:
     # http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.ServiceResource.create_instances
     node_config:
-      InstanceType: p2.xlarge
+      InstanceType: m5.large
       ImageId: ami-0a2363a9cff180a64 # Deep Learning AMI (Ubuntu) Version 30
       # You can provision additional disk space with a conf as follows
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
-            VolumeSize: 100
+            VolumeSize: 200
       # Additional options in the boto docs.
   # CPU workers.
   ray.worker.default:
@@ -109,7 +109,7 @@ available_node_types:
       # Additional options in the boto docs.
 
 # Specify the node type of the head node (as configured above).
-head_node_type: ray.head.gpu
+head_node_type: ray.head.cpu
 
 # Files or directories to copy to the head and worker nodes. The format is a
 # dictionary from REMOTE_PATH: LOCAL_PATH, e.g.

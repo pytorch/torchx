@@ -211,9 +211,6 @@ if has_ray():
             ):
                 self._scheduler._submit_dryrun(self._app_def, self._run_cfg)
 
-        def test_submit_dryrun_raises_error_if_cluster_name_is_not_str(self) -> None:
-            self._assert_config_value("cluster_name", 1, "str")
-
         def _assert_submit_dryrun_constructs_job_definition(self) -> None:
             run_info = self._scheduler._submit_dryrun(self._app_def, self._run_cfg)
 
@@ -234,7 +231,6 @@ if has_ray():
                 self.assertEqual(actor.num_replicas, max(1, role.num_replicas))
                 self.assertEqual(actor.num_cpus, max(1, role.resource.cpu))
                 self.assertEqual(actor.num_gpus, max(0, role.resource.gpu))
-                self.assertEqual(job.scripts, set())
 
         def test_submit_dryrun_constructs_job_definition(self) -> None:
             self._assert_submit_dryrun_constructs_job_definition()
@@ -342,7 +338,6 @@ if has_ray():
             ray_job = RayJob(
                 app_id=app_id,
                 dashboard_address="127.0.0.1:8265",
-                scripts=set([os.path.join(current_dir, "train.py")]),
                 actors=[actor],
             )
             app_info = AppDryRunInfo(ray_job, repr)

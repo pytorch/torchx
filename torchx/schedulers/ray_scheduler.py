@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree, copytree
 from tempfile import mkdtemp
-from typing import Any, Dict, List, Mapping, Optional, Set, Type
+from typing import Any, Dict, List, Mapping, Optional, Set, Type, cast  # noqa
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -103,7 +103,6 @@ if _has_ray:
         dashboard_address: Optional[str] = None
         working_dir: Optional[str] = None
         requirements: Optional[str] = None
-        scripts: Set[str] = field(default_factory=set)
         actors: List[RayActor] = field(default_factory=list)
 
     class RayScheduler(Scheduler):
@@ -147,17 +146,22 @@ if _has_ray:
             dirpath = mkdtemp()
             serialize(actors, dirpath)
 
-            ip_address = "127.0.0.1:8265"
-
+            job_submission_addr: str = ""
             if cfg.cluster_config_file:
-                ip_address = ray_autoscaler_sdk.get_head_node_ip(
+                job_submission_addr = ray_autoscaler_sdk.get_head_node_ip(
                     cfg.cluster_config_file
                 )  # pragma: no cover
-            if cfg.dashboard_address:
-                ip_address = cfg.dashboard_address
+            elif cfg.dashboard_address:
+                job_submission_addr = cfg.dashboard_address
+            else:
+                raise RuntimeError(
+                    "Either `dashboard_address` or `cluster_config_file` must be specified"
+                )
 
             # 0. Create Job Client
-            client: JobSubmissionClient = JobSubmissionClient(f"http://{ip_address}")
+            client: JobSubmissionClient = JobSubmissionClient(
+                f"http://{job_submission_addr}"
+            )
 
             # 1. Copy working directory
             if cfg.working_dir:
@@ -182,22 +186,22 @@ if _has_ray:
                     # and use it to configure your job execution.
                     entrypoint="python ray_driver.py",
                     runtime_env={"working_dir": dirpath, "pip": reqs},
-                    # job_id = cfg.app_id
                 )
 
-            except Exception as e:
+            except Exception:
                 raise
 
             finally:
                 rmtree(dirpath)
 
             # Encode job submission client in job_id
-            return f"{ip_address}-{job_id}"
+            return f"{job_submission_addr}-{job_id}"
 
         def _submit_dryrun(
             self, app: AppDef, cfg: Mapping[str, CfgVal]
         ) -> AppDryRunInfo[RayJob]:
             app_id = make_unique(app.name)
+            requirements: Optional[str] = cast(Optional[str], cfg.get("requirements"))
 
             cluster_cfg = cfg.get("cluster_config_file")
             if cluster_cfg:
@@ -205,29 +209,22 @@ if _has_ray:
                     raise ValueError(
                         "The cluster configuration file must be a YAML file."
                     )
-                job: RayJob = RayJob(app_id, cluster_cfg)
 
-            else:  # pragma: no cover
-                dashboard_address = cfg.get("dashboard_address")
                 job: RayJob = RayJob(
-                    app_id=app_id, dashboard_address=dashboard_address  # pyre-ignore[6]
+                    app_id,
+                    cluster_cfg,
+                    requirements=requirements,
                 )
 
-            # pyre-ignore[24]: Generic type `type` expects 1 type parameter
-            def set_job_attr(cfg_name: str, cfg_type: Type) -> None:
-                cfg_value = cfg.get(cfg_name)
-                if cfg_value is None:
-                    return
-
-                if not isinstance(cfg_value, cfg_type):
-                    raise TypeError(
-                        f"The configuration value '{cfg_name}' must be of type {cfg_type.__name__}."
-                    )
-
-                setattr(job, cfg_name, cfg_value)
-
-            set_job_attr("cluster_name", str)
-            set_job_attr("working_dir", str)
+            else:  # pragma: no cover
+                dashboard_address = cast(Optional[str], cfg.get("dashboard_address"))
+                job: RayJob = RayJob(
+                    app_id=app_id,
+                    dashboard_address=dashboard_address,
+                    requirements=requirements,
+                )
+            job.cluster_name = cast(Optional[str], cfg.get("cluster_name"))
+            job.working_dir = cast(Optional[str], cfg.get("working_dir"))
 
             for role in app.roles:
                 # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
