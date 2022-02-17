@@ -241,6 +241,13 @@ class TorchXScheduler(ax_Scheduler):
 
     """
 
+    def poll_trial_status(
+        self, poll_all_trial_statuses: bool = False
+    ) -> Dict[TrialStatus, Set[int]]:
+        runner = self.experiment.runner
+        assert isinstance(runner, TorchXRunner)
+        return runner.poll_trial_status(self.running_trials)
+
     def poll_available_capacity(self) -> int:
         """
         Used when ``run_trials_in_batches`` option is set.

@@ -105,6 +105,29 @@ class TorchXSchedulerTest(unittest.TestCase):
         _report = scheduler.report_results()
         # nothing to assert, just make sure experiment runs
 
+    def test_stop_trials(self) -> None:
+        experiment = Experiment(
+            name="torchx_booth_sequential_demo",
+            search_space=SearchSpace(parameters=self._parameters),
+            optimization_config=OptimizationConfig(objective=self._objective),
+            runner=self._runner,
+            is_test=True,
+            properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
+        )
+        scheduler = TorchXScheduler(
+            experiment=experiment,
+            generation_strategy=(
+                choose_generation_strategy(
+                    search_space=experiment.search_space,
+                )
+            ),
+            options=SchedulerOptions(),
+        )
+        scheduler.run(max_new_trials=3)
+        trial = scheduler.running_trials[0]
+        reason = self._runner.stop(trial, reason="some_reason")
+        self.assertEqual(reason, {"reason": "some_reason"})
+
     def test_run_experiment_locally_in_batches(self) -> None:
         # runs optimization over k x n rounds of k parallel trials
         # note:
