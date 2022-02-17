@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Any, Callable, Dict, Mapping, Optional, Set, cast
+from typing import Iterable, Any, Callable, Dict, Mapping, Optional, Set, cast
 
 import pandas as pd
 from ax.core import Trial
@@ -206,6 +206,28 @@ class TorchXRunner(ax_Runner):
             _TORCHX_TRACKER_BASE: self._tracker_base,
         }
 
+    def poll_trial_status(
+        self, trials: Iterable[BaseTrial]
+    ) -> Dict[TrialStatus, Set[int]]:
+        """Returns the statuses of the given trials."""
+        trial_statuses: Dict[TrialStatus, Set[int]] = {}
+
+        for trial in trials:
+            app_handle: str = trial.run_metadata[_TORCHX_APP_HANDLE]
+            app_status: Optional[AppStatus] = self._torchx_runner.status(app_handle)
+            assert app_status is not None
+            trial_status = APP_STATE_TO_TRIAL_STATUS[app_status.state]
+            indices = trial_statuses.setdefault(trial_status, set())
+            indices.add(trial.index)
+
+        return trial_statuses
+
+    def stop(self, trial: BaseTrial, reason: Optional[str] = None) -> Dict[str, Any]:
+        """Kill the given trial."""
+        app_handle: str = trial.run_metadata[_TORCHX_APP_HANDLE]
+        self._torchx_runner.stop(app_handle)
+        return {"reason": reason} if reason else {}
+
 
 class TorchXScheduler(ax_Scheduler):
     """
@@ -218,22 +240,6 @@ class TorchXScheduler(ax_Scheduler):
     `scheduler docs <https://pytorch.org/torchx/latest/schedulers.html>`_.
 
     """
-
-    def poll_trial_status(
-        self, poll_all_trial_statuses: bool = False
-    ) -> Dict[TrialStatus, Set[int]]:
-        trial_statuses: Dict[TrialStatus, Set[int]] = {}
-
-        for trial in self.running_trials:
-            app_handle: str = trial.run_metadata[_TORCHX_APP_HANDLE]
-            torchx_runner = trial.run_metadata[_TORCHX_RUNNER]
-            app_status: AppStatus = torchx_runner.status(app_handle)
-            trial_status = APP_STATE_TO_TRIAL_STATUS[app_status.state]
-
-            indices = trial_statuses.setdefault(trial_status, set())
-            indices.add(trial.index)
-
-        return trial_statuses
 
     def poll_available_capacity(self) -> int:
         """
@@ -249,7 +255,6 @@ class TorchXScheduler(ax_Scheduler):
                   and scheduling policies.
 
         """
-
         return (
             -1
             if self.generation_strategy._curr.max_parallelism is None
