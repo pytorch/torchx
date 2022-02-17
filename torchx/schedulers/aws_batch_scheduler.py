@@ -37,7 +37,7 @@ for how to create a image repository.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Iterable, Mapping, Optional, Any
+from typing import Dict, Iterable, Mapping, Optional, Any, TYPE_CHECKING, Tuple
 
 import torchx
 import yaml
@@ -58,6 +58,10 @@ from torchx.specs.api import (
     runopts,
     CfgVal,
 )
+from torchx.workspace.docker_workspace import DockerWorkspace
+
+if TYPE_CHECKING:
+    from docker import DockerClient
 
 JOB_STATE: Dict[str, AppState] = {
     "SUBMITTED": AppState.PENDING,
@@ -83,7 +87,7 @@ def role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
         mem = 1000
     reqs.append({"type": "MEMORY", "value": str(mem)})
 
-    if resource.gpu >= 0:
+    if resource.gpu > 0:
         reqs.append({"type": "GPU", "value": str(resource.gpu)})
 
     container = {
@@ -107,6 +111,7 @@ class BatchJob:
     name: str
     queue: str
     job_def: Dict[str, object]
+    images_to_push: Dict[str, Tuple[str, str]]
 
     def __str__(self) -> str:
         return yaml.dump(self.job_def)
@@ -115,7 +120,7 @@ class BatchJob:
         return str(self)
 
 
-class AWSBatchScheduler(Scheduler):
+class AWSBatchScheduler(Scheduler, DockerWorkspace):
     """
     AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.
 
@@ -156,8 +161,10 @@ class AWSBatchScheduler(Scheduler):
         client: Optional[Any] = None,
         # pyre-fixme[2]: Parameter annotation cannot be `Any`.
         log_client: Optional[Any] = None,
+        docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        super().__init__("aws_batch", session_name)
+        Scheduler.__init__(self, "aws_batch", session_name)
+        DockerWorkspace.__init__(self, docker_client)
 
         # pyre-fixme[4]: Attribute annotation cannot be `Any`.
         self.__client = client
@@ -185,6 +192,10 @@ class AWSBatchScheduler(Scheduler):
     def schedule(self, dryrun_info: AppDryRunInfo[BatchJob]) -> str:
         cfg = dryrun_info._cfg
         assert cfg is not None, f"{dryrun_info} missing cfg"
+
+        images_to_push = dryrun_info.request.images_to_push
+        self._push_images(images_to_push)
+
         req = dryrun_info.request
         self._client.register_job_definition(**req.job_def)
 
@@ -204,6 +215,9 @@ class AWSBatchScheduler(Scheduler):
         if not isinstance(queue, str):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
         name = make_unique(app.name)
+
+        # map any local images to the remote image
+        images_to_push = self._update_app_images(app, cfg)
 
         nodes = []
 
@@ -242,6 +256,7 @@ class AWSBatchScheduler(Scheduler):
                     "torchx.pytorch.org/app-name": app.name,
                 },
             },
+            images_to_push=images_to_push,
         )
         info = AppDryRunInfo(req, repr)
         info._app = app
@@ -262,6 +277,11 @@ class AWSBatchScheduler(Scheduler):
     def run_opts(self) -> runopts:
         opts = runopts()
         opts.add("queue", type_=str, help="queue to schedule job in", required=True)
+        opts.add(
+            "image_repo",
+            type_=str,
+            help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
+        )
         return opts
 
     def _get_job_id(self, app_id: str) -> Optional[str]:

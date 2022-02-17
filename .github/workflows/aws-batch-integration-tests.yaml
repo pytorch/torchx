@@ -27,6 +27,11 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: github-torchx
         continue-on-error: true
+      - name: Configure Docker
+        run: |
+          set -eux
+          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
+        continue-on-error: true
       - name: Install dependencies
         run: |
           set -eux

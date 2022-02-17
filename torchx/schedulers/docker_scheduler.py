@@ -38,7 +38,6 @@ from torchx.workspace.docker_workspace import DockerWorkspace
 
 
 if TYPE_CHECKING:
-    from docker import DockerClient
     from docker.models.containers import Container
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -119,23 +118,14 @@ class DockerScheduler(Scheduler, DockerWorkspace):
     """
 
     def __init__(self, session_name: str) -> None:
-        super().__init__("docker", session_name)
-
-        self.__client: Optional["DockerClient"] = None
-
-    def _client(self) -> "DockerClient":
-        if not self.__client:
-            import docker
-
-            self.__client = docker.from_env()
-
-        return self.__client
+        Scheduler.__init__(self, "docker", session_name)
+        DockerWorkspace.__init__(self)
 
     def _ensure_network(self) -> None:
         import filelock
         from docker.errors import APIError
 
-        client = self._client()
+        client = self._docker_client
         lock_path = os.path.join(tempfile.gettempdir(), "torchx_docker_network_lock")
 
         # Docker networks.create check_duplicate has a race condition so we need
@@ -150,7 +140,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                     raise
 
     def schedule(self, dryrun_info: AppDryRunInfo[DockerJob]) -> str:
-        client = self._client()
+        client = self._docker_client
 
         req = dryrun_info.request
 
@@ -258,7 +248,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         pass
 
     def _get_container(self, app_id: str, role: str, replica_id: int) -> "Container":
-        client = self._client()
+        client = self._docker_client
         containers = client.containers.list(
             all=True,
             filters={
@@ -280,7 +270,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         return containers[0]
 
     def _get_containers(self, app_id: str) -> List["Container"]:
-        client = self._client()
+        client = self._docker_client
         return client.containers.list(
             all=True, filters={"label": f"{LABEL_APP_ID}={app_id}"}
         )
