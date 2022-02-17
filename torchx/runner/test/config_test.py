@@ -15,7 +15,14 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional
 from unittest.mock import patch
 
-from torchx.runner.config import apply, dump, get_config, load, load_sections
+from torchx.runner.config import (
+    apply,
+    dump,
+    get_config,
+    load,
+    load_sections,
+    get_configs,
+)
 from torchx.schedulers import Scheduler, get_schedulers
 from torchx.schedulers.api import DescribeAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
@@ -209,6 +216,37 @@ class ConfigTest(unittest.TestCase):
                 "utils.touch": {"file": "tmp.txt"},
             },
             defaults,
+        )
+
+    def test_get_configs(self) -> None:
+        configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
+        configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
+        configdir0.mkdir(parents=True, exist_ok=True)
+        configdir1.mkdir(parents=True, exist_ok=True)
+        self._write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
+        self._write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
+        dirs = [str(configdir0), str(configdir1)]
+
+        self.assertDictEqual(
+            {},
+            get_configs(
+                prefix="component",
+                name="non-existent",
+                dirs=dirs,
+            ),
+        )
+        self.assertDictEqual(
+            {
+                "j": "1x2",
+                "image": "barbaz",
+                "env": "A=B,C=D",
+                "script_args": "a b c --d=e --f g",
+            },
+            get_configs(
+                prefix="component",
+                name="dist.ddp",
+                dirs=dirs,
+            ),
         )
 
     def test_get_config(self) -> None:

@@ -326,6 +326,31 @@ def load_sections(
     return sections
 
 
+def get_configs(
+    prefix: str,
+    name: str,
+    dirs: Optional[List[str]],
+) -> Dict[str, str]:
+    """
+    Gets all the config values in the section ``["{prefix}:{name}"]``.
+    Or an empty map if the section does not exist.
+
+    Example:
+
+    ::
+
+     # for config file:
+     # [foo:bar]
+     # baz = 1
+
+     get_configs(prefix="foo", name="bar") # returns {"baz": "1"}
+     get_config(prefix="foo", name="barr") # returns {}
+
+    """
+    sections = load_sections(prefix, dirs)
+    return sections.get(name, {})
+
+
 def get_config(
     prefix: str,
     name: str,
@@ -350,9 +375,7 @@ def get_config(
      get_config(prefix="fooo", name="bar", key="baz") == None
 
     """
-    sections = load_sections(prefix, dirs)
-    section = sections.get(name, {})
-    return section.get(key, None)
+    return get_configs(prefix, name, dirs).get(key, None)
 
 
 def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
