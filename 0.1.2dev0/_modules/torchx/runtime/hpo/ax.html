@@ -370,7 +370,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">ax.core</span> <span class="kn">import</span> <span class="n">Trial</span>
@@ -568,7 +568,29 @@
             <span class="n">_TORCHX_APP_HANDLE</span><span class="p">:</span> <span class="n">app_handle</span><span class="p">,</span>
             <span class="n">_TORCHX_RUNNER</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_torchx_runner</span><span class="p">,</span>
             <span class="n">_TORCHX_TRACKER_BASE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracker_base</span><span class="p">,</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">poll_trial_status</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">trials</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BaseTrial</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">TrialStatus</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the statuses of the given trials.&quot;&quot;&quot;</span>
+        <span class="n">trial_statuses</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">TrialStatus</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">trials</span><span class="p">:</span>
+            <span class="n">app_handle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">run_metadata</span><span class="p">[</span><span class="n">_TORCHX_APP_HANDLE</span><span class="p">]</span>
+            <span class="n">app_status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppStatus</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_torchx_runner</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">app_status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">trial_status</span> <span class="o">=</span> <span class="n">APP_STATE_TO_TRIAL_STATUS</span><span class="p">[</span><span class="n">app_status</span><span class="o">.</span><span class="n">state</span><span class="p">]</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">trial_statuses</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">trial_status</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">trial_statuses</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">BaseTrial</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Kill the given trial.&quot;&quot;&quot;</span>
+        <span class="n">app_handle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">run_metadata</span><span class="p">[</span><span class="n">_TORCHX_APP_HANDLE</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_torchx_runner</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="n">reason</span><span class="p">}</span> <span class="k">if</span> <span class="n">reason</span> <span class="k">else</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="TorchXScheduler"><a class="viewcode-back" href="../../../../runtime/hpo.html#torchx.runtime.hpo.ax.TorchXScheduler">[docs]</a><span class="k">class</span> <span class="nc">TorchXScheduler</span><span class="p">(</span><span class="n">ax_Scheduler</span><span class="p">):</span>
@@ -582,22 +604,6 @@
 <span class="sd">    `scheduler docs &lt;https://pytorch.org/torchx/latest/schedulers.html&gt;`_.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">poll_trial_status</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">poll_all_trial_statuses</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">TrialStatus</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-        <span class="n">trial_statuses</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">TrialStatus</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">running_trials</span><span class="p">:</span>
-            <span class="n">app_handle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">run_metadata</span><span class="p">[</span><span class="n">_TORCHX_APP_HANDLE</span><span class="p">]</span>
-            <span class="n">torchx_runner</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">run_metadata</span><span class="p">[</span><span class="n">_TORCHX_RUNNER</span><span class="p">]</span>
-            <span class="n">app_status</span><span class="p">:</span> <span class="n">AppStatus</span> <span class="o">=</span> <span class="n">torchx_runner</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
-            <span class="n">trial_status</span> <span class="o">=</span> <span class="n">APP_STATE_TO_TRIAL_STATUS</span><span class="p">[</span><span class="n">app_status</span><span class="o">.</span><span class="n">state</span><span class="p">]</span>
-
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">trial_statuses</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">trial_status</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-            <span class="n">indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">trial_statuses</span>
 
     <span class="k">def</span> <span class="nf">poll_available_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -613,7 +619,6 @@
 <span class="sd">                  and scheduling policies.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="p">(</span>
             <span class="o">-</span><span class="mi">1</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">max_parallelism</span> <span class="ow">is</span> <span class="kc">None</span>
