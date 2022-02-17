@@ -725,10 +725,10 @@
         <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ApiClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;kubernetes&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
+        <span class="n">Scheduler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;kubernetes&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
+        <span class="n">DockerWorkspace</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docker_client</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">docker_client</span>
 
     <span class="k">def</span> <span class="nf">_api_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ApiClient&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span><span class="p">,</span> <span class="n">config</span>
@@ -750,15 +750,6 @@
 
         <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">CustomObjectsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">_docker_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DockerClient&quot;</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">docker</span>
-
-            <span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="k">return</span> <span class="n">client</span>
-
     <span class="k">def</span> <span class="nf">_get_job_name_from_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="s2">&quot;ApiException&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">body</span><span class="p">)[</span><span class="s2">&quot;details&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
@@ -774,19 +765,7 @@
         <span class="n">namespace</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;namespace&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;default&quot;</span>
 
         <span class="n">images_to_push</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">images_to_push</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_to_push</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">local</span><span class="p">,</span> <span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="n">images_to_push</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pushing image </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
-                <span class="n">img</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
-                <span class="n">img</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-                    <span class="n">ERROR_KEY</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
-                    <span class="k">if</span> <span class="n">ERROR_KEY</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;failed to push docker image: </span><span class="si">{</span><span class="n">line</span><span class="p">[</span><span class="n">ERROR_KEY</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docker: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_push_images</span><span class="p">(</span><span class="n">images_to_push</span><span class="p">)</span>
 
         <span class="n">resource</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">resource</span>
         <span class="k">try</span><span class="p">:</span>
@@ -816,24 +795,7 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config value &#39;queue&#39; must be a string, got </span><span class="si">{</span><span class="n">queue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># map any local images to the remote image</span>
-        <span class="n">images_to_push</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
-            <span class="n">HASH_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;sha256:&quot;</span>
-            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">HASH_PREFIX</span><span class="p">):</span>
-                <span class="n">image_repo</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_repo&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">image_repo</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;must specify the image repository via `image_repo` config to be able to upload local image </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_repo</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;image_repo must be str&quot;</span>
-
-                <span class="n">image_hash</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">HASH_PREFIX</span><span class="p">)</span> <span class="p">:]</span>
-                <span class="n">remote_image</span> <span class="o">=</span> <span class="n">image_repo</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">image_hash</span>
-                <span class="n">images_to_push</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">image_repo</span><span class="p">,</span>
-                    <span class="n">image_hash</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">remote_image</span>
+        <span class="n">images_to_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_app_images</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
 
         <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">KubernetesJob</span><span class="p">(</span>

@@ -403,7 +403,7 @@
 
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torchx</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -424,6 +424,10 @@
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspace</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
 
 <span class="n">JOB_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;SUBMITTED&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
@@ -449,7 +453,7 @@
         <span class="n">mem</span> <span class="o">=</span> <span class="mi">1000</span>
     <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;MEMORY&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">mem</span><span class="p">)})</span>
 
-    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)})</span>
 
     <span class="n">container</span> <span class="o">=</span> <span class="p">{</span>
@@ -473,6 +477,7 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">job_def</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
+    <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_def</span><span class="p">)</span>
@@ -481,7 +486,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">):</span>
+<div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">,</span> <span class="n">DockerWorkspace</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</span>
 
@@ -522,8 +527,10 @@
         <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[2]: Parameter annotation cannot be `Any`.</span>
         <span class="n">log_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;aws_batch&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
+        <span class="n">Scheduler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;aws_batch&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
+        <span class="n">DockerWorkspace</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docker_client</span><span class="p">)</span>
 
         <span class="c1"># pyre-fixme[4]: Attribute annotation cannot be `Any`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__client</span> <span class="o">=</span> <span class="n">client</span>
@@ -551,6 +558,10 @@
 <div class="viewcode-block" id="AWSBatchScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
         <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dryrun_info</span><span class="si">}</span><span class="s2"> missing cfg&quot;</span>
+
+        <span class="n">images_to_push</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">images_to_push</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_push_images</span><span class="p">(</span><span class="n">images_to_push</span><span class="p">)</span>
+
         <span class="n">req</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">register_job_definition</span><span class="p">(</span><span class="o">**</span><span class="n">req</span><span class="o">.</span><span class="n">job_def</span><span class="p">)</span>
 
@@ -570,6 +581,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config value &#39;queue&#39; must be a string, got </span><span class="si">{</span><span class="n">queue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># map any local images to the remote image</span>
+        <span class="n">images_to_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_app_images</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
 
         <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -608,6 +622,7 @@
                     <span class="s2">&quot;torchx.pytorch.org/app-name&quot;</span><span class="p">:</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">},</span>
+            <span class="n">images_to_push</span><span class="o">=</span><span class="n">images_to_push</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
         <span class="n">info</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
@@ -628,6 +643,11 @@
 <div class="viewcode-block" id="AWSBatchScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;queue to schedule job in&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;image_repo&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
     <span class="k">def</span> <span class="nf">_get_job_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
