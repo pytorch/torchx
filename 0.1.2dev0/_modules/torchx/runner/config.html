@@ -690,6 +690,31 @@
     <span class="k">return</span> <span class="n">sections</span>
 
 
+<span class="k">def</span> <span class="nf">get_configs</span><span class="p">(</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets all the config values in the section ``[&quot;{prefix}:{name}&quot;]``.</span>
+<span class="sd">    Or an empty map if the section does not exist.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # for config file:</span>
+<span class="sd">     # [foo:bar]</span>
+<span class="sd">     # baz = 1</span>
+
+<span class="sd">     get_configs(prefix=&quot;foo&quot;, name=&quot;bar&quot;) # returns {&quot;baz&quot;: &quot;1&quot;}</span>
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;barr&quot;) # returns {}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sections</span> <span class="o">=</span> <span class="n">load_sections</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
+
+
 <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -714,9 +739,7 @@
 <span class="sd">     get_config(prefix=&quot;fooo&quot;, name=&quot;bar&quot;, key=&quot;baz&quot;) == None</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sections</span> <span class="o">=</span> <span class="n">load_sections</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_configs</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
