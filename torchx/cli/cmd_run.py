@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Tuple, Type
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
+from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
 from torchx.runner import Runner, config, get_runner
@@ -36,7 +37,6 @@ MISSING_COMPONENT_ERROR_MSG = (
     "missing component name, either provide it from the CLI or in .torchxconfig"
 )
 
-CONFIG_DIRS = [str(Path.home()), str(Path.cwd())]
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -185,6 +185,7 @@ class CmdRun(SubCommand):
             "--workspace",
             "--buck-target",
             default=f"file://{Path.cwd()}",
+            action=torchxconfig_run,
             help="local workspace to build/patch (buck-target of main binary if using buck)",
         )
         subparser.add_argument(
