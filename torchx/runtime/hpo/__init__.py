@@ -54,13 +54,13 @@ find ``x1`` and ``x2`` that minimizes the booth function.
     SearchSpace,
  )
  from ax.modelbridge.dispatch_utils import choose_generation_strategy
- from ax.service.scheduler import SchedulerOptions
+ from ax.service.scheduler import SchedulerOptions, Scheduler
  from ax.service.utils.best_point import get_best_parameters
  from ax.service.utils.report_utils import exp_to_df
  from ax.utils.common.constants import Keys
  from pyre_extensions import none_throws
  from torchx.components import utils
- from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler
+ from torchx.runtime.hpo.ax import AppMetric, TorchXRunner
 
  # Run HPO on the booth function (https://en.wikipedia.org/wiki/Test_functions_for_optimization)
 
@@ -100,7 +100,7 @@ find ``x1`` and ``x2`` that minimizes the booth function.
      properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},
  )
 
- scheduler = TorchXScheduler(
+ scheduler = Scheduler(
      experiment=experiment,
      generation_strategy=(
          choose_generation_strategy(

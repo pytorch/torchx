@@ -45,7 +45,7 @@ class CmdRunTest(unittest.TestCase):
         self.cmd_run.add_arguments(self.parser)
 
     def tearDown(self) -> None:
-        shutil.rmtree(self.tmpdir)
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_run_with_user_conf_abs_path(self) -> None:
         args = self.parser.parse_args(

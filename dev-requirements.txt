@@ -1,5 +1,5 @@
 aiobotocore==2.1.0
-ax-platform[mysql]==0.2.2
+ax-platform[mysql]==0.2.3
 black==21.10b0
 boto3==1.20.24
 captum>=0.4.0
