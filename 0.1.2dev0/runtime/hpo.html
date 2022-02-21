@@ -401,13 +401,13 @@ find <code class="docutils literal notranslate"><span class="pre">x1</span></cod
 <span class="go">   SearchSpace,</span>
 <span class="go">)</span>
 <span class="go">from ax.modelbridge.dispatch_utils import choose_generation_strategy</span>
-<span class="go">from ax.service.scheduler import SchedulerOptions</span>
+<span class="go">from ax.service.scheduler import SchedulerOptions, Scheduler</span>
 <span class="go">from ax.service.utils.best_point import get_best_parameters</span>
 <span class="go">from ax.service.utils.report_utils import exp_to_df</span>
 <span class="go">from ax.utils.common.constants import Keys</span>
 <span class="go">from pyre_extensions import none_throws</span>
 <span class="go">from torchx.components import utils</span>
-<span class="go">from torchx.runtime.hpo.ax import AppMetric, TorchXRunner, TorchXScheduler</span>
+<span class="go">from torchx.runtime.hpo.ax import AppMetric, TorchXRunner</span>
 
 <span class="go"># Run HPO on the booth function (https://en.wikipedia.org/wiki/Test_functions_for_optimization)</span>
 
@@ -447,7 +447,7 @@ find <code class="docutils literal notranslate"><span class="pre">x1</span></cod
 <span class="go">    properties={Keys.IMMUTABLE_SEARCH_SPACE_AND_OPT_CONF: True},</span>
 <span class="go">)</span>
 
-<span class="go">scheduler = TorchXScheduler(</span>
+<span class="go">scheduler = Scheduler(</span>
 <span class="go">    experiment=experiment,</span>
 <span class="go">    generation_strategy=(</span>
 <span class="go">        choose_generation_strategy(</span>
@@ -531,17 +531,6 @@ in the function signature) as passed automatically:</p>
 <span class="n">torchx</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">appdef</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.TorchXScheduler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.runtime.hpo.ax.</span></span><span class="sig-name descname"><span class="pre">TorchXScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.core.experiment.Experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_strategy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.modelbridge.generation_strategy.GenerationStrategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.service.scheduler.SchedulerOptions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_settings</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ax.storage.sqa_store.structs.DBSettings</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_skip_experiment_save</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#TorchXScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.TorchXScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>An implementation of an <a class="reference external" href="https://ax.dev/tutorials/scheduler.html">Ax Scheduler</a>
-that works with Experiments hooked up with the <code class="docutils literal notranslate"><span class="pre">TorchXRunner</span></code>.</p>
-<p>This scheduler is not a real scheduler but rather a facade scheduler
-that delegates to scheduler clients for various remote/local schedulers.
-For a list of supported schedulers please refer to TorchX
-<a class="reference external" href="https://pytorch.org/torchx/latest/schedulers.html">scheduler docs</a>.</p>
 </dd></dl>
 
 <dl class="py class">

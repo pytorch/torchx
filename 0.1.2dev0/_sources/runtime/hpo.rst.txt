@@ -14,5 +14,4 @@ Ax (Adaptive Experimentation)
 .. currentmodule:: torchx.runtime.hpo.ax
 
 .. autoclass:: TorchXRunner
-.. autoclass:: TorchXScheduler
 .. autoclass:: AppMetric
