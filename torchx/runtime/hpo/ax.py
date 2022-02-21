@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Iterable, Any, Callable, Dict, Mapping, Optional, Set, cast
+from typing import Any, Callable, Dict, Mapping, Optional, Set, cast, Iterable
 
 import pandas as pd
 from ax.core import Trial
@@ -14,8 +14,7 @@ from ax.core.base_trial import BaseTrial
 from ax.core.data import Data
 from ax.core.metric import Metric
 from ax.core.runner import Runner as ax_Runner
-from ax.service.scheduler import Scheduler as ax_Scheduler, TrialStatus
-from ax.utils.common.typeutils import not_none
+from ax.service.scheduler import TrialStatus
 from pyre_extensions import none_throws
 from torchx.runner import Runner, get_runner
 from torchx.runtime.tracking import FsspecResultTracker
@@ -209,14 +208,14 @@ class TorchXRunner(ax_Runner):
     def poll_trial_status(
         self, trials: Iterable[BaseTrial]
     ) -> Dict[TrialStatus, Set[int]]:
-        """Returns the statuses of the given trials."""
         trial_statuses: Dict[TrialStatus, Set[int]] = {}
 
         for trial in trials:
             app_handle: str = trial.run_metadata[_TORCHX_APP_HANDLE]
-            app_status: Optional[AppStatus] = self._torchx_runner.status(app_handle)
-            assert app_status is not None
+            torchx_runner = trial.run_metadata[_TORCHX_RUNNER]
+            app_status: AppStatus = torchx_runner.status(app_handle)
             trial_status = APP_STATE_TO_TRIAL_STATUS[app_status.state]
+
             indices = trial_statuses.setdefault(trial_status, set())
             indices.add(trial.index)
 
@@ -227,43 +226,3 @@ class TorchXRunner(ax_Runner):
         app_handle: str = trial.run_metadata[_TORCHX_APP_HANDLE]
         self._torchx_runner.stop(app_handle)
         return {"reason": reason} if reason else {}
-
-
-class TorchXScheduler(ax_Scheduler):
-    """
-    An implementation of an `Ax Scheduler <https://ax.dev/tutorials/scheduler.html>`_
-    that works with Experiments hooked up with the ``TorchXRunner``.
-
-    This scheduler is not a real scheduler but rather a facade scheduler
-    that delegates to scheduler clients for various remote/local schedulers.
-    For a list of supported schedulers please refer to TorchX
-    `scheduler docs <https://pytorch.org/torchx/latest/schedulers.html>`_.
-
-    """
-
-    def poll_trial_status(
-        self, poll_all_trial_statuses: bool = False
-    ) -> Dict[TrialStatus, Set[int]]:
-        return cast(TorchXRunner, self.experiment.runner).poll_trial_status(
-            self.running_trials
-        )
-
-    def poll_available_capacity(self) -> int:
-        """
-        Used when ``run_trials_in_batches`` option is set.
-        Since this scheduler is a faux scheduler, this method
-        always returns the ``max_parallelism`` of the current
-        step of this scheduler's ``generation_strategy``.
-
-        .. note:: The trials (jobs) are simply submitted to the
-                  scheduler in parallel. Typically the trials will be
-                  queued in the scheduler's job queue (on the server-side)
-                  and executed according to the scheduler's job priority
-                  and scheduling policies.
-
-        """
-        return (
-            -1
-            if self.generation_strategy._curr.max_parallelism is None
-            else not_none(self.generation_strategy._curr.max_parallelism)
-        )
