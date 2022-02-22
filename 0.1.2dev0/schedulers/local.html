@@ -397,14 +397,16 @@ purposes.</p></li>
 <p>The orphan cleanup only works if <cite>LocalScheduler</cite> is instantiated from the main thread.</p>
 </div>
 <p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="p">[</span><span class="n">log_dir</span><span class="o">=</span><span class="n">LOG_DIR</span><span class="p">],[</span><span class="n">prepend_cwd</span><span class="o">=</span><span class="n">PREPEND_CWD</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
+        [log_dir=LOG_DIR],[prepend_cwd=PREPEND_CWD],[auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES]
 
-    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">log_dir</span><span class="o">=</span><span class="n">LOG_DIR</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="nb">dir</span> <span class="n">to</span> <span class="n">write</span> <span class="n">stdout</span><span class="o">/</span><span class="n">stderr</span> <span class="n">log</span> <span class="n">files</span> <span class="n">of</span> <span class="n">replicas</span>
-        <span class="n">prepend_cwd</span><span class="o">=</span><span class="n">PREPEND_CWD</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">set</span><span class="p">,</span> <span class="n">prepends</span> <span class="n">CWD</span> <span class="n">to</span> <span class="n">replica</span><span class="s1">&#39;s PATH env var making any binaries in CWD take precedence over those in PATH</span>
+    optional arguments:
+        log_dir=LOG_DIR (str, None)
+            dir to write stdout/stderr log files of replicas
+        prepend_cwd=PREPEND_CWD (bool, False)
+            if set, prepends CWD to replica&#39;s PATH env var making any binaries in CWD take precedence over those in PATH
+        auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES (bool, False)
+            sets the `CUDA_AVAILABLE_DEVICES` for roles that request GPU resources. Each role replica will be assigned one GPU. Does nothing if the device count is less than replicas.
 </pre></div>
 </div>
 <p><strong>Compatibility</strong></p>
