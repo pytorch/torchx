@@ -102,9 +102,9 @@ class ReplicaParam:
     env: Dict[str, str]
 
     # IO stream files
-    stdout: Optional[str]
-    stderr: Optional[str]
-    combined: Optional[str]
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    combined: Optional[str] = None
 
     cwd: Optional[str] = None
 
@@ -592,6 +592,13 @@ class LocalScheduler(Scheduler):
             help="if set, prepends CWD to replica's PATH env var"
             " making any binaries in CWD take precedence over those in PATH",
         )
+        opts.add(
+            "auto_set_cuda_visible_devices",
+            type_=bool,
+            default=False,
+            help="sets the `CUDA_AVAILABLE_DEVICES` for roles that request GPU resources."
+            " Each role replica will be assigned one GPU. Does nothing if the device count is less than replicas.",
+        )
         return opts
 
     def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
@@ -770,6 +777,66 @@ class LocalScheduler(Scheduler):
             request, lambda p: pprint.pformat(asdict(p), indent=2, width=80)
         )
 
+    def _get_gpu_device_count(self) -> int:
+        gpu_cmd = "nvidia-smi -L"
+        try:
+            log.debug(f"Running {gpu_cmd}")
+            result = subprocess.run(
+                gpu_cmd.split(), capture_output=True, text=True, check=True
+            )
+            log.debug(f"Cmd {gpu_cmd} returned: {result}")
+            gpus_info = [gpu_info for gpu_info in result.stdout.split("\n") if gpu_info]
+            return len(gpus_info)
+        except subprocess.CalledProcessError as e:
+            log.exception(f"Got exception while listing GPUs {e.stderr}")
+            return 0
+
+    def _set_cuda_visible_devices_for_role_replica(
+        self,
+        replica: ReplicaParam,
+        replica_id: int,
+        requested_gpus: int,
+        role_gpu_start_idx: int,
+    ) -> None:
+        if requested_gpus <= 0:
+            return
+        start_device = role_gpu_start_idx + requested_gpus * replica_id
+        end_device = role_gpu_start_idx + requested_gpus * (replica_id + 1)
+        devices = list(range(start_device, end_device))
+        visible_devices = ",".join([str(device) for device in devices])
+        replica.env["CUDA_VISIBLE_DEVICES"] = visible_devices
+
+    def _update_env_cuda_visible_devices(
+        self,
+        role_params: Dict[str, List[ReplicaParam]],
+        app: AppDef,
+        cfg: Mapping[str, CfgVal],
+    ) -> None:
+        device_count = 0
+        autoset = cfg.get("auto_set_cuda_visible_devices")
+        if not autoset:
+            return
+        requested_gpus_total = sum(
+            [role.resource.gpu * role.num_replicas for role in app.roles]
+        )
+        if requested_gpus_total <= 0:
+            return
+        device_count = self._get_gpu_device_count()
+        if requested_gpus_total > device_count:
+            autoset = False
+            log.warning(
+                "Cannot set `CUDA_VISIBLE_DEVICES` due to "
+                f"Available GPUs {device_count} less than requested {requested_gpus_total}"
+            )
+        role_gpu_start_idx = 0
+        for role in app.roles:
+            role_replicas = role_params[role.name]
+            for replica_id, replica in enumerate(role_replicas):
+                self._set_cuda_visible_devices_for_role_replica(
+                    replica, replica_id, role.resource.gpu, role_gpu_start_idx
+                )
+            role_gpu_start_idx += role.resource.gpu * role.num_replicas
+
     def _to_popen_request(
         self,
         app: AppDef,
@@ -785,6 +852,7 @@ class LocalScheduler(Scheduler):
 
         role_params: Dict[str, List[ReplicaParam]] = {}
         role_log_dirs: Dict[str, List[str]] = {}
+
         for role in app.roles:
             replica_params = role_params.setdefault(role.name, [])
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
@@ -798,8 +866,8 @@ class LocalScheduler(Scheduler):
                     replica_id=str(replica_id),
                 )
                 replica_role = values.apply(role)
-                replica_log_dir = os.path.join(app_log_dir, role.name, str(replica_id))
 
+                replica_log_dir = os.path.join(app_log_dir, role.name, str(replica_id))
                 if "TORCHELASTIC_ERROR_FILE" not in replica_role.env:
                     # this is the top level (agent if using elastic role) error file
                     # a.k.a scheduler reply file
@@ -818,7 +886,7 @@ class LocalScheduler(Scheduler):
                     )
                 )
                 replica_log_dirs.append(replica_log_dir)
-
+        self._update_env_cuda_visible_devices(role_params, app, cfg)
         return PopenRequest(app_id, app_log_dir, role_params, role_log_dirs)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
