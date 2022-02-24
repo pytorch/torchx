@@ -142,7 +142,7 @@ def main(argv: List[str]) -> None:
             num_nodes=num_nodes,
             num_processes=num_processes,
             gpus=gpus,
-            accelerator="ddp",
+            strategy="ddp",
             logger=logger,
             max_epochs=args.epochs,
             callbacks=callbacks,
