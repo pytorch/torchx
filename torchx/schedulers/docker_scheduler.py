@@ -185,12 +185,14 @@ class DockerScheduler(Scheduler, DockerWorkspace):
 
         app_id = make_unique(app.name)
         req = DockerJob(app_id=app_id, containers=[])
+        rank0_name = f"{app_id}-{app.roles[0].name}-0"
         for role in app.roles:
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
                     img_root="",
                     app_id=app_id,
                     replica_id=str(replica_id),
+                    rank0_env="TORCHX_RANK0_HOST",
                 )
                 replica_role = values.apply(role)
                 name = f"{app_id}-{role.name}-{replica_id}"
@@ -198,6 +200,9 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                 env = default_env.copy()
                 if replica_role.env:
                     env.update(replica_role.env)
+
+                # configure distributed host envs
+                env["TORCHX_RANK0_HOST"] = rank0_name
 
                 c = DockerContainer(
                     image=replica_role.image,

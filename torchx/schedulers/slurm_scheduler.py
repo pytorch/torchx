@@ -323,6 +323,7 @@ class SlurmScheduler(Scheduler):
                     img_root=role.image,
                     app_id=macros.app_id,
                     replica_id=str(replica_id),
+                    rank0_env="SLURM_JOB_NODELIST_HET_GROUP_0",
                 )
                 name = f"{role.name}-{replica_id}"
                 replica_role = values.apply(role)

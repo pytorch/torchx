@@ -254,9 +254,14 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
                 img_root="",
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
+                rank0_env=f"VC_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper(),
             )
+            if role_idx == 0 and replica_id == 0:
+                values.rank0_env = "TORCHX_RANK0_HOST"
             name = cleanup_str(f"{role.name}-{replica_id}")
             replica_role = values.apply(role)
+            if role_idx == 0 and replica_id == 0:
+                replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
             pod = role_to_pod(name, replica_role)
             pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))

@@ -20,11 +20,13 @@ from torchx.specs.api import (
     InvalidRunConfigException,
     Resource,
     runopts,
+    Role,
 )
+from torchx.workspace.api import Workspace
 
 
 class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler):
+    class MockScheduler(Scheduler, Workspace):
         def __init__(self, session_name: str) -> None:
             super().__init__("mock", session_name)
 
@@ -67,6 +69,9 @@ class SchedulerTest(unittest.TestCase):
         def resolve_resource(self, resource: Union[str, Resource]) -> Resource:
             return NULL_RESOURCE
 
+        def build_workspace_and_update_role(self, role: Role, workspace: str) -> None:
+            role.image = workspace
+
     def test_invalid_run_cfg(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
         app_mock = MagicMock()
@@ -78,6 +83,20 @@ class SchedulerTest(unittest.TestCase):
         with self.assertRaises(InvalidRunConfigException):
             bad_type_cfg = {"foo": 100}
             scheduler_mock.submit(app_mock, bad_type_cfg)
+
+    def test_submit_workspace(self) -> None:
+        role = Role(
+            name="sleep",
+            image="",
+            entrypoint="foo.sh",
+        )
+        app = AppDef(name="test_app", roles=[role])
+
+        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+
+        bad_type_cfg = {"foo": "asdf"}
+        scheduler_mock.submit(app, bad_type_cfg, workspace="some_workspace")
+        self.assertEqual(app.roles[0].image, "some_workspace")
 
     def test_invalid_dryrun_cfg(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")

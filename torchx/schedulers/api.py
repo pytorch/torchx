@@ -24,6 +24,7 @@ from torchx.specs import (
     SchedulerBackend,
     runopts,
 )
+from torchx.workspace.api import Workspace
 
 
 class Stream(str, Enum):
@@ -90,13 +91,25 @@ class Scheduler(abc.ABC):
         """
         pass
 
-    def submit(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> str:
+    def submit(
+        self,
+        app: AppDef,
+        cfg: Mapping[str, CfgVal],
+        workspace: Optional[str] = None,
+    ) -> str:
         """
         Submits the application to be run by the scheduler.
+
+        WARNING: Mostly used for tests. Users should prefer to use the TorchX runner instead.
 
         Returns:
             The application id that uniquely identifies the submitted app.
         """
+        if workspace:
+            sched = self
+            assert isinstance(sched, Workspace)
+            role = app.roles[0]
+            sched.build_workspace_and_update_role(role, workspace)
         dryrun_info = self.submit_dryrun(app, cfg)
         return self.schedule(dryrun_info)
 

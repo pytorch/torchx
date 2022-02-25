@@ -864,8 +864,10 @@ class LocalScheduler(Scheduler):
                     img_root=img_root,
                     app_id=app_id,
                     replica_id=str(replica_id),
+                    rank0_env="TORCHX_RANK0_HOST",
                 )
                 replica_role = values.apply(role)
+                replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
                 replica_log_dir = os.path.join(app_log_dir, role.name, str(replica_id))
                 if "TORCHELASTIC_ERROR_FILE" not in replica_role.env:

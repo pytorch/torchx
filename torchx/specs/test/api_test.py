@@ -383,6 +383,7 @@ class MacrosTest(unittest.TestCase):
             app_id="app_id",
             replica_id="replica_id",
             base_img_root="base_img_root",
+            rank0_env="rank0_env",
         )
         for key, val in asdict(v).items():
             template = f"tmpl-{getattr(macros, key)}"
@@ -401,6 +402,7 @@ class MacrosTest(unittest.TestCase):
             app_id="app_id",
             replica_id="replica_id",
             base_img_root="base_img_root",
+            rank0_env="rank0_env",
         )
         newrole = v.apply(role)
         self.assertNotEqual(newrole, role)

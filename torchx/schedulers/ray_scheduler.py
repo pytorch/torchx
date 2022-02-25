@@ -45,6 +45,12 @@ try:
 except ImportError:
     _has_ray = False
 
+
+def has_ray() -> bool:
+    """Indicates whether Ray is installed in the current Python environment."""
+    return _has_ray
+
+
 if _has_ray:
 
     _logger: logging.Logger = logging.getLogger(__name__)
@@ -69,10 +75,6 @@ if _has_ray:
         actors_json = json.dumps(actors, cls=_EnhancedJSONEncoder)
         with open(os.path.join(dirpath, output_filename), "w") as tmp:
             json.dump(actors_json, tmp)
-
-    def has_ray() -> bool:
-        """Indicates whether Ray is installed in the current Python environment."""
-        return _has_ray
 
     @dataclass
     class RayJob:
@@ -230,7 +232,10 @@ if _has_ray:
                 # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
                 # in arguments and environment variables.
                 role = macros.Values(
-                    img_root=role.image, app_id=app_id, replica_id="${rank}"
+                    img_root=role.image,
+                    app_id=app_id,
+                    replica_id="${rank}",
+                    rank0_env="MASTER_ADDR",
                 ).apply(role)
 
                 actor = RayActor(

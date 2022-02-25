@@ -121,8 +121,9 @@ not TorchX. Read more about rendezvous `here <https://pytorch.org/docs/stable/el
 Components APIs
 -----------------
 """
+import shlex
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Iterable
 
 import torchx
 import torchx.specs as specs
@@ -131,16 +132,19 @@ from torchx.specs import macros
 
 def ddp(
     *script_args: str,
-    script: str,
+    script: Optional[str] = None,
+    m: Optional[str] = None,
     image: str = torchx.IMAGE,
     name: Optional[str] = None,
+    h: Optional[str] = None,
     cpu: int = 2,
     gpu: int = 0,
     memMB: int = 1024,
-    h: Optional[str] = None,
     j: str = "1x2",
     env: Optional[Dict[str, str]] = None,
-    rdzv_endpoint: str = "etcd-server.default.svc.cluster.local:2379",
+    max_restarts: Optional[int] = None,
+    rdzv_backend: str = "c10d",
+    rdzv_endpoint: Optional[str] = None,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -154,6 +158,7 @@ def ddp(
     Args:
         script_args: arguments to the main module
         script: script or binary to run within the image
+        m: the python module path to run
         image: image (e.g. docker)
         name: job name override (uses the script name if not specified)
         cpu: number of cpus per replica
@@ -162,8 +167,13 @@ def ddp(
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
-        rdzv_endpoint: etcd server endpoint (only matters when nnodes > 1)
+        max_restarts: the number of restarts allowed
+        rdzv_backend: rendezvous backend (only matters when nnodes > 1)
+        rdzv_endpoint: rendezvous server endpoint (only matters when nnodes > 1), defaults to rank0 host for schedulers that support it
     """
+
+    if (script is None) == (m is None):
+        raise ValueError("exactly one of --script and -m must be specified")
 
     rep = j.split("x")
     if len(rep) == 1:  # num replicas only
@@ -175,33 +185,79 @@ def ddp(
     else:
         raise ValueError(f"Invalid format for -j, usage example: 1x4. Given: {j}")
 
-    script_name_noext = Path(script).stem  # script name no extension
+    if script:
+        # script name/module no extension
+        role_name = Path(script).stem
+    elif m:
+        role_name = m.rpartition(".")[2]
+    else:
+        raise ValueError("failed to compute role_name")
+
+    if rdzv_endpoint is None:
+        rdzv_endpoint = _noquote(f"$${macros.rank0_env}:29500")
+
+    if nnodes == 1:
+        rdzv_backend = "c10d"
+        rdzv_endpoint = "localhost:29500"
+
+    if env is None:
+        env = {}
+    env.setdefault("LOGLEVEL", "INFO")
+
+    cmd = [
+        "python",
+        "-m",
+        "torch.distributed.run",
+        "--rdzv_backend",
+        rdzv_backend,
+        "--rdzv_endpoint",
+        rdzv_endpoint,
+        "--rdzv_id",
+        f"{macros.app_id}",
+        "--nnodes",
+        str(nnodes),
+        "--nproc_per_node",
+        str(nproc_per_node),
+    ]
+    if max_restarts is not None:
+        cmd += ["--max_restarts", str(max_restarts)]
+    if script is not None:
+        cmd += [script]
+    elif m is not None:
+        cmd += ["-m", m]
+    cmd += script_args
     return specs.AppDef(
-        name=name or script_name_noext,
+        name=name or role_name,
         roles=[
             specs.Role(
-                name=script_name_noext,
+                name=role_name,
                 image=image,
-                entrypoint="python",
+                entrypoint="bash",
                 num_replicas=nnodes,
                 resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
-                args=[
-                    "-m",
-                    "torch.distributed.run",
-                    "--rdzv_backend",
-                    ("c10d" if nnodes == 1 else "etcd"),
-                    "--rdzv_endpoint",
-                    ("localhost:29500" if nnodes == 1 else rdzv_endpoint),
-                    "--rdzv_id",
-                    f"{macros.app_id}",
-                    "--nnodes",
-                    str(nnodes),
-                    "--nproc_per_node",
-                    str(nproc_per_node),
-                    script,
-                    *script_args,
-                ],
-                env=env or {},
+                args=["-c", _args_join(cmd)],
+                env=env,
+                port_map={
+                    "c10d": 29500,
+                },
             )
         ],
     )
+
+
+def _args_join(args: Iterable[str]) -> str:
+    """
+    _args_join is like shlex.join but if the argument is wrapped in _noquote
+    it'll not quote that argument.
+    """
+    quoted = [arg if isinstance(arg, _noquote) else shlex.quote(arg) for arg in args]
+    return " ".join(quoted)
+
+
+class _noquote(str):
+    """
+    _noquote is a wrapper around str that indicates that the argument shouldn't
+    be passed through shlex.quote.
+    """
+
+    pass

@@ -223,16 +223,28 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
 
         for role_idx, role in enumerate(app.roles):
             for replica_id in range(role.num_replicas):
+                rank = len(nodes)
                 values = macros.Values(
                     img_root="",
                     app_id=name,
                     replica_id=str(replica_id),
+                    rank0_env=(
+                        "TORCHX_RANK0_HOST"
+                        if rank == 0
+                        else "AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS"
+                    ),
                 )
                 replica_role = values.apply(role)
                 replica_role.env["TORCHX_ROLE_IDX"] = str(role_idx)
                 replica_role.env["TORCHX_ROLE_NAME"] = str(role.name)
                 replica_role.env["TORCHX_REPLICA_IDX"] = str(replica_id)
-                nodes.append(role_to_node_properties(len(nodes), replica_role))
+                if rank == 0:
+                    # AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS is only
+                    # available on the child workers so we set the address to
+                    # localhost for rank0.
+                    # See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html
+                    replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
+                nodes.append(role_to_node_properties(rank, replica_role))
 
         req = BatchJob(
             name=name,

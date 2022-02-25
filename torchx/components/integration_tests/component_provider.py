@@ -36,12 +36,12 @@ class ComponentProvider(ABC):
 
 class DDPComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
-        rdzv_endpoint: str = "localhost:29400"
         return dist_components.ddp(
             script="torchx/components/integration_tests/test/dummy_app.py",
             name="ddp-trainer",
             image=self._image,
-            rdzv_endpoint=rdzv_endpoint,
+            j="2x2",
+            max_restarts=3,
         )
 
 

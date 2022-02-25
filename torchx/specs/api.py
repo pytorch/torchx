@@ -137,11 +137,19 @@ class macros:
     app_id = "${app_id}"
     replica_id = "${replica_id}"
 
+    # rank0_env will be filled with the name of the environment variable that
+    # provides the master host address. To get the actual hostname the
+    # environment variable must be resolved by the app via either shell
+    # expansion (wrap sh/bash) or via the application.
+    # This may not be available on all schedulers.
+    rank0_env = "${rank0_env}"
+
     @dataclass
     class Values:
         img_root: str
         app_id: str
         replica_id: str
+        rank0_env: str
         base_img_root: str = "DEPRECATED"
 
         def apply(self, role: "Role") -> "Role":

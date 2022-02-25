@@ -29,12 +29,19 @@ from torchx.schedulers.kubernetes_scheduler import (
 SKIP_DOCKER: bool = not has_docker()
 
 
-def _test_app() -> specs.AppDef:
+def _test_app(num_replicas: int = 1) -> specs.AppDef:
     trainer_role = specs.Role(
-        name="trainer",
+        name="trainer_foo",
         image="pytorch/torchx:latest",
         entrypoint="main",
-        args=["--output-path", specs.macros.img_root, "--app-id", specs.macros.app_id],
+        args=[
+            "--output-path",
+            specs.macros.img_root,
+            "--app-id",
+            specs.macros.app_id,
+            "--rank0-env",
+            specs.macros.rank0_env,
+        ],
         env={"FOO": "bar"},
         resource=specs.Resource(
             cpu=2,
@@ -42,7 +49,7 @@ def _test_app() -> specs.AppDef:
             gpu=4,
         ),
         port_map={"foo": 1234},
-        num_replicas=1,
+        num_replicas=num_replicas,
         max_retries=3,
     )
 
@@ -68,7 +75,15 @@ class KubernetesSchedulerTest(unittest.TestCase):
                 .spec.containers[0]
                 .command
             )
-            expected_cmd = ["main", "--output-path", "", "--app-id", unique_app_name]
+            expected_cmd = [
+                "main",
+                "--output-path",
+                "",
+                "--app-id",
+                unique_app_name,
+                "--rank0-env",
+                "TORCHX_RANK0_HOST",
+            ]
             self.assertEqual(expected_cmd, actual_cmd)
 
     def test_retry_policy_not_set(self) -> None:
@@ -118,6 +133,8 @@ class KubernetesSchedulerTest(unittest.TestCase):
                 specs.macros.img_root,
                 "--app-id",
                 specs.macros.app_id,
+                "--rank0-env",
+                specs.macros.rank0_env,
             ],
             image="pytorch/torchx:latest",
             name="name",
@@ -181,7 +198,7 @@ spec:
   schedulerName: volcano
   tasks:
   - maxRetry: 3
-    name: trainer-0
+    name: trainerfoo-0
     policies:
     - action: RestartJob
       event: PodEvicted
@@ -196,7 +213,7 @@ spec:
           torchx.pytorch.org/app-name: test
           torchx.pytorch.org/replica-id: '0'
           torchx.pytorch.org/role-index: '0'
-          torchx.pytorch.org/role-name: trainer
+          torchx.pytorch.org/role-name: trainer_foo
           torchx.pytorch.org/version: {torchx.__version__}
       spec:
         containers:
@@ -206,11 +223,15 @@ spec:
           - ''
           - --app-id
           - app-name-42
+          - --rank0-env
+          - TORCHX_RANK0_HOST
           env:
           - name: FOO
             value: bar
+          - name: TORCHX_RANK0_HOST
+            value: localhost
           image: pytorch/torchx:latest
-          name: trainer-0
+          name: trainerfoo-0
           ports:
           - containerPort: 1234
             name: foo
@@ -226,6 +247,30 @@ spec:
         restartPolicy: Never
 """,
         )
+
+    def test_rank0_env(self) -> None:
+        from kubernetes.client.models import (
+            V1EnvVar,
+        )
+
+        scheduler = create_scheduler("test")
+        app = _test_app(num_replicas=2)
+        cfg = {"queue": "testqueue"}
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.make_unique"
+        ) as make_unique_ctx:
+            make_unique_ctx.return_value = "app-name-42"
+            info = scheduler._submit_dryrun(app, cfg)
+
+        # pyre-fixme[16]; `object` has no attribute `__getitem__`.
+        tasks = info.request.resource["spec"]["tasks"]
+        container0 = tasks[0]["template"].spec.containers[0]
+        self.assertIn("TORCHX_RANK0_HOST", container0.command)
+        self.assertIn(
+            V1EnvVar(name="TORCHX_RANK0_HOST", value="localhost"), container0.env
+        )
+        container1 = tasks[1]["template"].spec.containers[0]
+        self.assertIn("VC_TRAINERFOO_0_HOSTS", container1.command)
 
     def test_submit_dryrun_patch(self) -> None:
         scheduler = create_scheduler("test")
