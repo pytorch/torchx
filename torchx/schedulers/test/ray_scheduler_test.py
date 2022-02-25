@@ -11,22 +11,24 @@ from typing import Any, Iterator, Type, Optional, Dict, List, cast
 from unittest import TestCase
 from unittest.mock import patch
 
-import ray
 from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
-from torchx.schedulers.ray import ray_driver
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import (
-    RayScheduler,
-    _logger,
     has_ray,
-    RayJob,
-    serialize,
 )
 from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
 
 
 if has_ray():
+    import ray
+    from torchx.schedulers.ray import ray_driver
+    from torchx.schedulers.ray_scheduler import (
+        RayScheduler,
+        _logger,
+        RayJob,
+        serialize,
+    )
 
     class RaySchedulerRegistryTest(TestCase):
         def test_get_schedulers_returns_ray_scheduler(self) -> None:

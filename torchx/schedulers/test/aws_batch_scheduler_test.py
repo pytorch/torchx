@@ -22,7 +22,14 @@ def _test_app() -> specs.AppDef:
         name="trainer",
         image="pytorch/torchx:latest",
         entrypoint="main",
-        args=["--output-path", specs.macros.img_root, "--app-id", specs.macros.app_id],
+        args=[
+            "--output-path",
+            specs.macros.img_root,
+            "--app-id",
+            specs.macros.app_id,
+            "--rank0_env",
+            specs.macros.rank0_env,
+        ],
         env={"FOO": "bar"},
         resource=specs.Resource(
             cpu=2,
@@ -30,7 +37,7 @@ def _test_app() -> specs.AppDef:
             gpu=4,
         ),
         port_map={"foo": 1234},
-        num_replicas=1,
+        num_replicas=2,
         max_retries=3,
     )
 
@@ -73,7 +80,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 "jobDefinitionName": "app-name-42",
                 "type": "multinode",
                 "nodeProperties": {
-                    "numNodes": 1,
+                    "numNodes": 2,
                     "mainNode": 0,
                     "nodeRangeProperties": [
                         {
@@ -85,6 +92,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     "",
                                     "--app-id",
                                     "app-name-42",
+                                    "--rank0_env",
+                                    "TORCHX_RANK0_HOST",
                                 ],
                                 "image": "pytorch/torchx:latest",
                                 "environment": [
@@ -92,6 +101,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     {"name": "TORCHX_ROLE_IDX", "value": "0"},
                                     {"name": "TORCHX_ROLE_NAME", "value": "trainer"},
                                     {"name": "TORCHX_REPLICA_IDX", "value": "0"},
+                                    {"name": "TORCHX_RANK0_HOST", "value": "localhost"},
                                 ],
                                 "resourceRequirements": [
                                     {"type": "VCPU", "value": "2"},
@@ -100,7 +110,34 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                 ],
                                 "logConfiguration": {"logDriver": "awslogs"},
                             },
-                        }
+                        },
+                        {
+                            "targetNodes": "1",
+                            "container": {
+                                "command": [
+                                    "main",
+                                    "--output-path",
+                                    "",
+                                    "--app-id",
+                                    "app-name-42",
+                                    "--rank0_env",
+                                    "AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS",
+                                ],
+                                "image": "pytorch/torchx:latest",
+                                "environment": [
+                                    {"name": "FOO", "value": "bar"},
+                                    {"name": "TORCHX_ROLE_IDX", "value": "0"},
+                                    {"name": "TORCHX_ROLE_NAME", "value": "trainer"},
+                                    {"name": "TORCHX_REPLICA_IDX", "value": "1"},
+                                ],
+                                "resourceRequirements": [
+                                    {"type": "VCPU", "value": "2"},
+                                    {"type": "MEMORY", "value": "3000"},
+                                    {"type": "GPU", "value": "4"},
+                                ],
+                                "logConfiguration": {"logDriver": "awslogs"},
+                            },
+                        },
                     ],
                 },
                 "retryStrategy": {
@@ -180,6 +217,10 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                         {"name": "TORCHX_ROLE_IDX", "value": "0"},
                                         {"name": "TORCHX_REPLICA_IDX", "value": "0"},
                                         {"name": "TORCHX_ROLE_NAME", "value": "echo"},
+                                        {
+                                            "name": "TORCHX_RANK0_HOST",
+                                            "value": "localhost",
+                                        },
                                     ],
                                     "mountPoints": [],
                                     "ulimits": [],
@@ -274,6 +315,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                     "TORCHX_ROLE_IDX": "0",
                     "TORCHX_REPLICA_IDX": "0",
                     "TORCHX_ROLE_NAME": "echo",
+                    "TORCHX_RANK0_HOST": "localhost",
                 },
             ),
         )

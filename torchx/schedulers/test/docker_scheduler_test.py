@@ -5,12 +5,15 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import posixpath
 import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+import fsspec
 from docker.types import DeviceRequest
 from torchx import specs
+from torchx.components.dist import ddp
 from torchx.schedulers.api import Stream
 from torchx.schedulers.docker_scheduler import (
     DockerContainer,
@@ -28,7 +31,14 @@ def _test_app() -> specs.AppDef:
         name="trainer",
         image="pytorch/torchx:latest",
         entrypoint="main",
-        args=["--output-path", specs.macros.img_root, "--app-id", specs.macros.app_id],
+        args=[
+            "--output-path",
+            specs.macros.img_root,
+            "--app-id",
+            specs.macros.app_id,
+            "--rank0-env",
+            specs.macros.rank0_env,
+        ],
         env={"FOO": "bar"},
         resource=specs.Resource(
             cpu=2,
@@ -66,6 +76,8 @@ class DockerSchedulerTest(unittest.TestCase):
                         "",
                         "--app-id",
                         "app_name_42",
+                        "--rank0-env",
+                        "TORCHX_RANK0_HOST",
                     ],
                     kwargs={
                         "device_requests": [
@@ -76,6 +88,7 @@ class DockerSchedulerTest(unittest.TestCase):
                         ],
                         "environment": {
                             "FOO": "bar",
+                            "TORCHX_RANK0_HOST": "app_name_42-trainer-0",
                         },
                         "labels": {
                             "torchx.pytorch.org/app-id": "app_name_42",
@@ -102,13 +115,16 @@ class DockerSchedulerTest(unittest.TestCase):
     def test_copy_env(self) -> None:
         app = _test_app()
         cfg = {"copy_env": ["FOO_*", "BAR_*"]}
-        info = self.scheduler._submit_dryrun(app, cfg)
+        with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
+            make_unique_ctx.return_value = "app_name_42"
+            info = self.scheduler._submit_dryrun(app, cfg)
         self.assertEqual(
             info.request.containers[0].kwargs["environment"],
             {
                 "FOO": "bar",
                 "FOO_1": "f1",
                 "BAR_1": "b1",
+                "TORCHX_RANK0_HOST": "app_name_42-trainer-0",
             },
         )
 
@@ -317,22 +333,11 @@ if has_docker():
             self.assertEqual(AppState.FAILED, desc.state)
 
         def test_docker_submit_dist(self) -> None:
-            app = AppDef(
-                name="test-app",
-                roles=[
-                    Role(
-                        name="ping",
-                        image="busybox",
-                        entrypoint="sh",
-                        args=[
-                            "-c",
-                            f"sleep 1; ping -c1 {specs.macros.app_id}-ping-0; sleep 1",
-                        ],
-                        num_replicas=2,
-                    ),
-                ],
-            )
-            app_id = self.scheduler.submit(app, cfg={})
+            workspace = "memory://docker_submit_dist/"
+            with fsspec.open(posixpath.join(workspace, "main.py"), "wt") as f:
+                f.write("print('hello world')\n")
+            app = ddp(script="main.py", j="2x1")
+            app_id = self.scheduler.submit(app, cfg={}, workspace=workspace)
             print(app_id)
 
             desc = self.wait(app_id)

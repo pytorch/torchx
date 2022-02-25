@@ -523,6 +523,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 self.assertEqual([role.entrypoint, *role.args], replica_param.args)
                 self.assertEqual(
                     {
+                        "TORCHX_RANK0_HOST": "localhost",
                         ERR_FILE_ENV: join(replica_log_dir, "error.json"),
                         **role.env,
                     },
@@ -571,6 +572,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 self.assertEqual([role.entrypoint, *role.args], replica_param.args)
                 self.assertEqual(
                     {
+                        "TORCHX_RANK0_HOST": "localhost",
                         ERR_FILE_ENV: join(replica_log_dir, "error.json"),
                         **role.env,
                     },
