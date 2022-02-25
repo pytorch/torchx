@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -503,11 +507,19 @@
     <span class="n">app_id</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{app_id}</span><span class="s2">&quot;</span>
     <span class="n">replica_id</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{replica_id}</span><span class="s2">&quot;</span>
 
+    <span class="c1"># rank0_env will be filled with the name of the environment variable that</span>
+    <span class="c1"># provides the master host address. To get the actual hostname the</span>
+    <span class="c1"># environment variable must be resolved by the app via either shell</span>
+    <span class="c1"># expansion (wrap sh/bash) or via the application.</span>
+    <span class="c1"># This may not be available on all schedulers.</span>
+    <span class="n">rank0_env</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{rank0_env}</span><span class="s2">&quot;</span>
+
 <div class="viewcode-block" id="macros.Values"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values">[docs]</a>    <span class="nd">@dataclass</span>
     <span class="k">class</span> <span class="nc">Values</span><span class="p">:</span>
         <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">replica_id</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">rank0_env</span><span class="p">:</span> <span class="nb">str</span>
         <span class="n">base_img_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>
 
 <div class="viewcode-block" id="macros.Values.apply"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.apply">[docs]</a>        <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>

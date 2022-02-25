@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -411,6 +415,12 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">_has_ray</span> <span class="o">=</span> <span class="kc">False</span>
 
+
+<span class="k">def</span> <span class="nf">has_ray</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Indicates whether Ray is installed in the current Python environment.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_has_ray</span>
+
+
 <span class="k">if</span> <span class="n">_has_ray</span><span class="p">:</span>
 
     <span class="n">_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -435,10 +445,6 @@
         <span class="n">actors_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">actors</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">_EnhancedJSONEncoder</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">actors_json</span><span class="p">,</span> <span class="n">tmp</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">has_ray</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Indicates whether Ray is installed in the current Python environment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_has_ray</span>
 
     <span class="nd">@dataclass</span>
     <span class="k">class</span> <span class="nc">RayJob</span><span class="p">:</span>
@@ -596,7 +602,10 @@
                 <span class="c1"># Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders</span>
                 <span class="c1"># in arguments and environment variables.</span>
                 <span class="n">role</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
-                    <span class="n">img_root</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">replica_id</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{rank}</span><span class="s2">&quot;</span>
+                    <span class="n">img_root</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                    <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
+                    <span class="n">replica_id</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{rank}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">rank0_env</span><span class="o">=</span><span class="s2">&quot;MASTER_ADDR&quot;</span><span class="p">,</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
 
                 <span class="n">actor</span> <span class="o">=</span> <span class="n">RayActor</span><span class="p">(</span>

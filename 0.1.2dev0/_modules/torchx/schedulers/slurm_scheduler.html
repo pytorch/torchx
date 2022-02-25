@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -689,6 +693,7 @@
                     <span class="n">img_root</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
                     <span class="n">app_id</span><span class="o">=</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">,</span>
                     <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
+                    <span class="n">rank0_env</span><span class="o">=</span><span class="s2">&quot;SLURM_JOB_NODELIST_HET_GROUP_0&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>

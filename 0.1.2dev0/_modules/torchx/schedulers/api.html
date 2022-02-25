@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -390,6 +394,7 @@
     <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">Workspace</span>
 
 
 <span class="k">class</span> <span class="nc">Stream</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
@@ -456,13 +461,25 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Scheduler.submit"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit">[docs]</a>    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="Scheduler.submit"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.submit">[docs]</a>    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span>
+        <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Submits the application to be run by the scheduler.</span>
+
+<span class="sd">        WARNING: Mostly used for tests. Users should prefer to use the TorchX runner instead.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The application id that uniquely identifies the submitted app.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">workspace</span><span class="p">:</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sched</span><span class="p">,</span> <span class="n">Workspace</span><span class="p">)</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sched</span><span class="o">.</span><span class="n">build_workspace_and_update_role</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span>
         <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
 

@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -589,16 +593,28 @@
 
         <span class="k">for</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
                     <span class="n">img_root</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                     <span class="n">app_id</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
+                    <span class="n">rank0_env</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span>
+                        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span>
+                        <span class="k">else</span> <span class="s2">&quot;AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS&quot;</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
                 <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_ROLE_IDX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">)</span>
                 <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_ROLE_NAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_REPLICA_IDX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">)</span>
-                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role_to_node_properties</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span> <span class="n">replica_role</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS is only</span>
+                    <span class="c1"># available on the child workers so we set the address to</span>
+                    <span class="c1"># localhost for rank0.</span>
+                    <span class="c1"># See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html</span>
+                    <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role_to_node_properties</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">))</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="n">BatchJob</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>

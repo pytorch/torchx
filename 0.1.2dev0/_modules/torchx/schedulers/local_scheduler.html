@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -1230,8 +1234,10 @@
                     <span class="n">img_root</span><span class="o">=</span><span class="n">img_root</span><span class="p">,</span>
                     <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
                     <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
+                    <span class="n">rank0_env</span><span class="o">=</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+                <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
 
                 <span class="n">replica_log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">app_log_dir</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">))</span>
                 <span class="k">if</span> <span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">:</span>

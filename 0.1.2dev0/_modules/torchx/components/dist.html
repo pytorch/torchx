@@ -128,8 +128,12 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/elastic/">
-                  <span class="dropdown-title">TorchElastic</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -485,8 +489,9 @@
 <span class="sd">Components APIs</span>
 <span class="sd">-----------------</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span>
 
 <span class="kn">import</span> <span class="nn">torchx</span>
 <span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
@@ -495,16 +500,19 @@
 
 <div class="viewcode-block" id="ddp"><a class="viewcode-back" href="../../../components/distributed.html#torchx.components.dist.ddp">[docs]</a><span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span>
     <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">script</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">script</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">m</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
     <span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
-    <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">j</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1x2&quot;</span><span class="p">,</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etcd-server.default.svc.cluster.local:2379&quot;</span><span class="p">,</span>
+    <span class="n">max_restarts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rdzv_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span><span class="p">,</span>
+    <span class="n">rdzv_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Distributed data parallel style application (one role, multi-replica).</span>
@@ -518,6 +526,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        script_args: arguments to the main module</span>
 <span class="sd">        script: script or binary to run within the image</span>
+<span class="sd">        m: the python module path to run</span>
 <span class="sd">        image: image (e.g. docker)</span>
 <span class="sd">        name: job name override (uses the script name if not specified)</span>
 <span class="sd">        cpu: number of cpus per replica</span>
@@ -526,8 +535,13 @@
 <span class="sd">        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)</span>
 <span class="sd">        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus</span>
 <span class="sd">        env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)</span>
-<span class="sd">        rdzv_endpoint: etcd server endpoint (only matters when nnodes &gt; 1)</span>
+<span class="sd">        max_restarts: the number of restarts allowed</span>
+<span class="sd">        rdzv_backend: rendezvous backend (only matters when nnodes &gt; 1)</span>
+<span class="sd">        rdzv_endpoint: rendezvous server endpoint (only matters when nnodes &gt; 1), defaults to rank0 host for schedulers that support it</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">script</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;exactly one of --script and -m must be specified&quot;</span><span class="p">)</span>
 
     <span class="n">rep</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># num replicas only</span>
@@ -539,36 +553,82 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid format for -j, usage example: 1x4. Given: </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">script_name_noext</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">script</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>  <span class="c1"># script name no extension</span>
+    <span class="k">if</span> <span class="n">script</span><span class="p">:</span>
+        <span class="c1"># script name/module no extension</span>
+        <span class="n">role_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">script</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+    <span class="k">elif</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">role_name</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;failed to compute role_name&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rdzv_endpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rdzv_endpoint</span> <span class="o">=</span> <span class="n">_noquote</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$$</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">rank0_env</span><span class="si">}</span><span class="s2">:29500&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nnodes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">rdzv_backend</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span>
+        <span class="n">rdzv_endpoint</span> <span class="o">=</span> <span class="s2">&quot;localhost:29500&quot;</span>
+
+    <span class="k">if</span> <span class="n">env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;LOGLEVEL&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">)</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--rdzv_backend&quot;</span><span class="p">,</span>
+        <span class="n">rdzv_backend</span><span class="p">,</span>
+        <span class="s2">&quot;--rdzv_endpoint&quot;</span><span class="p">,</span>
+        <span class="n">rdzv_endpoint</span><span class="p">,</span>
+        <span class="s2">&quot;--rdzv_id&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--nnodes&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
+        <span class="s2">&quot;--nproc_per_node&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">nproc_per_node</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">max_restarts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--max_restarts&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_restarts</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">script</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="n">script</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">m</span><span class="p">]</span>
+    <span class="n">cmd</span> <span class="o">+=</span> <span class="n">script_args</span>
     <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="n">script_name_noext</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="n">role_name</span><span class="p">,</span>
         <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
             <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">script_name_noext</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">role_name</span><span class="p">,</span>
                 <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span><span class="p">,</span>
                 <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">),</span>
-                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--rdzv_backend&quot;</span><span class="p">,</span>
-                    <span class="p">(</span><span class="s2">&quot;c10d&quot;</span> <span class="k">if</span> <span class="n">nnodes</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;etcd&quot;</span><span class="p">),</span>
-                    <span class="s2">&quot;--rdzv_endpoint&quot;</span><span class="p">,</span>
-                    <span class="p">(</span><span class="s2">&quot;localhost:29500&quot;</span> <span class="k">if</span> <span class="n">nnodes</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">rdzv_endpoint</span><span class="p">),</span>
-                    <span class="s2">&quot;--rdzv_id&quot;</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--nnodes&quot;</span><span class="p">,</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
-                    <span class="s2">&quot;--nproc_per_node&quot;</span><span class="p">,</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">nproc_per_node</span><span class="p">),</span>
-                    <span class="n">script</span><span class="p">,</span>
-                    <span class="o">*</span><span class="n">script_args</span><span class="p">,</span>
-                <span class="p">],</span>
-                <span class="n">env</span><span class="o">=</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{},</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">_args_join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)],</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+                <span class="n">port_map</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;c10d&quot;</span><span class="p">:</span> <span class="mi">29500</span><span class="p">,</span>
+                <span class="p">},</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_args_join</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    _args_join is like shlex.join but if the argument is wrapped in _noquote</span>
+<span class="sd">    it&#39;ll not quote that argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">quoted</span> <span class="o">=</span> <span class="p">[</span><span class="n">arg</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">_noquote</span><span class="p">)</span> <span class="k">else</span> <span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">quoted</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_noquote</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    _noquote is a wrapper around str that indicates that the argument shouldn&#39;t</span>
+<span class="sd">    be passed through shlex.quote.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
 </pre></div>
 
      </article>
