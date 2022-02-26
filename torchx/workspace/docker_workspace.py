@@ -4,12 +4,13 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import fnmatch
 import io
 import logging
 import posixpath
 import tarfile
 import tempfile
-from typing import IO, TYPE_CHECKING, Optional, Dict, Tuple, Mapping
+from typing import IO, TYPE_CHECKING, Optional, Dict, Tuple, Mapping, Iterable
 
 import fsspec
 import torchx
@@ -129,17 +130,44 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
     return f
 
 
-def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
-    # TODO(d4l3k) implement docker ignore files
+def _ignore(s: str, patterns: Iterable[str]) -> bool:
+    match = False
+    for pattern in patterns:
+        if pattern.startswith("!") and fnmatch.fnmatch(s, pattern[1:]):
+            match = False
+        elif fnmatch.fnmatch(s, pattern):
+            match = True
+    return match
 
+
+def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
     fs, path = fsspec.core.url_to_fs(workspace)
     assert isinstance(path, str), "path must be str"
+
+    # load dockerignore
+    # https://docs.docker.com/engine/reference/builder/#dockerignore-file
+    ignore_patterns = []
+    ignore_path = posixpath.join(path, ".dockerignore")
+    if fs.exists(ignore_path):
+        with fs.open(ignore_path, "rt") as f:
+            lines = f.readlines()
+        for line in lines:
+            line, _, _ = line.partition("#")
+            line = line.strip()
+            if len(line) == 0 or line == ".":
+                continue
+            ignore_patterns.append(line)
 
     for dir, dirs, files in fs.walk(path, detail=True):
         assert isinstance(dir, str), "path must be str"
         relpath = posixpath.relpath(dir, path)
+        if _ignore(relpath, ignore_patterns):
+            continue
         for file, info in files.items():
             with fs.open(info["name"], "rb") as f:
-                tinfo = tarfile.TarInfo(posixpath.join(relpath, file))
+                filepath = posixpath.join(relpath, file) if relpath != "." else file
+                if _ignore(filepath, ignore_patterns):
+                    continue
+                tinfo = tarfile.TarInfo(filepath)
                 tinfo.size = info["size"]
                 tf.addfile(tinfo, f)

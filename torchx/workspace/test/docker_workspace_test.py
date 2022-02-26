@@ -4,12 +4,16 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import tarfile
 import unittest
 from unittest.mock import MagicMock
 
 import fsspec
 from torchx.specs import Role, AppDef
-from torchx.workspace.docker_workspace import DockerWorkspace
+from torchx.workspace.docker_workspace import (
+    DockerWorkspace,
+    _build_context,
+)
 
 
 def has_docker() -> bool:
@@ -114,3 +118,57 @@ class DockerWorkspaceMockTest(unittest.TestCase):
     def test_push_images_empty(self) -> None:
         workspace = DockerWorkspace()
         workspace._push_images({})
+
+    def test_dockerignore(self) -> None:
+        fs = fsspec.filesystem("memory")
+        files = [
+            "dockerignore/ignoredir/bar",
+            "dockerignore/dir1/bar",
+            "dockerignore/dir/ignorefileglob1",
+            "dockerignore/dir/recursive/ignorefileglob2",
+            "dockerignore/dir/ignorefile",
+            "dockerignore/ignorefile",
+            "dockerignore/ignorefilesuffix",
+            "dockerignore/dir/file",
+            "dockerignore/foo.sh",
+            "dockerignore/unignore",
+        ]
+        for file in files:
+            fs.touch(file)
+        with fs.open("dockerignore/.dockerignore", "wt") as f:
+            f.write(
+                """
+                # comment
+
+                # dirs/files
+                ignoredir
+                ignorefile
+
+                # globs
+                */ignorefileglo*1
+                **/ignorefileglob2
+                dir?
+
+                # inverse patterns
+                unignore
+                !unignore
+
+                # ignore .
+                .
+            """
+            )
+
+        with _build_context("img", "memory://dockerignore") as f:
+            with tarfile.open(fileobj=f, mode="r") as tf:
+                self.assertCountEqual(
+                    tf.getnames(),
+                    {
+                        "Dockerfile",
+                        "foo.sh",
+                        ".dockerignore",
+                        "dir/ignorefile",
+                        "ignorefilesuffix",
+                        "dir/file",
+                        "unignore",
+                    },
+                )
