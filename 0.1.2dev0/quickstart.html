@@ -753,10 +753,10 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-02-25 18:44:35 INFO     Log files located in: /tmp/torchx_nk27ltew/torchx/hello_world-tkpz91h93xw90/greeter/0
-torchx 2022-02-25 18:44:36 INFO     Waiting for the app to finish...
+torchx 2022-02-26 01:39:09 INFO     Log files located in: /tmp/torchx_vr3ukxa_/torchx/hello_world-q0dtt0bx37jcs/greeter/0
+torchx 2022-02-26 01:39:10 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-02-25 18:44:37 INFO     Job finished: SUCCEEDED
+torchx 2022-02-26 01:39:11 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -764,7 +764,7 @@ torchx 2022-02-25 18:44:37 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-tkpz91h93xw90
+local_cwd://torchx/hello_world-q0dtt0bx37jcs
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -822,7 +822,6 @@ c0ad16d9fa05: Pulling fs layer
 909695be1d50: Pulling fs layer
 f119a6d0a466: Pulling fs layer
 88d87059c913: Pulling fs layer
-d4c7af0d4fa7: Waiting
 06b5edd6bf52: Waiting
 f18d016c4ccc: Waiting
 c0ad16d9fa05: Waiting
@@ -830,12 +829,12 @@ c0ad16d9fa05: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
 88d87059c913: Waiting
-6009a622672a: Waiting
 143f80195431: Waiting
 eccbe17c44e1: Waiting
+d4c7af0d4fa7: Waiting
+6009a622672a: Waiting
 889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
-d2e110be24e1: Verifying Checksum
 d2e110be24e1: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
@@ -879,8 +878,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; d394fbd800f9
-Successfully built d394fbd800f9
+ ---&gt; 1321f82fd6be
+Successfully built 1321f82fd6be
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -899,14 +898,14 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-02-25 18:46:42 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: greeter, image: my_app:latest
-torchx 2022-02-25 18:46:50 INFO     Done building workspace
-torchx 2022-02-25 18:46:50 INFO     New image: sha256:f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400 built from workspace
-torchx 2022-02-25 18:46:51 INFO     Pulling container image: sha256:f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400 (this may take a while)
-torchx 2022-02-25 18:46:52 WARNING  failed to pull image sha256:f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-02-25 18:46:52 INFO     Waiting for the app to finish...
+torchx 2022-02-26 01:41:32 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: greeter, image: my_app:latest
+torchx 2022-02-26 01:41:40 INFO     Done building workspace
+torchx 2022-02-26 01:41:40 INFO     New image: sha256:ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30 built from workspace
+torchx 2022-02-26 01:41:42 INFO     Pulling container image: sha256:ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30 (this may take a while)
+torchx 2022-02-26 01:41:42 WARNING  failed to pull image sha256:ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-02-26 01:41:42 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-02-25 18:46:53 INFO     Job finished: SUCCEEDED
+torchx 2022-02-26 01:41:43 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -914,7 +913,7 @@ torchx 2022-02-25 18:46:53 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-gvqljctmp70ll
+local_docker://torchx/hello_world-fsr7q5p03bpggc
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -968,14 +967,14 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-02-25 18:46:56 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: echo, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-02-25 18:46:57 INFO     Done building workspace
-torchx 2022-02-25 18:46:57 INFO     New image: sha256:f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400 built from workspace
-torchx 2022-02-25 18:46:58 INFO     Pulling container image: sha256:f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400 (this may take a while)
-torchx 2022-02-25 18:46:59 WARNING  failed to pull image sha256:f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=f1dfa7fae427adf72af6aff6b2a10126cf4cc3d9c6507d20870de9891754d400&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-02-25 18:46:59 INFO     Waiting for the app to finish...
+torchx 2022-02-26 01:41:47 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: echo, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-02-26 01:41:47 INFO     Done building workspace
+torchx 2022-02-26 01:41:47 INFO     New image: sha256:ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30 built from workspace
+torchx 2022-02-26 01:41:48 INFO     Pulling container image: sha256:ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30 (this may take a while)
+torchx 2022-02-26 01:41:49 WARNING  failed to pull image sha256:ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=ac55869fdf7e2aa8cb5e948ebe958f3ca5b71a0311854a4fb33d719dc30d7a30&amp;fromImage=sha256: Not Found (&#34;pull access denied for sha256, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-02-26 01:41:49 INFO     Waiting for the app to finish...
 echo/0 Hello :)
-torchx 2022-02-25 18:47:00 INFO     Job finished: SUCCEEDED
+torchx 2022-02-26 01:41:50 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -983,7 +982,7 @@ torchx 2022-02-25 18:47:00 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-xkmt4vm560ghxc
+local_docker://torchx/echo-mt15r1tq4tbvc
 </pre></div></div>
 </div>
 </section>
