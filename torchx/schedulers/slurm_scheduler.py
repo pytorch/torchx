@@ -92,6 +92,10 @@ class SlurmReplicaRequest:
     def from_role(
         cls, name: str, role: Role, cfg: Mapping[str, CfgVal]
     ) -> "SlurmReplicaRequest":
+        """
+        ``from_role`` creates a SlurmReplicaRequest for the specific role and
+        name.
+        """
         sbatch_opts = {}
         for k, v in cfg.items():
             if v is None:

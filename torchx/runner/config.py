@@ -6,6 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 """
+Status: Beta
+
 You can store the scheduler run cfg (run configs) for your project
 by storing them in the ``.torchxconfig`` file. Currently this file is only read
 and honored when running the component from the CLI.

@@ -2,24 +2,38 @@ Local
 =================
 
 .. automodule:: torchx.schedulers.local_scheduler
+
 .. currentmodule:: torchx.schedulers.local_scheduler
 
 .. autoclass:: LocalScheduler
    :members:
-
-.. automodule:: torchx.schedulers.docker_scheduler
-.. currentmodule:: torchx.schedulers.docker_scheduler
-
-.. autoclass:: DockerScheduler
-   :members:
+   :show-inheritance:
 
 Image Providers
 ~~~~~~~~~~~~~~~~~
-
-.. currentmodule:: torchx.schedulers.local_scheduler
 
 .. autoclass:: ImageProvider
    :members:
 
 .. autoclass:: CWDImageProvider
+   :members:
+
+.. autoclass:: LocalDirectoryImageProvider
+   :members:
+
+Reference
+~~~~~~~~~~~~
+
+.. autofunction:: create_cwd_scheduler
+
+.. autoclass:: LogIterator
+   :members:
+
+.. autoclass:: PopenRequest
+   :members:
+
+.. autoclass:: ReplicaParam
+   :members:
+
+.. autoclass:: SignalException
    :members:

@@ -95,7 +95,7 @@ def _terminate_process_handler(signum: int, frame: FrameType) -> None:
 @dataclass
 class ReplicaParam:
     """
-    Holds ``LocalScheduler._popen()``parameters for each replica of the role.
+    Holds ``LocalScheduler._popen()`` parameters for each replica of the role.
     """
 
     args: List[str]
@@ -452,7 +452,7 @@ class _LocalAppDef:
         return f"{{app_id:{self.id}, state:{self.state}, pid_map:{role_to_pid}}}"
 
 
-def join_PATH(*paths: Optional[str]) -> str:
+def _join_PATH(*paths: Optional[str]) -> str:
     """
     Joins strings that go in the PATH env var.
     Deals with empty strings and None-types, making sure no leading
@@ -492,7 +492,7 @@ class PopenRequest:
     role_log_dirs: Dict[RoleName, List[str]]
 
 
-def register_termination_signals() -> None:
+def _register_termination_signals() -> None:
     """
     Register SIGTERM and SIGINT handlers only for the main thread.
     """
@@ -569,7 +569,7 @@ class LocalScheduler(Scheduler):
         if cache_size <= 0:
             raise ValueError("cache size must be greater than zero")
         self._cache_size = cache_size
-        register_termination_signals()
+        _register_termination_signals()
 
         self._extra_paths: List[str] = extra_paths or []
 
@@ -679,7 +679,7 @@ class LocalScheduler(Scheduler):
         env.update(replica_params.env)
 
         # prepend extra_paths to PATH
-        env["PATH"] = join_PATH(*self._extra_paths, env.get("PATH"))
+        env["PATH"] = _join_PATH(*self._extra_paths, env.get("PATH"))
 
         cwd = replica_params.cwd
         if cwd:
@@ -688,9 +688,9 @@ class LocalScheduler(Scheduler):
             # otherwise append cwd to PATH so that the binaries in PATH
             # precede over those in cwd
             if prepend_cwd:
-                env["PATH"] = join_PATH(cwd, env.get("PATH"))
+                env["PATH"] = _join_PATH(cwd, env.get("PATH"))
             else:
-                env["PATH"] = join_PATH(env.get("PATH"), cwd)
+                env["PATH"] = _join_PATH(env.get("PATH"), cwd)
 
         # default to unbuffered python for faster responsiveness locally
         env.setdefault("PYTHONUNBUFFERED", "x")

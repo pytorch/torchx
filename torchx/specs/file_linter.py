@@ -94,6 +94,9 @@ class LinterMessage:
 class TorchxFunctionValidator(abc.ABC):
     @abc.abstractmethod
     def validate(self, app_specs_func_def: ast.FunctionDef) -> List[LinterMessage]:
+        """
+        Method to call to validate the provided function def.
+        """
         raise NotImplementedError()
 
     def _gen_linter_message(self, description: str, lineno: int) -> LinterMessage:
@@ -244,11 +247,14 @@ class TorchFunctionVisitor(ast.NodeVisitor):
         self.visited_function = False
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """
+        Validates the function def with the child validators.
+        """
         if node.name != self.component_function_name:
             return
         self.visited_function = True
-        for validatior in self.validators:
-            self.linter_errors += validatior.validate(node)
+        for validator in self.validators:
+            self.linter_errors += validator.validate(node)
 
 
 def validate(path: str, component_function: str) -> List[LinterMessage]:

@@ -111,7 +111,7 @@ model definition from a python file and then you'll load the weights and state
 dict from a ``.ckpt`` or ``.pt`` file.
 
 This is how Pytorch Lightning's
-`ModelCheckpoint <https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.ModelCheckpoint.html>`__ hook works.
+`ModelCheckpoint <https://pytorch-lightning.readthedocs.io/en/latest/api/pytorch_lightning.callbacks.ModelCheckpoint.html>`__ hook works.
 
 This is the most common but makes it harder to make a reusable app since your
 trainer app needs to include the model definition code.

@@ -23,7 +23,7 @@ class SchedulerFactory(Protocol):
         ...
 
 
-def try_get_ray_scheduler() -> Optional[SchedulerFactory]:
+def _try_get_ray_scheduler() -> Optional[SchedulerFactory]:
     try:
         from torchx.schedulers.ray_scheduler import _has_ray  # @manual
 
@@ -52,7 +52,7 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         "aws_batch": aws_batch_scheduler.create_scheduler,
     }
 
-    ray_scheduler_creator = try_get_ray_scheduler()
+    ray_scheduler_creator = _try_get_ray_scheduler()
     if ray_scheduler_creator:
         default_schedulers["ray"] = ray_scheduler_creator
 

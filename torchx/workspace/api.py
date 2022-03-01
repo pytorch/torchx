@@ -19,7 +19,7 @@ class Workspace(abc.ABC):
     automatically rebuild images or generate diff patches that are
     applied to the ``Role``, allowing the user to make local code
     changes to the application and having those changes be reflected
-    (either through a new image or an overlayed patch) at runtime
+    (either through a new image or an overlaid patch) at runtime
     without a manual image rebuild. The exact semantics of what the
     workspace build artifact is, is implementation dependent.
     """
@@ -29,7 +29,7 @@ class Workspace(abc.ABC):
         """
         Builds the specified ``workspace`` with respect to ``img``
         and updates the ``role`` to reflect the built workspace artifacts.
-        In the simplest case, this method builds a new image and udpates
+        In the simplest case, this method builds a new image and updates
         the role's image. Certain (more efficient) implementations build
         incremental diff patches that overlay on top of the role's image.
 

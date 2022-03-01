@@ -12,7 +12,7 @@ jupyter:
     name: python3
 ---
 
-# Quickstart
+# Quickstart - Custom Components
 
 This is a self contained guide on how to build a simple app and component spec
 and launch it via two different schedulers.

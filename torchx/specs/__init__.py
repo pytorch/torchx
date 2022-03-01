@@ -93,11 +93,12 @@ def resource(
     Example:
 
     .. code-block:: python
-     resource(cpu=1) # returns Resource(cpu=1)
-     resource(named_resource="foobar") # returns registered named resource "foo"
-     resource(cpu=1, named_resource="foobar") # returns registered named resource "foo" (cpu=1 ignored)
-     resource() # returns default resource values
-     resource(cpu=None, gpu=None, memMB=None) # throws
+
+         resource(cpu=1) # returns Resource(cpu=1)
+         resource(named_resource="foobar") # returns registered named resource "foo"
+         resource(cpu=1, named_resource="foobar") # returns registered named resource "foo" (cpu=1 ignored)
+         resource() # returns default resource values
+         resource(cpu=None, gpu=None, memMB=None) # throws
     """
 
     if h:

@@ -31,7 +31,7 @@ from torchx.schedulers.local_scheduler import (
     LocalScheduler,
     ReplicaParam,
     create_cwd_scheduler,
-    join_PATH,
+    _join_PATH,
     make_unique,
 )
 from torchx.specs.api import AppDef, AppState, Role, is_terminal, macros, Resource
@@ -973,20 +973,20 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
 
 class JoinPATHTest(unittest.TestCase):
     def test_join_PATH(self) -> None:
-        self.assertEqual("", join_PATH(None))
-        self.assertEqual("", join_PATH(""))
-        self.assertEqual("", join_PATH("", None))
-        self.assertEqual("/usr/local/bin", join_PATH("/usr/local/bin", ""))
-        self.assertEqual("/usr/local/bin", join_PATH("/usr/local/bin", None))
-        self.assertEqual("/usr/local/bin", join_PATH("", "/usr/local/bin"))
-        self.assertEqual("/usr/local/bin", join_PATH(None, "/usr/local/bin"))
+        self.assertEqual("", _join_PATH(None))
+        self.assertEqual("", _join_PATH(""))
+        self.assertEqual("", _join_PATH("", None))
+        self.assertEqual("/usr/local/bin", _join_PATH("/usr/local/bin", ""))
+        self.assertEqual("/usr/local/bin", _join_PATH("/usr/local/bin", None))
+        self.assertEqual("/usr/local/bin", _join_PATH("", "/usr/local/bin"))
+        self.assertEqual("/usr/local/bin", _join_PATH(None, "/usr/local/bin"))
 
         path = ":/usr/bin:/bin:"
         self.assertEqual(
-            "/usr/local/bin:/usr/bin:/bin", join_PATH("/usr/local/bin", path)
+            "/usr/local/bin:/usr/bin:/bin", _join_PATH("/usr/local/bin", path)
         )
         self.assertEqual(
-            "/usr/bin:/bin:/usr/local/bin", join_PATH(path, "/usr/local/bin")
+            "/usr/bin:/bin:/usr/local/bin", _join_PATH(path, "/usr/local/bin")
         )
 
 

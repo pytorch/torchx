@@ -273,6 +273,11 @@ if _has_ray:
                     break
 
         def wait_until_finish(self, app_id: str, timeout: int = 30) -> None:
+            """
+            ``wait_until_finish`` waits until the specified job has finished
+            with a given timeout. This is intended for testing. Programmatic
+            usage should use the runner wait method instead.
+            """
             addr, app_id = app_id.split("-")
 
             client = JobSubmissionClient(f"http://{addr}")
