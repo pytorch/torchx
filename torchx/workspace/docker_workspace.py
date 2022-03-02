@@ -25,7 +25,18 @@ log: logging.Logger = logging.getLogger(__name__)
 
 class DockerWorkspace(Workspace):
     """
-    DockerWorkspace will build patched docker images from the workspace.
+    DockerWorkspace will build patched docker images from the workspace. These
+    patched images are docker images and can be either used locally via the
+    docker daemon or pushed using the helper methods to a remote repository for
+    remote jobs.
+
+    This requires a running docker daemon locally and for remote pushing
+    requires being authenticated to those repositories via ``docker login``.
+
+    See more:
+
+    * https://docs.docker.com/engine/reference/commandline/login/
+    * https://docs.docker.com/get-docker/
     """
 
     LABEL_VERSION: str = "torchx.pytorch.org/version"
@@ -73,6 +84,17 @@ class DockerWorkspace(Workspace):
     def _update_app_images(
         self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> Dict[str, Tuple[str, str]]:
+        """
+        _update_app_images replaces the local Docker images (identified via
+        ``sha256:...``) in the provided ``AppDef`` with the remote path that they will be uploaded to and
+        returns a mapping of local to remote names.
+
+        ``_push_images`` must be called with the returned mapping before
+        launching the job.
+
+        Returns:
+            A dict of [local image name, (remote repo, tag)].
+        """
         HASH_PREFIX = "sha256:"
 
         images_to_push = {}
@@ -95,6 +117,15 @@ class DockerWorkspace(Workspace):
         return images_to_push
 
     def _push_images(self, images_to_push: Dict[str, Tuple[str, str]]) -> None:
+        """
+        _push_images pushes the specified images to the remote container
+        repository with the specified tag. The docker daemon must be
+        authenticated to the remote repository using ``docker login``.
+
+        Args:
+            images_to_push: A dict of [local image name, (remote repo, tag)].
+        """
+
         if len(images_to_push) == 0:
             return
 

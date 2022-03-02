@@ -16,7 +16,7 @@ most unique applications can be serviced without customizing the whole vertical 
 
 
 **GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basic Concepts>` and
-follow the :ref:`quickstart guide<quickstart:Quickstart>`.
+follow the :ref:`quickstart guide<quickstart:Quickstart - Custom Components>`.
 
 .. image:: torchx_index_diag.png
 
@@ -47,7 +47,36 @@ Documentation
    quickstart.md
    cli
 
+   runner.config
+
    advanced
+
+
+Works With
+---------------
+
+.. _Schedulers:
+.. toctree::
+   :maxdepth: 1
+   :caption: Schedulers
+
+   schedulers/local
+   schedulers/docker
+   schedulers/kubernetes
+   schedulers/slurm
+   schedulers/ray
+   schedulers/aws_batch
+
+.. _Pipelines:
+.. toctree::
+   :maxdepth: 1
+   :caption: Pipelines
+
+   pipelines/kfp
+
+
+Examples
+------------
 
 .. toctree::
    :maxdepth: 1
@@ -56,6 +85,7 @@ Documentation
 
    examples_apps/index
    examples_pipelines/index
+
 
 
 Components Library
@@ -85,28 +115,6 @@ Runtime Library
    runtime/tracking
 
 
-Works With
----------------
-
-.. _Schedulers:
-.. toctree::
-   :maxdepth: 1
-   :caption: Schedulers
-
-   schedulers/local
-   schedulers/kubernetes
-   schedulers/slurm
-   schedulers/ray
-   schedulers/aws_batch
-
-.. _Pipelines:
-.. toctree::
-   :maxdepth: 1
-   :caption: Pipelines
-
-   pipelines/kfp
-
-
 Reference
 -----------
 
@@ -118,6 +126,7 @@ Reference
    specs
    runner
    schedulers
+   workspace
    pipelines
 
 .. toctree::
@@ -126,15 +135,3 @@ Reference
 
    app_best_practices
    component_best_practices
-
-
-Experimental
----------------
-.. toctree::
-   :maxdepth: 1
-   :caption: Experimental Features
-
-   experimental/runner.config
-
-
-

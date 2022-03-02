@@ -74,7 +74,7 @@ JOB_STATE: Dict[str, AppState] = {
 }
 
 
-def role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
+def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
     resource = role.resource
     reqs = []
     cpu = resource.cpu
@@ -244,7 +244,7 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
                     # localhost for rank0.
                     # See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html
                     replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
-                nodes.append(role_to_node_properties(rank, replica_role))
+                nodes.append(_role_to_node_properties(rank, replica_role))
 
         req = BatchJob(
             name=name,

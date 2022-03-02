@@ -66,6 +66,12 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
 ]
 
+# coverage options
+
+coverage_ignore_modules = [
+    "torchx.components.component_test_base",
+]
+
 # katex options
 #
 #
