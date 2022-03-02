@@ -242,9 +242,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -268,33 +282,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -375,7 +374,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.ray_scheduler.</span></span><span class="sig-name descname"><span class="pre">RayScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.schedulers.api.Scheduler</span></code></a></p>
+<dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayScheduler.describe">
 <span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.DescribeAppResponse</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler.describe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Describes the specified application.</p>
@@ -457,7 +457,7 @@ Basically a <code class="docutils literal notranslate"><span class="pre">--help<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayScheduler.schedule">
-<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.ray_scheduler.RayJob</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.ray_scheduler.RayJob" title="torchx.schedulers.ray_scheduler.RayJob"><span class="pre">torchx.schedulers.ray_scheduler.RayJob</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
 Implementors are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
@@ -468,6 +468,52 @@ implemented by:</p>
 </div>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayScheduler.wait_until_finish">
+<span class="sig-name descname"><span class="pre">wait_until_finish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler.wait_until_finish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler.wait_until_finish" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">wait_until_finish</span></code> waits until the specified job has finished
+with a given timeout. This is intended for testing. Programmatic
+usage should use the runner wait method instead.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.create_scheduler">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.ray_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#torchx.schedulers.ray_scheduler.RayScheduler" title="torchx.schedulers.ray_scheduler.RayScheduler"><span class="pre">torchx.schedulers.ray_scheduler.RayScheduler</span></a><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.has_ray">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.ray_scheduler.</span></span><span class="sig-name descname"><span class="pre">has_ray</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#has_ray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.has_ray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether Ray is installed in the current Python environment.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.serialize">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.ray_scheduler.</span></span><span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actors</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.ray.ray_common.RayActor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'actors.json'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayJob">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.ray_scheduler.</span></span><span class="sig-name descname"><span class="pre">RayJob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">app_id:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">cluster_config_file:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">cluster_name:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">dashboard_address:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">working_dir:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">requirements:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">actors:</span> <span class="pre">List[torchx.schedulers.ray.ray_common.RayActor]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayJob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a job that should be run on a Ray cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>~RayJob.app_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The unique ID of the application (a.k.a. job).</p></li>
+<li><p><strong>~RayJob.cluster_config_file</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>]</em>) – The Ray cluster configuration file.</p></li>
+<li><p><strong>~RayJob.cluster_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>]</em>) – The cluster name to use.</p></li>
+<li><p><strong>~RayJob.dashboard_address</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>]</em>) – The existing dashboard IP address to connect to</p></li>
+<li><p><strong>~RayJob.working_dir</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>working directory to copy to the cluster</strong> (<em>The</em>) – </p></li>
+<li><p><strong>~RayJob.requirements</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>]</em>) – The libraries to install on the cluster per requirements.txt</p></li>
+<li><p><strong>~RayJob.actors</strong> (<em>List</em><em>[</em><em>torchx.schedulers.ray.ray_common.RayActor</em><em>]</em>) – The Ray actors which represent the job to be run. This attribute is
+dumped to a JSON file and copied to the cluster where <cite>ray_main.py</cite>
+uses it to initiate the job.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

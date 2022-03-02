@@ -242,9 +242,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -268,33 +282,18 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -535,6 +534,44 @@ in the function signature) as passed automatically:</p>
 <span class="n">torchx</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">get_runner</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">appdef</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.TorchXRunner.poll_trial_status">
+<span class="sig-name descname"><span class="pre">poll_trial_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">ax.core.base_trial.BaseTrial</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">ax.core.base_trial.TrialStatus</span><span class="p"><span class="pre">,</span> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#TorchXRunner.poll_trial_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.TorchXRunner.poll_trial_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the status of any non-terminal trials and returns their
+indices as a mapping from TrialStatus to a list of indices. Required
+for runners used with Ax <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code>.</p>
+<p>NOTE: Does not need to handle waiting between polling calls while trials
+are running; this function should just perform a single poll.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>trials</strong> – Trials to poll.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary mapping TrialStatus to a list of trial indices that have
+the respective status at the time of the polling. This does not need to
+include trials that at the time of polling already have a terminal
+(ABANDONED, FAILED, COMPLETED) status (but it may).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.TorchXRunner.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.core.base_trial.BaseTrial</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#TorchXRunner.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.TorchXRunner.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submits the trial (which maps to an AppDef) as a job
+onto the scheduler using <code class="docutils literal notranslate"><span class="pre">torchx.runner</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>only supports <cite>Trial</cite> (not <cite>BatchTrial</cite>).</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.TorchXRunner.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.core.base_trial.BaseTrial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#TorchXRunner.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.TorchXRunner.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the given trial.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -551,6 +588,12 @@ the tracker in the following manner:</p>
                             <span class="s2">&quot;metric_name/sem&quot;</span><span class="p">:</span> <span class="n">sem_value</span><span class="p">}</span>
 </pre></div>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.runtime.hpo.ax.AppMetric.fetch_trial_data">
+<span class="sig-name descname"><span class="pre">fetch_trial_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">ax.core.base_trial.BaseTrial</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">ax.core.data.Data</span><a class="reference internal" href="../_modules/torchx/runtime/hpo/ax.html#AppMetric.fetch_trial_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runtime.hpo.ax.AppMetric.fetch_trial_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch data for one trial.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>

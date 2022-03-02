@@ -239,9 +239,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -265,33 +279,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -444,7 +443,7 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">role_to_node_properties</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_role_to_node_properties</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
     <span class="n">resource</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span>
     <span class="n">reqs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cpu</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span>
@@ -476,7 +475,7 @@
     <span class="p">}</span>
 
 
-<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="BatchJob"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.BatchJob">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BatchJob</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
@@ -487,7 +486,7 @@
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_def</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">,</span> <span class="n">DockerWorkspace</span><span class="p">):</span>
@@ -614,7 +613,7 @@
                     <span class="c1"># localhost for rank0.</span>
                     <span class="c1"># See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html</span>
                     <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
-                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role_to_node_properties</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">))</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_role_to_node_properties</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">))</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="n">BatchJob</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -802,10 +801,10 @@
                 <span class="k">yield</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span></div>
 
 
-<span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AWSBatchScheduler</span><span class="p">:</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AWSBatchScheduler</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">AWSBatchScheduler</span><span class="p">(</span>
         <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
 </pre></div>
 
      </article>

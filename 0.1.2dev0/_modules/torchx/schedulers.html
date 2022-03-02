@@ -239,9 +239,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -265,33 +279,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -391,7 +390,7 @@
         <span class="o">...</span></div>
 
 
-<span class="k">def</span> <span class="nf">try_get_ray_scheduler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SchedulerFactory</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_try_get_ray_scheduler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SchedulerFactory</span><span class="p">]:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">torchx.schedulers.ray_scheduler</span> <span class="kn">import</span> <span class="n">_has_ray</span>  <span class="c1"># @manual</span>
 
@@ -420,7 +419,7 @@
         <span class="s2">&quot;aws_batch&quot;</span><span class="p">:</span> <span class="n">aws_batch_scheduler</span><span class="o">.</span><span class="n">create_scheduler</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">ray_scheduler_creator</span> <span class="o">=</span> <span class="n">try_get_ray_scheduler</span><span class="p">()</span>
+    <span class="n">ray_scheduler_creator</span> <span class="o">=</span> <span class="n">_try_get_ray_scheduler</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">ray_scheduler_creator</span><span class="p">:</span>
         <span class="n">default_schedulers</span><span class="p">[</span><span class="s2">&quot;ray&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ray_scheduler_creator</span>
 

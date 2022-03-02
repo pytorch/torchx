@@ -242,9 +242,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -268,33 +282,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -395,7 +394,8 @@ for how to create a image repository.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.aws_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">AWSBatchScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker_client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DockerClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</p>
+<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.schedulers.api.Scheduler</span></code></a>, <a class="reference internal" href="../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace" title="torchx.workspace.docker_workspace.DockerWorkspace"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.workspace.docker_workspace.DockerWorkspace</span></code></a></p>
+<p>AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install torchx<span class="o">[</span>kubernetes<span class="o">]</span>
 $ torchx run --scheduler aws_batch --scheduler_args <span class="nv">queue</span><span class="o">=</span>torchx utils.echo --image alpine:latest --msg hello
 aws_batch://torchx_user/1234
@@ -531,7 +531,7 @@ Basically a <code class="docutils literal notranslate"><span class="pre">--help<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">
-<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.aws_batch_scheduler.BatchJob</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.aws_batch_scheduler.BatchJob" title="torchx.schedulers.aws_batch_scheduler.BatchJob"><span class="pre">torchx.schedulers.aws_batch_scheduler.BatchJob</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
 Implementors are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
@@ -544,6 +544,19 @@ implemented by:</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.BatchJob">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.aws_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">BatchJob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_def</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_to_push</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#BatchJob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.BatchJob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.create_scheduler">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.aws_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler" title="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler"><span class="pre">torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler</span></a><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
 </section>
 
 
@@ -591,6 +604,7 @@ implemented by:</p>
               <ul>
 <li><a class="reference internal" href="#">AWS Batch</a><ul>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
 </li>
 </ul>

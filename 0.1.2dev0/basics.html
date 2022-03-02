@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quickstart" href="quickstart.html" />
+    <link rel="next" title="Quickstart - Custom Components" href="quickstart.html" />
     <link rel="prev" title="TorchX" href="index.html" />
   <!-- Google Analytics -->
   
@@ -242,9 +242,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -268,33 +282,18 @@
 <li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -380,11 +379,12 @@ For how to create and run an app check out the <a class="reference internal" hre
 <ol class="arabic simple">
 <li><p><a class="reference internal" href="specs.html#module-torchx.specs" title="torchx.specs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.specs</span></code></a>: application spec (job definition) APIs</p></li>
 <li><p><a class="reference internal" href="components/overview.html#module-torchx.components" title="torchx.components"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components</span></code></a>: predefined (builtin) app specs</p></li>
+<li><p><a class="reference internal" href="workspace.html#module-torchx.workspace" title="torchx.workspace"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.workspace</span></code></a>: handles patching images for remote execution</p></li>
+<li><p><a class="reference internal" href="cli.html#module-torchx.cli" title="torchx.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.cli</span></code></a>: CLI tool</p></li>
 <li><p><a class="reference internal" href="runner.html#module-torchx.runner" title="torchx.runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runner</span></code></a>: given an app spec, submits the app as a job on a scheduler</p></li>
 <li><p><a class="reference internal" href="schedulers.html#module-torchx.schedulers" title="torchx.schedulers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.schedulers</span></code></a>: backend job schedulers that the runner supports</p></li>
 <li><p><a class="reference internal" href="pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a>: adapters that convert the given app spec to a “stage” in an ML pipeline platform</p></li>
 <li><p><a class="reference internal" href="runtime/overview.html#module-torchx.runtime" title="torchx.runtime"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runtime</span></code></a>: util and abstraction libraries you can use in authoring apps (not app spec)</p></li>
-<li><p><a class="reference internal" href="cli.html#module-torchx.cli" title="torchx.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.cli</span></code></a>: CLI tool</p></li>
 </ol>
 <p>Below is a UML diagram</p>
 <img alt="_images/torchx_module_uml.jpg" src="_images/torchx_module_uml.jpg" />
@@ -592,7 +592,7 @@ run components.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart - Custom Components" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="TorchX" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>

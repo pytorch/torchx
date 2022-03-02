@@ -10,11 +10,12 @@ The top level modules in TorchX are:
 
 1. :mod:`torchx.specs`: application spec (job definition) APIs
 2. :mod:`torchx.components`: predefined (builtin) app specs
-3. :mod:`torchx.runner`: given an app spec, submits the app as a job on a scheduler
-4. :mod:`torchx.schedulers`: backend job schedulers that the runner supports
-5. :mod:`torchx.pipelines`: adapters that convert the given app spec to a "stage" in an ML pipeline platform
-6. :mod:`torchx.runtime`: util and abstraction libraries you can use in authoring apps (not app spec)
-7. :mod:`torchx.cli`: CLI tool
+3. :mod:`torchx.workspace`: handles patching images for remote execution
+4. :mod:`torchx.cli`: CLI tool
+5. :mod:`torchx.runner`: given an app spec, submits the app as a job on a scheduler
+6. :mod:`torchx.schedulers`: backend job schedulers that the runner supports
+7. :mod:`torchx.pipelines`: adapters that convert the given app spec to a "stage" in an ML pipeline platform
+8. :mod:`torchx.runtime`: util and abstraction libraries you can use in authoring apps (not app spec)
 
 Below is a UML diagram
 

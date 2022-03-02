@@ -239,9 +239,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -265,33 +279,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../schedulers/aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -440,7 +439,7 @@
 <span class="n">named_resources</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]</span> <span class="o">=</span> <span class="n">_load_named_resources</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">resource</span><span class="p">(</span>
+<div class="viewcode-block" id="resource"><a class="viewcode-back" href="../../specs.html#torchx.specs.resource">[docs]</a><span class="k">def</span> <span class="nf">resource</span><span class="p">(</span>
     <span class="n">cpu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">gpu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">memMB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -461,11 +460,12 @@
 <span class="sd">    Example:</span>
 
 <span class="sd">    .. code-block:: python</span>
-<span class="sd">     resource(cpu=1) # returns Resource(cpu=1)</span>
-<span class="sd">     resource(named_resource=&quot;foobar&quot;) # returns registered named resource &quot;foo&quot;</span>
-<span class="sd">     resource(cpu=1, named_resource=&quot;foobar&quot;) # returns registered named resource &quot;foo&quot; (cpu=1 ignored)</span>
-<span class="sd">     resource() # returns default resource values</span>
-<span class="sd">     resource(cpu=None, gpu=None, memMB=None) # throws</span>
+
+<span class="sd">         resource(cpu=1) # returns Resource(cpu=1)</span>
+<span class="sd">         resource(named_resource=&quot;foobar&quot;) # returns registered named resource &quot;foo&quot;</span>
+<span class="sd">         resource(cpu=1, named_resource=&quot;foobar&quot;) # returns registered named resource &quot;foo&quot; (cpu=1 ignored)</span>
+<span class="sd">         resource() # returns default resource values</span>
+<span class="sd">         resource(cpu=None, gpu=None, memMB=None) # throws</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">h</span><span class="p">:</span>
@@ -482,7 +482,7 @@
             <span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span> <span class="ow">or</span> <span class="n">DEFAULT_CPU</span><span class="p">,</span>
             <span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span> <span class="ow">or</span> <span class="n">DEFAULT_GPU</span><span class="p">,</span>
             <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span> <span class="ow">or</span> <span class="n">DEFAULT_MEM_MB</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_named_resources"><a class="viewcode-back" href="../../specs.html#torchx.specs.get_named_resources">[docs]</a><span class="k">def</span> <span class="nf">get_named_resources</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>

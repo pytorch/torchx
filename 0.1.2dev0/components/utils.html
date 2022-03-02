@@ -242,9 +242,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -268,33 +282,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/local.html">Local</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../schedulers/aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -484,6 +483,24 @@ Output result is accessible via <code class="docutils literal notranslate"><span
 <li><p><strong>tracker_base</strong> – URI of the tracker’s base output directory (e.g. s3://foo/bar)</p></li>
 <li><p><strong>image</strong> – the image that contains the booth app</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.components.utils.binary">
+<span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'torchx_utils_python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a><a class="reference internal" href="../_modules/torchx/components/utils.html#binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – arguments passed to the program in sys.argv[1:] (ignored with <cite>–c</cite>)</p></li>
+<li><p><strong>name</strong> – name of the job</p></li>
+<li><p><strong>num_replicas</strong> – number of copies to run (each on its own container)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>

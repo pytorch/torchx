@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Slurm" href="slurm.html" />
-    <link rel="prev" title="Local" href="local.html" />
+    <link rel="prev" title="Docker" href="docker.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -242,9 +242,23 @@
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart - Custom Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
@@ -268,33 +282,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runtime/tracking.html">Tracking</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Schedulers</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kubernetes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="aws_batch.html">AWS Batch</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Pipelines</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../pipelines/kfp.html">Kubeflow Pipelines</a></li>
-</ul>
 <p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../specs.html">torchx.specs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../runner.html">torchx.runner</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workspace.html">torchx.workspace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipelines.html">torchx.pipelines</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Best Practices</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../app_best_practices.html">App Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../component_best_practices.html">Component Best Practices</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Experimental Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../experimental/runner.config.html">(beta) .torchxconfig file</a></li>
 </ul>
 
             
@@ -391,7 +390,8 @@ This requires the installation of etcd service on your kubernetes cluster:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">KubernetesScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ApiClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker_client</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">DockerClient</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>KubernetesScheduler is a TorchX scheduling interface to Kubernetes.</p>
+<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.schedulers.api.Scheduler</span></code></a>, <a class="reference internal" href="../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace" title="torchx.workspace.docker_workspace.DockerWorkspace"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.workspace.docker_workspace.DockerWorkspace</span></code></a></p>
+<p>KubernetesScheduler is a TorchX scheduling interface to Kubernetes.</p>
 <p>Important: Volcano is required to be installed on the Kubernetes cluster.
 TorchX requires gang scheduling for multi-replica/multi-role execution
 and Volcano is currently the only supported scheduler with Kubernetes.
@@ -540,7 +540,7 @@ Basically a <code class="docutils literal notranslate"><span class="pre">--help<
 
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.schedule">
-<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.kubernetes_scheduler.KubernetesJob</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torchx.specs.api.AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.kubernetes_scheduler.KubernetesJob" title="torchx.schedulers.kubernetes_scheduler.KubernetesJob"><span class="pre">torchx.schedulers.kubernetes_scheduler.KubernetesJob</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
 Implementors are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
@@ -553,6 +553,57 @@ implemented by:</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.KubernetesJob">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">KubernetesJob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images_to_push</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#KubernetesJob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.KubernetesJob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.create_scheduler">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler" title="torchx.schedulers.kubernetes_scheduler.KubernetesScheduler"><span class="pre">torchx.schedulers.kubernetes_scheduler.KubernetesScheduler</span></a><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.app_to_resource">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">app_to_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#app_to_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.app_to_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>app_to_resource creates a volcano job kubernetes resource definition from
+the provided AppDef. The resource definition can be used to launch the
+app on Kubernetes.</p>
+<p>To support macros we generate one task per replica instead of using the
+volcano <cite>replicas</cite> field since macros change the arguments on a per
+replica basis.</p>
+<p>Volcano has two levels of retries: one at the task level and one at the
+job level. When using the APPLICATION retry policy, the job level retry
+count is set to the minimum of the max_retries of the roles.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.cleanup_str">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">cleanup_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#cleanup_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.cleanup_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invokes <code class="docutils literal notranslate"><span class="pre">lower</span></code> on thes string and removes all
+characters that do not satisfy <code class="docutils literal notranslate"><span class="pre">[a-z0-9]</span></code> pattern.
+This method is mostly used to make sure kubernetes scheduler gets
+the job name that does not violate its validation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.pod_labels">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">pod_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../specs.html#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">torchx.specs.api.Role</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">replica_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#pod_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.pod_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.role_to_pod">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">role_to_pod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../specs.html#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">torchx.specs.api.Role</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">V1Pod</span><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#role_to_pod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.role_to_pod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.kubernetes_scheduler.sanitize_for_serialization">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.kubernetes_scheduler.</span></span><span class="sig-name descname"><span class="pre">sanitize_for_serialization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a><a class="reference internal" href="../_modules/torchx/schedulers/kubernetes_scheduler.html#sanitize_for_serialization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.kubernetes_scheduler.sanitize_for_serialization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
 </section>
 
 
@@ -566,7 +617,7 @@ implemented by:</p>
         <a href="slurm.html" class="btn btn-neutral float-right" title="Slurm" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="local.html" class="btn btn-neutral" title="Local" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="docker.html" class="btn btn-neutral" title="Docker" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -600,6 +651,7 @@ implemented by:</p>
               <ul>
 <li><a class="reference internal" href="#">Kubernetes</a><ul>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
 </li>
 </ul>
