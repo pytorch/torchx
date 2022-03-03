@@ -193,7 +193,8 @@ spec:
   maxRetry: 3
   plugins:
     env: []
-    svc: []
+    svc:
+    - --publish-not-ready-addresses
   queue: testqueue
   schedulerName: volcano
   tasks:

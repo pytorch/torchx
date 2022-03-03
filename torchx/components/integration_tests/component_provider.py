@@ -40,8 +40,9 @@ class DDPComponentProvider(ComponentProvider):
             script="torchx/components/integration_tests/test/dummy_app.py",
             name="ddp-trainer",
             image=self._image,
+            cpu=1,
             j="2x2",
-            max_restarts=3,
+            max_retries=3,
         )
 
 
@@ -49,8 +50,8 @@ class ServeComponentProvider(ComponentProvider):
     # TODO(aivanou): Remove dryrun and test e2e serve component+app
     def get_app_def(self) -> AppDef:
         return serve_components.torchserve(
-            model_path="",
-            management_api="",
+            model_path="dummy_path",
+            management_api="dummy_api",
             image=self._image,
             dryrun=True,
         )

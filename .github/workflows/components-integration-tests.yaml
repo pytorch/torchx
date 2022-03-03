@@ -9,6 +9,15 @@ on:
 jobs:
   components-launch:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+       include:
+         - scheduler: "aws_batch"
+         - scheduler: "kubernetes"
+         - scheduler: "local_cwd"
+         - scheduler: "local_docker"
+         - scheduler: "ray"
+      fail-fast: false
     permissions:
       id-token: write
       contents: read
@@ -48,8 +57,12 @@ jobs:
           set -eux
           pip install -r dev-requirements.txt
           pip install -e .[kubernetes]
+
+      - name: Start Ray
+        if: ${{ matrix.scheduler == 'ray' }}
+        run: ray start --head
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
-        run: scripts/component_integration_tests.py
+        run: scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }}

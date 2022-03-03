@@ -291,7 +291,8 @@ does NOT support retries correctly. More info: https://github.com/volcano-sh/vol
             "tasks": tasks,
             "maxRetry": job_retries,
             "plugins": {
-                "svc": [],
+                # https://github.com/volcano-sh/volcano/issues/533
+                "svc": ["--publish-not-ready-addresses"],
                 "env": [],
             },
         },

@@ -142,7 +142,7 @@ def ddp(
     memMB: int = 1024,
     j: str = "1x2",
     env: Optional[Dict[str, str]] = None,
-    max_restarts: Optional[int] = None,
+    max_retries: int = 0,
     rdzv_backend: str = "c10d",
     rdzv_endpoint: Optional[str] = None,
 ) -> specs.AppDef:
@@ -167,7 +167,7 @@ def ddp(
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
-        max_restarts: the number of restarts allowed
+        max_retries: the number of scheduler retries allowed
         rdzv_backend: rendezvous backend (only matters when nnodes > 1)
         rdzv_endpoint: rendezvous server endpoint (only matters when nnodes > 1), defaults to rank0 host for schedulers that support it
     """
@@ -219,8 +219,6 @@ def ddp(
         "--nproc_per_node",
         str(nproc_per_node),
     ]
-    if max_restarts is not None:
-        cmd += ["--max_restarts", str(max_restarts)]
     if script is not None:
         cmd += [script]
     elif m is not None:
@@ -240,6 +238,7 @@ def ddp(
                 port_map={
                     "c10d": 29500,
                 },
+                max_retries=max_retries,
             )
         ],
     )
