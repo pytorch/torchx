@@ -148,6 +148,8 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         for container in req.containers:
             images.add(container.image)
         for image in images:
+            if image.startswith("sha256:"):
+                continue
             log.info(f"Pulling container image: {image} (this may take a while)")
             try:
                 client.images.pull(image)

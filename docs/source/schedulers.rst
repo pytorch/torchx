@@ -9,6 +9,15 @@ and :ref:`registering<advanced:Registering Custom Schedulers>` it in the entrypo
 
 .. image:: scheduler_diagram.png
 
+All Schedulers
+~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   schedulers/*
+
 Scheduler Functions
 ~~~~~~~~~~~~~~~~~~~~
 
