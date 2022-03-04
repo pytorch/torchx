@@ -8,10 +8,15 @@
 # TorchX
 
 
-TorchX is a library containing standard DSLs for authoring and running PyTorch
-related components for an E2E production ML pipeline.
+TorchX is a universal job launcher for PyTorch applications.
+TorchX is designed to have fast iteration time for training/research and support
+for E2E production ML pipelines when you're ready.
 
 For the latest documentation, please refer to our [website](https://pytorch.org/torchx).
+
+## Quickstart
+
+See the [quickstart guide](https://pytorch.org/torchx/latest/quickstart.html).
 
 
 ## Requirements
@@ -57,10 +62,6 @@ $ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx
 # install extra dependencies
 $ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx[kubernetes]
 ```
-
-## Quickstart
-
-See the [quickstart guide](https://pytorch.org/torchx/latest/quickstart.html).
 
 ## Contributing
 

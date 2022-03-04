@@ -99,6 +99,7 @@ def python(
     *args: str,
     m: Optional[str] = None,
     c: Optional[str] = None,
+    script: Optional[str] = None,
     image: str = torchx.IMAGE,
     name: str = "torchx_utils_python",
     cpu: int = 2,
@@ -108,7 +109,7 @@ def python(
     num_replicas: int = 1,
 ) -> specs.AppDef:
     """
-    Runs ``python -c CMD`` or ``python -m MODULE`` on the specified
+    Runs ``python`` with the specified module, command or script on the specified
     image and host. Use ``--`` to separate component args and program args
     (e.g. ``torchx run utils.python --m foo.main -- --args to --main``)
 
@@ -120,6 +121,7 @@ def python(
         args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)
         m: run library module as a script
         c: program passed as string (may error if scheduler has a length limit on args)
+        script: .py script to run
         image: image to run on
         name: name of the job
         cpu: number of cpus per replica
@@ -129,12 +131,19 @@ def python(
         num_replicas: number of copies to run (each on its own container)
     :return:
     """
-    if m and c:
-        raise ValueError("only one of `--m` or `--c` can be specified")
-    if not m and not c:
-        raise ValueError("only one of `--m` or `--c` must be specified")
+    if sum([m is not None, c is not None, script is not None]) != 1:
+        raise ValueError(
+            "exactly one of `-m`, `-c` and `--script` needs to be specified"
+        )
 
-    prog_args = args if m else []
+    if script:
+        cmd = [script]
+    elif m:
+        cmd = ["-m", m]
+    elif c:
+        cmd = ["-c", c]
+    else:
+        raise ValueError("no program specified")
 
     return specs.AppDef(
         name=name,
@@ -145,12 +154,7 @@ def python(
                 entrypoint="python",
                 num_replicas=num_replicas,
                 resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
-                # pyre-ignore[6]: one of (only one of) m or c HAS to be not null
-                args=[
-                    "-m" if m else "-c",
-                    m if m else c,
-                    *prog_args,
-                ],
+                args=[*cmd, *args],
                 env={"HYDRA_MAIN_MODULE": m} if m else {},
             )
         ],

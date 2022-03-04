@@ -163,7 +163,7 @@ class DockerWorkspaceMockTest(unittest.TestCase):
                 self.assertCountEqual(
                     tf.getnames(),
                     {
-                        "Dockerfile",
+                        "Dockerfile.torchx",
                         "foo.sh",
                         ".dockerignore",
                         "dir/ignorefile",

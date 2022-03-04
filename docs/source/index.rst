@@ -3,37 +3,33 @@
 TorchX
 ==================
 
-TorchX is an SDK for quickly building and deploying ML applications from R&D to production.
-It offers various builtin components that encode MLOps best practices and make advanced
-features like distributed training and hyperparameter optimization accessible to all.
-Users can get started with TorchX with no added setup cost since it supports popular
-ML schedulers and pipeline orchestrators that are already widely adopted and deployed
-in production.
+TorchX is a universal job launcher for PyTorch applications.
+TorchX is designed to have fast iteration time for training/research and support
+for E2E production ML pipelines when you're ready.
 
-No two production environments are the same. To comply with various use cases, TorchX's
-core APIs allow tons of customization at well-defined extension points so that even the
-most unique applications can be serviced without customizing the whole vertical stack.
+**GETTING STARTED?** Follow the :ref:`quickstart guide<quickstart:Quickstart>`.
 
-
-**GETTING STARTED?** First learn the :ref:`basic concepts<basics:Basic Concepts>` and
-follow the :ref:`quickstart guide<quickstart:Quickstart - Custom Components>`.
-
-.. image:: torchx_index_diag.png
 
 In 1-2-3
 -----------------
 
-**01 DEFINE OR CHOOSE** Start by :ref:`writing a component<components/overview:Overview>` -- a python
-function that returns an AppDef object for your application. Or you can choose one of the
-:ref:`builtin components<Components>`.
+Step 1. Install
 
-**02 RUN AS A JOB** Once you've defined or chosen a component, you can :ref:`run it<runner:torchx.runner>`
-by submitting it as a job in one of the supported :ref:`Schedulers<Schedulers>`. TorchX supports several
-popular ones, such as Kubernetes and SLURM out of the box.
+.. code-block:: shell
 
-**03 CONVERT TO PIPELINE** In production, components are often run as a workflow (aka pipeline).
-TorchX components can be converted to pipeline stages by passing them through the :py:mod:`torchx.pipelines`
-adapter. :ref:`Pipelines<Pipelines>` lists the pipeline orchestrators supported out of the box.
+   pip install torchx[dev]
+
+Step 2. Run Locally
+
+.. code-block:: shell
+
+   torchx run --scheduler local_cwd utils.python --script my_app.py "Hello, localhost!"
+
+Step 3. Run Remotely
+
+.. code-block:: shell
+
+   torchx run --scheduler kubernetes utils.python --script my_app.py "Hello, Kubernetes!"
 
 
 Documentation
@@ -43,13 +39,12 @@ Documentation
    :maxdepth: 1
    :caption: Usage
 
-   basics
    quickstart.md
    cli
-
+   basics
    runner.config
-
    advanced
+   custom_components.md
 
 
 Works With

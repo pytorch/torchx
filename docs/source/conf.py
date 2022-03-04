@@ -361,4 +361,6 @@ nbsphinx_epilog = r"""
 
     <div id="is-nbsphinx"></div>
 """
-# nbsphinx_execute = 'never'
+
+if os.environ.get("SKIP_NB"):
+    nbsphinx_execute = "never"

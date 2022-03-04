@@ -23,6 +23,9 @@ if TYPE_CHECKING:
 log: logging.Logger = logging.getLogger(__name__)
 
 
+TORCHX_DOCKERFILE = "Dockerfile.torchx"
+
+
 class DockerWorkspace(Workspace):
     """
     DockerWorkspace will build patched docker images from the workspace. These
@@ -32,6 +35,12 @@ class DockerWorkspace(Workspace):
 
     This requires a running docker daemon locally and for remote pushing
     requires being authenticated to those repositories via ``docker login``.
+
+    If there is a ``Dockerfile.torchx`` file present in the workspace that will
+    be used instead to build the container.
+
+    To exclude files from the build context you can use the standard
+    `.dockerignore` file.
 
     See more:
 
@@ -67,11 +76,17 @@ class DockerWorkspace(Workspace):
         context = _build_context(role.image, workspace)
 
         try:
-
+            try:
+                self._docker_client.images.pull(role.image)
+            except Exception as e:
+                log.warning(
+                    f"failed to pull image {role.image}, falling back to local: {e}"
+                )
             image, _ = self._docker_client.images.build(
                 fileobj=context,
                 custom_context=True,
-                pull=True,
+                dockerfile=TORCHX_DOCKERFILE,
+                pull=False,
                 rm=True,
                 labels={
                     self.LABEL_VERSION: torchx.__version__,
@@ -151,7 +166,7 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
     )
     dockerfile = bytes(f"FROM {img}\nCOPY . .\n", encoding="utf-8")
     with tarfile.open(fileobj=f, mode="w") as tf:
-        info = tarfile.TarInfo("Dockerfile")
+        info = tarfile.TarInfo(TORCHX_DOCKERFILE)
         info.size = len(dockerfile)
         tf.addfile(info, io.BytesIO(dockerfile))
 
