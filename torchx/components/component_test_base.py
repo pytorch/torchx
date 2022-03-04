@@ -57,6 +57,10 @@ class ComponentUtils:
             app_status = runner.wait(app_handle)
             print(f"Final status: {app_status}")
             if none_throws(app_status).state != AppState.SUCCEEDED:
+                for line in runner.log_lines(
+                    app_handle, role_name=app_def.roles[0].name
+                ):
+                    print(f"{app_handle}: {line}")
                 raise AssertionError(
                     f"App {app_handle} failed with status: {app_status}"
                 )

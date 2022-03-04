@@ -8,6 +8,7 @@
 """
 Kubernetes integration tests.
 """
+import argparse
 import os
 
 import example_app_defs as examples_app_defs_providers
@@ -17,6 +18,7 @@ from torchx.components.integration_tests.integ_tests import (
     IntegComponentTest,
     SchedulerInfo,
 )
+from torchx.schedulers import get_scheduler_factories
 
 
 # pyre-ignore-all-errors[21] # Cannot find module utils
@@ -44,54 +46,68 @@ def get_ray_sched_info(image: str) -> SchedulerInfo:
     return SchedulerInfo(name="ray", image=image, cfg=cfg)
 
 
-def get_local_cwd_sched_info(image: str) -> SchedulerInfo:
-    return SchedulerInfo(name="local_cwd", image=image)
-
-
-def get_local_docker_sched_info(image: str) -> SchedulerInfo:
-    return SchedulerInfo(name="local_docker", image=image)
+def argparser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Process some integers.")
+    choices = list(get_scheduler_factories().keys())
+    parser.add_argument("--scheduler", required=True, choices=choices)
+    return parser
 
 
 def main() -> None:
+    args = argparser().parse_args()
+    scheduler = args.scheduler
+
     print("Starting components integration tests")
     torchx_image = "dummy_image"
     dryrun: bool = False
-    try:
-        build = build_and_push_image()
-        torchx_image = build.torchx_image
-    except MissingEnvError:
-        dryrun = True
-        print("Skip runnig tests, executed only docker buid step")
-    test_suite = IntegComponentTest(timeout=600)  # 10 minutes
-    test_suite.run_components(
-        component_provider,
-        scheduler_infos=[
-            get_local_cwd_sched_info(os.getcwd()),
-            get_k8s_sched_info(torchx_image),
-        ],
-        dryrun=dryrun,
-    )
+    if scheduler in ("kubernetes", "local_docker", "aws_batch"):
+        try:
+            build = build_and_push_image()
+            torchx_image = build.torchx_image
+        except MissingEnvError:
+            dryrun = True
+            print("Skip running tests, executed only docker build step")
+    test_suite: IntegComponentTest = IntegComponentTest(timeout=15 * 60)  # 15 minutes
 
-    # Run components on `local_docker`  scheduler in sequence due to
-    # docker APIs are not atomic. Some of the APIs, e.g. `create_network`
-    # cause a race condition, making several networks with the same name to be created.
-    test_suite.run_components(
-        component_provider,
-        scheduler_infos=[
-            get_local_docker_sched_info(torchx_image),
-        ],
-        dryrun=dryrun,
-        run_in_parallel=False,
-    )
+    def run_components(info: SchedulerInfo) -> None:
+        test_suite.run_components(
+            component_provider,
+            scheduler_infos=[info],
+            dryrun=dryrun,
+        )
 
-    test_suite.run_components(
-        examples_app_defs_providers,
-        scheduler_infos=[
-            get_local_docker_sched_info(torchx_image),
-            get_k8s_sched_info(torchx_image),
-        ],
-        dryrun=dryrun,
-    )
+    def run_examples(info: SchedulerInfo) -> None:
+        test_suite.run_components(
+            examples_app_defs_providers,
+            scheduler_infos=[info],
+            dryrun=dryrun,
+        )
+
+    if scheduler == "kubernetes":
+        info = get_k8s_sched_info(torchx_image)
+        run_components(info)
+        run_examples(info)
+    elif scheduler == "local_cwd":
+        info = SchedulerInfo(name=scheduler, image=os.getcwd())
+        run_components(info)
+    elif scheduler == "local_docker":
+        info = SchedulerInfo(name=scheduler, image=torchx_image)
+        run_components(info)
+        run_examples(info)
+    elif scheduler == "aws_batch":
+        info = SchedulerInfo(
+            name=scheduler,
+            image=torchx_image,
+            cfg={
+                "queue": "torchx",
+            },
+        )
+        run_components(info)
+    elif scheduler == "ray":
+        info = get_ray_sched_info(torchx_image)
+        run_components(info)
+    else:
+        raise ValueError(f"component tests missing support for {scheduler}")
 
 
 if __name__ == "__main__":
