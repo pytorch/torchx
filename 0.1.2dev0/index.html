@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Basic Concepts" href="basics.html" />
+    <link rel="next" title="Quickstart" href="quickstart.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -240,11 +240,12 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart - Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -375,40 +376,36 @@
       
   <section id="torchx">
 <h1>TorchX<a class="headerlink" href="#torchx" title="Permalink to this headline">¶</a></h1>
-<p>TorchX is an SDK for quickly building and deploying ML applications from R&amp;D to production.
-It offers various builtin components that encode MLOps best practices and make advanced
-features like distributed training and hyperparameter optimization accessible to all.
-Users can get started with TorchX with no added setup cost since it supports popular
-ML schedulers and pipeline orchestrators that are already widely adopted and deployed
-in production.</p>
-<p>No two production environments are the same. To comply with various use cases, TorchX’s
-core APIs allow tons of customization at well-defined extension points so that even the
-most unique applications can be serviced without customizing the whole vertical stack.</p>
-<p><strong>GETTING STARTED?</strong> First learn the <a class="reference internal" href="basics.html#basic-concepts"><span class="std std-ref">basic concepts</span></a> and
-follow the <a class="reference internal" href="quickstart.html#Quickstart---Custom-Components"><span class="std std-ref">quickstart guide</span></a>.</p>
-<img alt="_images/torchx_index_diag.png" src="_images/torchx_index_diag.png" />
+<p>TorchX is a universal job launcher for PyTorch applications.
+TorchX is designed to have fast iteration time for training/research and support
+for E2E production ML pipelines when you’re ready.</p>
+<p><strong>GETTING STARTED?</strong> Follow the <a class="reference internal" href="quickstart.html#Quickstart"><span class="std std-ref">quickstart guide</span></a>.</p>
 <section id="in-1-2-3">
 <h2>In 1-2-3<a class="headerlink" href="#in-1-2-3" title="Permalink to this headline">¶</a></h2>
-<p><strong>01 DEFINE OR CHOOSE</strong> Start by <a class="reference internal" href="components/overview.html#overview"><span class="std std-ref">writing a component</span></a> – a python
-function that returns an AppDef object for your application. Or you can choose one of the
-<a class="reference internal" href="#components"><span class="std std-ref">builtin components</span></a>.</p>
-<p><strong>02 RUN AS A JOB</strong> Once you’ve defined or chosen a component, you can <a class="reference internal" href="runner.html#torchx-runner"><span class="std std-ref">run it</span></a>
-by submitting it as a job in one of the supported <a class="reference internal" href="#schedulers"><span class="std std-ref">Schedulers</span></a>. TorchX supports several
-popular ones, such as Kubernetes and SLURM out of the box.</p>
-<p><strong>03 CONVERT TO PIPELINE</strong> In production, components are often run as a workflow (aka pipeline).
-TorchX components can be converted to pipeline stages by passing them through the <a class="reference internal" href="pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a>
-adapter. <a class="reference internal" href="#pipelines"><span class="std std-ref">Pipelines</span></a> lists the pipeline orchestrators supported out of the box.</p>
+<p>Step 1. Install</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install torchx<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+<p>Step 2. Run Locally</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2">&quot;Hello, localhost!&quot;</span>
+</pre></div>
+</div>
+<p>Step 3. Run Remotely</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler kubernetes utils.python --script my_app.py <span class="s2">&quot;Hello, Kubernetes!&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart - Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
 </ul>
 </div>
 </section>
@@ -499,7 +496,7 @@ adapter. <a class="reference internal" href="#pipelines"><span class="std std-re
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="basics.html" class="btn btn-neutral float-right" title="Basic Concepts" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
     </div>

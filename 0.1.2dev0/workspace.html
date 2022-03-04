@@ -241,11 +241,12 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart - Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -421,6 +422,10 @@ docker daemon or pushed using the helper methods to a remote repository for
 remote jobs.</p>
 <p>This requires a running docker daemon locally and for remote pushing
 requires being authenticated to those repositories via <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">login</span></code>.</p>
+<p>If there is a <code class="docutils literal notranslate"><span class="pre">Dockerfile.torchx</span></code> file present in the workspace that will
+be used instead to build the container.</p>
+<p>To exclude files from the build context you can use the standard
+<cite>.dockerignore</cite> file.</p>
 <p>See more:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.docker.com/engine/reference/commandline/login/">https://docs.docker.com/engine/reference/commandline/login/</a></p></li>

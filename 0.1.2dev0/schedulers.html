@@ -241,11 +241,12 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart - Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -377,6 +378,19 @@ the respective scheduler backends. TorchX supports a few <a class="reference int
 out-of-the-box. You can add your own by implementing .. py:class::torchx.schedulers
 and <a class="reference internal" href="advanced.html#registering-custom-schedulers"><span class="std std-ref">registering</span></a> it in the entrypoint.</p>
 <img alt="_images/scheduler_diagram.png" src="_images/scheduler_diagram.png" />
+<section id="all-schedulers">
+<h2>All Schedulers<a class="headerlink" href="#all-schedulers" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+</ul>
+</div>
+</section>
 <section id="module-torchx.schedulers">
 <span id="scheduler-functions"></span><h2>Scheduler Functions<a class="headerlink" href="#module-torchx.schedulers" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
@@ -623,6 +637,7 @@ the actual return type.</p>
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">torchx.schedulers</a><ul>
+<li><a class="reference internal" href="#all-schedulers">All Schedulers</a></li>
 <li><a class="reference internal" href="#module-torchx.schedulers">Scheduler Functions</a></li>
 <li><a class="reference internal" href="#scheduler-classes">Scheduler Classes</a></li>
 </ul>

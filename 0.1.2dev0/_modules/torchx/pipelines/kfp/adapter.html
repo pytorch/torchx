@@ -238,11 +238,12 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart - Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../custom_components.html">Custom Components</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -396,7 +397,7 @@
 <span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">__version__</span>  <span class="c1"># noqa F401</span>
 
 
-<div class="viewcode-block" id="component_spec_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.component_spec_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_spec_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">Role</span><span class="p">]:</span>
+<div class="viewcode-block" id="component_spec_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_spec_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_spec_from_app</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">api</span><span class="o">.</span><span class="n">Role</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    component_spec_from_app takes in a TorchX component and generates the yaml</span>
 <span class="sd">    spec for it. Notably this doesn&#39;t apply resources or port_maps since those</span>
@@ -435,7 +436,7 @@
     <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span> <span class="n">role</span></div>
 
 
-<div class="viewcode-block" id="ContainerFactory"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.ContainerFactory">[docs]</a><span class="k">class</span> <span class="nc">ContainerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<div class="viewcode-block" id="ContainerFactory"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.ContainerFactory">[docs]</a><span class="k">class</span> <span class="nc">ContainerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ContainerFactory is a protocol that represents a function that when called produces a</span>
 <span class="sd">    kfp.dsl.ContainerOp.</span>
@@ -457,7 +458,7 @@
 <span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">&quot;/tmp/outputs/mlpipeline-ui-metadata/data.json&quot;</span>
 
 
-<div class="viewcode-block" id="component_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.component_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_from_app</span><span class="p">(</span>
+<div class="viewcode-block" id="component_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.component_from_app">[docs]</a><span class="k">def</span> <span class="nf">component_from_app</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span> <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContainerFactory</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -566,7 +567,7 @@
     <span class="p">)</span>
 
 
-<div class="viewcode-block" id="container_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.container_from_app">[docs]</a><span class="k">def</span> <span class="nf">container_from_app</span><span class="p">(</span>
+<div class="viewcode-block" id="container_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">[docs]</a><span class="k">def</span> <span class="nf">container_from_app</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
     <span class="n">ui_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -599,7 +600,7 @@
     <span class="k">return</span> <span class="n">factory</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="resource_from_app"><a class="viewcode-back" href="../../../../pipelines.html#torchx.pipelines.kfp.adapter.resource_from_app">[docs]</a><span class="k">def</span> <span class="nf">resource_from_app</span><span class="p">(</span>
+<div class="viewcode-block" id="resource_from_app"><a class="viewcode-back" href="../../../../pipelines/kfp.html#torchx.pipelines.kfp.adapter.resource_from_app">[docs]</a><span class="k">def</span> <span class="nf">resource_from_app</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">api</span><span class="o">.</span><span class="n">AppDef</span><span class="p">,</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dsl</span><span class="o">.</span><span class="n">ResourceOp</span><span class="p">:</span>

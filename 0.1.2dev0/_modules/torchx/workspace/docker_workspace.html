@@ -238,11 +238,12 @@
             
               <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart - Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../runner.config.html">.torchxconfig</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom_components.html">Custom Components</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Schedulers</span></p>
 <ul>
@@ -390,6 +391,9 @@
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
+<span class="n">TORCHX_DOCKERFILE</span> <span class="o">=</span> <span class="s2">&quot;Dockerfile.torchx&quot;</span>
+
+
 <div class="viewcode-block" id="DockerWorkspace"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspace</span><span class="p">(</span><span class="n">Workspace</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DockerWorkspace will build patched docker images from the workspace. These</span>
@@ -399,6 +403,12 @@
 
 <span class="sd">    This requires a running docker daemon locally and for remote pushing</span>
 <span class="sd">    requires being authenticated to those repositories via ``docker login``.</span>
+
+<span class="sd">    If there is a ``Dockerfile.torchx`` file present in the workspace that will</span>
+<span class="sd">    be used instead to build the container.</span>
+
+<span class="sd">    To exclude files from the build context you can use the standard</span>
+<span class="sd">    `.dockerignore` file.</span>
 
 <span class="sd">    See more:</span>
 
@@ -434,11 +444,17 @@
         <span class="n">context</span> <span class="o">=</span> <span class="n">_build_context</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;failed to pull image </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">, falling back to local: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
             <span class="n">image</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
                 <span class="n">fileobj</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
                 <span class="n">custom_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">pull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">dockerfile</span><span class="o">=</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">,</span>
+                <span class="n">pull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">rm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
@@ -518,7 +534,7 @@
     <span class="p">)</span>
     <span class="n">dockerfile</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FROM </span><span class="si">{</span><span class="n">img</span><span class="si">}</span><span class="se">\n</span><span class="s2">COPY . .</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tf</span><span class="p">:</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="s2">&quot;Dockerfile&quot;</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">)</span>
         <span class="n">info</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">)</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">))</span>
 
