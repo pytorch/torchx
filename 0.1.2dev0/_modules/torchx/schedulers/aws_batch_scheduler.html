@@ -404,6 +404,7 @@
 <span class="sd">for how to create a image repository.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -489,6 +490,19 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
+<span class="k">def</span> <span class="nf">_thread_local_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;boto3.session.Session&quot;</span><span class="p">:</span>
+    <span class="n">KEY</span> <span class="o">=</span> <span class="s2">&quot;torchx_aws_batch_session&quot;</span>
+    <span class="n">local</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">KEY</span><span class="p">):</span>
+        <span class="c1"># pyre-ignore[16]</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">KEY</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">boto3.session</span>
+
+    <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">KEY</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">session</span>
+
+
 <div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">,</span> <span class="n">DockerWorkspace</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</span>
@@ -543,20 +557,16 @@
     <span class="nd">@property</span>
     <span class="c1"># pyre-fixme[3]: Return annotation cannot be `Any`.</span>
     <span class="k">def</span> <span class="nf">_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">boto3</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">__client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;batch&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__client</span>
+        <span class="k">return</span> <span class="n">_thread_local_session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;batch&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="c1"># pyre-fixme[3]: Return annotation cannot be `Any`.</span>
     <span class="k">def</span> <span class="nf">_log_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">boto3</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;logs&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__log_client</span>
+        <span class="k">return</span> <span class="n">_thread_local_session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;logs&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AWSBatchScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">BatchJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>

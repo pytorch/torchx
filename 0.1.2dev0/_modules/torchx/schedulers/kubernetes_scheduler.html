@@ -660,7 +660,8 @@
             <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="n">tasks</span><span class="p">,</span>
             <span class="s2">&quot;maxRetry&quot;</span><span class="p">:</span> <span class="n">job_retries</span><span class="p">,</span>
             <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;svc&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="c1"># https://github.com/volcano-sh/volcano/issues/533</span>
+                <span class="s2">&quot;svc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--publish-not-ready-addresses&quot;</span><span class="p">],</span>
                 <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">[],</span>
             <span class="p">},</span>
         <span class="p">},</span>
