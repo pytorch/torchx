@@ -12,25 +12,30 @@ TorchX is a universal job launcher for PyTorch applications.
 TorchX is designed to have fast iteration time for training/research and support
 for E2E production ML pipelines when you're ready.
 
-For the latest documentation, please refer to our [website](https://pytorch.org/torchx).
 
 ## Quickstart
 
 See the [quickstart guide](https://pytorch.org/torchx/latest/quickstart.html).
 
+## Documentation
+
+* [Stable Documentation](https://pytorch.org/torchx/latest/)
+* [Nightly Documentation](https://pytorch.org/torchx/main/)
 
 ## Requirements
-TorchX SDK (torchx):
-* python3 (3.8+)
-* torch
 
-TorchX Kubeflow Pipelines Support (torchx-kfp):
-* torchx
-* kfp
+torchx:
+
+* python3 (3.8+)
+* [PyTorch](https://pytorch.org/get-started/locally/)
+* optional: [Docker](https://docs.docker.com/get-docker/) (needed for docker based schedulers)
+
+Certain schedulers may require scheduler specific requirements. See installation
+for info.
 
 ## Installation
 
-### Release
+### Stable
 
 ```bash
 # install torchx sdk and CLI -- minimum dependencies
@@ -44,13 +49,16 @@ pip install "torchx[kfp]"
 
 # install torchx Kubernetes / Volcano support
 pip install "torchx[kubernetes]"
+
+# install torchx Ray support
+pip install "torchx[ray]"
 ```
 
 ### Nightly
 
 ```bash
 # install torchx sdk and CLI
-pip install torchx-nightly
+pip install torchx-nightly[dev]
 ```
 
 ### Source
@@ -60,8 +68,14 @@ pip install torchx-nightly
 $ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx
 
 # install extra dependencies
-$ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx[kubernetes]
+$ pip install -e git+https://github.com/pytorch/torchx.git#egg=torchx[dev]
 ```
+
+### Docker
+
+TorchX provides a docker container for using as as part of a TorchX role.
+
+See: https://github.com/pytorch/torchx/pkgs/container/torchx
 
 ## Contributing
 
