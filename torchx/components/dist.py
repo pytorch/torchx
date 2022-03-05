@@ -121,9 +121,10 @@ not TorchX. Read more about rendezvous `here <https://pytorch.org/docs/stable/el
 Components APIs
 -----------------
 """
+import os
 import shlex
 from pathlib import Path
-from typing import Dict, Optional, Iterable
+from typing import Dict, Iterable, Optional
 
 import torchx
 import torchx.specs as specs
@@ -202,7 +203,7 @@ def ddp(
 
     if env is None:
         env = {}
-    env.setdefault("LOGLEVEL", "INFO")
+    env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
 
     cmd = [
         "python",
