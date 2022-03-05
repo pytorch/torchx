@@ -753,10 +753,10 @@ torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-05 02:51:47 INFO     Log files located in: /tmp/torchx_o2fhnjdg/torchx/torchx_utils_python-qdcf5qvq74s3kc/python/0
-torchx 2022-03-05 02:51:49 INFO     Waiting for the app to finish...
+torchx 2022-03-05 03:50:33 INFO     Log files located in: /tmp/torchx_ziznrp36/torchx/torchx_utils_python-z2jmt9v373xv9c/python/0
+torchx 2022-03-05 03:50:34 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-03-05 02:51:50 INFO     Job finished: SUCCEEDED
+torchx 2022-03-05 03:50:35 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -764,7 +764,7 @@ torchx 2022-03-05 02:51:50 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-qdcf5qvq74s3kc
+local_cwd://torchx/torchx_utils_python-z2jmt9v373xv9c
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -784,12 +784,12 @@ torchx run --scheduler local_docker utils.python --script my_app.py <span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-05 02:51:52 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-03-05 02:52:03 INFO     Done building workspace
-torchx 2022-03-05 02:52:03 INFO     New image: sha256:ebee2d8109ed951891d5af285b39e003ff1d6d094baefb59c7622bb1b0a34d7d built from workspace
-torchx 2022-03-05 02:52:04 INFO     Waiting for the app to finish...
+torchx 2022-03-05 03:50:37 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-03-05 03:50:46 INFO     Done building workspace
+torchx 2022-03-05 03:50:46 INFO     New image: sha256:82f939148508c5131644a2d5160d7baba32c29336175c94a7af641e9e8a6eaa1 built from workspace
+torchx 2022-03-05 03:50:48 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-03-05 02:52:05 INFO     Job finished: SUCCEEDED
+torchx 2022-03-05 03:50:49 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -797,7 +797,7 @@ torchx 2022-03-05 02:52:05 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-hrvd0vc1n37fv
+local_docker://torchx/torchx_utils_python-blm1j6dld4k6zc
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -904,97 +904,27 @@ torchx run --scheduler local_docker dist.ddp -j 2x2 --script dist_app.py
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-05 02:52:10 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: dist_app, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-03-05 02:52:20 INFO     Done building workspace
-torchx 2022-03-05 02:52:20 INFO     New image: sha256:cddd23dce4ffc9b7a3db724385330bbf166731cdbf1b5a13ef15df36c615bc18 built from workspace
-torchx 2022-03-05 02:52:23 INFO     Waiting for the app to finish...
-dist_app/1 WARNING:__main__:
-dist_app/1 *****************************************
-dist_app/1 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-dist_app/1 *****************************************
-dist_app/1 INFO:torch.distributed.launcher.api:Starting elastic_operator with launch configs:
-dist_app/1   entrypoint       : dist_app.py
-dist_app/1   min_nodes        : 2
-dist_app/1   max_nodes        : 2
-dist_app/1   nproc_per_node   : 2
-dist_app/1   run_id           : dist_app-xsjt14v9ss7cqc
-dist_app/1   rdzv_backend     : c10d
-dist_app/1   rdzv_endpoint    : dist_app-xsjt14v9ss7cqc-dist_app-0:29500
-dist_app/1   rdzv_configs     : {&#39;timeout&#39;: 900}
-dist_app/1   max_restarts     : 0
-dist_app/1   monitor_interval : 5
-dist_app/1   log_dir          : None
-dist_app/1   metrics_cfg      : {}
-dist_app/1
+torchx 2022-03-05 03:50:52 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: dist_app, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-03-05 03:51:01 INFO     Done building workspace
+torchx 2022-03-05 03:51:01 INFO     New image: sha256:89eceda51ddcc017c3c4e3e12c550b79649f70faaeb33cbc5a5ee8da62b460fc built from workspace
+torchx 2022-03-05 03:51:03 INFO     Waiting for the app to finish...
 dist_app/0 WARNING:__main__:
 dist_app/0 *****************************************
 dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 dist_app/0 *****************************************
-dist_app/0 INFO:torch.distributed.launcher.api:Starting elastic_operator with launch configs:
-dist_app/0   entrypoint       : dist_app.py
-dist_app/0   min_nodes        : 2
-dist_app/0   max_nodes        : 2
-dist_app/0   nproc_per_node   : 2
-dist_app/0   run_id           : dist_app-xsjt14v9ss7cqc
-dist_app/0   rdzv_backend     : c10d
-dist_app/0   rdzv_endpoint    : dist_app-xsjt14v9ss7cqc-dist_app-0:29500
-dist_app/0   rdzv_configs     : {&#39;timeout&#39;: 900}
-dist_app/0   max_restarts     : 0
-dist_app/0   monitor_interval : 5
-dist_app/0   log_dir          : None
-dist_app/0   metrics_cfg      : {}
-dist_app/0
-dist_app/0 INFO:torch.distributed.elastic.agent.server.local_elastic_agent:log directory set to: /tmp/torchelastic_h1yywhf1/dist_app-xsjt14v9ss7cqc_ygnc320o
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:[default] starting workers for entrypoint: python
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:[default] Rendezvous&#39;ing worker group
-dist_app/1 INFO:torch.distributed.elastic.agent.server.local_elastic_agent:log directory set to: /tmp/torchelastic_uxrn28ys/dist_app-xsjt14v9ss7cqc__ebts97t
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:[default] starting workers for entrypoint: python
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:[default] Rendezvous&#39;ing worker group
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:[default] Rendezvous complete for workers. Result:
-dist_app/0   restart_count=0
-dist_app/0   master_addr=dist_app-xsjt14v9ss7cqc-dist_app-0
-dist_app/0   master_port=37109
-dist_app/0   group_rank=0
-dist_app/0   group_world_size=2
-dist_app/0   local_ranks=[0, 1]
-dist_app/0   role_ranks=[0, 1]
-dist_app/0   global_ranks=[0, 1]
-dist_app/0   role_world_sizes=[4, 4]
-dist_app/0   global_world_sizes=[4, 4]
-dist_app/0
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:[default] Starting worker group
-dist_app/0 INFO:torch.distributed.elastic.multiprocessing:Setting worker0 reply file to: /tmp/torchelastic_h1yywhf1/dist_app-xsjt14v9ss7cqc_ygnc320o/attempt_0/0/error.json
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:[default] Rendezvous complete for workers. Result:
-dist_app/1   restart_count=0
-dist_app/1   master_addr=dist_app-xsjt14v9ss7cqc-dist_app-0
-dist_app/1   master_port=37109
-dist_app/1   group_rank=1
-dist_app/1   group_world_size=2
-dist_app/1   local_ranks=[0, 1]
-dist_app/1   role_ranks=[2, 3]
-dist_app/1   global_ranks=[2, 3]
-dist_app/1   role_world_sizes=[4, 4]
-dist_app/1   global_world_sizes=[4, 4]
-dist_app/1
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:[default] Starting worker group
-dist_app/0 INFO:torch.distributed.elastic.multiprocessing:Setting worker1 reply file to: /tmp/torchelastic_h1yywhf1/dist_app-xsjt14v9ss7cqc_ygnc320o/attempt_0/1/error.json
-dist_app/1 INFO:torch.distributed.elastic.multiprocessing:Setting worker0 reply file to: /tmp/torchelastic_uxrn28ys/dist_app-xsjt14v9ss7cqc__ebts97t/attempt_0/0/error.json
-dist_app/1 INFO:torch.distributed.elastic.multiprocessing:Setting worker1 reply file to: /tmp/torchelastic_uxrn28ys/dist_app-xsjt14v9ss7cqc__ebts97t/attempt_0/1/error.json
+dist_app/1 WARNING:__main__:
+dist_app/1 *****************************************
+dist_app/1 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 *****************************************
 dist_app/0 I am worker 0 of 4!
-dist_app/0 I am worker 1 of 4!
-dist_app/1 I am worker 3 of 4!
 dist_app/1 I am worker 2 of 4!
+dist_app/1 I am worker 3 of 4!
+dist_app/0 I am worker 1 of 4!
+dist_app/0 all_reduce output = tensor([6])
 dist_app/1 all_reduce output = tensor([6])
 dist_app/1 all_reduce output = tensor([6])
 dist_app/0 all_reduce output = tensor([6])
-dist_app/0 all_reduce output = tensor([6])
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:[default] worker group successfully finished. Waiting 300 seconds for other agents to finish.
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:[default] worker group successfully finished. Waiting 300 seconds for other agents to finish.
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:Local worker group finished (SUCCEEDED). Waiting 300 seconds for other agents to finish
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:Local worker group finished (SUCCEEDED). Waiting 300 seconds for other agents to finish
-dist_app/1 INFO:torch.distributed.elastic.agent.server.api:Done waiting for other agents. Elapsed: 0.0010683536529541016 seconds
-dist_app/0 INFO:torch.distributed.elastic.agent.server.api:Done waiting for other agents. Elapsed: 0.0018627643585205078 seconds
-torchx 2022-03-05 02:52:32 INFO     Job finished: SUCCEEDED
+torchx 2022-03-05 03:51:11 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1002,7 +932,7 @@ torchx 2022-03-05 02:52:32 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-xsjt14v9ss7cqc
+local_docker://torchx/dist_app-lp35jf3rf6tgt
 </pre></div></div>
 </div>
 </section>
@@ -1108,7 +1038,7 @@ slurm:
 
 kubernetes:
     usage:
-        queue=QUEUE,[namespace=NAMESPACE],[image_repo=IMAGE_REPO]
+        queue=QUEUE,[namespace=NAMESPACE],[image_repo=IMAGE_REPO],[service_account=SERVICE_ACCOUNT]
 
     required arguments:
         queue=QUEUE (str)
@@ -1119,6 +1049,8 @@ kubernetes:
             Kubernetes namespace to schedule job in
         image_repo=IMAGE_REPO (str, None)
             The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        service_account=SERVICE_ACCOUNT (str, None)
+            The service account name to set on the pod specs
 
 aws_batch:
     usage:
@@ -1213,11 +1145,11 @@ torchx run --scheduler local_docker utils.python --script timm_app.py <span clas
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-05 02:52:34 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2022-03-05 02:52:35 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-03-05 02:52:46 INFO     Done building workspace
-torchx 2022-03-05 02:52:46 INFO     New image: sha256:86feb25875d9ac70f2e12decd13a1527fd916cb583a32895e230621c808e5825 built from workspace
-torchx 2022-03-05 02:52:48 INFO     Waiting for the app to finish...
+torchx 2022-03-05 03:51:13 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2022-03-05 03:51:14 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-03-05 03:51:23 INFO     Done building workspace
+torchx 2022-03-05 03:51:23 INFO     New image: sha256:329e5ba93d0ba2705695462c6b609cdb2c2e7259b5e1a3ed664ed71ebba58dc6 built from workspace
+torchx 2022-03-05 03:51:25 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1310,7 +1242,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d (pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2022-03-05 02:52:50 INFO     Job finished: SUCCEEDED
+torchx 2022-03-05 03:51:27 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1318,7 +1250,7 @@ torchx 2022-03-05 02:52:50 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-z4x9fhdqbtxf4c
+local_docker://torchx/torchx_utils_python-ls57745nt056z
 </pre></div></div>
 </div>
 </section>

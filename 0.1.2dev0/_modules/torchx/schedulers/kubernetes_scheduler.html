@@ -527,7 +527,7 @@
     <span class="k">return</span> <span class="n">api</span><span class="o">.</span><span class="n">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">[docs]</a><span class="k">def</span> <span class="nf">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Pod&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">[docs]</a><span class="k">def</span> <span class="nf">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Pod&quot;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F811 redefinition of unused</span>
         <span class="n">V1Pod</span><span class="p">,</span>
         <span class="n">V1PodSpec</span><span class="p">,</span>
@@ -577,6 +577,7 @@
         <span class="n">spec</span><span class="o">=</span><span class="n">V1PodSpec</span><span class="p">(</span>
             <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">container</span><span class="p">],</span>
             <span class="n">restart_policy</span><span class="o">=</span><span class="s2">&quot;Never&quot;</span><span class="p">,</span>
+            <span class="n">service_account_name</span><span class="o">=</span><span class="n">service_account</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">metadata</span><span class="o">=</span><span class="n">V1ObjectMeta</span><span class="p">(</span>
             <span class="n">annotations</span><span class="o">=</span><span class="p">{</span>
@@ -602,7 +603,9 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span></div>
 
 
-<div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    app_to_resource creates a volcano job kubernetes resource definition from</span>
 <span class="sd">    the provided AppDef. The resource definition can be used to launch the</span>
@@ -633,7 +636,7 @@
             <span class="k">if</span> <span class="n">role_idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">replica_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
 
-            <span class="n">pod</span> <span class="o">=</span> <span class="n">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">)</span>
+            <span class="n">pod</span> <span class="o">=</span> <span class="n">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">service_account</span><span class="p">)</span>
             <span class="n">pod</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">))</span>
             <span class="n">task</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
@@ -807,7 +810,12 @@
         <span class="c1"># map any local images to the remote image</span>
         <span class="n">images_to_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_app_images</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
 
-        <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">)</span>
+        <span class="n">service_account</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;service_account&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">service_account</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">service_account</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;service_account must be a str&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">service_account</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">KubernetesJob</span><span class="p">(</span>
             <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
             <span class="n">images_to_push</span><span class="o">=</span><span class="n">images_to_push</span><span class="p">,</span>
@@ -840,12 +848,20 @@
             <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="s2">&quot;queue&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Volcano queue to schedule job in&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span>
+            <span class="s2">&quot;queue&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Volcano queue to schedule job in&quot;</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;image_repo&quot;</span><span class="p">,</span>
             <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;service_account&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The service account name to set on the pod specs&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
@@ -910,7 +926,7 @@
 
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
 
-        <span class="n">pod_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">-0&quot;</span>
+        <span class="n">pod_name</span> <span class="o">=</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">-0&quot;</span><span class="p">)</span>
 
         <span class="n">args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">pod_name</span><span class="p">,</span>
