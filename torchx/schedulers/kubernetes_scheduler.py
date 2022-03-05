@@ -157,7 +157,7 @@ def sanitize_for_serialization(obj: object) -> object:
     return api.sanitize_for_serialization(obj)
 
 
-def role_to_pod(name: str, role: Role) -> "V1Pod":
+def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Pod,
         V1PodSpec,
@@ -207,6 +207,7 @@ def role_to_pod(name: str, role: Role) -> "V1Pod":
         spec=V1PodSpec(
             containers=[container],
             restart_policy="Never",
+            service_account_name=service_account,
         ),
         metadata=V1ObjectMeta(
             annotations={
@@ -232,7 +233,9 @@ def cleanup_str(data: str) -> str:
     return "".join(re.findall(pattern, data.lower()))
 
 
-def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
+def app_to_resource(
+    app: AppDef, queue: str, service_account: Optional[str]
+) -> Dict[str, object]:
     """
     app_to_resource creates a volcano job kubernetes resource definition from
     the provided AppDef. The resource definition can be used to launch the
@@ -263,7 +266,7 @@ def app_to_resource(app: AppDef, queue: str) -> Dict[str, object]:
             if role_idx == 0 and replica_id == 0:
                 replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
-            pod = role_to_pod(name, replica_role)
+            pod = role_to_pod(name, replica_role, service_account)
             pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
             task: Dict[str, Any] = {
                 "replicas": 1,
@@ -437,7 +440,12 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
         # map any local images to the remote image
         images_to_push = self._update_app_images(app, cfg)
 
-        resource = app_to_resource(app, queue)
+        service_account = cfg.get("service_account")
+        assert service_account is None or isinstance(
+            service_account, str
+        ), "service_account must be a str"
+
+        resource = app_to_resource(app, queue, service_account)
         req = KubernetesJob(
             resource=resource,
             images_to_push=images_to_push,
@@ -470,12 +478,20 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
             default="default",
         )
         opts.add(
-            "queue", type_=str, help="Volcano queue to schedule job in", required=True
+            "queue",
+            type_=str,
+            help="Volcano queue to schedule job in",
+            required=True,
         )
         opts.add(
             "image_repo",
             type_=str,
             help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
+        )
+        opts.add(
+            "service_account",
+            type_=str,
+            help="The service account name to set on the pod specs",
         )
         return opts
 
@@ -540,7 +556,7 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
 
         namespace, name = app_id.split(":")
 
-        pod_name = f"{name}-{role_name}-{k}-0"
+        pod_name = cleanup_str(f"{name}-{role_name}-{k}-0")
 
         args: Dict[str, object] = {
             "name": pod_name,

@@ -235,6 +235,7 @@ def container_from_app(
 def resource_from_app(
     app: api.AppDef,
     queue: str,
+    service_account: Optional[str] = None,
 ) -> dsl.ResourceOp:
     """
     resource_from_app generates a KFP ResourceOp from the provided app that uses
@@ -266,5 +267,5 @@ def resource_from_app(
         action="create",
         success_condition="status.state.phase = Completed",
         failure_condition="status.state.phase = Failed",
-        k8s_resource=app_to_resource(app, queue),
+        k8s_resource=app_to_resource(app, queue, service_account=service_account),
     )

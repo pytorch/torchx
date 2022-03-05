@@ -68,7 +68,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
-            resource = app_to_resource(app, "test_queue")
+            resource = app_to_resource(app, "test_queue", service_account=None)
             actual_cmd = (
                 # pyre-ignore [16]
                 resource["spec"]["tasks"][0]["template"]
@@ -88,7 +88,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
 
     def test_retry_policy_not_set(self) -> None:
         app = _test_app()
-        resource = app_to_resource(app, "test_queue")
+        resource = app_to_resource(app, "test_queue", service_account=None)
         self.assertListEqual(
             [
                 {"event": "PodEvicted", "action": "RestartJob"},
@@ -99,7 +99,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
         )
         for role in app.roles:
             role.max_retries = 0
-        resource = app_to_resource(app, "test_queue")
+        resource = app_to_resource(app, "test_queue", service_account=None)
         self.assertFalse("policies" in resource["spec"]["tasks"][0])
         self.assertFalse("maxRetry" in resource["spec"]["tasks"][0])
 
@@ -115,7 +115,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
         )
 
         app = _test_app()
-        pod = role_to_pod("name", app.roles[0])
+        pod = role_to_pod("name", app.roles[0], service_account="srvacc")
 
         requests = {
             "cpu": "2000m",
@@ -146,6 +146,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             spec=V1PodSpec(
                 containers=[container],
                 restart_policy="Never",
+                service_account_name="srvacc",
             ),
             metadata=V1ObjectMeta(
                 annotations={
@@ -298,6 +299,22 @@ spec:
             },
         )
 
+    def test_submit_dryrun_service_account(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("service_account", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = {
+            "queue": "testqueue",
+            "service_account": "srvacc",
+        }
+
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn("'service_account_name': 'srvacc'", str(info.request.resource))
+
+        del cfg["service_account"]
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn("service_account_name': None", str(info.request.resource))
+
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
     def test_submit(self, create_namespaced_custom_object: MagicMock) -> None:
         create_namespaced_custom_object.return_value = {
@@ -426,6 +443,7 @@ spec:
                 "queue",
                 "namespace",
                 "image_repo",
+                "service_account",
             },
         )
 
@@ -452,7 +470,7 @@ spec:
         read_namespaced_pod_log.return_value = "foo reg\nfoo\nbar reg\n"
         lines = scheduler.log_iter(
             app_id="testnamespace:testjob",
-            role_name="role",
+            role_name="role_blah",
             k=1,
             regex="reg",
             since=datetime.now(),
@@ -472,7 +490,7 @@ spec:
             kwargs,
             {
                 "namespace": "testnamespace",
-                "name": "testjob-role-1-0",
+                "name": "testjob-roleblah-1-0",
                 "timestamps": True,
             },
         )
