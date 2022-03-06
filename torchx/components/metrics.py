@@ -6,7 +6,7 @@
 
 """
 For metrics we recommend using Tensorboard to log metrics directly to cloud
-storage along side your model. As the model trains you can use launch a
+storage along side your model. As the model trains you can launch a
 tensorboard instance locally to monitor your model progress:
 
 .. code-block:: shell-session
