@@ -219,6 +219,8 @@ def ddp(
         str(nnodes),
         "--nproc_per_node",
         str(nproc_per_node),
+        "--tee",
+        "3",
     ]
     if script is not None:
         cmd += [script]
