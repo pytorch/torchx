@@ -11,14 +11,14 @@ components on a Slurm cluster.
 """
 
 import csv
+import logging
 import os.path
 import shlex
 import subprocess
 import tempfile
-import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Iterable
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.local_scheduler import LogIterator
@@ -64,6 +64,8 @@ SBATCH_GROUP_OPTIONS = {
     "time",
     "constraint",
 }
+
+log: logging.Logger = logging.getLogger(__name__)
 
 
 def _apply_app_id_env(s: str) -> str:
@@ -115,6 +117,7 @@ class SlurmReplicaRequest:
 
         srun_opts = {
             "output": f"slurm-{macros.app_id}-{name}.out",
+            "error": f"slurm-{macros.app_id}-{name}.err",
         }
 
         return cls(
@@ -415,18 +418,23 @@ class SlurmScheduler(Scheduler):
         should_tail: bool = False,
         streams: Optional[Stream] = None,
     ) -> Iterable[str]:
+        if streams is None:
+            log.info("log stream not specified, defaulting to STDERR")
+        elif streams == Stream.COMBINED:
+            raise ValueError(
+                "SlurmScheduler does not support COMBINED log stream."
+                " Use `stdout` or `stderr`"
+            )
+
+        extension = "out" if streams == Stream.STDOUT else "err"
+
         if since or until:
-            warnings.warn(
+            log.warning(
                 "since and/or until times specified for SlurmScheduler.log_iter."
                 " These will be ignored and all log lines will be returned"
             )
-        if streams is not None and streams != Stream.COMBINED:
-            warnings.warn(
-                "streams specified for SlurmScheduler.log_iter."
-                " These will be ignored and all log lines will be returned"
-            )
 
-        log_file = f"slurm-{app_id}-{role_name}-{k}.out"
+        log_file = f"slurm-{app_id}-{role_name}-{k}.{extension}"
 
         return LogIterator(
             app_id, regex or ".*", log_file, self, should_tail=should_tail
