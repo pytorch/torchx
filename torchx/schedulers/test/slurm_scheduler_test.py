@@ -96,6 +96,7 @@ class SlurmSchedulerTest(unittest.TestCase):
             srun,
             [
                 '--output=slurm-"$SLURM_JOB_ID"-role-0.out',
+                '--error=slurm-"$SLURM_JOB_ID"-role-0.err',
                 "--export=ALL,FOO=bar",
                 "echo",
                 "'hello slurm'",
@@ -191,9 +192,9 @@ set -e
 export PYTHONUNBUFFERED=1
 export SLURM_UNBUFFEREDIO=1
 
-srun --output=slurm-"$SLURM_JOB_ID"-a-0.out echo 0 'hello '"$SLURM_JOB_ID"'' :\\
-     --output=slurm-"$SLURM_JOB_ID"-a-1.out echo 1 'hello '"$SLURM_JOB_ID"'' :\\
-     --output=slurm-"$SLURM_JOB_ID"-b-0.out echo
+srun --output=slurm-"$SLURM_JOB_ID"-a-0.out --error=slurm-"$SLURM_JOB_ID"-a-0.err echo 0 'hello '"$SLURM_JOB_ID"'' :\\
+     --output=slurm-"$SLURM_JOB_ID"-a-1.out --error=slurm-"$SLURM_JOB_ID"-a-1.err echo 1 'hello '"$SLURM_JOB_ID"'' :\\
+     --output=slurm-"$SLURM_JOB_ID"-b-0.out --error=slurm-"$SLURM_JOB_ID"-b-0.err echo
 """,
         )
 
@@ -356,11 +357,38 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
                     "54",
                     "echo",
                     1,
-                    streams=Stream.STDERR,
+                    streams=Stream.STDOUT,
                     since=datetime.datetime.now(),
                 )
             )
             self.assertEqual(logs, ["hello", "world"])
+
+            with open("slurm-54-echo-1.err", "wt") as f:
+                f.write("foo\nbar\n")
+
+            logs = list(
+                scheduler.log_iter(
+                    "54",
+                    "echo",
+                    1,
+                    streams=Stream.STDERR,
+                )
+            )
+
+            self.assertEqual(logs, ["foo", "bar"])
+
+            # no stream specified should default to STDERR
+            logs = list(
+                scheduler.log_iter(
+                    "54",
+                    "echo",
+                    1,
+                )
+            )
+            self.assertEqual(logs, ["foo", "bar"])
+
+        with self.assertRaises(ValueError):
+            scheduler.log_iter("54", "echo", 1, streams=Stream.COMBINED)
 
     def test_dryrun_comment(self) -> None:
         scheduler = create_scheduler("foo")
