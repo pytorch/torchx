@@ -130,18 +130,10 @@ def main(argv: List[str]) -> None:
             save_dir=args.log_path, version=1, name="lightning_logs"
         )
         # Initialize a trainer
-        num_nodes = int(os.environ.get("GROUP_WORLD_SIZE", 1))
-        num_processes = int(os.environ.get("LOCAL_WORLD_SIZE", 1))
-
-        if torch.cuda.is_available():
-            gpus = num_processes
-        else:
-            gpus = None
-
         trainer = pl.Trainer(
-            num_nodes=num_nodes,
-            num_processes=num_processes,
-            gpus=gpus,
+            num_nodes=int(os.environ.get("GROUP_WORLD_SIZE", 1)),
+            accelerator="gpu" if torch.cuda.is_available() else "cpu",
+            devices=int(os.environ.get("LOCAL_WORLD_SIZE", 1)),
             strategy="ddp",
             logger=logger,
             max_epochs=args.epochs,
