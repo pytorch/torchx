@@ -272,6 +272,7 @@ class SlurmScheduler(Scheduler, DirWorkspace):
             workspaces: |
                 If ``job_dir`` is specified the DirWorkspace will create a new
                 isolated directory with a snapshot of the workspace.
+            mounts: false
     """
 
     def __init__(self, session_name: str) -> None:

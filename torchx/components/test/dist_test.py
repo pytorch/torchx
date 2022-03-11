@@ -11,3 +11,9 @@ from torchx.components.component_test_base import ComponentTestCase
 class DistributedComponentTest(ComponentTestCase):
     def test_ddp(self) -> None:
         self.validate(dist, "ddp")
+
+    def test_ddp_mounts(self) -> None:
+        app = dist.ddp(
+            script="foo.py", mounts=["type=bind", "src=/dst", "dst=/dst", "readonly"]
+        )
+        self.assertEqual(len(app.roles[0].mounts), 1)

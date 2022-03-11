@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import fsspec
-from docker.types import DeviceRequest
+from docker.types import DeviceRequest, Mount
 from torchx import specs
 from torchx.components.dist import ddp
 from torchx.schedulers.api import Stream
@@ -48,6 +48,9 @@ def _test_app() -> specs.AppDef:
         port_map={"foo": 1234},
         num_replicas=1,
         max_retries=3,
+        mounts=[
+            specs.BindMount(src_path="/tmp", dst_path="/tmp", read_only=True),
+        ],
     )
 
     return specs.AppDef("test", roles=[trainer_role])
@@ -105,6 +108,14 @@ class DockerSchedulerTest(unittest.TestCase):
                             "MaximumRetryCount": 3,
                         },
                         "network": "torchx",
+                        "mounts": [
+                            Mount(
+                                target="/tmp",
+                                source="/tmp",
+                                read_only=True,
+                                type="bind",
+                            )
+                        ],
                     },
                 )
             ],
