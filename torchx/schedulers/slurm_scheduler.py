@@ -196,8 +196,15 @@ export SLURM_UNBUFFEREDIO=1
 
 srun {" ".join(srun_groups)}
 """
-        sbatch_cmd = self.cmd + sbatch_groups
         return script
+
+    def __repr__(self) -> str:
+        return f"""{' '.join(self.cmd + ['$SBATCH_SCRIPT'])}
+
+#----------------
+# SBATCH_SCRIPT
+#----------------
+{self.materialize()}"""
 
 
 class SlurmScheduler(Scheduler):
@@ -345,6 +352,7 @@ class SlurmScheduler(Scheduler):
             cmd=cmd,
             replicas=replicas,
         )
+
         return AppDryRunInfo(req, repr)
 
     def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
