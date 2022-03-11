@@ -7,3 +7,4 @@ papermill
 ipykernel
 nbsphinx
 jupytext
+ipython_genutils

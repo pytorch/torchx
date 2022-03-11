@@ -109,7 +109,7 @@ class Scheduler(abc.ABC):
             sched = self
             assert isinstance(sched, Workspace)
             role = app.roles[0]
-            sched.build_workspace_and_update_role(role, workspace)
+            sched.build_workspace_and_update_role(role, workspace, cfg)
         dryrun_info = self.submit_dryrun(app, cfg)
         return self.schedule(dryrun_info)
 

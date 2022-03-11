@@ -15,6 +15,8 @@ DIR="$BASE_DIR/project"
 mkdir "$DIR"
 cd "$DIR"
 
+JOB_DIR="$BASE_DIR/job"
+
 # shellcheck disable=SC1091
 source /opt/slurm/etc/slurm.sh
 sbatch --version
@@ -32,10 +34,12 @@ partition=compute
 time=10
 comment=hello
 nomem=true
+job_dir=$JOB_DIR
 EOT
 
 cat <<EOT > main.py
-print("hello world!")
+import sys
+print("hello world!", file=sys.stderr)
 EOT
 
 APP_ID="$(torchx run --wait --log --scheduler slurm dist.ddp -j 2x1 --script main.py)"
