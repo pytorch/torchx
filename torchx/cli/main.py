@@ -17,7 +17,7 @@ from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
 from torchx.cli.cmd_status import CmdStatus
-from torchx.cli.colors import ENDC, GRAY, ORANGE
+from torchx.cli.colors import ENDC, GRAY, BLUE
 from torchx.util.entrypoints import load_group
 
 
@@ -97,7 +97,7 @@ def run_main(subcmds: Dict[str, SubCommand], argv: List[str] = sys.argv[1:]) -> 
     args = parser.parse_args(argv)
     logging.basicConfig(
         level=args.log_level,
-        format=f"{ORANGE}torchx{ENDC} {GRAY}%(asctime)s %(levelname)-8s{ENDC} %(message)s",
+        format=f"{BLUE}torchx{ENDC} {GRAY}%(asctime)s %(levelname)-8s{ENDC} %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     if "func" not in args:
