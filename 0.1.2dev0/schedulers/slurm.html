@@ -377,7 +377,7 @@ components on a Slurm cluster.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.schedulers.api.Scheduler</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.schedulers.api.Scheduler</span></code></a>, <a class="reference internal" href="../workspace.html#torchx.workspace.dir_workspace.DirWorkspace" title="torchx.workspace.dir_workspace.DirWorkspace"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.workspace.dir_workspace.DirWorkspace</span></code></a></p>
 <p>SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects
 that slurm CLI tools are locally installed and job accounting is enabled.</p>
 <p>Each app def is scheduled using a heterogenous job via sbatch.
@@ -408,24 +408,29 @@ $ less slurm-1234.out
 </pre></div>
 </div>
 <p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="p">[</span><span class="n">partition</span><span class="o">=</span><span class="n">PARTITION</span><span class="p">],[</span><span class="n">time</span><span class="o">=</span><span class="n">TIME</span><span class="p">],[</span><span class="n">nomem</span><span class="o">=</span><span class="n">NOMEM</span><span class="p">],[</span><span class="n">comment</span><span class="o">=</span><span class="n">COMMENT</span><span class="p">],[</span><span class="n">constraint</span><span class="o">=</span><span class="n">CONSTRAINT</span><span class="p">],[</span><span class="n">mail</span><span class="o">-</span><span class="n">user</span><span class="o">=</span><span class="n">MAIL</span><span class="o">-</span><span class="n">USER</span><span class="p">],[</span><span class="n">mail</span><span class="o">-</span><span class="nb">type</span><span class="o">=</span><span class="n">MAIL</span><span class="o">-</span><span class="n">TYPE</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
+        [partition=PARTITION],[time=TIME],[nomem=NOMEM],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR]
 
-    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">partition</span><span class="o">=</span><span class="n">PARTITION</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">The</span> <span class="n">partition</span> <span class="n">to</span> <span class="n">run</span> <span class="n">the</span> <span class="n">job</span> <span class="ow">in</span><span class="o">.</span>
-        <span class="n">time</span><span class="o">=</span><span class="n">TIME</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">The</span> <span class="n">maximum</span> <span class="n">time</span> <span class="n">the</span> <span class="n">job</span> <span class="ow">is</span> <span class="n">allowed</span> <span class="n">to</span> <span class="n">run</span> <span class="k">for</span><span class="o">.</span>
-        <span class="n">nomem</span><span class="o">=</span><span class="n">NOMEM</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">disables</span> <span class="n">memory</span> <span class="n">request</span> <span class="n">to</span> <span class="n">workaround</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">aws</span><span class="o">/</span><span class="n">aws</span><span class="o">-</span><span class="n">parallelcluster</span><span class="o">/</span><span class="n">issues</span><span class="o">/</span><span class="mi">2198</span>
-        <span class="n">comment</span><span class="o">=</span><span class="n">COMMENT</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">Comment</span> <span class="n">to</span> <span class="nb">set</span> <span class="n">on</span> <span class="n">the</span> <span class="n">slurm</span> <span class="n">job</span><span class="o">.</span>
-        <span class="n">constraint</span><span class="o">=</span><span class="n">CONSTRAINT</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">Constraint</span> <span class="n">to</span> <span class="n">use</span> <span class="k">for</span> <span class="n">the</span> <span class="n">slurm</span> <span class="n">job</span><span class="o">.</span>
-        <span class="n">mail</span><span class="o">-</span><span class="n">user</span><span class="o">=</span><span class="n">MAIL</span><span class="o">-</span><span class="n">USER</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">User</span> <span class="n">to</span> <span class="n">mail</span> <span class="n">on</span> <span class="n">job</span> <span class="n">end</span><span class="o">.</span>
-        <span class="n">mail</span><span class="o">-</span><span class="nb">type</span><span class="o">=</span><span class="n">MAIL</span><span class="o">-</span><span class="n">TYPE</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">What</span> <span class="n">events</span> <span class="n">to</span> <span class="n">mail</span> <span class="n">users</span> <span class="n">on</span><span class="o">.</span>
+    optional arguments:
+        partition=PARTITION (str, None)
+            The partition to run the job in.
+        time=TIME (str, None)
+            The maximum time the job is allowed to run for. Formats:             &quot;minutes&quot;, &quot;minutes:seconds&quot;, &quot;hours:minutes:seconds&quot;, &quot;days-hours&quot;,             &quot;days-hours:minutes&quot; or &quot;days-hours:minutes:seconds&quot;
+        nomem=NOMEM (bool, False)
+            disables memory request to workaround https://github.com/aws/aws-parallelcluster/issues/2198
+        comment=COMMENT (str, None)
+            Comment to set on the slurm job.
+        constraint=CONSTRAINT (str, None)
+            Constraint to use for the slurm job.
+        mail-user=MAIL-USER (str, None)
+            User to mail on job end.
+        mail-type=MAIL-TYPE (str, None)
+            What events to mail users on.
+        job_dir=JOB_DIR (str, None)
+            The directory to place the job code and outputs. The
+            directory must not exist and will be created. To enable log
+            iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
+            
 </pre></div>
 </div>
 <p><strong>Compatibility</strong></p>
@@ -455,10 +460,8 @@ status but does not provide the complete original AppSpec.
 </p></td>
 </tr>
 <tr class="row-even"><td><p>Workspaces / Patching</p></td>
-<td><p>Partial support. Typical Slurm usage is from a shared NFS mount
-so code will automatically be updated on the workers.
-SlurmScheduler does not support programmatic patching via
-WorkspaceScheduler.</p></td>
+<td><p>If ``job_dir`` is specified the DirWorkspace will create a new
+isolated directory with a snapshot of the workspace.</p></td>
 </tr>
 </tbody>
 </table>
@@ -564,7 +567,7 @@ implemented by:</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmBatchRequest">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmBatchRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest" title="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest"><span class="pre">torchx.schedulers.slurm_scheduler.SlurmReplicaRequest</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmBatchRequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmBatchRequest" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmBatchRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicas</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest" title="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest"><span class="pre">torchx.schedulers.slurm_scheduler.SlurmReplicaRequest</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmBatchRequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmBatchRequest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Holds parameters used to launch a slurm job via sbatch.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmBatchRequest.materialize">

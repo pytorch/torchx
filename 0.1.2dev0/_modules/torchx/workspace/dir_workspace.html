@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchx.workspace.docker_workspace &mdash; PyTorch/TorchX main documentation</title>
+  <title>torchx.workspace.dir_workspace &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -334,7 +334,7 @@
         
           <li><a href="../../index.html">Module code</a> &gt;</li>
         
-      <li>torchx.workspace.docker_workspace</li>
+      <li>torchx.workspace.dir_workspace</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -365,201 +365,58 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <h1>Source code for torchx.workspace.docker_workspace</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+  <h1>Source code for torchx.workspace.dir_workspace</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">posixpath</span>
-<span class="kn">import</span> <span class="nn">tarfile</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span> <span class="nn">fsspec</span>
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">Role</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">Role</span><span class="p">,</span> <span class="n">CfgVal</span>
 <span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">Workspace</span><span class="p">,</span> <span class="n">walk_workspace</span>
 
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
 
-<span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-
-<span class="n">TORCHX_DOCKERFILE</span> <span class="o">=</span> <span class="s2">&quot;Dockerfile.torchx&quot;</span>
-
-
-<div class="viewcode-block" id="DockerWorkspace"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspace</span><span class="p">(</span><span class="n">Workspace</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    DockerWorkspace will build patched docker images from the workspace. These</span>
-<span class="sd">    patched images are docker images and can be either used locally via the</span>
-<span class="sd">    docker daemon or pushed using the helper methods to a remote repository for</span>
-<span class="sd">    remote jobs.</span>
-
-<span class="sd">    This requires a running docker daemon locally and for remote pushing</span>
-<span class="sd">    requires being authenticated to those repositories via ``docker login``.</span>
-
-<span class="sd">    If there is a ``Dockerfile.torchx`` file present in the workspace that will</span>
-<span class="sd">    be used instead to build the container.</span>
-
-<span class="sd">    To exclude files from the build context you can use the standard</span>
-<span class="sd">    `.dockerignore` file.</span>
-
-<span class="sd">    See more:</span>
-
-<span class="sd">    * https://docs.docker.com/engine/reference/commandline/login/</span>
-<span class="sd">    * https://docs.docker.com/get-docker/</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">docker_client</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_docker_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DockerClient&quot;</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span>
-        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">docker</span>
-
-            <span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="k">return</span> <span class="n">client</span>
-
-<div class="viewcode-block" id="DockerWorkspace.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
+<div class="viewcode-block" id="DirWorkspace"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.dir_workspace.DirWorkspace">[docs]</a><span class="k">class</span> <span class="nc">DirWorkspace</span><span class="p">(</span><span class="n">Workspace</span><span class="p">):</span>
+<div class="viewcode-block" id="DirWorkspace.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.dir_workspace.DirWorkspace.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Builds a new docker image using the ``role``&#39;s image as the base image</span>
-<span class="sd">        and updates the ``role``&#39;s image with this newly built docker image id</span>
+<span class="sd">        Creates a new directory specified by ``job_dir`` from the workspace. Role</span>
+<span class="sd">        image fields will be set to the ``job_dir``.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            role: the role whose image (a Docker image) is to be used as the base image</span>
-<span class="sd">            workspace: a fsspec path to a directory with contents to be overlaid</span>
+<span class="sd">        Any files listed in the ``.torchxignore`` folder will be skipped.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">context</span> <span class="o">=</span> <span class="n">_build_context</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;failed to pull image </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">, falling back to local: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-            <span class="n">image</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
-                <span class="n">fileobj</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
-                <span class="n">custom_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">dockerfile</span><span class="o">=</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">,</span>
-                <span class="n">pull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">rm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">)</span>
-            <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="DockerWorkspace._update_app_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._update_app_images">[docs]</a>    <span class="k">def</span> <span class="nf">_update_app_images</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        _update_app_images replaces the local Docker images (identified via</span>
-<span class="sd">        ``sha256:...``) in the provided ``AppDef`` with the remote path that they will be uploaded to and</span>
-<span class="sd">        returns a mapping of local to remote names.</span>
-
-<span class="sd">        ``_push_images`` must be called with the returned mapping before</span>
-<span class="sd">        launching the job.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A dict of [local image name, (remote repo, tag)].</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">HASH_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;sha256:&quot;</span>
-
-        <span class="n">images_to_push</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">HASH_PREFIX</span><span class="p">):</span>
-                <span class="n">image_repo</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_repo&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">image_repo</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;must specify the image repository via `image_repo` config to be able to upload local image </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_repo</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;image_repo must be str&quot;</span>
-
-                <span class="n">image_hash</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">HASH_PREFIX</span><span class="p">)</span> <span class="p">:]</span>
-                <span class="n">remote_image</span> <span class="o">=</span> <span class="n">image_repo</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">image_hash</span>
-                <span class="n">images_to_push</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">image_repo</span><span class="p">,</span>
-                    <span class="n">image_hash</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">remote_image</span>
-        <span class="k">return</span> <span class="n">images_to_push</span></div>
-
-<div class="viewcode-block" id="DockerWorkspace._push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._push_images">[docs]</a>    <span class="k">def</span> <span class="nf">_push_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        _push_images pushes the specified images to the remote container</span>
-<span class="sd">        repository with the specified tag. The docker daemon must be</span>
-<span class="sd">        authenticated to the remote repository using ``docker login``.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            images_to_push: A dict of [local image name, (remote repo, tag)].</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_to_push</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">job_dir</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;job_dir&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">job_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;job_dir must be str&quot;</span>
 
-        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span>
-        <span class="k">for</span> <span class="n">local</span><span class="p">,</span> <span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="n">images_to_push</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pushing image </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
-            <span class="n">img</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-                <span class="n">ERROR_KEY</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
-                <span class="k">if</span> <span class="n">ERROR_KEY</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;failed to push docker image: </span><span class="si">{</span><span class="n">line</span><span class="p">[</span><span class="n">ERROR_KEY</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docker: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">job_dir</span><span class="p">)</span>
+        <span class="n">_copy_to_dir</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">)</span>
+        <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">job_dir</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">_build_context</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
-    <span class="c1"># f is closed by parent, NamedTemporaryFile auto closes on GC</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>  <span class="c1"># noqa P201</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx-context&quot;</span><span class="p">,</span>
-        <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.tar&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">dockerfile</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FROM </span><span class="si">{</span><span class="n">img</span><span class="si">}</span><span class="se">\n</span><span class="s2">COPY . .</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tf</span><span class="p">:</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">)</span>
-        <span class="n">info</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">))</span>
-
-        <span class="n">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">tf</span><span class="p">)</span>
-
-    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">f</span>
-
-
-<span class="k">def</span> <span class="nf">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_copy_to_dir</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">fs</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">url_to_fs</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
 
-    <span class="k">for</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">walk_workspace</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.dockerignore&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">walk_workspace</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">with</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">filepath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="n">relpath</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span> <span class="k">else</span> <span class="n">file</span>
-                <span class="n">tinfo</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-                <span class="n">size</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;size must be an int&quot;</span>
-                <span class="n">tinfo</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">tinfo</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">target</span><span class="p">,</span>
+                <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="n">relpath</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span> <span class="k">else</span> <span class="n">file</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">,</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dst</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
 </pre></div>
 
      </article>
