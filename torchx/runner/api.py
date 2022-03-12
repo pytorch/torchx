@@ -283,7 +283,7 @@ class Runner:
                 logger.info(
                     f"Building workspace: {workspace} for role[0]: {role.name}, image: {old_img}"
                 )
-                sched.build_workspace_and_update_role(role, workspace)
+                sched.build_workspace_and_update_role(role, workspace, cfg)
                 logger.info("Done building workspace")
                 if old_img != role.image:
                     logger.info(f"New image: {role.image} built from workspace")

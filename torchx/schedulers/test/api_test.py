@@ -69,7 +69,9 @@ class SchedulerTest(unittest.TestCase):
         def resolve_resource(self, resource: Union[str, Resource]) -> Resource:
             return NULL_RESOURCE
 
-        def build_workspace_and_update_role(self, role: Role, workspace: str) -> None:
+        def build_workspace_and_update_role(
+            self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
+        ) -> None:
             role.image = workspace
 
     def test_invalid_run_cfg(self) -> None:

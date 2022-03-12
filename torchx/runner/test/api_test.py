@@ -154,7 +154,10 @@ class RunnerTest(unittest.TestCase):
                 pass
 
             def build_workspace_and_update_role(
-                self, role: Role, workspace: str
+                self,
+                role: Role,
+                workspace: str,
+                cfg: Mapping[str, CfgVal],
             ) -> None:
                 if self.build_new_img:
                     role.image = f"{role.image}_new"

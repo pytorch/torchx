@@ -4,18 +4,17 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import fnmatch
 import io
 import logging
 import posixpath
 import tarfile
 import tempfile
-from typing import IO, TYPE_CHECKING, Optional, Dict, Tuple, Mapping, Iterable
+from typing import IO, TYPE_CHECKING, Optional, Dict, Tuple, Mapping
 
 import fsspec
 import torchx
 from torchx.specs import Role, AppDef, CfgVal
-from torchx.workspace.api import Workspace
+from torchx.workspace.api import Workspace, walk_workspace
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -63,7 +62,9 @@ class DockerWorkspace(Workspace):
             self.__docker_client = client
         return client
 
-    def build_workspace_and_update_role(self, role: Role, workspace: str) -> None:
+    def build_workspace_and_update_role(
+        self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
+    ) -> None:
         """
         Builds a new docker image using the ``role``'s image as the base image
         and updates the ``role``'s image with this newly built docker image id
@@ -176,44 +177,18 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
     return f
 
 
-def _ignore(s: str, patterns: Iterable[str]) -> bool:
-    match = False
-    for pattern in patterns:
-        if pattern.startswith("!") and fnmatch.fnmatch(s, pattern[1:]):
-            match = False
-        elif fnmatch.fnmatch(s, pattern):
-            match = True
-    return match
-
-
 def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
     fs, path = fsspec.core.url_to_fs(workspace)
     assert isinstance(path, str), "path must be str"
 
-    # load dockerignore
-    # https://docs.docker.com/engine/reference/builder/#dockerignore-file
-    ignore_patterns = []
-    ignore_path = posixpath.join(path, ".dockerignore")
-    if fs.exists(ignore_path):
-        with fs.open(ignore_path, "rt") as f:
-            lines = f.readlines()
-        for line in lines:
-            line, _, _ = line.partition("#")
-            line = line.strip()
-            if len(line) == 0 or line == ".":
-                continue
-            ignore_patterns.append(line)
-
-    for dir, dirs, files in fs.walk(path, detail=True):
+    for dir, dirs, files in walk_workspace(fs, path, ".dockerignore"):
         assert isinstance(dir, str), "path must be str"
         relpath = posixpath.relpath(dir, path)
-        if _ignore(relpath, ignore_patterns):
-            continue
         for file, info in files.items():
             with fs.open(info["name"], "rb") as f:
                 filepath = posixpath.join(relpath, file) if relpath != "." else file
-                if _ignore(filepath, ignore_patterns):
-                    continue
                 tinfo = tarfile.TarInfo(filepath)
-                tinfo.size = info["size"]
+                size = info["size"]
+                assert isinstance(size, int), "size must be an int"
+                tinfo.size = size
                 tf.addfile(tinfo, f)
