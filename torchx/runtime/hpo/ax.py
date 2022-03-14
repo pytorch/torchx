@@ -164,6 +164,7 @@ class TorchXRunner(ax_Runner):
         component_const_params: Optional[Dict[str, Any]] = None,
         scheduler: str = "local",
         cfg: Optional[Mapping[str, CfgVal]] = None,
+        log_path: str = "/",
     ) -> None:
         self._component: Callable[..., AppDef] = component
         self._scheduler: str = scheduler
@@ -174,6 +175,7 @@ class TorchXRunner(ax_Runner):
         self._torchx_runner: Runner = get_runner()
         self._tracker_base = tracker_base
         self._component_const_params: Dict[str, Any] = component_const_params or {}
+        self._log_path: str = log_path
 
     def run(self, trial: BaseTrial) -> Dict[str, Any]:
         """
@@ -196,6 +198,9 @@ class TorchXRunner(ax_Runner):
 
         if "tracker_base" in component_args:
             parameters["tracker_base"] = self._tracker_base
+
+        if "log_path" in component_args:
+            parameters["log_path"] = self._log_path
 
         appdef = self._component(**parameters)
         app_handle = self._torchx_runner.run(appdef, self._scheduler, self._cfg)
