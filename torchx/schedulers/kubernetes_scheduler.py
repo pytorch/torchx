@@ -166,6 +166,9 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         V1ResourceRequirements,
         V1ContainerPort,
         V1ObjectMeta,
+        V1VolumeMount,
+        V1Volume,
+        V1HostPathVolumeSource,
     )
 
     requests = {}
@@ -182,6 +185,26 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         limits=requests,
         requests=requests,
     )
+
+    volumes = []
+    volume_mounts = []
+    for i, mount in enumerate(role.mounts):
+        mount_name = f"mount-{i}"
+        volumes.append(
+            V1Volume(
+                name=mount_name,
+                host_path=V1HostPathVolumeSource(
+                    path=mount.src_path,
+                ),
+            )
+        )
+        volume_mounts.append(
+            V1VolumeMount(
+                name=mount_name,
+                mount_path=mount.dst_path,
+                read_only=mount.read_only,
+            )
+        )
 
     container = V1Container(
         command=[role.entrypoint] + role.args,
@@ -202,12 +225,15 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
             )
             for name, port in role.port_map.items()
         ],
+        volume_mounts=volume_mounts,
     )
+
     return V1Pod(
         spec=V1PodSpec(
             containers=[container],
             restart_policy="Never",
             service_account_name=service_account,
+            volumes=volumes,
         ),
         metadata=V1ObjectMeta(
             annotations={
@@ -360,6 +386,7 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
                 Partial support. KubernetesScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
             workspaces: true
+            mounts: true
     """
 
     def __init__(

@@ -36,6 +36,8 @@ from torchx.specs.api import (
     make_app_handle,
     parse_app_handle,
     runopts,
+    parse_mounts,
+    BindMount,
 )
 
 
@@ -786,3 +788,45 @@ class AppDefLoadTest(unittest.TestCase):
         self.assertTupleEqual(
             (" ", None), none_throws(self._get_argument_help(parser, "roles_args"))
         )
+
+
+class MountsTest(unittest.TestCase):
+    def test_empty(self) -> None:
+        self.assertEqual(parse_mounts([]), [])
+
+    def test_bindmount(self) -> None:
+        self.assertEqual(
+            parse_mounts(
+                [
+                    "type=bind",
+                    "src=foo",
+                    "dst=dst",
+                    "type=bind",
+                    "source=foo1",
+                    "readonly",
+                    "target=dst1",
+                    "type=bind",
+                    "destination=dst2",
+                    "source=foo2",
+                ]
+            ),
+            [
+                BindMount(src_path="foo", dst_path="dst"),
+                BindMount(src_path="foo1", dst_path="dst1", read_only=True),
+                BindMount(src_path="foo2", dst_path="dst2"),
+            ],
+        )
+
+    def test_invalid(self) -> None:
+        with self.assertRaisesRegex(KeyError, "type must be specified first"):
+            parse_mounts(["src=foo"])
+        with self.assertRaisesRegex(
+            KeyError, "unknown mount option blah, must be one of.*type"
+        ):
+            parse_mounts(["blah=foo"])
+        with self.assertRaisesRegex(KeyError, "src"):
+            parse_mounts(["type=bind"])
+        with self.assertRaisesRegex(
+            AssertionError, "only bind mounts are currently supported"
+        ):
+            parse_mounts(["type=foo"])

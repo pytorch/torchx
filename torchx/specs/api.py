@@ -197,6 +197,24 @@ class RetryPolicy(str, Enum):
 
 
 @dataclass
+class BindMount:
+    """
+    Defines a bind mount to `mount --bind` a host path into the worker
+    environment. See scheduler documentation on how bind mounts operate for each
+    scheduler.
+
+    Args:
+        src_path: the path on the host
+        dst_path: the path in the worker environment/container
+        read_only: whether the bind should be read only
+    """
+
+    src_path: str
+    dst_path: str
+    read_only: bool = False
+
+
+@dataclass
 class Role:
     """
     A set of nodes that perform a specific duty within the ``AppDef``.
@@ -242,6 +260,7 @@ class Role:
                 e.g. "tensorboard": 9090
             metadata: Free form information that is associated with the role, for example
                 scheduler specific data. The key should follow the pattern: ``$scheduler.$key``
+            mounts: a list of mounts on the machine
     """
 
     name: str
@@ -256,6 +275,7 @@ class Role:
     resource: Resource = NULL_RESOURCE
     port_map: Dict[str, int] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    mounts: List[BindMount] = field(default_factory=list)
 
     def pre_proc(
         self,
@@ -849,3 +869,57 @@ def from_function(
         cmpnt_defaults,
     )
     return cmpnt_fn(*function_args, *var_arg, **kwargs)
+
+
+_MOUNT_OPT_MAP: Mapping[str, str] = {
+    "type": "type",
+    "destination": "dst",
+    "dst": "dst",
+    "target": "dst",
+    "read_only": "readonly",
+    "readonly": "readonly",
+    "source": "src",
+    "src": "src",
+}
+
+
+def parse_mounts(opts: List[str]) -> List[BindMount]:
+    """
+    parse_mounts parses a list of options into typed mounts following a similar
+    format to Dockers bind mount.
+
+    Multiple mounts can be specified in the same list. ``type`` must be
+    specified first in each.
+
+    Ex:
+        type=bind,src=/host,dst=/container,readonly,[type=bind,src=...,dst=...]
+
+    Supported types:
+        BindMount: type=bind,src=<host path>,dst=<container path>[,readonly]
+    """
+    mount_opts = []
+    cur = {}
+    for opt in opts:
+        key, _, val = opt.partition("=")
+        if key not in _MOUNT_OPT_MAP:
+            raise KeyError(
+                f"unknown mount option {key}, must be one of {list(_MOUNT_OPT_MAP.keys())}"
+            )
+        key = _MOUNT_OPT_MAP[key]
+        if key == "type":
+            cur = {}
+            mount_opts.append(cur)
+        elif len(mount_opts) == 0:
+            raise KeyError("type must be specified first")
+        cur[key] = val
+
+    mounts = []
+    for opts in mount_opts:
+        typ = opts.get("type")
+        assert typ == "bind", "only bind mounts are currently supported"
+        mounts.append(
+            BindMount(
+                src_path=opts["src"], dst_path=opts["dst"], read_only="readonly" in opts
+            )
+        )
+    return mounts

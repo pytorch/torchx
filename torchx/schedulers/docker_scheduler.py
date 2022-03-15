@@ -115,6 +115,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                 Partial support. DockerScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
             workspaces: true
+            mounts: true
     """
 
     def __init__(self, session_name: str) -> None:
@@ -171,7 +172,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
     def _submit_dryrun(
         self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[DockerJob]:
-        from docker.types import DeviceRequest
+        from docker.types import DeviceRequest, Mount
 
         default_env = {}
         copy_env = cfg.get("copy_env")
@@ -189,6 +190,17 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         req = DockerJob(app_id=app_id, containers=[])
         rank0_name = f"{app_id}-{app.roles[0].name}-0"
         for role in app.roles:
+            mounts = []
+            for mount in role.mounts:
+                mounts.append(
+                    Mount(
+                        target=mount.dst_path,
+                        source=mount.src_path,
+                        read_only=mount.read_only,
+                        type="bind",
+                    )
+                )
+
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
                     img_root="",
@@ -220,6 +232,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                         },
                         "hostname": name,
                         "network": NETWORK,
+                        "mounts": mounts,
                     },
                 )
                 if replica_role.max_retries > 0:

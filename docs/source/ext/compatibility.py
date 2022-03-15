@@ -17,6 +17,7 @@ COMPATIBILITY_SETS = {
         "cancel": "Cancel Job",
         "describe": "Describe Job",
         "workspaces": "Workspaces / Patching",
+        "mounts": "Mounts",
     },
 }
 

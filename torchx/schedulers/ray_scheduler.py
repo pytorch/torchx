@@ -108,6 +108,28 @@ if _has_ray:
         actors: List[RayActor] = field(default_factory=list)
 
     class RayScheduler(Scheduler):
+        """
+        **Config Options**
+
+        .. runopts::
+            class: torchx.schedulers.ray_scheduler.RayScheduler
+
+        **Compatibility**
+
+        .. compatibility::
+            type: scheduler
+            features:
+                cancel: true
+                logs: true
+                distributed: true
+                describe: |
+                    Partial support. RayScheduler will return job status but
+                    does not provide the complete original AppSpec.
+                workspaces: false
+                mounts: false
+
+        """
+
         def __init__(self, session_name: str) -> None:
             super().__init__("ray", session_name)
 

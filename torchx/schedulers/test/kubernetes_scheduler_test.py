@@ -51,6 +51,9 @@ def _test_app(num_replicas: int = 1) -> specs.AppDef:
         port_map={"foo": 1234},
         num_replicas=num_replicas,
         max_retries=3,
+        mounts=[
+            specs.BindMount(src_path="/src", dst_path="/dst", read_only=True),
+        ],
     )
 
     return specs.AppDef("test", roles=[trainer_role])
@@ -112,6 +115,9 @@ class KubernetesSchedulerTest(unittest.TestCase):
             V1ResourceRequirements,
             V1ContainerPort,
             V1ObjectMeta,
+            V1Volume,
+            V1VolumeMount,
+            V1HostPathVolumeSource,
         )
 
         app = _test_app()
@@ -141,12 +147,27 @@ class KubernetesSchedulerTest(unittest.TestCase):
             env=[V1EnvVar(name="FOO", value="bar")],
             resources=resources,
             ports=[V1ContainerPort(name="foo", container_port=1234)],
+            volume_mounts=[
+                V1VolumeMount(
+                    name="mount-0",
+                    mount_path="/dst",
+                    read_only=True,
+                )
+            ],
         )
         want = V1Pod(
             spec=V1PodSpec(
                 containers=[container],
                 restart_policy="Never",
                 service_account_name="srvacc",
+                volumes=[
+                    V1Volume(
+                        name="mount-0",
+                        host_path=V1HostPathVolumeSource(
+                            path="/src",
+                        ),
+                    ),
+                ],
             ),
             metadata=V1ObjectMeta(
                 annotations={
@@ -155,6 +176,8 @@ class KubernetesSchedulerTest(unittest.TestCase):
                 labels={},
             ),
         )
+
+        print(want)
 
         self.assertEqual(
             pod,
@@ -183,6 +206,8 @@ class KubernetesSchedulerTest(unittest.TestCase):
             info = scheduler._submit_dryrun(app, cfg)
 
         resource = str(info.request)
+
+        print(resource)
 
         self.assertEqual(
             resource,
@@ -246,7 +271,15 @@ spec:
               cpu: 2000m
               memory: 3000M
               nvidia.com/gpu: '4'
+          volumeMounts:
+          - mountPath: /dst
+            name: mount-0
+            readOnly: true
         restartPolicy: Never
+        volumes:
+        - hostPath:
+            path: /src
+          name: mount-0
 """,
         )
 

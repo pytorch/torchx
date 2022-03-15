@@ -124,7 +124,7 @@ Components APIs
 import os
 import shlex
 from pathlib import Path
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, List
 
 import torchx
 import torchx.specs as specs
@@ -146,6 +146,7 @@ def ddp(
     max_retries: int = 0,
     rdzv_backend: str = "c10d",
     rdzv_endpoint: Optional[str] = None,
+    mounts: Optional[List[str]] = None,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -171,6 +172,7 @@ def ddp(
         max_retries: the number of scheduler retries allowed
         rdzv_backend: rendezvous backend (only matters when nnodes > 1)
         rdzv_endpoint: rendezvous server endpoint (only matters when nnodes > 1), defaults to rank0 host for schedulers that support it
+        mounts: the list of mounts to bind mount into the worker environment/container (ex. type=bind,src=/host,dst=/job[,readonly])
     """
 
     if (script is None) == (m is None):
@@ -244,6 +246,7 @@ def ddp(
                     "c10d": 29500,
                 },
                 max_retries=max_retries,
+                mounts=specs.parse_mounts(mounts) if mounts else [],
             )
         ],
     )

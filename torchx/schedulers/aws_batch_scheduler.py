@@ -91,6 +91,26 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
     if resource.gpu > 0:
         reqs.append({"type": "GPU", "value": str(resource.gpu)})
 
+    mount_points = []
+    volumes = []
+    for i, mount in enumerate(role.mounts):
+        name = f"mount_{i}"
+        volumes.append(
+            {
+                "name": name,
+                "host": {
+                    "sourcePath": mount.src_path,
+                },
+            }
+        )
+        mount_points.append(
+            {
+                "containerPath": mount.dst_path,
+                "readOnly": mount.read_only,
+                "sourceVolume": name,
+            }
+        )
+
     container = {
         "command": [role.entrypoint] + role.args,
         "image": role.image,
@@ -99,6 +119,8 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
         "logConfiguration": {
             "logDriver": "awslogs",
         },
+        "mountPoints": mount_points,
+        "volumes": volumes,
     }
 
     return {
@@ -165,7 +187,8 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
             describe: |
                 Partial support. AWSBatchScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
-            workspaces: false
+            workspaces: true
+            mounts: true
     """
 
     def __init__(

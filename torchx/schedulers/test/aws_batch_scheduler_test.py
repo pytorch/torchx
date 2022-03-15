@@ -39,6 +39,9 @@ def _test_app() -> specs.AppDef:
         port_map={"foo": 1234},
         num_replicas=2,
         max_retries=3,
+        mounts=[
+            specs.BindMount(src_path="/src", dst_path="/dst", read_only=True),
+        ],
     )
 
     return specs.AppDef("test", roles=[trainer_role])
@@ -109,6 +112,21 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     {"type": "GPU", "value": "4"},
                                 ],
                                 "logConfiguration": {"logDriver": "awslogs"},
+                                "mountPoints": [
+                                    {
+                                        "containerPath": "/dst",
+                                        "readOnly": True,
+                                        "sourceVolume": "mount_0",
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "mount_0",
+                                        "host": {
+                                            "sourcePath": "/src",
+                                        },
+                                    }
+                                ],
                             },
                         },
                         {
@@ -136,6 +154,21 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     {"type": "GPU", "value": "4"},
                                 ],
                                 "logConfiguration": {"logDriver": "awslogs"},
+                                "mountPoints": [
+                                    {
+                                        "containerPath": "/dst",
+                                        "readOnly": True,
+                                        "sourceVolume": "mount_0",
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "mount_0",
+                                        "host": {
+                                            "sourcePath": "/src",
+                                        },
+                                    }
+                                ],
                             },
                         },
                     ],
