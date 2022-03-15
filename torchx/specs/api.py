@@ -494,7 +494,7 @@ def get_type_name(tp: Type[CfgVal]) -> str:
 
     Note: we use this method to print out generic typing like List[str].
     """
-    if hasattr(tp, "__name__"):
+    if tp.__module__ != "typing" and hasattr(tp, "__name__"):
         return tp.__name__
     else:
         return str(tp)

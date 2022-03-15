@@ -258,12 +258,14 @@ if has_ray():
         def __new__(cls):  # pyre-ignore[3]
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
+                # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
                 ray.shutdown()
                 start_status: int = os.system("ray start --head")
                 if start_status != 0:
                     raise AssertionError(
                         "ray start --head command has failed. Cannot proceed with running tests"
                     )
+                # pyre-fixme[16]: Module `worker` has no attribute `init`.
                 ray.init(address="auto", ignore_reinit_error=True)
                 cls.reference_count: int = 2
             return cls._instance
@@ -274,6 +276,7 @@ if has_ray():
                 cls.teardown_ray_cluster()
 
         def teardown_ray_cluster(cls) -> None:
+            # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
 
     class RayDriverTest(TestCase):
@@ -306,6 +309,7 @@ if has_ray():
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
             ray_scheduler = self.setup_ray_cluster()
+            # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
             assert ray.is_initialized() is True
 
             job_id = self.schedule_ray_job(ray_scheduler)
