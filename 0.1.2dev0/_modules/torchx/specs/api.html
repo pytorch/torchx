@@ -864,7 +864,7 @@
 
 <span class="sd">    Note: we use this method to print out generic typing like List[str].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">tp</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">!=</span> <span class="s2">&quot;typing&quot;</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tp</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span>
