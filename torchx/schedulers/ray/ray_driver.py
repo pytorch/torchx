@@ -137,6 +137,7 @@ def create_command_actors(
 
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
+    # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
     pgs: List[PlacementGroup] = create_placement_groups(actors)
     command_actors: List[CommandActor] = create_command_actors(actors, pgs)
@@ -148,6 +149,7 @@ def main() -> None:  # pragma: no cover
 
     # Await return result of remote ray function
     while len(active_workers) > 0:
+        # pyre-fixme[16]: Module `worker` has no attribute `wait`.
         completed_workers, active_workers = ray.wait(active_workers)
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
