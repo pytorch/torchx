@@ -566,6 +566,24 @@
     <span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION&quot;</span></div>
 
 
+<div class="viewcode-block" id="BindMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.BindMount">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">BindMount</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a bind mount to `mount --bind` a host path into the worker</span>
+<span class="sd">    environment. See scheduler documentation on how bind mounts operate for each</span>
+<span class="sd">    scheduler.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src_path: the path on the host</span>
+<span class="sd">        dst_path: the path in the worker environment/container</span>
+<span class="sd">        read_only: whether the bind should be read only</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">src_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
 <div class="viewcode-block" id="Role"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Role</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -612,6 +630,7 @@
 <span class="sd">                e.g. &quot;tensorboard&quot;: 9090</span>
 <span class="sd">            metadata: Free form information that is associated with the role, for example</span>
 <span class="sd">                scheduler specific data. The key should follow the pattern: ``$scheduler.$key``</span>
+<span class="sd">            mounts: a list of mounts on the machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -626,6 +645,7 @@
     <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
     <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">mounts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BindMount</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1219,6 +1239,60 @@
         <span class="n">cmpnt_defaults</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">cmpnt_fn</span><span class="p">(</span><span class="o">*</span><span class="n">function_args</span><span class="p">,</span> <span class="o">*</span><span class="n">var_arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="n">_MOUNT_OPT_MAP</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;dst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dst&quot;</span><span class="p">:</span> <span class="s2">&quot;dst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;dst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;read_only&quot;</span><span class="p">:</span> <span class="s2">&quot;readonly&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;readonly&quot;</span><span class="p">:</span> <span class="s2">&quot;readonly&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;src&quot;</span><span class="p">:</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="parse_mounts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.parse_mounts">[docs]</a><span class="k">def</span> <span class="nf">parse_mounts</span><span class="p">(</span><span class="n">opts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BindMount</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    parse_mounts parses a list of options into typed mounts following a similar</span>
+<span class="sd">    format to Dockers bind mount.</span>
+
+<span class="sd">    Multiple mounts can be specified in the same list. ``type`` must be</span>
+<span class="sd">    specified first in each.</span>
+
+<span class="sd">    Ex:</span>
+<span class="sd">        type=bind,src=/host,dst=/container,readonly,[type=bind,src=...,dst=...]</span>
+
+<span class="sd">    Supported types:</span>
+<span class="sd">        BindMount: type=bind,src=&lt;host path&gt;,dst=&lt;container path&gt;[,readonly]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mount_opts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_MOUNT_OPT_MAP</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;unknown mount option </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">, must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_MOUNT_OPT_MAP</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_MOUNT_OPT_MAP</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">mount_opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">mount_opts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;type must be specified first&quot;</span><span class="p">)</span>
+        <span class="n">cur</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="n">mounts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">opts</span> <span class="ow">in</span> <span class="n">mount_opts</span><span class="p">:</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&quot;bind&quot;</span><span class="p">,</span> <span class="s2">&quot;only bind mounts are currently supported&quot;</span>
+        <span class="n">mounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">BindMount</span><span class="p">(</span>
+                <span class="n">src_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">],</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;dst&quot;</span><span class="p">],</span> <span class="n">read_only</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span> <span class="ow">in</span> <span class="n">opts</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">mounts</span></div>
 </pre></div>
 
      </article>

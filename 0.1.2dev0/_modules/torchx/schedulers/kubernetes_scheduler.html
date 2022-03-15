@@ -536,6 +536,9 @@
         <span class="n">V1ResourceRequirements</span><span class="p">,</span>
         <span class="n">V1ContainerPort</span><span class="p">,</span>
         <span class="n">V1ObjectMeta</span><span class="p">,</span>
+        <span class="n">V1VolumeMount</span><span class="p">,</span>
+        <span class="n">V1Volume</span><span class="p">,</span>
+        <span class="n">V1HostPathVolumeSource</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">requests</span> <span class="o">=</span> <span class="p">{}</span>
@@ -552,6 +555,26 @@
         <span class="n">limits</span><span class="o">=</span><span class="n">requests</span><span class="p">,</span>
         <span class="n">requests</span><span class="o">=</span><span class="n">requests</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="n">volumes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">volume_mounts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mount</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">mounts</span><span class="p">):</span>
+        <span class="n">mount_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mount-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">volumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">V1Volume</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">mount_name</span><span class="p">,</span>
+                <span class="n">host_path</span><span class="o">=</span><span class="n">V1HostPathVolumeSource</span><span class="p">(</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">mount</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">volume_mounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">V1VolumeMount</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">mount_name</span><span class="p">,</span>
+                <span class="n">mount_path</span><span class="o">=</span><span class="n">mount</span><span class="o">.</span><span class="n">dst_path</span><span class="p">,</span>
+                <span class="n">read_only</span><span class="o">=</span><span class="n">mount</span><span class="o">.</span><span class="n">read_only</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="n">container</span> <span class="o">=</span> <span class="n">V1Container</span><span class="p">(</span>
         <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span> <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
@@ -572,12 +595,15 @@
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">port_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">],</span>
+        <span class="n">volume_mounts</span><span class="o">=</span><span class="n">volume_mounts</span><span class="p">,</span>
     <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">V1Pod</span><span class="p">(</span>
         <span class="n">spec</span><span class="o">=</span><span class="n">V1PodSpec</span><span class="p">(</span>
             <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">container</span><span class="p">],</span>
             <span class="n">restart_policy</span><span class="o">=</span><span class="s2">&quot;Never&quot;</span><span class="p">,</span>
             <span class="n">service_account_name</span><span class="o">=</span><span class="n">service_account</span><span class="p">,</span>
+            <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">metadata</span><span class="o">=</span><span class="n">V1ObjectMeta</span><span class="p">(</span>
             <span class="n">annotations</span><span class="o">=</span><span class="p">{</span>
@@ -730,6 +756,7 @@
 <span class="sd">                Partial support. KubernetesScheduler will return job and replica</span>
 <span class="sd">                status but does not provide the complete original AppSpec.</span>
 <span class="sd">            workspaces: true</span>
+<span class="sd">            mounts: true</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>

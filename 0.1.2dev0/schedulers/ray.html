@@ -376,6 +376,57 @@
 <dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayScheduler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.ray_scheduler.</span></span><span class="sig-name descname"><span class="pre">RayScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.schedulers.api.Scheduler</span></code></a></p>
+<p><strong>Config Options</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
+        <span class="p">[</span><span class="n">cluster_config_file</span><span class="o">=</span><span class="n">CLUSTER_CONFIG_FILE</span><span class="p">],[</span><span class="n">cluster_name</span><span class="o">=</span><span class="n">CLUSTER_NAME</span><span class="p">],[</span><span class="n">dashboard_address</span><span class="o">=</span><span class="n">DASHBOARD_ADDRESS</span><span class="p">],[</span><span class="n">working_dir</span><span class="o">=</span><span class="n">WORKING_DIR</span><span class="p">],[</span><span class="n">requirements</span><span class="o">=</span><span class="n">REQUIREMENTS</span><span class="p">]</span>
+
+    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+        <span class="n">cluster_config_file</span><span class="o">=</span><span class="n">CLUSTER_CONFIG_FILE</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">Use</span> <span class="n">CLUSTER_CONFIG_FILE</span> <span class="n">to</span> <span class="n">access</span> <span class="ow">or</span> <span class="n">create</span> <span class="n">the</span> <span class="n">Ray</span> <span class="n">cluster</span><span class="o">.</span>
+        <span class="n">cluster_name</span><span class="o">=</span><span class="n">CLUSTER_NAME</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">Override</span> <span class="n">the</span> <span class="n">configured</span> <span class="n">cluster</span> <span class="n">name</span><span class="o">.</span>
+        <span class="n">dashboard_address</span><span class="o">=</span><span class="n">DASHBOARD_ADDRESS</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8265</span><span class="p">)</span>
+            <span class="n">Use</span> <span class="n">ray</span> <span class="n">status</span> <span class="n">to</span> <span class="n">get</span> <span class="n">the</span> <span class="n">dashboard</span> <span class="n">address</span> <span class="n">you</span> <span class="n">will</span> <span class="n">submit</span> <span class="n">jobs</span> <span class="n">against</span>
+        <span class="n">working_dir</span><span class="o">=</span><span class="n">WORKING_DIR</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">Copy</span> <span class="n">the</span> <span class="n">the</span> <span class="n">working</span> <span class="n">directory</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">Python</span> <span class="n">scripts</span> <span class="n">to</span> <span class="n">the</span> <span class="n">cluster</span><span class="o">.</span>
+        <span class="n">requirements</span><span class="o">=</span><span class="n">REQUIREMENTS</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">Path</span> <span class="n">to</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p><strong>Compatibility</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Scheduler Support</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Fetch Logs</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-odd"><td><p>Distributed Jobs</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-even"><td><p>Cancel Job</p></td>
+<td><p>✔️</p></td>
+</tr>
+<tr class="row-odd"><td><p>Describe Job</p></td>
+<td><p>Partial support. RayScheduler will return job status but
+does not provide the complete original AppSpec.
+</p></td>
+</tr>
+<tr class="row-even"><td><p>Workspaces / Patching</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mounts</p></td>
+<td><p>❌</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.ray_scheduler.RayScheduler.describe">
 <span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torchx.schedulers.api.DescribeAppResponse</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/torchx/schedulers/ray_scheduler.html#RayScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.ray_scheduler.RayScheduler.describe" title="Permalink to this definition">¶</a></dt>

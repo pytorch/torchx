@@ -478,6 +478,28 @@
         <span class="n">actors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RayActor</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RayScheduler"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler">[docs]</a>    <span class="k">class</span> <span class="nc">RayScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **Config Options**</span>
+
+<span class="sd">        .. runopts::</span>
+<span class="sd">            class: torchx.schedulers.ray_scheduler.RayScheduler</span>
+
+<span class="sd">        **Compatibility**</span>
+
+<span class="sd">        .. compatibility::</span>
+<span class="sd">            type: scheduler</span>
+<span class="sd">            features:</span>
+<span class="sd">                cancel: true</span>
+<span class="sd">                logs: true</span>
+<span class="sd">                distributed: true</span>
+<span class="sd">                describe: |</span>
+<span class="sd">                    Partial support. RayScheduler will return job status but</span>
+<span class="sd">                    does not provide the complete original AppSpec.</span>
+<span class="sd">                workspaces: false</span>
+<span class="sd">                mounts: false</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ray&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
 

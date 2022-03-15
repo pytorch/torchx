@@ -399,7 +399,7 @@ to submit this app to the scheduler.</p>
 <h2>Role<a class="headerlink" href="#role" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.specs.Role">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">image:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">base_image:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">entrypoint:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'&lt;MISSING&gt;'</span></em>, <em class="sig-param"><span class="pre">args:</span> <span class="pre">List[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">env:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">retry_policy:</span> <span class="pre">torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">&lt;RetryPolicy.APPLICATION:</span> <span class="pre">'APPLICATION'&gt;</span></em>, <em class="sig-param"><span class="pre">resource:</span> <span class="pre">torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></em>, <em class="sig-param"><span class="pre">gpu=-1</span></em>, <em class="sig-param"><span class="pre">memMB=-1</span></em>, <em class="sig-param"><span class="pre">capabilities={})</span></em>, <em class="sig-param"><span class="pre">port_map:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">metadata:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Role" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">image:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">base_image:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">entrypoint:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'&lt;MISSING&gt;'</span></em>, <em class="sig-param"><span class="pre">args:</span> <span class="pre">List[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">env:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">retry_policy:</span> <span class="pre">torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">&lt;RetryPolicy.APPLICATION:</span> <span class="pre">'APPLICATION'&gt;</span></em>, <em class="sig-param"><span class="pre">resource:</span> <span class="pre">torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></em>, <em class="sig-param"><span class="pre">gpu=-1</span></em>, <em class="sig-param"><span class="pre">memMB=-1</span></em>, <em class="sig-param"><span class="pre">capabilities={})</span></em>, <em class="sig-param"><span class="pre">port_map:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">metadata:</span> <span class="pre">Dict[str</span></em>, <em class="sig-param"><span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">mounts:</span> <span class="pre">List[torchx.specs.api.BindMount]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Role" title="Permalink to this definition">¶</a></dt>
 <dd><p>A set of nodes that perform a specific duty within the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code>.
 Examples:</p>
 <ol class="arabic simple">
@@ -444,6 +444,7 @@ least <code class="docutils literal notranslate"><span class="pre">resource</spa
 e.g. “tensorboard”: 9090</p></li>
 <li><p><strong>metadata</strong> – Free form information that is associated with the role, for example
 scheduler specific data. The key should follow the pattern: <code class="docutils literal notranslate"><span class="pre">$scheduler.$key</span></code></p></li>
+<li><p><strong>mounts</strong> – a list of mounts on the machine</p></li>
 </ul>
 </dd>
 </dl>
@@ -789,6 +790,41 @@ by the scheduler.</p>
 </dd></dl>
 
 </section>
+<section id="mounts">
+<h2>Mounts<a class="headerlink" href="#mounts" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.BindMount">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">BindMount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#BindMount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.BindMount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a bind mount to <cite>mount –bind</cite> a host path into the worker
+environment. See scheduler documentation on how bind mounts operate for each
+scheduler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_path</strong> – the path on the host</p></li>
+<li><p><strong>dst_path</strong> – the path in the worker environment/container</p></li>
+<li><p><strong>read_only</strong> – whether the bind should be read only</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.parse_mounts">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">parse_mounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.BindMount" title="torchx.specs.api.BindMount"><span class="pre">torchx.specs.api.BindMount</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/torchx/specs/api.html#parse_mounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.parse_mounts" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse_mounts parses a list of options into typed mounts following a similar
+format to Dockers bind mount.</p>
+<p>Multiple mounts can be specified in the same list. <code class="docutils literal notranslate"><span class="pre">type</span></code> must be
+specified first in each.</p>
+<dl class="simple">
+<dt>Ex:</dt><dd><p>type=bind,src=/host,dst=/container,readonly,[type=bind,src=…,dst=…]</p>
+</dd>
+<dt>Supported types:</dt><dd><p>BindMount: type=bind,src=&lt;host path&gt;,dst=&lt;container path&gt;[,readonly]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-torchx.specs.file_linter">
 <span id="component-linter"></span><h2>Component Linter<a class="headerlink" href="#module-torchx.specs.file_linter" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
@@ -986,6 +1022,7 @@ These functions do not have both required and default arguments.</p>
 <li><a class="reference internal" href="#macros">Macros</a></li>
 <li><a class="reference internal" href="#run-configs">Run Configs</a></li>
 <li><a class="reference internal" href="#run-status">Run Status</a></li>
+<li><a class="reference internal" href="#mounts">Mounts</a></li>
 <li><a class="reference internal" href="#module-torchx.specs.file_linter">Component Linter</a></li>
 </ul>
 </li>

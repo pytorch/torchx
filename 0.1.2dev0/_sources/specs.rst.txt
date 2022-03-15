@@ -63,6 +63,15 @@ Run Status
 .. autoclass:: ReplicaState
    :members:
 
+
+Mounts
+--------
+
+.. autoclass:: BindMount
+   :members:
+
+.. autofunction:: parse_mounts
+
 Component Linter
 -----------------
 .. automodule:: torchx.specs.file_linter
