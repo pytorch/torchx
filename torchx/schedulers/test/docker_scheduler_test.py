@@ -114,13 +114,30 @@ class DockerSchedulerTest(unittest.TestCase):
                                 source="/tmp",
                                 read_only=True,
                                 type="bind",
-                            )
+                            ),
                         ],
                     },
                 )
             ],
         )
         self.assertEqual(str(info), str(want))
+
+    def test_volume_mounts(self) -> None:
+        app = _test_app()
+        app.roles[0].mounts = [
+            specs.VolumeMount(src="name", dst_path="/tmp", read_only=True),
+        ]
+
+        info = self.scheduler._submit_dryrun(app, cfg={})
+        want = [
+            Mount(
+                target="/tmp",
+                source="name",
+                read_only=True,
+                type="volume",
+            ),
+        ]
+        self.assertEqual(info.request.containers[0].kwargs["mounts"], want)
 
     @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})
     def test_copy_env(self) -> None:

@@ -196,6 +196,11 @@ class RetryPolicy(str, Enum):
     APPLICATION = "APPLICATION"
 
 
+class MountType(str, Enum):
+    BIND = "bind"
+    VOLUME = "volume"
+
+
 @dataclass
 class BindMount:
     """
@@ -206,10 +211,25 @@ class BindMount:
     Args:
         src_path: the path on the host
         dst_path: the path in the worker environment/container
-        read_only: whether the bind should be read only
+        read_only: whether the mount should be read only
     """
 
     src_path: str
+    dst_path: str
+    read_only: bool = False
+
+
+@dataclass
+class VolumeMount:
+    """
+    Defines a persistent volume mount to mount into the worker environment.
+    Args:
+       src: the name or ID of the volume to mount
+       dst_path: the path in the worker environment/container
+       read_only: whether the mount should be read only
+    """
+
+    src: str
     dst_path: str
     read_only: bool = False
 
@@ -275,7 +295,7 @@ class Role:
     resource: Resource = NULL_RESOURCE
     port_map: Dict[str, int] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    mounts: List[BindMount] = field(default_factory=list)
+    mounts: List[Union[BindMount, VolumeMount]] = field(default_factory=list)
 
     def pre_proc(
         self,
@@ -883,7 +903,7 @@ _MOUNT_OPT_MAP: Mapping[str, str] = {
 }
 
 
-def parse_mounts(opts: List[str]) -> List[BindMount]:
+def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount]]:
     """
     parse_mounts parses a list of options into typed mounts following a similar
     format to Dockers bind mount.
@@ -896,6 +916,7 @@ def parse_mounts(opts: List[str]) -> List[BindMount]:
 
     Supported types:
         BindMount: type=bind,src=<host path>,dst=<container path>[,readonly]
+        VolumeMount: type=volume,src=<name/id>,dst=<container path>[,readonly]
     """
     mount_opts = []
     cur = {}
@@ -916,10 +937,21 @@ def parse_mounts(opts: List[str]) -> List[BindMount]:
     mounts = []
     for opts in mount_opts:
         typ = opts.get("type")
-        assert typ == "bind", "only bind mounts are currently supported"
-        mounts.append(
-            BindMount(
-                src_path=opts["src"], dst_path=opts["dst"], read_only="readonly" in opts
+        if typ == MountType.BIND:
+            mounts.append(
+                BindMount(
+                    src_path=opts["src"],
+                    dst_path=opts["dst"],
+                    read_only="readonly" in opts,
+                )
             )
-        )
+        elif typ == MountType.VOLUME:
+            mounts.append(
+                VolumeMount(
+                    src=opts["src"], dst_path=opts["dst"], read_only="readonly" in opts
+                )
+            )
+        else:
+            valid = list(str(item.value) for item in MountType)
+            raise ValueError(f"invalid mount type {repr(typ)}, must be one of {valid}")
     return mounts

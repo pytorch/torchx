@@ -33,6 +33,8 @@ from torchx.specs.api import (
     is_terminal,
     macros,
     runopts,
+    BindMount,
+    VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -104,6 +106,19 @@ class DockerScheduler(Scheduler, DockerWorkspace):
               in a job fails, only that replica will be restarted.
 
 
+    **Config Options**
+
+    .. runopts::
+        class: torchx.schedulers.kubernetes_scheduler.KubernetesScheduler
+
+    **Mounts**
+
+    This class supports bind mounting directories and named volumes.
+
+    * bind mount: ``type=bind,src=<host path>,dst=<container path>[,readonly]``
+    * named volume: ``type=volume,src=<name>,dst=<container path>[,readonly]``
+
+    See :py:func:`torchx.specs.parse_mounts` for more info.
 
     .. compatibility::
         type: scheduler
@@ -192,14 +207,26 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         for role in app.roles:
             mounts = []
             for mount in role.mounts:
-                mounts.append(
-                    Mount(
-                        target=mount.dst_path,
-                        source=mount.src_path,
-                        read_only=mount.read_only,
-                        type="bind",
+                if isinstance(mount, BindMount):
+                    mounts.append(
+                        Mount(
+                            target=mount.dst_path,
+                            source=mount.src_path,
+                            read_only=mount.read_only,
+                            type="bind",
+                        )
                     )
-                )
+                elif isinstance(mount, VolumeMount):
+                    mounts.append(
+                        Mount(
+                            target=mount.dst_path,
+                            source=mount.src,
+                            read_only=mount.read_only,
+                            type="volume",
+                        )
+                    )
+                else:
+                    raise TypeError(f"unknown mount type {mount}")
 
             for replica_id in range(role.num_replicas):
                 values = macros.Values(

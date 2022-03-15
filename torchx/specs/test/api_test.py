@@ -38,6 +38,7 @@ from torchx.specs.api import (
     runopts,
     parse_mounts,
     BindMount,
+    VolumeMount,
 )
 
 
@@ -805,15 +806,16 @@ class MountsTest(unittest.TestCase):
                     "source=foo1",
                     "readonly",
                     "target=dst1",
-                    "type=bind",
+                    "type=volume",
                     "destination=dst2",
                     "source=foo2",
+                    "readonly",
                 ]
             ),
             [
                 BindMount(src_path="foo", dst_path="dst"),
                 BindMount(src_path="foo1", dst_path="dst1", read_only=True),
-                BindMount(src_path="foo2", dst_path="dst2"),
+                VolumeMount(src="foo2", dst_path="dst2", read_only=True),
             ],
         )
 
@@ -827,6 +829,6 @@ class MountsTest(unittest.TestCase):
         with self.assertRaisesRegex(KeyError, "src"):
             parse_mounts(["type=bind"])
         with self.assertRaisesRegex(
-            AssertionError, "only bind mounts are currently supported"
+            ValueError, "invalid mount type.*must be one of.*bind"
         ):
             parse_mounts(["type=foo"])

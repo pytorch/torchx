@@ -14,6 +14,7 @@ from torchx import specs
 from torchx.schedulers.aws_batch_scheduler import (
     create_scheduler,
     AWSBatchScheduler,
+    _role_to_node_properties,
 )
 
 
@@ -182,6 +183,38 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                     "torchx.pytorch.org/app-name": "test",
                 },
             },
+        )
+
+    def test_volume_mounts(self) -> None:
+        role = specs.Role(
+            name="foo",
+            image="",
+            mounts=[
+                specs.VolumeMount(src="efsid", dst_path="/dst", read_only=True),
+            ],
+        )
+        props = _role_to_node_properties(0, role)
+        self.assertEqual(
+            # pyre-fixme[16]: `object` has no attribute `__getitem__`.
+            props["container"]["volumes"],
+            [
+                {
+                    "name": "mount_0",
+                    "efsVolumeConfiguration": {
+                        "fileSystemId": "efsid",
+                    },
+                }
+            ],
+        )
+        self.assertEqual(
+            props["container"]["mountPoints"],
+            [
+                {
+                    "containerPath": "/dst",
+                    "readOnly": True,
+                    "sourceVolume": "mount_0",
+                }
+            ],
         )
 
     def _mock_scheduler(self) -> AWSBatchScheduler:

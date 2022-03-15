@@ -283,6 +283,44 @@ spec:
 """,
         )
 
+    def test_volume_mounts(self) -> None:
+        scheduler = create_scheduler("test")
+        from kubernetes.client.models import (
+            V1Volume,
+            V1VolumeMount,
+            V1PersistentVolumeClaimVolumeSource,
+        )
+
+        role = specs.Role(
+            name="foo",
+            image="",
+            mounts=[
+                specs.VolumeMount(src="name", dst_path="/dst", read_only=True),
+            ],
+        )
+        pod = role_to_pod("foo", role, service_account="")
+        self.assertEqual(
+            pod.spec.volumes,
+            [
+                V1Volume(
+                    name="mount-0",
+                    persistent_volume_claim=V1PersistentVolumeClaimVolumeSource(
+                        claim_name="name",
+                    ),
+                ),
+            ],
+        )
+        self.assertEqual(
+            pod.spec.containers[0].volume_mounts,
+            [
+                V1VolumeMount(
+                    name="mount-0",
+                    mount_path="/dst",
+                    read_only=True,
+                )
+            ],
+        )
+
     def test_rank0_env(self) -> None:
         from kubernetes.client.models import (
             V1EnvVar,

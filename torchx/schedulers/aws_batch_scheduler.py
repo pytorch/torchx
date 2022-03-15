@@ -58,6 +58,8 @@ from torchx.specs.api import (
     macros,
     runopts,
     CfgVal,
+    BindMount,
+    VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -95,14 +97,26 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
     volumes = []
     for i, mount in enumerate(role.mounts):
         name = f"mount_{i}"
-        volumes.append(
-            {
-                "name": name,
-                "host": {
-                    "sourcePath": mount.src_path,
-                },
-            }
-        )
+        if isinstance(mount, BindMount):
+            volumes.append(
+                {
+                    "name": name,
+                    "host": {
+                        "sourcePath": mount.src_path,
+                    },
+                }
+            )
+        elif isinstance(mount, VolumeMount):
+            volumes.append(
+                {
+                    "name": name,
+                    "efsVolumeConfiguration": {
+                        "fileSystemId": mount.src,
+                    },
+                }
+            )
+        else:
+            raise TypeError(f"unknown mount type {mount}")
         mount_points.append(
             {
                 "containerPath": mount.dst_path,
@@ -175,6 +189,18 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
 
     .. runopts::
         class: torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler
+
+    **Mounts**
+
+    This class supports bind mounting host directories and efs volumes
+
+    * bind mount: ``type=bind,src=<host path>,dst=<container path>[,readonly]``
+    * efs volume: ``type=volume,src=<efs id>,dst=<container path>[,readonly]``
+
+    See :py:func:`torchx.specs.parse_mounts` for more info.
+
+    For other filesystems such as FSx you can mount them onto the host and bind
+    mount them into your job: https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/
 
     **Compatibility**
 
