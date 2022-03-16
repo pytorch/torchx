@@ -67,10 +67,14 @@ Run Status
 Mounts
 --------
 
+.. autofunction:: parse_mounts
+
 .. autoclass:: BindMount
    :members:
 
-.. autofunction:: parse_mounts
+.. autoclass:: VolumeMount
+   :members:
+
 
 Component Linter
 -----------------

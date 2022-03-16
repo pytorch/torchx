@@ -172,7 +172,7 @@ def ddp(
         max_retries: the number of scheduler retries allowed
         rdzv_backend: rendezvous backend (only matters when nnodes > 1)
         rdzv_endpoint: rendezvous server endpoint (only matters when nnodes > 1), defaults to rank0 host for schedulers that support it
-        mounts: the list of mounts to bind mount into the worker environment/container (ex. type=bind,src=/host,dst=/job[,readonly])
+        mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]). See scheduler documentation for more info.
     """
 
     if (script is None) == (m is None):

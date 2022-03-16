@@ -63,6 +63,8 @@ from torchx.specs.api import (
     SchedulerBackend,
     macros,
     runopts,
+    BindMount,
+    VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -169,6 +171,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         V1VolumeMount,
         V1Volume,
         V1HostPathVolumeSource,
+        V1PersistentVolumeClaimVolumeSource,
     )
 
     requests = {}
@@ -190,14 +193,26 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
     volume_mounts = []
     for i, mount in enumerate(role.mounts):
         mount_name = f"mount-{i}"
-        volumes.append(
-            V1Volume(
-                name=mount_name,
-                host_path=V1HostPathVolumeSource(
-                    path=mount.src_path,
-                ),
+        if isinstance(mount, BindMount):
+            volumes.append(
+                V1Volume(
+                    name=mount_name,
+                    host_path=V1HostPathVolumeSource(
+                        path=mount.src_path,
+                    ),
+                )
             )
-        )
+        elif isinstance(mount, VolumeMount):
+            volumes.append(
+                V1Volume(
+                    name=mount_name,
+                    persistent_volume_claim=V1PersistentVolumeClaimVolumeSource(
+                        claim_name=mount.src,
+                    ),
+                )
+            )
+        else:
+            raise TypeError(f"unknown mount type {mount}")
         volume_mounts.append(
             V1VolumeMount(
                 name=mount_name,
@@ -373,6 +388,18 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
 
     .. runopts::
         class: torchx.schedulers.kubernetes_scheduler.KubernetesScheduler
+
+    **Mounts**
+
+    Mounting external filesystems/volumes is via the HostPath and
+    PersistentVolumeClaim support.
+
+    * hostPath volumes: ``type=bind,src=<host path>,dst=<container path>[,readonly]``
+    * PersistentVolumeClaim: ``type=volume,src=<claim>,dst=<container path>[,readonly]``
+
+    See :py:func:`torchx.specs.parse_mounts` for more info.
+
+    External docs: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 
     **Compatibility**
 
