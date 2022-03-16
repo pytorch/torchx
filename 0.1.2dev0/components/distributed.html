@@ -506,7 +506,7 @@ See <a class="reference external" href="https://pytorch.org/torchx/latest/advanc
 <li><p><strong>max_retries</strong> – the number of scheduler retries allowed</p></li>
 <li><p><strong>rdzv_backend</strong> – rendezvous backend (only matters when nnodes &gt; 1)</p></li>
 <li><p><strong>rdzv_endpoint</strong> – rendezvous server endpoint (only matters when nnodes &gt; 1), defaults to rank0 host for schedulers that support it</p></li>
-<li><p><strong>mounts</strong> – the list of mounts to bind mount into the worker environment/container (ex. type=bind,src=/host,dst=/job[,readonly])</p></li>
+<li><p><strong>mounts</strong> – mounts to mount into the worker environment/container (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]). See scheduler documentation for more info.</p></li>
 </ul>
 </dd>
 </dl>

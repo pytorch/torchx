@@ -430,6 +430,15 @@ $ torchx status kubernetes://torchx_user/1234
             <span class="n">The</span> <span class="n">service</span> <span class="n">account</span> <span class="n">name</span> <span class="n">to</span> <span class="nb">set</span> <span class="n">on</span> <span class="n">the</span> <span class="n">pod</span> <span class="n">specs</span>
 </pre></div>
 </div>
+<p><strong>Mounts</strong></p>
+<p>Mounting external filesystems/volumes is via the HostPath and
+PersistentVolumeClaim support.</p>
+<ul class="simple">
+<li><p>hostPath volumes: <code class="docutils literal notranslate"><span class="pre">type=bind,src=&lt;host</span> <span class="pre">path&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
+<li><p>PersistentVolumeClaim: <code class="docutils literal notranslate"><span class="pre">type=volume,src=&lt;claim&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
+</ul>
+<p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
+<p>External docs: <a class="reference external" href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></p>
 <p><strong>Compatibility</strong></p>
 <table class="docutils align-default">
 <colgroup>

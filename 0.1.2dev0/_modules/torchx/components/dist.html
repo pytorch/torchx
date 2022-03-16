@@ -540,7 +540,7 @@
 <span class="sd">        max_retries: the number of scheduler retries allowed</span>
 <span class="sd">        rdzv_backend: rendezvous backend (only matters when nnodes &gt; 1)</span>
 <span class="sd">        rdzv_endpoint: rendezvous server endpoint (only matters when nnodes &gt; 1), defaults to rank0 host for schedulers that support it</span>
-<span class="sd">        mounts: the list of mounts to bind mount into the worker environment/container (ex. type=bind,src=/host,dst=/job[,readonly])</span>
+<span class="sd">        mounts: mounts to mount into the worker environment/container (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]). See scheduler documentation for more info.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">script</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>

@@ -566,6 +566,11 @@
     <span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION&quot;</span></div>
 
 
+<span class="k">class</span> <span class="nc">MountType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">BIND</span> <span class="o">=</span> <span class="s2">&quot;bind&quot;</span>
+    <span class="n">VOLUME</span> <span class="o">=</span> <span class="s2">&quot;volume&quot;</span>
+
+
 <div class="viewcode-block" id="BindMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.BindMount">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BindMount</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -576,10 +581,25 @@
 <span class="sd">    Args:</span>
 <span class="sd">        src_path: the path on the host</span>
 <span class="sd">        dst_path: the path in the worker environment/container</span>
-<span class="sd">        read_only: whether the bind should be read only</span>
+<span class="sd">        read_only: whether the mount should be read only</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">src_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="VolumeMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.VolumeMount">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">VolumeMount</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a persistent volume mount to mount into the worker environment.</span>
+<span class="sd">    Args:</span>
+<span class="sd">       src: the name or ID of the volume to mount</span>
+<span class="sd">       dst_path: the path in the worker environment/container</span>
+<span class="sd">       read_only: whether the mount should be read only</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">src</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
@@ -645,7 +665,7 @@
     <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
     <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-    <span class="n">mounts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BindMount</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">mounts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BindMount</span><span class="p">,</span> <span class="n">VolumeMount</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1253,7 +1273,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="parse_mounts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.parse_mounts">[docs]</a><span class="k">def</span> <span class="nf">parse_mounts</span><span class="p">(</span><span class="n">opts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BindMount</span><span class="p">]:</span>
+<div class="viewcode-block" id="parse_mounts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.parse_mounts">[docs]</a><span class="k">def</span> <span class="nf">parse_mounts</span><span class="p">(</span><span class="n">opts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BindMount</span><span class="p">,</span> <span class="n">VolumeMount</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    parse_mounts parses a list of options into typed mounts following a similar</span>
 <span class="sd">    format to Dockers bind mount.</span>
@@ -1266,6 +1286,7 @@
 
 <span class="sd">    Supported types:</span>
 <span class="sd">        BindMount: type=bind,src=&lt;host path&gt;,dst=&lt;container path&gt;[,readonly]</span>
+<span class="sd">        VolumeMount: type=volume,src=&lt;name/id&gt;,dst=&lt;container path&gt;[,readonly]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mount_opts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cur</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1286,12 +1307,23 @@
     <span class="n">mounts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">opts</span> <span class="ow">in</span> <span class="n">mount_opts</span><span class="p">:</span>
         <span class="n">typ</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">typ</span> <span class="o">==</span> <span class="s2">&quot;bind&quot;</span><span class="p">,</span> <span class="s2">&quot;only bind mounts are currently supported&quot;</span>
-        <span class="n">mounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">BindMount</span><span class="p">(</span>
-                <span class="n">src_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">],</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;dst&quot;</span><span class="p">],</span> <span class="n">read_only</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span> <span class="ow">in</span> <span class="n">opts</span>
+        <span class="k">if</span> <span class="n">typ</span> <span class="o">==</span> <span class="n">MountType</span><span class="o">.</span><span class="n">BIND</span><span class="p">:</span>
+            <span class="n">mounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">BindMount</span><span class="p">(</span>
+                    <span class="n">src_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">],</span>
+                    <span class="n">dst_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;dst&quot;</span><span class="p">],</span>
+                    <span class="n">read_only</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">typ</span> <span class="o">==</span> <span class="n">MountType</span><span class="o">.</span><span class="n">VOLUME</span><span class="p">:</span>
+            <span class="n">mounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">VolumeMount</span><span class="p">(</span>
+                    <span class="n">src</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">],</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;dst&quot;</span><span class="p">],</span> <span class="n">read_only</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span> <span class="ow">in</span> <span class="n">opts</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">MountType</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;invalid mount type </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span><span class="si">}</span><span class="s2">, must be one of </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mounts</span></div>
 </pre></div>
 
