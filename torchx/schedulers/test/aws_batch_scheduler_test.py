@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import threading
 import unittest
 from contextlib import contextmanager
 from typing import Generator
@@ -15,6 +16,7 @@ from torchx.schedulers.aws_batch_scheduler import (
     create_scheduler,
     AWSBatchScheduler,
     _role_to_node_properties,
+    _local_session,
 )
 
 
@@ -198,6 +200,11 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             mounts=[
                 specs.VolumeMount(src="efsid", dst_path="/dst", read_only=True),
             ],
+            resource=specs.Resource(
+                cpu=1,
+                memMB=1000,
+                gpu=0,
+            ),
         )
         props = _role_to_node_properties(0, role)
         self.assertEqual(
@@ -402,3 +409,16 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 "foobar",
             ],
         )
+
+    def test_local_session(self) -> None:
+        a: object = _local_session()
+        self.assertIs(a, _local_session())
+
+        def worker() -> None:
+            b = _local_session()
+            self.assertIs(b, _local_session())
+            self.assertIsNot(a, b)
+
+        t = threading.Thread(target=worker)
+        t.start()
+        t.join()
