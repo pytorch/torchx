@@ -455,10 +455,10 @@
         <span class="n">cpu</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;VCPU&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">cpu</span><span class="p">)})</span>
 
-    <span class="n">mem</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span>
-    <span class="k">if</span> <span class="n">mem</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">mem</span> <span class="o">=</span> <span class="mi">1000</span>
-    <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;MEMORY&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">mem</span><span class="p">)})</span>
+    <span class="n">memMB</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span>
+    <span class="k">if</span> <span class="n">memMB</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">memMB</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;MEMORY&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">memMB</span><span class="p">)})</span>
 
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)})</span>
@@ -500,6 +500,11 @@
         <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
         <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
         <span class="s2">&quot;resourceRequirements&quot;</span><span class="p">:</span> <span class="n">reqs</span><span class="p">,</span>
+        <span class="s2">&quot;linuxParameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># To support PyTorch dataloaders we need to set /dev/shm to larger</span>
+            <span class="c1"># than the 64M default.</span>
+            <span class="s2">&quot;sharedMemorySize&quot;</span><span class="p">:</span> <span class="n">memMB</span><span class="p">,</span>
+        <span class="p">},</span>
         <span class="s2">&quot;logConfiguration&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;logDriver&quot;</span><span class="p">:</span> <span class="s2">&quot;awslogs&quot;</span><span class="p">,</span>
         <span class="p">},</span>
