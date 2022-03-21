@@ -118,6 +118,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             V1Volume,
             V1VolumeMount,
             V1HostPathVolumeSource,
+            V1EmptyDirVolumeSource,
         )
 
         app = _test_app()
@@ -149,10 +150,14 @@ class KubernetesSchedulerTest(unittest.TestCase):
             ports=[V1ContainerPort(name="foo", container_port=1234)],
             volume_mounts=[
                 V1VolumeMount(
+                    name="dshm",
+                    mount_path="/dev/shm",
+                ),
+                V1VolumeMount(
                     name="mount-0",
                     mount_path="/dst",
                     read_only=True,
-                )
+                ),
             ],
         )
         want = V1Pod(
@@ -161,6 +166,12 @@ class KubernetesSchedulerTest(unittest.TestCase):
                 restart_policy="Never",
                 service_account_name="srvacc",
                 volumes=[
+                    V1Volume(
+                        name="dshm",
+                        empty_dir=V1EmptyDirVolumeSource(
+                            medium="Memory",
+                        ),
+                    ),
                     V1Volume(
                         name="mount-0",
                         host_path=V1HostPathVolumeSource(
@@ -272,11 +283,16 @@ spec:
               memory: 3000M
               nvidia.com/gpu: '4'
           volumeMounts:
+          - mountPath: /dev/shm
+            name: dshm
           - mountPath: /dst
             name: mount-0
             readOnly: true
         restartPolicy: Never
         volumes:
+        - emptyDir:
+            medium: Memory
+          name: dshm
         - hostPath:
             path: /src
           name: mount-0
@@ -289,6 +305,7 @@ spec:
             V1Volume,
             V1VolumeMount,
             V1PersistentVolumeClaimVolumeSource,
+            V1EmptyDirVolumeSource,
         )
 
         role = specs.Role(
@@ -303,6 +320,12 @@ spec:
             pod.spec.volumes,
             [
                 V1Volume(
+                    name="dshm",
+                    empty_dir=V1EmptyDirVolumeSource(
+                        medium="Memory",
+                    ),
+                ),
+                V1Volume(
                     name="mount-0",
                     persistent_volume_claim=V1PersistentVolumeClaimVolumeSource(
                         claim_name="name",
@@ -314,10 +337,14 @@ spec:
             pod.spec.containers[0].volume_mounts,
             [
                 V1VolumeMount(
+                    name="dshm",
+                    mount_path="/dev/shm",
+                ),
+                V1VolumeMount(
                     name="mount-0",
                     mount_path="/dst",
                     read_only=True,
-                )
+                ),
             ],
         )
 

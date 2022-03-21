@@ -172,6 +172,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         V1Volume,
         V1HostPathVolumeSource,
         V1PersistentVolumeClaimVolumeSource,
+        V1EmptyDirVolumeSource,
     )
 
     requests = {}
@@ -189,8 +190,21 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         requests=requests,
     )
 
-    volumes = []
-    volume_mounts = []
+    # To support PyTorch dataloaders we need to set /dev/shm to larger than the
+    # 64M default so we mount an unlimited sized tmpfs directory on it.
+    SHM_VOL = "dshm"
+    volumes = [
+        V1Volume(
+            name=SHM_VOL,
+            empty_dir=V1EmptyDirVolumeSource(
+                medium="Memory",
+            ),
+        ),
+    ]
+    volume_mounts = [
+        V1VolumeMount(name=SHM_VOL, mount_path="/dev/shm"),
+    ]
+
     for i, mount in enumerate(role.mounts):
         mount_name = f"mount-{i}"
         if isinstance(mount, BindMount):

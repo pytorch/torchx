@@ -85,10 +85,10 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
         cpu = 1
     reqs.append({"type": "VCPU", "value": str(cpu)})
 
-    mem = resource.memMB
-    if mem <= 0:
-        mem = 1000
-    reqs.append({"type": "MEMORY", "value": str(mem)})
+    memMB = resource.memMB
+    if memMB <= 0:
+        memMB = 1000
+    reqs.append({"type": "MEMORY", "value": str(memMB)})
 
     if resource.gpu > 0:
         reqs.append({"type": "GPU", "value": str(resource.gpu)})
@@ -130,6 +130,11 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
         "image": role.image,
         "environment": [{"name": k, "value": v} for k, v in role.env.items()],
         "resourceRequirements": reqs,
+        "linuxParameters": {
+            # To support PyTorch dataloaders we need to set /dev/shm to larger
+            # than the 64M default.
+            "sharedMemorySize": memMB,
+        },
         "logConfiguration": {
             "logDriver": "awslogs",
         },
