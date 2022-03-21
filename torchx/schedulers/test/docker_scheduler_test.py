@@ -100,6 +100,7 @@ class DockerSchedulerTest(unittest.TestCase):
                             "torchx.pytorch.org/version": "0.1.2dev0",
                         },
                         "mem_limit": "3000m",
+                        "shm_size": "3000m",
                         "name": "app_name_42-trainer-0",
                         "hostname": "app_name_42-trainer-0",
                         "nano_cpus": int(2e9),

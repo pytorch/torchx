@@ -112,6 +112,9 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     {"type": "MEMORY", "value": "3000"},
                                     {"type": "GPU", "value": "4"},
                                 ],
+                                "linuxParameters": {
+                                    "sharedMemorySize": 3000,
+                                },
                                 "logConfiguration": {"logDriver": "awslogs"},
                                 "mountPoints": [
                                     {
@@ -154,6 +157,9 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     {"type": "MEMORY", "value": "3000"},
                                     {"type": "GPU", "value": "4"},
                                 ],
+                                "linuxParameters": {
+                                    "sharedMemorySize": 3000,
+                                },
                                 "logConfiguration": {"logDriver": "awslogs"},
                                 "mountPoints": [
                                     {

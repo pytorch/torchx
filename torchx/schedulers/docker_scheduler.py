@@ -269,7 +269,11 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                     }
                 resource = replica_role.resource
                 if resource.memMB >= 0:
-                    c.kwargs["mem_limit"] = f"{int(resource.memMB)}m"
+                    # To support PyTorch dataloaders we need to set /dev/shm to
+                    # larger than the 64M default.
+                    c.kwargs["mem_limit"] = c.kwargs[
+                        "shm_size"
+                    ] = f"{int(resource.memMB)}m"
                 if resource.cpu >= 0:
                     c.kwargs["nano_cpus"] = int(resource.cpu * 1e9)
                 if resource.gpu > 0:
