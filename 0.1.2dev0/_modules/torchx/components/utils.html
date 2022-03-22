@@ -407,6 +407,7 @@
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">msg</span><span class="p">],</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
@@ -430,12 +431,21 @@
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;touch&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">file</span><span class="p">],</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="sh"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.sh">[docs]</a><span class="k">def</span> <span class="nf">sh</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span> <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+<div class="viewcode-block" id="sh"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.sh">[docs]</a><span class="k">def</span> <span class="nf">sh</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
+    <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Runs the provided command via sh. Currently sh does not support</span>
 <span class="sd">    environment variable substitution.</span>
@@ -444,7 +454,10 @@
 <span class="sd">        args: bash arguments</span>
 <span class="sd">        image: image to use</span>
 <span class="sd">        num_replicas: number of replicas to run</span>
-
+<span class="sd">        cpu: number of cpus per replica</span>
+<span class="sd">        gpu: number of gpus per replica</span>
+<span class="sd">        memMB: cpu memory in MB per replica</span>
+<span class="sd">        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">escaped_args</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
@@ -458,6 +471,7 @@
                 <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;sh&quot;</span><span class="p">,</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">escaped_args</span><span class="p">],</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
@@ -470,7 +484,7 @@
     <span class="n">script</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx_utils_python&quot;</span><span class="p">,</span>
-    <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
     <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -532,8 +546,12 @@
 <div class="viewcode-block" id="binary"><a class="viewcode-back" href="../../../components/utils.html#torchx.components.utils.binary">[docs]</a><span class="k">def</span> <span class="nf">binary</span><span class="p">(</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx_utils_python&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx_utils_binary&quot;</span><span class="p">,</span>
     <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test component</span>
@@ -542,6 +560,10 @@
 <span class="sd">        args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)</span>
 <span class="sd">        name: name of the job</span>
 <span class="sd">        num_replicas: number of copies to run (each on its own container)</span>
+<span class="sd">        cpu: number of cpus per replica</span>
+<span class="sd">        gpu: number of gpus per replica</span>
+<span class="sd">        memMB: cpu memory in MB per replica</span>
+<span class="sd">        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)</span>
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
@@ -552,8 +574,8 @@
                 <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&lt;NONE&gt;&quot;</span><span class="p">,</span>
                 <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
-                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">4096</span><span class="p">),</span>
                 <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">args</span><span class="p">],</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="n">memMB</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
@@ -587,6 +609,7 @@
                     <span class="s2">&quot;--dst&quot;</span><span class="p">,</span>
                     <span class="n">dst</span><span class="p">,</span>
                 <span class="p">],</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
             <span class="p">),</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
@@ -629,6 +652,7 @@
                     <span class="s2">&quot;--tracker_base&quot;</span><span class="p">,</span>
                     <span class="n">tracker_base</span><span class="p">,</span>
                 <span class="p">],</span>
+                <span class="n">resource</span><span class="o">=</span><span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
