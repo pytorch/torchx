@@ -12,8 +12,5 @@ requirement to use TorchX, but it will make it easier for you to author
 applications that are scheduler and infrastructure agnostic.
 
 
-The sub-modules of ``torchx.runtime`` are categorized by topic. For example in
-the ``torchx.runtime.hpo`` module you will find libraries that are useful
-when authoring hyper-parameter optimization jobs (applications).
-
+The sub-modules of ``torchx.runtime`` are categorized by topic.
 """
