@@ -39,6 +39,7 @@ def echo(
                 entrypoint="echo",
                 args=[msg],
                 num_replicas=num_replicas,
+                resource=specs.Resource(cpu=1, gpu=0, memMB=1024),
             )
         ],
     )
@@ -62,12 +63,21 @@ def touch(file: str, image: str = torchx.IMAGE) -> specs.AppDef:
                 entrypoint="touch",
                 args=[file],
                 num_replicas=1,
+                resource=specs.Resource(cpu=1, gpu=0, memMB=1024),
             )
         ],
     )
 
 
-def sh(*args: str, image: str = torchx.IMAGE, num_replicas: int = 1) -> specs.AppDef:
+def sh(
+    *args: str,
+    image: str = torchx.IMAGE,
+    num_replicas: int = 1,
+    cpu: int = 1,
+    gpu: int = 0,
+    memMB: int = 1024,
+    h: Optional[str] = None,
+) -> specs.AppDef:
     """
     Runs the provided command via sh. Currently sh does not support
     environment variable substitution.
@@ -76,7 +86,10 @@ def sh(*args: str, image: str = torchx.IMAGE, num_replicas: int = 1) -> specs.Ap
         args: bash arguments
         image: image to use
         num_replicas: number of replicas to run
-
+        cpu: number of cpus per replica
+        gpu: number of gpus per replica
+        memMB: cpu memory in MB per replica
+        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
     """
 
     escaped_args = " ".join(shlex.quote(arg) for arg in args)
@@ -90,6 +103,7 @@ def sh(*args: str, image: str = torchx.IMAGE, num_replicas: int = 1) -> specs.Ap
                 entrypoint="sh",
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
+                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
             )
         ],
     )
@@ -102,7 +116,7 @@ def python(
     script: Optional[str] = None,
     image: str = torchx.IMAGE,
     name: str = "torchx_utils_python",
-    cpu: int = 2,
+    cpu: int = 1,
     gpu: int = 0,
     memMB: int = 1024,
     h: Optional[str] = None,
@@ -164,8 +178,12 @@ def python(
 def binary(
     *args: str,
     entrypoint: str,
-    name: str = "torchx_utils_python",
+    name: str = "torchx_utils_binary",
     num_replicas: int = 1,
+    cpu: int = 1,
+    gpu: int = 0,
+    memMB: int = 1024,
+    h: Optional[str] = None,
 ) -> specs.AppDef:
     """
     Test component
@@ -174,6 +192,10 @@ def binary(
         args: arguments passed to the program in sys.argv[1:] (ignored with `--c`)
         name: name of the job
         num_replicas: number of copies to run (each on its own container)
+        cpu: number of cpus per replica
+        gpu: number of gpus per replica
+        memMB: cpu memory in MB per replica
+        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
     :return:
     """
     return specs.AppDef(
@@ -184,8 +206,8 @@ def binary(
                 image="<NONE>",
                 entrypoint=entrypoint,
                 num_replicas=num_replicas,
-                resource=specs.Resource(cpu=2, gpu=0, memMB=4096),
                 args=[*args],
+                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
             )
         ],
     )
@@ -219,6 +241,7 @@ def copy(src: str, dst: str, image: str = torchx.IMAGE) -> specs.AppDef:
                     "--dst",
                     dst,
                 ],
+                resource=specs.Resource(cpu=1, gpu=0, memMB=1024),
             ),
         ],
     )
@@ -261,6 +284,7 @@ def booth(
                     "--tracker_base",
                     tracker_base,
                 ],
+                resource=specs.Resource(cpu=1, gpu=0, memMB=1024),
             )
         ],
     )

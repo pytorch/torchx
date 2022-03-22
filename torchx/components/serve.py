@@ -70,6 +70,7 @@ def torchserve(
                 entrypoint="python",
                 args=args,
                 port_map={"model-download": 8222},
+                resource=specs.Resource(cpu=1, gpu=0, memMB=1024),
             ),
         ],
     )

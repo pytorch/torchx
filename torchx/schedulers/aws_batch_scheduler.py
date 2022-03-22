@@ -38,7 +38,17 @@ for how to create a image repository.
 import threading
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Iterable, Mapping, Optional, Any, TYPE_CHECKING, Tuple
+from typing import (
+    Dict,
+    Iterable,
+    Mapping,
+    Optional,
+    Any,
+    TYPE_CHECKING,
+    Tuple,
+    TypeVar,
+    Callable,
+)
 
 import torchx
 import yaml
@@ -86,8 +96,10 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
     reqs.append({"type": "VCPU", "value": str(cpu)})
 
     memMB = resource.memMB
-    if memMB <= 0:
-        memMB = 1000
+    if memMB < 0:
+        raise ValueError(
+            f"AWSBatchScheduler requires memMB to be set to a positive value, got {memMB}"
+        )
     reqs.append({"type": "MEMORY", "value": str(memMB)})
 
     if resource.gpu > 0:
@@ -162,17 +174,29 @@ class BatchJob:
         return str(self)
 
 
-def _thread_local_session() -> "boto3.session.Session":
-    KEY = "torchx_aws_batch_session"
-    local = threading.local()
-    if hasattr(local, KEY):
-        # pyre-ignore[16]
-        return getattr(local, KEY)
+T = TypeVar("T")
+
+
+def _thread_local_cache(f: Callable[[], T]) -> Callable[[], T]:
+    local: threading.local = threading.local()
+    key: str = "value"
+
+    def wrapper() -> T:
+        if key in local.__dict__:
+            return local.__dict__[key]
+
+        v = f()
+        local.__dict__[key] = v
+        return v
+
+    return wrapper
+
+
+@_thread_local_cache
+def _local_session() -> "boto3.session.Session":
     import boto3.session
 
-    session = boto3.session.Session()
-    setattr(local, KEY, session)
-    return session
+    return boto3.session.Session()
 
 
 class AWSBatchScheduler(Scheduler, DockerWorkspace):
@@ -244,14 +268,14 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
     def _client(self) -> Any:
         if self.__client:
             return self.__client
-        return _thread_local_session().client("batch")
+        return _local_session().client("batch")
 
     @property
     # pyre-fixme[3]: Return annotation cannot be `Any`.
     def _log_client(self) -> Any:
         if self.__log_client:
             return self.__log_client
-        return _thread_local_session().client("logs")
+        return _local_session().client("logs")
 
     def schedule(self, dryrun_info: AppDryRunInfo[BatchJob]) -> str:
         cfg = dryrun_info._cfg
