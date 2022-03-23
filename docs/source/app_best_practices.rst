@@ -91,12 +91,6 @@ or from a component.
 
 See :ref:`components/interpret:Interpret` for more information.
 
-Hyper Parameter Optimization
-------------------------------
-
-See :ref:`components/hpo:HPO` for more information.
-
-
 Model Packaging
 -----------------
 

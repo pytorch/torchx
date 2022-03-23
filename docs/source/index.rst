@@ -95,7 +95,6 @@ Components Library
    components/distributed
    components/interpret
    components/metrics
-   components/hpo
    components/serve
    components/utils
 
@@ -106,7 +105,6 @@ Runtime Library
    :caption: Application (Runtime)
 
    runtime/overview
-   runtime/hpo
    runtime/tracking
 
 
