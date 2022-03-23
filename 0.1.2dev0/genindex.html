@@ -270,14 +270,12 @@
 <li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Application (Runtime)</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runtime/hpo.html">HPO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API</span></p>
@@ -417,12 +415,10 @@
         <li><a href="specs.html#torchx.specs.macros.Values.apply">(torchx.specs.macros.Values method)</a>
 </li>
       </ul></li>
-      <li><a href="runtime/hpo.html#torchx.runtime.hpo.ax.AppMetric">AppMetric (class in torchx.runtime.hpo.ax)</a>
+      <li><a href="specs.html#torchx.specs.AppState">AppState (class in torchx.specs)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="specs.html#torchx.specs.AppState">AppState (class in torchx.specs)</a>
-</li>
       <li><a href="specs.html#torchx.specs.AppStatus">AppStatus (class in torchx.specs)</a>
 </li>
       <li><a href="specs.html#torchx.specs.named_resources_aws.aws_m5_2xlarge">aws_m5_2xlarge() (in module torchx.specs.named_resources_aws)</a>
@@ -581,11 +577,9 @@
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
 </li>
       </ul></li>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch_role">fetch_role() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="runtime/hpo.html#torchx.runtime.hpo.ax.AppMetric.fetch_trial_data">fetch_trial_data() (torchx.runtime.hpo.ax.AppMetric method)</a>
+      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch_role">fetch_role() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
 </li>
       <li><a href="runner.config.html#torchx.runner.config.find_configs">find_configs() (in module torchx.runner.config)</a>
 </li>
@@ -741,8 +735,6 @@
 </li>
         <li><a href="components/distributed.html#module-torchx.components.dist">torchx.components.dist</a>
 </li>
-        <li><a href="components/hpo.html#module-torchx.components.hpo">torchx.components.hpo</a>
-</li>
         <li><a href="components/interpret.html#module-torchx.components.interpret">torchx.components.interpret</a>
 </li>
         <li><a href="components/metrics.html#module-torchx.components.metrics">torchx.components.metrics</a>
@@ -762,10 +754,6 @@
         <li><a href="runner.config.html#module-torchx.runner.config">torchx.runner.config</a>
 </li>
         <li><a href="runtime/overview.html#module-torchx.runtime">torchx.runtime</a>
-</li>
-        <li><a href="runtime/hpo.html#module-torchx.runtime.hpo">torchx.runtime.hpo</a>
-</li>
-        <li><a href="runtime/hpo.html#module-torchx.runtime.hpo.ax">torchx.runtime.hpo.ax</a>
 </li>
         <li><a href="runtime/tracking.html#module-torchx.runtime.tracking">torchx.runtime.tracking</a>
 </li>
@@ -805,8 +793,6 @@
       <li><a href="specs.html#torchx.specs.parse_mounts">parse_mounts() (in module torchx.specs)</a>
 </li>
       <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.pod_labels">pod_labels() (in module torchx.schedulers.kubernetes_scheduler)</a>
-</li>
-      <li><a href="runtime/hpo.html#torchx.runtime.hpo.ax.TorchXRunner.poll_trial_status">poll_trial_status() (torchx.runtime.hpo.ax.TorchXRunner method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -849,11 +835,7 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.run">run() (torchx.runner.Runner method)</a>
-
-      <ul>
-        <li><a href="runtime/hpo.html#torchx.runtime.hpo.ax.TorchXRunner.run">(torchx.runtime.hpo.ax.TorchXRunner method)</a>
 </li>
-      </ul></li>
       <li><a href="runner.html#torchx.runner.Runner.run_component">run_component() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="runner.html#torchx.runner.Runner.run_opts">run_opts() (torchx.runner.Runner method)</a>
@@ -908,10 +890,10 @@
 </li>
       <li><a href="runner.html#torchx.runner.Runner.scheduler_backends">scheduler_backends() (torchx.runner.Runner method)</a>
 </li>
-      <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
+</li>
       <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.serialize">serialize() (in module torchx.schedulers.ray_scheduler)</a>
 </li>
       <li><a href="components/utils.html#torchx.components.utils.sh">sh() (in module torchx.components.utils)</a>
@@ -927,11 +909,7 @@
       <li><a href="runner.html#torchx.runner.Runner.status">status() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="runner.html#torchx.runner.Runner.stop">stop() (torchx.runner.Runner method)</a>
-
-      <ul>
-        <li><a href="runtime/hpo.html#torchx.runtime.hpo.ax.TorchXRunner.stop">(torchx.runtime.hpo.ax.TorchXRunner method)</a>
 </li>
-      </ul></li>
       <li><a href="schedulers.html#torchx.schedulers.Scheduler.submit">submit() (torchx.schedulers.Scheduler method)</a>
 </li>
       <li><a href="schedulers.html#torchx.schedulers.Scheduler.submit_dryrun">submit_dryrun() (torchx.schedulers.Scheduler method)</a>
@@ -976,13 +954,6 @@
 
       <ul>
         <li><a href="components/distributed.html#module-torchx.components.dist">module</a>
-</li>
-      </ul></li>
-      <li>
-    torchx.components.hpo
-
-      <ul>
-        <li><a href="components/hpo.html#module-torchx.components.hpo">module</a>
 </li>
       </ul></li>
       <li>
@@ -1056,28 +1027,14 @@
 </li>
       </ul></li>
       <li>
-    torchx.runtime.hpo
-
-      <ul>
-        <li><a href="runtime/hpo.html#module-torchx.runtime.hpo">module</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    torchx.runtime.hpo.ax
-
-      <ul>
-        <li><a href="runtime/hpo.html#module-torchx.runtime.hpo.ax">module</a>
-</li>
-      </ul></li>
-      <li>
     torchx.runtime.tracking
 
       <ul>
         <li><a href="runtime/tracking.html#module-torchx.runtime.tracking">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers
 
@@ -1176,8 +1133,6 @@
       <li><a href="specs.html#torchx.specs.file_linter.TorchxFunctionValidator">TorchxFunctionValidator (class in torchx.specs.file_linter)</a>
 </li>
       <li><a href="specs.html#torchx.specs.file_linter.TorchxReturnValidator">TorchxReturnValidator (class in torchx.specs.file_linter)</a>
-</li>
-      <li><a href="runtime/hpo.html#torchx.runtime.hpo.ax.TorchXRunner">TorchXRunner (class in torchx.runtime.hpo.ax)</a>
 </li>
       <li><a href="components/utils.html#torchx.components.utils.touch">touch() (in module torchx.components.utils)</a>
 </li>
