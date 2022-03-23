@@ -30,11 +30,11 @@ from torchx.schedulers.local_scheduler import (
     LocalDirectoryImageProvider,
     LocalScheduler,
     ReplicaParam,
-    create_cwd_scheduler,
     _join_PATH,
+    create_cwd_scheduler,
     make_unique,
 )
-from torchx.specs.api import AppDef, AppState, Role, is_terminal, macros, Resource
+from torchx.specs.api import AppDef, AppState, Resource, Role, is_terminal, macros
 
 from .test_util import write_shell_script
 
@@ -336,24 +336,29 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         os.environ, {"PATH": "/bin:/usr/bin", "TORCHELASTIC_ERROR_FILE": "ignored"}
     )
     def test_child_process_env_append_cwd(self, popen_mock: MagicMock) -> None:
-        ignored = 0
-        self.scheduler._popen(
-            role_name="ignored",
-            replica_id=ignored,
-            replica_params=ReplicaParam(
-                args=["a", "b"],
-                env={},
-                cwd="/home/bob",
-                stdout=None,
-                stderr=None,
-                combined=None,
+        popen_request = self.scheduler._to_popen_request(
+            app=AppDef(
+                name="_",
+                roles=[
+                    Role(name="foo", image=self.test_dir, env={"PATH": "/home/bob"}),
+                ],
             ),
-            prepend_cwd=False,
+            cfg={"prepend_cwd": False},
+        )
+
+        # the test scheduler is hooked up with LocalDirectoryImageProvider
+        # which treats the role's image as CWD
+        replica_params = popen_request.role_params["foo"][0]
+        self.assertEqual(f"/home/bob:{self.test_dir}", replica_params.env["PATH"])
+
+        # _popen actually adds in the os.environ[PATH]
+        self.scheduler._popen(
+            role_name="foo", replica_id=0, replica_params=replica_params
         )
 
         self.assertEqual(
             # for python 3.7 BC get call_args.kwargs by index
-            "/bin:/usr/bin:/home/bob",
+            f"/home/bob:{self.test_dir}:/bin:/usr/bin",
             popen_mock.call_args[1]["env"]["PATH"],
         )
 
@@ -362,61 +367,58 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         os.environ, {"PATH": "/bin:/usr/bin", "TORCHELASTIC_ERROR_FILE": "ignored"}
     )
     def test_child_process_env_prepend_cwd(self, popen_mock: MagicMock) -> None:
-        ignored = 0
-        self.scheduler._popen(
-            role_name="ignored",
-            replica_id=ignored,
-            replica_params=ReplicaParam(
-                args=["a", "b"],
-                env={},
-                cwd="/home/bob",
-                stdout=None,
-                stderr=None,
-                combined=None,
+        popen_request = self.scheduler._to_popen_request(
+            app=AppDef(
+                name="_",
+                roles=[
+                    Role(name="foo", image=self.test_dir, env={"PATH": "/home/bob"}),
+                ],
             ),
-            prepend_cwd=True,
+            cfg={"prepend_cwd": True},
+        )
+
+        # the test scheduler is hooked up with LocalDirectoryImageProvider
+        # which treats the role's image as CWD
+        replica_params = popen_request.role_params["foo"][0]
+        self.assertEqual(f"{self.test_dir}:/home/bob", replica_params.env["PATH"])
+
+        # _popen actually adds in the os.environ[PATH]
+        self.scheduler._popen(
+            role_name="foo", replica_id=0, replica_params=replica_params
         )
 
         self.assertEqual(
             # for python 3.7 BC get call_args.kwargs by index
-            "/home/bob:/bin:/usr/bin",
+            f"{self.test_dir}:/home/bob:/bin:/usr/bin",
             popen_mock.call_args[1]["env"]["PATH"],
         )
 
     @mock.patch("subprocess.Popen")
     @mock.patch.dict(os.environ, {"TORCHELASTIC_ERROR_FILE": "ignored"}, clear=True)
     def test_child_process_env_none(self, popen_mock: MagicMock) -> None:
-        ignored = 0
-        self.scheduler._popen(
-            role_name="ignored",
-            replica_id=ignored,
-            replica_params=ReplicaParam(
-                args=["a", "b"],
-                env={},
-                cwd="/home/bob",
-                stdout=None,
-                stderr=None,
-                combined=None,
+        popen_request = self.scheduler._to_popen_request(
+            app=AppDef(
+                name="_",
+                roles=[Role(name="foo", image=self.test_dir)],
             ),
-            prepend_cwd=True,
+            cfg={},
         )
-        self.assertEqual("/home/bob", popen_mock.call_args[1]["env"]["PATH"])
 
+        # the test scheduler is hooked up with LocalDirectoryImageProvider
+        # which treats the role's image as CWD
+        replica_params = popen_request.role_params["foo"][0]
+        self.assertEqual(f"{self.test_dir}", replica_params.env["PATH"])
+
+        # _popen actually adds in the os.environ[PATH]
         self.scheduler._popen(
-            role_name="ignored",
-            replica_id=ignored,
-            replica_params=ReplicaParam(
-                args=["a", "b"],
-                env={},
-                cwd=None,
-                stdout=None,
-                stderr=None,
-                combined=None,
-            ),
-            prepend_cwd=True,
+            role_name="foo", replica_id=0, replica_params=replica_params
         )
-        # for python 3.7 BC get call_args.kwargs by index
-        self.assertFalse(popen_mock.call_args[1]["env"]["PATH"])
+
+        self.assertEqual(
+            # for python 3.7 BC get call_args.kwargs by index
+            f"{self.test_dir}",
+            popen_mock.call_args[1]["env"]["PATH"],
+        )
 
     @mock.patch.dict(os.environ, {"FOO": "bar"})
     def test_submit_override_parent_env(self) -> None:

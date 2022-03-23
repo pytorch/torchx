@@ -656,7 +656,6 @@ class LocalScheduler(Scheduler):
         role_name: RoleName,
         replica_id: int,
         replica_params: ReplicaParam,
-        prepend_cwd: bool,
     ) -> _LocalReplica:
         """
         Same as ``subprocess.Popen(**popen_kwargs)`` but is able to take ``stdout`` and ``stderr``
@@ -678,20 +677,8 @@ class LocalScheduler(Scheduler):
         # just make sure we override the parent's env vars with the user_defined ones
         env = os.environ.copy()
         env.update(replica_params.env)
-
-        # prepend extra_paths to PATH
-        env["PATH"] = _join_PATH(*self._extra_paths, env.get("PATH"))
-
-        cwd = replica_params.cwd
-        if cwd:
-            # if prepend_cwd is set, then prepend cwd to PATH
-            # making binaries in cwd take precedence to those in PATH
-            # otherwise append cwd to PATH so that the binaries in PATH
-            # precede over those in cwd
-            if prepend_cwd:
-                env["PATH"] = _join_PATH(cwd, env.get("PATH"))
-            else:
-                env["PATH"] = _join_PATH(env.get("PATH"), cwd)
+        # PATH is a special one, instead of overriding, append
+        env["PATH"] = _join_PATH(replica_params.env.get("PATH"), os.getenv("PATH"))
 
         # default to unbuffered python for faster responsiveness locally
         env.setdefault("PYTHONUNBUFFERED", "x")
@@ -763,8 +750,6 @@ class LocalScheduler(Scheduler):
                     role_name,
                     replica_id,
                     replica_params,
-                    # pyre-ignore[6] cfg type checked by runopt.resolve()
-                    dryrun_info._cfg.get("prepend_cwd"),
                 )
                 local_app.add_replica(role_name, replica)
         self._apps[app_id] = local_app
@@ -789,7 +774,7 @@ class LocalScheduler(Scheduler):
             gpus_info = [gpu_info for gpu_info in result.stdout.split("\n") if gpu_info]
             return len(gpus_info)
         except subprocess.CalledProcessError as e:
-            log.exception(f"Got exception while listing GPUs {e.stderr}")
+            log.exception(f"Got exception while listing GPUs: {e.stderr}")
             return 0
 
     def _set_cuda_visible_devices_for_role_replica(
@@ -813,18 +798,18 @@ class LocalScheduler(Scheduler):
         app: AppDef,
         cfg: Mapping[str, CfgVal],
     ) -> None:
-        device_count = 0
         autoset = cfg.get("auto_set_cuda_visible_devices")
         if not autoset:
             return
+
         requested_gpus_total = sum(
             [role.resource.gpu * role.num_replicas for role in app.roles]
         )
         if requested_gpus_total <= 0:
             return
+
         device_count = self._get_gpu_device_count()
         if requested_gpus_total > device_count:
-            autoset = False
             log.warning(
                 "Cannot set `CUDA_VISIBLE_DEVICES` due to "
                 f"Available GPUs {device_count} less than requested {requested_gpus_total}"
@@ -859,6 +844,22 @@ class LocalScheduler(Scheduler):
             replica_log_dirs = role_log_dirs.setdefault(role.name, [])
 
             img_root = image_provider.fetch_role(role)
+
+            # prepend extra_paths to PATH
+            role.env["PATH"] = _join_PATH(*self._extra_paths, role.env.get("PATH"))
+            cwd = image_provider.get_cwd(role.image)
+
+            if cwd:
+                # if prepend_cwd is set, then prepend cwd to PATH
+                # making binaries in cwd take precedence to those in PATH
+                # otherwise append cwd to PATH so that the binaries in PATH
+                # precede over those in cwd
+                prepend_cwd = cfg.get("prepend_cwd")
+
+                if prepend_cwd:
+                    role.env["PATH"] = _join_PATH(cwd, role.env.get("PATH"))
+                else:
+                    role.env["PATH"] = _join_PATH(role.env.get("PATH"), cwd)
 
             for replica_id in range(role.num_replicas):
                 values = macros.Values(
