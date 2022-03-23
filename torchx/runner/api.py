@@ -469,28 +469,36 @@ class Runner:
                      if the scheduler has already totally or partially purged log records
                      for the application.
 
+        Return lines will include whitespace characters such as ``\\n`` or
+        ``\\r``. When outputting the lines you should make sure to avoid adding
+        extra newline characters.
+
         Usage:
 
-        ::
+        .. code:: python
 
-         app_handle = session.run(app, scheduler="local", cfg=Dict[str, ConfigValue]())
+            app_handle = session.run(app, scheduler="local", cfg=Dict[str, ConfigValue]())
 
-         print("== trainer node 0 logs ==")
-         for line in session.log_lines(app_handle, "trainer", k=0):
-            print(line)
+            print("== trainer node 0 logs ==")
+            for line in session.log_lines(app_handle, "trainer", k=0):
+               # for prints newlines will already be present in the line
+               print(line, end="")
+
+               # when writing to a file nothing extra is necessary
+               f.write(line)
 
         Discouraged anti-pattern:
 
-        ::
+        .. code:: python
 
-         # DO NOT DO THIS!
-         # parses accuracy metric from log and reports it for this experiment run
-         accuracy = -1
-         for line in session.log_lines(app_handle, "trainer", k=0):
-            if matches_regex(line, "final model_accuracy:[0-9]*"):
-                accuracy = parse_accuracy(line)
-                break
-         report(experiment_name, accuracy)
+            # DO NOT DO THIS!
+            # parses accuracy metric from log and reports it for this experiment run
+            accuracy = -1
+            for line in session.log_lines(app_handle, "trainer", k=0):
+               if matches_regex(line, "final model_accuracy:[0-9]*"):
+                   accuracy = parse_accuracy(line)
+                   break
+            report(experiment_name, accuracy)
 
         Args:
             app_handle: application handle

@@ -65,7 +65,7 @@ class MockRunner(Runner):
         if regex is None:
             regex = ".*"
 
-        log_lines = ["INFO foo", "ERROR bar", "WARN baz"]
+        log_lines = ["INFO foo\n", "ERROR bar\n", "WARN baz\n"]
         return iter([line for line in log_lines if re.match(regex, line)])
 
 

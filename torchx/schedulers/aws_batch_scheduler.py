@@ -517,7 +517,7 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
             next_token = response["nextForwardToken"]
 
             for event in response["events"]:
-                yield event["message"]
+                yield event["message"] + "\n"
 
 
 def create_scheduler(session_name: str, **kwargs: object) -> AWSBatchScheduler:

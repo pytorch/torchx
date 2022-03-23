@@ -49,6 +49,7 @@ from torchx.schedulers.api import (
     Scheduler,
     Stream,
     filter_regex,
+    split_lines,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
@@ -640,7 +641,7 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
             iterator = w.stream(core_api.read_namespaced_pod_log, **args)
         else:
             resp = core_api.read_namespaced_pod_log(**args)
-            iterator = resp.strip().split("\n")
+            iterator = split_lines(resp)
 
         if regex:
             return filter_regex(regex, iterator)

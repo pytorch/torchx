@@ -20,6 +20,7 @@ from torchx.schedulers.api import (
     Scheduler,
     Stream,
     filter_regex,
+    split_lines,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
@@ -425,7 +426,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
             if len(logs) == 0:
                 logs = []
             else:
-                logs = logs.split("\n")
+                logs = split_lines(logs)
 
         logs = map(_to_str, logs)
 
@@ -438,8 +439,6 @@ class DockerScheduler(Scheduler, DockerWorkspace):
 def _to_str(a: Union[str, bytes]) -> str:
     if isinstance(a, bytes):
         a = a.decode("utf-8")
-    if a.endswith("\n"):
-        a = a[:-1]
     return a
 
 

@@ -405,8 +405,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         self.assertEqual(
             list(logs),
             [
-                "foo",
-                "foobar",
+                "foo\n",
+                "foobar\n",
             ],
         )
 
