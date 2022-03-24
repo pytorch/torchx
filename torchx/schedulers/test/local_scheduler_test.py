@@ -325,7 +325,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app = AppDef(name="check_foo_env_var", roles=[role])
         app_id = self.scheduler.submit(app, {"log_dir": self.test_dir})
         for line in self.scheduler.log_iter(app_id, "echo_foo"):
-            self.assertEqual("bar", line)
+            self.assertEqual("bar\n", line)
 
         desc = self.wait(app_id, self.scheduler)
         assert desc is not None
@@ -431,7 +431,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app = AppDef(name="check_foo_env_var", roles=[role])
         app_id = self.scheduler.submit(app, {"log_dir": self.test_dir})
         for line in self.scheduler.log_iter(app_id, "echo_foo"):
-            self.assertEqual("new_bar", line)
+            self.assertEqual("new_bar\n", line)
 
         desc = self.wait(app_id, self.scheduler)
         assert desc is not None
@@ -600,7 +600,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app_id = self.scheduler.submit(app, cfg)
 
         for i, line in enumerate(self.scheduler.log_iter(app_id, "role1", k=0)):
-            self.assertEqual(str(i), line)
+            self.assertEqual(str(i), line.strip())
 
         # since and until ignored
         for i, line in enumerate(
@@ -608,12 +608,12 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 app_id, "role1", k=0, since=datetime.now(), until=datetime.now()
             )
         ):
-            self.assertEqual(str(i), line)
+            self.assertEqual(str(i), line.strip())
 
         for i, line in enumerate(
             self.scheduler.log_iter(app_id, "role1", k=0, regex=r"[02468]")
         ):
-            self.assertEqual(str(i * 2), line)
+            self.assertEqual(str(i * 2), line.strip())
 
     def test_log_iterator_no_log_dir(self) -> None:
         role = Role(

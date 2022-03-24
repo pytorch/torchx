@@ -1021,7 +1021,7 @@ class LogIterator:
             self._check_finished()  # check to see if app has finished running
 
             if os.path.isfile(self._log_file):
-                self._log_fp = open(self._log_file, "r")  # noqa: P201
+                self._log_fp = open(self._log_file, "rt", newline="\n")  # noqa: P201
                 break
 
             if self._app_finished:
@@ -1049,7 +1049,6 @@ class LogIterator:
                 time.sleep(0.1)
                 self._check_finished()
             else:
-                line = line.rstrip("\n")  # strip the trailing newline
                 if re.match(self._regex, line):
                     return line
 

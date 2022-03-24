@@ -219,8 +219,8 @@ if has_docker():
             self.assertEqual(
                 logs,
                 [
-                    "foo",
-                    "bar",
+                    "foo\n",
+                    "bar\n",
                 ],
             )
             logs = list(
@@ -234,7 +234,7 @@ if has_docker():
             self.assertEqual(
                 logs,
                 [
-                    "bar",
+                    "bar\n",
                 ],
             )
 
@@ -267,8 +267,8 @@ if has_docker():
             self.assertEqual(
                 logs,
                 [
-                    "foo",
-                    "bar",
+                    "foo\n",
+                    "bar\n",
                 ],
             )
 
@@ -286,8 +286,8 @@ if has_docker():
             self.assertEqual(
                 logs,
                 {
-                    "stdout",
-                    "stderr",
+                    "stdout\n",
+                    "stderr\n",
                 },
             )
 
@@ -299,8 +299,8 @@ if has_docker():
             self.assertEqual(
                 logs,
                 {
-                    "stdout",
-                    "stderr",
+                    "stdout\n",
+                    "stderr\n",
                 },
             )
 
@@ -312,7 +312,7 @@ if has_docker():
             self.assertEqual(
                 logs,
                 [
-                    "stderr",
+                    "stderr\n",
                 ],
             )
 
@@ -324,7 +324,7 @@ if has_docker():
             self.assertEqual(
                 logs,
                 [
-                    "stdout",
+                    "stdout\n",
                 ],
             )
 

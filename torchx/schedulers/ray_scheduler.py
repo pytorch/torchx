@@ -21,6 +21,7 @@ from torchx.schedulers.api import (
     DescribeAppResponse,
     Scheduler,
     Stream,
+    split_lines,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
@@ -350,7 +351,7 @@ if _has_ray:
             addr, app_id = app_id.split("-")
             client: JobSubmissionClient = JobSubmissionClient(f"http://{addr}")
             logs: str = client.get_job_logs(app_id)
-            return logs.split("\n")
+            return split_lines(logs)
 
     def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
         if not has_ray():  # pragma: no cover

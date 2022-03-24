@@ -35,6 +35,17 @@ def validate(job_identifier: str) -> None:
         sys.exit(1)
 
 
+def _prefix_line(prefix: str, line: str) -> str:
+    """
+    _prefix_line ensure the prefix is still present even when dealing with return characters
+    """
+    if "\r" in line:
+        line = line.replace("\r", f"\r{prefix}")
+    if not line.startswith("\r"):
+        line = f"{prefix}{line}"
+    return line
+
+
 def print_log_lines(
     file: TextIO,
     runner: Runner,
@@ -55,7 +66,8 @@ def print_log_lines(
             should_tail=should_tail,
             streams=streams,
         ):
-            print(f"{GREEN}{role_name}/{replica_id}{ENDC} {line}", file=file)
+            prefix = f"{GREEN}{role_name}/{replica_id}{ENDC} "
+            print(_prefix_line(prefix, line), file=file, end="")
     except Exception as e:
         exceptions.put(e)
         raise

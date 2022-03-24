@@ -11,7 +11,12 @@ from datetime import datetime
 from typing import Iterable, Mapping, Optional, Union
 from unittest.mock import MagicMock, patch
 
-from torchx.schedulers.api import DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.api import (
+    DescribeAppResponse,
+    Scheduler,
+    Stream,
+    split_lines,
+)
 from torchx.specs.api import (
     NULL_RESOURCE,
     AppDef,
@@ -152,3 +157,9 @@ class SchedulerTest(unittest.TestCase):
         scheduler_mock.close()
         scheduler_mock.close()
         # nothing to validate explicitly, just that no errors are raised
+
+    def test_split_lines(self) -> None:
+        self.assertEqual(split_lines(""), [])
+        self.assertEqual(split_lines("\n"), ["\n"])
+        self.assertEqual(split_lines("foo\nbar"), ["foo\n", "bar"])
+        self.assertEqual(split_lines("foo\nbar\n"), ["foo\n", "bar\n"])

@@ -576,8 +576,8 @@ spec:
         self.assertEqual(
             list(lines),
             [
-                "foo reg",
-                "bar reg",
+                "foo reg\n",
+                "bar reg\n",
             ],
         )
         call = read_namespaced_pod_log.call_args

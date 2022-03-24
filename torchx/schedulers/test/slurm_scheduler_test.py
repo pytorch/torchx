@@ -373,7 +373,7 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
                         since=datetime.datetime.now(),
                     )
                 )
-                self.assertEqual(logs, ["hello", "world"])
+                self.assertEqual(logs, ["hello\n", "world\n"])
 
                 with open(os.path.join(job_dir, "slurm-54-echo-1.err"), "wt") as f:
                     f.write("foo\nbar\n")
@@ -387,7 +387,7 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
                     )
                 )
 
-                self.assertEqual(logs, ["foo", "bar"])
+                self.assertEqual(logs, ["foo\n", "bar\n"])
 
                 # no stream specified should default to STDERR
                 logs = list(
@@ -397,7 +397,7 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
                         1,
                     )
                 )
-                self.assertEqual(logs, ["foo", "bar"])
+                self.assertEqual(logs, ["foo\n", "bar\n"])
 
         with self.assertRaises(ValueError):
             scheduler.log_iter("54", "echo", 1, streams=Stream.COMBINED)

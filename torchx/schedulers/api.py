@@ -263,6 +263,11 @@ class Scheduler(abc.ABC):
         7. Some schedulers may support line cursors by supporting ``__getitem__``
            (e.g. ``iter[50]`` seeks to the 50th log line).
 
+        8. Whitespace is preserved, each new line should include ``\\n``. To
+            support interactive progress bars the returned lines don't need to
+            include ``\\n`` but should then be printed without a newline to
+            correctly handle ``\\r`` carriage returns.
+
         Args:
             streams: The IO output streams to select.
                 One of: combined, stdout, stderr.
@@ -302,3 +307,19 @@ def filter_regex(regex: str, data: Iterable[str]) -> Iterable[str]:
 
     r = re.compile(regex)
     return filter(lambda datum: r.search(datum), data)
+
+
+def split_lines(text: str) -> List[str]:
+    """
+    split_lines splits the string by new lines and keeps the new line characters.
+    """
+    lines = []
+    while len(text) > 0:
+        idx = text.find("\n")
+        if idx >= 0:
+            lines.append(text[: idx + 1])
+            text = text[idx + 1 :]
+        else:
+            lines.append(text)
+            break
+    return lines
