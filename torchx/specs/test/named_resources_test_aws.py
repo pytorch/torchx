@@ -13,6 +13,7 @@ from torchx.specs.named_resources_aws import (
     aws_m5_2xlarge,
     aws_t3_medium,
     GiB,
+    NAMED_RESOURCES,
 )
 
 
@@ -40,3 +41,8 @@ class NamedResourcesTest(unittest.TestCase):
         self.assertEqual(2, resource.cpu)
         self.assertEqual(0, resource.gpu)
         self.assertEqual(4 * GiB, resource.memMB)
+
+    def test_capabilities(self) -> None:
+        for name, func in NAMED_RESOURCES.items():
+            resource = func()
+            self.assertIn("node.kubernetes.io/instance-type", resource.capabilities)

@@ -24,6 +24,7 @@ from torchx.schedulers.kubernetes_scheduler import (
     cleanup_str,
     create_scheduler,
     role_to_pod,
+    LABEL_INSTANCE_TYPE,
 )
 
 SKIP_DOCKER: bool = not has_docker()
@@ -124,13 +125,18 @@ class KubernetesSchedulerTest(unittest.TestCase):
         app = _test_app()
         pod = role_to_pod("name", app.roles[0], service_account="srvacc")
 
-        requests = {
+        limits = {
             "cpu": "2000m",
             "memory": "3000M",
             "nvidia.com/gpu": "4",
         }
+        requests = {
+            "cpu": "1900m",
+            "memory": "1976M",
+            "nvidia.com/gpu": "4",
+        }
         resources = V1ResourceRequirements(
-            limits=requests,
+            limits=limits,
             requests=requests,
         )
         container = V1Container(
@@ -179,6 +185,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
                         ),
                     ),
                 ],
+                node_selector={},
             ),
             metadata=V1ObjectMeta(
                 annotations={
@@ -279,8 +286,8 @@ spec:
               memory: 3000M
               nvidia.com/gpu: '4'
             requests:
-              cpu: 2000m
-              memory: 3000M
+              cpu: 1900m
+              memory: 1976M
               nvidia.com/gpu: '4'
           volumeMounts:
           - mountPath: /dev/shm
@@ -288,6 +295,7 @@ spec:
           - mountPath: /dst
             name: mount-0
             readOnly: true
+        nodeSelector: {{}}
         restartPolicy: Never
         volumes:
         - emptyDir:
@@ -346,6 +354,29 @@ spec:
                     read_only=True,
                 ),
             ],
+        )
+
+    def test_instance_type(self) -> None:
+        scheduler = create_scheduler("test")
+        role = specs.Role(
+            name="foo",
+            image="",
+            mounts=[],
+            resource=specs.Resource(
+                cpu=4,
+                memMB=4000,
+                gpu=8,
+                capabilities={
+                    LABEL_INSTANCE_TYPE: "some_instance",
+                },
+            ),
+        )
+        pod = role_to_pod("foo", role, service_account="")
+        self.assertEqual(
+            pod.spec.node_selector,
+            {
+                "node.kubernetes.io/instance-type": "some_instance",
+            },
         )
 
     def test_rank0_env(self) -> None:
