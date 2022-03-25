@@ -35,88 +35,17 @@ training script is called ``main.py``, launch it as:
     $ torchx run -s local_cwd dist.ddp -j 1x4 --script main.py
 
     # locally, 2 node x 4 workers (8 total)
-    # remote (needs you to start a local etcd server on port 2379! and have a `python-etcd` library installed)
-    $ torchx run -s local_cwd dist.ddp
-        -j 2x4 \\
-        --rdzv_endpoint localhost:2379 \\
-        --script main.py \\
+    $ torchx run -s local_cwd dist.ddp -j 2x4 --script main.py
 
-    # remote (needs you to setup an etcd server first!)
+    # remote (optionally pass --rdzv_port to use a different master port than the default 29500)
     $ torchx run -s kubernetes -cfg queue=default dist.ddp \\
         -j 2x4 \\
         --script main.py \\
 
 
-There is a lot happening under the hood so we strongly encourage you
-to continue reading the rest of this section
-to get an understanding of how everything works. Also note that
-while ``dist.ddp`` is convenient, you'll find that authoring your own
-distributed component is not only easy (simplest way is to just copy
-``dist.ddp``!) but also leads to better flexbility and maintainability
-down the road since builtin APIs are subject to more changes than
-the more stable specs API. However the choice is yours, feel free to rely on
-the builtins if they meet your needs.
-
-Distributed Training
------------------------
-
-Local Testing
-===================
-
-.. note:: Please follow :ref:`examples_apps/lightning_classy_vision/component:Prerequisites of running examples` first.
-
-
-Running distributed training locally is a quick way to validate your
-training script. TorchX's local scheduler will create a process per
-replica (``--nodes``). The example below uses `torchelastic <https://pytorch.org/docs/stable/elastic/run.html>`_,
-as the main entrypoint of each node, which in turn spawns ``--nprocs_per_node`` number
-of trainers. In total you'll see ``nnodes*nprocs_per_node`` trainer processes and ``nnodes``
-elastic agent procesess created on your local host.
-
-.. code:: shell-session
-
-   $ torchx run -s local_docker ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
-        --nnodes 2 \\
-        --nproc_per_node 2 \\
-        --rdzv_backend c10d \\
-        --rdzv_endpoint localhost:29500
-
-
-Remote Launching
-====================
-
-.. note:: Please follow the :ref:`schedulers/kubernetes:Prerequisites` first.
-
-The following example demonstrate launching the same job remotely on kubernetes.
-
-.. code:: shell-session
-
-    $ torchx run -s kubernetes -cfg queue=default \\
-        ./torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist \\
-        --nnodes 2 \\
-        --nproc_per_node 2 \\
-        --rdzv_backend etcd \\
-        --rdzv_endpoint etcd-server.default.svc.cluster.local:2379
-    torchx 2021-10-18 18:46:55 INFO     Launched app: kubernetes://torchx/default:cv-trainer-pa2a7qgee9zng
-    torchx 2021-10-18 18:46:55 INFO     AppStatus:
-      msg: <NONE>
-      num_restarts: -1
-      roles: []
-      state: PENDING (2)
-      structured_error_msg: <NONE>
-      ui_url: null
-
-    torchx 2021-10-18 18:46:55 INFO     Job URL: None
-
-Note that the only difference compared to the local launch is the scheduler (``-s``)
-and ``--rdzv_backend``. etcd will also work in the local case, but we used ``c10d``
-since it does not require additional setup. Note that this is a torchelastic requirement
-not TorchX. Read more about rendezvous `here <https://pytorch.org/docs/stable/elastic/rendezvous.html>`_.
-
-.. note:: For GPU training, keep ``nproc_per_node`` equal to the amount of GPUs on the host and
-          change the resource requirements in ``torchx/examples/apps/lightning_classy_vision/component.py:trainer_dist``
-          method. Modify ``resource_def`` to the number of GPUs that your host has.
-
+Note that the only difference compared to the local launch is the scheduler (``-s``).
+The ``dist.ddp`` builtin uses ``torchelastic`` (more specifically ``torch.distributed.run``)
+under the hood. Read more about torchelastic `here <https://pytorch.org/docs/stable/elastic/run.html>`_.
 
 Components APIs
 -----------------
@@ -124,7 +53,7 @@ Components APIs
 import os
 import shlex
 from pathlib import Path
-from typing import Dict, Iterable, Optional, List
+from typing import Dict, Iterable, List, Optional
 
 import torchx
 import torchx.specs as specs
@@ -144,14 +73,16 @@ def ddp(
     j: str = "1x2",
     env: Optional[Dict[str, str]] = None,
     max_retries: int = 0,
-    rdzv_backend: str = "c10d",
-    rdzv_endpoint: Optional[str] = None,
+    rdzv_port: int = 29500,
     mounts: Optional[List[str]] = None,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
     Uses `torch.distributed.run <https://pytorch.org/docs/stable/distributed.elastic.html>`_
-    to launch and coordinate pytorch worker processes.
+    to launch and coordinate PyTorch worker processes. Defaults to using ``c10d`` rendezvous backend
+    on rendezvous_endpoint ``$rank_0_host:$rdzv_port``. Note that ``rdzv_port`` parameter is ignored
+    when running on single node, and instead we use port 0 which instructs torchelastic to chose
+    a free random port on the host.
 
     Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
           ``h`` takes precedence if specified for setting resource requirements.
@@ -170,9 +101,11 @@ def ddp(
         j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
         max_retries: the number of scheduler retries allowed
-        rdzv_backend: rendezvous backend (only matters when nnodes > 1)
-        rdzv_endpoint: rendezvous server endpoint (only matters when nnodes > 1), defaults to rank0 host for schedulers that support it
-        mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]). See scheduler documentation for more info.
+        rdzv_port: the port on rank0's host to use for hosting the c10d store used for rendezvous.
+                   Only takes effect when running multi-node. When running single node, this parameter
+                   is ignored and a random free port is chosen.
+        mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
+                See scheduler documentation for more info.
     """
 
     if (script is None) == (m is None):
@@ -196,12 +129,13 @@ def ddp(
     else:
         raise ValueError("failed to compute role_name")
 
-    if rdzv_endpoint is None:
-        rdzv_endpoint = _noquote(f"$${macros.rank0_env}:29500")
-
+    rdzv_backend = "c10d"
     if nnodes == 1:
-        rdzv_backend = "c10d"
-        rdzv_endpoint = "localhost:29500"
+        # using port 0 makes elastic chose a free random port which is ok
+        # for single-node jobs since all workers run under a single agent
+        rdzv_endpoint = "localhost:0"
+    else:
+        rdzv_endpoint = _noquote(f"$${macros.rank0_env}:{rdzv_port}")
 
     if env is None:
         env = {}
