@@ -85,6 +85,14 @@ if TYPE_CHECKING:
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+# Kubernetes reserves a small amount of resources per host for the system. For
+# TorchX we always assume the entire host is being requested so we adjust the
+# requested numbers account for the node reserved resources.
+#
+# https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/
+RESERVED_MILLICPU = 100
+RESERVED_MEMMB = 1024
+
 RETRY_POLICIES: Mapping[str, Iterable[Mapping[str, str]]] = {
     RetryPolicy.REPLICA: [],
     RetryPolicy.APPLICATION: [
@@ -152,6 +160,8 @@ LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
 
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
+LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
+
 
 def sanitize_for_serialization(obj: object) -> object:
     from kubernetes import client
@@ -176,20 +186,34 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         V1EmptyDirVolumeSource,
     )
 
+    # limits puts an upper cap on the resources a pod may consume.
+    # requests is how much the scheduler allocates. We assume that the jobs will
+    # be allocation the whole machine so requests is slightly lower than the
+    # requested resources to account for the Kubernetes node reserved resources.
+    limits = {}
     requests = {}
 
     resource = role.resource
-    if resource.cpu >= 0:
-        requests["cpu"] = f"{int(resource.cpu * 1000)}m"
-    if resource.memMB >= 0:
-        requests["memory"] = f"{int(resource.memMB)}M"
-    if resource.gpu >= 0:
-        requests["nvidia.com/gpu"] = str(resource.gpu)
+    if resource.cpu > 0:
+        mcpu = int(resource.cpu * 1000)
+        limits["cpu"] = f"{mcpu}m"
+        request_mcpu = max(mcpu - RESERVED_MILLICPU, 0)
+        requests["cpu"] = f"{request_mcpu}m"
+    if resource.memMB > 0:
+        limits["memory"] = f"{int(resource.memMB)}M"
+        request_memMB = max(int(resource.memMB) - RESERVED_MEMMB, 0)
+        requests["memory"] = f"{request_memMB}M"
+    if resource.gpu > 0:
+        requests["nvidia.com/gpu"] = limits["nvidia.com/gpu"] = str(resource.gpu)
 
     resources = V1ResourceRequirements(
-        limits=requests,
+        limits=limits,
         requests=requests,
     )
+
+    node_selector: Dict[str, str] = {}
+    if LABEL_INSTANCE_TYPE in resource.capabilities:
+        node_selector[LABEL_INSTANCE_TYPE] = resource.capabilities[LABEL_INSTANCE_TYPE]
 
     # To support PyTorch dataloaders we need to set /dev/shm to larger than the
     # 64M default so we mount an unlimited sized tmpfs directory on it.
@@ -264,6 +288,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
             restart_policy="Never",
             service_account_name=service_account,
             volumes=volumes,
+            node_selector=node_selector,
         ),
         metadata=V1ObjectMeta(
             annotations={
@@ -415,6 +440,29 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
     See :py:func:`torchx.specs.parse_mounts` for more info.
 
     External docs: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+
+    **Resources / Allocation**
+
+    To select a specific machine type you can add a capability to your resources
+    with ``node.kubernetes.io/instance-type`` which will constrain the launched
+    jobs to nodes of that instance type.
+
+    >>> from torchx import specs
+    >>> specs.Resource(
+    ...     cpu=4,
+    ...     memMB=16000,
+    ...     gpu=2,
+    ...     capabilities={
+    ...         "node.kubernetes.io/instance-type": "<cloud instance type>",
+    ...     },
+    ... )
+    Resource(...)
+
+    Kubernetes may reserve some memory for the host. TorchX assumes you're
+    scheduling on whole hosts and thus will automatically reduce the resource
+    request by a small amount to account for the node reserved CPU and memory.
+    If you run into scheduling issues you may need to reduce the requested CPU
+    and memory from the host values.
 
     **Compatibility**
 

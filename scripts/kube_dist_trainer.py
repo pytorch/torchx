@@ -32,6 +32,9 @@ def register_gpu_resource() -> None:
         cpu=2,
         gpu=1,
         memMB=8 * GiB,
+        capabilities={
+            "node.kubernetes.io/instance-type": "p3.2xlarge",
+        },
     )
     print(f"Registering resource: {res}")
     named_resources["GPU_X1"] = res

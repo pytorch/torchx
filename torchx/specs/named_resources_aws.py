@@ -29,6 +29,8 @@ Usage:
 
 """
 
+from typing import Mapping, Callable
+
 from torchx.specs.api import Resource
 
 GiB: int = 1024
@@ -39,7 +41,9 @@ def aws_p3_2xlarge() -> Resource:
         cpu=8,
         gpu=1,
         memMB=61 * GiB,
-        capabilities={},
+        capabilities={
+            "node.kubernetes.io/instance-type": "p3.2xlarge",
+        },
     )
 
 
@@ -48,7 +52,9 @@ def aws_p3_8xlarge() -> Resource:
         cpu=32,
         gpu=4,
         memMB=244 * GiB,
-        capabilities={},
+        capabilities={
+            "node.kubernetes.io/instance-type": "p3.8xlarge",
+        },
     )
 
 
@@ -57,7 +63,9 @@ def aws_t3_medium() -> Resource:
         cpu=2,
         gpu=0,
         memMB=4 * GiB,
-        capabilities={},
+        capabilities={
+            "node.kubernetes.io/instance-type": "t3.medium",
+        },
     )
 
 
@@ -66,5 +74,27 @@ def aws_m5_2xlarge() -> Resource:
         cpu=8,
         gpu=0,
         memMB=32 * GiB,
-        capabilities={},
+        capabilities={
+            "node.kubernetes.io/instance-type": "m5.2xlarge",
+        },
     )
+
+
+def aws_g4dn_xlarge() -> Resource:
+    return Resource(
+        cpu=4,
+        gpu=1,
+        memMB=16 * GiB,
+        capabilities={
+            "node.kubernetes.io/instance-type": "g4dn.xlarge",
+        },
+    )
+
+
+NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
+    "aws_t3.medium": aws_t3_medium,
+    "aws_m5.2xlarge": aws_m5_2xlarge,
+    "aws_p3.2xlarge": aws_p3_2xlarge,
+    "aws_p3.8xlarge": aws_p3_8xlarge,
+    "aws_g4dn.xlarge": aws_g4dn_xlarge,
+}
