@@ -527,6 +527,13 @@ when there are no more logs.</p>
 <li><p>Need not be supported by all schedulers.</p></li>
 <li><p>Some schedulers may support line cursors by supporting <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>
 (e.g. <code class="docutils literal notranslate"><span class="pre">iter[50]</span></code> seeks to the 50th log line).</p></li>
+<li><dl class="simple">
+<dt>Whitespace is preserved, each new line should include <code class="docutils literal notranslate"><span class="pre">\n</span></code>. To</dt><dd><p>support interactive progress bars the returned lines don’t need to
+include <code class="docutils literal notranslate"><span class="pre">\n</span></code> but should then be printed without a newline to
+correctly handle <code class="docutils literal notranslate"><span class="pre">\r</span></code> carriage returns.</p>
+</dd>
+</dl>
+</li>
 </ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

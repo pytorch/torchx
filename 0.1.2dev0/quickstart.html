@@ -751,10 +751,10 @@ torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-23 21:15:57 INFO     Log files located in: /tmp/torchx_x5ehbnvt/torchx/torchx_utils_python-z6c16bvhdpr1dd/python/0
-torchx 2022-03-23 21:15:57 INFO     Waiting for the app to finish...
+torchx 2022-03-26 05:43:43 INFO     Log files located in: /tmp/torchx_wis6egg_/torchx/torchx_utils_python-mhhhkhw0rmf2gc/python/0
+torchx 2022-03-26 05:43:43 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-03-23 21:15:58 INFO     Job finished: SUCCEEDED
+torchx 2022-03-26 05:43:44 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -762,7 +762,7 @@ torchx 2022-03-23 21:15:58 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-z6c16bvhdpr1dd
+local_cwd://torchx/torchx_utils_python-mhhhkhw0rmf2gc
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -782,12 +782,12 @@ torchx run --scheduler local_docker utils.python --script my_app.py <span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-23 21:16:00 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-03-23 21:16:10 INFO     Done building workspace
-torchx 2022-03-23 21:16:10 INFO     New image: sha256:2be0641dfd5646a890d2f08debe19ad7e2fe03f59a94ee6d1b023610f71ecf10 built from workspace
-torchx 2022-03-23 21:16:11 INFO     Waiting for the app to finish...
+torchx 2022-03-26 05:43:46 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-03-26 05:43:56 INFO     Done building workspace
+torchx 2022-03-26 05:43:56 INFO     New image: sha256:2a6011a5d92359f36f0889fab36ea2abb68072fce7f3f453e3fad1f5b4c25664 built from workspace
+torchx 2022-03-26 05:43:57 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-03-23 21:16:12 INFO     Job finished: SUCCEEDED
+torchx 2022-03-26 05:43:58 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -795,7 +795,7 @@ torchx 2022-03-23 21:16:12 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-gx45f6wdx35sq
+local_docker://torchx/torchx_utils_python-mzxvdddhv5q9td
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -822,9 +822,7 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
                                      [--cpu CPU] [--gpu GPU] [--memMB MEMMB]
                                      [-j J] [--env ENV]
                                      [--max_retries MAX_RETRIES]
-                                     [--rdzv_backend RDZV_BACKEND]
-                                     [--rdzv_endpoint RDZV_ENDPOINT]
-                                     [--mounts MOUNTS]
+                                     [--rdzv_port RDZV_PORT] [--mounts MOUNTS]
                                      ...
 
 Distributed data parallel style application (one role, multi-replica). ...
@@ -852,13 +850,12 @@ optional arguments:
                         ENV1=v1,ENV2=v2,ENV3=v3) (default: None)
   --max_retries MAX_RETRIES
                         the number of scheduler retries allowed (default: 0)
-  --rdzv_backend RDZV_BACKEND
-                        rendezvous backend (only matters when nnodes &gt; 1)
-                        (default: c10d)
-  --rdzv_endpoint RDZV_ENDPOINT
-                        rendezvous server endpoint (only matters when nnodes &gt;
-                        1), defaults to rank0 host for schedulers that support
-                        it (default: None)
+  --rdzv_port RDZV_PORT
+                        the port on rank0&#39;s host to use for hosting the c10d
+                        store used for rendezvous. Only takes effect when
+                        running multi-node. When running single node, this
+                        parameter is ignored and a random free port is chosen.
+                        (default: 29500)
   --mounts MOUNTS       mounts to mount into the worker environment/container
                         (ex.
                         type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]). See
@@ -907,10 +904,10 @@ torchx run --scheduler local_docker dist.ddp -j 2x2 --script dist_app.py
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-23 21:16:16 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: dist_app, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-03-23 21:16:26 INFO     Done building workspace
-torchx 2022-03-23 21:16:26 INFO     New image: sha256:cdeda930816be0135c2339510830037dd4f4495e39c3bd0651613c183c03d30b built from workspace
-torchx 2022-03-23 21:16:27 INFO     Waiting for the app to finish...
+torchx 2022-03-26 05:44:02 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: dist_app, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-03-26 05:44:11 INFO     Done building workspace
+torchx 2022-03-26 05:44:11 INFO     New image: sha256:7c4beef367e01d683a80e5bc69ad84f526cf08971115ef7a479170bb1821b51a built from workspace
+torchx 2022-03-26 05:44:12 INFO     Waiting for the app to finish...
 dist_app/0 WARNING:__main__:
 dist_app/0 *****************************************
 dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
@@ -927,7 +924,7 @@ dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
 dist_app/1 [1]:I am worker 3 of 4!
 dist_app/1 [1]:all_reduce output = tensor([6])
-torchx 2022-03-23 21:16:35 INFO     Job finished: SUCCEEDED
+torchx 2022-03-26 05:44:20 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -935,7 +932,7 @@ torchx 2022-03-23 21:16:35 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-zvf7bc0pvcsv5
+local_docker://torchx/dist_app-d421b4t2kn2t3
 </pre></div></div>
 </div>
 </section>
@@ -1153,11 +1150,11 @@ torchx run --scheduler local_docker utils.python --script timm_app.py <span clas
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-03-23 21:16:38 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2022-03-23 21:16:38 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
-torchx 2022-03-23 21:18:28 INFO     Done building workspace
-torchx 2022-03-23 21:18:28 INFO     New image: sha256:3798cb2c8f77a0cfce2d5fbaaaea2697a5960148b53928e74edd0bb8a4cd7cc2 built from workspace
-torchx 2022-03-23 21:18:30 INFO     Waiting for the app to finish...
+torchx 2022-03-26 05:44:23 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2022-03-26 05:44:24 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.1.2dev0
+torchx 2022-03-26 05:45:57 INFO     Done building workspace
+torchx 2022-03-26 05:45:57 INFO     New image: sha256:da3db78174a5d4aa1ecf2a54ca25a157ef5898c58ff684380a5b4b9a88d5b1db built from workspace
+torchx 2022-03-26 05:45:58 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1250,7 +1247,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d (pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2022-03-23 21:18:32 INFO     Job finished: SUCCEEDED
+torchx 2022-03-26 05:46:00 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1258,7 +1255,7 @@ torchx 2022-03-23 21:18:32 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-vg25lw0n9wpmsd
+local_docker://torchx/torchx_utils_python-pt3zv1b41k7cqd
 </pre></div></div>
 </div>
 </section>

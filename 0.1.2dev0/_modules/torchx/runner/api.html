@@ -835,28 +835,36 @@
 <span class="sd">                     if the scheduler has already totally or partially purged log records</span>
 <span class="sd">                     for the application.</span>
 
+<span class="sd">        Return lines will include whitespace characters such as ``\\n`` or</span>
+<span class="sd">        ``\\r``. When outputting the lines you should make sure to avoid adding</span>
+<span class="sd">        extra newline characters.</span>
+
 <span class="sd">        Usage:</span>
 
-<span class="sd">        ::</span>
+<span class="sd">        .. code:: python</span>
 
-<span class="sd">         app_handle = session.run(app, scheduler=&quot;local&quot;, cfg=Dict[str, ConfigValue]())</span>
+<span class="sd">            app_handle = session.run(app, scheduler=&quot;local&quot;, cfg=Dict[str, ConfigValue]())</span>
 
-<span class="sd">         print(&quot;== trainer node 0 logs ==&quot;)</span>
-<span class="sd">         for line in session.log_lines(app_handle, &quot;trainer&quot;, k=0):</span>
-<span class="sd">            print(line)</span>
+<span class="sd">            print(&quot;== trainer node 0 logs ==&quot;)</span>
+<span class="sd">            for line in session.log_lines(app_handle, &quot;trainer&quot;, k=0):</span>
+<span class="sd">               # for prints newlines will already be present in the line</span>
+<span class="sd">               print(line, end=&quot;&quot;)</span>
+
+<span class="sd">               # when writing to a file nothing extra is necessary</span>
+<span class="sd">               f.write(line)</span>
 
 <span class="sd">        Discouraged anti-pattern:</span>
 
-<span class="sd">        ::</span>
+<span class="sd">        .. code:: python</span>
 
-<span class="sd">         # DO NOT DO THIS!</span>
-<span class="sd">         # parses accuracy metric from log and reports it for this experiment run</span>
-<span class="sd">         accuracy = -1</span>
-<span class="sd">         for line in session.log_lines(app_handle, &quot;trainer&quot;, k=0):</span>
-<span class="sd">            if matches_regex(line, &quot;final model_accuracy:[0-9]*&quot;):</span>
-<span class="sd">                accuracy = parse_accuracy(line)</span>
-<span class="sd">                break</span>
-<span class="sd">         report(experiment_name, accuracy)</span>
+<span class="sd">            # DO NOT DO THIS!</span>
+<span class="sd">            # parses accuracy metric from log and reports it for this experiment run</span>
+<span class="sd">            accuracy = -1</span>
+<span class="sd">            for line in session.log_lines(app_handle, &quot;trainer&quot;, k=0):</span>
+<span class="sd">               if matches_regex(line, &quot;final model_accuracy:[0-9]*&quot;):</span>
+<span class="sd">                   accuracy = parse_accuracy(line)</span>
+<span class="sd">                   break</span>
+<span class="sd">            report(experiment_name, accuracy)</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            app_handle: application handle</span>

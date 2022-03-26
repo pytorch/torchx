@@ -437,6 +437,27 @@ PersistentVolumeClaim support.</p>
 </ul>
 <p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
 <p>External docs: <a class="reference external" href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></p>
+<p><strong>Resources / Allocation</strong></p>
+<p>To select a specific machine type you can add a capability to your resources
+with <code class="docutils literal notranslate"><span class="pre">node.kubernetes.io/instance-type</span></code> which will constrain the launched
+jobs to nodes of that instance type.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">specs</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">memMB</span><span class="o">=</span><span class="mi">16000</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">gpu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;node.kubernetes.io/instance-type&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;cloud instance type&gt;&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">Resource(...)</span>
+</pre></div>
+</div>
+<p>Kubernetes may reserve some memory for the host. TorchX assumes you’re
+scheduling on whole hosts and thus will automatically reduce the resource
+request by a small amount to account for the node reserved CPU and memory.
+If you run into scheduling issues you may need to reduce the requested CPU
+and memory from the host values.</p>
 <p><strong>Compatibility</strong></p>
 <table class="docutils align-default">
 <colgroup>
@@ -527,6 +548,13 @@ when there are no more logs.</p>
 <li><p>Need not be supported by all schedulers.</p></li>
 <li><p>Some schedulers may support line cursors by supporting <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>
 (e.g. <code class="docutils literal notranslate"><span class="pre">iter[50]</span></code> seeks to the 50th log line).</p></li>
+<li><dl class="simple">
+<dt>Whitespace is preserved, each new line should include <code class="docutils literal notranslate"><span class="pre">\n</span></code>. To</dt><dd><p>support interactive progress bars the returned lines don’t need to
+include <code class="docutils literal notranslate"><span class="pre">\n</span></code> but should then be printed without a newline to
+correctly handle <code class="docutils literal notranslate"><span class="pre">\r</span></code> carriage returns.</p>
+</dd>
+</dl>
+</li>
 </ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

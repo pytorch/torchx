@@ -376,6 +376,7 @@ by storing them in the <code class="docutils literal notranslate"><span class="p
 and honored when running the component from the CLI.</p>
 <section id="cli-usage">
 <h2>CLI Usage<a class="headerlink" href="#cli-usage" title="Permalink to this headline">¶</a></h2>
+<p><strong>Scheduler Config</strong></p>
 <ol class="arabic">
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span></code> into the directory where you want the <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file to be dropped.
 The CLI only picks up <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> files from the current-working-directory (CWD)
@@ -422,6 +423,32 @@ has <code class="docutils literal notranslate"><span class="pre">.torchxconfig</
 </div>
 </li>
 </ol>
+<p><strong>Component Config</strong></p>
+<p>You can specify component defaults by adding a section prefixed with
+<code class="docutils literal notranslate"><span class="pre">component:</span></code>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[component:dist.ddp]</span><span class="w"></span>
+<span class="na">j</span><span class="o">=</span><span class="s">2x8</span><span class="w"></span>
+<span class="na">cpu</span><span class="o">=</span><span class="s">4</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now when you run the <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> component those configs are automatically
+picked up.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd dist.ddp
+<span class="go">... runs with -j 2x8 --cpu 4</span>
+</pre></div>
+</div>
+<p><strong>CLI Subcommand Config</strong></p>
+<p>The default arguments for the <code class="docutils literal notranslate"><span class="pre">torchx</span></code> subcommands can be overwritten. Any
+<code class="docutils literal notranslate"><span class="pre">--foo</span> <span class="pre">FOO</span></code> argument can be set via the correspond <code class="docutils literal notranslate"><span class="pre">[cli:&lt;cmd&gt;]</span></code> settings
+block.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">run</span></code> command you can additionally set <code class="docutils literal notranslate"><span class="pre">component</span></code> to set the
+default component to run.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[cli:run]</span><span class="w"></span>
+<span class="na">component</span><span class="o">=</span><span class="s">dist.ddp</span><span class="w"></span>
+<span class="na">scheduler</span><span class="o">=</span><span class="s">local_docker</span><span class="w"></span>
+<span class="na">workspace</span><span class="o">=</span><span class="s">file://some_workspace</span><span class="w"></span>
+</pre></div>
+</div>
 </section>
 <section id="programmatic-usage">
 <h2>Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permalink to this headline">¶</a></h2>
@@ -562,7 +589,7 @@ component <code class="docutils literal notranslate"><span class="pre">dist.ddp<
 <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="n">x2</span>
 <span class="n">image</span> <span class="o">=</span> <span class="n">ghcr</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">foo</span><span class="p">:</span><span class="mi">1</span>
 
-<span class="c1"># calling `load_component_defaults(prefix=&quot;component&quot;)` returns</span>
+<span class="c1"># calling `load_sections(prefix=&quot;component&quot;)` returns</span>
 <span class="c1">#  {</span>
 <span class="c1">#    &quot;dist.ddp&quot;: {</span>
 <span class="c1">#       &quot;j&quot;:&quot;1x2&quot;,</span>

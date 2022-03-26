@@ -381,6 +381,9 @@
 <span class="sd">CLI Usage</span>
 <span class="sd">~~~~~~~~~~~</span>
 
+
+<span class="sd">**Scheduler Config**</span>
+
 <span class="sd">#. ``cd`` into the directory where you want the ``.torchxconfig`` file to be dropped.</span>
 <span class="sd">   The CLI only picks up ``.torchxconfig`` files from the current-working-directory (CWD)</span>
 <span class="sd">   so chose a directory where you typically run ``torchx`` from. Typically this</span>
@@ -431,6 +434,43 @@
 <span class="sd">    .torchxconfig</span>
 
 <span class="sd">    $ torchx run -s local_cwd ./my_component.py:train</span>
+
+<span class="sd">**Component Config**</span>
+
+<span class="sd">You can specify component defaults by adding a section prefixed with</span>
+<span class="sd">``component:``.</span>
+
+<span class="sd">.. code-block:: ini</span>
+
+<span class="sd">    [component:dist.ddp]</span>
+<span class="sd">    j=2x8</span>
+<span class="sd">    cpu=4</span>
+
+<span class="sd">Now when you run the ``dist.ddp`` component those configs are automatically</span>
+<span class="sd">picked up.</span>
+
+<span class="sd">.. code-block:: shell-session</span>
+
+<span class="sd">    $ torchx run -s local_cwd dist.ddp</span>
+<span class="sd">    ... runs with -j 2x8 --cpu 4</span>
+
+
+<span class="sd">**CLI Subcommand Config**</span>
+
+<span class="sd">The default arguments for the ``torchx`` subcommands can be overwritten. Any</span>
+<span class="sd">``--foo FOO`` argument can be set via the correspond ``[cli:&lt;cmd&gt;]`` settings</span>
+<span class="sd">block.</span>
+
+<span class="sd">For the ``run`` command you can additionally set ``component`` to set the</span>
+<span class="sd">default component to run.</span>
+
+<span class="sd">.. code-block:: ini</span>
+
+<span class="sd">    [cli:run]</span>
+<span class="sd">    component=dist.ddp</span>
+<span class="sd">    scheduler=local_docker</span>
+<span class="sd">    workspace=file://some_workspace</span>
+
 
 <span class="sd">Programmatic Usage</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~</span>
@@ -631,7 +671,7 @@
 <span class="sd">     j = 1x2</span>
 <span class="sd">     image = ghcr.io/foo:1</span>
 
-<span class="sd">     # calling `load_component_defaults(prefix=&quot;component&quot;)` returns</span>
+<span class="sd">     # calling `load_sections(prefix=&quot;component&quot;)` returns</span>
 <span class="sd">     #  {</span>
 <span class="sd">     #    &quot;dist.ddp&quot;: {</span>
 <span class="sd">     #       &quot;j&quot;:&quot;1x2&quot;,</span>

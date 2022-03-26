@@ -417,6 +417,7 @@
     <span class="n">Scheduler</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
+    <span class="n">split_lines</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
@@ -451,6 +452,14 @@
     <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Kubernetes reserves a small amount of resources per host for the system. For</span>
+<span class="c1"># TorchX we always assume the entire host is being requested so we adjust the</span>
+<span class="c1"># requested numbers account for the node reserved resources.</span>
+<span class="c1">#</span>
+<span class="c1"># https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/</span>
+<span class="n">RESERVED_MILLICPU</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">RESERVED_MEMMB</span> <span class="o">=</span> <span class="mi">1024</span>
 
 <span class="n">RETRY_POLICIES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">RetryPolicy</span><span class="o">.</span><span class="n">REPLICA</span><span class="p">:</span> <span class="p">[],</span>
@@ -519,6 +528,8 @@
 
 <span class="n">ANNOTATION_ISTIO_SIDECAR</span> <span class="o">=</span> <span class="s2">&quot;sidecar.istio.io/inject&quot;</span>
 
+<span class="n">LABEL_INSTANCE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;node.kubernetes.io/instance-type&quot;</span>
+
 
 <div class="viewcode-block" id="sanitize_for_serialization"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.sanitize_for_serialization">[docs]</a><span class="k">def</span> <span class="nf">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span>
@@ -543,20 +554,34 @@
         <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># limits puts an upper cap on the resources a pod may consume.</span>
+    <span class="c1"># requests is how much the scheduler allocates. We assume that the jobs will</span>
+    <span class="c1"># be allocation the whole machine so requests is slightly lower than the</span>
+    <span class="c1"># requested resources to account for the Kubernetes node reserved resources.</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">requests</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">resource</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span>
-    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span><span class="si">}</span><span class="s2">m&quot;</span>
-    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">)</span><span class="si">}</span><span class="s2">M&quot;</span>
-    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;nvidia.com/gpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">mcpu</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">limits</span><span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mcpu</span><span class="si">}</span><span class="s2">m&quot;</span>
+        <span class="n">request_mcpu</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">mcpu</span> <span class="o">-</span> <span class="n">RESERVED_MILLICPU</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request_mcpu</span><span class="si">}</span><span class="s2">m&quot;</span>
+    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">limits</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">)</span><span class="si">}</span><span class="s2">M&quot;</span>
+        <span class="n">request_memMB</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">)</span> <span class="o">-</span> <span class="n">RESERVED_MEMMB</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request_memMB</span><span class="si">}</span><span class="s2">M&quot;</span>
+    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;nvidia.com/gpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s2">&quot;nvidia.com/gpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)</span>
 
     <span class="n">resources</span> <span class="o">=</span> <span class="n">V1ResourceRequirements</span><span class="p">(</span>
-        <span class="n">limits</span><span class="o">=</span><span class="n">requests</span><span class="p">,</span>
+        <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
         <span class="n">requests</span><span class="o">=</span><span class="n">requests</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="n">node_selector</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">LABEL_INSTANCE_TYPE</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">capabilities</span><span class="p">:</span>
+        <span class="n">node_selector</span><span class="p">[</span><span class="n">LABEL_INSTANCE_TYPE</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">capabilities</span><span class="p">[</span><span class="n">LABEL_INSTANCE_TYPE</span><span class="p">]</span>
 
     <span class="c1"># To support PyTorch dataloaders we need to set /dev/shm to larger than the</span>
     <span class="c1"># 64M default so we mount an unlimited sized tmpfs directory on it.</span>
@@ -631,6 +656,7 @@
             <span class="n">restart_policy</span><span class="o">=</span><span class="s2">&quot;Never&quot;</span><span class="p">,</span>
             <span class="n">service_account_name</span><span class="o">=</span><span class="n">service_account</span><span class="p">,</span>
             <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
+            <span class="n">node_selector</span><span class="o">=</span><span class="n">node_selector</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">metadata</span><span class="o">=</span><span class="n">V1ObjectMeta</span><span class="p">(</span>
             <span class="n">annotations</span><span class="o">=</span><span class="p">{</span>
@@ -782,6 +808,29 @@
 <span class="sd">    See :py:func:`torchx.specs.parse_mounts` for more info.</span>
 
 <span class="sd">    External docs: https://kubernetes.io/docs/concepts/storage/persistent-volumes/</span>
+
+<span class="sd">    **Resources / Allocation**</span>
+
+<span class="sd">    To select a specific machine type you can add a capability to your resources</span>
+<span class="sd">    with ``node.kubernetes.io/instance-type`` which will constrain the launched</span>
+<span class="sd">    jobs to nodes of that instance type.</span>
+
+<span class="sd">    &gt;&gt;&gt; from torchx import specs</span>
+<span class="sd">    &gt;&gt;&gt; specs.Resource(</span>
+<span class="sd">    ...     cpu=4,</span>
+<span class="sd">    ...     memMB=16000,</span>
+<span class="sd">    ...     gpu=2,</span>
+<span class="sd">    ...     capabilities={</span>
+<span class="sd">    ...         &quot;node.kubernetes.io/instance-type&quot;: &quot;&lt;cloud instance type&gt;&quot;,</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ... )</span>
+<span class="sd">    Resource(...)</span>
+
+<span class="sd">    Kubernetes may reserve some memory for the host. TorchX assumes you&#39;re</span>
+<span class="sd">    scheduling on whole hosts and thus will automatically reduce the resource</span>
+<span class="sd">    request by a small amount to account for the node reserved CPU and memory.</span>
+<span class="sd">    If you run into scheduling issues you may need to reduce the requested CPU</span>
+<span class="sd">    and memory from the host values.</span>
 
 <span class="sd">    **Compatibility**</span>
 
@@ -1008,7 +1057,7 @@
             <span class="n">iterator</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">core_api</span><span class="o">.</span><span class="n">read_namespaced_pod_log</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="n">core_api</span><span class="o">.</span><span class="n">read_namespaced_pod_log</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
-            <span class="n">iterator</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">iterator</span> <span class="o">=</span> <span class="n">split_lines</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>

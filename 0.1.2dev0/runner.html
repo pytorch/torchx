@@ -495,16 +495,23 @@ It is totally valid for this method to return no or partial log lines
 if the scheduler has already totally or partially purged log records
 for the application.</p>
 </div>
+<p>Return lines will include whitespace characters such as <code class="docutils literal notranslate"><span class="pre">\n</span></code> or
+<code class="docutils literal notranslate"><span class="pre">\r</span></code>. When outputting the lines you should make sure to avoid adding
+extra newline characters.</p>
 <p>Usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConfigValue</span><span class="p">]())</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConfigValue</span><span class="p">]())</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;== trainer node 0 logs ==&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">log_lines</span><span class="p">(</span><span class="n">app_handle</span><span class="p">,</span> <span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-   <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+   <span class="c1"># for prints newlines will already be present in the line</span>
+   <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+   <span class="c1"># when writing to a file nothing extra is necessary</span>
+   <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Discouraged anti-pattern:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># DO NOT DO THIS!</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># DO NOT DO THIS!</span>
 <span class="c1"># parses accuracy metric from log and reports it for this experiment run</span>
 <span class="n">accuracy</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">log_lines</span><span class="p">(</span><span class="n">app_handle</span><span class="p">,</span> <span class="s2">&quot;trainer&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>

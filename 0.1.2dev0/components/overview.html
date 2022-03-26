@@ -461,7 +461,7 @@ the <a class="reference internal" href="distributed.html#torchx.components.dist.
 <span class="go">               args=[</span>
 <span class="go">                   &quot;-m&quot;,</span>
 <span class="go">                   &quot;torch.distributed.run&quot;,</span>
-<span class="go">                   &quot;--rdzv_backend=etcd&quot;,</span>
+<span class="go">                   &quot;--rdzv_backend=c10d&quot;,</span>
 <span class="go">                   &quot;--rdzv_endpoint=localhost:5900&quot;,</span>
 <span class="go">                   f&quot;--nnodes={nnodes}&quot;,</span>
 <span class="go">                   f&quot;--nprocs_per_node={nprocs_per_node}&quot;,</span>
