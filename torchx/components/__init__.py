@@ -91,7 +91,7 @@ the :py:func:`torchx.components.dist.ddp` builtin.
                 args=[
                     "-m",
                     "torch.distributed.run",
-                    "--rdzv_backend=etcd",
+                    "--rdzv_backend=c10d",
                     "--rdzv_endpoint=localhost:5900",
                     f"--nnodes={nnodes}",
                     f"--nprocs_per_node={nprocs_per_node}",
