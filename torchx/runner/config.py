@@ -15,6 +15,9 @@ and honored when running the component from the CLI.
 CLI Usage
 ~~~~~~~~~~~
 
+
+**Scheduler Config**
+
 #. ``cd`` into the directory where you want the ``.torchxconfig`` file to be dropped.
    The CLI only picks up ``.torchxconfig`` files from the current-working-directory (CWD)
    so chose a directory where you typically run ``torchx`` from. Typically this
@@ -65,6 +68,43 @@ CLI Usage
     .torchxconfig
 
     $ torchx run -s local_cwd ./my_component.py:train
+
+**Component Config**
+
+You can specify component defaults by adding a section prefixed with
+``component:``.
+
+.. code-block:: ini
+
+    [component:dist.ddp]
+    j=2x8
+    cpu=4
+
+Now when you run the ``dist.ddp`` component those configs are automatically
+picked up.
+
+.. code-block:: shell-session
+
+    $ torchx run -s local_cwd dist.ddp
+    ... runs with -j 2x8 --cpu 4
+
+
+**CLI Subcommand Config**
+
+The default arguments for the ``torchx`` subcommands can be overwritten. Any
+``--foo FOO`` argument can be set via the correspond ``[cli:<cmd>]`` settings
+block.
+
+For the ``run`` command you can additionally set ``component`` to set the
+default component to run.
+
+.. code-block:: ini
+
+    [cli:run]
+    component=dist.ddp
+    scheduler=local_docker
+    workspace=file://some_workspace
+
 
 Programmatic Usage
 ~~~~~~~~~~~~~~~~~~~
@@ -265,7 +305,7 @@ def load_sections(
      j = 1x2
      image = ghcr.io/foo:1
 
-     # calling `load_component_defaults(prefix="component")` returns
+     # calling `load_sections(prefix="component")` returns
      #  {
      #    "dist.ddp": {
      #       "j":"1x2",
