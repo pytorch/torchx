@@ -1,5 +1,61 @@
 # CHANGELOG
 
+## torchx-0.1.2
+
+Milestone: https://github.com/pytorch/torchx/milestones/3
+
+* PyTorch 1.11 Support
+* Python 3.10 Support
+* `torchx.workspace`
+  * TorchX now supports a concept of workspaces. This enables seamless launching
+    of jobs using changes present in your local workspace. For Docker based
+    schedulers, we automatically build a new docker container on job launch
+    making it easier than ever to run experiments. #333
+* `torchx.schedulers`
+  * Ray #329
+    * Newly added Ray scheduler makes it easy to launch jobs on Ray.
+    * https://pytorch.medium.com/large-scale-distributed-training-with-torchx-and-ray-1d09a329aacb
+  * AWS Batch #381
+    * Newly added AWS Batch scheduler makes it easy to launch jobs in AWS with minimal infrastructure setup.
+  * Slurm
+    * Slurm jobs will by default launch in the current working directory to match `local_cwd` and workspace behavior. #372
+    * Replicas now have their own log files and can be accessed programmatically. #373
+    * Support for `comment`, `mail-user` and `constraint` fields. #391
+    * Workspace support (prototype) - Slurm jobs can now be launched in isolated experiment directories. #416
+  * Kubernetes
+    * Support for running jobs under service accounts. #408
+    * Support for specifying instance types. #433
+  * All Docker-based Schedulers (Kubernetes, Batch, Docker)
+    * Added bind mount and volume supports #420, #426
+    * Bug fix: Better shm support for large dataloader #429
+    * Support for `.dockerignore` and custom Dockerfiles #401
+  * Local Scheduler
+    * Automatically set `CUDA_VISIBLE_DEVICES` #383
+    * Improved log ordering #366
+* `torchx.components`
+  * `dist.ddp`
+    * Rendezvous works out of the box on all schedulers #400
+    * Logs are now prefixed with local ranks #412
+    * Can specify resources via the CLI #395
+    * Can specify environment variables via the CLI #399
+  * HPO
+    * Ax runner now lives in the Ax repo https://github.com/facebook/Ax/commit/8e2e68f21155e918996bda0b7d97b5b9ef4e0cba
+* `torchx.cli`
+  * `.torchxconfig`
+    * You can now specify component argument defaults `.torchxconfig` https://github.com/pytorch/torchx/commit/c37cfd7846d5a0cb527dd19c8c95e881858f8f0a
+    * `~/.torchxconfig` can now be used to set user level defaults. #378
+    * `--workspace` can be configured #397
+  * Color change and bug fixes #419
+* `torchx.runner`
+  * Now supports workspace interfaces. #360
+  * Returned lines now preserve whitespace to provide support for progress bars #425
+  * Events are now logged to `torch.monitor` when available. #379
+* `torchx.notebook` (prototype)
+  * Added new workspace interface for developing models and launching jobs via a Jupyter Notebook. #356
+* Docs
+  * Improvements to clarify TorchX usage w/ workspaces and general cleanups.
+  * #374, #402, #404, #407, #434
+
 ## torchx-0.1.1
 
 * Milestone: https://github.com/pytorch/torchx/milestone/2

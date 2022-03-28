@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import fsspec
+import torchx
 from docker.types import DeviceRequest, Mount
 from torchx import specs
 from torchx.components.dist import ddp
@@ -97,7 +98,7 @@ class DockerSchedulerTest(unittest.TestCase):
                             "torchx.pytorch.org/app-id": "app_name_42",
                             "torchx.pytorch.org/replica-id": "0",
                             "torchx.pytorch.org/role-name": "trainer",
-                            "torchx.pytorch.org/version": "0.1.2dev0",
+                            "torchx.pytorch.org/version": torchx.__version__,
                         },
                         "mem_limit": "3000m",
                         "shm_size": "3000m",
