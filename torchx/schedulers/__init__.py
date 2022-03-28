@@ -13,7 +13,6 @@ import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
 import torchx.schedulers.local_scheduler as local_scheduler
 import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
-from torchx.specs.api import SchedulerBackend
 from torchx.util.entrypoints import load_group
 from typing_extensions import Protocol
 
@@ -73,7 +72,7 @@ def get_default_scheduler_name() -> str:
 
 def get_schedulers(
     session_name: str, **scheduler_params: object
-) -> Dict[SchedulerBackend, Scheduler]:
+) -> Dict[str, Scheduler]:
     """
     get_schedulers returns all available schedulers.
     """

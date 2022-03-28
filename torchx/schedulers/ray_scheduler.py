@@ -28,7 +28,6 @@ from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import (
     AppDef,
     CfgVal,
-    SchedulerBackend,
     macros,
     runopts,
     Role,
@@ -274,7 +273,7 @@ if _has_ray:
 
             return AppDryRunInfo(job, repr)
 
-        def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
+        def _validate(self, app: AppDef, scheduler: str) -> None:
             if scheduler != "ray":
                 raise ValueError(
                     f"An unknown scheduler backend '{scheduler}' has been passed to the Ray scheduler."

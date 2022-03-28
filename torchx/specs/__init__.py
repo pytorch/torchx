@@ -37,7 +37,6 @@ from .api import (  # noqa: F401 F403
     RetryPolicy,
     Role,
     RoleStatus,
-    SchedulerBackend,
     UnknownAppException,
     UnknownSchedulerException,
     from_function,

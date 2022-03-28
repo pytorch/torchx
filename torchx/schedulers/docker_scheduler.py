@@ -30,7 +30,6 @@ from torchx.specs.api import (
     ReplicaStatus,
     Role,
     RoleStatus,
-    SchedulerBackend,
     is_terminal,
     macros,
     runopts,
@@ -295,7 +294,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         info._cfg = cfg
         return info
 
-    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
         pass
 

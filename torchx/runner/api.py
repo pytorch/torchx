@@ -22,7 +22,6 @@ from torchx.specs import (
     AppHandle,
     AppStatus,
     CfgVal,
-    SchedulerBackend,
     UnknownAppException,
     from_function,
     make_app_handle,
@@ -50,7 +49,7 @@ class Runner:
     def __init__(
         self,
         name: str,
-        schedulers: Dict[SchedulerBackend, Scheduler],
+        schedulers: Dict[str, Scheduler],
         component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
     ) -> None:
         """
@@ -102,7 +101,7 @@ class Runner:
         self,
         component: str,
         component_args: List[str],
-        scheduler: SchedulerBackend,
+        scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
     ) -> AppHandle:
@@ -151,7 +150,7 @@ class Runner:
         self,
         component: str,
         component_args: List[str],
-        scheduler: SchedulerBackend,
+        scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
     ) -> AppDryRunInfo:
@@ -170,7 +169,7 @@ class Runner:
     def run(
         self,
         app: AppDef,
-        scheduler: SchedulerBackend,
+        scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
     ) -> AppHandle:
@@ -237,7 +236,7 @@ class Runner:
     def dryrun(
         self,
         app: AppDef,
-        scheduler: SchedulerBackend,
+        scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
     ) -> AppDryRunInfo:
@@ -317,7 +316,7 @@ class Runner:
             for scheduler_backend, scheduler in self._schedulers.items()
         }
 
-    def scheduler_backends(self) -> List[SchedulerBackend]:
+    def scheduler_backends(self) -> List[str]:
         """
         Returns a list of all supported scheduler backends.
         """
@@ -535,7 +534,7 @@ class Runner:
             )
             return log_iter
 
-    def _scheduler(self, scheduler: SchedulerBackend) -> Scheduler:
+    def _scheduler(self, scheduler: str) -> Scheduler:
         sched = self._schedulers.get(scheduler)
         if not sched:
             raise KeyError(

@@ -21,7 +21,6 @@ from torchx.specs import (
     CfgVal,
     Role,
     RoleStatus,
-    SchedulerBackend,
     runopts,
 )
 from torchx.workspace.api import Workspace
@@ -70,7 +69,7 @@ class Scheduler(abc.ABC):
     ``@abc.abstractmethod``.
     """
 
-    def __init__(self, backend: SchedulerBackend, session_name: str) -> None:
+    def __init__(self, backend: str, session_name: str) -> None:
         self.backend = backend
         self.session_name = session_name
 
@@ -284,7 +283,7 @@ class Scheduler(abc.ABC):
             f"{self.__class__.__qualname__} does not support application log iteration"
         )
 
-    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: str) -> None:
         """
         Validates whether application is consistent with the scheduler.
 

@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 import torchx.components.dist as dist_components
 import torchx.components.serve as serve_components
 import torchx.components.utils as utils_components
-from torchx.specs import AppDef, SchedulerBackend
+from torchx.specs import AppDef
 
 
 class ComponentProvider(ABC):
@@ -19,7 +19,7 @@ class ComponentProvider(ABC):
     Abstract class that represents generic component provider.
     """
 
-    def __init__(self, scheduler: SchedulerBackend, image: str) -> None:
+    def __init__(self, scheduler: str, image: str) -> None:
         self._scheduler = scheduler
         self._image = image
 
@@ -75,7 +75,7 @@ class ShComponentProvider(ComponentProvider):
 
 
 class TouchComponentProvider(ComponentProvider):
-    def __init__(self, image: str, scheduler: SchedulerBackend) -> None:
+    def __init__(self, image: str, scheduler: str) -> None:
         super(TouchComponentProvider, self).__init__(image, scheduler)
         self._file_path = "<None>"
 
@@ -98,7 +98,7 @@ class TouchComponentProvider(ComponentProvider):
 
 
 class CopyComponentProvider(ComponentProvider):
-    def __init__(self, image: str, scheduler: SchedulerBackend) -> None:
+    def __init__(self, image: str, scheduler: str) -> None:
         super(CopyComponentProvider, self).__init__(image, scheduler)
         self._src_path = "<None>"
         self._dst_path = "<None>"

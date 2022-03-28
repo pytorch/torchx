@@ -51,7 +51,6 @@ from torchx.specs.api import (
     AppState,
     CfgVal,
     Role,
-    SchedulerBackend,
     is_terminal,
     macros,
     runopts,
@@ -602,7 +601,7 @@ class LocalScheduler(Scheduler):
         )
         return opts
 
-    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step for local application
         pass
 
