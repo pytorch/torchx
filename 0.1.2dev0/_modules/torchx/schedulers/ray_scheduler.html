@@ -396,7 +396,6 @@
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
-    <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">macros</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">Role</span><span class="p">,</span>
@@ -642,7 +641,7 @@
 
             <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">scheduler</span> <span class="o">!=</span> <span class="s2">&quot;ray&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;An unknown scheduler backend &#39;</span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">&#39; has been passed to the Ray scheduler.&quot;</span>

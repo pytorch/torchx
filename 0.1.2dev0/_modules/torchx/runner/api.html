@@ -388,7 +388,6 @@
     <span class="n">AppHandle</span><span class="p">,</span>
     <span class="n">AppStatus</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
-    <span class="n">SchedulerBackend</span><span class="p">,</span>
     <span class="n">UnknownAppException</span><span class="p">,</span>
     <span class="n">from_function</span><span class="p">,</span>
     <span class="n">make_app_handle</span><span class="p">,</span>
@@ -416,7 +415,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">],</span>
+        <span class="n">schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">],</span>
         <span class="n">component_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -468,7 +467,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">component_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
@@ -517,7 +516,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">component_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">:</span>
@@ -536,7 +535,7 @@
 <div class="viewcode-block" id="Runner.run"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
-        <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
@@ -603,7 +602,7 @@
 <div class="viewcode-block" id="Runner.dryrun"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.dryrun">[docs]</a>    <span class="k">def</span> <span class="nf">dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
-        <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">:</span>
@@ -683,7 +682,7 @@
             <span class="k">for</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">scheduler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Runner.scheduler_backends"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_backends">[docs]</a>    <span class="k">def</span> <span class="nf">scheduler_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">]:</span>
+<div class="viewcode-block" id="Runner.scheduler_backends"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_backends">[docs]</a>    <span class="k">def</span> <span class="nf">scheduler_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of all supported scheduler backends.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -901,7 +900,7 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">log_iter</span></div>
 
-    <span class="k">def</span> <span class="nf">_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
         <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">sched</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>

@@ -406,9 +406,6 @@
 <span class="p">)</span>
 
 
-<span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="nb">str</span>
-
-
 <span class="c1"># ========================================</span>
 <span class="c1"># ==== Distributed AppDef API =======</span>
 <span class="c1"># ========================================</span>
@@ -455,7 +452,7 @@
 <span class="n">NULL_RESOURCE</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># used as &quot;*&quot; scheduler backend</span>
-<span class="n">ALL</span><span class="p">:</span> <span class="n">SchedulerBackend</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
+<span class="n">ALL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
 
 <span class="c1"># sentinel value used to represent missing string attributes, such as image or entrypoint</span>
 <span class="n">MISSING</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;MISSING&gt;&quot;</span>
@@ -667,7 +664,7 @@
 
 <div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">scheduler</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object</span>
         <span class="n">dryrun_info</span><span class="p">:</span> <span class="s2">&quot;AppDryRunInfo&quot;</span><span class="p">,</span>
         <span class="c1"># pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object</span>
@@ -869,7 +866,7 @@
         <span class="c1"># unless there is a good reason to</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
@@ -1080,7 +1077,7 @@
 
 
 <span class="k">class</span> <span class="nc">UnknownSchedulerException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Scheduler backend: </span><span class="si">{</span><span class="n">scheduler_backend</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
             <span class="sa">f</span><span class="s2">&quot; Use session.scheduler_backends() to see all supported schedulers&quot;</span>
@@ -1105,13 +1102,11 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">make_app_handle</span><span class="p">(</span>
-    <span class="n">scheduler_backend</span><span class="p">:</span> <span class="n">SchedulerBackend</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">make_app_handle</span><span class="p">(</span><span class="n">scheduler_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scheduler_backend</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="n">session_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SchedulerBackend</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    parses the app handle into ```(scheduler_backend, session_name, and app_id)```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
