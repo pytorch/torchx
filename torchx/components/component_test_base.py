@@ -27,7 +27,6 @@ from torchx.specs import (
     AppHandle,
     AppState,
     CfgVal,
-    SchedulerBackend,
 )
 from torchx.specs.api import _create_args_parser
 from torchx.specs.finder import get_component
@@ -38,7 +37,7 @@ class ComponentUtils:
     def run_appdef_on_scheduler(
         cls,
         app_def: AppDef,
-        scheduler: SchedulerBackend,
+        scheduler: str,
         cfg: Mapping[str, CfgVal],
         dryrun: bool = False,
     ) -> Union[AppHandle, AppDryRunInfo]:

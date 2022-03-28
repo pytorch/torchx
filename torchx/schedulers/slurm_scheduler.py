@@ -31,7 +31,6 @@ from torchx.specs import (
     ReplicaStatus,
     Role,
     RoleStatus,
-    SchedulerBackend,
     macros,
     runopts,
 )
@@ -383,7 +382,7 @@ class SlurmScheduler(Scheduler, DirWorkspace):
 
         return AppDryRunInfo(req, repr)
 
-    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step for slurm
         pass
 

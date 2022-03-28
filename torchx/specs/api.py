@@ -38,9 +38,6 @@ from torchx.util.types import (
 )
 
 
-SchedulerBackend = str
-
-
 # ========================================
 # ==== Distributed AppDef API =======
 # ========================================
@@ -87,7 +84,7 @@ class Resource:
 NULL_RESOURCE: Resource = Resource(cpu=-1, gpu=-1, memMB=-1)
 
 # used as "*" scheduler backend
-ALL: SchedulerBackend = "all"
+ALL: str = "all"
 
 # sentinel value used to represent missing string attributes, such as image or entrypoint
 MISSING: str = "<MISSING>"
@@ -299,7 +296,7 @@ class Role:
 
     def pre_proc(
         self,
-        scheduler: SchedulerBackend,
+        scheduler: str,
         # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
         dryrun_info: "AppDryRunInfo",
         # pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object
@@ -501,7 +498,7 @@ class AppDryRunInfo(Generic[T]):
         # unless there is a good reason to
         self._app: Optional[AppDef] = None
         self._cfg: Mapping[str, CfgVal] = {}
-        self._scheduler: Optional[SchedulerBackend] = None
+        self._scheduler: Optional[str] = None
 
     def __repr__(self) -> str:
         return self._fmt(self.request)
@@ -712,7 +709,7 @@ class MalformedAppHandleException(Exception):
 
 
 class UnknownSchedulerException(Exception):
-    def __init__(self, scheduler_backend: SchedulerBackend) -> None:
+    def __init__(self, scheduler_backend: str) -> None:
         super().__init__(
             f"Scheduler backend: {scheduler_backend} does not exist."
             f" Use session.scheduler_backends() to see all supported schedulers"
@@ -737,13 +734,11 @@ class UnknownAppException(Exception):
         )
 
 
-def make_app_handle(
-    scheduler_backend: SchedulerBackend, session_name: str, app_id: str
-) -> str:
+def make_app_handle(scheduler_backend: str, session_name: str, app_id: str) -> str:
     return f"{scheduler_backend}://{session_name}/{app_id}"
 
 
-def parse_app_handle(app_handle: AppHandle) -> Tuple[SchedulerBackend, str, str]:
+def parse_app_handle(app_handle: AppHandle) -> Tuple[str, str, str]:
     """
     parses the app handle into ```(scheduler_backend, session_name, and app_id)```
     """

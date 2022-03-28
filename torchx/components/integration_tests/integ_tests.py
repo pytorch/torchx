@@ -16,12 +16,12 @@ from typing import Callable, List, Mapping, Optional, Tuple, Type, cast
 from pyre_extensions import none_throws
 from torchx.components.component_test_base import ComponentUtils
 from torchx.components.integration_tests.component_provider import ComponentProvider
-from torchx.specs import AppDef, CfgVal, SchedulerBackend
+from torchx.specs import AppDef, CfgVal
 
 
 @dataclass
 class SchedulerInfo:
-    name: SchedulerBackend
+    name: str
     image: str
     cfg: Mapping[str, CfgVal] = field(default_factory=dict)
 

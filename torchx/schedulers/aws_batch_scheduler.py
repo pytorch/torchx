@@ -64,7 +64,6 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     Role,
-    SchedulerBackend,
     macros,
     runopts,
     CfgVal,
@@ -363,7 +362,7 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
         info._cfg = cfg
         return info
 
-    def _validate(self, app: AppDef, scheduler: SchedulerBackend) -> None:
+    def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
         pass
 
