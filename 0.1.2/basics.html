@@ -1,0 +1,920 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Basic Concepts &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title=".torchxconfig" href="runner.config.html" />
+    <link rel="prev" title="CLI" href="cli.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  <div id="redirect-banner" style="display: none">
+    <p>
+      This is the public documentation. There's an internal wiki with extra
+      information for Meta employees at
+      <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+    </p>
+  </div>
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.1.2 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Basic Concepts</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/basics.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <section id="basic-concepts">
+<h1>Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this headline">¶</a></h1>
+<p>This describes the high level concepts behind TorchX and the project structure.
+For how to create and run an app check out the <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart Guide</span></a>.</p>
+<section id="project-structure">
+<h2>Project Structure<a class="headerlink" href="#project-structure" title="Permalink to this headline">¶</a></h2>
+<p>The top level modules in TorchX are:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="specs.html#module-torchx.specs" title="torchx.specs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.specs</span></code></a>: application spec (job definition) APIs</p></li>
+<li><p><a class="reference internal" href="components/overview.html#module-torchx.components" title="torchx.components"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components</span></code></a>: predefined (builtin) app specs</p></li>
+<li><p><a class="reference internal" href="workspace.html#module-torchx.workspace" title="torchx.workspace"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.workspace</span></code></a>: handles patching images for remote execution</p></li>
+<li><p><a class="reference internal" href="cli.html#module-torchx.cli" title="torchx.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.cli</span></code></a>: CLI tool</p></li>
+<li><p><a class="reference internal" href="runner.html#module-torchx.runner" title="torchx.runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runner</span></code></a>: given an app spec, submits the app as a job on a scheduler</p></li>
+<li><p><a class="reference internal" href="schedulers.html#module-torchx.schedulers" title="torchx.schedulers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.schedulers</span></code></a>: backend job schedulers that the runner supports</p></li>
+<li><p><a class="reference internal" href="pipelines.html#module-torchx.pipelines" title="torchx.pipelines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.pipelines</span></code></a>: adapters that convert the given app spec to a “stage” in an ML pipeline platform</p></li>
+<li><p><a class="reference internal" href="runtime/overview.html#module-torchx.runtime" title="torchx.runtime"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runtime</span></code></a>: util and abstraction libraries you can use in authoring apps (not app spec)</p></li>
+</ol>
+<p>Below is a UML diagram</p>
+<img alt="_images/torchx_module_uml.jpg" src="_images/torchx_module_uml.jpg" />
+</section>
+<section id="concepts">
+<h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h2>
+<section id="appdefs">
+<h3>AppDefs<a class="headerlink" href="#appdefs" title="Permalink to this headline">¶</a></h3>
+<p>In TorchX an <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> is simply a struct with the <em>definition</em> of
+the actual application. In scheduler lingo, this is a <code class="docutils literal notranslate"><span class="pre">JobDefinition</span></code> and a
+similar concept in Kubernetes is the <code class="docutils literal notranslate"><span class="pre">spec.yaml</span></code>. To disambiguate between the
+application binary (logic) and the spec, we typically refer to a TorchX
+<code class="docutils literal notranslate"><span class="pre">AppDef</span></code> as an “app spec” or <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>. <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>
+is the common interface understood by <code class="docutils literal notranslate"><span class="pre">torchx.runner</span></code>
+and <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code> allowing you to run your app as a standalone job
+or as a stage in an ML pipeline.</p>
+<p>Below is a simple example of an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> that echos “hello world”</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+
+<span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
+   <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+       <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+           <span class="n">name</span><span class="o">=</span><span class="s2">&quot;echo&quot;</span><span class="p">,</span>
+           <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;/bin/echo&quot;</span><span class="p">,</span>
+           <span class="n">image</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
+           <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hello world&quot;</span><span class="p">],</span>
+           <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span>
+       <span class="p">)</span>
+   <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>As you can see, <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code> is a pure python dataclass that
+simply encodes the name of the main binary (entrypoint), arguments to
+pass to it, and a few other runtime parameters such as <code class="docutils literal notranslate"><span class="pre">num_replicas</span></code> and
+information about the container in which to run (<code class="docutils literal notranslate"><span class="pre">entrypoint=/bin/echo</span></code>).</p>
+<p>The app spec is flexible and can encode specs for a variety of app topologies.
+For example, <code class="docutils literal notranslate"><span class="pre">num_replicas</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> means that the application is distributed.
+Specifying multiple <code class="docutils literal notranslate"><span class="pre">specs.Roles</span></code> makes it possible to represent a
+non-homogeneous distributed application, such as those that require a single
+“coordinator” and many “workers”.</p>
+<p>Refer to <code class="docutils literal notranslate"><span class="pre">torchx.specs</span></code> <a class="reference internal" href="specs.html#module-torchx.specs"><span class="std std-ref">API Docs</span></a> to learn more.</p>
+<p>What makes app specs flexible also makes it have many fields. The good
+news is that in most cases you don’t have to build an app spec from scratch.
+Rather you would use a templetized app spec called <code class="docutils literal notranslate"><span class="pre">components</span></code>.</p>
+</section>
+<section id="components">
+<h3>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h3>
+<p>A component in TorchX is simply a templetized <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>. You can
+think of them as convenient “factory methods” for <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike applications, components don’t map to an actual python dataclass.
+Rather a factory function that returns an <code class="docutils literal notranslate"><span class="pre">spec.AppDef</span></code>
+is called a component.</p>
+</div>
+<p>The granularity at which the app spec is templetized varies. Some components
+such as the <code class="docutils literal notranslate"><span class="pre">echo</span></code> example above are <em>ready-to-run</em>, meaning that they
+have hardcoded application binaries. Others such as <code class="docutils literal notranslate"><span class="pre">ddp</span></code> (distributed data parallel)
+specs only specify the topology of the application. Below is one possible templetization
+of a ddp style trainer app spec that specifies a homogeneous node topology:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+
+<span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span><span class="n">jobname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">script_args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+   <span class="n">single_gpu</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">Resources</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
+           <span class="n">name</span><span class="o">=</span><span class="n">jobname</span><span class="p">,</span>
+           <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
+               <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+                   <span class="n">entrypoint</span><span class="o">=</span><span class="n">entrypoint</span><span class="p">,</span>
+                   <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                   <span class="n">resource</span><span class="o">=</span><span class="n">single_gpu</span><span class="p">,</span>
+                   <span class="n">args</span><span class="o">=</span><span class="n">script_args</span><span class="p">,</span>
+                   <span class="n">num_replicas</span><span class="o">=</span><span class="n">nnodes</span>
+               <span class="p">)</span>
+           <span class="p">]</span>
+   <span class="p">)</span>
+</pre></div>
+</div>
+<p>As you can see, the level of parameterization is completely up to the
+component author. And the effort of creating a component is no more than
+writing a python function. Don’t try to over generalize components by
+parameterizing everything. Components are easy and cheap to create,
+create as many as you want based on repetitive use cases.</p>
+<p><strong>PROTIP 1:</strong> Since components are python functions, component composition
+can be achieved through python function composition rather than object composition.
+However <strong>we do not recommend component composition</strong> for maintainability
+purposes.</p>
+<p><strong>PROTIP 2:</strong> To define dependencies between components, use a pipelining DSL.
+See <a class="reference internal" href="#pipeline-adapters"><span class="std std-ref">Pipeline Adapters</span></a> section below to understand how TorchX components
+are used in the context of pipelines.</p>
+<p>Before authoring your own component, browse through the library of
+<a class="reference internal" href="index.html#components"><span class="std std-ref">Components</span></a> that are included with TorchX
+to see if one fits your needs.</p>
+</section>
+<section id="runner-and-schedulers">
+<h3>Runner and Schedulers<a class="headerlink" href="#runner-and-schedulers" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">Runner</span></code> does exactly what you would expect – given an app spec it
+launches the application as a job onto a cluster through a job scheduler.</p>
+<p>There are two ways to access runners in TorchX:</p>
+<ol class="arabic simple">
+<li><p>CLI: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">~/app_spec.py</span></code></p></li>
+<li><p>Programmatically: <code class="docutils literal notranslate"><span class="pre">torchx.runner.get_runner().run(appspec)</span></code></p></li>
+</ol>
+<p>See <a class="reference internal" href="index.html#schedulers"><span class="std std-ref">Schedulers</span></a> for a list of schedulers that the runner can
+launch apps to.</p>
+</section>
+<section id="pipeline-adapters">
+<h3>Pipeline Adapters<a class="headerlink" href="#pipeline-adapters" title="Permalink to this headline">¶</a></h3>
+<p>While runners launch components as standalone jobs, <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code>
+makes it possible to plug components into an ML pipeline/workflow. For a
+specific target pipeline platform (e.g. kubeflow pipelines), TorchX
+defines an adapter that converts a TorchX app spec to whatever the
+“stage” representation is in the target platform. For instance,
+<code class="docutils literal notranslate"><span class="pre">torchx.pipelines.kfp</span></code> adapter for kubeflow pipelines converts an
+app spec to a <code class="docutils literal notranslate"><span class="pre">kfp.ContainerOp</span></code> (or more accurately, a kfp “component spec” yaml).</p>
+<p>In most cases an app spec would map to a “stage” (or node) in a pipeline.
+However advanced components, especially those that have a mini control flow
+of its own (e.g. HPO), may map to a “sub-pipeline” or an “inline-pipeline”.
+The exact semantics of how these advanced components map to the pipeline
+is dependent on the target pipeline platform. For example, if the
+pipeline DSL allows dynamically adding stages to a pipeline from an upstream
+stage, then TorchX may take advantage of such feature to “inline” the
+sub-pipeline to the main pipeline. TorchX generally tries its best to adapt
+app specs to the <strong>most canonical</strong> representation in the target pipeline platform.</p>
+<p>See <a class="reference internal" href="index.html#pipelines"><span class="std std-ref">Pipelines</span></a> for a list of supported pipeline platforms.</p>
+</section>
+<section id="runtime">
+<h3>Runtime<a class="headerlink" href="#runtime" title="Permalink to this headline">¶</a></h3>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> is by no means is a requirement to use TorchX.
+If your infrastructure is fixed and you don’t need your application
+to be portable across different types of schedulers and pipelines,
+you can skip this section.</p>
+</div>
+<p>Your application (not the app spec, but the actual app binary) has <strong>ZERO</strong> dependencies
+to TorchX (e.g. <code class="docutils literal notranslate"><span class="pre">/bin/echo</span></code> does not use TorchX, but a <code class="docutils literal notranslate"><span class="pre">echo_torchx.py</span></code> component
+can be created for it).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> is the ONLY module you should be using when
+authoring your application binary!</p>
+</div>
+<p>However because TorchX essentially allows your app to run <strong>anywhere</strong> it is
+recommended that your application be written in a scheduler/infrastructure
+agnostic fashion.</p>
+<p>This typically means adding an API layer at the touch-points with scheduler/infra.
+For example the following application is <strong>NOT</strong> infra agnostic</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">input_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+   <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+   <span class="n">path</span> <span class="o">=</span> <span class="n">s3_input_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+   <span class="n">bucket</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+   <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+   <span class="n">s3</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;/tmp/input&quot;</span><span class="p">)</span>
+   <span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;/tmp/input&quot;</span><span class="p">)</span>
+   <span class="c1"># ...&lt;rest of code omitted for brevity&gt;...</span>
+</pre></div>
+</div>
+<p>The binary above makes an implicit assumption that the <code class="docutils literal notranslate"><span class="pre">input_path</span></code>
+is an AWS S3 path. One way to make this trainer storage agnostic is to introduce
+a <code class="docutils literal notranslate"><span class="pre">FileSystem</span></code> abstraction layer. For file systems, frameworks like
+<a class="reference external" href="https://www.pytorchlightning.ai/">PyTorch Lightning</a>  already define <code class="docutils literal notranslate"><span class="pre">io</span></code>
+layers (lightning uses <a class="reference external" href="https://filesystem-spec.readthedocs.io/en/latest/index.html">fsspec</a>
+under the hood). The binary above can be rewritten to be storage agnostic with
+lightning.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytorch_lightning.utilities.io</span> <span class="k">as</span> <span class="nn">io</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">input_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+   <span class="n">fs</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">get_filesystem</span><span class="p">(</span><span class="n">input_url</span><span class="p">)</span>
+   <span class="k">with</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_url</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+       <span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+   <span class="c1"># ...&lt;rest of code omitted for brevity&gt;...</span>
+</pre></div>
+</div>
+<p>Now <code class="docutils literal notranslate"><span class="pre">main</span></code> can be called as <code class="docutils literal notranslate"><span class="pre">main(&quot;s3://foo/bar&quot;)</span></code> or <code class="docutils literal notranslate"><span class="pre">main(&quot;file://foo/bar&quot;)</span></code>
+making it compatible with input stored in various storages.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">FileSystem</span></code> there were existing libraries defining the file system abstraction.
+In the <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code>, you’ll find libraries or pointers to other libraries
+that provide abstractions for various functionalities that you may need to author
+a infra-agnostic application. Ideally features in <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> are upstreamed
+in a timely fashion to libraries such as lightning that are intended to be used to
+author your application. But finding a proper permanent home for these abstractions
+may take time or even require an entirely new OSS project to be created.
+Until this happens the features can mature and be accessible to users
+through the <code class="docutils literal notranslate"><span class="pre">torchx.runtime</span></code> module.</p>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>Check out the <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart Guide</span></a> to learn how to create and
+run components.</p>
+</section>
+</section>
+
+
+     </article>
+     
+    </div>
+    <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="runner.config.html" class="btn btn-neutral float-right" title=".torchxconfig" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="cli.html" class="btn btn-neutral" title="CLI" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Basic Concepts</a><ul>
+<li><a class="reference internal" href="#project-structure">Project Structure</a></li>
+<li><a class="reference internal" href="#concepts">Concepts</a><ul>
+<li><a class="reference internal" href="#appdefs">AppDefs</a></li>
+<li><a class="reference internal" href="#components">Components</a></li>
+<li><a class="reference internal" href="#runner-and-schedulers">Runner and Schedulers</a></li>
+<li><a class="reference internal" href="#pipeline-adapters">Pipeline Adapters</a></li>
+<li><a class="reference internal" href="#runtime">Runtime</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+         <script src="_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
