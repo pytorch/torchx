@@ -120,6 +120,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             V1VolumeMount,
             V1HostPathVolumeSource,
             V1EmptyDirVolumeSource,
+            V1SecurityContext,
         )
 
         app = _test_app()
@@ -154,6 +155,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             env=[V1EnvVar(name="FOO", value="bar")],
             resources=resources,
             ports=[V1ContainerPort(name="foo", container_port=1234)],
+            security_context=V1SecurityContext(),
             volume_mounts=[
                 V1VolumeMount(
                     name="dshm",
@@ -289,6 +291,7 @@ spec:
               cpu: 1900m
               memory: 1976M
               nvidia.com/gpu: '4'
+          securityContext: {{}}
           volumeMounts:
           - mountPath: /dev/shm
             name: dshm
@@ -355,6 +358,57 @@ spec:
                 ),
             ],
         )
+
+    def test_device_mounts(self) -> None:
+        scheduler = create_scheduler("test")
+        from kubernetes.client.models import (
+            V1Volume,
+            V1VolumeMount,
+            V1HostPathVolumeSource,
+        )
+
+        role = specs.Role(
+            name="foo",
+            image="",
+            mounts=[
+                specs.DeviceMount(src_path="foo", dst_path="bar", permissions="rwm"),
+                specs.DeviceMount(src_path="foo2", dst_path="bar2", permissions="r"),
+            ],
+        )
+        pod = role_to_pod("foo", role, service_account="")
+        self.assertEqual(
+            pod.spec.volumes[1:],
+            [
+                V1Volume(
+                    name="mount-0",
+                    host_path=V1HostPathVolumeSource(
+                        path="foo",
+                    ),
+                ),
+                V1Volume(
+                    name="mount-1",
+                    host_path=V1HostPathVolumeSource(
+                        path="foo2",
+                    ),
+                ),
+            ],
+        )
+        self.assertEqual(
+            pod.spec.containers[0].volume_mounts[1:],
+            [
+                V1VolumeMount(
+                    name="mount-0",
+                    mount_path="bar",
+                    read_only=False,
+                ),
+                V1VolumeMount(
+                    name="mount-1",
+                    mount_path="bar2",
+                    read_only=True,
+                ),
+            ],
+        )
+        self.assertTrue(pod.spec.containers[0].security_context.privileged)
 
     def test_instance_type(self) -> None:
         scheduler = create_scheduler("test")

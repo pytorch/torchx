@@ -28,6 +28,7 @@ from .api import (  # noqa: F401 F403
     AppStatus,
     BindMount,
     VolumeMount,
+    DeviceMount,
     CfgVal,
     InvalidRunConfigException,
     MalformedAppHandleException,

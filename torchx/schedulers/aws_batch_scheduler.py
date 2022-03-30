@@ -69,6 +69,7 @@ from torchx.specs.api import (
     CfgVal,
     BindMount,
     VolumeMount,
+    DeviceMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -106,6 +107,7 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
 
     mount_points = []
     volumes = []
+    devices = []
     for i, mount in enumerate(role.mounts):
         name = f"mount_{i}"
         if isinstance(mount, BindMount):
@@ -117,6 +119,13 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
                     },
                 }
             )
+            mount_points.append(
+                {
+                    "containerPath": mount.dst_path,
+                    "readOnly": mount.read_only,
+                    "sourceVolume": name,
+                }
+            )
         elif isinstance(mount, VolumeMount):
             volumes.append(
                 {
@@ -126,15 +135,28 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
                     },
                 }
             )
+            mount_points.append(
+                {
+                    "containerPath": mount.dst_path,
+                    "readOnly": mount.read_only,
+                    "sourceVolume": name,
+                }
+            )
+        elif isinstance(mount, DeviceMount):
+            perm_map = {
+                "r": "READ",
+                "w": "WRITE",
+                "m": "MKNOD",
+            }
+            devices.append(
+                {
+                    "hostPath": mount.src_path,
+                    "containerPath": mount.dst_path,
+                    "permissions": [perm_map[p] for p in mount.permissions],
+                },
+            )
         else:
             raise TypeError(f"unknown mount type {mount}")
-        mount_points.append(
-            {
-                "containerPath": mount.dst_path,
-                "readOnly": mount.read_only,
-                "sourceVolume": name,
-            }
-        )
 
     container = {
         "command": [role.entrypoint] + role.args,
@@ -145,6 +167,7 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
             # To support PyTorch dataloaders we need to set /dev/shm to larger
             # than the 64M default.
             "sharedMemorySize": memMB,
+            "devices": devices,
         },
         "logConfiguration": {
             "logDriver": "awslogs",
@@ -220,15 +243,20 @@ class AWSBatchScheduler(Scheduler, DockerWorkspace):
 
     **Mounts**
 
-    This class supports bind mounting host directories and efs volumes
+    This class supports bind mounting host directories, efs volumes and host
+    devices.
 
     * bind mount: ``type=bind,src=<host path>,dst=<container path>[,readonly]``
     * efs volume: ``type=volume,src=<efs id>,dst=<container path>[,readonly]``
+    * devices: ``type=device,src=/dev/infiniband/uverbs0,[dst=<container path>][,perm=rwm]``
 
     See :py:func:`torchx.specs.parse_mounts` for more info.
 
     For other filesystems such as FSx you can mount them onto the host and bind
     mount them into your job: https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/
+
+    For Elastic Fabric Adapter (EFA) you'll need to use a device mount to mount
+    them into the container: https://docs.aws.amazon.com/batch/latest/userguide/efa.html
 
     **Compatibility**
 

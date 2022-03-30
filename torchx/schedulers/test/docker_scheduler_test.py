@@ -51,6 +51,7 @@ def _test_app() -> specs.AppDef:
         max_retries=3,
         mounts=[
             specs.BindMount(src_path="/tmp", dst_path="/tmp", read_only=True),
+            specs.DeviceMount(src_path="/dev/null", dst_path="/dev/null"),
         ],
     )
 
@@ -89,6 +90,9 @@ class DockerSchedulerTest(unittest.TestCase):
                                 count=4,
                                 capabilities=[["compute"]],
                             )
+                        ],
+                        "devices": [
+                            "/dev/null:/dev/null:rwm",
                         ],
                         "environment": {
                             "FOO": "bar",
@@ -140,6 +144,15 @@ class DockerSchedulerTest(unittest.TestCase):
             ),
         ]
         self.assertEqual(info.request.containers[0].kwargs["mounts"], want)
+
+    def test_device_mounts(self) -> None:
+        app = _test_app()
+        app.roles[0].mounts = [
+            specs.DeviceMount(src_path="foo", dst_path="bar"),
+        ]
+
+        info = self.scheduler._submit_dryrun(app, cfg={})
+        self.assertEqual(info.request.containers[0].kwargs["devices"], ["foo:bar:rwm"])
 
     @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})
     def test_copy_env(self) -> None:
