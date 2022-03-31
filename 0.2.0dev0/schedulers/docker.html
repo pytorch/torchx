@@ -407,6 +407,7 @@ in a job fails, only that replica will be restarted.</p>
 <ul class="simple">
 <li><p>bind mount: <code class="docutils literal notranslate"><span class="pre">type=bind,src=&lt;host</span> <span class="pre">path&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
 <li><p>named volume: <code class="docutils literal notranslate"><span class="pre">type=volume,src=&lt;name&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
+<li><p>devices: <code class="docutils literal notranslate"><span class="pre">type=device,src=&lt;name&gt;[,dst=&lt;container</span> <span class="pre">path&gt;][,permissions=rwm]</span></code></p></li>
 </ul>
 <p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
 <table class="docutils align-default">

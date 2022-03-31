@@ -434,6 +434,10 @@ PersistentVolumeClaim support.</p>
 <ul class="simple">
 <li><p>hostPath volumes: <code class="docutils literal notranslate"><span class="pre">type=bind,src=&lt;host</span> <span class="pre">path&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
 <li><p>PersistentVolumeClaim: <code class="docutils literal notranslate"><span class="pre">type=volume,src=&lt;claim&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
+<li><p>host devices: <code class="docutils literal notranslate"><span class="pre">type=device,src=/dev/foo[,dst=&lt;container</span> <span class="pre">path&gt;][,perm=rwm]</span></code>
+If you specify a host device the job will run in privileged mode since
+Kubernetes doesn’t expose a way to pass <cite>–device</cite> to the underlying
+container runtime. Users should prefer to use device plugins.</p></li>
 </ul>
 <p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
 <p>External docs: <a class="reference external" href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></p>

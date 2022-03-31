@@ -418,14 +418,18 @@ handling.</p>
 </pre></div>
 </div>
 <p><strong>Mounts</strong></p>
-<p>This class supports bind mounting host directories and efs volumes</p>
+<p>This class supports bind mounting host directories, efs volumes and host
+devices.</p>
 <ul class="simple">
 <li><p>bind mount: <code class="docutils literal notranslate"><span class="pre">type=bind,src=&lt;host</span> <span class="pre">path&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
 <li><p>efs volume: <code class="docutils literal notranslate"><span class="pre">type=volume,src=&lt;efs</span> <span class="pre">id&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
+<li><p>devices: <code class="docutils literal notranslate"><span class="pre">type=device,src=/dev/infiniband/uverbs0,[dst=&lt;container</span> <span class="pre">path&gt;][,perm=rwm]</span></code></p></li>
 </ul>
 <p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
 <p>For other filesystems such as FSx you can mount them onto the host and bind
 mount them into your job: <a class="reference external" href="https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/">https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/</a></p>
+<p>For Elastic Fabric Adapter (EFA) you’ll need to use a device mount to mount
+them into the container: <a class="reference external" href="https://docs.aws.amazon.com/batch/latest/userguide/efa.html">https://docs.aws.amazon.com/batch/latest/userguide/efa.html</a></p>
 <p><strong>Compatibility</strong></p>
 <table class="docutils align-default">
 <colgroup>
