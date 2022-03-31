@@ -196,6 +196,7 @@ class RetryPolicy(str, Enum):
 class MountType(str, Enum):
     BIND = "bind"
     VOLUME = "volume"
+    DEVICE = "device"
 
 
 @dataclass
@@ -229,6 +230,21 @@ class VolumeMount:
     src: str
     dst_path: str
     read_only: bool = False
+
+
+@dataclass
+class DeviceMount:
+    """
+    Defines a host device to mount into the container.
+    Args:
+       src_path: the path on the host
+       dst_path: the path in the worker environment/container
+       permissions: the permissions to set on the device. Default: read, write, mknode
+    """
+
+    src_path: str
+    dst_path: str
+    permissions: str = "rwm"
 
 
 @dataclass
@@ -292,7 +308,9 @@ class Role:
     resource: Resource = NULL_RESOURCE
     port_map: Dict[str, int] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    mounts: List[Union[BindMount, VolumeMount]] = field(default_factory=list)
+    mounts: List[Union[BindMount, VolumeMount, DeviceMount]] = field(
+        default_factory=list
+    )
 
     def pre_proc(
         self,
@@ -895,10 +913,11 @@ _MOUNT_OPT_MAP: Mapping[str, str] = {
     "readonly": "readonly",
     "source": "src",
     "src": "src",
+    "perm": "perm",
 }
 
 
-def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount]]:
+def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount, DeviceMount]]:
     """
     parse_mounts parses a list of options into typed mounts following a similar
     format to Dockers bind mount.
@@ -912,6 +931,7 @@ def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount]]:
     Supported types:
         BindMount: type=bind,src=<host path>,dst=<container path>[,readonly]
         VolumeMount: type=volume,src=<name/id>,dst=<container path>[,readonly]
+        DeviceMount: type=device,src=/dev/<dev>[,dst=<container path>][,perm=rwm]
     """
     mount_opts = []
     cur = {}
@@ -946,6 +966,16 @@ def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount]]:
                     src=opts["src"], dst_path=opts["dst"], read_only="readonly" in opts
                 )
             )
+        elif typ == MountType.DEVICE:
+            src = opts["src"]
+            dst = opts.get("dst", src)
+            perm = opts.get("perm", "rwm")
+            for c in perm:
+                if c not in "rwm":
+                    raise ValueError(
+                        f"{c} is not a valid permission flags must one of r,w,m"
+                    )
+            mounts.append(DeviceMount(src_path=src, dst_path=dst, permissions=perm))
         else:
             valid = list(str(item.value) for item in MountType)
             raise ValueError(f"invalid mount type {repr(typ)}, must be one of {valid}")

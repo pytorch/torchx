@@ -39,6 +39,7 @@ from torchx.specs.api import (
     parse_mounts,
     BindMount,
     VolumeMount,
+    DeviceMount,
 )
 
 
@@ -810,12 +811,20 @@ class MountsTest(unittest.TestCase):
                     "destination=dst2",
                     "source=foo2",
                     "readonly",
+                    "type=device",
+                    "src=duck",
+                    "type=device",
+                    "src=foo",
+                    "dst=bar",
+                    "perm=rw",
                 ]
             ),
             [
                 BindMount(src_path="foo", dst_path="dst"),
                 BindMount(src_path="foo1", dst_path="dst1", read_only=True),
                 VolumeMount(src="foo2", dst_path="dst2", read_only=True),
+                DeviceMount(src_path="duck", dst_path="duck", permissions="rwm"),
+                DeviceMount(src_path="foo", dst_path="bar", permissions="rw"),
             ],
         )
 

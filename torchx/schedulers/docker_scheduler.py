@@ -35,6 +35,7 @@ from torchx.specs.api import (
     runopts,
     BindMount,
     VolumeMount,
+    DeviceMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -117,6 +118,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
 
     * bind mount: ``type=bind,src=<host path>,dst=<container path>[,readonly]``
     * named volume: ``type=volume,src=<name>,dst=<container path>[,readonly]``
+    * devices: ``type=device,src=<name>[,dst=<container path>][,permissions=rwm]``
 
     See :py:func:`torchx.specs.parse_mounts` for more info.
 
@@ -206,6 +208,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         rank0_name = f"{app_id}-{app.roles[0].name}-0"
         for role in app.roles:
             mounts = []
+            devices = []
             for mount in role.mounts:
                 if isinstance(mount, BindMount):
                     mounts.append(
@@ -224,6 +227,10 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                             read_only=mount.read_only,
                             type="volume",
                         )
+                    )
+                elif isinstance(mount, DeviceMount):
+                    devices.append(
+                        f"{mount.src_path}:{mount.dst_path}:{mount.permissions}"
                     )
                 else:
                     raise TypeError(f"unknown mount type {mount}")
@@ -260,6 +267,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
                         "hostname": name,
                         "network": NETWORK,
                         "mounts": mounts,
+                        "devices": devices,
                     },
                 )
                 if replica_role.max_retries > 0:

@@ -65,6 +65,7 @@ from torchx.specs.api import (
     runopts,
     BindMount,
     VolumeMount,
+    DeviceMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -183,6 +184,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         V1HostPathVolumeSource,
         V1PersistentVolumeClaimVolumeSource,
         V1EmptyDirVolumeSource,
+        V1SecurityContext,
     )
 
     # limits puts an upper cap on the resources a pod may consume.
@@ -228,6 +230,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
     volume_mounts = [
         V1VolumeMount(name=SHM_VOL, mount_path="/dev/shm"),
     ]
+    security_context = V1SecurityContext()
 
     for i, mount in enumerate(role.mounts):
         mount_name = f"mount-{i}"
@@ -240,6 +243,13 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
                     ),
                 )
             )
+            volume_mounts.append(
+                V1VolumeMount(
+                    name=mount_name,
+                    mount_path=mount.dst_path,
+                    read_only=mount.read_only,
+                )
+            )
         elif isinstance(mount, VolumeMount):
             volumes.append(
                 V1Volume(
@@ -249,15 +259,34 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
                     ),
                 )
             )
+            volume_mounts.append(
+                V1VolumeMount(
+                    name=mount_name,
+                    mount_path=mount.dst_path,
+                    read_only=mount.read_only,
+                )
+            )
+        elif isinstance(mount, DeviceMount):
+            volumes.append(
+                V1Volume(
+                    name=mount_name,
+                    host_path=V1HostPathVolumeSource(
+                        path=mount.src_path,
+                    ),
+                )
+            )
+            volume_mounts.append(
+                V1VolumeMount(
+                    name=mount_name,
+                    mount_path=mount.dst_path,
+                    read_only=(
+                        "w" not in mount.permissions and "m" not in mount.permissions
+                    ),
+                )
+            )
+            security_context.privileged = True
         else:
             raise TypeError(f"unknown mount type {mount}")
-        volume_mounts.append(
-            V1VolumeMount(
-                name=mount_name,
-                mount_path=mount.dst_path,
-                read_only=mount.read_only,
-            )
-        )
 
     container = V1Container(
         command=[role.entrypoint] + role.args,
@@ -279,6 +308,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
             for name, port in role.port_map.items()
         ],
         volume_mounts=volume_mounts,
+        security_context=security_context,
     )
 
     return V1Pod(
@@ -435,6 +465,10 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
 
     * hostPath volumes: ``type=bind,src=<host path>,dst=<container path>[,readonly]``
     * PersistentVolumeClaim: ``type=volume,src=<claim>,dst=<container path>[,readonly]``
+    * host devices: ``type=device,src=/dev/foo[,dst=<container path>][,perm=rwm]``
+      If you specify a host device the job will run in privileged mode since
+      Kubernetes doesn't expose a way to pass `--device` to the underlying
+      container runtime. Users should prefer to use device plugins.
 
     See :py:func:`torchx.specs.parse_mounts` for more info.
 

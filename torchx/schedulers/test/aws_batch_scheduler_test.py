@@ -116,6 +116,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                 ],
                                 "linuxParameters": {
                                     "sharedMemorySize": 3000,
+                                    "devices": [],
                                 },
                                 "logConfiguration": {"logDriver": "awslogs"},
                                 "mountPoints": [
@@ -161,6 +162,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                 ],
                                 "linuxParameters": {
                                     "sharedMemorySize": 3000,
+                                    "devices": [],
                                 },
                                 "logConfiguration": {"logDriver": "awslogs"},
                                 "mountPoints": [
@@ -226,6 +228,34 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                     "containerPath": "/dst",
                     "readOnly": True,
                     "sourceVolume": "mount_0",
+                }
+            ],
+        )
+
+    def test_device_mounts(self) -> None:
+        role = specs.Role(
+            name="foo",
+            image="",
+            mounts=[
+                specs.DeviceMount(
+                    src_path="/dev/foo", dst_path="/dev/bar", permissions="rwm"
+                )
+            ],
+            resource=specs.Resource(
+                cpu=1,
+                memMB=1000,
+                gpu=0,
+            ),
+        )
+        props = _role_to_node_properties(0, role)
+        self.assertEqual(
+            # pyre-fixme[16]: `object` has no attribute `__getitem__`.
+            props["container"]["linuxParameters"]["devices"],
+            [
+                {
+                    "hostPath": "/dev/foo",
+                    "containerPath": "/dev/bar",
+                    "permissions": ["READ", "WRITE", "MKNOD"],
                 }
             ],
         )
