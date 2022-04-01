@@ -6,6 +6,7 @@ captum>=0.4.0
 classy-vision>=0.6.0
 flake8==3.9.0
 fsspec[s3]==2022.1.0
+hydra-core
 importlib-metadata
 ipython
 kfp==1.8.9
