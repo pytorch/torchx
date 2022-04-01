@@ -19,6 +19,52 @@ See the Pipelines Examples for how to use the components in a pipeline.
 
 
 
+.. _sphx_glr_examples_apps_compute_world_size:
+
+Compute World Size Example
+############################
+
+This is a minimal "hello world" style  example application that uses
+PyTorch Distributed to compute the world size. It is a minimal example
+in that it initializes the ``torch.distributed`` process group and
+performs a single collective operation (all_reduce) which is enough to
+validate the infrastructure and scheduler setup.
+
+This example is compatible with the ``dist.ddp``. To run from CLI:
+
+.. code-block:: shell-session
+
+ $ cd $torchx-git-repo-root/torchx/examples/apps
+ $ torchx run dist.ddp --script compute_world_size/main.py -j 1x2
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a minimal &quot;hello world&quot; style  example application that uses PyTorch Distributed to com...">
+
+.. only:: html
+
+ .. figure:: /examples_apps/compute_world_size/images/thumb/sphx_glr_main_thumb.png
+     :alt: Compute World Size Example
+
+     :ref:`sphx_glr_examples_apps_compute_world_size_main.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples_apps/compute_world_size/main
+.. raw:: html
+
+    <div class="sphx-glr-clear"></div>
+
+
+
 .. _sphx_glr_examples_apps_datapreproc:
 
 Data Preprocessing Example
