@@ -3,7 +3,8 @@
     ".*/build/.*",
     ".*/docs/.*",
     ".*/setup.py",
-    ".*/IPython/core/tests/nonascii.*"
+    ".*/IPython/core/tests/nonascii.*",
+    ".*/torchx/examples/apps/compute_world_size/.*"
   ],
   "source_directories": [
     "typestubs",

@@ -1,0 +1,10 @@
+hydra:
+  run:
+    dir: /tmp
+main:
+  backend: gloo
+  rank: 0
+  world_size: 1
+  master_addr: localhost
+  master_port: 29500
+  throws: False
