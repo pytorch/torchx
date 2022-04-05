@@ -260,6 +260,38 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ],
         )
 
+    def test_resource_devices(self) -> None:
+        role = specs.Role(
+            name="foo",
+            image="",
+            mounts=[],
+            resource=specs.Resource(
+                cpu=1,
+                memMB=1000,
+                gpu=0,
+                devices=[
+                    ("vpc.amazonaws.com/efa", 2)
+                ]
+            ),
+        )
+        props = _role_to_node_properties(0, role)
+        self.assertEqual(
+            # pyre-fixme[16]: `object` has no attribute `__getitem__`.
+            props["container"]["linuxParameters"]["devices"],
+            [
+                {
+                    "hostPath": "/dev/infiniband/uverbs0",
+                    "containerPath": "/dev/infiniband/uverbs0",
+                    "permissions": ["READ", "WRITE", "MKNOD"],
+                },
+                {
+                    "hostPath": "/dev/infiniband/uverbs1",
+                    "containerPath": "/dev/infiniband/uverbs1",
+                    "permissions": ["READ", "WRITE", "MKNOD"],
+                }
+            ],
+        )
+
     def _mock_scheduler(self) -> AWSBatchScheduler:
         scheduler = AWSBatchScheduler(
             "test",

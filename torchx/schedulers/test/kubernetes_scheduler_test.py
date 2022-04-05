@@ -69,15 +69,15 @@ class KubernetesSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name-42"
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
+                "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
             resource = app_to_resource(app, "test_queue", service_account=None)
             actual_cmd = (
                 # pyre-ignore [16]
                 resource["spec"]["tasks"][0]["template"]
-                .spec.containers[0]
-                .command
+                    .spec.containers[0]
+                    .command
             )
             expected_cmd = [
                 "main",
@@ -220,7 +220,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
         app = _test_app()
         cfg = {"queue": "testqueue"}
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
+                "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler._submit_dryrun(app, cfg)
@@ -410,6 +410,35 @@ spec:
         )
         self.assertTrue(pod.spec.containers[0].security_context.privileged)
 
+    def test_resource_devices(self) -> None:
+        scheduler = create_scheduler("test")
+
+        role = specs.Role(
+            name="foo",
+            image="",
+            resource=specs.Resource(
+                cpu=2,
+                memMB=3000,
+                gpu=4,
+                devices=[
+                    ("vpc.amazonaws.com/efa", 4),
+                    ("vpc.amazonaws.com/neuron", 1)
+                ]
+            ),
+        )
+        pod = role_to_pod("foo", role, service_account="")
+        self.assertEqual(
+            pod.spec.containers[0].resources.limits,
+            {
+                "cpu": "2000m",
+                "memory": "3000M",
+                "nvidia.com/gpu": "4",
+                "vpc.amazonaws.com/efa": "4",
+                "vpc.amazonaws.com/neuron": "1",
+            }
+        )
+        self.assertFalse(pod.spec.containers[0].security_context.privileged)
+
     def test_instance_type(self) -> None:
         scheduler = create_scheduler("test")
         role = specs.Role(
@@ -442,7 +471,7 @@ spec:
         app = _test_app(num_replicas=2)
         cfg = {"queue": "testqueue"}
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
+                "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler._submit_dryrun(app, cfg)
@@ -466,7 +495,7 @@ spec:
             "image_repo": "example.com/some/repo",
         }
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
+                "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler._submit_dryrun(app, cfg)
@@ -523,7 +552,7 @@ spec:
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
     def test_submit_job_name_conflict(
-        self, create_namespaced_custom_object: MagicMock
+            self, create_namespaced_custom_object: MagicMock
     ) -> None:
         from kubernetes.client.rest import ApiException
 
@@ -591,7 +620,7 @@ spec:
 
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object_status")
     def test_describe_unknown(
-        self, get_namespaced_custom_object_status: MagicMock
+            self, get_namespaced_custom_object_status: MagicMock
     ) -> None:
         get_namespaced_custom_object_status.return_value = {}
         app_id = "testnamespace:testid"
