@@ -410,6 +410,33 @@ spec:
         )
         self.assertTrue(pod.spec.containers[0].security_context.privileged)
 
+    def test_resource_devices(self) -> None:
+        scheduler = create_scheduler("test")
+
+        role = specs.Role(
+            name="foo",
+            image="",
+            resource=specs.Resource(
+                cpu=2,
+                memMB=3000,
+                gpu=4,
+                devices={
+                    "vpc.amazonaws.com/efa": 4,
+                },
+            ),
+        )
+        pod = role_to_pod("foo", role, service_account="")
+        self.assertEqual(
+            pod.spec.containers[0].resources.limits,
+            {
+                "cpu": "2000m",
+                "memory": "3000M",
+                "nvidia.com/gpu": "4",
+                "vpc.amazonaws.com/efa": "4",
+            },
+        )
+        self.assertFalse(pod.spec.containers[0].security_context.privileged)
+
     def test_instance_type(self) -> None:
         scheduler = create_scheduler("test")
         role = specs.Role(

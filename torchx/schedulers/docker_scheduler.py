@@ -22,6 +22,7 @@ from torchx.schedulers.api import (
     filter_regex,
     split_lines,
 )
+from torchx.schedulers.devices import get_device_mounts
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
@@ -209,6 +210,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
         for role in app.roles:
             mounts = []
             devices = []
+            role.mounts += get_device_mounts(role.resource.devices)
             for mount in role.mounts:
                 if isinstance(mount, BindMount):
                     mounts.append(

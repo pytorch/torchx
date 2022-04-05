@@ -207,6 +207,9 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
     if resource.gpu > 0:
         requests["nvidia.com/gpu"] = limits["nvidia.com/gpu"] = str(resource.gpu)
 
+    for device_name, device_limit in resource.devices.items():
+        limits[device_name] = str(device_limit)
+
     resources = V1ResourceRequirements(
         limits=limits,
         requests=requests,
