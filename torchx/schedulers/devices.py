@@ -12,7 +12,7 @@ DEVICES: Mapping[str, Callable] = {
     "vpc.amazonaws.com/efa": lambda device_index: DeviceMount(
         src_path="/dev/infiniband/uverbs" + str(device_index),
         dst_path="/dev/infiniband/uverbs" + str(device_index),
-    ),
+    )
 }
 
 
