@@ -59,6 +59,7 @@ from torchx.schedulers.api import (
     Stream,
     filter_regex,
 )
+from torchx.schedulers.devices import get_device_mounts
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
@@ -104,6 +105,8 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
 
     if resource.gpu > 0:
         reqs.append({"type": "GPU", "value": str(resource.gpu)})
+
+    role.mounts += get_device_mounts(resource.devices)
 
     mount_points = []
     volumes = []

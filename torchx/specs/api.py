@@ -52,6 +52,7 @@ class Resource:
             CPU core maps to physical cores and threads.
         gpu: number of gpus
         memMB: MB of ram
+        devices: a list of named devices with their quantities
         capabilities: additional hardware specs (interpreted by scheduler)
 
     Note: you should prefer to use named_resources instead of specifying the raw
@@ -61,6 +62,7 @@ class Resource:
     cpu: int
     gpu: int
     memMB: int
+    devices: list[Tuple[str, int]] = field(default_factory=list)
     capabilities: Dict[str, Any] = field(default_factory=dict)
 
     @staticmethod
@@ -76,6 +78,7 @@ class Resource:
             cpu=original.cpu,
             gpu=original.gpu,
             memMB=original.memMB,
+            devices=original.devices,
             capabilities=res_capabilities,
         )
 

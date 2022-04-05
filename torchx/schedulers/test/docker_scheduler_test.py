@@ -154,6 +154,16 @@ class DockerSchedulerTest(unittest.TestCase):
         info = self.scheduler._submit_dryrun(app, cfg={})
         self.assertEqual(info.request.containers[0].kwargs["devices"], ["foo:bar:rwm"])
 
+    def test_resource_devices(self) -> None:
+        app = _test_app()
+        app.roles[0].resource.devices = [
+            ("vpc.amazonaws.com/efa", 1)
+        ]
+
+        info = self.scheduler._submit_dryrun(app, cfg={})
+        self.assertEqual(info.request.containers[0].kwargs["devices"],
+                         ["/dev/infiniband/uverbs0:/dev/infiniband/uverbs0:rwm"])
+
     @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})
     def test_copy_env(self) -> None:
         app = _test_app()
