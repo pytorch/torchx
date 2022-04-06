@@ -5,62 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Any, Callable, Dict, List, Type, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 import typing_inspect
-
-
-def to_dict(arg: str) -> Dict[str, str]:
-    """
-    Parses the sting into the key-value pairs using `,` as delimiter.
-    The algorithm uses the last `,` between previous value and next key as delimiter, e.g.:
-
-    .. code-block:: python
-
-     arg="FOO=Value1,Value2,BAR=Value3"
-     conf = to_dict(arg)
-     print(conf) # {'FOO': 'Value1,Value2', 'BAR': 'Value3'}
-
-    """
-    conf: Dict[str, str] = {}
-    arg = arg.strip()
-    if len(arg) == 0:
-        return {}
-
-    kv_delimiter: str = "="
-    pair_delimiter: str = ","
-
-    cpos: int = 0
-    while cpos < len(arg):
-        key = _get_key(arg, cpos, kv_delimiter)
-        cpos += len(key) + 1
-        value = _get_value(arg, cpos, kv_delimiter, pair_delimiter)
-        cpos += len(value) + 1
-        conf[key] = value
-    return conf
-
-
-def _get_key(arg: str, spos: int, kv_delimiter: str = "=") -> str:
-    epos: int = spos + 1
-    while epos < len(arg) and arg[epos] != kv_delimiter:
-        epos += 1
-    if epos == len(arg):
-        raise ValueError(
-            f"Argument `{arg}` does not follow the pattern: KEY1=VALUE1,KEY2=VALUE2"
-        )
-    return arg[spos:epos]
-
-
-def _get_value(
-    arg: str, spos: int, kv_delimiter: str = "=", pair_delimiter: str = ","
-) -> str:
-    epos: int = spos + 1
-    while epos < len(arg) and arg[epos] != kv_delimiter:
-        epos += 1
-    if epos < len(arg) and arg[epos] == kv_delimiter:
-        while arg[epos] != pair_delimiter:
-            epos -= 1
-    return arg[spos:epos]
 
 
 def to_list(arg: str) -> List[str]:
@@ -70,6 +17,82 @@ def to_list(arg: str) -> List[str]:
     for el in arg.split(","):
         conf.append(el)
     return conf
+
+
+def to_dict(arg: str) -> Dict[str, str]:
+    """
+    Parses the given ``arg`` string literal into a ``Dict[str, str]`` of
+    key-value pairs delimited by ``"="`` (equals). The values may be a
+    list literal where the list elements are delimited by ``","`` (comma)
+    or ``";"`` (semi-colon). The same delimiters (``","`` and ``";"``) are used
+    to specify multiple key-value pairs in the ``arg`` literal (see examples below).
+    When values are lists, the last delimiter is used as kv-pair delimiter
+    (e.g. ``FOO=v1,v2,BAR=v3``). Empty values of ``arg`` returns an empty map.
+
+    Note that values that encode list literals are returned as list literals
+    NOT actual lists. The caller must further process each value in the returned
+    map, to cast/decode the value literals as specific types. In this case,
+    the list delimiters are preserved (see examples below).
+
+
+    Examples:
+
+    .. code-block:: python
+
+     to_dict("") == {}
+
+     to_dict("FOO=v1") == {"FOO": "v1"}
+
+     to_dict("FOO=v1,v2") == {"FOO": "v1,v2"]}
+     to_dict("FOO=v1;v2") == {"FOO": "v1;v2"]}
+     to_dict("FOO=v1;v2") == {"FOO": "v1;v2,"]}
+     to_dict("FOO=v1;v2") == {"FOO": "v1;v2,"]}
+
+     to_dict("FOO=v1,v2,BAR=v3") == {"FOO": "v1,v2", "BAR": "v3"}
+     to_dict("FOO=v1;v2,BAR=v3") == {"FOO": "v1;v2", "BAR": "v3"}
+     to_dict("FOO=v1;v2;BAR=v3") == {"FOO": "v1;v2", "BAR": "v3"}
+
+    """
+
+    def parse_val_key(vk: str) -> Tuple[str, str]:
+        # ``vk`` is assumed to be in value<delim>key format
+        delims = [",", ";"]
+        idx = max([vk.rfind(d) for d in delims])
+        if idx == -1 or idx == 0 or len(vk) == idx + 1:
+            # no delimiter (hence cannot parse value-key pair from vk)
+            # -- or -- missing val (starts with a delim)
+            # -- or -- trailing delim, no key (e.g. "val1,val2,")
+            raise ValueError(
+                f"`{vk}` cannot be split into `val<delim>key` with delims={delims}"
+            )
+        else:
+            return vk[0:idx], vk[idx + 1 :]
+
+    arg_map: Dict[str, str] = {}
+
+    if not arg:
+        return arg_map
+
+    # split cfgs
+    cfg_kv_delim = "="
+
+    # ["FOO", "v1;v2,BAR", v3, "BAZ", "v4,v5"]
+    split_arg = [s for s in arg.split(cfg_kv_delim) if s]  # remove empty
+    split_arg_len = len(split_arg)
+
+    if split_arg_len < 2:  # no kv -> malformed str
+        raise ValueError(f"`{arg}` does not have at least one `key=value` pair")
+
+    # since we split on "=" so we end up with ["KEY1", "val1,KEY2", "val2,KEY_n", "val_n"]
+    key = split_arg[0]  # first element is always a key
+    # middle elements are value_{n}<delim>key_{n+1}
+    for vk in split_arg[1 : split_arg_len - 1]:  # python deals with
+        val, key_next = parse_val_key(vk)
+        arg_map[key] = val
+        key = key_next
+    val = split_arg[-1]  # last element is always a value
+    arg_map[key] = val
+    return arg_map
 
 
 # pyre-ignore-all-errors[3, 2]

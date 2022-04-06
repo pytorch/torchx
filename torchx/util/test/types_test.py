@@ -115,33 +115,47 @@ class TypesTest(unittest.TestCase):
     def test_to_dict_empty(self) -> None:
         self.assertDictEqual({}, to_dict(""))
 
-    def test_to_dict_simple(self) -> None:
-        enc = "foo=bar,key=value"
-        self.assertDictEqual({"foo": "bar", "key": "value"}, to_dict(enc))
+    def test_to_dict(self) -> None:
+        self.assertDictEqual({"FOO": "v1"}, to_dict("FOO=v1"))
 
-    def test_to_dict_one(self) -> None:
-        enc = "foo=bar"
-        self.assertDictEqual({"foo": "bar"}, to_dict(enc))
+        self.assertDictEqual({"FOO": "v1,v2"}, to_dict("FOO=v1,v2"))
+        self.assertDictEqual({"FOO": "v1;v2"}, to_dict("FOO=v1;v2"))
 
-    def test_to_dict_only_key(self) -> None:
-        enc = "foo"
-        with self.assertRaises(ValueError):
-            to_dict(enc)
+        # trailing delimiters preserved
+        # a delim without the next key should be interpreted as the value for FOO
+        self.assertDictEqual({"FOO": ","}, to_dict("FOO=,"))
+        self.assertDictEqual({"FOO": ";"}, to_dict("FOO=;"))
+        self.assertDictEqual({"FOO": "v1,v2,"}, to_dict("FOO=v1,v2,"))
+        self.assertDictEqual({"FOO": "v1,v2;"}, to_dict("FOO=v1,v2;"))
+        self.assertDictEqual({"FOO": "v1;v2;"}, to_dict("FOO=v1;v2;"))
+        self.assertDictEqual({"FOO": "v1;v2,"}, to_dict("FOO=v1;v2,"))
 
-    def test_to_dict_complex_comma(self) -> None:
-        enc = "foo=bar1,bar2,bar3,my_key=my_value,new_foo=new_bar1,new_bar2"
+        # ; and , can be used interchangeably to delimit list values and kv pairs
+        self.assertDictEqual({"FOO": "v1,v2", "BAR": "v3"}, to_dict("FOO=v1,v2,BAR=v3"))
+        self.assertDictEqual({"FOO": "v1;v2", "BAR": "v3"}, to_dict("FOO=v1;v2;BAR=v3"))
+        self.assertDictEqual({"FOO": "v1,v2", "BAR": "v3"}, to_dict("FOO=v1,v2;BAR=v3"))
+        self.assertDictEqual({"FOO": "v1;v2", "BAR": "v3"}, to_dict("FOO=v1;v2,BAR=v3"))
+
+        # test some non-trivial + edge cases
         self.assertDictEqual(
             {
                 "foo": "bar1,bar2,bar3",
                 "my_key": "my_value",
                 "new_foo": "new_bar1,new_bar2",
             },
-            to_dict(enc),
+            to_dict("foo=bar1,bar2,bar3,my_key=my_value,new_foo=new_bar1,new_bar2"),
         )
 
-    def test_to_dict_doulbe_comma(self) -> None:
-        enc = "key1=value1,,foo=bar"
-        self.assertDictEqual({"foo": "bar", "key1": "value1,"}, to_dict(enc))
+        self.assertDictEqual(
+            {"foo": "bar", "key1": "value1,"},
+            to_dict("key1=value1,,foo=bar"),
+        )
+
+    def test_to_dict_malformed_literal(self) -> None:
+        for malformed in ["FOO", "FOO,", "FOO;", "FOO=", "FOO=;BAR=v1"]:
+            with self.subTest(malformed=malformed):
+                with self.assertRaises(ValueError):
+                    print(to_dict(malformed))
 
     def test_to_list_empty(self) -> None:
         self.assertListEqual([], to_list(""))

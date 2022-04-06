@@ -35,6 +35,7 @@ from torchx.util.types import (
     get_argparse_param_type,
     is_bool,
     is_primitive,
+    to_dict,
 )
 
 
@@ -489,6 +490,7 @@ class AppStatus:
 # see: https://docs.python.org/3/library/stdtypes.html#generic-alias-type
 CfgVal = Union[str, int, float, bool, List[str], None]
 
+
 T = TypeVar("T")
 
 
@@ -614,7 +616,7 @@ class runopts:
         Checks the given config against this ``runopts`` and sets default configs
         if not set.
 
-        .. warning:: This method mutates the provided config!
+        .. note:: Extra configs unknown to this run option are ignored.
 
         """
 
@@ -644,6 +646,80 @@ class runopts:
             if val is None:
                 resolved_cfg[cfg_key] = runopt.default
         return resolved_cfg
+
+    def cfg_from_str(self, cfg_str: str) -> Dict[str, CfgVal]:
+        """
+        Parses scheduler ``runcfg`` from a string literal and returns
+        a cfg map where the cfg values have been cast into the appropriate
+        types as specified by this runopts object. Unknown keys are ignored
+        and not returned in the resulting map.
+
+        .. note:: Unlike the method ``resolve``, this method does NOT resolve
+                  default options or check that the required options are actually
+                  present in the given ``cfg_str``. This method is intended to be
+                  called before calling ``resolve()`` when the input is a string
+                  encoded run cfg. That is to fully resolve the cfg, call
+                  ``opt.resolve(opt.cfg_from_str(cfg_literal))``.
+
+        If the ``cfg_str`` is an empty string, then an empty
+        ``cfg`` is returned. Otherwise, at least one kv-pair delimited by
+        ``"="`` (equal) is expected.
+
+        Either ``","`` (comma) or ``";"`` (semi-colon)
+        can be used to delimit multiple kv-pairs.
+
+        ``CfgVal`` allows ``List`` of primitives, which can be passed as
+        either ``","`` or ``";"`` (semi-colon) delimited. Since the same
+        delimiters are used to delimit between cfg kv pairs, this method
+        interprets the last (trailing) ``","`` or ``";"`` as the delimiter between
+        kv pairs. See example below.
+
+
+
+        Examples:
+
+        .. doctest::
+
+         opts = runopts()
+         opts.add("FOO", type_=List[str], default=["a"], help="an optional list option")
+         opts.add("BAR", type_=str, required=True, help="a required str option")
+
+         # required and default options not checked
+         # method returns strictly parsed cfg from the cfg literal string
+         opts.cfg_from_str("") == {}
+
+         # however, unknown options are ignored
+         # since the value type is unknown hence cannot cast to the correct type
+         opts.cfg_from_str("UNKNOWN=VALUE") == {}
+
+         opts.cfg_from_str("FOO=v1") == {"FOO": "v1"}
+
+         opts.cfg_from_str("FOO=v1,v2") == {"FOO": ["v1", "v2"]}
+         opts.cfg_from_str("FOO=v1;v2") == {"FOO": ["v1", "v2"]}
+
+         opts.cfg_from_str("FOO=v1,v2,BAR=v3") == {"FOO": ["v1", "v2"], "BAR": "v3"}
+         opts.cfg_from_str("FOO=v1;v2,BAR=v3") == {"FOO": ["v1", "v2"], "BAR": "v3"}
+         opts.cfg_from_str("FOO=v1;v2;BAR=v3") == {"FOO": ["v1", "v2"], "BAR": "v3"}
+
+        """
+
+        def _cast_to_type(value: str, opt_type: Type[CfgVal]) -> CfgVal:
+            if opt_type == bool:
+                return value.lower() == "true"
+            elif opt_type == List[str]:
+                # lists may be ; or , delimited
+                # also deal with trailing "," by removing empty strings
+                return [v for v in value.replace(";", ",").split(",") if v]
+            else:
+                # pyre-ignore[19]
+                return opt_type(value)
+
+        cfg: Dict[str, CfgVal] = {}
+        for key, val in to_dict(cfg_str).items():
+            runopt_ = self.get(key)
+            if runopt_:
+                cfg[key] = _cast_to_type(val, runopt_.opt_type)
+        return cfg
 
     def add(
         self,
@@ -773,41 +849,6 @@ def parse_app_handle(app_handle: AppHandle) -> Tuple[str, str, str]:
     return gd["scheduler_backend"], gd["session_name"], gd["app_id"]
 
 
-def _get_function_args(
-    app_fn: Callable[..., AppDef],
-    app_args: List[str],
-    app_arg_defaults: Optional[Dict[str, str]],
-) -> Tuple[List[object], List[str], Dict[str, object]]:
-
-    script_parser = _create_args_parser(app_fn, app_arg_defaults)
-    parsed_args = script_parser.parse_args(app_args)
-
-    function_args = []
-    var_arg = []
-    kwargs = {}
-
-    parameters = inspect.signature(app_fn).parameters
-    for param_name, parameter in parameters.items():
-        arg_value = getattr(parsed_args, param_name)
-        parameter_type = parameter.annotation
-        parameter_type = decode_optional(parameter_type)
-        if is_bool(parameter_type):
-            arg_value = arg_value.lower() == "true"
-        elif not is_primitive(parameter_type):
-            arg_value = decode_from_string(arg_value, parameter_type)
-        if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
-            var_arg = arg_value
-        elif parameter.kind == inspect.Parameter.KEYWORD_ONLY:
-            kwargs[param_name] = arg_value
-        elif parameter.kind == inspect.Parameter.VAR_KEYWORD:
-            raise TypeError("**kwargs are not supported for component definitions")
-        else:
-            function_args.append(arg_value)
-    if len(var_arg) > 0 and var_arg[0] == "--":
-        var_arg = var_arg[1:]
-    return function_args, var_arg, kwargs
-
-
 def _create_args_parser(
     cmpnt_fn: Callable[..., AppDef], cmpnt_defaults: Optional[Dict[str, str]] = None
 ) -> argparse.ArgumentParser:
@@ -896,11 +937,33 @@ def from_function(
         An application spec
     """
 
-    function_args, var_arg, kwargs = _get_function_args(
-        cmpnt_fn,
-        cmpnt_args,
-        cmpnt_defaults,
-    )
+    script_parser = _create_args_parser(cmpnt_fn, cmpnt_defaults)
+    parsed_args = script_parser.parse_args(cmpnt_args)
+
+    function_args = []
+    var_arg = []
+    kwargs = {}
+
+    parameters = inspect.signature(cmpnt_fn).parameters
+    for param_name, parameter in parameters.items():
+        arg_value = getattr(parsed_args, param_name)
+        parameter_type = parameter.annotation
+        parameter_type = decode_optional(parameter_type)
+        if is_bool(parameter_type):
+            arg_value = arg_value.lower() == "true"
+        elif not is_primitive(parameter_type):
+            arg_value = decode_from_string(arg_value, parameter_type)
+        if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
+            var_arg = arg_value
+        elif parameter.kind == inspect.Parameter.KEYWORD_ONLY:
+            kwargs[param_name] = arg_value
+        elif parameter.kind == inspect.Parameter.VAR_KEYWORD:
+            raise TypeError("**kwargs are not supported for component definitions")
+        else:
+            function_args.append(arg_value)
+    if len(var_arg) > 0 and var_arg[0] == "--":
+        var_arg = var_arg[1:]
+
     return cmpnt_fn(*function_args, *var_arg, **kwargs)
 
 
