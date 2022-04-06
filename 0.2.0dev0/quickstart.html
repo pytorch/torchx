@@ -751,10 +751,10 @@ torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:27:04 INFO     Log files located in: /tmp/torchx_x22d105e/torchx/torchx_utils_python-bmxndlxfg429/python/0
-torchx 2022-04-01 22:27:04 INFO     Waiting for the app to finish...
+torchx 2022-04-06 05:04:57 INFO     Log files located in: /tmp/torchx_6zgs1a_e/torchx/torchx_utils_python-fzh4vx1h6xt3z/python/0
+torchx 2022-04-06 05:04:57 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-04-01 22:27:05 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:04:58 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -762,7 +762,7 @@ torchx 2022-04-01 22:27:05 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-bmxndlxfg429
+local_cwd://torchx/torchx_utils_python-fzh4vx1h6xt3z
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -782,12 +782,12 @@ torchx run --scheduler local_docker utils.python --script my_app.py <span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:27:08 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.2.0dev0
-torchx 2022-04-01 22:27:19 INFO     Done building workspace
-torchx 2022-04-01 22:27:19 INFO     New image: sha256:839d6f7f2aeb1347cb9c197080d8a035883211b12bbda90d6073524403d8de8b built from workspace
-torchx 2022-04-01 22:27:20 INFO     Waiting for the app to finish...
+torchx 2022-04-06 05:05:00 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.2.0dev0
+torchx 2022-04-06 05:05:10 INFO     Done building workspace
+torchx 2022-04-06 05:05:10 INFO     New image: sha256:22b9d9f9f915cc40baa4b877a8caede9129d1af951b77d40eba6dc7a8b596f48 built from workspace
+torchx 2022-04-06 05:05:11 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-04-01 22:27:21 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:05:12 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -795,7 +795,7 @@ torchx 2022-04-01 22:27:21 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-fjlsp9zx2h0kgd
+local_docker://torchx/torchx_utils_python-cnqrmw4p7n1s6
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -904,10 +904,10 @@ torchx run --scheduler local_docker dist.ddp -j 2x2 --script dist_app.py
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:27:26 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: dist_app, image: ghcr.io/pytorch/torchx:0.2.0dev0
-torchx 2022-04-01 22:27:37 INFO     Done building workspace
-torchx 2022-04-01 22:27:37 INFO     New image: sha256:c6e1608e166787b21876ae25e0d865a6f1e748c42a7f85422ad1d37d79d2df91 built from workspace
-torchx 2022-04-01 22:27:38 INFO     Waiting for the app to finish...
+torchx 2022-04-06 05:05:16 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: dist_app, image: ghcr.io/pytorch/torchx:0.2.0dev0
+torchx 2022-04-06 05:05:26 INFO     Done building workspace
+torchx 2022-04-06 05:05:26 INFO     New image: sha256:62a57e42279db8d723ed6b1451544623b6e5a2f4659fbb3cb68e4806d0ecc2df built from workspace
+torchx 2022-04-06 05:05:27 INFO     Waiting for the app to finish...
 dist_app/0 WARNING:__main__:
 dist_app/0 *****************************************
 dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
@@ -916,15 +916,15 @@ dist_app/1 WARNING:__main__:
 dist_app/1 *****************************************
 dist_app/1 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 dist_app/1 *****************************************
+dist_app/0 [0]:I am worker 0 of 4!
+dist_app/0 [1]:I am worker 1 of 4!
+dist_app/0 [1]:all_reduce output = tensor([6])
+dist_app/0 [0]:all_reduce output = tensor([6])
 dist_app/1 [1]:I am worker 3 of 4!
 dist_app/1 [1]:all_reduce output = tensor([6])
 dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
-dist_app/0 [0]:I am worker 0 of 4!
-dist_app/0 [0]:all_reduce output = tensor([6])
-dist_app/0 [1]:I am worker 1 of 4!
-dist_app/0 [1]:all_reduce output = tensor([6])
-torchx 2022-04-01 22:27:46 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:05:35 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -932,7 +932,7 @@ torchx 2022-04-01 22:27:46 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-ndss07gdd2grxc
+local_docker://torchx/dist_app-nfz5161nzdk4d
 </pre></div></div>
 </div>
 </section>
@@ -1150,11 +1150,11 @@ torchx run --scheduler local_docker utils.python --script timm_app.py <span clas
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:27:49 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2022-04-01 22:27:50 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.2.0dev0
-torchx 2022-04-01 22:29:44 INFO     Done building workspace
-torchx 2022-04-01 22:29:44 INFO     New image: sha256:788f782714d1f2c2b0c10d3fc65c710cffcc0daa037167bf60fd5ff586e56998 built from workspace
-torchx 2022-04-01 22:29:45 INFO     Waiting for the app to finish...
+torchx 2022-04-06 05:05:38 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2022-04-06 05:05:39 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: python, image: ghcr.io/pytorch/torchx:0.2.0dev0
+torchx 2022-04-06 05:07:27 INFO     Done building workspace
+torchx 2022-04-06 05:07:27 INFO     New image: sha256:a8fd43e02a52410e5a31dbe381de6351e870b37ea48f12d3246944ce10cd60aa built from workspace
+torchx 2022-04-06 05:07:28 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1247,7 +1247,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d (pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2022-04-01 22:29:47 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:07:30 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1255,7 +1255,7 @@ torchx 2022-04-01 22:29:47 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-cwn6ckdggszpfd
+local_docker://torchx/torchx_utils_python-vh4bxlcbvvd9
 </pre></div></div>
 </div>
 </section>
@@ -1432,37 +1432,6 @@ local_docker://torchx/torchx_utils_python-cwn6ckdggszpfd
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">

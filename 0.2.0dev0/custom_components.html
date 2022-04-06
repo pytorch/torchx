@@ -712,10 +712,10 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:21:56 INFO     Log files located in: /tmp/torchx_cnr2adkm/torchx/hello_world-k1x5xfnx41qfld/greeter/0
-torchx 2022-04-01 22:21:57 INFO     Waiting for the app to finish...
+torchx 2022-04-06 05:00:13 INFO     Log files located in: /tmp/torchx_rctipown/torchx/hello_world-vc5s4gdmhkv7q/greeter/0
+torchx 2022-04-06 05:00:14 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-04-01 22:21:58 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:00:15 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -723,7 +723,7 @@ torchx 2022-04-01 22:21:58 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-k1x5xfnx41qfld
+local_cwd://torchx/hello_world-vc5s4gdmhkv7q
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -781,6 +781,10 @@ c0ad16d9fa05: Pulling fs layer
 909695be1d50: Pulling fs layer
 f119a6d0a466: Pulling fs layer
 88d87059c913: Pulling fs layer
+6009a622672a: Waiting
+143f80195431: Waiting
+eccbe17c44e1: Waiting
+d4c7af0d4fa7: Waiting
 06b5edd6bf52: Waiting
 f18d016c4ccc: Waiting
 c0ad16d9fa05: Waiting
@@ -788,13 +792,10 @@ c0ad16d9fa05: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
 88d87059c913: Waiting
-143f80195431: Waiting
-eccbe17c44e1: Waiting
-d4c7af0d4fa7: Waiting
-6009a622672a: Waiting
-889a7173dcfe: Download complete
 d2e110be24e1: Verifying Checksum
 d2e110be24e1: Download complete
+889a7173dcfe: Verifying Checksum
+889a7173dcfe: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
 6009a622672a: Verifying Checksum
@@ -809,18 +810,19 @@ c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
 30587ba7fd6b: Verifying Checksum
 30587ba7fd6b: Download complete
-4bbfd2c87b75: Pull complete
 909695be1d50: Verifying Checksum
 909695be1d50: Download complete
 f119a6d0a466: Verifying Checksum
 f119a6d0a466: Download complete
+88d87059c913: Verifying Checksum
 88d87059c913: Download complete
-d2e110be24e1: Pull complete
-889a7173dcfe: Pull complete
-143f80195431: Verifying Checksum
-143f80195431: Download complete
+4bbfd2c87b75: Pull complete
 f18d016c4ccc: Verifying Checksum
 f18d016c4ccc: Download complete
+d2e110be24e1: Pull complete
+143f80195431: Verifying Checksum
+143f80195431: Download complete
+889a7173dcfe: Pull complete
 6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
@@ -836,8 +838,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; a9fc6d5729ec
-Successfully built a9fc6d5729ec
+ ---&gt; ff3a95c80382
+Successfully built ff3a95c80382
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -856,13 +858,13 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:24:18 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: greeter, image: my_app:latest
-torchx 2022-04-01 22:24:19 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-04-01 22:24:28 INFO     Done building workspace
-torchx 2022-04-01 22:24:28 INFO     New image: sha256:95570119e567ebd166ad30c9819279f4a15b91c5121aa17c52496b9e3abe01f8 built from workspace
-torchx 2022-04-01 22:24:29 INFO     Waiting for the app to finish...
+torchx 2022-04-06 05:02:31 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: greeter, image: my_app:latest
+torchx 2022-04-06 05:02:31 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-04-06 05:02:39 INFO     Done building workspace
+torchx 2022-04-06 05:02:39 INFO     New image: sha256:334c1cf2fcabdb6b1ab625975617ccf4a55ff68eceb6042ab2c8b8bc0f4274b8 built from workspace
+torchx 2022-04-06 05:02:40 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-04-01 22:24:30 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:02:41 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -870,7 +872,7 @@ torchx 2022-04-01 22:24:30 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-qs0z5709gtl2nd
+local_docker://torchx/hello_world-rn3lmqk5s4vwv
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -924,12 +926,12 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-04-01 22:24:34 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: echo, image: ghcr.io/pytorch/torchx:0.2.0dev0
-torchx 2022-04-01 22:26:53 INFO     Done building workspace
-torchx 2022-04-01 22:26:53 INFO     New image: sha256:218c3c5302c87caa740e7b41a28530883b5fea10e7a9f11f8f95cbd1ea16ed7b built from workspace
-torchx 2022-04-01 22:26:54 INFO     Waiting for the app to finish...
-torchx 2022-04-01 22:26:54 INFO     Job finished: SUCCEEDED
+torchx 2022-04-06 05:02:45 INFO     Building workspace: file:///home/runner/work/torchx/torchx/docs/source for role[0]: echo, image: ghcr.io/pytorch/torchx:0.2.0dev0
+torchx 2022-04-06 05:04:46 INFO     Done building workspace
+torchx 2022-04-06 05:04:46 INFO     New image: sha256:61ff4574f455c845283e1453e6752a49ffccb6c9ae33167c0a887efe79cb2813 built from workspace
+torchx 2022-04-06 05:04:47 INFO     Waiting for the app to finish...
 echo/0 Hello :)
+torchx 2022-04-06 05:04:48 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -937,7 +939,7 @@ echo/0 Hello :)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-vbwbvdcf5w7nrc
+local_docker://torchx/echo-vqzpptwqf5lb0c
 </pre></div></div>
 </div>
 </section>
@@ -1088,37 +1090,6 @@ local_docker://torchx/echo-vbwbvdcf5w7nrc
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">

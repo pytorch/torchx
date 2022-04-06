@@ -403,6 +403,7 @@
     <span class="n">get_argparse_param_type</span><span class="p">,</span>
     <span class="n">is_bool</span><span class="p">,</span>
     <span class="n">is_primitive</span><span class="p">,</span>
+    <span class="n">to_dict</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -857,6 +858,7 @@
 <span class="c1"># see: https://docs.python.org/3/library/stdtypes.html#generic-alias-type</span>
 <span class="n">CfgVal</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 
+
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
 
@@ -982,7 +984,7 @@
 <span class="sd">        Checks the given config against this ``runopts`` and sets default configs</span>
 <span class="sd">        if not set.</span>
 
-<span class="sd">        .. warning:: This method mutates the provided config!</span>
+<span class="sd">        .. note:: Extra configs unknown to this run option are ignored.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1012,6 +1014,80 @@
             <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">resolved_cfg</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">default</span>
         <span class="k">return</span> <span class="n">resolved_cfg</span></div>
+
+<div class="viewcode-block" id="runopts.cfg_from_str"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.cfg_from_str">[docs]</a>    <span class="k">def</span> <span class="nf">cfg_from_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses scheduler ``runcfg`` from a string literal and returns</span>
+<span class="sd">        a cfg map where the cfg values have been cast into the appropriate</span>
+<span class="sd">        types as specified by this runopts object. Unknown keys are ignored</span>
+<span class="sd">        and not returned in the resulting map.</span>
+
+<span class="sd">        .. note:: Unlike the method ``resolve``, this method does NOT resolve</span>
+<span class="sd">                  default options or check that the required options are actually</span>
+<span class="sd">                  present in the given ``cfg_str``. This method is intended to be</span>
+<span class="sd">                  called before calling ``resolve()`` when the input is a string</span>
+<span class="sd">                  encoded run cfg. That is to fully resolve the cfg, call</span>
+<span class="sd">                  ``opt.resolve(opt.cfg_from_str(cfg_literal))``.</span>
+
+<span class="sd">        If the ``cfg_str`` is an empty string, then an empty</span>
+<span class="sd">        ``cfg`` is returned. Otherwise, at least one kv-pair delimited by</span>
+<span class="sd">        ``&quot;=&quot;`` (equal) is expected.</span>
+
+<span class="sd">        Either ``&quot;,&quot;`` (comma) or ``&quot;;&quot;`` (semi-colon)</span>
+<span class="sd">        can be used to delimit multiple kv-pairs.</span>
+
+<span class="sd">        ``CfgVal`` allows ``List`` of primitives, which can be passed as</span>
+<span class="sd">        either ``&quot;,&quot;`` or ``&quot;;&quot;`` (semi-colon) delimited. Since the same</span>
+<span class="sd">        delimiters are used to delimit between cfg kv pairs, this method</span>
+<span class="sd">        interprets the last (trailing) ``&quot;,&quot;`` or ``&quot;;&quot;`` as the delimiter between</span>
+<span class="sd">        kv pairs. See example below.</span>
+
+
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">         opts = runopts()</span>
+<span class="sd">         opts.add(&quot;FOO&quot;, type_=List[str], default=[&quot;a&quot;], help=&quot;an optional list option&quot;)</span>
+<span class="sd">         opts.add(&quot;BAR&quot;, type_=str, required=True, help=&quot;a required str option&quot;)</span>
+
+<span class="sd">         # required and default options not checked</span>
+<span class="sd">         # method returns strictly parsed cfg from the cfg literal string</span>
+<span class="sd">         opts.cfg_from_str(&quot;&quot;) == {}</span>
+
+<span class="sd">         # however, unknown options are ignored</span>
+<span class="sd">         # since the value type is unknown hence cannot cast to the correct type</span>
+<span class="sd">         opts.cfg_from_str(&quot;UNKNOWN=VALUE&quot;) == {}</span>
+
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1&quot;) == {&quot;FOO&quot;: &quot;v1&quot;}</span>
+
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1,v2&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;]}</span>
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1;v2&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;]}</span>
+
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1,v2,BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1;v2,BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1;v2;BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_cast_to_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CfgVal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+            <span class="k">elif</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                <span class="c1"># lists may be ; or , delimited</span>
+                <span class="c1"># also deal with trailing &quot;,&quot; by removing empty strings</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># pyre-ignore[19]</span>
+                <span class="k">return</span> <span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">to_dict</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">runopt_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">runopt_</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cast_to_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cfg</span></div>
 
 <div class="viewcode-block" id="runopts.add"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1141,41 +1217,6 @@
     <span class="k">return</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;scheduler_backend&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;session_name&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;app_id&quot;</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_get_function_args</span><span class="p">(</span>
-    <span class="n">app_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span>
-    <span class="n">app_args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">app_arg_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]:</span>
-
-    <span class="n">script_parser</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">app_fn</span><span class="p">,</span> <span class="n">app_arg_defaults</span><span class="p">)</span>
-    <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">script_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">app_args</span><span class="p">)</span>
-
-    <span class="n">function_args</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">var_arg</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">app_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">arg_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
-        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span>
-        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">decode_optional</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">is_bool</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">):</span>
-            <span class="n">arg_value</span> <span class="o">=</span> <span class="n">arg_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_primitive</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">):</span>
-            <span class="n">arg_value</span> <span class="o">=</span> <span class="n">decode_from_string</span><span class="p">(</span><span class="n">arg_value</span><span class="p">,</span> <span class="n">parameter_type</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
-            <span class="n">var_arg</span> <span class="o">=</span> <span class="n">arg_value</span>
-        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_value</span>
-        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;**kwargs are not supported for component definitions&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">function_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_value</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">var_arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span>
-        <span class="n">var_arg</span> <span class="o">=</span> <span class="n">var_arg</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="k">return</span> <span class="n">function_args</span><span class="p">,</span> <span class="n">var_arg</span><span class="p">,</span> <span class="n">kwargs</span>
-
-
 <span class="k">def</span> <span class="nf">_create_args_parser</span><span class="p">(</span>
     <span class="n">cmpnt_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span> <span class="n">cmpnt_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
@@ -1264,11 +1305,33 @@
 <span class="sd">        An application spec</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">function_args</span><span class="p">,</span> <span class="n">var_arg</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_get_function_args</span><span class="p">(</span>
-        <span class="n">cmpnt_fn</span><span class="p">,</span>
-        <span class="n">cmpnt_args</span><span class="p">,</span>
-        <span class="n">cmpnt_defaults</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="n">script_parser</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">cmpnt_fn</span><span class="p">,</span> <span class="n">cmpnt_defaults</span><span class="p">)</span>
+    <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">script_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">cmpnt_args</span><span class="p">)</span>
+
+    <span class="n">function_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">var_arg</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">cmpnt_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">arg_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">,</span> <span class="n">param_name</span><span class="p">)</span>
+        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">parameter</span><span class="o">.</span><span class="n">annotation</span>
+        <span class="n">parameter_type</span> <span class="o">=</span> <span class="n">decode_optional</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_bool</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">):</span>
+            <span class="n">arg_value</span> <span class="o">=</span> <span class="n">arg_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_primitive</span><span class="p">(</span><span class="n">parameter_type</span><span class="p">):</span>
+            <span class="n">arg_value</span> <span class="o">=</span> <span class="n">decode_from_string</span><span class="p">(</span><span class="n">arg_value</span><span class="p">,</span> <span class="n">parameter_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
+            <span class="n">var_arg</span> <span class="o">=</span> <span class="n">arg_value</span>
+        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_value</span>
+        <span class="k">elif</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;**kwargs are not supported for component definitions&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">function_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">var_arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span>
+        <span class="n">var_arg</span> <span class="o">=</span> <span class="n">var_arg</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
     <span class="k">return</span> <span class="n">cmpnt_fn</span><span class="p">(</span><span class="o">*</span><span class="n">function_args</span><span class="p">,</span> <span class="o">*</span><span class="n">var_arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
@@ -1478,37 +1541,6 @@
         <div class="footer-links-col follow-us-col">
           <ul>
             <li class="list-title">Stay Connected</li>
-            <li>
-              <div id="mc_embed_signup">
-                <form
-                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
-                  method="post"
-                  id="mc-embedded-subscribe-form"
-                  name="mc-embedded-subscribe-form"
-                  class="email-subscribe-form validate"
-                  target="_blank"
-                  novalidate>
-                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
-                    <div class="mc-field-group">
-                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
-                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
-                    </div>
-
-                    <div id="mce-responses" class="clear">
-                      <div class="response" id="mce-error-response" style="display:none"></div>
-                      <div class="response" id="mce-success-response" style="display:none"></div>
-                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-
-                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
-
-                    <div class="clear">
-                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-            </li>
           </ul>
 
           <div class="footer-social-icons">
