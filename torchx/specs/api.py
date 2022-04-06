@@ -54,6 +54,7 @@ class Resource:
         gpu: number of gpus
         memMB: MB of ram
         capabilities: additional hardware specs (interpreted by scheduler)
+        devices: a list of named devices with their quantities
 
     Note: you should prefer to use named_resources instead of specifying the raw
     resource requirement directly.
@@ -63,6 +64,7 @@ class Resource:
     gpu: int
     memMB: int
     capabilities: Dict[str, Any] = field(default_factory=dict)
+    devices: Dict[str, int] = field(default_factory=dict)
 
     @staticmethod
     def copy(original: "Resource", **capabilities: Any) -> "Resource":
@@ -78,6 +80,7 @@ class Resource:
             gpu=original.gpu,
             memMB=original.memMB,
             capabilities=res_capabilities,
+            devices=original.devices,
         )
 
 
