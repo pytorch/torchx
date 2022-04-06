@@ -23,23 +23,23 @@ from torchx.specs.api import (
     AppDryRunInfo,
     AppState,
     AppStatus,
+    BindMount,
     CfgVal,
+    DeviceMount,
     InvalidRunConfigException,
     MalformedAppHandleException,
     Resource,
     RetryPolicy,
     Role,
+    VolumeMount,
     _create_args_parser,
     from_function,
     get_type_name,
     macros,
     make_app_handle,
     parse_app_handle,
-    runopts,
     parse_mounts,
-    BindMount,
-    VolumeMount,
-    DeviceMount,
+    runopts,
 )
 
 
@@ -352,6 +352,60 @@ class RunConfigTest(unittest.TestCase):
         self.assertEqual(10, resolved.get("priority"))
         self.assertIsNone(resolved.get("cluster_id"))
         self.assertEqual("baz", resolved.get("some_other_opt"))
+
+    def test_cfg_from_str(self) -> None:
+        opts = runopts()
+        opts.add("K", type_=List[str], help="a list opt", default=[])
+        opts.add("J", type_=str, help="a str opt", required=True)
+
+        self.assertDictEqual({}, opts.cfg_from_str(""))
+        self.assertDictEqual({}, opts.cfg_from_str("UNKWN=b"))
+        self.assertDictEqual({"K": ["a"], "J": "b"}, opts.cfg_from_str("K=a,J=b"))
+        self.assertDictEqual({"K": ["a"]}, opts.cfg_from_str("K=a,UNKWN=b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a;b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b"))
+        self.assertDictEqual({"K": ["a", "b"]}, opts.cfg_from_str("K=a,b;"))
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a,b,J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a,b;J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a;b,J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a", "b"], "J": "d"}, opts.cfg_from_str("K=a;b;J=d")
+        )
+        self.assertDictEqual(
+            {"K": ["a"], "J": "d"}, opts.cfg_from_str("J=d,K=a,UNKWN=e")
+        )
+
+    def test_resolve_from_str(self) -> None:
+        opts = runopts()
+        opts.add("foo", type_=str, default="", help="")
+        opts.add("test_key", type_=str, default="", help="")
+        opts.add("default_time", type_=int, default=0, help="")
+        opts.add("enable", type_=bool, default=True, help="")
+        opts.add("disable", type_=bool, default=True, help="")
+        opts.add("complex_list", type_=List[str], default=[], help="")
+
+        self.assertDictEqual(
+            {
+                "foo": "bar",
+                "test_key": "test_value",
+                "default_time": 42,
+                "enable": True,
+                "disable": False,
+                "complex_list": ["v1", "v2", "v3"],
+            },
+            opts.resolve(
+                opts.cfg_from_str(
+                    "foo=bar,test_key=test_value,default_time=42,enable=True,disable=False,complex_list=v1;v2;v3"
+                )
+            ),
+        ),
 
     def test_runopts_is_type(self) -> None:
         # primitive types

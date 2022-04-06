@@ -12,7 +12,7 @@ import threading
 from dataclasses import asdict
 from pathlib import Path
 from pprint import pformat
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple
 
 import torchx.specs as specs
 from pyre_extensions import none_throws
@@ -22,7 +22,6 @@ from torchx.cli.cmd_log import get_logs
 from torchx.runner import Runner, config, get_runner
 from torchx.runner.config import load_sections
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
-from torchx.specs import CfgVal
 from torchx.specs.finder import (
     ComponentNotFoundException,
     ComponentValidationException,
@@ -30,7 +29,6 @@ from torchx.specs.finder import (
     get_builtin_source,
     get_components,
 )
-from torchx.util.types import to_dict
 
 
 MISSING_COMPONENT_ERROR_MSG = (
@@ -39,33 +37,6 @@ MISSING_COMPONENT_ERROR_MSG = (
 
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-
-def _convert_to_option_type(
-    value: str, option_type: Type[specs.CfgVal]
-) -> specs.CfgVal:
-    if option_type == bool:
-        return value.lower() == "true"
-    elif option_type == List[str]:
-        return value.split(";")
-    else:
-        # pyre-ignore[19]
-        return option_type(value)
-
-
-def _parse_run_config(arg: str, scheduler_opts: specs.runopts) -> Dict[str, CfgVal]:
-    conf: Dict[str, CfgVal] = {}
-    if not arg:
-        return conf
-
-    for key, value in to_dict(arg).items():
-        option = scheduler_opts.get(key)
-        if option is None:
-            raise ValueError(f"Unknown {key}, run `torchx runopts` for more info")
-        option_type = option.opt_type
-        typed_value = _convert_to_option_type(value, option_type)
-        conf[key] = typed_value
-    return conf
 
 
 def _parse_component_name_and_args(
@@ -204,8 +175,7 @@ class CmdRun(SubCommand):
 
         run_opts = runner.run_opts()
         scheduler_opts = run_opts[args.scheduler]
-        cfg = _parse_run_config(args.scheduler_args, scheduler_opts)
-
+        cfg = scheduler_opts.cfg_from_str(args.scheduler_args)
         config.apply(scheduler=args.scheduler, cfg=cfg, dirs=CONFIG_DIRS)
 
         component, component_args = _parse_component_name_and_args(

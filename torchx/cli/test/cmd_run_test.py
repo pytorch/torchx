@@ -14,17 +14,11 @@ import tempfile
 import unittest
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, List
+from typing import Generator
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import (
-    CmdBuiltins,
-    CmdRun,
-    _parse_component_name_and_args,
-    _parse_run_config,
-)
+from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_component_name_and_args
 from torchx.schedulers.local_scheduler import SignalException
-from torchx.specs import runopts
 
 
 @contextmanager
@@ -135,14 +129,17 @@ class CmdRunTest(unittest.TestCase):
             self.cmd_run.run(args)
 
     def test_conf_file_missing(self) -> None:
-        with self.assertRaises(SystemExit):
-            args = self.parser.parse_args(
-                [
-                    "--scheduler",
-                    "local_cwd",
-                ]
-            )
-            self.cmd_run.run(args)
+        # guards against existing .torchxconfig files
+        # in user's $HOME or the CWD where the test is launched from
+        with patch("torchx.cli.cmd_run.CONFIG_DIRS", return_value=[self.tmpdir]):
+            with self.assertRaises(SystemExit):
+                args = self.parser.parse_args(
+                    [
+                        "--scheduler",
+                        "local_cwd",
+                    ]
+                )
+                self.cmd_run.run(args)
 
     @patch("torchx.runner.Runner.run")
     def test_run_dryrun(self, mock_runner_run: MagicMock) -> None:
@@ -158,31 +155,6 @@ class CmdRunTest(unittest.TestCase):
         )
         self.cmd_run.run(args)
         mock_runner_run.assert_not_called()
-
-    def _get_test_runopts(self) -> runopts:
-        opts = runopts()
-        opts.add("foo", type_=str, default="", help="")
-        opts.add("test_key", type_=str, default="", help="")
-        opts.add("default_time", type_=int, default=0, help="")
-        opts.add("enable", type_=bool, default=True, help="")
-        opts.add("disable", type_=bool, default=True, help="")
-        opts.add("complex_list", type_=List[str], default=[], help="")
-        return opts
-
-    def test_parse_runopts(self) -> None:
-        test_arg = "foo=bar,test_key=test_value,default_time=42,enable=True,disable=False,complex_list=v1;v2;v3"
-        expected_args = {
-            "foo": "bar",
-            "test_key": "test_value",
-            "default_time": 42,
-            "enable": True,
-            "disable": False,
-            "complex_list": ["v1", "v2", "v3"],
-        }
-        opts = self._get_test_runopts()
-        runconfig = _parse_run_config(test_arg, opts)
-        for k, v in expected_args.items():
-            self.assertEqual(v, runconfig.get(k))
 
     def test_parse_component_name_and_args_no_default(self) -> None:
         sp = argparse.ArgumentParser(prog="test")

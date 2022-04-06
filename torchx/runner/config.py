@@ -248,7 +248,9 @@ def dump(
 
 
 def apply(
-    scheduler: str, cfg: Dict[str, CfgVal], dirs: Optional[List[str]] = None
+    scheduler: str,
+    cfg: Dict[str, CfgVal],
+    dirs: Optional[List[str]] = None,
 ) -> None:
     """
     Loads a ``.torchxconfig`` INI file from the specified directories in
