@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-       include:
-         - scheduler: "aws_batch"
-         - scheduler: "kubernetes"
-         - scheduler: "local_cwd"
-         - scheduler: "local_docker"
-         - scheduler: "ray"
+        include:
+          - scheduler: "aws_batch"
+          - scheduler: "kubernetes"
+          - scheduler: "local_cwd"
+          - scheduler: "local_docker"
+          - scheduler: "ray"
       fail-fast: false
     permissions:
       id-token: write
@@ -63,7 +63,8 @@ jobs:
         run: |
           ray start --head
           ray status
-          ray cluster-dump --host 127.0.0.1:6379
+          ray cluster-dump --host 127.0.0.1:6379 -o ./cluster_out.tar.gz
+          aws s3 cp ./cluster_out.tar.gz s3://pytorch-disttrain-aivanou-3477/cluster_out.tar.gz
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
