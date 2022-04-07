@@ -62,9 +62,19 @@ jobs:
         if: ${{ matrix.scheduler == 'ray' }}
         run: |
           ray start --head
+          sleep 10
           ray status
           ray cluster-dump --host 127.0.0.1:6379 -o ./cluster_out.tar.gz
-          aws s3 cp ./cluster_out.tar.gz s3://pytorch-disttrain-aivanou-3477/cluster_out.tar.gz
+          tar xzvf cluster_out.tar.gz
+          tar xzvf local_node.tar.gz
+          echo ---raylet.out---
+          cat logs/raylet.out
+          echo ---raylet.err---
+          cat logs/raylet.err
+          echo ---gcs_server.out---
+          cat logs/gcs_server.out
+          echo ---gcs_server.err---
+          cat logs/gcs_server.err
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
