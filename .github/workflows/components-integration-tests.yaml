@@ -60,7 +60,10 @@ jobs:
 
       - name: Start Ray
         if: ${{ matrix.scheduler == 'ray' }}
-        run: ray start --head
+        run: |
+          ray start --head
+          ray status
+          ray cluster-dump --host 127.0.0.1:6379
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
