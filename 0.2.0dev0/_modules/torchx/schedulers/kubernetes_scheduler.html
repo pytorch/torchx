@@ -575,6 +575,9 @@
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">requests</span><span class="p">[</span><span class="s2">&quot;nvidia.com/gpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s2">&quot;nvidia.com/gpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)</span>
 
+    <span class="k">for</span> <span class="n">device_name</span><span class="p">,</span> <span class="n">device_limit</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">limits</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">device_limit</span><span class="p">)</span>
+
     <span class="n">resources</span> <span class="o">=</span> <span class="n">V1ResourceRequirements</span><span class="p">(</span>
         <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
         <span class="n">requests</span><span class="o">=</span><span class="n">requests</span><span class="p">,</span>

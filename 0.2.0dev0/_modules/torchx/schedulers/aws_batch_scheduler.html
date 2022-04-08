@@ -427,6 +427,7 @@
     <span class="n">Stream</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.devices</span> <span class="kn">import</span> <span class="n">get_device_mounts</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
@@ -472,6 +473,8 @@
 
     <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)})</span>
+
+    <span class="n">role</span><span class="o">.</span><span class="n">mounts</span> <span class="o">+=</span> <span class="n">get_device_mounts</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">devices</span><span class="p">)</span>
 
     <span class="n">mount_points</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">volumes</span> <span class="o">=</span> <span class="p">[]</span>
