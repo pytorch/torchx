@@ -15,6 +15,9 @@ rules:
   resources: ["jobs","jobs/status"]
   verbs:
   - "*"
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list"]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
