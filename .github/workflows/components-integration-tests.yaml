@@ -16,7 +16,8 @@ jobs:
          - scheduler: "kubernetes"
          - scheduler: "local_cwd"
          - scheduler: "local_docker"
-         - scheduler: "ray"
+         # TODO uncomment when https://github.com/pytorch/torchx/issues/455 is resolved
+         # - scheduler: "ray"
       fail-fast: false
     permissions:
       id-token: write
@@ -52,6 +53,7 @@ jobs:
           if [ -n "$AWS_ROLE_ARN" ]; then
             aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
           fi
+
       - name: Install dependencies
         run: |
           set -eux
@@ -60,9 +62,14 @@ jobs:
 
       - name: Start Ray
         if: ${{ matrix.scheduler == 'ray' }}
-        run: ray start --head
+        run: |
+          ray start --head --address $(hostname)
+          sleep 5 # wait till the node joins so that `status` command displays the head node info
+          ray status
+
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
-        run: scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }}
+        run: |
+          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }}

@@ -27,9 +27,8 @@ from .api import (  # noqa: F401 F403
     AppState,
     AppStatus,
     BindMount,
-    VolumeMount,
-    DeviceMount,
     CfgVal,
+    DeviceMount,
     InvalidRunConfigException,
     MalformedAppHandleException,
     ReplicaState,
@@ -40,15 +39,16 @@ from .api import (  # noqa: F401 F403
     RoleStatus,
     UnknownAppException,
     UnknownSchedulerException,
+    VolumeMount,
     from_function,
     get_type_name,
     is_terminal,
     macros,
     make_app_handle,
     parse_app_handle,
+    parse_mounts,
     runopt,
     runopts,
-    parse_mounts,
 )
 
 

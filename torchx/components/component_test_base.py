@@ -17,53 +17,9 @@ args.
 import os
 import unittest
 from types import ModuleType
-from typing import Mapping, Union
 
-from pyre_extensions import none_throws
-from torchx.runner import get_runner
-from torchx.specs import (
-    AppDef,
-    AppDryRunInfo,
-    AppHandle,
-    AppState,
-    CfgVal,
-)
 from torchx.specs.api import _create_args_parser
 from torchx.specs.finder import get_component
-
-
-class ComponentUtils:
-    @classmethod
-    def run_appdef_on_scheduler(
-        cls,
-        app_def: AppDef,
-        scheduler: str,
-        cfg: Mapping[str, CfgVal],
-        dryrun: bool = False,
-    ) -> Union[AppHandle, AppDryRunInfo]:
-        """
-        Runs component on provided scheduler.
-        """
-
-        runner = get_runner("test-runner")
-        if dryrun:
-            dryrun_info = runner.dryrun(app_def, scheduler, cfg=cfg)
-            print(f"Dryrun info: {dryrun_info}")
-            return dryrun_info
-        else:
-            app_handle = runner.run(app_def, scheduler, cfg=cfg)
-            print(f"AppHandle: {app_handle}")
-            app_status = runner.wait(app_handle)
-            print(f"Final status: {app_status}")
-            if none_throws(app_status).state != AppState.SUCCEEDED:
-                for line in runner.log_lines(
-                    app_handle, role_name=app_def.roles[0].name
-                ):
-                    print(f"{app_handle}: {line}")
-                raise AssertionError(
-                    f"App {app_handle} failed with status: {app_status}"
-                )
-            return app_handle
 
 
 class ComponentTestCase(unittest.TestCase):

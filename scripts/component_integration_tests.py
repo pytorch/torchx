@@ -9,17 +9,22 @@
 Kubernetes integration tests.
 """
 import argparse
+import logging
 import os
 
 import example_app_defs as examples_app_defs_providers
 import torchx.components.integration_tests.component_provider as component_provider
 from integ_test_utils import BuildInfo, MissingEnvError, build_images, push_images
-from torchx.components.integration_tests.integ_tests import (
-    IntegComponentTest,
-    SchedulerInfo,
-)
+from torchx.cli.colors import BLUE, ENDC, GRAY
+from torchx.components.integration_tests.integ_tests import IntegComponentTest
 from torchx.schedulers import get_scheduler_factories
 
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=f"{GRAY}%(asctime)s{ENDC} {BLUE}%(name)-12s{ENDC} %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 # pyre-ignore-all-errors[21] # Cannot find module utils
 # pyre-ignore-all-errors[11]
@@ -29,21 +34,6 @@ def build_and_push_image() -> BuildInfo:
     build = build_images()
     push_images(build)
     return build
-
-
-def get_k8s_sched_info(image: str) -> SchedulerInfo:
-    cfg = {
-        "namespace": "torchx-dev",
-        "queue": "default",
-    }
-    return SchedulerInfo(name="kubernetes", image=image, cfg=cfg)
-
-
-def get_ray_sched_info(image: str) -> SchedulerInfo:
-    cfg = {
-        "namespace": "torchx-dev",
-    }
-    return SchedulerInfo(name="ray", image=image, cfg=cfg)
 
 
 def argparser() -> argparse.ArgumentParser:
@@ -59,7 +49,8 @@ def main() -> None:
 
     print("Starting components integration tests")
     torchx_image = "dummy_image"
-    dryrun: bool = False
+    dryrun = False
+
     if scheduler in ("kubernetes", "local_docker", "aws_batch"):
         try:
             build = build_and_push_image()
@@ -67,47 +58,61 @@ def main() -> None:
         except MissingEnvError:
             dryrun = True
             print("Skip running tests, executed only docker build step")
-    test_suite: IntegComponentTest = IntegComponentTest(timeout=15 * 60)  # 15 minutes
 
-    def run_components(info: SchedulerInfo) -> None:
-        test_suite.run_components(
-            component_provider,
-            scheduler_infos=[info],
-            dryrun=dryrun,
-        )
-
-    def run_examples(info: SchedulerInfo) -> None:
-        test_suite.run_components(
-            examples_app_defs_providers,
-            scheduler_infos=[info],
-            dryrun=dryrun,
-        )
-
-    if scheduler == "kubernetes":
-        info = get_k8s_sched_info(torchx_image)
-        run_components(info)
-        run_examples(info)
-    elif scheduler == "local_cwd":
-        info = SchedulerInfo(name=scheduler, image=os.getcwd())
-        run_components(info)
-    elif scheduler == "local_docker":
-        info = SchedulerInfo(name=scheduler, image=torchx_image)
-        run_components(info)
-        run_examples(info)
-    elif scheduler == "aws_batch":
-        info = SchedulerInfo(
-            name=scheduler,
-            image=torchx_image,
-            cfg={
+    run_parameters = {
+        "kubernetes": {
+            "providers": [
+                component_provider,
+                examples_app_defs_providers,
+            ],
+            "image": torchx_image,
+            "cfg": {
+                "namespace": "torchx-dev",
+                "queue": "default",
+            },
+        },
+        "local_cwd": {
+            "providers": [
+                component_provider,
+            ],
+            "image": os.getcwd(),
+            "cfg": {},
+        },
+        "local_docker": {
+            "providers": [
+                component_provider,
+                examples_app_defs_providers,
+            ],
+            "image": torchx_image,
+            "cfg": {},
+        },
+        "aws_batch": {
+            "providers": [
+                component_provider,
+            ],
+            "image": torchx_image,
+            "cfg": {
                 "queue": "torchx",
             },
+        },
+        "ray": {
+            "providers": [
+                component_provider,
+            ],
+            "image": torchx_image,
+        },
+    }
+
+    params = run_parameters[scheduler]
+    test_suite: IntegComponentTest = IntegComponentTest()
+    for provider in params["providers"]:
+        test_suite.run_components(
+            module=provider,
+            scheduler=scheduler,
+            image=params["image"],
+            cfg=params["cfg"],
+            dryrun=dryrun,
         )
-        run_components(info)
-    elif scheduler == "ray":
-        info = get_ray_sched_info(torchx_image)
-        run_components(info)
-    else:
-        raise ValueError(f"component tests missing support for {scheduler}")
 
 
 if __name__ == "__main__":

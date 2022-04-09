@@ -11,7 +11,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from shutil import copy2, rmtree, copytree
+from shutil import copy2, copytree, rmtree
 from tempfile import mkdtemp
 from typing import Any, Dict, List, Mapping, Optional, Set, Type, cast  # noqa
 
@@ -26,14 +26,16 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import (
+    NONE,
     AppDef,
     CfgVal,
-    macros,
-    runopts,
+    ReplicaStatus,
     Role,
     RoleStatus,
-    ReplicaStatus,
+    macros,
+    runopts,
 )
+
 
 try:
     from ray.autoscaler import sdk as ray_autoscaler_sdk
@@ -319,20 +321,28 @@ if _has_ray:
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
             addr, app_id = app_id.split("-")
             client = JobSubmissionClient(f"http://{addr}")
-            status = client.get_job_status(app_id).status
-            _logger.debug(f"Status is {status}")
-            status = _ray_status_to_torchx_appstate[status]
-            roles = [Role(name="ray", num_replicas=1, image="")]
+            job_status_info = client.get_job_status(app_id)
+            state = _ray_status_to_torchx_appstate[job_status_info.status]
+            roles = [Role(name="ray", num_replicas=-1, image="<N/A>")]
             roles_statuses = [
                 RoleStatus(
                     role="ray",
                     replicas=[
-                        ReplicaStatus(id=0, role="ray", hostname="", state=status)
+                        ReplicaStatus(
+                            id=0,
+                            role="ray",
+                            hostname=NONE,
+                            state=state,
+                        )
                     ],
                 )
             ]
             return DescribeAppResponse(
-                app_id=app_id, state=status, roles_statuses=roles_statuses, roles=roles
+                app_id=app_id,
+                state=state,
+                msg=job_status_info.message or NONE,
+                roles_statuses=roles_statuses,
+                roles=roles,
             )
 
         def log_iter(

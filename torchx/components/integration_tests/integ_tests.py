@@ -5,57 +5,21 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-import time
-import traceback
-from concurrent.futures import Future, ThreadPoolExecutor
-from dataclasses import dataclass, field
-from string import Template
+import logging
+import sys
+from dataclasses import asdict
+from json import dumps
 from types import ModuleType
-from typing import Callable, List, Mapping, Optional, Tuple, Type, cast
+from typing import Callable, Dict, List, Type, cast
 
 from pyre_extensions import none_throws
-from torchx.components.component_test_base import ComponentUtils
+from torchx.cli.cmd_log import get_logs
 from torchx.components.integration_tests.component_provider import ComponentProvider
-from torchx.specs import AppDef, CfgVal
+from torchx.runner import get_runner
+from torchx.specs import AppHandle, AppState, AppStatus, CfgVal
 
 
-@dataclass
-class SchedulerInfo:
-    name: str
-    image: str
-    cfg: Mapping[str, CfgVal] = field(default_factory=dict)
-
-
-@dataclass
-class AppDefRun:
-    provider: ComponentProvider
-    scheduler_info: SchedulerInfo
-    app_def: AppDef
-    future: Optional[Future] = None
-
-
-_SUCCESS_APP_FORMAT_TEMPLATE = """
-  Name: ${name}
-  Scheduler: ${scheduler}"""
-
-_FAIL_APP_FORMAT_TEMPLATE = """
-  Name: ${name}
-  Provider: ${provider}
-  Scheduler: ${scheduler}
-  Image: ${image}
-  Error: ${error}"""
-
-_REPORT_FORMAT_TEMPLATE = """
-${boarder}
-Status: Success
-${boarder}
-${success_report}
-\n
-${boarder}
-Status: Failed
-${boarder}
-${fail_report}
-"""
+log: logging.Logger = logging.getLogger(__name__)
 
 
 class IntegComponentTest:
@@ -63,35 +27,90 @@ class IntegComponentTest:
     Class contains common methods for executing e2e integration tests of components on different schedulers.
     The providers of `AppDef` must implement `torchx.components.integration_tests.component_provider.ComponentProvider`.
 
+    >>> import torchx.specs as specs
     >>> import torchx.components.integration_tests.integ_tests as integ_tests
     >>> from torchx.components.integration_tests.component_provider import ComponentProvider
     >>> class MyComponentProvider(ComponentProvider):
     ...     def get_app_def(self):
-    ...         return AppDef(...)
+    ...         return specs.AppDef(...)
     >>> IntegComponentTest(...).run_component(my_module)
 
     #TODO(aivanou): implement `run_component` method that allows running a single component provider
     """
 
-    def __init__(self, timeout: int = 300) -> None:
-        self._timeout = timeout
-
     def run_components(
         self,
         module: ModuleType,
-        scheduler_infos: List[SchedulerInfo],
+        image: str,
+        scheduler: str,
+        cfg: Dict[str, CfgVal],
         dryrun: bool = False,
-        run_in_parallel: bool = True,
     ) -> None:
-        component_providers_cls = self._get_component_providers(module)
-        app_runs: List[AppDefRun] = []
-        executor = ThreadPoolExecutor()
-        for scheduler_info in scheduler_infos:
-            sched_futures = self._run_component_providers(
-                executor, component_providers_cls, scheduler_info, dryrun
+        component_providers = [
+            cast(Callable[..., ComponentProvider], cls)(scheduler, image)
+            for cls in self._get_component_providers(module)
+        ]
+
+        # get all the appdefs from providers
+        app_defs = []
+        for provider in component_providers:
+            provider.setUp()
+            try:
+                app_defs.append(provider.get_app_def())
+            finally:
+                provider.tearDown()
+
+        # submit all the jobs asynchronously
+        jobs: Dict[AppHandle, AppStatus] = {}
+        runner = get_runner("test-runner")
+
+        for app_def in app_defs:
+            log.info(f"Submitting AppDef... (dryrun={dryrun})")
+            # get the dryrun info to log the scheduler request
+            # then use the schedule (intead of the run API) for job submission
+            dryrun_info = runner.dryrun(app_def, scheduler, cfg=cfg)
+            log.info(f"\nAppDef:\n{dumps(asdict(app_def), indent=4)}")
+            log.info(f"\nScheduler Request:\n{dryrun_info}")
+
+            if not dryrun:
+                app_handle = runner.schedule(dryrun_info)
+                status = runner.status(app_handle)
+                jobs[app_handle] = none_throws(status)
+                log.info(f"Submitted Application ({app_handle})")
+            else:
+                log.info(
+                    f"Dryrun, not submitting application to scheduler=`{scheduler}`"
+                )
+
+        # batch wait for the states
+        for app_handle, status in jobs.items():
+            log.info(f"Waiting for {app_handle} to finish...")
+            status = none_throws(runner.wait(app_handle))
+            log.info(
+                f"App ({app_handle}) finished with state=`{status.state}` and msg=`{status.msg}` (see application log lines below)"
             )
-            app_runs += sched_futures
-        self._wait_and_print_report(app_runs)
+            jobs[app_handle] = status
+
+        # print the logs for all jobs
+        for app_handle, status in jobs.items():
+            print(f"=== BEGIN LOG {app_handle} ({status.state})===")
+            # pass the same runner used to run the component so that log iter works with local scheduler (which is locally stateful)
+            get_logs(sys.stdout, app_handle, regex=None, runner=runner)
+            print(f"=== END LOG {app_handle} ({status.state}) ===")
+
+        # log summary of states
+        group_by_state: Dict[AppState, List[AppHandle]] = {}
+        for app_handle, status in jobs.items():
+            handles = group_by_state.setdefault(status.state, [])
+            handles.append(app_handle)
+
+        log.info(f"\n{'*'*40}{dumps(group_by_state, indent=4)}\n{'*' * 40}")
+
+        # assert that all jobs have been successful (jobs not in final state SUCCEEDED are considered a failure)
+        num_total = len(jobs)
+        num_failed = num_total - len(group_by_state.get(AppState.SUCCEEDED, []))
+        if num_failed > 0:
+            raise AssertionError(f"{num_failed}/{num_total} test jobs failed")
 
     def _get_component_providers(
         self, module: ModuleType
@@ -106,140 +125,3 @@ class IntegComponentTest:
             ):
                 providers.append(attr)
         return providers
-
-    def _run_component_providers(
-        self,
-        executor: ThreadPoolExecutor,
-        component_providers_cls: List[Type[ComponentProvider]],
-        scheduler_info: SchedulerInfo,
-        dryrun: bool = False,
-        run_in_parallel: bool = True,
-    ) -> List[AppDefRun]:
-        if run_in_parallel:
-            return self._run_component_providers_in_parallel(
-                executor, component_providers_cls, scheduler_info, dryrun
-            )
-        else:
-            return self._run_component_providers_in_sequence(
-                component_providers_cls, scheduler_info, dryrun
-            )
-
-    def _run_component_providers_in_sequence(
-        self,
-        component_providers_cls: List[Type[ComponentProvider]],
-        scheduler_info: SchedulerInfo,
-        dryrun: bool = False,
-    ) -> List[AppDefRun]:
-        app_runs: List[AppDefRun] = []
-        for provider_cls in component_providers_cls:
-            provider = self._get_app_def_provider(provider_cls, scheduler_info)
-            self._run_component_provider(provider, scheduler_info, dryrun)
-            app_runs.append(
-                AppDefRun(
-                    provider=provider,
-                    scheduler_info=scheduler_info,
-                    future=None,
-                    app_def=provider.get_app_def(),
-                )
-            )
-        return app_runs
-
-    def _run_component_providers_in_parallel(
-        self,
-        executor: ThreadPoolExecutor,
-        component_providers_cls: List[Type[ComponentProvider]],
-        scheduler_info: SchedulerInfo,
-        dryrun: bool = False,
-    ) -> List[AppDefRun]:
-        app_runs: List[AppDefRun] = []
-        for provider_cls in component_providers_cls:
-            provider = self._get_app_def_provider(provider_cls, scheduler_info)
-            future = executor.submit(
-                self._run_component_provider, provider, scheduler_info, dryrun
-            )
-            app_runs.append(
-                AppDefRun(
-                    provider=provider,
-                    scheduler_info=scheduler_info,
-                    future=future,
-                    app_def=provider.get_app_def(),
-                )
-            )
-        return app_runs
-
-    def _get_app_def_provider(
-        self,
-        component_provider_cls: Type[ComponentProvider],
-        scheduler_info: SchedulerInfo,
-    ) -> ComponentProvider:
-        provider_cls = cast(Callable[..., ComponentProvider], component_provider_cls)
-        return none_throws(provider_cls(scheduler_info.name, scheduler_info.image))
-
-    def _run_component_provider(
-        self,
-        provider: ComponentProvider,
-        scheduler_info: SchedulerInfo,
-        dryrun: bool = False,
-    ) -> None:
-        try:
-            provider.setUp()
-            ComponentUtils.run_appdef_on_scheduler(
-                provider.get_app_def(),
-                scheduler_info.name,
-                scheduler_info.cfg,
-                dryrun,
-            )
-        finally:
-            provider.tearDown()
-
-    def _wait_and_print_report(self, app_runs: List[AppDefRun]) -> None:
-        succeeded_apps: List[AppDefRun] = []
-        failed_apps: List[Tuple[AppDefRun, str]] = []
-        deadline = time.monotonic() + self._timeout
-        for app_run in app_runs:
-            task_timeout = max(0, int(deadline - time.monotonic()))
-            error_msg = self._get_app_def_run_status(app_run, task_timeout)
-            if not error_msg:
-                succeeded_apps.append(app_run)
-            else:
-                failed_apps.append((app_run, error_msg))
-        success_report = ""
-        for app_run in succeeded_apps:
-            success_report_run = Template(_SUCCESS_APP_FORMAT_TEMPLATE).substitute(
-                name=app_run.app_def.name, scheduler=app_run.scheduler_info.name
-            )
-            success_report += f"{success_report_run}\n"
-        fail_report = ""
-        for app_run, error_msg in failed_apps:
-            fail_report_run = Template(_FAIL_APP_FORMAT_TEMPLATE).substitute(
-                name=app_run.app_def.name,
-                provider=app_run.provider,
-                scheduler=app_run.scheduler_info.name,
-                image=app_run.scheduler_info.image,
-                error=error_msg,
-            )
-            fail_report += f"{fail_report_run}\n"
-        delim = "*"
-        width = 80
-        msg = Template(_REPORT_FORMAT_TEMPLATE).substitute(
-            boarder=delim * width,
-            success_report=success_report or "<NONE>",
-            fail_report=fail_report or "<NONE>",
-        )
-        print(msg)
-        if len(failed_apps) > 0:
-            raise RuntimeError(
-                "Component test failed, see report above for detailed issue"
-            )
-
-    def _get_app_def_run_status(
-        self, app_def_run: AppDefRun, timeout: int
-    ) -> Optional[str]:
-        try:
-            print(f"Retrieving {app_def_run.app_def.name}: {app_def_run.provider}")
-            if app_def_run.future:
-                app_def_run.future.result(timeout=timeout)
-            return None
-        except Exception:
-            stack_trace_msg = traceback.format_exc().replace("\n", "\n  ")
-            return stack_trace_msg
