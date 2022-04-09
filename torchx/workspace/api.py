@@ -81,20 +81,26 @@ def walk_workspace(
                 continue
             ignore_patterns.append(line)
 
-    for dir, dirs, files in fs.walk(path, detail=True):
-        assert isinstance(dir, str), "path must be str"
-        relpath = posixpath.relpath(dir, path)
-        if _ignore(relpath, ignore_patterns):
-            continue
-        dirs = [
-            d for d in dirs if not _ignore(posixpath.join(relpath, d), ignore_patterns)
-        ]
-        files = {
-            file: info
-            for file, info in files.items()
-            if not _ignore(
-                posixpath.join(relpath, file) if relpath != "." else file,
-                ignore_patterns,
-            )
-        }
-        yield dir, dirs, files
+    paths_to_walk = [path]
+    while paths_to_walk:
+        current_path = paths_to_walk.pop()
+        for dir, dirs, files in fs.walk(current_path, detail=True, maxdepth=1):
+            assert isinstance(dir, str), "path must be str"
+            relpath = posixpath.relpath(dir, path)
+            
+            if _ignore(relpath, ignore_patterns):
+                continue
+            dirs = [
+                d for d in dirs if not _ignore(posixpath.join(relpath, d), ignore_patterns)
+            ]
+            files = {
+                file: info
+                for file, info in files.items()
+                if not _ignore(
+                    posixpath.join(relpath, file) if relpath != "." else file,
+                    ignore_patterns,
+                )
+            }
+            yield dir, dirs, files
+            for d in dirs:
+                paths_to_walk.append(posixpath.join(dir, d))
