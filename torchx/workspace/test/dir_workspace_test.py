@@ -48,6 +48,8 @@ class DirWorkspaceTest(unittest.TestCase):
         fs = fsspec.filesystem("memory")
         files = [
             "ignoredir/bar",
+            "ignoredir/recursive/bar",
+            "three/part/ignore/foo/bar",
             "dir1/bar",
             "dir/ignorefileglob1",
             "dir/recursive/ignorefileglob2",
@@ -68,6 +70,7 @@ class DirWorkspaceTest(unittest.TestCase):
                 # dirs/files
                 ignoredir
                 ignorefile
+                three/part/ignore
 
                 # globs
                 */ignorefileglo*1

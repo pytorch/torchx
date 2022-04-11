@@ -125,6 +125,7 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         fs = fsspec.filesystem("memory")
         files = [
             "dockerignore/ignoredir/bar",
+            "dockerignore/ignoredir/recursive/bar",
             "dockerignore/dir1/bar",
             "dockerignore/dir/ignorefileglob1",
             "dockerignore/dir/recursive/ignorefileglob2",
