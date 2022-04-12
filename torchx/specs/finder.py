@@ -105,6 +105,7 @@ class ModuleComponentsFinder(ComponentsFinder):
 
     def _get_base_module_name(self, module: ModuleType) -> str:
         filepath = module.__file__
+        # pyre-fixme[16]: `Optional` has no attribute `endswith`.
         if filepath.endswith("__init__.py"):
             return module.__name__
         else:
