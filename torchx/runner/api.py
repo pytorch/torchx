@@ -279,16 +279,18 @@ class Runner:
             if workspace and isinstance(sched, Workspace):
                 role = app.roles[0]
                 old_img = role.image
-                logger.info(
-                    f"Building workspace: {workspace} for role[0]: {role.name}, image: {old_img}"
-                )
+
+                logger.info(f"Checking for changes in workspace `{workspace}`...")
                 sched.build_workspace_and_update_role(role, workspace, cfg)
-                logger.info("Done building workspace")
+
                 if old_img != role.image:
-                    logger.info(f"New image: {role.image} built from workspace")
+                    logger.info(
+                        f"Built new image `{role.image}` based on original image `{old_img}`"
+                        f" and changes in workspace `{workspace}` for role[0]={role.name}."
+                    )
                 else:
                     logger.info(
-                        f"Reusing original image: {old_img} for role[0]: {role.name}."
+                        f"Reusing original image `{old_img}` for role[0]={role.name}."
                         " Either a patch was built or no changes to workspace was detected."
                     )
 
