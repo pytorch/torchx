@@ -94,7 +94,7 @@ class SlurmReplicaRequest:
 
     @classmethod
     def from_role(
-        cls, name: str, role: Role, cfg: Mapping[str, CfgVal]
+        cls, name: str, role: Role, cfg: Mapping[str, CfgVal], nomem: bool
     ) -> "SlurmReplicaRequest":
         """
         ``from_role`` creates a SlurmReplicaRequest for the specific role and
@@ -112,7 +112,7 @@ class SlurmReplicaRequest:
         if resource != NONE:
             if resource.cpu > 0:
                 sbatch_opts.setdefault("cpus-per-task", str(resource.cpu))
-            if not cfg.get("nomem") and resource.memMB > 0:
+            if not nomem and resource.memMB > 0:
                 sbatch_opts.setdefault("mem", str(resource.memMB))
             if resource.gpu > 0:
                 sbatch_opts.setdefault("gpus-per-task", str(resource.gpu))
@@ -272,6 +272,9 @@ class SlurmScheduler(Scheduler, DirWorkspace):
                 If ``job_dir`` is specified the DirWorkspace will create a new
                 isolated directory with a snapshot of the workspace.
             mounts: false
+
+    If a partition has less than 1GB of RealMemory configured we disable memory
+    requests to workaround https://github.com/aws/aws-parallelcluster/issues/2198.
     """
 
     def __init__(self, session_name: str) -> None:
@@ -292,12 +295,6 @@ class SlurmScheduler(Scheduler, DirWorkspace):
             help='The maximum time the job is allowed to run for. Formats: \
             "minutes", "minutes:seconds", "hours:minutes:seconds", "days-hours", \
             "days-hours:minutes" or "days-hours:minutes:seconds"',
-        )
-        opts.add(
-            "nomem",
-            type_=bool,
-            default=False,
-            help="disables memory request to workaround https://github.com/aws/aws-parallelcluster/issues/2198",
         )
         opts.add(
             "comment",
@@ -350,11 +347,50 @@ class SlurmScheduler(Scheduler, DirWorkspace):
 
             return job_id
 
+    def _partition_memmb(self, partition: Optional[str]) -> Optional[int]:
+        """
+        _partition_memmb returns the memory allocation for the given partition
+        or the default partition if none is specified.
+        """
+        try:
+            p = subprocess.run(
+                ["sinfo", "--format", "%P,%m", "--noconvert"],
+                stdout=subprocess.PIPE,
+            )
+        except FileNotFoundError:
+            return None
+        if p.returncode != 0:
+            return None
+        output = p.stdout.decode("utf-8").strip().split("\n")
+        if len(output) <= 1:
+            return None
+
+        reader = csv.DictReader(output, delimiter=",")
+        for row in reader:
+            part = row.get("PARTITION")
+            mem = row.get("MEMORY")
+            if part is None or mem is None:
+                continue
+            default = "*" in part
+            part = part.strip("*")
+            memmb = int(mem.strip("M+"))
+            if part == partition or (partition is None and default):
+                return memmb
+        return None
+
     def _submit_dryrun(
         self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[SlurmBatchRequest]:
         job_dir = cfg.get("job_dir")
         assert job_dir is None or isinstance(job_dir, str), "job_dir must be str"
+
+        partition = cfg.get("partition")
+        assert partition is None or isinstance(partition, str), "partition must be str"
+
+        # check if the partition has at least 1GB memory, if we're not sure,
+        # default to using memory allocations
+        memmb = self._partition_memmb(partition)
+        nomem = memmb is not None and memmb <= 1000
 
         replicas = {}
         for role in app.roles:
@@ -367,7 +403,12 @@ class SlurmScheduler(Scheduler, DirWorkspace):
                 )
                 name = f"{role.name}-{replica_id}"
                 replica_role = values.apply(role)
-                replicas[name] = SlurmReplicaRequest.from_role(name, replica_role, cfg)
+                replicas[name] = SlurmReplicaRequest.from_role(
+                    name,
+                    replica_role,
+                    cfg,
+                    nomem=nomem,
+                )
         cmd = ["sbatch", "--parsable"]
 
         for k in SBATCH_JOB_OPTIONS:

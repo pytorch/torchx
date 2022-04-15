@@ -33,7 +33,6 @@ cat <<EOT > .torchxconfig
 partition=compute
 time=10
 comment=hello
-nomem=true
 job_dir=$JOB_DIR
 EOT
 
