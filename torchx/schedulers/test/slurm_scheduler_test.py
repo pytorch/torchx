@@ -75,6 +75,15 @@ def simple_app() -> specs.AppDef:
     )
 
 
+def mem_app() -> specs.AppDef:
+    return specs.AppDef(
+        name="foo",
+        roles=[
+            simple_role(),
+        ],
+    )
+
+
 class SlurmSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         scheduler = create_scheduler("foo")
@@ -83,7 +92,7 @@ class SlurmSchedulerTest(unittest.TestCase):
     def test_replica_request(self) -> None:
         role = simple_role()
         sbatch, srun = SlurmReplicaRequest.from_role(
-            "role-0", role, cfg={}
+            "role-0", role, cfg={}, nomem=False
         ).materialize()
         self.assertEqual(
             sbatch,
@@ -109,7 +118,10 @@ class SlurmSchedulerTest(unittest.TestCase):
 
     def test_replica_request_nomem(self) -> None:
         sbatch, srun = SlurmReplicaRequest.from_role(
-            "role-name", simple_role(), cfg={"nomem": True}
+            "role-name",
+            simple_role(),
+            cfg={},
+            nomem=True,
         ).materialize()
         self.assertEqual(
             sbatch,
@@ -123,7 +135,10 @@ class SlurmSchedulerTest(unittest.TestCase):
 
     def test_replica_request_constraint(self) -> None:
         sbatch, srun = SlurmReplicaRequest.from_role(
-            "role-name", simple_role(), cfg={"constraint": "orange"}
+            "role-name",
+            simple_role(),
+            cfg={"constraint": "orange"},
+            nomem=False,
         ).materialize()
         self.assertIn(
             "--constraint=orange",
@@ -137,7 +152,9 @@ class SlurmSchedulerTest(unittest.TestCase):
             entrypoint="echo",
             args=[f"hello {specs.macros.app_id}"],
         )
-        _, srun = SlurmReplicaRequest.from_role("role-name", role, cfg={}).materialize()
+        _, srun = SlurmReplicaRequest.from_role(
+            "role-name", role, cfg={}, nomem=False
+        ).materialize()
         self.assertIn(
             "echo 'hello '\"$SLURM_JOB_ID\"''",
             " ".join(srun),
@@ -156,7 +173,9 @@ class SlurmSchedulerTest(unittest.TestCase):
             "time": "5:13",
         }
 
-        sbatch, _ = SlurmReplicaRequest.from_role("role-name", role, cfg).materialize()
+        sbatch, _ = SlurmReplicaRequest.from_role(
+            "role-name", role, cfg, nomem=False
+        ).materialize()
 
         run_opts = scheduler.run_opts()
 
@@ -205,8 +224,12 @@ srun --output=slurm-"$SLURM_JOB_ID"-a-0.out --error=slurm-"$SLURM_JOB_ID"-a-0.er
 """,
         )
 
+    @patch(
+        "torchx.schedulers.slurm_scheduler.SlurmScheduler._partition_memmb",
+        return_value=2048,
+    )
     @patch("subprocess.run")
-    def test_run_multi_role(self, run: MagicMock) -> None:
+    def test_run_multi_role(self, run: MagicMock, partition_memmb: MagicMock) -> None:
         run.return_value.stdout = b"1234"
         scheduler = create_scheduler("foo")
         app = specs.AppDef(
@@ -402,6 +425,25 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         with self.assertRaises(ValueError):
             scheduler.log_iter("54", "echo", 1, streams=Stream.COMBINED)
 
+    @patch("subprocess.run")
+    def test_dryrun_nomem(self, run: MagicMock) -> None:
+        run.return_value.returncode = 0
+
+        scheduler = create_scheduler("foo")
+        app = mem_app()
+
+        run.return_value.stdout = b"PARTITION,MEMORY\nfoo*,5000"
+        info = scheduler.submit_dryrun(app, cfg={})
+        self.assertIn("mem", info.request.replicas["foo-0"].sbatch_opts)
+
+        run.return_value.stdout = b"PARTITION,MEMORY\nfoo*,1"
+        info = scheduler.submit_dryrun(app, cfg={})
+        self.assertNotIn("mem", info.request.replicas["foo-0"].sbatch_opts)
+
+        run.return_value.stdout = b""
+        info = scheduler.submit_dryrun(app, cfg={})
+        self.assertIn("mem", info.request.replicas["foo-0"].sbatch_opts)
+
     def test_dryrun_comment(self) -> None:
         scheduler = create_scheduler("foo")
         app = simple_app()
@@ -435,8 +477,14 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
             info.request.cmd,
         )
 
+    @patch(
+        "torchx.schedulers.slurm_scheduler.SlurmScheduler._partition_memmb",
+        return_value=2048,
+    )
     @patch("subprocess.run")
-    def test_run_workspace_job_dir(self, run: MagicMock) -> None:
+    def test_run_workspace_job_dir(
+        self, run: MagicMock, partition_memmb: MagicMock
+    ) -> None:
         with tmp_cwd():
             run.return_value.stdout = b"1234"
             scheduler = create_scheduler("foo")
@@ -461,3 +509,24 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
                 "dir/torchx-sbatch.sh",
             ],
         )
+
+    @patch("subprocess.run")
+    def test_partition_memmb(self, run: MagicMock) -> None:
+        scheduler = create_scheduler("foo")
+
+        ret = run.return_value
+        ret.returncode = 0
+        ret.stdout = b"""
+PARTITION,MEMORY
+scavenge,500000+
+compute*,1
+"""
+        self.assertEqual(scheduler._partition_memmb(None), 1)
+        self.assertEqual(scheduler._partition_memmb("compute"), 1)
+        self.assertEqual(scheduler._partition_memmb("nonexistant"), None)
+        self.assertEqual(scheduler._partition_memmb("scavenge"), 500000)
+
+        ret.stdout = b"""
+PARTITION,MEMORY
+"""
+        self.assertEqual(scheduler._partition_memmb(None), None)
