@@ -6,11 +6,26 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+from ipaddress import ip_address, IPv6Address
 
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 from omegaconf import DictConfig
+
+
+def is_ipv6_address(addr: str) -> bool:
+    try:
+        return type(ip_address(addr)) is IPv6Address
+    except Exception:
+        return False
+
+
+def get_init_method(master_addr: str, master_port: int) -> str:
+    if is_ipv6_address(master_addr):
+        return f"tcp://[{master_addr}]:{master_port}"
+    else:
+        return f"tcp://{master_addr}:{master_port}"
 
 
 def compute_world_size(cfg: DictConfig) -> int:
@@ -24,7 +39,7 @@ def compute_world_size(cfg: DictConfig) -> int:
     print(f"initializing `{backend}` process group")
     dist.init_process_group(
         backend=backend,
-        init_method=f"tcp://{master_addr}:{master_port}",
+        init_method=get_init_method(master_addr, master_port),
         rank=rank,
         world_size=world_size,
     )
