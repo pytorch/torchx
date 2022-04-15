@@ -462,7 +462,7 @@
 
 <div class="viewcode-block" id="SlurmReplicaRequest.from_role"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.from_role">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_role</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span> <span class="n">nomem</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SlurmReplicaRequest&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ``from_role`` creates a SlurmReplicaRequest for the specific role and</span>
@@ -480,7 +480,7 @@
         <span class="k">if</span> <span class="n">resource</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;cpus-per-task&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">cpu</span><span class="p">))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nomem&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">nomem</span> <span class="ow">and</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;mem&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">sbatch_opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;gpus-per-task&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
@@ -640,6 +640,9 @@
 <span class="sd">                If ``job_dir`` is specified the DirWorkspace will create a new</span>
 <span class="sd">                isolated directory with a snapshot of the workspace.</span>
 <span class="sd">            mounts: false</span>
+
+<span class="sd">    If a partition has less than 1GB of RealMemory configured we disable memory</span>
+<span class="sd">    requests to workaround https://github.com/aws/aws-parallelcluster/issues/2198.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -660,12 +663,6 @@
             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The maximum time the job is allowed to run for. Formats: </span><span class="se">\</span>
 <span class="s1">            &quot;minutes&quot;, &quot;minutes:seconds&quot;, &quot;hours:minutes:seconds&quot;, &quot;days-hours&quot;, </span><span class="se">\</span>
 <span class="s1">            &quot;days-hours:minutes&quot; or &quot;days-hours:minutes:seconds&quot;&#39;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="s2">&quot;nomem&quot;</span><span class="p">,</span>
-            <span class="n">type_</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;disables memory request to workaround https://github.com/aws/aws-parallelcluster/issues/2198&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;comment&quot;</span><span class="p">,</span>
@@ -718,11 +715,50 @@
 
             <span class="k">return</span> <span class="n">job_id</span></div>
 
+    <span class="k">def</span> <span class="nf">_partition_memmb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        _partition_memmb returns the memory allocation for the given partition</span>
+<span class="sd">        or the default partition if none is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;sinfo&quot;</span><span class="p">,</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="s2">&quot;%P,%m&quot;</span><span class="p">,</span> <span class="s2">&quot;--noconvert&quot;</span><span class="p">],</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="n">part</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PARTITION&quot;</span><span class="p">)</span>
+            <span class="n">mem</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MEMORY&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mem</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">part</span>
+            <span class="n">part</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+            <span class="n">memmb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mem</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;M+&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="n">partition</span> <span class="ow">or</span> <span class="p">(</span><span class="n">partition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">default</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">memmb</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
     <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">SlurmBatchRequest</span><span class="p">]:</span>
         <span class="n">job_dir</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;job_dir&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">job_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;job_dir must be str&quot;</span>
+
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">partition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;partition must be str&quot;</span>
+
+        <span class="c1"># check if the partition has at least 1GB memory, if we&#39;re not sure,</span>
+        <span class="c1"># default to using memory allocations</span>
+        <span class="n">memmb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition_memmb</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+        <span class="n">nomem</span> <span class="o">=</span> <span class="n">memmb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">memmb</span> <span class="o">&lt;=</span> <span class="mi">1000</span>
 
         <span class="n">replicas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
@@ -735,7 +771,12 @@
                 <span class="p">)</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
-                <span class="n">replicas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SlurmReplicaRequest</span><span class="o">.</span><span class="n">from_role</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+                <span class="n">replicas</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SlurmReplicaRequest</span><span class="o">.</span><span class="n">from_role</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">replica_role</span><span class="p">,</span>
+                    <span class="n">cfg</span><span class="p">,</span>
+                    <span class="n">nomem</span><span class="o">=</span><span class="n">nomem</span><span class="p">,</span>
+                <span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sbatch&quot;</span><span class="p">,</span> <span class="s2">&quot;--parsable&quot;</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SBATCH_JOB_OPTIONS</span><span class="p">:</span>
