@@ -6,6 +6,7 @@
     ".*/IPython/core/tests/nonascii.*",
     ".*/torchx/examples/apps/compute_world_size/.*"
   ],
+  "site_package_search_strategy": "all",
   "source_directories": [
     "typestubs",
     "."
