@@ -845,6 +845,35 @@ class AppDefLoadTest(unittest.TestCase):
             (" ", None), none_throws(self._get_argument_help(parser, "roles_args"))
         )
 
+    def test_argparser_remainder_main_args(self) -> None:
+        parser = _create_args_parser(_test_complex_fn)
+
+        from_function(
+            _test_var_args,
+            [
+                "--foo",
+                "fooval",
+                "--bar",
+                "barval",
+                "arg1",
+                "arg2",
+            ],
+            {"args": "arg3 arg4"},
+        )
+        self.assertEqual(_TEST_VAR_ARGS, ("fooval", ("arg1", "arg2"), "barval"))
+
+        from_function(
+            _test_var_args,
+            [
+                "--foo",
+                "fooval",
+                "--bar",
+                "barval",
+            ],
+            {"args": "arg3 arg4"},
+        )
+        self.assertEqual(_TEST_VAR_ARGS, ("fooval", ("arg3", "arg4"), "barval"))
+
 
 class MountsTest(unittest.TestCase):
     def test_empty(self) -> None:

@@ -873,6 +873,21 @@ def _create_args_parser(
         default=argparse.SUPPRESS,
         help="show this help message and exit",
     )
+
+    class _reminder_action(argparse.Action):
+        def __call__(
+            self,
+            parser: argparse.ArgumentParser,
+            namespace: argparse.Namespace,
+            values: Any,
+            option_string: Optional[str] = None,
+        ) -> None:
+            setattr(
+                namespace,
+                self.dest,
+                (self.default or "").split() if len(values) == 0 else values,
+            )
+
     for param_name, parameter in parameters.items():
         param_desc = args_desc[parameter.name]
         args: Dict[str, Any] = {
@@ -894,6 +909,7 @@ def _create_args_parser(
 
         if parameter.kind == inspect._ParameterKind.VAR_POSITIONAL:
             args["nargs"] = argparse.REMAINDER
+            args["action"] = _reminder_action
             script_parser.add_argument(param_name, **args)
         else:
             arg_names = [f"--{param_name}"]
