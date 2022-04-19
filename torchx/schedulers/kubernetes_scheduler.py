@@ -161,6 +161,7 @@ LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
 LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
+TPU_TF_VERSION = "tf-version.cloud-tpus.google.com"
 
 
 def sanitize_for_serialization(obj: object) -> object:
@@ -314,6 +315,14 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         security_context=security_context,
     )
 
+    annotations = {
+        # Disable the istio sidecar as it prevents the containers from
+        # exiting once finished.
+        ANNOTATION_ISTIO_SIDECAR: "false",
+    }
+    if TPU_TF_VERSION in resource.capabilities:
+        annotations[TPU_TF_VERSION] = resource.capabilities[TPU_TF_VERSION]
+
     return V1Pod(
         spec=V1PodSpec(
             containers=[container],
@@ -323,11 +332,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
             node_selector=node_selector,
         ),
         metadata=V1ObjectMeta(
-            annotations={
-                # Disable the istio sidecar as it prevents the containers from
-                # exiting once finished.
-                ANNOTATION_ISTIO_SIDECAR: "false",
-            },
+            annotations=annotations,
             labels={},
         ),
     )
@@ -362,6 +367,7 @@ def app_to_resource(
     job level. When using the APPLICATION retry policy, the job level retry
     count is set to the minimum of the max_retries of the roles.
     """
+    scheduler_name: str = "volcano"
     tasks = []
     unique_app_id = cleanup_str(make_unique(app.name))
     for role_idx, role in enumerate(app.roles):
@@ -386,6 +392,12 @@ def app_to_resource(
                 "name": name,
                 "template": pod,
             }
+            if TPU_TF_VERSION in pod.metadata.annotations:
+                # Volcano can't handle TPUs so fallback to default Pod
+                # scheduling behavior.
+                task["minAvailable"] = 0
+                scheduler_name = "default-scheduler"
+
             if role.max_retries > 0:
                 task["maxRetry"] = role.max_retries
                 task["policies"] = RETRY_POLICIES[role.retry_policy]
@@ -402,7 +414,7 @@ does NOT support retries correctly. More info: https://github.com/volcano-sh/vol
         "kind": "Job",
         "metadata": {"name": f"{unique_app_id}"},
         "spec": {
-            "schedulerName": "volcano",
+            "schedulerName": scheduler_name,
             "queue": queue,
             "tasks": tasks,
             "maxRetry": job_retries,
@@ -680,6 +692,9 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
                     roles_statuses[role].replicas.append(
                         ReplicaStatus(id=int(idx), role=role, state=state, hostname="")
                     )
+            elif app_state == AppState.RUNNING:
+                # if no tasks and running -- pods haven't been created yet
+                app_state = AppState.PENDING
         else:
             app_state = AppState.UNKNOWN
         return DescribeAppResponse(
