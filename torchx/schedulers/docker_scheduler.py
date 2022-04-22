@@ -111,7 +111,7 @@ class DockerScheduler(Scheduler, DockerWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.kubernetes_scheduler.KubernetesScheduler
+        class: torchx.schedulers.docker_scheduler.DockerScheduler
 
     **Mounts**
 

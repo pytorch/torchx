@@ -136,6 +136,19 @@ class TypesTest(unittest.TestCase):
         self.assertDictEqual({"FOO": "v1,v2", "BAR": "v3"}, to_dict("FOO=v1,v2;BAR=v3"))
         self.assertDictEqual({"FOO": "v1;v2", "BAR": "v3"}, to_dict("FOO=v1;v2,BAR=v3"))
 
+        # Parser cannot appropriately handle the cases where
+        # value contains "=". Create test for this to keep record. This especially can
+        # be a problem for some base64 encoded values with trailing "=" or "=="
+        # For some components (dist.ddp), an `env_file` option is provided to read env
+        # from file
+        with self.assertRaises(AssertionError):
+            self.assertDictEqual(
+                {"FOO": "v1;v2", "BAR": "v3=="}, to_dict("FOO=v1;v2,BAR=v3==")
+            )
+            self.assertDictEqual(
+                {"FOO": "v1;v2", "BAR": "v3="}, to_dict("FOO=v1;v2,BAR=v3=")
+            )
+
         # test some non-trivial + edge cases
         self.assertDictEqual(
             {
