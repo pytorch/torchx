@@ -281,6 +281,9 @@ class Runner:
                 old_img = role.image
 
                 logger.info(f"Checking for changes in workspace `{workspace}`...")
+                logger.info(
+                    'To disable workspaces pass: --workspace="" from CLI or workspace=None programmatically.'
+                )
                 sched.build_workspace_and_update_role(role, workspace, cfg)
 
                 if old_img != role.image:
