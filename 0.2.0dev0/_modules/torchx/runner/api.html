@@ -140,6 +140,10 @@
                   <span class="dropdown-title">TorchServe</span>
                   <p></p>
                 </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchx/">
+                  <span class="dropdown-title">TorchX</span>
+                  <p></p>
+                </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
                   <span class="dropdown-title">PyTorch on XLA Devices</span>
                   <p></p>
@@ -647,6 +651,9 @@
                 <span class="n">old_img</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span>
 
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checking for changes in workspace `</span><span class="si">{</span><span class="n">workspace</span><span class="si">}</span><span class="s2">`...&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;To disable workspaces pass: --workspace=&quot;&quot; from CLI or workspace=None programmatically.&#39;</span>
+                <span class="p">)</span>
                 <span class="n">sched</span><span class="o">.</span><span class="n">build_workspace_and_update_role</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">old_img</span> <span class="o">!=</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
@@ -1182,11 +1189,11 @@
             </li>
 
             <li>
-              <a href="https://pytorch.org/elastic/">TorchElastic</a>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/serve/">TorchServe</a>
+              <a href="https://pytorch.org/torchx/">TorchX</a>
             </li>
 
             <li>
