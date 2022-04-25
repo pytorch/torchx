@@ -11,8 +11,9 @@ and are meant to be used as tutorial materials or glue operations between
 meaningful stages in a workflow.
 """
 
+import os
 import shlex
-from typing import Optional
+from typing import Dict, List, Optional
 
 import torchx
 import torchx.specs as specs
@@ -77,6 +78,9 @@ def sh(
     gpu: int = 0,
     memMB: int = 1024,
     h: Optional[str] = None,
+    env: Optional[Dict[str, str]] = None,
+    max_retries: int = 0,
+    mounts: Optional[List[str]] = None,
 ) -> specs.AppDef:
     """
     Runs the provided command via sh. Currently sh does not support
@@ -90,9 +94,16 @@ def sh(
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
+        env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
+        max_retries: the number of scheduler retries allowed
+        mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
+                See scheduler documentation for more info.
     """
 
     escaped_args = " ".join(shlex.quote(arg) for arg in args)
+    if env is None:
+        env = {}
+    env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
 
     return specs.AppDef(
         name="sh",
@@ -104,6 +115,9 @@ def sh(
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
                 resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
+                env=env,
+                max_retries=max_retries,
+                mounts=specs.parse_mounts(mounts) if mounts else [],
             )
         ],
     )
