@@ -18,13 +18,13 @@ from torchx.schedulers import kubernetes_scheduler
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_scheduler import (
-    KubernetesJob,
-    KubernetesScheduler,
     app_to_resource,
     cleanup_str,
     create_scheduler,
-    role_to_pod,
+    KubernetesJob,
+    KubernetesScheduler,
     LABEL_INSTANCE_TYPE,
+    role_to_pod,
 )
 
 SKIP_DOCKER: bool = not has_docker()
@@ -109,18 +109,18 @@ class KubernetesSchedulerTest(unittest.TestCase):
 
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
+            V1Container,
+            V1ContainerPort,
+            V1EmptyDirVolumeSource,
+            V1EnvVar,
+            V1HostPathVolumeSource,
+            V1ObjectMeta,
             V1Pod,
             V1PodSpec,
-            V1Container,
-            V1EnvVar,
             V1ResourceRequirements,
-            V1ContainerPort,
-            V1ObjectMeta,
+            V1SecurityContext,
             V1Volume,
             V1VolumeMount,
-            V1HostPathVolumeSource,
-            V1EmptyDirVolumeSource,
-            V1SecurityContext,
         )
 
         app = _test_app()
@@ -313,10 +313,10 @@ spec:
     def test_volume_mounts(self) -> None:
         scheduler = create_scheduler("test")
         from kubernetes.client.models import (
+            V1EmptyDirVolumeSource,
+            V1PersistentVolumeClaimVolumeSource,
             V1Volume,
             V1VolumeMount,
-            V1PersistentVolumeClaimVolumeSource,
-            V1EmptyDirVolumeSource,
         )
 
         role = specs.Role(
@@ -362,9 +362,9 @@ spec:
     def test_device_mounts(self) -> None:
         scheduler = create_scheduler("test")
         from kubernetes.client.models import (
+            V1HostPathVolumeSource,
             V1Volume,
             V1VolumeMount,
-            V1HostPathVolumeSource,
         )
 
         role = specs.Role(
@@ -461,9 +461,7 @@ spec:
         )
 
     def test_rank0_env(self) -> None:
-        from kubernetes.client.models import (
-            V1EnvVar,
-        )
+        from kubernetes.client.models import V1EnvVar
 
         scheduler = create_scheduler("test")
         app = _test_app(num_replicas=2)
@@ -524,6 +522,22 @@ spec:
         del cfg["service_account"]
         info = scheduler._submit_dryrun(app, cfg)
         self.assertIn("service_account_name': None", str(info.request.resource))
+
+    def test_submit_dryrun_priority_class(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("priority_class", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = {
+            "queue": "testqueue",
+            "priority_class": "high",
+        }
+
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn("'priorityClassName': 'high'", str(info.request.resource))
+
+        del cfg["priority_class"]
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertNotIn("'priorityClassName'", str(info.request.resource))
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
     def test_submit(self, create_namespaced_custom_object: MagicMock) -> None:
@@ -654,6 +668,7 @@ spec:
                 "namespace",
                 "image_repo",
                 "service_account",
+                "priority_class",
             },
         )
 
