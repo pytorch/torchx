@@ -19,6 +19,7 @@ def compute_world_size(cfg: DictConfig) -> int:
     world_size = int(os.getenv("WORLD_SIZE", cfg.main.world_size))
     master_addr = os.getenv("MASTER_ADDR", cfg.main.master_addr)
     master_port = int(os.getenv("MASTER_PORT", cfg.main.master_port))
+    local_rank = int(os.getenv("LOCAL_RANK", 0))
     backend = cfg.main.backend
 
     print(f"initializing `{backend}` process group")
@@ -30,10 +31,17 @@ def compute_world_size(cfg: DictConfig) -> int:
     )
     print("successfully initialized process group")
 
+    device = (
+        torch.device(f"cuda:{local_rank}")
+        if torch.cuda.is_available()
+        else torch.device("cpu")
+    )
+    print(f"using {device}")
+
     rank = dist.get_rank()
     world_size = dist.get_world_size()
 
-    t = F.one_hot(torch.tensor(rank), num_classes=world_size)
+    t = F.one_hot(torch.tensor(rank, device=device), num_classes=world_size)
     dist.all_reduce(t)
     computed_world_size = int(torch.sum(t).item())
     print(
