@@ -7,9 +7,9 @@
 import abc
 import fnmatch
 import posixpath
-from typing import TYPE_CHECKING, Iterable, Mapping, Tuple
+from typing import Iterable, Mapping, Tuple, TYPE_CHECKING
 
-from torchx.specs import Role, CfgVal
+from torchx.specs import CfgVal, Role
 
 if TYPE_CHECKING:
     from fsspec import AbstractFileSystem
@@ -49,13 +49,19 @@ class Workspace(abc.ABC):
 
 
 def _ignore(s: str, patterns: Iterable[str]) -> bool:
+    last_matching_pattern = -1
     match = False
-    for pattern in patterns:
+    if s in (".", "Dockerfile.torchx"):
+        return last_matching_pattern, match
+    s = posixpath.normpath(s)
+    for i, pattern in enumerate(patterns):
         if pattern.startswith("!") and fnmatch.fnmatch(s, pattern[1:]):
             match = False
+            last_matching_pattern = i
         elif fnmatch.fnmatch(s, pattern):
             match = True
-    return match
+            last_matching_pattern = i
+    return last_matching_pattern, match
 
 
 def walk_workspace(
@@ -81,28 +87,33 @@ def walk_workspace(
                 continue
             ignore_patterns.append(line)
 
-    paths_to_walk = [path]
+    paths_to_walk = [(0, path)]
     while paths_to_walk:
-        current_path = paths_to_walk.pop()
+        first_pattern_to_use, current_path = paths_to_walk.pop()
         for dir, dirs, files in fs.walk(current_path, detail=True, maxdepth=1):
             assert isinstance(dir, str), "path must be str"
             relpath = posixpath.relpath(dir, path)
 
-            if _ignore(relpath, ignore_patterns):
+            if _ignore(relpath, ignore_patterns[first_pattern_to_use:])[1]:
                 continue
-            dirs = [
-                d
-                for d in dirs
-                if not _ignore(posixpath.join(relpath, d), ignore_patterns)
-            ]
+            filtered_dirs = []
+            last_matching_pattern_index = []
+            for d in dirs:
+                index, match = _ignore(
+                    posixpath.join(relpath, d), ignore_patterns[first_pattern_to_use:]
+                )
+                if not match:
+                    filtered_dirs.append(d)
+                    last_matching_pattern_index.append(first_pattern_to_use + index)
+            dirs = filtered_dirs
             files = {
                 file: info
                 for file, info in files.items()
                 if not _ignore(
                     posixpath.join(relpath, file) if relpath != "." else file,
-                    ignore_patterns,
-                )
+                    ignore_patterns[first_pattern_to_use:],
+                )[1]
             }
             yield dir, dirs, files
-            for d in dirs:
-                paths_to_walk.append(posixpath.join(dir, d))
+            for i, d in zip(last_matching_pattern_index, dirs):
+                paths_to_walk.append((i + 1, posixpath.join(dir, d)))

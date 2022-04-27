@@ -9,12 +9,12 @@ import logging
 import posixpath
 import tarfile
 import tempfile
-from typing import IO, TYPE_CHECKING, Optional, Dict, Tuple, Mapping
+from typing import Dict, IO, Mapping, Optional, Tuple, TYPE_CHECKING
 
 import fsspec
 import torchx
-from torchx.specs import Role, AppDef, CfgVal
-from torchx.workspace.api import Workspace, walk_workspace
+from torchx.specs import AppDef, CfgVal, Role
+from torchx.workspace.api import walk_workspace, Workspace
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -167,12 +167,11 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
     )
     dockerfile = bytes(f"FROM {img}\nCOPY . .\n", encoding="utf-8")
     with tarfile.open(fileobj=f, mode="w") as tf:
-        info = tarfile.TarInfo(TORCHX_DOCKERFILE)
-        info.size = len(dockerfile)
-        tf.addfile(info, io.BytesIO(dockerfile))
-
         _copy_to_tarfile(workspace, tf)
-
+        if TORCHX_DOCKERFILE not in tf.getnames():
+            info = tarfile.TarInfo(TORCHX_DOCKERFILE)
+            info.size = len(dockerfile)
+            tf.addfile(info, io.BytesIO(dockerfile))
     f.seek(0)
     return f
 
