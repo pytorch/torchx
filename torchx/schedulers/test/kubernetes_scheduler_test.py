@@ -26,6 +26,7 @@ from torchx.schedulers.kubernetes_scheduler import (
     role_to_pod,
     LABEL_INSTANCE_TYPE,
 )
+from torchx.specs.named_resources_tpu import tpu_v3_8
 
 SKIP_DOCKER: bool = not has_docker()
 
@@ -726,6 +727,27 @@ spec:
         self.assertEqual(client.images.get.call_count, 1)
         self.assertEqual(client.images.get().tag.call_count, 1)
         self.assertEqual(client.images.push.call_count, 1)
+
+    def test_tpu(self) -> None:
+        scheduler = create_scheduler("test")
+
+        role = specs.Role(
+            name="foo",
+            image="",
+            resource=tpu_v3_8(),
+        )
+        app = specs.AppDef("test", roles=[role])
+        info = scheduler._submit_dryrun(app, cfg={"queue": "blah"})
+        res = info.request.resource
+        # pyre-ignore
+        self.assertEqual(res["spec"]["schedulerName"], "default-scheduler")
+        self.assertEqual(
+            res["spec"]["tasks"][0]["template"].metadata.annotations[
+                "tf-version.cloud-tpus.google.com"
+            ],
+            "pytorch-1.11",
+        )
+        self.assertEqual(res["spec"]["tasks"][0]["minAvailable"], 0)
 
 
 class KubernetesSchedulerNoImportTest(unittest.TestCase):

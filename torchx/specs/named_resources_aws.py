@@ -19,7 +19,7 @@ the equvalent resource in mem, cpu and gpu numbers.
 
 Usage:
 
-    ::
+.. doctest::
 
      from torchx.specs import named_resources
      print(named_resources["aws_t3.medium"])

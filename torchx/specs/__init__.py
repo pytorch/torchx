@@ -14,6 +14,7 @@ scheduler or pipeline adapter.
 from typing import Dict, Optional
 
 from torchx.specs.named_resources_aws import NAMED_RESOURCES as AWS_NAMED_RESOURCES
+from torchx.specs.named_resources_tpu import NAMED_RESOURCES as TPU_NAMED_RESOURCES
 from torchx.util.entrypoints import load_group
 
 from .api import (  # noqa: F401 F403
@@ -58,7 +59,10 @@ GiB: int = 1024
 def _load_named_resources() -> Dict[str, Resource]:
     resource_methods = load_group("torchx.named_resources", default={})
     materialized_resources = {}
-    default = AWS_NAMED_RESOURCES
+    default = {
+        **AWS_NAMED_RESOURCES,
+        **TPU_NAMED_RESOURCES,
+    }
     for name, resource in default.items():
         materialized_resources[name] = resource()
     for resource_name, resource_method in resource_methods.items():
