@@ -411,33 +411,33 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span> <span class="nn">torchx</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
-    <span class="n">Scheduler</span><span class="p">,</span>
-    <span class="n">Stream</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
+    <span class="n">Scheduler</span><span class="p">,</span>
     <span class="n">split_lines</span><span class="p">,</span>
+    <span class="n">Stream</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.ids</span> <span class="kn">import</span> <span class="n">make_unique</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
+    <span class="n">BindMount</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
+    <span class="n">DeviceMount</span><span class="p">,</span>
+    <span class="n">macros</span><span class="p">,</span>
     <span class="n">ReplicaState</span><span class="p">,</span>
     <span class="n">ReplicaStatus</span><span class="p">,</span>
     <span class="n">RetryPolicy</span><span class="p">,</span>
     <span class="n">Role</span><span class="p">,</span>
     <span class="n">RoleStatus</span><span class="p">,</span>
-    <span class="n">macros</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
-    <span class="n">BindMount</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
-    <span class="n">DeviceMount</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspace</span>
 
@@ -446,12 +446,12 @@
     <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">CustomObjectsApi</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401 imported but unused</span>
+        <span class="n">V1Container</span><span class="p">,</span>
+        <span class="n">V1ContainerPort</span><span class="p">,</span>
+        <span class="n">V1EnvVar</span><span class="p">,</span>
         <span class="n">V1Pod</span><span class="p">,</span>
         <span class="n">V1PodSpec</span><span class="p">,</span>
-        <span class="n">V1Container</span><span class="p">,</span>
-        <span class="n">V1EnvVar</span><span class="p">,</span>
         <span class="n">V1ResourceRequirements</span><span class="p">,</span>
-        <span class="n">V1ContainerPort</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
 
@@ -544,19 +544,19 @@
 
 <div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">[docs]</a><span class="k">def</span> <span class="nf">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Pod&quot;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F811 redefinition of unused</span>
+        <span class="n">V1Container</span><span class="p">,</span>
+        <span class="n">V1ContainerPort</span><span class="p">,</span>
+        <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
+        <span class="n">V1EnvVar</span><span class="p">,</span>
+        <span class="n">V1HostPathVolumeSource</span><span class="p">,</span>
+        <span class="n">V1ObjectMeta</span><span class="p">,</span>
+        <span class="n">V1PersistentVolumeClaimVolumeSource</span><span class="p">,</span>
         <span class="n">V1Pod</span><span class="p">,</span>
         <span class="n">V1PodSpec</span><span class="p">,</span>
-        <span class="n">V1Container</span><span class="p">,</span>
-        <span class="n">V1EnvVar</span><span class="p">,</span>
         <span class="n">V1ResourceRequirements</span><span class="p">,</span>
-        <span class="n">V1ContainerPort</span><span class="p">,</span>
-        <span class="n">V1ObjectMeta</span><span class="p">,</span>
-        <span class="n">V1VolumeMount</span><span class="p">,</span>
-        <span class="n">V1Volume</span><span class="p">,</span>
-        <span class="n">V1HostPathVolumeSource</span><span class="p">,</span>
-        <span class="n">V1PersistentVolumeClaimVolumeSource</span><span class="p">,</span>
-        <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
         <span class="n">V1SecurityContext</span><span class="p">,</span>
+        <span class="n">V1Volume</span><span class="p">,</span>
+        <span class="n">V1VolumeMount</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># limits puts an upper cap on the resources a pod may consume.</span>
@@ -719,7 +719,10 @@
 
 
 <div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span>
-    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
+    <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">priority_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    app_to_resource creates a volcano job kubernetes resource definition from</span>
@@ -769,21 +772,24 @@
             <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
     <span class="n">job_retries</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+    <span class="n">job_spec</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;schedulerName&quot;</span><span class="p">:</span> <span class="s2">&quot;volcano&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue</span><span class="p">,</span>
+        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="n">tasks</span><span class="p">,</span>
+        <span class="s2">&quot;maxRetry&quot;</span><span class="p">:</span> <span class="n">job_retries</span><span class="p">,</span>
+        <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1"># https://github.com/volcano-sh/volcano/issues/533</span>
+            <span class="s2">&quot;svc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--publish-not-ready-addresses&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">priority_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">job_spec</span><span class="p">[</span><span class="s2">&quot;priorityClassName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">priority_class</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;batch.volcano.sh/v1alpha1&quot;</span><span class="p">,</span>
         <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;Job&quot;</span><span class="p">,</span>
         <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unique_app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;schedulerName&quot;</span><span class="p">:</span> <span class="s2">&quot;volcano&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue</span><span class="p">,</span>
-            <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="n">tasks</span><span class="p">,</span>
-            <span class="s2">&quot;maxRetry&quot;</span><span class="p">:</span> <span class="n">job_retries</span><span class="p">,</span>
-            <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="c1"># https://github.com/volcano-sh/volcano/issues/533</span>
-                <span class="s2">&quot;svc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--publish-not-ready-addresses&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="p">},</span>
-        <span class="p">},</span>
+        <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="n">job_spec</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">resource</span></div>
 
@@ -970,7 +976,12 @@
             <span class="n">service_account</span><span class="p">,</span> <span class="nb">str</span>
         <span class="p">),</span> <span class="s2">&quot;service_account must be a str&quot;</span>
 
-        <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">service_account</span><span class="p">)</span>
+        <span class="n">priority_class</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority_class&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">priority_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">priority_class</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;priority_class must be a str&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">service_account</span><span class="p">,</span> <span class="n">priority_class</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">KubernetesJob</span><span class="p">(</span>
             <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
             <span class="n">images_to_push</span><span class="o">=</span><span class="n">images_to_push</span><span class="p">,</span>
@@ -1017,6 +1028,11 @@
             <span class="s2">&quot;service_account&quot;</span><span class="p">,</span>
             <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The service account name to set on the pod specs&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;priority_class&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the PriorityClass to set on the job specs&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
