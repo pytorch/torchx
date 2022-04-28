@@ -39,33 +39,33 @@ import re
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional, Tuple
+from typing import Any, Dict, Iterable, Mapping, Optional, Tuple, TYPE_CHECKING
 
 import torchx
 import yaml
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
-    Scheduler,
-    Stream,
     filter_regex,
+    Scheduler,
     split_lines,
+    Stream,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
     AppState,
+    BindMount,
     CfgVal,
+    DeviceMount,
+    macros,
     ReplicaState,
     ReplicaStatus,
     RetryPolicy,
     Role,
     RoleStatus,
-    macros,
     runopts,
-    BindMount,
     VolumeMount,
-    DeviceMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
@@ -74,12 +74,12 @@ if TYPE_CHECKING:
     from docker import DockerClient
     from kubernetes.client import ApiClient, CustomObjectsApi
     from kubernetes.client.models import (  # noqa: F401 imported but unused
+        V1Container,
+        V1ContainerPort,
+        V1EnvVar,
         V1Pod,
         V1PodSpec,
-        V1Container,
-        V1EnvVar,
         V1ResourceRequirements,
-        V1ContainerPort,
     )
     from kubernetes.client.rest import ApiException
 
@@ -172,19 +172,19 @@ def sanitize_for_serialization(obj: object) -> object:
 
 def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
+        V1Container,
+        V1ContainerPort,
+        V1EmptyDirVolumeSource,
+        V1EnvVar,
+        V1HostPathVolumeSource,
+        V1ObjectMeta,
+        V1PersistentVolumeClaimVolumeSource,
         V1Pod,
         V1PodSpec,
-        V1Container,
-        V1EnvVar,
         V1ResourceRequirements,
-        V1ContainerPort,
-        V1ObjectMeta,
-        V1VolumeMount,
-        V1Volume,
-        V1HostPathVolumeSource,
-        V1PersistentVolumeClaimVolumeSource,
-        V1EmptyDirVolumeSource,
         V1SecurityContext,
+        V1Volume,
+        V1VolumeMount,
     )
 
     # limits puts an upper cap on the resources a pod may consume.
@@ -347,7 +347,10 @@ def cleanup_str(data: str) -> str:
 
 
 def app_to_resource(
-    app: AppDef, queue: str, service_account: Optional[str]
+    app: AppDef,
+    queue: str,
+    service_account: Optional[str],
+    priority_class: Optional[str] = None,
 ) -> Dict[str, object]:
     """
     app_to_resource creates a volcano job kubernetes resource definition from
@@ -397,21 +400,24 @@ does NOT support retries correctly. More info: https://github.com/volcano-sh/vol
             tasks.append(task)
 
     job_retries = min(role.max_retries for role in app.roles)
+    job_spec = {
+        "schedulerName": "volcano",
+        "queue": queue,
+        "tasks": tasks,
+        "maxRetry": job_retries,
+        "plugins": {
+            # https://github.com/volcano-sh/volcano/issues/533
+            "svc": ["--publish-not-ready-addresses"],
+            "env": [],
+        },
+    }
+    if priority_class is not None:
+        job_spec["priorityClassName"] = priority_class
     resource: Dict[str, object] = {
         "apiVersion": "batch.volcano.sh/v1alpha1",
         "kind": "Job",
         "metadata": {"name": f"{unique_app_id}"},
-        "spec": {
-            "schedulerName": "volcano",
-            "queue": queue,
-            "tasks": tasks,
-            "maxRetry": job_retries,
-            "plugins": {
-                # https://github.com/volcano-sh/volcano/issues/533
-                "svc": ["--publish-not-ready-addresses"],
-                "env": [],
-            },
-        },
+        "spec": job_spec,
     }
     return resource
 
@@ -598,7 +604,12 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
             service_account, str
         ), "service_account must be a str"
 
-        resource = app_to_resource(app, queue, service_account)
+        priority_class = cfg.get("priority_class")
+        assert priority_class is None or isinstance(
+            priority_class, str
+        ), "priority_class must be a str"
+
+        resource = app_to_resource(app, queue, service_account, priority_class)
         req = KubernetesJob(
             resource=resource,
             images_to_push=images_to_push,
@@ -645,6 +656,11 @@ class KubernetesScheduler(Scheduler, DockerWorkspace):
             "service_account",
             type_=str,
             help="The service account name to set on the pod specs",
+        )
+        opts.add(
+            "priority_class",
+            type_=str,
+            help="The name of the PriorityClass to set on the job specs",
         )
         return opts
 

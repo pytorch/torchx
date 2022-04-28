@@ -22,11 +22,11 @@ from torchx.specs import (
     AppHandle,
     AppStatus,
     CfgVal,
-    UnknownAppException,
     from_function,
     make_app_handle,
     parse_app_handle,
     runopts,
+    UnknownAppException,
 )
 from torchx.specs.finder import get_component
 from torchx.workspace.api import Workspace
