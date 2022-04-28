@@ -377,9 +377,9 @@
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">fnmatch</span>
 <span class="kn">import</span> <span class="nn">posixpath</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">Role</span><span class="p">,</span> <span class="n">CfgVal</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">fsspec</span> <span class="kn">import</span> <span class="n">AbstractFileSystem</span>
@@ -418,14 +418,20 @@
         <span class="o">...</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">_ignore</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">patterns</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_ignore</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">patterns</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="n">last_matching_pattern</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Dockerfile.torchx&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">last_matching_pattern</span><span class="p">,</span> <span class="n">match</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">patterns</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
             <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">last_matching_pattern</span> <span class="o">=</span> <span class="n">i</span>
         <span class="k">elif</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
             <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">return</span> <span class="n">match</span>
+            <span class="n">last_matching_pattern</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">return</span> <span class="n">last_matching_pattern</span><span class="p">,</span> <span class="n">match</span>
 
 
 <div class="viewcode-block" id="walk_workspace"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.walk_workspace">[docs]</a><span class="k">def</span> <span class="nf">walk_workspace</span><span class="p">(</span>
@@ -451,31 +457,36 @@
                 <span class="k">continue</span>
             <span class="n">ignore_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-    <span class="n">paths_to_walk</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+    <span class="n">paths_to_walk</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path</span><span class="p">)]</span>
     <span class="k">while</span> <span class="n">paths_to_walk</span><span class="p">:</span>
-        <span class="n">current_path</span> <span class="o">=</span> <span class="n">paths_to_walk</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">first_pattern_to_use</span><span class="p">,</span> <span class="n">current_path</span> <span class="o">=</span> <span class="n">paths_to_walk</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="k">for</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">fs</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">current_path</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxdepth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
             <span class="n">relpath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">_ignore</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">ignore_patterns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_ignore</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">ignore_patterns</span><span class="p">[</span><span class="n">first_pattern_to_use</span><span class="p">:])[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="k">continue</span>
-            <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">d</span>
-                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">_ignore</span><span class="p">(</span><span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">ignore_patterns</span><span class="p">)</span>
-            <span class="p">]</span>
+            <span class="n">filtered_dirs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">last_matching_pattern_index</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+                <span class="n">index</span><span class="p">,</span> <span class="n">match</span> <span class="o">=</span> <span class="n">_ignore</span><span class="p">(</span>
+                    <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">ignore_patterns</span><span class="p">[</span><span class="n">first_pattern_to_use</span><span class="p">:]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">filtered_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                    <span class="n">last_matching_pattern_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">first_pattern_to_use</span> <span class="o">+</span> <span class="n">index</span><span class="p">)</span>
+            <span class="n">dirs</span> <span class="o">=</span> <span class="n">filtered_dirs</span>
             <span class="n">files</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">file</span><span class="p">:</span> <span class="n">info</span>
                 <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">_ignore</span><span class="p">(</span>
                     <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="n">relpath</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span> <span class="k">else</span> <span class="n">file</span><span class="p">,</span>
-                    <span class="n">ignore_patterns</span><span class="p">,</span>
-                <span class="p">)</span>
+                    <span class="n">ignore_patterns</span><span class="p">[</span><span class="n">first_pattern_to_use</span><span class="p">:],</span>
+                <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">}</span>
             <span class="k">yield</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span>
-            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
-                <span class="n">paths_to_walk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span></div>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">last_matching_pattern_index</span><span class="p">,</span> <span class="n">dirs</span><span class="p">):</span>
+                <span class="n">paths_to_walk</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">d</span><span class="p">)))</span></div>
 </pre></div>
 
      </article>
