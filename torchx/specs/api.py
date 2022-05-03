@@ -186,9 +186,10 @@ class RetryPolicy(str, Enum):
               on the retry policies they support and behavior caveats (if any).
 
     1. REPLICA: Replaces the replica instance. Surviving replicas are untouched.
-                Use with ``torch_dist_role`` to have torch coordinate restarts
-                and membership changes. Otherwise, it is up to the application to
-                deal with failed replica departures and replacement replica admittance.
+                Use with ``dist.ddp`` component to have torchelastic coordinate
+                restarts and membership changes. Otherwise, it is up to the
+                application to deal with failed replica departures and
+                replacement replica admittance.
     2. APPLICATION: Restarts the entire application.
 
     """
