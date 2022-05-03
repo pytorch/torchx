@@ -717,7 +717,13 @@ class LocalScheduler(Scheduler):
         if not self._base_log_dir:
             self._base_log_dir = tempfile.mkdtemp(prefix="torchx_")
             self._created_tmp_log_dir = True
+            log.info(
+                "Log directory not set in scheduler cfg."
+                " Creating a temporary log dir that will be deleted on exit."
+                " To preserve log directory set the `log_dir` cfg option"
+            )
 
+        log.info(f"Log directory is: {self._base_log_dir}")
         return os.path.join(str(self._base_log_dir), self.session_name, app_id)
 
     def schedule(self, dryrun_info: AppDryRunInfo[PopenRequest]) -> str:
@@ -877,11 +883,18 @@ class LocalScheduler(Scheduler):
                     replica_role.env["TORCHELASTIC_ERROR_FILE"] = os.path.join(
                         replica_log_dir, "error.json"
                     )
+                if "PET_LOG_DIR" not in replica_role.env:
+                    # equivalent of passing --log_dir to torch.distributed.run
+                    # keep all the downstream logs in the same directory as the app
+                    # this means that these logs will be cleaned up if `log_dir` option
+                    # is not set in this scheduler's cfg and preserved otherwise
+                    replica_role.env["PET_LOG_DIR"] = os.path.join(
+                        app_log_dir, "torchelastic", role.name
+                    )
 
                 stdout = os.path.join(replica_log_dir, STDOUT_LOG)
                 stderr = os.path.join(replica_log_dir, STDERR_LOG)
                 combined = os.path.join(replica_log_dir, COMBINED_LOG)
-                log.info(f"Log files located in: {replica_log_dir}")
 
                 replica_params.append(
                     image_provider.get_replica_param(

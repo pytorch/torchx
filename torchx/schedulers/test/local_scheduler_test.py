@@ -168,8 +168,6 @@ class CWDImageProviderTest(unittest.TestCase):
 
 LOCAL_SCHEDULER_MAKE_UNIQUE = "torchx.schedulers.local_scheduler.make_unique"
 
-ERR_FILE_ENV = "TORCHELASTIC_ERROR_FILE"
-
 
 class LocalSchedulerTestUtil(abc.ABC):
     scheduler: LocalScheduler
@@ -526,7 +524,8 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 self.assertEqual(
                     {
                         "TORCHX_RANK0_HOST": "localhost",
-                        ERR_FILE_ENV: join(replica_log_dir, "error.json"),
+                        "TORCHELASTIC_ERROR_FILE": join(replica_log_dir, "error.json"),
+                        "PET_LOG_DIR": join(app_log_dir, "torchelastic", role.name),
                         **role.env,
                     },
                     replica_param.env,
@@ -575,7 +574,8 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 self.assertEqual(
                     {
                         "TORCHX_RANK0_HOST": "localhost",
-                        ERR_FILE_ENV: join(replica_log_dir, "error.json"),
+                        "TORCHELASTIC_ERROR_FILE": join(replica_log_dir, "error.json"),
+                        "PET_LOG_DIR": join(app_log_dir, "torchelastic", role.name),
                         **role.env,
                     },
                     replica_param.env,
@@ -584,6 +584,45 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
                 stderr_path = join(replica_log_dir, "stderr.log")
                 self.assertEqual(stdout_path, replica_param.stdout)
                 self.assertEqual(stderr_path, replica_param.stderr)
+
+    def test_torchelastic_env_varsn(self) -> None:
+        """
+        Checks torchelastic (torch.distributed.run) env vars that are respected if already set
+        in the role.env settings, and that they are auto set if not explicitly set in role.env
+        """
+
+        env = {"TORCHELASTIC_ERROR_FILE": "foobar.json", "PET_LOG_DIR": "/foo/bar"}
+        trainer = Role(
+            "trainer", image=self.test_dir, entrypoint="trainer_main.py", env=env
+        )
+        reader = Role("reader", image=self.test_dir, entrypoint="reader_main.py")
+        app = AppDef(name="test_app", roles=[trainer, reader])
+        cfg = {"log_dir": self.test_dir}
+        info = self.scheduler.submit_dryrun(app, cfg)
+        request = info.request
+
+        app_log_dir = request.log_dir
+
+        # only 1 replica per trainer and reader, so use 0 index
+        trainer_replica_param = request.role_params["trainer"][0]
+        reader_replica_param = request.role_params["reader"][0]
+        reader_replica_log_dir = request.role_log_dirs["reader"][0]
+
+        # trainer set torchelastic env vars in the role settings, must repect those
+        self.assertEqual(
+            "foobar.json", trainer_replica_param.env["TORCHELASTIC_ERROR_FILE"]
+        )
+        self.assertEqual("/foo/bar", trainer_replica_param.env["PET_LOG_DIR"])
+
+        # reader didn't set torchelastic env vars in the role settings, these should be autoset
+        self.assertEqual(
+            join(reader_replica_log_dir, "error.json"),
+            reader_replica_param.env["TORCHELASTIC_ERROR_FILE"],
+        )
+        self.assertEqual(
+            join(app_log_dir, "torchelastic", "reader"),
+            reader_replica_param.env["PET_LOG_DIR"],
+        )
 
     def test_log_iterator(self) -> None:
         role = Role(
