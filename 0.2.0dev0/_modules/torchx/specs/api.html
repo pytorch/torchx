@@ -558,9 +558,10 @@
 <span class="sd">              on the retry policies they support and behavior caveats (if any).</span>
 
 <span class="sd">    1. REPLICA: Replaces the replica instance. Surviving replicas are untouched.</span>
-<span class="sd">                Use with ``torch_dist_role`` to have torch coordinate restarts</span>
-<span class="sd">                and membership changes. Otherwise, it is up to the application to</span>
-<span class="sd">                deal with failed replica departures and replacement replica admittance.</span>
+<span class="sd">                Use with ``dist.ddp`` component to have torchelastic coordinate</span>
+<span class="sd">                restarts and membership changes. Otherwise, it is up to the</span>
+<span class="sd">                application to deal with failed replica departures and</span>
+<span class="sd">                replacement replica admittance.</span>
 <span class="sd">    2. APPLICATION: Restarts the entire application.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>

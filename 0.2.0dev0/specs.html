@@ -481,9 +481,10 @@ on the retry policies they support and behavior caveats (if any).</p>
 </div>
 <ol class="arabic simple">
 <li><dl class="simple">
-<dt>REPLICA: Replaces the replica instance. Surviving replicas are untouched.</dt><dd><p>Use with <code class="docutils literal notranslate"><span class="pre">torch_dist_role</span></code> to have torch coordinate restarts
-and membership changes. Otherwise, it is up to the application to
-deal with failed replica departures and replacement replica admittance.</p>
+<dt>REPLICA: Replaces the replica instance. Surviving replicas are untouched.</dt><dd><p>Use with <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> component to have torchelastic coordinate
+restarts and membership changes. Otherwise, it is up to the
+application to deal with failed replica departures and
+replacement replica admittance.</p>
 </dd>
 </dl>
 </li>
