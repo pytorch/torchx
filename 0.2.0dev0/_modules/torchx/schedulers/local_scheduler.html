@@ -1089,7 +1089,13 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx_&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_created_tmp_log_dir</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Log directory not set in scheduler cfg.&quot;</span>
+                <span class="s2">&quot; Creating a temporary log dir that will be deleted on exit.&quot;</span>
+                <span class="s2">&quot; To preserve log directory set the `log_dir` cfg option&quot;</span>
+            <span class="p">)</span>
 
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log directory is: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_log_dir</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LocalScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">PopenRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1249,11 +1255,18 @@
                     <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">replica_log_dir</span><span class="p">,</span> <span class="s2">&quot;error.json&quot;</span>
                     <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;PET_LOG_DIR&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">:</span>
+                    <span class="c1"># equivalent of passing --log_dir to torch.distributed.run</span>
+                    <span class="c1"># keep all the downstream logs in the same directory as the app</span>
+                    <span class="c1"># this means that these logs will be cleaned up if `log_dir` option</span>
+                    <span class="c1"># is not set in this scheduler&#39;s cfg and preserved otherwise</span>
+                    <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;PET_LOG_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">app_log_dir</span><span class="p">,</span> <span class="s2">&quot;torchelastic&quot;</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">name</span>
+                    <span class="p">)</span>
 
                 <span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="n">STDOUT_LOG</span><span class="p">)</span>
                 <span class="n">stderr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="n">STDERR_LOG</span><span class="p">)</span>
                 <span class="n">combined</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">,</span> <span class="n">COMBINED_LOG</span><span class="p">)</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log files located in: </span><span class="si">{</span><span class="n">replica_log_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="n">replica_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">image_provider</span><span class="o">.</span><span class="n">get_replica_param</span><span class="p">(</span>
