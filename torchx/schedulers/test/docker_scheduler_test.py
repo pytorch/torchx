@@ -22,6 +22,7 @@ from torchx.schedulers.docker_scheduler import (
     DockerScheduler,
     create_scheduler,
     has_docker,
+    DockerOpts,
 )
 from torchx.schedulers.test.local_scheduler_test import LocalSchedulerTestUtil
 from torchx.specs.api import AppDef, AppState, Role
@@ -168,7 +169,7 @@ class DockerSchedulerTest(unittest.TestCase):
     @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})
     def test_copy_env(self) -> None:
         app = _test_app()
-        cfg = {"copy_env": ["FOO_*", "BAR_*"]}
+        cfg = DockerOpts({"copy_env": ["FOO_*", "BAR_*"]})
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app_name_42"
             info = self.scheduler._submit_dryrun(app, cfg)

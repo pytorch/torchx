@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Iterable, List, Mapping, Optional
+from typing import Iterable, List, Optional, TypeVar, Generic
 
 from torchx.specs import (
     NONE,
@@ -18,7 +18,6 @@ from torchx.specs import (
     AppDef,
     AppDryRunInfo,
     AppState,
-    CfgVal,
     Role,
     RoleStatus,
     runopts,
@@ -62,7 +61,10 @@ class DescribeAppResponse:
     roles: List[Role] = field(default_factory=list)
 
 
-class Scheduler(abc.ABC):
+T = TypeVar("T")
+
+
+class Scheduler(abc.ABC, Generic[T]):
     """
     An interface abstracting functionalities of a scheduler.
     Implementors need only implement those methods annotated with
@@ -93,7 +95,7 @@ class Scheduler(abc.ABC):
     def submit(
         self,
         app: AppDef,
-        cfg: Mapping[str, CfgVal],
+        cfg: T,
         workspace: Optional[str] = None,
     ) -> str:
         """
@@ -129,7 +131,7 @@ class Scheduler(abc.ABC):
 
         raise NotImplementedError()
 
-    def submit_dryrun(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> AppDryRunInfo:
+    def submit_dryrun(self, app: AppDef, cfg: T) -> AppDryRunInfo:
         """
         Rather than submitting the request to run the app, returns the
         request object that would have been submitted to the underlying
@@ -138,7 +140,9 @@ class Scheduler(abc.ABC):
         to the scheduler implementation's documentation regarding
         the actual return type.
         """
+        # pyre-ignore: Generic cfg type passed to resolve
         resolved_cfg = self.run_opts().resolve(cfg)
+        # pyre-ignore: _submit_dryrun takes Generic type for resolved_cfg
         dryrun_info = self._submit_dryrun(app, resolved_cfg)
         for role in app.roles:
             dryrun_info = role.pre_proc(self.backend, dryrun_info)
@@ -147,7 +151,7 @@ class Scheduler(abc.ABC):
         return dryrun_info
 
     @abc.abstractmethod
-    def _submit_dryrun(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> AppDryRunInfo:
+    def _submit_dryrun(self, app: AppDef, cfg: T) -> AppDryRunInfo:
         raise NotImplementedError()
 
     def run_opts(self) -> runopts:

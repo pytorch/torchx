@@ -8,7 +8,7 @@
 
 import unittest
 from datetime import datetime
-from typing import Iterable, Mapping, Optional, Union
+from typing import Iterable, Mapping, Optional, Union, TypeVar
 from unittest.mock import MagicMock, patch
 
 from torchx.schedulers.api import (
@@ -29,9 +29,11 @@ from torchx.specs.api import (
 )
 from torchx.workspace.api import Workspace
 
+T = TypeVar("T")
+
 
 class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler, Workspace):
+    class MockScheduler(Scheduler[T], Workspace):
         def __init__(self, session_name: str) -> None:
             super().__init__("mock", session_name)
 

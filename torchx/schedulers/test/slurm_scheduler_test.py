@@ -20,6 +20,7 @@ from torchx.schedulers.slurm_scheduler import (
     SlurmBatchRequest,
     SlurmReplicaRequest,
     SlurmScheduler,
+    SlurmOpts,
     create_scheduler,
     _save_job_dir,
     _get_job_dirs,
@@ -168,10 +169,12 @@ class SlurmSchedulerTest(unittest.TestCase):
             entrypoint="echo",
             args=["hello"],
         )
-        cfg = {
-            "partition": "bubblegum",
-            "time": "5:13",
-        }
+        cfg = SlurmOpts(
+            {
+                "partition": "bubblegum",
+                "time": "5:13",
+            }
+        )
 
         sbatch, _ = SlurmReplicaRequest.from_role(
             "role-name", role, cfg, nomem=False
