@@ -308,7 +308,7 @@ if _has_ray:
             start = time.time()
             while time.time() - start <= timeout:
                 status_info = client.get_job_status(app_id)
-                status = status_info.status
+                status = status_info
                 if status in {JobStatus.SUCCEEDED, JobStatus.STOPPED, JobStatus.FAILED}:
                     break
                 time.sleep(1)
