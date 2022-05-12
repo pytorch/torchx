@@ -12,10 +12,32 @@ TorchX is a universal job launcher for PyTorch applications.
 TorchX is designed to have fast iteration time for training/research and support
 for E2E production ML pipelines when you're ready.
 
+TorchX currently supports:
+
+* Kubernetes (EKS, GKE, AKS, etc)
+* Slurm
+* AWS Batch
+* Docker
+* Local
+* Ray (prototype)
+
+Need a scheduler not listed? [Let us know!](https://github.com/pytorch/torchx/issues?q=is%3Aopen+is%3Aissue+label%3Ascheduler-request)
 
 ## Quickstart
 
 See the [quickstart guide](https://pytorch.org/torchx/latest/quickstart.html).
+
+## Schedulers
+
+[Supported schedulers]():
+
+
+
+Planned Schedulers (need one? let us know!):
+
+* Google AI Training Platform / TPUs #410
+* Azure Batch #411
+
 
 ## Documentation
 
