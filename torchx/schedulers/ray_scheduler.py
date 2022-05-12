@@ -321,7 +321,7 @@ if _has_ray:
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
             addr, app_id = app_id.split("-")
             client = JobSubmissionClient(f"http://{addr}")
-            job_status_info = client.get_job_status(app_id)
+            job_status_info = client.get_job_status(app_id) # pyre-ignore[6]
             state = _ray_status_to_torchx_appstate[job_status_info]
             roles = [Role(name="ray", num_replicas=-1, image="<N/A>")]
 
@@ -343,7 +343,7 @@ if _has_ray:
             return DescribeAppResponse(
                 app_id=app_id,
                 state=state,
-                msg=job_status_info,
+                msg=job_status_info, # pyre-ignore[6]
                 roles_statuses=roles_statuses,
                 roles=roles,
             )
