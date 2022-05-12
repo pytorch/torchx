@@ -89,7 +89,7 @@ def retry(f: Callable[..., T]) -> Callable[..., T]:
                 if curr_retries == retries:
                     raise
                 else:
-                    sleep = backoff * 2 ** curr_retries
+                    sleep = backoff * 2**curr_retries
                     fn_name = get_fn_name(f)
                     print(f"retrying `{fn_name}` request after {sleep} seconds")
                     time.sleep(sleep)
