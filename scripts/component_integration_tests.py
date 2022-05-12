@@ -100,6 +100,8 @@ def main() -> None:
                 component_provider,
             ],
             "image": torchx_image,
+            "cfg": {},
+
         },
     }
 

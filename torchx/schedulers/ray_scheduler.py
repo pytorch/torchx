@@ -322,8 +322,11 @@ if _has_ray:
             addr, app_id = app_id.split("-")
             client = JobSubmissionClient(f"http://{addr}")
             job_status_info = client.get_job_status(app_id)
-            state = _ray_status_to_torchx_appstate[job_status_info.status]
+            state = _ray_status_to_torchx_appstate[job_status_info]
             roles = [Role(name="ray", num_replicas=-1, image="<N/A>")]
+
+            # get ip_address and put it in hostname
+            
             roles_statuses = [
                 RoleStatus(
                     role="ray",
@@ -340,7 +343,7 @@ if _has_ray:
             return DescribeAppResponse(
                 app_id=app_id,
                 state=state,
-                msg=job_status_info.message or NONE,
+                msg=job_status_info or NONE,
                 roles_statuses=roles_statuses,
                 roles=roles,
             )
