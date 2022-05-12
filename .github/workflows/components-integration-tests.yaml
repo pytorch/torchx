@@ -16,8 +16,7 @@ jobs:
          - scheduler: "kubernetes"
          - scheduler: "local_cwd"
          - scheduler: "local_docker"
-         # TODO uncomment when https://github.com/pytorch/torchx/issues/455 is resolved
-         # - scheduler: "ray"
+         - scheduler: "ray"
       fail-fast: false
     permissions:
       id-token: write
