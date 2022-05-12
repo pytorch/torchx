@@ -49,8 +49,12 @@ class CommandActor:  # pragma: no cover
         worker_evn["MASTER_ADDR"] = self.master_addr
         worker_evn["MASTER_PORT"] = str(self.master_port)
         popen = subprocess.Popen(self.cmd, env=worker_evn)
+        
         returncode = popen.wait()
         _logger.info(f"Finished with code {returncode}")
+
+        if returncode != 0:
+            raise RuntimeError(f"exec_module failed with return code {returncode}")
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
         return get_address_and_port()
@@ -149,20 +153,15 @@ def main() -> None:  # pragma: no cover
 
     # Await return result of remote ray function
     while len(active_workers) > 0:
+        _logger.info(f"running ray.wait on {active_workers}")
+
         # pyre-fixme[16]: Module `worker` has no attribute `wait`.
         completed_workers, active_workers = ray.wait(active_workers)
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_workers:
-            try:
-                ray.get(object_ref)
-            # If an error occurs during the actor execution,
-            # this error will get propagated as-is to the driver when you call ray.get().
-            # For example, if a ValueError is raised in the actor method call,
-            # this will be raised as a ValueError on the driver.
-            # These exceptions will not be caught in this try-except clause
-            except ray.exceptions.RayActorError as exc:
-                _logger.error("Ray Actor error", exc)
+            ray.get(object_ref)
+
 
 
 if __name__ == "__main__":
