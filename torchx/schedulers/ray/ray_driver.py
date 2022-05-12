@@ -49,7 +49,7 @@ class CommandActor:  # pragma: no cover
         worker_evn["MASTER_ADDR"] = self.master_addr
         worker_evn["MASTER_PORT"] = str(self.master_port)
         popen = subprocess.Popen(self.cmd, env=worker_evn)
-        
+
         returncode = popen.wait()
         _logger.info(f"Finished with code {returncode}")
 
@@ -161,7 +161,6 @@ def main() -> None:  # pragma: no cover
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_workers:
             ray.get(object_ref)
-
 
 
 if __name__ == "__main__":

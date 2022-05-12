@@ -101,7 +101,6 @@ def main() -> None:
             ],
             "image": torchx_image,
             "cfg": {},
-
         },
     }
 
