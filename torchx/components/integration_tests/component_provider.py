@@ -104,7 +104,7 @@ class CopyComponentProvider(ComponentProvider):
         self._dst_path = "<None>"
 
     def setUp(self) -> None:
-        if self._scheduler == "local_cwd":
+        if self._scheduler in ["local_cwd", "ray"]:
             fname = "torchx_copy_test.txt"
             self._src_path: str = os.path.join(tempfile.gettempdir(), fname)
             self._dst_path: str = os.path.join(tempfile.gettempdir(), f"{fname}.copy")
@@ -121,7 +121,7 @@ class CopyComponentProvider(ComponentProvider):
     def tearDown(self) -> None:
         if os.path.exists(self._dst_path):
             os.remove(self._dst_path)
-        if self._scheduler == "local_cwd" and os.path.exists(self._dst_path):
+        if self._scheduler in ["local_cwd", "ray"] and os.path.exists(self._dst_path):
             os.remove(self._dst_path)
 
     def get_app_def(self) -> AppDef:
