@@ -27,18 +27,6 @@ Need a scheduler not listed? [Let us know!](https://github.com/pytorch/torchx/is
 
 See the [quickstart guide](https://pytorch.org/torchx/latest/quickstart.html).
 
-## Schedulers
-
-[Supported schedulers]():
-
-
-
-Planned Schedulers (need one? let us know!):
-
-* Google AI Training Platform / TPUs #410
-* Azure Batch #411
-
-
 ## Documentation
 
 * [Stable Documentation](https://pytorch.org/torchx/latest/)
