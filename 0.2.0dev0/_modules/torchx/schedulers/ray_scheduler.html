@@ -680,7 +680,7 @@
             <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">timeout</span><span class="p">:</span>
                 <span class="n">status_info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_job_status</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">status_info</span><span class="o">.</span><span class="n">status</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">status_info</span>
                 <span class="k">if</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">{</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">,</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">,</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">}:</span>
                     <span class="k">break</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
@@ -694,8 +694,11 @@
             <span class="n">addr</span><span class="p">,</span> <span class="n">app_id</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
             <span class="n">client</span> <span class="o">=</span> <span class="n">JobSubmissionClient</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">addr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">job_status_info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_job_status</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="n">_ray_status_to_torchx_appstate</span><span class="p">[</span><span class="n">job_status_info</span><span class="o">.</span><span class="n">status</span><span class="p">]</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">_ray_status_to_torchx_appstate</span><span class="p">[</span><span class="n">job_status_info</span><span class="p">]</span>
             <span class="n">roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ray&quot;</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&lt;N/A&gt;&quot;</span><span class="p">)]</span>
+
+            <span class="c1"># get ip_address and put it in hostname</span>
+
             <span class="n">roles_statuses</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">RoleStatus</span><span class="p">(</span>
                     <span class="n">role</span><span class="o">=</span><span class="s2">&quot;ray&quot;</span><span class="p">,</span>
@@ -712,7 +715,7 @@
             <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
                 <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
                 <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-                <span class="n">msg</span><span class="o">=</span><span class="n">job_status_info</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="n">NONE</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="n">job_status_info</span><span class="p">,</span>
                 <span class="n">roles_statuses</span><span class="o">=</span><span class="n">roles_statuses</span><span class="p">,</span>
                 <span class="n">roles</span><span class="o">=</span><span class="n">roles</span><span class="p">,</span>
             <span class="p">)</span></div>
