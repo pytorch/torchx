@@ -21,7 +21,7 @@ Lightning + Classy Vision libraries.
 
     import os.path
     import tarfile
-    from typing import Optional, Callable
+    from typing import Callable, Optional
 
     import fsspec
     import numpy

@@ -421,17 +421,16 @@ using captum.</p>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
-    <span class="n">download_data</span><span class="p">,</span>
     <span class="n">create_random_data</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="p">,</span>
+    <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span>
 
 <span class="c1"># FIXME: captum must be imported after torch otherwise it causes python to crash</span>
 <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-    <span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">IntegratedGradients</span>
-    <span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">visualization</span> <span class="k">as</span> <span class="n">viz</span>
+    <span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">IntegratedGradients</span><span class="p">,</span> <span class="n">visualization</span> <span class="k">as</span> <span class="n">viz</span>
 
 
 <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">List</span></a><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="argparse.Namespace" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span></a><span class="p">:</span>

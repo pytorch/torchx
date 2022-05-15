@@ -38,7 +38,7 @@ from typing import Dict, List, Optional
 
 import torchx
 import torchx.specs as specs
-from torchx.specs import Resource, macros, named_resources
+from torchx.specs import macros, named_resources, Resource
 
 
 # %%

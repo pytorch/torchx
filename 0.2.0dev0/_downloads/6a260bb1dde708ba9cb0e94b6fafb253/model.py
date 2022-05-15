@@ -14,7 +14,7 @@ by the apps in the same folder.
 
 import os.path
 import subprocess
-from typing import Tuple, Optional, List
+from typing import List, Optional, Tuple
 
 import fsspec
 import pytorch_lightning as pl
@@ -22,7 +22,7 @@ import torch
 import torch.jit
 from torch.nn import functional as F
 from torchmetrics import Accuracy
-from torchvision.models.resnet import ResNet, BasicBlock
+from torchvision.models.resnet import BasicBlock, ResNet
 
 
 class TinyImageNetModel(pl.LightningModule):
