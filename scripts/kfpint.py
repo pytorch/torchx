@@ -45,20 +45,20 @@ import subprocess
 import tempfile
 import time
 from contextlib import contextmanager
-from typing import Optional, Iterator, Any, TypeVar, Callable
+from typing import Any, Callable, Iterator, Optional, TypeVar
 
 import kfp
 
 # pyre-ignore-all-errors[21] # Cannot find module utils
 # pyre-ignore-all-errors[11]
 from integ_test_utils import (
-    MissingEnvError,
+    build_images,
+    BuildInfo,
     getenv_asserts,
+    MissingEnvError,
+    push_images,
     run,
     run_in_bg,
-    BuildInfo,
-    build_images,
-    push_images,
 )
 from pyre_extensions import none_throws
 from urllib3.exceptions import MaxRetryError

@@ -8,7 +8,7 @@
 import os.path
 import tempfile
 import unittest
-from typing import List, Callable
+from typing import Callable, List
 
 import torchx
 import yaml

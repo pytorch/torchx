@@ -9,7 +9,7 @@ import unittest
 from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
 
-from torchx.schedulers import get_schedulers, get_default_scheduler_name
+from torchx.schedulers import get_default_scheduler_name, get_schedulers
 from torchx.schedulers.docker_scheduler import DockerScheduler
 from torchx.schedulers.local_scheduler import LocalScheduler
 

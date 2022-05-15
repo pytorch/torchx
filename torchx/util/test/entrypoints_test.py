@@ -11,8 +11,7 @@ try:
 except ImportError:
     from importlib_metadata import EntryPoint
 from configparser import ConfigParser
-from typing import Dict
-from typing import List
+from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
 from torchx.util.entrypoints import load, load_group

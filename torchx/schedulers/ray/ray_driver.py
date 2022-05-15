@@ -9,7 +9,7 @@ import logging
 import os
 import subprocess
 import sys
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 import ray
 from ray.train.utils import get_address_and_port

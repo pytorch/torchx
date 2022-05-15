@@ -17,7 +17,7 @@ from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
 from torchx.cli.cmd_status import CmdStatus
-from torchx.cli.colors import ENDC, GRAY, BLUE
+from torchx.cli.colors import BLUE, ENDC, GRAY
 from torchx.util.entrypoints import load_group
 
 

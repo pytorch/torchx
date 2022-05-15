@@ -13,12 +13,12 @@ from enum import Enum
 from typing import Iterable, List, Mapping, Optional
 
 from torchx.specs import (
-    NONE,
-    NULL_RESOURCE,
     AppDef,
     AppDryRunInfo,
     AppState,
     CfgVal,
+    NONE,
+    NULL_RESOURCE,
     Role,
     RoleStatus,
     runopts,

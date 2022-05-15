@@ -46,13 +46,13 @@ from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler,
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.streams import Tee
 from torchx.specs.api import (
-    NONE,
     AppDef,
     AppState,
     CfgVal,
-    Role,
     is_terminal,
     macros,
+    NONE,
+    Role,
     runopts,
 )
 

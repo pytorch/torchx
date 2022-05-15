@@ -11,10 +11,7 @@ import unittest
 
 import fsspec
 from torchx.specs import Role
-from torchx.workspace.dir_workspace import (
-    DirWorkspace,
-    _copy_to_dir,
-)
+from torchx.workspace.dir_workspace import _copy_to_dir, DirWorkspace
 
 
 class DirWorkspaceTest(unittest.TestCase):

@@ -28,7 +28,7 @@ from typing import (
 )
 
 import yaml
-from torchx.specs.file_linter import TorchXArgumentHelpFormatter, get_fn_docstring
+from torchx.specs.file_linter import get_fn_docstring, TorchXArgumentHelpFormatter
 from torchx.util.types import (
     decode_from_string,
     decode_optional,

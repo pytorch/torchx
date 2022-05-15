@@ -140,7 +140,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TextIO
 
-from torchx.schedulers import Scheduler, get_schedulers
+from torchx.schedulers import get_schedulers, Scheduler
 from torchx.specs import CfgVal, get_type_name
 from torchx.specs.api import runopt
 

@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 from torchx.specs.file_linter import (
     get_fn_docstring,
-    validate,
     TorchXArgumentHelpFormatter,
+    validate,
 )
 
 

@@ -9,7 +9,7 @@ import argparse
 import logging
 
 from torchx.cli.cmd_base import SubCommand
-from torchx.cli.colors import GREEN, ENDC
+from torchx.cli.colors import ENDC, GREEN
 from torchx.runner.api import get_runner
 
 logger: logging.Logger = logging.getLogger(__name__)

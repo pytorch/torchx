@@ -11,21 +11,16 @@ from datetime import datetime
 from typing import Iterable, Mapping, Optional, Union
 from unittest.mock import MagicMock, patch
 
-from torchx.schedulers.api import (
-    DescribeAppResponse,
-    Scheduler,
-    Stream,
-    split_lines,
-)
+from torchx.schedulers.api import DescribeAppResponse, Scheduler, split_lines, Stream
 from torchx.specs.api import (
-    NULL_RESOURCE,
     AppDef,
     AppDryRunInfo,
     CfgVal,
     InvalidRunConfigException,
+    NULL_RESOURCE,
     Resource,
-    runopts,
     Role,
+    runopts,
 )
 from torchx.workspace.api import Workspace
 

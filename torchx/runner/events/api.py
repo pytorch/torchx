@@ -9,7 +9,7 @@ import json
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from torch import monitor

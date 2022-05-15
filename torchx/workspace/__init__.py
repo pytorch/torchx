@@ -20,4 +20,4 @@ Example workspace paths:
     * ``memory://foo-bar/`` an in-memory workspace for notebook/programmatic usage
 """
 
-from torchx.workspace.api import Workspace, walk_workspace  # noqa: F401
+from torchx.workspace.api import walk_workspace, Workspace  # noqa: F401

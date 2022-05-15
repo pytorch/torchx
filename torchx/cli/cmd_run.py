@@ -19,13 +19,13 @@ from pyre_extensions import none_throws
 from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
-from torchx.runner import Runner, config, get_runner
+from torchx.runner import config, get_runner, Runner
 from torchx.runner.config import load_sections
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs.finder import (
+    _Component,
     ComponentNotFoundException,
     ComponentValidationException,
-    _Component,
     get_builtin_source,
     get_components,
 )

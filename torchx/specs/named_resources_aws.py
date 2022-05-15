@@ -29,7 +29,7 @@ Usage:
 
 """
 
-from typing import Mapping, Callable
+from typing import Callable, Mapping
 
 from torchx.specs.api import Resource
 

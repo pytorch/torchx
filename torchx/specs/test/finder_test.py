@@ -19,13 +19,13 @@ from torchx.runner import get_runner
 from torchx.runtime.tracking import FsspecResultTracker
 from torchx.specs.api import AppDef, AppState, Role
 from torchx.specs.finder import (
+    _load_components,
     ComponentNotFoundException,
     ComponentValidationException,
     CustomComponentsFinder,
-    ModuleComponentsFinder,
-    _load_components,
     get_component,
     get_components,
+    ModuleComponentsFinder,
 )
 
 

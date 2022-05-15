@@ -16,9 +16,8 @@ import torchx.specs.named_resources_aws as named_resources_aws
 from pyre_extensions import none_throws
 from torchx.specs import named_resources, resource
 from torchx.specs.api import (
+    _create_args_parser,
     _TERMINAL_STATES,
-    MISSING,
-    NULL_RESOURCE,
     AppDef,
     AppDryRunInfo,
     AppState,
@@ -26,20 +25,21 @@ from torchx.specs.api import (
     BindMount,
     CfgVal,
     DeviceMount,
+    from_function,
+    get_type_name,
     InvalidRunConfigException,
+    macros,
+    make_app_handle,
     MalformedAppHandleException,
+    MISSING,
+    NULL_RESOURCE,
+    parse_app_handle,
+    parse_mounts,
     Resource,
     RetryPolicy,
     Role,
-    VolumeMount,
-    _create_args_parser,
-    from_function,
-    get_type_name,
-    macros,
-    make_app_handle,
-    parse_app_handle,
-    parse_mounts,
     runopts,
+    VolumeMount,
 )
 
 

@@ -26,15 +26,15 @@ from unittest.mock import MagicMock, patch
 from pyre_extensions import none_throws
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
+    _join_PATH,
+    create_cwd_scheduler,
     CWDImageProvider,
     LocalDirectoryImageProvider,
     LocalScheduler,
-    ReplicaParam,
-    _join_PATH,
-    create_cwd_scheduler,
     make_unique,
+    ReplicaParam,
 )
-from torchx.specs.api import AppDef, AppState, Resource, Role, is_terminal, macros
+from torchx.specs.api import AppDef, AppState, is_terminal, macros, Resource, Role
 
 from .test_util import write_shell_script
 

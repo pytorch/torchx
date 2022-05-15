@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_run import CmdBuiltins, CmdRun, _parse_component_name_and_args
+from torchx.cli.cmd_run import _parse_component_name_and_args, CmdBuiltins, CmdRun
 from torchx.schedulers.local_scheduler import SignalException
 
 

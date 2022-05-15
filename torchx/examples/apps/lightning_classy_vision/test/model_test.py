@@ -7,9 +7,7 @@
 import unittest
 
 import torch
-from torchx.examples.apps.lightning_classy_vision.model import (
-    TinyImageNetModel,
-)
+from torchx.examples.apps.lightning_classy_vision.model import TinyImageNetModel
 
 
 class ModelTest(unittest.TestCase):

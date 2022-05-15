@@ -39,15 +39,15 @@ import threading
 from dataclasses import dataclass
 from datetime import datetime
 from typing import (
+    Any,
+    Callable,
     Dict,
     Iterable,
     Mapping,
     Optional,
-    Any,
-    TYPE_CHECKING,
     Tuple,
+    TYPE_CHECKING,
     TypeVar,
-    Callable,
 )
 
 import torchx
@@ -55,22 +55,22 @@ import yaml
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
+    filter_regex,
     Scheduler,
     Stream,
-    filter_regex,
 )
 from torchx.schedulers.devices import get_device_mounts
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
     AppState,
-    Role,
-    macros,
-    runopts,
-    CfgVal,
     BindMount,
-    VolumeMount,
+    CfgVal,
     DeviceMount,
+    macros,
+    Role,
+    runopts,
+    VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 

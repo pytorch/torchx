@@ -7,13 +7,9 @@
 
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from torchx.schedulers.ids import (
-    make_unique,
-    random_uint64,
-    random_id,
-)
+from torchx.schedulers.ids import make_unique, random_id, random_uint64
 
 
 class IdsTest(unittest.TestCase):

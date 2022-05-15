@@ -17,10 +17,10 @@ from torchx import specs
 from torchx.components.dist import ddp
 from torchx.schedulers.api import Stream
 from torchx.schedulers.docker_scheduler import (
+    create_scheduler,
     DockerContainer,
     DockerJob,
     DockerScheduler,
-    create_scheduler,
     has_docker,
 )
 from torchx.schedulers.test.local_scheduler_test import LocalSchedulerTestUtil

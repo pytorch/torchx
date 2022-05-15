@@ -11,8 +11,8 @@ import shutil
 from typing import Mapping
 
 import fsspec
-from torchx.specs import Role, CfgVal
-from torchx.workspace.api import Workspace, walk_workspace
+from torchx.specs import CfgVal, Role
+from torchx.workspace.api import walk_workspace, Workspace
 
 
 class DirWorkspace(Workspace):

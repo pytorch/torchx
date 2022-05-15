@@ -12,11 +12,11 @@ Kubernetes integration tests.
 import argparse
 import os
 
-from integ_test_utils import BuildInfo, MissingEnvError, build_images, push_images
+from integ_test_utils import build_images, BuildInfo, MissingEnvError, push_images
 from pyre_extensions import none_throws
 from torchx.examples.apps.lightning_classy_vision.component import trainer_dist
 from torchx.runner import get_runner
-from torchx.specs import AppState, Resource, named_resources
+from torchx.specs import AppState, named_resources, Resource
 
 
 # pyre-ignore-all-errors[21] # Cannot find module utils

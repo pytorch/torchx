@@ -6,7 +6,7 @@
 
 import inspect
 import unittest
-from typing import Dict, List, Optional, Union, cast
+from typing import cast, Dict, List, Optional, Union
 
 import typing_inspect
 from torchx.util.types import (

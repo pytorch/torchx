@@ -8,7 +8,7 @@
 
 import datetime
 from enum import Enum
-from typing import List, Dict, Callable, Union
+from typing import Callable, Dict, List, Union
 
 class Aggregation(Enum):
     VALUE = "value"

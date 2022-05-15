@@ -19,11 +19,11 @@ from torchx.runner.config import (
     apply,
     dump,
     get_config,
+    get_configs,
     load,
     load_sections,
-    get_configs,
 )
-from torchx.schedulers import Scheduler, get_schedulers
+from torchx.schedulers import get_schedulers, Scheduler
 from torchx.schedulers.api import DescribeAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
 

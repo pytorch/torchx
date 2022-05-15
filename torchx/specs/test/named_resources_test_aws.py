@@ -8,9 +8,9 @@
 import unittest
 
 from torchx.specs.named_resources_aws import (
+    aws_m5_2xlarge,
     aws_p3_2xlarge,
     aws_p3_8xlarge,
-    aws_m5_2xlarge,
     aws_t3_medium,
     GiB,
     NAMED_RESOURCES,

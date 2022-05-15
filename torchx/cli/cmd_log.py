@@ -12,15 +12,15 @@ import sys
 import threading
 import time
 from queue import Queue
-from typing import Optional, List, Tuple, TextIO
+from typing import List, Optional, TextIO, Tuple
 
 from pyre_extensions import none_throws
 from torchx import specs
 from torchx.cli.cmd_base import SubCommand
-from torchx.cli.colors import GREEN, ENDC
-from torchx.runner import Runner, get_runner
+from torchx.cli.colors import ENDC, GREEN
+from torchx.runner import get_runner, Runner
 from torchx.schedulers.api import Stream
-from torchx.specs.api import make_app_handle, is_started
+from torchx.specs.api import is_started, make_app_handle
 
 logger: logging.Logger = logging.getLogger(__name__)
 

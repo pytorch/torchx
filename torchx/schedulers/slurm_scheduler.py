@@ -24,14 +24,14 @@ import torchx
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.local_scheduler import LogIterator
 from torchx.specs import (
-    NONE,
     AppDef,
     AppState,
     CfgVal,
+    macros,
+    NONE,
     ReplicaStatus,
     Role,
     RoleStatus,
-    macros,
     runopts,
 )
 from torchx.workspace.dir_workspace import DirWorkspace

@@ -9,10 +9,10 @@ import argparse
 import os
 import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_base import SubCommand
-from torchx.cli.main import main, get_sub_cmds
+from torchx.cli.main import get_sub_cmds, main
 
 
 _root: Path = Path(__file__).parent

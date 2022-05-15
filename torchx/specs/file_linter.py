@@ -10,7 +10,7 @@ import argparse
 import ast
 import inspect
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, cast, Callable
+from typing import Callable, cast, Dict, List, Optional, Tuple
 
 from docstring_parser import parse
 from pyre_extensions import none_throws

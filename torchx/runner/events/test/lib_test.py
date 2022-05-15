@@ -9,14 +9,14 @@ import json
 import logging
 import unittest
 from typing import List
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from torchx.runner.events import (
     _get_or_create_logger,
-    SourceType,
-    TorchxEvent,
     log_event,
     record,
+    SourceType,
+    TorchxEvent,
 )
 
 try:

@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 import warnings
-from typing import Mapping, Callable, List, Dict
+from typing import Callable, Dict, List, Mapping
 
 from torchx.specs.api import DeviceMount
 

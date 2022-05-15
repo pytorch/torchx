@@ -9,7 +9,7 @@ import os
 
 import torch
 import torch.nn.functional as F
-from torch.distributed import init_process_group, all_reduce, get_rank, get_world_size
+from torch.distributed import all_reduce, get_rank, get_world_size, init_process_group
 
 
 def compute_world_size() -> int:

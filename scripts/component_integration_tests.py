@@ -14,7 +14,7 @@ import os
 
 import example_app_defs as examples_app_defs_providers
 import torchx.components.integration_tests.component_provider as component_provider
-from integ_test_utils import BuildInfo, MissingEnvError, build_images, push_images
+from integ_test_utils import build_images, BuildInfo, MissingEnvError, push_images
 from torchx.cli.colors import BLUE, ENDC, GRAY
 from torchx.components.integration_tests.integ_tests import IntegComponentTest
 from torchx.schedulers import get_scheduler_factories

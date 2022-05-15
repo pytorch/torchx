@@ -28,13 +28,13 @@ import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from torchx.examples.apps.lightning_classy_vision.data import (
-    TinyImageNetDataModule,
     create_random_data,
     download_data,
+    TinyImageNetDataModule,
 )
 from torchx.examples.apps.lightning_classy_vision.model import (
-    TinyImageNetModel,
     export_inference_model,
+    TinyImageNetModel,
 )
 from torchx.examples.apps.lightning_classy_vision.profiler import SimpleLoggingProfiler
 

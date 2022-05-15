@@ -25,7 +25,7 @@ import os
 from string import Template
 from typing import List, Optional
 
-from packaging.version import Version, InvalidVersion
+from packaging.version import InvalidVersion, Version
 
 VERSIONS_HTML_TEMPLATE = Template(
     """

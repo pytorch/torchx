@@ -13,10 +13,10 @@ from unittest.mock import MagicMock, patch
 import torchx
 from torchx import specs
 from torchx.schedulers.aws_batch_scheduler import (
-    create_scheduler,
-    AWSBatchScheduler,
-    _role_to_node_properties,
     _local_session,
+    _role_to_node_properties,
+    AWSBatchScheduler,
+    create_scheduler,
 )
 
 

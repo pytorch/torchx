@@ -13,26 +13,26 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, copytree, rmtree
 from tempfile import mkdtemp
-from typing import Any, Dict, List, Mapping, Optional, Set, Type, cast  # noqa
+from typing import Any, cast, Dict, List, Mapping, Optional, Set, Type  # noqa
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
     AppState,
     DescribeAppResponse,
     Scheduler,
-    Stream,
     split_lines,
+    Stream,
 )
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.specs import (
-    NONE,
     AppDef,
     CfgVal,
+    macros,
+    NONE,
     ReplicaStatus,
     Role,
     RoleStatus,
-    macros,
     runopts,
 )
 

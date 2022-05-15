@@ -10,7 +10,7 @@ import sys
 from dataclasses import asdict
 from json import dumps
 from types import ModuleType
-from typing import Callable, Dict, List, Type, cast
+from typing import Callable, cast, Dict, List, Type
 
 from pyre_extensions import none_throws
 from torchx.cli.cmd_log import get_logs

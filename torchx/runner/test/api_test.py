@@ -14,7 +14,7 @@ from typing import Mapping, Optional
 from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
-from torchx.runner import Runner, get_runner
+from torchx.runner import get_runner, Runner
 from torchx.schedulers.api import DescribeAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
     LocalDirectoryImageProvider,

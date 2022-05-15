@@ -10,33 +10,33 @@ import os.path
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, TYPE_CHECKING, Union
 
 import torchx
 import yaml
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
-    Scheduler,
-    Stream,
     filter_regex,
+    Scheduler,
     split_lines,
+    Stream,
 )
 from torchx.schedulers.devices import get_device_mounts
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
     AppState,
+    BindMount,
     CfgVal,
+    DeviceMount,
+    is_terminal,
+    macros,
     ReplicaStatus,
     Role,
     RoleStatus,
-    is_terminal,
-    macros,
     runopts,
-    BindMount,
     VolumeMount,
-    DeviceMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
 
