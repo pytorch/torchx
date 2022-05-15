@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eux
-          pip install usort==0.6.4
+          pip install usort==1.0.2
           pip install black
           pip install flake8==3.9.0
       - name: Run Lint
