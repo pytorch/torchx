@@ -24,7 +24,7 @@ from torchx.schedulers.api import (
     Stream,
 )
 from torchx.schedulers.ids import make_unique
-from torchx.schedulers.ray.ray_common import RayActor
+from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 from torchx.specs import (
     AppDef,
     CfgVal,
@@ -208,14 +208,12 @@ if _has_ray:
             # 4. Submit Job via the Ray Job Submission API
             try:
                 job_id: str = client.submit_job(
+                    job_id=cfg.app_id,
                     # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
                     # and use it to configure your job execution.
-                    entrypoint="python ray_driver.py",
+                    entrypoint="python3 ray_driver.py",
                     runtime_env={"working_dir": dirpath, "pip": reqs},
                 )
-
-            except Exception:
-                raise
 
             finally:
                 rmtree(dirpath)
@@ -253,25 +251,25 @@ if _has_ray:
             job.working_dir = cast(Optional[str], cfg.get("working_dir"))
 
             for role in app.roles:
-                # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
-                # in arguments and environment variables.
-                role = macros.Values(
-                    img_root=role.image,
-                    app_id=app_id,
-                    replica_id="${rank}",
-                    rank0_env="MASTER_ADDR",
-                ).apply(role)
+                for replica_id in range(role.num_replicas):
+                    # Replace the ${img_root}, ${app_id}, and ${replica_id} placeholders
+                    # in arguments and environment variables.
+                    replica_role = macros.Values(
+                        img_root=role.image,
+                        app_id=app_id,
+                        replica_id=str(replica_id),
+                        rank0_env=TORCHX_RANK0_HOST,
+                    ).apply(role)
 
-                actor = RayActor(
-                    name=role.name,
-                    command=" ".join([role.entrypoint] + role.args),
-                    env=role.env,
-                    num_replicas=max(1, role.num_replicas),
-                    num_cpus=max(1, role.resource.cpu),
-                    num_gpus=max(0, role.resource.gpu),
-                )
+                    actor = RayActor(
+                        name=role.name,
+                        command=[replica_role.entrypoint] + replica_role.args,
+                        env=replica_role.env,
+                        num_cpus=max(1, replica_role.resource.cpu),
+                        num_gpus=max(0, replica_role.resource.gpu),
+                    )
 
-                job.actors.append(actor)
+                    job.actors.append(actor)
 
             return AppDryRunInfo(job, repr)
 
@@ -302,7 +300,7 @@ if _has_ray:
             with a given timeout. This is intended for testing. Programmatic
             usage should use the runner wait method instead.
             """
-            addr, app_id = app_id.split("-")
+            addr, _, app_id = app_id.partition("-")
 
             client = JobSubmissionClient(f"http://{addr}")
             start = time.time()
@@ -314,12 +312,12 @@ if _has_ray:
                 time.sleep(1)
 
         def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover
-            addr, app_id = app_id.split("-")
+            addr, _, app_id = app_id.partition("-")
             client = JobSubmissionClient(f"http://{addr}")
             client.stop_job(app_id)
 
         def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-            addr, app_id = app_id.split("-")
+            addr, _, app_id = app_id.partition("-")
             client = JobSubmissionClient(f"http://{addr}")
             job_status_info = client.get_job_status(app_id)
             state = _ray_status_to_torchx_appstate[job_status_info]
@@ -360,7 +358,7 @@ if _has_ray:
             streams: Optional[Stream] = None,
         ) -> List[str]:
             # TODO: support regex, tailing, streams etc..
-            addr, app_id = app_id.split("-")
+            addr, _, app_id = app_id.partition("-")
             client: JobSubmissionClient = JobSubmissionClient(f"http://{addr}")
             logs: str = client.get_job_logs(app_id)
             return split_lines(logs)
