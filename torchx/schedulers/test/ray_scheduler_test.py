@@ -219,11 +219,16 @@ if has_ray():
             )
             self.assertEqual(job.cluster_name, self._run_cfg.get("cluster_name"))
 
-            for actor, role in zip(job.actors, self._app_def.roles):
+            actor_roles = []
+            for role in self._app_def.roles:
+                actor_roles += [role] * role.num_replicas
+
+            self.assertEqual(len(job.actors), len(actor_roles))
+
+            for actor, role in zip(job.actors, actor_roles):
                 self.assertEqual(actor.name, role.name)
-                self.assertEqual(actor.command, " ".join([role.entrypoint] + role.args))
+                self.assertEqual(actor.command, [role.entrypoint] + role.args)
                 self.assertEqual(actor.env, role.env)
-                self.assertEqual(actor.num_replicas, max(1, role.num_replicas))
                 self.assertEqual(actor.num_cpus, max(1, role.resource.cpu))
                 self.assertEqual(actor.num_gpus, max(0, role.resource.gpu))
 
@@ -242,7 +247,8 @@ if has_ray():
             job = run_info.request
 
             self.assertEqual(
-                job.actors[0].command, "dummy_entrypoint1 arg1 dummy1.py arg2"
+                job.actors[0].command,
+                ["dummy_entrypoint1", "arg1", "dummy1.py", "arg2"],
             )
 
     class RayClusterSetup:
@@ -271,16 +277,17 @@ if has_ray():
         def teardown_ray_cluster(cls) -> None:
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
+            os.system("ray stop")
 
     class RayDriverTest(TestCase):
         def test_command_actor_setup(self) -> None:
             ray_cluster_setup = RayClusterSetup()
 
             actor1 = RayActor(
-                name="test_actor_1", command="python 1 2", env={"fake": "1"}
+                name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
             )
             actor2 = RayActor(
-                name="test_actor_2", command="python 3 4", env={"fake": "2"}
+                name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -289,13 +296,11 @@ if has_ray():
             loaded_actor = ray_driver.load_actor_json(
                 os.path.join(current_dir, "actors.json")
             )
-            assert loaded_actor == actors
+            self.assertEqual(loaded_actor, actors)
 
-            pgs = ray_driver.create_placement_groups(actors)
-            assert len(pgs) >= 1
-
-            command_actors = ray_driver.create_command_actors(actors, pgs)
-            assert len(command_actors) >= 1
+            pg = ray_driver.create_placement_group(actors)
+            command_actors = ray_driver.create_command_actors(actors, pg)
+            self.assertEqual(len(command_actors), 2)
             ray_cluster_setup.decrement_reference()
 
     class RayIntegrationTest(TestCase):
@@ -303,19 +308,19 @@ if has_ray():
             ray_cluster_setup = RayClusterSetup()
             ray_scheduler = self.setup_ray_cluster()
             # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
-            assert ray.is_initialized() is True
+            self.assertTrue(ray.is_initialized())
 
             job_id = self.schedule_ray_job(ray_scheduler)
-            assert job_id is not None
+            self.assertIsNotNone(job_id)
 
             ray_scheduler.wait_until_finish(job_id, 100)
 
             logs = self.check_logs(ray_scheduler=ray_scheduler, app_id=job_id)
             print(logs)
-            assert logs is not None
+            self.assertIsNotNone(logs)
 
             status = self.describe(ray_scheduler, job_id)
-            assert status is not None
+            self.assertIsNotNone(status)
 
             ray_cluster_setup.decrement_reference()
 
@@ -327,17 +332,23 @@ if has_ray():
             self, ray_scheduler: RayScheduler, app_id: str = "123"
         ) -> str:
             current_dir = os.path.dirname(os.path.realpath(__file__))
-            actor = RayActor(
-                name="ddp",
-                num_cpus=2,
-                num_replicas=2,
-                command=os.path.join(current_dir, "train.py"),
-            )
+            actors = [
+                RayActor(
+                    name="ddp",
+                    num_cpus=2,
+                    command=os.path.join(current_dir, "train.py"),
+                ),
+                RayActor(
+                    name="ddp",
+                    num_cpus=2,
+                    command=os.path.join(current_dir, "train.py"),
+                ),
+            ]
 
             ray_job = RayJob(
                 app_id=app_id,
                 dashboard_address="127.0.0.1:8265",
-                actors=[actor],
+                actors=actors,
             )
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
