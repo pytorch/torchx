@@ -101,8 +101,9 @@ def main() -> None:
             ],
             "image": torchx_image,
             "cfg": {
-                "working_dir": ".",
+                "requirements": "",
             },
+            "workspace": f"file://{os.getcwd()}",
         },
     }
 
@@ -115,6 +116,7 @@ def main() -> None:
             image=params["image"],
             cfg=params["cfg"],
             dryrun=dryrun,
+            workspace=params.get("workspace"),
         )
 
 

@@ -8,11 +8,27 @@
 import os
 import posixpath
 import shutil
+from tempfile import mkdtemp
 from typing import Mapping
 
 import fsspec
 from torchx.specs import CfgVal, Role
 from torchx.workspace.api import walk_workspace, Workspace
+
+
+class TmpDirWorkspace(Workspace):
+    def build_workspace_and_update_role(
+        self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
+    ) -> None:
+        """
+        Creates a new temp directory from the workspace. Role image fields will
+        be set to the ``job_dir``.
+
+        Any files listed in the ``.torchxignore`` folder will be skipped.
+        """
+        job_dir = mkdtemp(prefix="torchx_workspace")
+        _copy_to_dir(workspace, job_dir)
+        role.image = job_dir
 
 
 class DirWorkspace(Workspace):

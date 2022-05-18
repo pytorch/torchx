@@ -10,7 +10,7 @@ import sys
 from dataclasses import asdict
 from json import dumps
 from types import ModuleType
-from typing import Callable, cast, Dict, List, Type
+from typing import Callable, cast, Dict, List, Optional, Type
 
 from pyre_extensions import none_throws
 from torchx.cli.cmd_log import get_logs
@@ -45,6 +45,7 @@ class IntegComponentTest:
         scheduler: str,
         cfg: Dict[str, CfgVal],
         dryrun: bool = False,
+        workspace: Optional[str] = None,
     ) -> None:
         component_providers = [
             cast(Callable[..., ComponentProvider], cls)(scheduler, image)
@@ -68,7 +69,9 @@ class IntegComponentTest:
             log.info(f"Submitting AppDef... (dryrun={dryrun})")
             # get the dryrun info to log the scheduler request
             # then use the schedule (intead of the run API) for job submission
-            dryrun_info = runner.dryrun(app_def, scheduler, cfg=cfg)
+            dryrun_info = runner.dryrun(
+                app_def, scheduler, cfg=cfg, workspace=workspace
+            )
             log.info(f"\nAppDef:\n{dumps(asdict(app_def), indent=4)}")
             log.info(f"\nScheduler Request:\n{dryrun_info}")
 
