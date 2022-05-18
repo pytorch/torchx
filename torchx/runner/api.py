@@ -49,6 +49,7 @@ class Runner:
     def __init__(
         self,
         name: str,
+        # pyre-fixme: Scheduler opts
         schedulers: Dict[str, Scheduler],
         component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
     ) -> None:
@@ -539,6 +540,7 @@ class Runner:
             )
             return log_iter
 
+    # pyre-fixme: Scheduler opts
     def _scheduler(self, scheduler: str) -> Scheduler:
         sched = self._schedulers.get(scheduler)
         if not sched:
@@ -548,7 +550,10 @@ class Runner:
         return sched
 
     def _scheduler_app_id(
-        self, app_handle: AppHandle, check_session: bool = True
+        self,
+        app_handle: AppHandle,
+        check_session: bool = True
+        # pyre-fixme: Scheduler opts
     ) -> Tuple[Scheduler, str, str]:
         """
         Returns the scheduler and app_id from the app_handle.

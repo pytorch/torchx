@@ -7,7 +7,7 @@
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, cast, Dict, Iterator, List, Optional, Type
+from typing import Any, cast, Iterator, List, Optional, Type
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -15,13 +15,19 @@ from torchx.schedulers import get_schedulers
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import has_ray
-from torchx.specs import AppDef, CfgVal, Resource, Role, runopts
+from torchx.specs import AppDef, Resource, Role, runopts
 
 
 if has_ray():
     import ray
     from torchx.schedulers.ray import ray_driver
-    from torchx.schedulers.ray_scheduler import _logger, RayJob, RayScheduler, serialize
+    from torchx.schedulers.ray_scheduler import (
+        _logger,
+        RayJob,
+        RayOpts,
+        RayScheduler,
+        serialize,
+    )
 
     class RaySchedulerRegistryTest(TestCase):
         def test_get_schedulers_returns_ray_scheduler(self) -> None:
@@ -63,12 +69,14 @@ if has_ray():
                 ],
             )
 
-            self._run_cfg: Dict[str, CfgVal] = {
-                "cluster_config_file": "dummy_file",
-                "cluster_name": "dummy_name",
-                "working_dir": None,
-                "requirements": None,
-            }
+            self._run_cfg = RayOpts(
+                {
+                    "cluster_config_file": "dummy_file",
+                    "cluster_name": "dummy_name",
+                    "working_dir": None,
+                    "requirements": None,
+                }
+            )
 
             self._scheduler = RayScheduler("test_session")
 
@@ -177,6 +185,7 @@ if has_ray():
         def test_submit_dryrun_raises_error_if_cluster_config_file_is_not_str(
             self,
         ) -> None:
+            # pyre-fixme: Expects string type
             self._run_cfg["cluster_config_file"] = 1
 
             with self.assertRaisesRegex(
@@ -198,6 +207,7 @@ if has_ray():
 
         # pyre-ignore[2]: Parameter `value` must have a type other than `Any`
         def _assert_config_value(self, name: str, value: Any, type_name: str) -> None:
+            # pyre-fixme: TypedDict indexes by string literal
             self._run_cfg[name] = value
 
             with self.assertRaisesRegex(
