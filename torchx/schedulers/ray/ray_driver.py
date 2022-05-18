@@ -9,20 +9,23 @@ import logging
 import os
 import subprocess
 import sys
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
+if TYPE_CHECKING:
+    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
+
 # Hack to make code work for tests as well as running ray job.
 # For tests the `torchx.schedulers.ray.ray_common` import must be used
 # For running ray jobs `ray_common` import must be used
 try:
-    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
+    # pyre-fixme[21]: Could not find a module corresponding to import `ray_common`.
+    from ray_common import RayActor, TORCHX_RANK0_HOST  # noqa: F811
 except ModuleNotFoundError:
-    # pyre-ignore[21]: Could not find a module corresponding to import `ray_common`
-    from ray_common import RayActor, TORCHX_RANK0_HOST
+    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
