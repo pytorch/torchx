@@ -22,6 +22,7 @@ from torchx.schedulers.kubernetes_scheduler import (
     cleanup_str,
     create_scheduler,
     KubernetesJob,
+    KubernetesOpts,
     KubernetesScheduler,
     LABEL_INSTANCE_TYPE,
     role_to_pod,
@@ -218,7 +219,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = {"queue": "testqueue"}
+        cfg = KubernetesOpts({"queue": "testqueue"})
         with patch(
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -465,7 +466,7 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app(num_replicas=2)
-        cfg = {"queue": "testqueue"}
+        cfg = KubernetesOpts({"queue": "testqueue"})
         with patch(
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -486,10 +487,12 @@ spec:
         scheduler = create_scheduler("test")
         app = _test_app()
         app.roles[0].image = "sha256:testhash"
-        cfg = {
-            "queue": "testqueue",
-            "image_repo": "example.com/some/repo",
-        }
+        cfg = KubernetesOpts(
+            {
+                "queue": "testqueue",
+                "image_repo": "example.com/some/repo",
+            }
+        )
         with patch(
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -511,11 +514,12 @@ spec:
         scheduler = create_scheduler("test")
         self.assertIn("service_account", scheduler.run_opts()._opts)
         app = _test_app()
-        cfg = {
-            "queue": "testqueue",
-            "service_account": "srvacc",
-        }
-
+        cfg = KubernetesOpts(
+            {
+                "queue": "testqueue",
+                "service_account": "srvacc",
+            }
+        )
         info = scheduler._submit_dryrun(app, cfg)
         self.assertIn("'service_account_name': 'srvacc'", str(info.request.resource))
 
@@ -527,10 +531,12 @@ spec:
         scheduler = create_scheduler("test")
         self.assertIn("priority_class", scheduler.run_opts()._opts)
         app = _test_app()
-        cfg = {
-            "queue": "testqueue",
-            "priority_class": "high",
-        }
+        cfg = KubernetesOpts(
+            {
+                "queue": "testqueue",
+                "priority_class": "high",
+            }
+        )
 
         info = scheduler._submit_dryrun(app, cfg)
         self.assertIn("'priorityClassName': 'high'", str(info.request.resource))
@@ -546,10 +552,12 @@ spec:
         }
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = {
-            "namespace": "testnamespace",
-            "queue": "testqueue",
-        }
+        cfg = KubernetesOpts(
+            {
+                "namespace": "testnamespace",
+                "queue": "testqueue",
+            }
+        )
 
         info = scheduler._submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
@@ -574,10 +582,12 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = {
-            "namespace": "testnamespace",
-            "queue": "testqueue",
-        }
+        cfg = KubernetesOpts(
+            {
+                "namespace": "testnamespace",
+                "queue": "testqueue",
+            }
+        )
         info = scheduler._submit_dryrun(app, cfg)
         with self.assertRaises(ValueError):
             scheduler.schedule(info)
@@ -780,10 +790,12 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
     def test_dryrun(self) -> None:
         scheduler = kubernetes_scheduler.create_scheduler("foo")
         app = _test_app()
-        cfg = {
-            "namespace": "testnamespace",
-            "queue": "testqueue",
-        }
+        cfg = KubernetesOpts(
+            {
+                "namespace": "testnamespace",
+                "queue": "testqueue",
+            }
+        )
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler._submit_dryrun(app, cfg)

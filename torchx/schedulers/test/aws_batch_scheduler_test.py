@@ -15,6 +15,7 @@ from torchx import specs
 from torchx.schedulers.aws_batch_scheduler import (
     _local_session,
     _role_to_node_properties,
+    AWSBatchOpts,
     AWSBatchScheduler,
     create_scheduler,
 )
@@ -71,7 +72,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = {"queue": "testqueue"}
+        cfg = AWSBatchOpts({"queue": "testqueue"})
         info = scheduler._submit_dryrun(app, cfg)
 
         req = info.request
@@ -423,9 +424,11 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     def test_submit(self) -> None:
         scheduler = self._mock_scheduler()
         app = _test_app()
-        cfg = {
-            "queue": "testqueue",
-        }
+        cfg = AWSBatchOpts(
+            {
+                "queue": "testqueue",
+            }
+        )
 
         info = scheduler._submit_dryrun(app, cfg)
         id = scheduler.schedule(info)

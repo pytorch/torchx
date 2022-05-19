@@ -82,14 +82,9 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         )
         # no image_repo
         with self.assertRaisesRegex(KeyError, "image_repo"):
-            DockerWorkspace()._update_app_images(app, {})
+            DockerWorkspace()._update_app_images(app)
         # with image_repo
-        images_to_push = DockerWorkspace()._update_app_images(
-            app,
-            {
-                "image_repo": "example.com/repo",
-            },
-        )
+        images_to_push = DockerWorkspace()._update_app_images(app, "example.com/repo")
         self.assertEqual(
             images_to_push,
             {
