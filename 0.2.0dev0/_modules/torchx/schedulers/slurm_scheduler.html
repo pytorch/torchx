@@ -398,7 +398,6 @@
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">AppState</span><span class="p">,</span>
-    <span class="n">CfgVal</span><span class="p">,</span>
     <span class="n">macros</span><span class="p">,</span>
     <span class="n">NONE</span><span class="p">,</span>
     <span class="n">ReplicaStatus</span><span class="p">,</span>
@@ -407,6 +406,7 @@
     <span class="n">runopts</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.workspace.dir_workspace</span> <span class="kn">import</span> <span class="n">DirWorkspace</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="n">SLURM_JOB_DIRS</span> <span class="o">=</span> <span class="s2">&quot;.torchxslurmjobdirs&quot;</span>
 
@@ -451,6 +451,22 @@
     <span class="k">return</span> <span class="s1">&#39;&quot;$SLURM_JOB_ID&quot;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">escaped_parts</span><span class="p">)</span>
 
 
+<span class="c1"># Using old typed dict syntax to handle hyphenated params</span>
+<span class="n">SlurmOpts</span> <span class="o">=</span> <span class="n">TypedDict</span><span class="p">(</span>
+    <span class="s2">&quot;SlurmOpts&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;partition&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="s2">&quot;constraint&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="s2">&quot;mail-user&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="s2">&quot;mail-type&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+
 <div class="viewcode-block" id="SlurmReplicaRequest"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SlurmReplicaRequest</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -466,7 +482,7 @@
 
 <div class="viewcode-block" id="SlurmReplicaRequest.from_role"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.from_role">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_role</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span> <span class="n">nomem</span><span class="p">:</span> <span class="nb">bool</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SlurmOpts</span><span class="p">,</span> <span class="n">nomem</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SlurmReplicaRequest&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ``from_role`` creates a SlurmReplicaRequest for the specific role and</span>
@@ -587,7 +603,7 @@
 <span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="SlurmScheduler"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler">[docs]</a><span class="k">class</span> <span class="nc">SlurmScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">,</span> <span class="n">DirWorkspace</span><span class="p">):</span>
+<div class="viewcode-block" id="SlurmScheduler"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler">[docs]</a><span class="k">class</span> <span class="nc">SlurmScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">SlurmOpts</span><span class="p">],</span> <span class="n">DirWorkspace</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects</span>
 <span class="sd">    that slurm CLI tools are locally installed and job accounting is enabled.</span>
@@ -751,7 +767,7 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SlurmOpts</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">SlurmBatchRequest</span><span class="p">]:</span>
         <span class="n">job_dir</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;job_dir&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">job_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;job_dir must be str&quot;</span>
@@ -784,7 +800,9 @@
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sbatch&quot;</span><span class="p">,</span> <span class="s2">&quot;--parsable&quot;</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">SBATCH_JOB_OPTIONS</span><span class="p">:</span>
+            <span class="c1"># pyre-fixme: Typed Dict requires string literal</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cfg</span> <span class="ow">and</span> <span class="n">cfg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># pyre-fixme: Typed Dict requires string literal</span>
                 <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">cfg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="n">SlurmBatchRequest</span><span class="p">(</span>

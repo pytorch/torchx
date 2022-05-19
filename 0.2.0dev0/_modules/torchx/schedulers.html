@@ -388,6 +388,7 @@
 
 
 <div class="viewcode-block" id="SchedulerFactory"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.SchedulerFactory">[docs]</a><span class="k">class</span> <span class="nc">SchedulerFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="c1"># pyre-fixme: Scheduler opts</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
         <span class="o">...</span></div>
 
@@ -441,7 +442,9 @@
 
 
 <div class="viewcode-block" id="get_schedulers"><a class="viewcode-back" href="../../schedulers.html#torchx.schedulers.get_schedulers">[docs]</a><span class="k">def</span> <span class="nf">get_schedulers</span><span class="p">(</span>
-    <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="nb">object</span>
+    <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="nb">object</span>
+    <span class="c1"># pyre-fixme: Scheduler opts</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    get_schedulers returns all available schedulers.</span>
