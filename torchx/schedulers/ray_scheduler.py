@@ -25,8 +25,16 @@ from torchx.schedulers.api import (
 )
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
-from torchx.specs import AppDef, macros, NONE, ReplicaStatus, Role, RoleStatus, runopts
-from typing_extensions import TypedDict
+from torchx.specs import (
+    AppDef,
+    CfgVal,
+    macros,
+    NONE,
+    ReplicaStatus,
+    Role,
+    RoleStatus,
+    runopts,
+)
 
 
 try:
@@ -43,14 +51,6 @@ except ImportError:
 def has_ray() -> bool:
     """Indicates whether Ray is installed in the current Python environment."""
     return _has_ray
-
-
-class RayOpts(TypedDict, total=False):
-    cluster_config_file: Optional[str]
-    cluster_name: Optional[str]
-    dashboard_address: Optional[str]
-    working_dir: Optional[str]
-    requirements: Optional[str]
 
 
 if _has_ray:
@@ -109,7 +109,7 @@ if _has_ray:
         requirements: Optional[str] = None
         actors: List[RayActor] = field(default_factory=list)
 
-    class RayScheduler(Scheduler[RayOpts]):
+    class RayScheduler(Scheduler):
         """
         **Config Options**
 
@@ -221,9 +221,11 @@ if _has_ray:
             # Encode job submission client in job_id
             return f"{job_submission_addr}-{job_id}"
 
-        def _submit_dryrun(self, app: AppDef, cfg: RayOpts) -> AppDryRunInfo[RayJob]:
+        def _submit_dryrun(
+            self, app: AppDef, cfg: Mapping[str, CfgVal]
+        ) -> AppDryRunInfo[RayJob]:
             app_id = make_unique(app.name)
-            requirements = cfg.get("requirements")
+            requirements: Optional[str] = cast(Optional[str], cfg.get("requirements"))
 
             cluster_cfg = cfg.get("cluster_config_file")
             if cluster_cfg:
@@ -239,14 +241,14 @@ if _has_ray:
                 )
 
             else:  # pragma: no cover
-                dashboard_address = cfg.get("dashboard_address")
+                dashboard_address = cast(Optional[str], cfg.get("dashboard_address"))
                 job: RayJob = RayJob(
                     app_id=app_id,
                     dashboard_address=dashboard_address,
                     requirements=requirements,
                 )
-            job.cluster_name = cfg.get("cluster_name")
-            job.working_dir = cfg.get("working_dir")
+            job.cluster_name = cast(Optional[str], cfg.get("cluster_name"))
+            job.working_dir = cast(Optional[str], cfg.get("working_dir"))
 
             for role in app.roles:
                 for replica_id in range(role.num_replicas):

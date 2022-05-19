@@ -26,6 +26,7 @@ from torchx.schedulers.local_scheduler import LogIterator
 from torchx.specs import (
     AppDef,
     AppState,
+    CfgVal,
     macros,
     NONE,
     ReplicaStatus,
@@ -34,7 +35,6 @@ from torchx.specs import (
     runopts,
 )
 from torchx.workspace.dir_workspace import DirWorkspace
-from typing_extensions import TypedDict
 
 SLURM_JOB_DIRS = ".torchxslurmjobdirs"
 
@@ -79,22 +79,6 @@ def _apply_app_id_env(s: str) -> str:
     return '"$SLURM_JOB_ID"'.join(escaped_parts)
 
 
-# Using old typed dict syntax to handle hyphenated params
-SlurmOpts = TypedDict(
-    "SlurmOpts",
-    {
-        "partition": str,
-        "time": str,
-        "comment": Optional[str],
-        "constraint": Optional[str],
-        "mail-user": Optional[str],
-        "mail-type": Optional[str],
-        "job_dir": Optional[str],
-    },
-    total=False,
-)
-
-
 @dataclass
 class SlurmReplicaRequest:
     """
@@ -110,7 +94,7 @@ class SlurmReplicaRequest:
 
     @classmethod
     def from_role(
-        cls, name: str, role: Role, cfg: SlurmOpts, nomem: bool
+        cls, name: str, role: Role, cfg: Mapping[str, CfgVal], nomem: bool
     ) -> "SlurmReplicaRequest":
         """
         ``from_role`` creates a SlurmReplicaRequest for the specific role and
@@ -231,7 +215,7 @@ srun {" ".join(srun_groups)}
 {self.materialize()}"""
 
 
-class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
+class SlurmScheduler(Scheduler, DirWorkspace):
     """
     SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects
     that slurm CLI tools are locally installed and job accounting is enabled.
@@ -395,7 +379,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
         return None
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: SlurmOpts
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[SlurmBatchRequest]:
         job_dir = cfg.get("job_dir")
         assert job_dir is None or isinstance(job_dir, str), "job_dir must be str"
@@ -428,9 +412,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
         cmd = ["sbatch", "--parsable"]
 
         for k in SBATCH_JOB_OPTIONS:
-            # pyre-fixme: Typed Dict requires string literal
             if k in cfg and cfg[k] is not None:
-                # pyre-fixme: Typed Dict requires string literal
                 cmd += [f"--{k}={cfg[k]}"]
 
         req = SlurmBatchRequest(

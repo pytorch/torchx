@@ -35,6 +35,7 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Mapping,
     Optional,
     Pattern,
     TextIO,
@@ -44,8 +45,16 @@ from pyre_extensions import none_throws
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.streams import Tee
-from torchx.specs.api import AppDef, AppState, is_terminal, macros, NONE, Role, runopts
-from typing_extensions import TypedDict
+from torchx.specs.api import (
+    AppDef,
+    AppState,
+    CfgVal,
+    is_terminal,
+    macros,
+    NONE,
+    Role,
+    runopts,
+)
 
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -166,12 +175,6 @@ class ImageProvider(abc.ABC):
         return os.path.join(img_root, role.entrypoint)
 
 
-class LocalOpts(TypedDict, total=False):
-    log_dir: str
-    prepend_cwd: Optional[bool]
-    auto_set_cuda_visible_devices: Optional[bool]
-
-
 class LocalDirectoryImageProvider(ImageProvider):
     """
     Interprets the image name as the path to a directory on
@@ -188,7 +191,7 @@ class LocalDirectoryImageProvider(ImageProvider):
 
     """
 
-    def __init__(self, cfg: LocalOpts) -> None:
+    def __init__(self, cfg: Mapping[str, CfgVal]) -> None:
         pass
 
     def fetch(self, image: str) -> str:
@@ -235,7 +238,7 @@ class CWDImageProvider(ImageProvider):
 
     """
 
-    def __init__(self, cfg: LocalOpts) -> None:
+    def __init__(self, cfg: Mapping[str, CfgVal]) -> None:
         pass
 
     def fetch(self, image: str) -> str:
@@ -499,7 +502,7 @@ def _register_termination_signals() -> None:
         signal.signal(signal.SIGINT, _terminate_process_handler)
 
 
-class LocalScheduler(Scheduler[LocalOpts]):
+class LocalScheduler(Scheduler):
     """
     Schedules on localhost. Containers are modeled as processes and
     certain properties of the container that are either not relevant
@@ -553,7 +556,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
     def __init__(
         self,
         session_name: str,
-        image_provider_class: Callable[[LocalOpts], ImageProvider],
+        image_provider_class: Callable[[Mapping[str, CfgVal]], ImageProvider],
         cache_size: int = 100,
         extra_paths: Optional[List[str]] = None,
     ) -> None:
@@ -700,7 +703,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
             error_file=env.get("TORCHELASTIC_ERROR_FILE", "<N/A>"),
         )
 
-    def _get_app_log_dir(self, app_id: str, cfg: LocalOpts) -> str:
+    def _get_app_log_dir(self, app_id: str, cfg: Mapping[str, CfgVal]) -> str:
         """
         Returns the log dir. We redirect stdout/err
         to a log file ONLY if the log_dir is user-provided in the cfg
@@ -709,6 +712,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         2. if not cfg.get("log_dir") -> (autogen tmp log dir, False)
         """
 
+        # pyre-ignore[8]: cfg type already validated with runopt
         self._base_log_dir = cfg.get("log_dir")
         if not self._base_log_dir:
             self._base_log_dir = tempfile.mkdtemp(prefix="torchx_")
@@ -757,7 +761,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         return app_id
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: LocalOpts
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[PopenRequest]:
         request = self._to_popen_request(app, cfg)
         return AppDryRunInfo(
@@ -797,7 +801,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         self,
         role_params: Dict[str, List[ReplicaParam]],
         app: AppDef,
-        cfg: LocalOpts,
+        cfg: Mapping[str, CfgVal],
     ) -> None:
         autoset = cfg.get("auto_set_cuda_visible_devices")
         if not autoset:
@@ -827,7 +831,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
     def _to_popen_request(
         self,
         app: AppDef,
-        cfg: LocalOpts,
+        cfg: Mapping[str, CfgVal],
     ) -> PopenRequest:
         """
         Converts the application and cfg into a ``PopenRequest``.
@@ -1004,7 +1008,6 @@ class LogIterator:
         app_id: str,
         regex: str,
         log_file: str,
-        # pyre-fixme: Scheduler opts
         scheduler: Scheduler,
         should_tail: bool = True,
     ) -> None:
@@ -1012,7 +1015,6 @@ class LogIterator:
         self._regex: Pattern[str] = re.compile(regex)
         self._log_file: str = log_file
         self._log_fp: Optional[TextIO] = None
-        # pyre-fixme: Scheduler opts
         self._scheduler: Scheduler = scheduler
         self._app_finished: bool = not should_tail
 

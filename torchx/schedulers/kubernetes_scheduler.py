@@ -56,6 +56,7 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     macros,
     ReplicaState,
@@ -67,7 +68,6 @@ from torchx.specs.api import (
     VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
-from typing_extensions import TypedDict
 
 
 if TYPE_CHECKING:
@@ -434,15 +434,7 @@ class KubernetesJob:
         return str(self)
 
 
-class KubernetesOpts(TypedDict, total=False):
-    namespace: Optional[str]
-    queue: str
-    image_repo: Optional[str]
-    service_account: Optional[str]
-    priority_class: Optional[str]
-
-
-class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
+class KubernetesScheduler(Scheduler, DockerWorkspace):
     """
     KubernetesScheduler is a TorchX scheduling interface to Kubernetes.
 
@@ -598,14 +590,14 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         return f'{namespace}:{resp["metadata"]["name"]}'
 
     def _submit_dryrun(
-        self, app: AppDef, cfg: KubernetesOpts
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> AppDryRunInfo[KubernetesJob]:
         queue = cfg.get("queue")
         if not isinstance(queue, str):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
 
         # map any local images to the remote image
-        images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        images_to_push = self._update_app_images(app, cfg)
 
         service_account = cfg.get("service_account")
         assert service_account is None or isinstance(
@@ -624,7 +616,6 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         )
         info = AppDryRunInfo(req, repr)
         info._app = app
-        # pyre-fixme: AppDryRunInfo
         info._cfg = cfg
         return info
 

@@ -98,7 +98,7 @@ class DockerWorkspace(Workspace):
             context.close()
 
     def _update_app_images(
-        self, app: AppDef, image_repo: Optional[str] = None
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> Dict[str, Tuple[str, str]]:
         """
         _update_app_images replaces the local Docker images (identified via
@@ -116,6 +116,7 @@ class DockerWorkspace(Workspace):
         images_to_push = {}
         for role in app.roles:
             if role.image.startswith(HASH_PREFIX):
+                image_repo = cfg.get("image_repo")
                 if not image_repo:
                     raise KeyError(
                         f"must specify the image repository via `image_repo` config to be able to upload local image {role.image}"

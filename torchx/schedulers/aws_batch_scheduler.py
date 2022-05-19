@@ -43,6 +43,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Mapping,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -64,6 +65,7 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     macros,
     Role,
@@ -71,7 +73,6 @@ from torchx.specs.api import (
     VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
-from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -223,12 +224,7 @@ def _local_session() -> "boto3.session.Session":
     return boto3.session.Session()
 
 
-class AWSBatchOpts(TypedDict, total=False):
-    queue: str
-    image_repo: Optional[str]
-
-
-class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
+class AWSBatchScheduler(Scheduler, DockerWorkspace):
     """
     AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.
 
@@ -330,14 +326,16 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
 
         return f"{req.queue}:{req.name}"
 
-    def _submit_dryrun(self, app: AppDef, cfg: AWSBatchOpts) -> AppDryRunInfo[BatchJob]:
+    def _submit_dryrun(
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
+    ) -> AppDryRunInfo[BatchJob]:
         queue = cfg.get("queue")
         if not isinstance(queue, str):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
         name = make_unique(app.name)
 
         # map any local images to the remote image
-        images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        images_to_push = self._update_app_images(app, cfg)
 
         nodes = []
 
@@ -392,7 +390,6 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         )
         info = AppDryRunInfo(req, repr)
         info._app = app
-        # pyre-fixme: AppDryRunInfo
         info._cfg = cfg
         return info
 

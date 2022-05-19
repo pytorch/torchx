@@ -30,7 +30,6 @@ from torchx.schedulers.local_scheduler import (
     create_cwd_scheduler,
     CWDImageProvider,
     LocalDirectoryImageProvider,
-    LocalOpts,
     LocalScheduler,
     make_unique,
     ReplicaParam,
@@ -64,7 +63,7 @@ def start_sleep_processes(
     )
 
     app = AppDef(name="test_app", roles=[role])
-    cfg = LocalOpts({"log_dir": test_dir})
+    cfg = {"log_dir": test_dir}
 
     scheduler = LocalScheduler(
         session_name="test_session", image_provider_class=LocalDirectoryImageProvider
@@ -446,7 +445,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         for std_stream in ["stdout", "stderr"]:
             with self.subTest(std_stream=std_stream):
                 log_dir = join(self.test_dir, f"test_{std_stream}_log")
-                cfg = LocalOpts({"log_dir": log_dir})
+                cfg = {"log_dir": log_dir}
 
                 role = Role(
                     "role1",
@@ -635,7 +634,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
         log_dir = join(self.test_dir, "log")
-        cfg = LocalOpts({"log_dir": log_dir})
+        cfg = {"log_dir": log_dir}
         app = AppDef(name="test_app", roles=[role])
         app_id = self.scheduler.submit(app, cfg)
 

@@ -18,7 +18,6 @@ from typing_extensions import Protocol
 
 
 class SchedulerFactory(Protocol):
-    # pyre-fixme: Scheduler opts
     def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
         ...
 
@@ -72,9 +71,7 @@ def get_default_scheduler_name() -> str:
 
 
 def get_schedulers(
-    session_name: str,
-    **scheduler_params: object
-    # pyre-fixme: Scheduler opts
+    session_name: str, **scheduler_params: object
 ) -> Dict[str, Scheduler]:
     """
     get_schedulers returns all available schedulers.

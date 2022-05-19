@@ -10,7 +10,7 @@ import os.path
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, TYPE_CHECKING, Union
 
 import torchx
 import yaml
@@ -28,6 +28,7 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     is_terminal,
     macros,
@@ -38,7 +39,6 @@ from torchx.specs.api import (
     VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspace
-from typing_extensions import TypedDict
 
 
 if TYPE_CHECKING:
@@ -93,11 +93,7 @@ def has_docker() -> bool:
         return False
 
 
-class DockerOpts(TypedDict, total=False):
-    copy_env: Optional[List[str]]
-
-
-class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
+class DockerScheduler(Scheduler, DockerWorkspace):
     """
     DockerScheduler is a TorchX scheduling interface to Docker.
 
@@ -191,7 +187,9 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
 
         return req.app_id
 
-    def _submit_dryrun(self, app: AppDef, cfg: DockerOpts) -> AppDryRunInfo[DockerJob]:
+    def _submit_dryrun(
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
+    ) -> AppDryRunInfo[DockerJob]:
         from docker.types import DeviceRequest, Mount
 
         default_env = {}
@@ -303,7 +301,6 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
 
         info = AppDryRunInfo(req, repr)
         info._app = app
-        # pyre-fixme: AppDryRunInfo
         info._cfg = cfg
         return info
 
