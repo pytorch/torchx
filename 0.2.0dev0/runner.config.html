@@ -426,6 +426,11 @@ has <code class="docutils literal notranslate"><span class="pre">.torchxconfig</
 </pre></div>
 </div>
 </li>
+<li><p>In addition, it is possible to specify a different config other than .torchxconfig to
+load at runtime. Requirements are that the config name is specified with a suffix and
+passed as environment variable TORCHX_CONFIG_SUFFIX, and the .torchxconfig_${suffix}
+resides in the current directory. It also disables hierarchy loading configs from
+multiple directories as the case without specifying suffix.</p></li>
 </ol>
 <p><strong>Component Config</strong></p>
 <p>You can specify component defaults by adding a section prefixed with
@@ -542,8 +547,15 @@ To only dump required runopts pass <code class="docutils literal notranslate"><s
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.runner.config.find_configs">
 <span class="sig-prename descclassname"><span class="pre">torchx.runner.config.</span></span><span class="sig-name descname"><span class="pre">find_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/torchx/runner/config.html#find_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.config.find_configs" title="Permalink to this definition">¶</a></dt>
-<dd><p>find_configs returns all the .torchxconfig files it finds in the specified
-directories. If directories is empty it checks the local directory.</p>
+<dd><dl class="simple">
+<dt>find_configs returns all the .torchxconfig files it finds:</dt><dd><ul class="simple">
+<li><p>if environment variable TORCHX_CONFIG_SUFFIX is specified, then
+./torchxconfig_suffix is expected and will be loaded as the only config</p></li>
+<li><p>otherwise, directories are checked to look for .torchxconfig and loaded. If
+directories is empty it checks the local directory.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

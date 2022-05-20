@@ -439,6 +439,12 @@
 
 <span class="sd">    $ torchx run -s local_cwd ./my_component.py:train</span>
 
+<span class="sd">#. In addition, it is possible to specify a different config other than .torchxconfig to</span>
+<span class="sd">   load at runtime. Requirements are that the config name is specified with a suffix and</span>
+<span class="sd">   passed as environment variable TORCHX_CONFIG_SUFFIX, and the .torchxconfig_${suffix}</span>
+<span class="sd">   resides in the current directory. It also disables hierarchy loading configs from</span>
+<span class="sd">   multiple directories as the case without specifying suffix.</span>
+
 <span class="sd">**Component Config**</span>
 
 <span class="sd">You can specify component defaults by adding a section prefixed with</span>
@@ -507,6 +513,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">configparser</span> <span class="k">as</span> <span class="nn">configparser</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
 
@@ -516,6 +523,7 @@
 
 
 <span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;.torchxconfig&quot;</span>
+<span class="n">ENV_TORCHX_CONFIG_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_CONFIG_SUFFIX&quot;</span>
 <span class="n">CONFIG_PREFIX_DELIM</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
 
 <span class="n">_NONE</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
@@ -794,19 +802,26 @@
 
 <div class="viewcode-block" id="find_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.find_configs">[docs]</a><span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    find_configs returns all the .torchxconfig files it finds in the specified</span>
-<span class="sd">    directories. If directories is empty it checks the local directory.</span>
+<span class="sd">    find_configs returns all the .torchxconfig files it finds:</span>
+<span class="sd">        - if environment variable TORCHX_CONFIG_SUFFIX is specified, then</span>
+<span class="sd">          ./torchxconfig_suffix is expected and will be loaded as the only config</span>
+<span class="sd">        - otherwise, directories are checked to look for .torchxconfig and loaded. If</span>
+<span class="sd">          directories is empty it checks the local directory.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">dirs</span><span class="p">:</span>
-        <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())]</span>
 
     <span class="n">config_files</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
-        <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">CONFIG_FILE</span>
-        <span class="k">if</span> <span class="n">configfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">))</span>
-
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENV_TORCHX_CONFIG_SUFFIX</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">CONFIG_FILE</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">configfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span><span class="si">}</span><span class="s2"> expected but not found&quot;</span>
+        <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">CONFIG_FILE</span>
+            <span class="k">if</span> <span class="n">configfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">config_files</span></div>
 
 
