@@ -1,14 +1,24 @@
-The readme describes how to create and delete eks cluster and kfp services.
+The readme describes how to create and delete an EKS cluster and KFP services.
 
 #### Creating EKS cluster
 
+    export CLUSTER_NAME="torchx-dev"
+    export EKS_VERSION="1.22.6"
+    envsubst < torchx-dev-eks-template.yml > torchx-dev-eks.yml
     eksctl create cluster -f torchx-dev-eks.yml
+
+See https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html for the latest EKS version
 
 #### Creating KFP
 
-    kfctl apply -V -f torchx-dev-kfp.yml
+    export PIPELINE_VERSION=1.8.1
+    kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$PIPELINE_VERSION"
+    kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io
+    kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$PIPELINE_VERSION"
 
-#### Applying kfp role binding
+See https://github.com/kubeflow/pipelines/releases for the latest KFP version
+
+#### Applying KFP role binding
 
     kubectl apply -f kfp_volcano_role_binding.yaml
 
@@ -22,15 +32,13 @@ The readme describes how to create and delete eks cluster and kfp services.
 
     Install `vcctl`
 
-
-#### Installing kfp from source code
+#### Installing KFP from source code
 
     Source doc: https://www.kubeflow.org/docs/components/pipelines/installation/standalone-deployment/
 
     kubectl apply -k manifests/kustomize/cluster-scoped-resources
 
     kubectl apply -k manifests/kustomize/env/dev
-
 
 #### Starting etcd service
 
@@ -44,21 +52,20 @@ The readme describes how to create and delete eks cluster and kfp services.
 
     eksctl delete -f torch-dev-eks.yml
 
-This command most likely will fail. EKS user cloudformation to create many resources, that
-are hard to remove. If the command fails there needs to be done manual cleanup:
+This command most likely will fail. EKS uses CloudFormation to create many resources that
+are hard to remove. If the command fails there needs to be manual cleanup:
 * Clean up the associated VPC. Go to AWS Console -> VPC -> Press `Delete`. This will
 point you the ENI and NAT that needs to be deleted manually.
-* Clean up the cloudformation temalte. Go to AWS Console -> CNF -> delete corresponding templates.
+* Clean up the CloudFormation template. Go to AWS Console -> CNF -> delete corresponding templates.
 
 ### Gotchas:
 
-* The directory where `torchx-dev-kfp.yml` is located should be the same name
-    as eks cluster
+* The directory where `torchx-dev-kfp.yml` is located should be the same name as eks cluster
 
-* The node groups in eks cluster HAVE to be spread more than a single AZ, otherwise there
+* The node groups in the EKS cluster HAVE to be spread to more than a single AZ, otherwise there
  will be problems with `istio-ingress`
 
-* KFP troubleshooting: https://www.kubeflow.org/docs/distributions/aws/troubleshooting-aws/
+* KFP troubleshooting: https://www.kubeflow.org/docs/components/pipelines/troubleshooting/
 
 * Enable Kubernetes nodes to access AWS account resources: https://stackoverflow.com/a/64617080/1446208
 
