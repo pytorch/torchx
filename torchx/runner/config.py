@@ -69,6 +69,12 @@ CLI Usage
 
     $ torchx run -s local_cwd ./my_component.py:train
 
+#. In addition, it is possible to specify a different config other than .torchxconfig to
+   load at runtime. Requirements are that the config name is specified with a suffix and
+   passed as environment variable TORCHX_CONFIG_SUFFIX, and the .torchxconfig_${suffix}
+   resides in the current directory. It also disables hierarchy loading configs from
+   multiple directories as the case without specifying suffix.
+
 **Component Config**
 
 You can specify component defaults by adding a section prefixed with
@@ -137,6 +143,7 @@ you want to keep personal config overrides on top of a project defined default.
 """
 import configparser as configparser
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TextIO
 
@@ -146,6 +153,7 @@ from torchx.specs.api import runopt
 
 
 CONFIG_FILE = ".torchxconfig"
+ENV_TORCHX_CONFIG_SUFFIX = "TORCHX_CONFIG_SUFFIX"
 CONFIG_PREFIX_DELIM = ":"
 
 _NONE = "None"
@@ -424,19 +432,26 @@ def get_config(
 
 def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
     """
-    find_configs returns all the .torchxconfig files it finds in the specified
-    directories. If directories is empty it checks the local directory.
+    find_configs returns all the .torchxconfig files it finds:
+        - if environment variable TORCHX_CONFIG_SUFFIX is specified, then
+          ./torchxconfig_suffix is expected and will be loaded as the only config
+        - otherwise, directories are checked to look for .torchxconfig and loaded. If
+          directories is empty it checks the local directory.
     """
-    if not dirs:
-        dirs = [str(Path.cwd())]
 
     config_files = []
-
-    for d in dirs:
-        configfile = Path(d) / CONFIG_FILE
-        if configfile.exists():
-            config_files.append(str(configfile))
-
+    suffix = os.getenv(ENV_TORCHX_CONFIG_SUFFIX, "")
+    if len(suffix) > 0:
+        configfile = Path.cwd() / (CONFIG_FILE + "." + suffix)
+        assert configfile.exists(), f"{str(configfile)} expected but not found"
+        config_files.append(str(configfile))
+    else:
+        if not dirs:
+            dirs = [str(Path.cwd())]
+        for d in dirs:
+            configfile = Path(d) / CONFIG_FILE
+            if configfile.exists():
+                config_files.append(str(configfile))
     return config_files
 
 
