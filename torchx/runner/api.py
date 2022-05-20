@@ -8,6 +8,7 @@
 import json
 import logging
 import time
+import warnings
 from datetime import datetime
 from types import TracebackType
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
@@ -607,6 +608,14 @@ def get_runner(
 
 
     """
+    if name:
+        warnings.warn(
+            f"Custom session names are deprecated (detected explicitly set session name={name}). \
+            To prevent this warning from showing again call `get_runner()` without the `name` param. \
+            As an alternative, you can prefix the app name with the session name.",
+            FutureWarning,
+        )
+
     if not name:
         name = "torchx"
 
