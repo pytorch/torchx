@@ -6,12 +6,13 @@
 # LICENSE file in the root directory of this source tree.
 
 import os.path
+import shutil
 import tempfile
 import unittest
 
 import fsspec
 from torchx.specs import Role
-from torchx.workspace.dir_workspace import _copy_to_dir, DirWorkspace
+from torchx.workspace.dir_workspace import _copy_to_dir, DirWorkspace, TmpDirWorkspace
 
 
 class DirWorkspaceTest(unittest.TestCase):
@@ -103,3 +104,20 @@ class DirWorkspaceTest(unittest.TestCase):
                 "unignore",
             },
         )
+
+
+class TmpDirWorkspaceTest(unittest.TestCase):
+    def test_build_workspace(self) -> None:
+        w = TmpDirWorkspace()
+        role = Role(
+            name="role",
+            image="blah",
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            w.build_workspace_and_update_role(
+                role,
+                workspace=f"file://{tmpdir}",
+                cfg={},
+            )
+        self.assertIn(tempfile.gettempdir(), role.image)
+        shutil.rmtree(role.image)

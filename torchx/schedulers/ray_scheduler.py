@@ -8,17 +8,18 @@ import dataclasses
 import json
 import logging
 import os
+import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from shutil import copy2, copytree, rmtree
-from tempfile import mkdtemp
-from typing import Any, cast, Dict, List, Mapping, Optional, Set, Type  # noqa
+from shutil import copy2, rmtree
+from typing import Any, cast, Dict, Iterable, List, Mapping, Optional, Set, Type  # noqa
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
     AppState,
     DescribeAppResponse,
+    filter_regex,
     Scheduler,
     split_lines,
     Stream,
@@ -26,6 +27,7 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 from torchx.specs import AppDef, macros, NONE, ReplicaStatus, Role, RoleStatus, runopts
+from torchx.workspace.dir_workspace import TmpDirWorkspace
 from typing_extensions import TypedDict
 
 
@@ -92,7 +94,7 @@ if _has_ray:
             dashboard_address:
                 The existing dashboard IP address to connect to
             working_dir:
-            The working directory to copy to the cluster
+                The working directory to copy to the cluster
             requirements:
                 The libraries to install on the cluster per requirements.txt
             actors:
@@ -102,15 +104,24 @@ if _has_ray:
         """
 
         app_id: str
+        working_dir: str
         cluster_config_file: Optional[str] = None
         cluster_name: Optional[str] = None
         dashboard_address: Optional[str] = None
-        working_dir: Optional[str] = None
         requirements: Optional[str] = None
         actors: List[RayActor] = field(default_factory=list)
 
-    class RayScheduler(Scheduler[RayOpts]):
+    class RayScheduler(Scheduler[RayOpts], TmpDirWorkspace):
         """
+        RayScheduler is a TorchX scheduling interface to Ray. The job def
+        workers will be launched as Ray actors
+
+        The job environment is specified by the TorchX workspace. Any files in
+        the workspace will be present in the Ray job unless specified in
+        ``.torchxignore``. Python dependencies will be read from the
+        ``requirements.txt`` file located at the root of the workspace unless
+        it's overridden via ``-c ...,requirements=foo/requirements.txt``.
+
         **Config Options**
 
         .. runopts::
@@ -122,12 +133,15 @@ if _has_ray:
             type: scheduler
             features:
                 cancel: true
-                logs: true
+                logs: |
+                    Partial support. Ray only supports a single log stream so
+                    only a dummy "ray/0" combined log role is supported.
+                    Tailing and time seeking are not supported.
                 distributed: true
                 describe: |
                     Partial support. RayScheduler will return job status but
                     does not provide the complete original AppSpec.
-                workspaces: false
+                workspaces: true
                 mounts: false
 
         """
@@ -156,11 +170,6 @@ if _has_ray:
                 default="127.0.0.1:8265",
                 help="Use ray status to get the dashboard address you will submit jobs against",
             )
-            opts.add(
-                "working_dir",
-                type_=str,
-                help="Copy the the working directory containing the Python scripts to the cluster.",
-            )
             opts.add("requirements", type_=str, help="Path to requirements.txt")
             return opts
 
@@ -169,7 +178,7 @@ if _has_ray:
 
             # Create serialized actors for ray_driver.py
             actors = cfg.actors
-            dirpath = mkdtemp()
+            dirpath = cfg.working_dir
             serialize(actors, dirpath)
 
             job_submission_addr: str = ""
@@ -189,41 +198,46 @@ if _has_ray:
                 f"http://{job_submission_addr}"
             )
 
-            # 1. Copy working directory
-            if cfg.working_dir:
-                copytree(cfg.working_dir, dirpath, dirs_exist_ok=True)
-
-            # 2. Copy Ray driver utilities
+            # 1. Copy Ray driver utilities
             current_directory = os.path.dirname(os.path.abspath(__file__))
             copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
             copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
 
-            # 3. Parse requirements.txt
-            reqs: List[str] = []
-            if cfg.requirements:  # pragma: no cover
-                with open(cfg.requirements) as f:
-                    for line in f:
-                        reqs.append(line.strip())
+            runtime_env = {"working_dir": dirpath}
+            if cfg.requirements:
+                runtime_env["pip"] = cfg.requirements
 
-            # 4. Submit Job via the Ray Job Submission API
+            # 1. Submit Job via the Ray Job Submission API
             try:
                 job_id: str = client.submit_job(
                     job_id=cfg.app_id,
                     # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
                     # and use it to configure your job execution.
                     entrypoint="python3 ray_driver.py",
-                    runtime_env={"working_dir": dirpath, "pip": reqs},
+                    runtime_env=runtime_env,
                 )
 
             finally:
-                rmtree(dirpath)
+                if dirpath.startswith(tempfile.gettempdir()):
+                    rmtree(dirpath)
 
             # Encode job submission client in job_id
             return f"{job_submission_addr}-{job_id}"
 
         def _submit_dryrun(self, app: AppDef, cfg: RayOpts) -> AppDryRunInfo[RayJob]:
             app_id = make_unique(app.name)
-            requirements = cfg.get("requirements")
+
+            working_dir = app.roles[0].image
+            if not os.path.exists(working_dir):
+                raise RuntimeError(
+                    f"Role image must be a valid directory, got: {working_dir} "
+                )
+
+            requirements: Optional[str] = cfg.get("requirements")
+            if requirements is None:
+                workspace_reqs = os.path.join(working_dir, "requirements.txt")
+                if os.path.exists(workspace_reqs):
+                    requirements = workspace_reqs
 
             cluster_cfg = cfg.get("cluster_config_file")
             if cluster_cfg:
@@ -234,8 +248,9 @@ if _has_ray:
 
                 job: RayJob = RayJob(
                     app_id,
-                    cluster_cfg,
+                    cluster_config_file=cluster_cfg,
                     requirements=requirements,
+                    working_dir=working_dir,
                 )
 
             else:  # pragma: no cover
@@ -244,9 +259,9 @@ if _has_ray:
                     app_id=app_id,
                     dashboard_address=dashboard_address,
                     requirements=requirements,
+                    working_dir=working_dir,
                 )
             job.cluster_name = cfg.get("cluster_name")
-            job.working_dir = cfg.get("working_dir")
 
             for role in app.roles:
                 for replica_id in range(role.num_replicas):
@@ -298,12 +313,10 @@ if _has_ray:
             with a given timeout. This is intended for testing. Programmatic
             usage should use the runner wait method instead.
             """
-            addr, _, app_id = app_id.partition("-")
 
-            client = JobSubmissionClient(f"http://{addr}")
             start = time.time()
             while time.time() - start <= timeout:
-                status_info = client.get_job_status(app_id)
+                status_info = self._get_job_status(app_id)
                 status = status_info
                 if status in {JobStatus.SUCCEEDED, JobStatus.STOPPED, JobStatus.FAILED}:
                     break
@@ -314,12 +327,18 @@ if _has_ray:
             client = JobSubmissionClient(f"http://{addr}")
             client.stop_job(app_id)
 
-        def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        def _get_job_status(self, app_id: str) -> JobStatus:
             addr, _, app_id = app_id.partition("-")
             client = JobSubmissionClient(f"http://{addr}")
-            job_status_info = client.get_job_status(app_id)
+            status = client.get_job_status(app_id)
+            if isinstance(status, str):
+                return cast(JobStatus, status)
+            return status.status
+
+        def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+            job_status_info = self._get_job_status(app_id)
             state = _ray_status_to_torchx_appstate[job_status_info]
-            roles = [Role(name="ray", num_replicas=-1, image="<N/A>")]
+            roles = [Role(name="ray", num_replicas=1, image="<N/A>")]
 
             # get ip_address and put it in hostname
 
@@ -354,12 +373,15 @@ if _has_ray:
             until: Optional[datetime] = None,
             should_tail: bool = False,
             streams: Optional[Stream] = None,
-        ) -> List[str]:
-            # TODO: support regex, tailing, streams etc..
+        ) -> Iterable[str]:
+            # TODO: support tailing, streams etc..
             addr, _, app_id = app_id.partition("-")
             client: JobSubmissionClient = JobSubmissionClient(f"http://{addr}")
             logs: str = client.get_job_logs(app_id)
-            return split_lines(logs)
+            iterator = split_lines(logs)
+            if regex:
+                return filter_regex(regex, iterator)
+            return iterator
 
     def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
         if not has_ray():  # pragma: no cover

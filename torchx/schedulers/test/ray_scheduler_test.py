@@ -5,9 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, cast, Iterator, List, Optional, Type
+from typing import Any, cast, Iterable, Iterator, Optional, Type
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -48,12 +49,14 @@ if has_ray():
         def setUp(self) -> None:
             self._scripts = ["dummy1.py", "dummy2.py"]
 
+            self.tempdir = tempfile.TemporaryDirectory()
+
             self._app_def = AppDef(
                 name="dummy_app",
                 roles=[
                     Role(
                         name="dummy_role1",
-                        image="dummy_img1",
+                        image=self.tempdir.name,
                         entrypoint="dummy_entrypoint1",
                         args=["arg1", self._scripts[0], "arg2"],
                         num_replicas=3,
@@ -62,7 +65,7 @@ if has_ray():
                     ),
                     Role(
                         name="dummy_role2",
-                        image="dummy_img2",
+                        image=self.tempdir.name,
                         entrypoint="dummy_entrypoint2",
                         args=["arg3", "arg4", self._scripts[1]],
                     ),
@@ -86,6 +89,7 @@ if has_ray():
             self._mock_isfile.return_value = True
 
         def tearDown(self) -> None:
+            self.tempdir.cleanup()
             self._isfile_patch.stop()
 
         def test_init_sets_session_and_backend_name(self) -> None:
@@ -119,7 +123,6 @@ if has_ray():
                 Option("cluster_config_file", str, is_required=False),
                 Option("cluster_name", str),
                 Option("dashboard_address", str, default="127.0.0.1:8265"),
-                Option("working_dir", str, is_required=False),
                 Option("requirements", str, is_required=False),
             ]
 
@@ -261,6 +264,40 @@ if has_ray():
                 ["dummy_entrypoint1", "arg1", "dummy1.py", "arg2"],
             )
 
+        def test_no_dir(self) -> None:
+            app = AppDef(
+                name="dummy_app",
+                roles=[
+                    Role(
+                        name="dummy_role1",
+                        image="invalid_path",
+                    ),
+                ],
+            )
+            with self.assertRaisesRegex(
+                RuntimeError, "Role image must be a valid directory, got: invalid_path"
+            ):
+                self._scheduler._submit_dryrun(app, cfg={})
+
+        def test_requirements(self) -> None:
+            with tempfile.TemporaryDirectory() as path:
+                reqs = os.path.join(path, "requirements.txt")
+                with open(reqs, "w") as f:
+                    f.write("asdf")
+
+                app = AppDef(
+                    name="app",
+                    roles=[
+                        Role(
+                            name="role",
+                            image=path,
+                        ),
+                    ],
+                )
+                req = self._scheduler._submit_dryrun(app, cfg={})
+                job = req.request
+                self.assertEqual(job.requirements, reqs)
+
     class RayClusterSetup:
         _instance = None  # pyre-ignore[4]
 
@@ -269,6 +306,7 @@ if has_ray():
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
                 ray.shutdown()
+                os.system("ray stop")
                 start_status: int = os.system("ray start --head")
                 if start_status != 0:
                     raise AssertionError(
@@ -359,6 +397,7 @@ if has_ray():
                 app_id=app_id,
                 dashboard_address="127.0.0.1:8265",
                 actors=actors,
+                working_dir=current_dir,
             )
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)
@@ -371,6 +410,5 @@ if has_ray():
 
         def check_logs(
             self, ray_scheduler: RayScheduler, app_id: str = "123"
-        ) -> List[str]:
-            logs: List[str] = ray_scheduler.log_iter(app_id=app_id)
-            return logs
+        ) -> Iterable[str]:
+            return ray_scheduler.log_iter(app_id=app_id)
