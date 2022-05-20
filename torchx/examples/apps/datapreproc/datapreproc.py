@@ -11,6 +11,37 @@ Data Preprocessing App Example
 
 This is a simple TorchX app that downloads some data via HTTP, normalizes the
 images via torchvision and then reuploads it via fsspec.
+
+Usage
+---------
+
+.. note:: The datapreproc app is a single process python program, hence for
+          local runs you can run it as a regular python program: ``python ./datapreproc.py``.
+          TorchX lets you run this app on a remote cluster.
+
+To launch with TorchX locally (see note above) run:
+
+.. code-block:: shell-session
+
+  $ torchx run -s local_cwd utils.python \
+      --script ./datapreproc/datapreproc.py \
+      -- \
+      --input_path="http://cs231n.stanford.edu/tiny-imagenet-200.zip" \
+      --output_path=/tmp/torchx/datapreproc
+
+
+To launch this app onto a remote cluster, simply specify a different scheduler
+in the ``-s`` option.
+
+.. code-block:: shell-session
+
+  $ torchx run -s kubernetes -cfg queue=foo,namespace=bar utils.python \
+      --script ./datapreproc/datapreproc.py \
+      -- \
+      --input_path="http://cs231n.stanford.edu/tiny-imagenet-200.zip" \
+      --output_path=/tmp/torchx/datapreproc \
+
+
 """
 
 import argparse

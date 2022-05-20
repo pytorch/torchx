@@ -9,37 +9,26 @@
 App Defs for integration tests.
 """
 
-import torchx.examples.apps.datapreproc.component as dp_component
-import torchx.examples.apps.lightning_classy_vision.component as cv_component
+from torchx.components.dist import ddp as dist_ddp
 from torchx.components.integration_tests.component_provider import ComponentProvider
+from torchx.components.utils import python as utils_python
 from torchx.specs import AppDef
 
 
 class CvTrainerComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
-        return cv_component.trainer(
+        return dist_ddp(
+            *("--output_path", "/tmp", "--skip_export", "--log_path", "/tmp"),
             image=self._image,
-            output_path="/tmp",
-            skip_export=True,
-            log_path="/tmp",
-        )
-
-
-class CvTrainerDistComponentProvider(ComponentProvider):
-    def get_app_def(self) -> AppDef:
-        return cv_component.trainer_dist(
-            image=self._image,
-            output_path="/tmp",
-            skip_export=True,
-            log_path="/tmp",
-            rdzv_endpoint="localhost:29500",
-            rdzv_backend="c10d",
+            j="1x1",
+            m="torchx.examples.apps.lightning_classy_vision.train",
         )
 
 
 class DatapreprocComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
-        return dp_component.data_preproc(
+        return utils_python(
+            *("--output_path", "/tmp/test"),
             image=self._image,
-            output_path="/tmp/test",
+            m="torchx.examples.apps.datapreproc.datapreproc",
         )

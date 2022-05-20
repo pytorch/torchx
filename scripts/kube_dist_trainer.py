@@ -14,7 +14,7 @@ import os
 
 from integ_test_utils import build_images, BuildInfo, MissingEnvError, push_images
 from pyre_extensions import none_throws
-from torchx.examples.apps.lightning_classy_vision.component import trainer_dist
+from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import AppState, named_resources, Resource
 
@@ -57,12 +57,12 @@ def run_job(dryrun: bool = False) -> None:
     output_path = os.path.join(root, "output")
 
     args = ("--output_path", output_path)
-    train_app = trainer_dist(
+    train_app = dist_ddp(
+        *("--output_path", output_path),
+        m="torchx.examples.apps.lightning_classy_vision.train",
         image=image,
-        output_path=output_path,
-        resource="GPU_X1",
-        nnodes=2,
-        nproc_per_node=1,
+        h="GPU_X1",
+        j="2x1",
     )
     print(f"Starting Trainer with args: {args}")
     cfg = {
