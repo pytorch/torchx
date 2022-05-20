@@ -135,6 +135,12 @@ s = my_default
 i = 100
 """
 
+_MY_CONFIG2 = """#
+[test]
+s = my_default
+i = 200
+"""
+
 _COMPONENT_CONFIG_0 = """#
 [component:dist.ddp]
 image = barbaz
@@ -178,6 +184,10 @@ class ConfigTest(unittest.TestCase):
         self._write(
             os.path.join("home", "bob", ".torchxconfig"),
             _MY_CONFIG,
+        )
+        self._write(
+            ".torchxconfig.suffixtest",
+            _MY_CONFIG2,
         )
 
     def tearDown(self) -> None:
@@ -317,6 +327,33 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual("runtime_value", cfg.get("s"))
         self.assertEqual(100, cfg.get("i"))
         self.assertEqual(1.2, cfg.get("f"))
+
+    @patch(
+        TORCHX_GET_SCHEDULERS,
+        return_value={"test": TestScheduler()},
+    )
+    def test_apply_from_suffix_config(self, _) -> None:
+        def mock_getenv(x: str, y: Optional[str] = None) -> Optional[str]:
+            if x != "TORCHX_CONFIG_SUFFIX":
+                return os.environ.get(x, y)
+            else:
+                return "suffixtest"
+
+        with patch(PATH_CWD, return_value=Path(self.test_dir)):
+            with patch(
+                "torchx.runner.config.os.getenv",
+                mock_getenv,
+            ):
+                cfg: Dict[str, CfgVal] = {"s": "runtime_value"}
+                apply(
+                    scheduler="test",
+                    cfg=cfg,
+                    # these dirs will be ignored
+                    dirs=[str(Path(self.test_dir) / "home" / "bob"), self.test_dir],
+                )
+                self.assertEqual("runtime_value", cfg.get("s"))
+                self.assertEqual(200, cfg.get("i"))
+                self.assertEqual(None, cfg.get("f"))
 
     def test_dump_invalid_scheduler(self) -> None:
         with self.assertRaises(ValueError):
