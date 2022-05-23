@@ -41,7 +41,7 @@ import sys
 print("hello world!", file=sys.stderr)
 EOT
 
-APP_ID="$(torchx run --wait --log --scheduler slurm dist.ddp -j 2x1 --script main.py)"
+APP_ID="$(torchx run --wait --log --scheduler slurm dist.ddp -j 2x1 --max_retries 1 --script main.py)"
 torchx status "$APP_ID"
 torchx describe "$APP_ID"
 sacct -j "$(basename "$APP_ID")"

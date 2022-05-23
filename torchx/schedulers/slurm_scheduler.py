@@ -105,7 +105,7 @@ class SlurmReplicaRequest:
     entrypoint: str
     args: List[str]
     srun_opts: Dict[str, str]
-    sbatch_opts: Dict[str, str]
+    sbatch_opts: Dict[str, Optional[str]]
     env: Dict[str, str]
 
     @classmethod
@@ -116,7 +116,9 @@ class SlurmReplicaRequest:
         ``from_role`` creates a SlurmReplicaRequest for the specific role and
         name.
         """
-        sbatch_opts = {}
+        sbatch_opts: Dict[str, Optional[str]] = {
+            "requeue": None,
+        }
         for k, v in cfg.items():
             if v is None:
                 continue
@@ -136,6 +138,10 @@ class SlurmReplicaRequest:
         srun_opts = {
             "output": f"slurm-{macros.app_id}-{name}.out",
             "error": f"slurm-{macros.app_id}-{name}.err",
+            # kill workers N seconds after first task exits
+            "wait": "60",
+            # kill workers after one exits with an error
+            "kill-on-bad-exit": "1",
         }
 
         return cls(
@@ -147,7 +153,7 @@ class SlurmReplicaRequest:
             env=dict(role.env),
         )
 
-    def _opts_to_strs(self, opts: Dict[str, str]) -> List[str]:
+    def _opts_to_strs(self, opts: Mapping[str, Optional[str]]) -> List[str]:
         out = []
         for key, value in opts.items():
             if value is not None:
@@ -185,6 +191,7 @@ class SlurmBatchRequest:
     cmd: List[str]
     replicas: Dict[str, SlurmReplicaRequest]
     job_dir: Optional[str]
+    max_retries: int
 
     def materialize(self) -> str:
         """
@@ -212,13 +219,24 @@ class SlurmBatchRequest:
 # Run with: {cmd}
 #
 {sbatch_opts}
-# exit on error
-set -e
+set -evx
 
 export PYTHONUNBUFFERED=1
 export SLURM_UNBUFFEREDIO=1
+export TORCHX_MAX_RETRIES={self.max_retries}
 
+set +e
 srun {" ".join(srun_groups)}
+exitcode=$?
+set -e
+
+echo "job exited with code $exitcode"
+if [ $exitcode -ne 0 ]; then
+    if [ "$TORCHX_MAX_RETRIES" -gt "${{SLURM_RESTART_COUNT:-0}}" ]; then
+        scontrol requeue "$SLURM_JOB_ID"
+    fi
+    exit $exitcode
+fi
 """
         return script
 
@@ -437,6 +455,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
             cmd=cmd,
             replicas=replicas,
             job_dir=job_dir,
+            max_retries=min(role.max_retries for role in app.roles),
         )
 
         return AppDryRunInfo(req, repr)
