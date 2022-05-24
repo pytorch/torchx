@@ -23,8 +23,8 @@ from torchx.specs import (
     AppHandle,
     AppStatus,
     CfgVal,
-    from_function,
     make_app_handle,
+    materialize_appdef,
     parse_app_handle,
     runopts,
     UnknownAppException,
@@ -161,7 +161,7 @@ class Runner:
         component, but just returns what "would" have run.
         """
         component_def = get_component(component)
-        app = from_function(
+        app = materialize_appdef(
             component_def.fn,
             component_args,
             self._component_defaults.get(component, None),
