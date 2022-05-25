@@ -27,4 +27,4 @@ class CmdCancel(SubCommand):
         app_handle = args.app_handle
         _, session_name, _ = api.parse_app_handle(app_handle)
         runner = get_runner(name=session_name)
-        runner.stop(app_handle)
+        runner.cancel(app_handle)

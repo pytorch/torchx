@@ -293,7 +293,7 @@ class RunnerTest(unittest.TestCase):
             app_handle = runner.run(app, scheduler="local_dir", cfg=self.cfg)
             app_status = none_throws(runner.status(app_handle))
             self.assertEqual(AppState.RUNNING, app_status.state)
-            runner.stop(app_handle)
+            runner.cancel(app_handle)
             app_status = none_throws(runner.status(app_handle))
             self.assertEqual(AppState.CANCELLED, app_status.state)
 
@@ -363,6 +363,13 @@ class RunnerTest(unittest.TestCase):
             self.assertIsNone(
                 runner.wait("local_dir://another_session/some_app", wait_interval=0.1)
             )
+
+    def test_cancel(self, _) -> None:
+        with Runner(
+            name=SESSION_NAME,
+            schedulers={"local_dir": self.scheduler},
+        ) as runner:
+            self.assertIsNone(runner.cancel("local_dir://test_session/unknown_app_id"))
 
     def test_stop(self, _) -> None:
         with Runner(

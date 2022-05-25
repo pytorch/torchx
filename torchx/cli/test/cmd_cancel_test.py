@@ -13,8 +13,8 @@ from torchx.cli.cmd_cancel import CmdCancel
 
 
 class CmdCancelTest(unittest.TestCase):
-    @patch("torchx.runner.api.Runner.stop")
-    def test_run(self, stop: MagicMock) -> None:
+    @patch("torchx.runner.api.Runner.cancel")
+    def test_run(self, cancel: MagicMock) -> None:
         parser = argparse.ArgumentParser()
         cmd_runopts = CmdCancel()
         cmd_runopts.add_arguments(parser)
@@ -22,5 +22,5 @@ class CmdCancelTest(unittest.TestCase):
         args = parser.parse_args(["foo://session/id"])
         cmd_runopts.run(args)
 
-        self.assertEqual(stop.call_count, 1)
-        stop.assert_called_with("foo://session/id")
+        self.assertEqual(cancel.call_count, 1)
+        cancel.assert_called_with("foo://session/id")
