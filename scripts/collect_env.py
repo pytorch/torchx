@@ -108,32 +108,38 @@ def get_cli_info() -> None:
     print(f"kubectl: {get_kubectl_version()}")
 
 
-def get_aws_version() -> Optional[str]:
+def get_aws_version() -> str:
     result = run("aws --version")
     if result:
-        return result[1]
+        return str(result[1])
+    return "N/A"
 
 
-def get_gcp_version() -> Optional[str]:
-    return run("gcloud --version", r"Google Cloud (.*)")
+def get_gcp_version() -> str:
+    result = run("gcloud --version", r"Google Cloud (.*)")
+    return str(result)
 
 
-def get_azure_version() -> Optional[str]:
-    return run("az version", r"\"azure-cli\": (.*)")
+def get_azure_version() -> str:
+    result = run("az version", r"\"azure-cli\": (.*)")
+    return str(result)
 
 
-def get_slurm_version() -> Optional[str]:
+def get_slurm_version() -> str:
     result = run("slurmd --version")
     if result:
-        return result[1]
+        return str(result[1])
+    return "N/A"
 
 
-def get_docker_version() -> Optional[str]:
-    return run("docker --version", r"Docker version (.*)")
+def get_docker_version() -> str:
+    result = run("docker --version", r"Docker version (.*)")
+    return str(result)
 
 
-def get_kubectl_version() -> Optional[str]:
-    return run("kubectl version --client", r"Client Version: (.*)")
+def get_kubectl_version() -> str:
+    result = run("kubectl version --client", r"Client Version: (.*)")
+    return str(result)
 
 
 def main() -> None:
