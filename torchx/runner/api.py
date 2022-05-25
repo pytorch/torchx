@@ -405,7 +405,7 @@ class Runner:
                 self.status(app_id)
             return self._apps
 
-    def stop(self, app_handle: AppHandle) -> None:
+    def cancel(self, app_handle: AppHandle) -> None:
         """
         Stops the application, effectively directing the scheduler to cancel
         the job. Does nothing if the app does not exist.
@@ -419,10 +419,24 @@ class Runner:
 
         """
         scheduler, scheduler_backend, app_id = self._scheduler_app_id(app_handle)
-        with log_event("stop", scheduler_backend, app_id):
+        with log_event("cancel", scheduler_backend, app_id):
             status = self.status(app_handle)
             if status is not None and not status.is_terminal():
                 scheduler.cancel(app_id)
+
+    def stop(self, app_handle: AppHandle) -> None:
+        """
+        See method ``cancel``.
+
+        .. warning:: This method will be deprecated in the future. It has been
+                    replaced with ``cancel`` which provides the same functionality.
+                    The change is to be consistent with the CLI and scheduler API.
+        """
+        warnings.warn(
+            "This method will be deprecated in the future, please use `cancel` instead.",
+            PendingDeprecationWarning,
+        )
+        self.cancel(app_handle)
 
     def describe(self, app_handle: AppHandle) -> Optional[AppDef]:
         """
