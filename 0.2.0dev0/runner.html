@@ -423,6 +423,22 @@ act upon <code class="docutils literal notranslate"><span class="pre">AppDefs</s
 launched apps if they were launched locally otherwise it’s up to the
 specific scheduler implementation.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="torchx.runner.Runner.cancel">
+<span class="sig-name descname"><span class="pre">cancel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_handle</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/runner/api.html#Runner.cancel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.Runner.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the application, effectively directing the scheduler to cancel
+the job. Does nothing if the app does not exist.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method returns as soon as the cancel request has been
+submitted to the scheduler. The application will be in a
+<code class="docutils literal notranslate"><span class="pre">RUNNING</span></code> state until the scheduler actually terminates
+the job. If the scheduler successfully interrupts the job
+and terminates it the final state will be <code class="docutils literal notranslate"><span class="pre">CANCELLED</span></code>
+otherwise it will be <code class="docutils literal notranslate"><span class="pre">FAILED</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="torchx.runner.Runner.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/runner/api.html#Runner.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.Runner.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Closes this runner and frees/cleans up any allocated resources.
@@ -679,16 +695,12 @@ this method instead of directly implementing the <code class="docutils literal n
 <dl class="py method">
 <dt class="sig sig-object py" id="torchx.runner.Runner.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_handle</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><a class="reference internal" href="_modules/torchx/runner/api.html#Runner.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.Runner.stop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stops the application, effectively directing the scheduler to cancel
-the job. Does nothing if the app does not exist.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This method returns as soon as the cancel request has been
-submitted to the scheduler. The application will be in a
-<code class="docutils literal notranslate"><span class="pre">RUNNING</span></code> state until the scheduler actually terminates
-the job. If the scheduler successfully interrupts the job
-and terminates it the final state will be <code class="docutils literal notranslate"><span class="pre">CANCELLED</span></code>
-otherwise it will be <code class="docutils literal notranslate"><span class="pre">FAILED</span></code>.</p>
+<dd><p>See method <code class="docutils literal notranslate"><span class="pre">cancel</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This method will be deprecated in the future. It has been
+replaced with <code class="docutils literal notranslate"><span class="pre">cancel</span></code> which provides the same functionality.
+The change is to be consistent with the CLI and scheduler API.</p>
 </div>
 </dd></dl>
 

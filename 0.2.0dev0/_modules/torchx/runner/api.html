@@ -775,7 +775,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span></div>
 
-<div class="viewcode-block" id="Runner.stop"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Runner.cancel"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stops the application, effectively directing the scheduler to cancel</span>
 <span class="sd">        the job. Does nothing if the app does not exist.</span>
@@ -789,10 +789,24 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scheduler</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">app_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_app_id</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">app_id</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;cancel&quot;</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">app_id</span><span class="p">):</span>
             <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">status</span><span class="o">.</span><span class="n">is_terminal</span><span class="p">():</span>
                 <span class="n">scheduler</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Runner.stop"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        See method ``cancel``.</span>
+
+<span class="sd">        .. warning:: This method will be deprecated in the future. It has been</span>
+<span class="sd">                    replaced with ``cancel`` which provides the same functionality.</span>
+<span class="sd">                    The change is to be consistent with the CLI and scheduler API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;This method will be deprecated in the future, please use `cancel` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">PendingDeprecationWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.describe"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppDef</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
