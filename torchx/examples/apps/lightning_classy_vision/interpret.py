@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-Model Interpretability App Example
+Model Interpretability Example
 =============================================
 
 This is an example TorchX app that uses captum to analyze inputs to for model
@@ -17,6 +17,30 @@ them.
 
 See https://captum.ai/tutorials/CIFAR_TorchVision_Interpret for more info on
 using captum.
+
+Usage
+---------
+
+Runs this main module as a python process locally. The run below assumes
+that the model has been trained using the usage instructions in
+``torchx/examples/apps/lightning_classy_vision/train.py``.
+
+.. code:: shell-session
+
+  $ torchx run -s local_cwd utils.python
+      --script ./lightning_classy_vision/interpret.py
+      --
+      --load_path /tmp/torchx/train/last.ckpt
+      --output_path /tmp/torchx/interpret
+
+Use an image viewer to visualize the ``*.png`` files generated under the ``output_path``.
+
+.. note:: For local runs with TorchX's  ``utils.python`` built-in is effectively
+          equal to running the main module directly (e.g. ``python ./interpret.py``).
+          The benefit of using TorchX to launch simple single-process python programs
+          is to launch on remote schedulers by swapping out ``-s local_cwd`` to
+          a remote scheduler like kubernetes by specifying ``-s kubernetes``.
+
 """
 
 import argparse
@@ -28,16 +52,17 @@ from typing import List
 
 import fsspec
 import torch
-
-# ensure data and module are on the path
-sys.path.append(".")
-
 from torchx.examples.apps.lightning_classy_vision.data import (
     create_random_data,
     download_data,
     TinyImageNetDataModule,
 )
 from torchx.examples.apps.lightning_classy_vision.model import TinyImageNetModel
+
+
+# ensure data and module are on the path
+sys.path.append(".")
+
 
 # FIXME: captum must be imported after torch otherwise it causes python to crash
 if True:
