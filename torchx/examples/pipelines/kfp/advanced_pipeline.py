@@ -22,6 +22,18 @@ something that can be used within KFP.
 # Lets first define some arguments for the pipeline.
 
 import argparse
+import os.path
+import sys
+from typing import Dict
+
+import kfp
+import torchx
+from torchx import specs
+from torchx.components.dist import ddp as dist_ddp
+from torchx.components.serve import torchserve
+from torchx.components.utils import copy as utils_copy, python as utils_python
+from torchx.pipelines.kfp.adapter import container_from_app
+
 
 parser = argparse.ArgumentParser(description="example kfp pipeline")
 
@@ -32,7 +44,6 @@ parser = argparse.ArgumentParser(description="example kfp pipeline")
 # the standard built in apps. If you modify the torchx example code you'll
 # need to rebuild the container before launching it on KFP
 
-import torchx
 
 parser.add_argument(
     "--image",
@@ -78,7 +89,6 @@ parser.add_argument(
 # %% Parse the arguments, you'll need to set these accordingly if running from a
 # notebook.
 
-import sys
 
 if "NOTEBOOK" in globals():
     argv = [
@@ -98,13 +108,9 @@ args: argparse.Namespace = parser.parse_args(argv)
 # fsspec paths and copies them from one to another. In this case we're using
 # http as the source and a file under the output_path as the output.
 
-import os.path
-
-from torchx import specs
-from torchx.components.utils import copy
 
 data_path: str = os.path.join(args.output_path, "tiny-imagenet-200.zip")
-copy_app: specs.AppDef = copy(
+copy_app: specs.AppDef = utils_copy(
     "http://cs231n.stanford.edu/tiny-imagenet-200.zip",
     data_path,
     image=args.image,
@@ -117,11 +123,14 @@ copy_app: specs.AppDef = copy(
 # datapreproc outputs the data to a specified fsspec path. These paths are all
 # specified ahead of time so we have a fully static pipeline.
 
-from torchx.examples.apps.datapreproc.component import data_preproc
 
 processed_data_path: str = os.path.join(args.output_path, "processed")
-datapreproc_app: specs.AppDef = data_preproc(
-    image=args.image, output_path=processed_data_path, input_path=data_path
+datapreproc_app: specs.AppDef = utils_python(
+    *("--output_path", processed_data_path, "--input_path", data_path),
+    image=args.image,
+    m="torchx.examples.apps.datapreproc.datapreproc",
+    cpu=1,
+    memMB=1024,
 )
 
 # %%
@@ -137,18 +146,29 @@ datapreproc_app: specs.AppDef = data_preproc(
 if "__file__" in globals():
     sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
-from torchx.examples.apps.lightning_classy_vision.component import trainer
 
 logs_path: str = os.path.join(args.output_path, "logs")
 models_path: str = os.path.join(args.output_path, "models")
 
-trainer_app: specs.AppDef = trainer(
-    output_path=models_path,
-    load_path=args.load_path or "",
-    log_path=logs_path,
-    data_path=processed_data_path,
-    epochs=1,
+trainer_app: specs.AppDef = dist_ddp(
+    *(
+        "--output_path",
+        models_path,
+        "--load_path",
+        args.load_path or "",
+        "--log_path",
+        logs_path,
+        "--data_path",
+        processed_data_path,
+        "--epochs",
+        str(1),
+    ),
     image=args.image,
+    m="torchx.examples.apps.lightning_classy_vision.train",
+    j="1x1",
+    # per node resource settings
+    cpu=1,
+    memMB=3000,
 )
 
 # %%
@@ -157,7 +177,6 @@ trainer_app: specs.AppDef = trainer(
 #
 # This will get used when we create the KFP container.
 
-from typing import Dict
 
 ui_metadata: Dict[str, object] = {
     "outputs": [
@@ -173,7 +192,6 @@ ui_metadata: Dict[str, object] = {
 # component takes in a model and uploads it to the TorchServe management API
 # endpoints.
 
-from torchx.components.serve import torchserve
 
 serve_app: specs.AppDef = torchserve(
     model_path=os.path.join(models_path, "model.mar"),
@@ -191,14 +209,18 @@ serve_app: specs.AppDef = torchserve(
 # own component file. This component takes in the output from datapreproc and
 # train components and produces images with integrated gradient results.
 
-from torchx.examples.apps.lightning_classy_vision.component import interpret
-
 interpret_path: str = os.path.join(args.output_path, "interpret")
-interpret_app: specs.AppDef = interpret(
-    load_path=os.path.join(models_path, "last.ckpt"),
-    data_path=processed_data_path,
-    output_path=interpret_path,
+interpret_app: specs.AppDef = utils_python(
+    *(
+        "--load_path",
+        os.path.join(models_path, "last.ckpt"),
+        "--data_path",
+        processed_data_path,
+        "--output_path",
+        interpret_path,
+    ),
     image=args.image,
+    m="torchx.examples.apps.lightning_classy_vision.interpret",
 )
 
 # %%
@@ -213,9 +235,6 @@ interpret_app: specs.AppDef = interpret(
 #
 # We call `.set_tty()` to make the logs from the components more responsive for
 # example purposes.
-
-import kfp
-from torchx.pipelines.kfp.adapter import container_from_app
 
 
 def pipeline() -> None:
