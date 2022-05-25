@@ -9,7 +9,7 @@
     .. _sphx_glr_examples_apps_lightning_classy_vision_train.py:
 
 
-Trainer App Example
+Trainer Example
 =============================================
 
 This is an example TorchX app that uses PyTorch Lightning and ClassyVision to
@@ -18,6 +18,36 @@ train a model.
 This app only uses standard OSS libraries and has no runtime torchx
 dependencies. For saving and loading data and models it uses fsspec which makes
 the app agnostic to the environment it's running in.
+
+Usage
+---------
+
+To run the trainer locally as a ddp application with 1 node and 2 workers-per-node (world size = 2):
+
+.. code:: shell-session
+
+  $ torchx run -s local_cwd dist.ddp
+     -j 1x2
+     --script ./lightning_classy_vision/train.py
+     --
+     --epochs=1
+     --output_path=/tmp/torchx/train
+     --log_path=/tmp/torchx/logs
+     --skip_export
+
+.. note:: ``--`` is used to delimit between component (``dist.ddp``) and
+          application arguments.
+
+Use the ``--help`` option to see the full list of application options:
+
+.. code:: shell-session
+
+  $ torchx run -s local_cwd dist.ddp -j 1x1 --script ./lightning_classy_vision/train.py -- --help
+
+Which is effectively the same as ``./train.py --help``. To run on a remote scheduler,
+specify the scheduler with the ``-s`` option. Depending on the type of remote scheduler
+you may have to pass additional scheduler cfgs with the ``-cfg`` option.
+See :ref:`Quickstart:Remote Schedulers` for more details.
 
 
 .. code-block:: default

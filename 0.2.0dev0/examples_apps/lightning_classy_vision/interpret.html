@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Model Interpretability App Example &mdash; PyTorch/TorchX main documentation</title>
+  <title>Model Interpretability Example &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Trainer App Example" href="train.html" />
+    <link rel="next" title="Trainer Example" href="train.html" />
     <link rel="prev" title="Tiny ImageNet Model" href="model.html" />
   <!-- Google Analytics -->
   
@@ -339,7 +339,7 @@
         
           <li><a href="../index.html">Application Examples</a> &gt;</li>
         
-      <li>Model Interpretability App Example</li>
+      <li>Model Interpretability Example</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -398,8 +398,8 @@
 <p class="admonition-title">Note</p>
 <p>Click <a class="reference internal" href="#sphx-glr-download-examples-apps-lightning-classy-vision-interpret-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
-<section class="sphx-glr-example-title" id="model-interpretability-app-example">
-<span id="sphx-glr-examples-apps-lightning-classy-vision-interpret-py"></span><h1>Model Interpretability App Example<a class="headerlink" href="#model-interpretability-app-example" title="Permalink to this headline">¶</a></h1>
+<section class="sphx-glr-example-title" id="model-interpretability-example">
+<span id="sphx-glr-examples-apps-lightning-classy-vision-interpret-py"></span><h1>Model Interpretability Example<a class="headerlink" href="#model-interpretability-example" title="Permalink to this headline">¶</a></h1>
 <p>This is an example TorchX app that uses captum to analyze inputs to for model
 interpretability purposes. It consumes the trained model from the trainer app
 example and the preprocessed examples from the datapreproc app example. The
@@ -407,6 +407,27 @@ output is a series of images with integrated gradient attributions overlayed on
 them.</p>
 <p>See <a class="reference external" href="https://captum.ai/tutorials/CIFAR_TorchVision_Interpret">https://captum.ai/tutorials/CIFAR_TorchVision_Interpret</a> for more info on
 using captum.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Runs this main module as a python process locally. The run below assumes
+that the model has been trained using the usage instructions in
+<code class="docutils literal notranslate"><span class="pre">torchx/examples/apps/lightning_classy_vision/train.py</span></code>.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd utils.python
+<span class="go">    --script ./lightning_classy_vision/interpret.py</span>
+<span class="go">    --</span>
+<span class="go">    --load_path /tmp/torchx/train/last.ckpt</span>
+<span class="go">    --output_path /tmp/torchx/interpret</span>
+</pre></div>
+</div>
+<p>Use an image viewer to visualize the <code class="docutils literal notranslate"><span class="pre">*.png</span></code> files generated under the <code class="docutils literal notranslate"><span class="pre">output_path</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For local runs with TorchX’s  <code class="docutils literal notranslate"><span class="pre">utils.python</span></code> built-in is effectively
+equal to running the main module directly (e.g. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">./interpret.py</span></code>).
+The benefit of using TorchX to launch simple single-process python programs
+is to launch on remote schedulers by swapping out <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">local_cwd</span></code> to
+a remote scheduler like kubernetes by specifying <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">kubernetes</span></code>.</p>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
@@ -416,16 +437,17 @@ using captum.</p>
 
 <span class="kn">import</span> <span class="nn">fsspec</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-
-<span class="c1"># ensure data and module are on the path</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.data</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_random_data</span><span class="p">,</span>
     <span class="n">download_data</span><span class="p">,</span>
     <span class="n">TinyImageNetDataModule</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.model</span> <span class="kn">import</span> <span class="n">TinyImageNetModel</span>
+
+
+<span class="c1"># ensure data and module are on the path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
 
 <span class="c1"># FIXME: captum must be imported after torch otherwise it causes python to crash</span>
 <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
@@ -542,6 +564,7 @@ using captum.</p>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
 </section>
+</section>
 
 
      </article>
@@ -551,7 +574,7 @@ using captum.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="train.html" class="btn btn-neutral float-right" title="Trainer App Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="train.html" class="btn btn-neutral float-right" title="Trainer Example" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
         <a href="model.html" class="btn btn-neutral" title="Tiny ImageNet Model" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
@@ -586,7 +609,10 @@ using captum.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Model Interpretability App Example</a></li>
+<li><a class="reference internal" href="#">Model Interpretability Example</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

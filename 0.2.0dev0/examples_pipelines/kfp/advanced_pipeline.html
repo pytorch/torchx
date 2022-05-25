@@ -408,6 +408,18 @@ something that can be used within KFP.</p>
 <h2>Input Arguments<a class="headerlink" href="#input-arguments" title="Permalink to this headline">¶</a></h2>
 <p>Lets first define some arguments for the pipeline.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
+
+<span class="kn">import</span> <span class="nn">kfp</span>
+<span class="kn">import</span> <span class="nn">torchx</span>
+<span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
+<span class="kn">from</span> <span class="nn">torchx.components.dist</span> <span class="kn">import</span> <span class="n">ddp</span> <span class="k">as</span> <span class="n">dist_ddp</span>
+<span class="kn">from</span> <span class="nn">torchx.components.serve</span> <span class="kn">import</span> <span class="n">torchserve</span>
+<span class="kn">from</span> <span class="nn">torchx.components.utils</span> <span class="kn">import</span> <span class="n">copy</span> <span class="k">as</span> <span class="n">utils_copy</span><span class="p">,</span> <span class="n">python</span> <span class="k">as</span> <span class="n">utils_python</span>
+<span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">container_from_app</span>
+
 
 <span class="n">parser</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="argparse.ArgumentParser" class="sphx-glr-backref-module-argparse sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span></a><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;example kfp pipeline&quot;</span><span class="p">)</span>
 </pre></div>
@@ -417,9 +429,7 @@ you’re using this can vary but for KFP these images are specified as
 docker containers. We have one container for the example apps and one for
 the standard built in apps. If you modify the torchx example code you’ll
 need to rebuild the container before launching it on KFP</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torchx</span>
-
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
     <span class="s2">&quot;--image&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;docker image to use for the examples apps&quot;</span><span class="p">,</span>
@@ -461,9 +471,7 @@ on how to setup TorchServe.</p>
 </pre></div>
 </div>
 <p>notebook.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-
-<span class="k">if</span> <span class="s2">&quot;NOTEBOOK&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="s2">&quot;NOTEBOOK&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
     <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
         <span class="s2">&quot;/tmp/output&quot;</span><span class="p">,</span>
@@ -481,13 +489,8 @@ on how to setup TorchServe.</p>
 this we can just the builtin copy component. This component takes two valid
 fsspec paths and copies them from one to another. In this case we’re using
 http as the source and a file under the output_path as the output.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
-
-<span class="kn">from</span> <span class="nn">torchx</span> <span class="kn">import</span> <span class="n">specs</span>
-<span class="kn">from</span> <span class="nn">torchx.components.utils</span> <span class="kn">import</span> <span class="n">copy</span>
-
-<span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;tiny-imagenet-200.zip&quot;</span><span class="p">)</span>
-<span class="n">copy_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;tiny-imagenet-200.zip&quot;</span><span class="p">)</span>
+<span class="n">copy_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">utils_copy</span><span class="p">(</span>
     <span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="p">,</span>
     <span class="n">data_path</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
@@ -498,11 +501,13 @@ http as the source and a file under the output_path as the output.</p>
 the previous operator and runs some transforms on it for use with the trainer.</p>
 <p>datapreproc outputs the data to a specified fsspec path. These paths are all
 specified ahead of time so we have a fully static pipeline.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.examples.apps.datapreproc.component</span> <span class="kn">import</span> <span class="n">data_preproc</span>
-
-<span class="n">processed_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;processed&quot;</span><span class="p">)</span>
-<span class="n">datapreproc_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">data_preproc</span><span class="p">(</span>
-    <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">processed_data_path</span><span class="p">,</span> <span class="n">input_path</span><span class="o">=</span><span class="n">data_path</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">processed_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;processed&quot;</span><span class="p">)</span>
+<span class="n">datapreproc_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">utils_python</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">(</span><span class="s2">&quot;--output_path&quot;</span><span class="p">,</span> <span class="n">processed_data_path</span><span class="p">,</span> <span class="s2">&quot;--input_path&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">),</span>
+    <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+    <span class="n">m</span><span class="o">=</span><span class="s2">&quot;torchx.examples.apps.datapreproc.datapreproc&quot;</span><span class="p">,</span>
+    <span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">memMB</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -516,27 +521,36 @@ pipeline in an automated fashion.</p>
 <span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
 
-<span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">trainer</span>
 
 <span class="n">logs_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;logs&quot;</span><span class="p">)</span>
 <span class="n">models_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">)</span>
 
-<span class="n">trainer_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">trainer</span><span class="p">(</span>
-    <span class="n">output_path</span><span class="o">=</span><span class="n">models_path</span><span class="p">,</span>
-    <span class="n">load_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">load_path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">log_path</span><span class="o">=</span><span class="n">logs_path</span><span class="p">,</span>
-    <span class="n">data_path</span><span class="o">=</span><span class="n">processed_data_path</span><span class="p">,</span>
-    <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="n">trainer_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">dist_ddp</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">(</span>
+        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
+        <span class="n">models_path</span><span class="p">,</span>
+        <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">load_path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--log_path&quot;</span><span class="p">,</span>
+        <span class="n">logs_path</span><span class="p">,</span>
+        <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+        <span class="n">processed_data_path</span><span class="p">,</span>
+        <span class="s2">&quot;--epochs&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">),</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+    <span class="n">m</span><span class="o">=</span><span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.train&quot;</span><span class="p">,</span>
+    <span class="n">j</span><span class="o">=</span><span class="s2">&quot;1x1&quot;</span><span class="p">,</span>
+    <span class="c1"># per node resource settings</span>
+    <span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">memMB</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>To have the tensorboard path show up in KFPs UI we need to some metadata so
 KFP knows where to consume the metrics from.</p>
 <p>This will get used when we create the KFP container.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a>
-
-<span class="n">ui_metadata</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ui_metadata</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Dict</span></a><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;outputs&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
@@ -549,9 +563,7 @@ KFP knows where to consume the metrics from.</p>
 <p>For the inference, we’re leveraging one of the builtin TorchX components. This
 component takes in a model and uploads it to the TorchServe management API
 endpoints.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.components.serve</span> <span class="kn">import</span> <span class="n">torchserve</span>
-
-<span class="n">serve_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">torchserve</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">serve_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">torchserve</span><span class="p">(</span>
     <span class="n">model_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">models_path</span><span class="p">,</span> <span class="s2">&quot;model.mar&quot;</span><span class="p">),</span>
     <span class="n">management_api</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">management_api</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
@@ -566,14 +578,18 @@ endpoints.</p>
 <p>For model interpretability we’re leveraging a custom component stored in it’s
 own component file. This component takes in the output from datapreproc and
 train components and produces images with integrated gradient results.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.examples.apps.lightning_classy_vision.component</span> <span class="kn">import</span> <span class="n">interpret</span>
-
-<span class="n">interpret_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;interpret&quot;</span><span class="p">)</span>
-<span class="n">interpret_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">interpret</span><span class="p">(</span>
-    <span class="n">load_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">models_path</span><span class="p">,</span> <span class="s2">&quot;last.ckpt&quot;</span><span class="p">),</span>
-    <span class="n">data_path</span><span class="o">=</span><span class="n">processed_data_path</span><span class="p">,</span>
-    <span class="n">output_path</span><span class="o">=</span><span class="n">interpret_path</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">interpret_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;interpret&quot;</span><span class="p">)</span>
+<span class="n">interpret_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">utils_python</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">(</span>
+        <span class="s2">&quot;--load_path&quot;</span><span class="p">,</span>
+        <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">models_path</span><span class="p">,</span> <span class="s2">&quot;last.ckpt&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;--data_path&quot;</span><span class="p">,</span>
+        <span class="n">processed_data_path</span><span class="p">,</span>
+        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
+        <span class="n">interpret_path</span><span class="p">,</span>
+    <span class="p">),</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+    <span class="n">m</span><span class="o">=</span><span class="s2">&quot;torchx.examples.apps.lightning_classy_vision.interpret&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -587,11 +603,7 @@ cluster.</p>
 containers need to have their dependencies specified via <cite>.after()</cite>.</p>
 <p>We call <cite>.set_tty()</cite> to make the logs from the components more responsive for
 example purposes.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">kfp</span>
-<span class="kn">from</span> <span class="nn">torchx.pipelines.kfp.adapter</span> <span class="kn">import</span> <span class="n">container_from_app</span>
-
-
-<span class="k">def</span> <span class="nf">pipeline</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pipeline</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># container_from_app creates a KFP container from the TorchX app</span>
     <span class="c1"># definition.</span>
     <span class="n">copy</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">copy_app</span><span class="p">)</span>
