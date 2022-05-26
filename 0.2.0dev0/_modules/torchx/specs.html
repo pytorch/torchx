@@ -396,18 +396,15 @@
     <span class="n">BindMount</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
     <span class="n">DeviceMount</span><span class="p">,</span>
-    <span class="n">from_function</span><span class="p">,</span>
     <span class="n">get_type_name</span><span class="p">,</span>
     <span class="n">InvalidRunConfigException</span><span class="p">,</span>
     <span class="n">is_terminal</span><span class="p">,</span>
     <span class="n">macros</span><span class="p">,</span>
-    <span class="n">make_app_handle</span><span class="p">,</span>
     <span class="n">MalformedAppHandleException</span><span class="p">,</span>
     <span class="n">MISSING</span><span class="p">,</span>
     <span class="n">NONE</span><span class="p">,</span>
     <span class="n">NULL_RESOURCE</span><span class="p">,</span>
     <span class="n">parse_app_handle</span><span class="p">,</span>
-    <span class="n">parse_mounts</span><span class="p">,</span>
     <span class="n">ReplicaState</span><span class="p">,</span>
     <span class="n">ReplicaStatus</span><span class="p">,</span>
     <span class="n">Resource</span><span class="p">,</span>
@@ -420,7 +417,7 @@
     <span class="n">UnknownSchedulerException</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-
+<span class="kn">from</span> <span class="nn">.builders</span> <span class="kn">import</span> <span class="n">make_app_handle</span><span class="p">,</span> <span class="n">materialize_appdef</span><span class="p">,</span> <span class="n">parse_mounts</span>  <span class="c1"># noqa</span>
 
 <span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
 
