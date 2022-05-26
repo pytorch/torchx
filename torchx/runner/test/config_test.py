@@ -186,7 +186,7 @@ class ConfigTest(unittest.TestCase):
             _MY_CONFIG,
         )
         self._write(
-            ".torchxconfig.suffixtest",
+            f"{self.test_dir}/another_torchx_config",
             _MY_CONFIG2,
         )
 
@@ -332,12 +332,12 @@ class ConfigTest(unittest.TestCase):
         TORCHX_GET_SCHEDULERS,
         return_value={"test": TestScheduler()},
     )
-    def test_apply_from_suffix_config(self, _) -> None:
+    def test_apply_from_annotated_config(self, _) -> None:
         def mock_getenv(x: str, y: Optional[str] = None) -> Optional[str]:
-            if x != "TORCHX_CONFIG_SUFFIX":
+            if x != "TORCHX_CONFIG":
                 return os.environ.get(x, y)
             else:
-                return "suffixtest"
+                return f"{self.test_dir}/another_torchx_config"
 
         with patch(PATH_CWD, return_value=Path(self.test_dir)):
             with patch(
