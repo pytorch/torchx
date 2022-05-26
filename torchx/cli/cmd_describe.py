@@ -13,7 +13,7 @@ import sys
 
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
-from torchx.specs import api
+from torchx.specs.api import parse_app_handle
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class CmdDescribe(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         app_handle = args.app_handle
-        scheduler, session_name, app_id = api.parse_app_handle(app_handle)
+        scheduler, session_name, app_id = parse_app_handle(app_handle)
         runner = get_runner(name=session_name)
         app = runner.describe(app_handle)
 

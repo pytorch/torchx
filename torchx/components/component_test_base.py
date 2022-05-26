@@ -18,7 +18,7 @@ import os
 import unittest
 from types import ModuleType
 
-from torchx.specs.api import _create_args_parser
+from torchx.specs.builders import _create_args_parser
 from torchx.specs.finder import get_component
 
 

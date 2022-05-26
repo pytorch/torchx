@@ -26,18 +26,15 @@ from .api import (  # noqa: F401 F403
     BindMount,
     CfgVal,
     DeviceMount,
-    from_function,
     get_type_name,
     InvalidRunConfigException,
     is_terminal,
     macros,
-    make_app_handle,
     MalformedAppHandleException,
     MISSING,
     NONE,
     NULL_RESOURCE,
     parse_app_handle,
-    parse_mounts,
     ReplicaState,
     ReplicaStatus,
     Resource,
@@ -50,7 +47,7 @@ from .api import (  # noqa: F401 F403
     UnknownSchedulerException,
     VolumeMount,
 )
-
+from .builders import make_app_handle, materialize_appdef, parse_mounts  # noqa
 
 GiB: int = 1024
 
