@@ -3,7 +3,7 @@
 
 # Running script:
 # export CLUSTER_NAME="torchx-dev"
-# export KFP_VERSION="1.18"
+# export EKS_VERSION="1.21" # See https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html for latest EKS versions
 # envsubst < torchx-dev-eks-template.yml > torchx-dev-eks.yml
 # eksctl create cluster -f torchx-dev-eks.yml
 
@@ -20,8 +20,7 @@ kind: ClusterConfig
 metadata:
   name: ${CLUSTER_NAME}
   region: us-west-2
-  # https://www.kubeflow.org/docs/distributions/aws/deploy/install-kubeflow/
-  version: '${KFP_VERSION}'
+  version: '${EKS_VERSION}'
   tags:
     environment: dev
 
