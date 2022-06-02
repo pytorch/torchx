@@ -152,8 +152,8 @@ from torchx.specs.api import runopt
 
 
 CONFIG_FILE = ".torchxconfig"
-ENV_TORCHX_CONFIG = "TORCHX_CONFIG"
 CONFIG_PREFIX_DELIM = ":"
+ENV_TORCHXCONFIG = "TORCHXCONFIG"
 
 _NONE = "None"
 
@@ -431,20 +431,29 @@ def get_config(
 
 def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
     """
-    find_configs returns all the .torchxconfig files it finds:
-        - if environment variable TORCHX_CONFIG is specified, then
-          it is expected to exists and will be loaded as the only config
-        - otherwise, directories are checked to look for .torchxconfig and loaded. If
-          directories is empty it checks the local directory.
+    Finds and returns the filepath to ``.torchxconfig`` files based
+    on the following logic:
+
+    1. If the environment variable ``TORCHXCONFIG`` exists, then its value
+       is returned in a single-element list and the directories specified through
+       the ``dirs`` parameter is NOT searched.
+    2. Otherwise, a ``.torchxconfig`` file is looked for in ``dirs`` and
+       the filepaths to existing config files are returned. If ``dirs`` is
+       not specified or is empty then, this method looks for a ``.torchxconfig`` file
+       in CWD (current working dir) and returns the filepath to it if one exists.
+
     """
 
-    config_files = []
-    config = os.getenv(ENV_TORCHX_CONFIG, "")
-    if len(config) > 0:
+    config = os.getenv(ENV_TORCHXCONFIG)
+    if config is not None:
         configfile = Path(config)
-        assert configfile.exists(), f"{str(configfile)} expected but not found"
-        config_files.append(str(configfile))
+        if not configfile.is_file():
+            raise FileNotFoundError(
+                f"`{ENV_TORCHXCONFIG}={config}` does not exist or is not a file."
+            )
+        return [str(configfile)]
     else:
+        config_files = []
         if not dirs:
             dirs = [str(Path.cwd())]
         for d in dirs:
