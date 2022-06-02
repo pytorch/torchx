@@ -122,8 +122,9 @@ class CmdRun(SubCommand):
             "-s",
             "--scheduler",
             type=str,
-            help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
             default=get_default_scheduler_name(),
+            action=torchxconfig_run,
+            help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
         )
         subparser.add_argument(
             "-cfg",
