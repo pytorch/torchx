@@ -522,8 +522,8 @@
 
 
 <span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;.torchxconfig&quot;</span>
-<span class="n">ENV_TORCHX_CONFIG</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_CONFIG&quot;</span>
 <span class="n">CONFIG_PREFIX_DELIM</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
+<span class="n">ENV_TORCHXCONFIG</span> <span class="o">=</span> <span class="s2">&quot;TORCHXCONFIG&quot;</span>
 
 <span class="n">_NONE</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
 
@@ -801,20 +801,29 @@
 
 <div class="viewcode-block" id="find_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.find_configs">[docs]</a><span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    find_configs returns all the .torchxconfig files it finds:</span>
-<span class="sd">        - if environment variable TORCHX_CONFIG is specified, then</span>
-<span class="sd">          it is expected to exists and will be loaded as the only config</span>
-<span class="sd">        - otherwise, directories are checked to look for .torchxconfig and loaded. If</span>
-<span class="sd">          directories is empty it checks the local directory.</span>
+<span class="sd">    Finds and returns the filepath to ``.torchxconfig`` files based</span>
+<span class="sd">    on the following logic:</span>
+
+<span class="sd">    1. If the environment variable ``TORCHXCONFIG`` exists, then its value</span>
+<span class="sd">       is returned in a single-element list and the directories specified through</span>
+<span class="sd">       the ``dirs`` parameter is NOT searched.</span>
+<span class="sd">    2. Otherwise, a ``.torchxconfig`` file is looked for in ``dirs`` and</span>
+<span class="sd">       the filepaths to existing config files are returned. If ``dirs`` is</span>
+<span class="sd">       not specified or is empty then, this method looks for a ``.torchxconfig`` file</span>
+<span class="sd">       in CWD (current working dir) and returns the filepath to it if one exists.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">config_files</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENV_TORCHX_CONFIG</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENV_TORCHXCONFIG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">configfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span><span class="si">}</span><span class="s2"> expected but not found&quot;</span>
-        <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configfile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">ENV_TORCHXCONFIG</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">config</span><span class="si">}</span><span class="s2">` does not exist or is not a file.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="n">config_files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dirs</span><span class="p">:</span>
             <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())]</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>

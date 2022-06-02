@@ -546,15 +546,17 @@ To only dump required runopts pass <code class="docutils literal notranslate"><s
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.runner.config.find_configs">
 <span class="sig-prename descclassname"><span class="pre">torchx.runner.config.</span></span><span class="sig-name descname"><span class="pre">find_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/torchx/runner/config.html#find_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.config.find_configs" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>find_configs returns all the .torchxconfig files it finds:</dt><dd><ul class="simple">
-<li><p>if environment variable TORCHX_CONFIG is specified, then
-it is expected to exists and will be loaded as the only config</p></li>
-<li><p>otherwise, directories are checked to look for .torchxconfig and loaded. If
-directories is empty it checks the local directory.</p></li>
-</ul>
-</dd>
-</dl>
+<dd><p>Finds and returns the filepath to <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> files based
+on the following logic:</p>
+<ol class="arabic simple">
+<li><p>If the environment variable <code class="docutils literal notranslate"><span class="pre">TORCHXCONFIG</span></code> exists, then its value
+is returned in a single-element list and the directories specified through
+the <code class="docutils literal notranslate"><span class="pre">dirs</span></code> parameter is NOT searched.</p></li>
+<li><p>Otherwise, a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file is looked for in <code class="docutils literal notranslate"><span class="pre">dirs</span></code> and
+the filepaths to existing config files are returned. If <code class="docutils literal notranslate"><span class="pre">dirs</span></code> is
+not specified or is empty then, this method looks for a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file
+in CWD (current working dir) and returns the filepath to it if one exists.</p></li>
+</ol>
 </dd></dl>
 
 <dl class="py function">
