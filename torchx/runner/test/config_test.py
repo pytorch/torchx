@@ -18,6 +18,8 @@ from unittest.mock import patch
 from torchx.runner.config import (
     apply,
     dump,
+    ENV_TORCHXCONFIG,
+    find_configs,
     get_config,
     get_configs,
     load,
@@ -259,6 +261,44 @@ class ConfigTest(unittest.TestCase):
             ),
         )
 
+    def test_find_configs(self) -> None:
+        config_dir = Path(self.test_dir)
+        cwd_dir = config_dir / "cwd"
+        custom_dir = config_dir / "custom"
+
+        cwd_dir.mkdir()
+        custom_dir.mkdir()
+
+        base_config = config_dir / ".torchxconfig"
+        cwd_config = cwd_dir / ".torchxconfig"
+        override_config = custom_dir / ".torchxconfig"
+
+        base_config.touch()
+        cwd_config.touch()
+        override_config.touch()
+
+        # should find configs in the specified dirs
+        configs = find_configs(dirs=[str(config_dir)])
+        self.assertEqual([str(base_config)], configs)
+
+        # should find config in cwd if no dirs is specified
+        with patch(PATH_CWD, return_value=str(cwd_dir)):
+            configs = find_configs()
+            self.assertEqual([str(cwd_config)], configs)
+
+        # if TORCHXCONFIG env var exists then should just return the config specified
+        with patch.dict(os.environ, {ENV_TORCHXCONFIG: str(override_config)}):
+            configs = find_configs(dirs=[str(config_dir)])
+            self.assertEqual([str(override_config)], configs)
+
+        # if TORCHXCONFIG points to a non-existing file, then assert exception
+        with patch.dict(
+            os.environ,
+            {ENV_TORCHXCONFIG: str(config_dir / ".torchxconfig_nonexistent")},
+        ):
+            with self.assertRaises(FileNotFoundError):
+                find_configs(dirs=[str(config_dir)])
+
     def test_get_config(self) -> None:
         configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
         configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
@@ -285,6 +325,20 @@ class ConfigTest(unittest.TestCase):
         self.assertIsNone(
             get_config(prefix="badprefix", name="dist.ddp", key="j", dirs=dirs),
         )
+
+        # check that if TORCHXCONFIG is set then only that config is loaded
+        override_config = Path(self.test_dir) / ".torchxconfig_custom"
+        override_config_contents = """
+[component:dist.ddp]
+image = foobar_custom
+        """
+        self._write(str(override_config), override_config_contents)
+
+        with patch.dict(os.environ, {ENV_TORCHXCONFIG: str(override_config)}):
+            self.assertDictEqual(
+                {"image": "foobar_custom"},
+                get_configs(prefix="component", name="dist.ddp", dirs=dirs),
+            )
 
     def test_load(self) -> None:
         cfg = {}
@@ -327,33 +381,6 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual("runtime_value", cfg.get("s"))
         self.assertEqual(100, cfg.get("i"))
         self.assertEqual(1.2, cfg.get("f"))
-
-    @patch(
-        TORCHX_GET_SCHEDULERS,
-        return_value={"test": TestScheduler()},
-    )
-    def test_apply_from_annotated_config(self, _) -> None:
-        def mock_getenv(x: str, y: Optional[str] = None) -> Optional[str]:
-            if x != "TORCHX_CONFIG":
-                return os.environ.get(x, y)
-            else:
-                return f"{self.test_dir}/another_torchx_config"
-
-        with patch(PATH_CWD, return_value=Path(self.test_dir)):
-            with patch(
-                "torchx.runner.config.os.getenv",
-                mock_getenv,
-            ):
-                cfg: Dict[str, CfgVal] = {"s": "runtime_value"}
-                apply(
-                    scheduler="test",
-                    cfg=cfg,
-                    # these dirs will be ignored
-                    dirs=[str(Path(self.test_dir) / "home" / "bob"), self.test_dir],
-                )
-                self.assertEqual("runtime_value", cfg.get("s"))
-                self.assertEqual(200, cfg.get("i"))
-                self.assertEqual(None, cfg.get("f"))
 
     def test_dump_invalid_scheduler(self) -> None:
         with self.assertRaises(ValueError):
