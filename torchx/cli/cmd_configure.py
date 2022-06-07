@@ -10,7 +10,7 @@ import logging
 import sys
 
 from torchx.cli.cmd_base import SubCommand
-from torchx.runner.config import dump
+from torchx.config import seed_config_store_with_schedulers
 from torchx.schedulers import get_schedulers
 
 
@@ -47,7 +47,11 @@ class CmdConfigure(SubCommand):
         required_only = not args.all
 
         if args.print:
-            dump(f=sys.stdout, schedulers=schedulers, required_only=required_only)
+            seed_config_store_with_schedulers(
+                f=sys.stdout, schedulers=schedulers, required_only=required_only
+            )
         else:
             with open(".torchxconfig", "w") as f:
-                dump(f=f, schedulers=schedulers, required_only=required_only)
+                seed_config_store_with_schedulers(
+                    f=f, schedulers=schedulers, required_only=required_only
+                )

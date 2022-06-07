@@ -19,8 +19,8 @@ from pyre_extensions import none_throws
 from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
-from torchx.runner import config, get_runner, Runner
-from torchx.runner.config import load_sections
+from torchx.config import get_config_store
+from torchx.runner import get_runner, Runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.specs.finder import (
     _Component,
@@ -63,7 +63,11 @@ def _parse_component_name_and_args(
                 looks like an option (e.g. starts with "-")
 
     """
-    component = config.get_config(prefix="cli", name="run", key="component", dirs=dirs)
+    component = get_config_store(dirs).get_key(
+        collection="run", key="component", label="cli"
+    )
+
+    component = str(component) if component else None
     component_args = []
 
     # make a copy of the input list to guard against side-effects
@@ -177,7 +181,12 @@ class CmdRun(SubCommand):
         run_opts = runner.run_opts()
         scheduler_opts = run_opts[args.scheduler]
         cfg = scheduler_opts.cfg_from_str(args.scheduler_args)
-        config.apply(scheduler=args.scheduler, cfg=cfg, dirs=CONFIG_DIRS)
+
+        type_hints = {x[0]: x[1].opt_type for x in scheduler_opts}
+        config_data = get_config_store(CONFIG_DIRS).get(
+            args.scheduler, type_hints=type_hints
+        )
+        cfg = config_data.apply_to(cfg)
 
         component, component_args = _parse_component_name_and_args(
             args.component_name_and_args,
@@ -226,18 +235,22 @@ class CmdRun(SubCommand):
             logger.error(error_msg)
             sys.exit(1)
         except specs.InvalidRunConfigException as e:
+            logger.error(e)
             error_msg = (
                 f"Scheduler arg is incorrect or missing required option: `{e.cfg_key}`\n"
                 f"Run `torchx runopts` to check configuration for `{args.scheduler}` scheduler\n"
                 f"Use `-cfg` to specify run cfg as `key1=value1,key2=value2` pair\n"
-                "of setup `.torchxconfig` file, see: https://pytorch.org/torchx/main/experimental/runner.config.html"
+                "of setup `.torchxconfig` file, see: https://pytorch.org/torchx/main/runner.config.html"
             )
             logger.error(error_msg)
             sys.exit(1)
 
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
-        component_defaults = load_sections(prefix="component", dirs=CONFIG_DIRS)
+        config_data = get_config_store(CONFIG_DIRS).get_all(label="component")
+        component_defaults = {}
+        for conf in config_data:
+            component_defaults[conf.coll_name] = dict(conf)
         with get_runner(component_defaults=component_defaults) as runner:
             self._run(runner, args)
 

@@ -8,8 +8,7 @@ from argparse import Action, ArgumentParser, Namespace
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Text
 
-from torchx.runner import config
-
+from torchx.config.config import get_config_store
 
 CONFIG_DIRS = [str(Path.home()), str(Path.cwd())]
 
@@ -35,13 +34,11 @@ class _torchxconfig(Action):
         default: Any = None,
         **kwargs: Any,
     ) -> None:
+        conf_data = get_config_store(CONFIG_DIRS).get(collection=subcmd, label="cli")
+        conf_data_dict = dict(conf_data.items())
         cfg = self._subcmd_configs.setdefault(
             subcmd,
-            config.get_configs(
-                prefix="cli",
-                name=subcmd,
-                dirs=CONFIG_DIRS,
-            ),
+            conf_data_dict,
         )
 
         # if found in .torchxconfig make it the default for this argument
