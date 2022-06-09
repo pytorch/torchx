@@ -123,6 +123,7 @@ class CmdRun(SubCommand):
             "--scheduler",
             type=str,
             default=get_default_scheduler_name(),
+            choices=list(scheduler_names),
             action=torchxconfig_run,
             help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
         )
