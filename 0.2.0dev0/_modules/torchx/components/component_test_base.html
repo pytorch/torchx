@@ -385,14 +385,32 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">get_runner</span>
+
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">AppStatus</span>
 
 <span class="kn">from</span> <span class="nn">torchx.specs.builders</span> <span class="kn">import</span> <span class="n">_create_args_parser</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.finder</span> <span class="kn">import</span> <span class="n">get_component</span>
 
 
 <div class="viewcode-block" id="ComponentTestCase"><a class="viewcode-back" href="../../../component_best_practices.html#torchx.components.component_test_base.ComponentTestCase">[docs]</a><span class="k">class</span> <span class="nc">ComponentTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="ComponentTestCase.setUp"><a class="viewcode-back" href="../../../component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="s2">&quot;torchx_component_test&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="ComponentTestCase.tearDown"><a class="viewcode-back" href="../../../component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_dir</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_cwd</span><span class="p">)</span></div>
+
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ComponentTestCase is an extension of TestCase with helper methods for use</span>
 <span class="sd">    with testing component definitions.</span>
@@ -427,7 +445,47 @@
         <span class="c1"># just make sure that happens; if the component has errors then</span>
         <span class="c1"># this will raise an exception and the test will fail</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--help&quot;</span><span class="p">])</span></div></div>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">_create_args_parser</span><span class="p">(</span><span class="n">component_def</span><span class="o">.</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s2">&quot;--help&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ComponentTestCase.run_component"><a class="viewcode-back" href="../../../component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.run_component">[docs]</a>    <span class="k">def</span> <span class="nf">run_component</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local_cwd&quot;</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppStatus</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function that hides complexity of setting up the runner and polling results.</span>
+<span class="sd">        Note: method is blocking until either scheduler exits or timeout is reached (for non-blocking schedulers).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">                components: component function, factory for AppDef</span>
+<span class="sd">                args: optional component factory arguments</span>
+<span class="sd">                scheduler_params: optional parameters for scheduler factory method</span>
+<span class="sd">                scheduler: scheduler name</span>
+<span class="sd">                interval: scheduler comppletion polling interval</span>
+<span class="sd">                timeout: max time for scheduler to complete</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">app_def</span> <span class="o">=</span> <span class="n">component</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scheduler_params</span><span class="p">:</span>
+            <span class="n">runner</span> <span class="o">=</span> <span class="n">get_runner</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component_defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">runner</span> <span class="o">=</span> <span class="n">get_runner</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component_defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">app_handle</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app_def</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">)</span>
+
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">status</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">status</span><span class="o">.</span><span class="n">is_terminal</span><span class="p">)</span> <span class="ow">or</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+            <span class="n">elapsed</span> <span class="o">+=</span> <span class="n">interval</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">status</span></div></div>
 </pre></div>
 
      </article>
