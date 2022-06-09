@@ -6,6 +6,7 @@
 
 import torchx.components.utils as utils
 from torchx.components.component_test_base import ComponentTestCase
+from torchx.specs import AppState
 
 
 class UtilsComponentTest(ComponentTestCase):
@@ -29,3 +30,18 @@ class UtilsComponentTest(ComponentTestCase):
 
     def test_booth(self) -> None:
         self.validate(utils, "booth")
+
+    def test_run_sh(self) -> None:
+        result = self.run_component(
+            utils.echo, {"msg": "from test"}, scheduler_params={"cache_size": 1}
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result.state, AppState.SUCCEEDED)
+
+    def test_run_sh_scheduler_factory_failure(self) -> None:
+        self.assertRaises(
+            ValueError,
+            lambda: self.run_component(
+                utils.echo, {"msg": "from test"}, scheduler_params={"cache_size": -1}
+            ),
+        )
