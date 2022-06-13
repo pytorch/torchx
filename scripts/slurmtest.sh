@@ -7,8 +7,8 @@
 
 set -ex
 
-REMOTE_WHEEL="$1"
-VENV="$2"
+REMOTE_WHEEL="$(realpath $1)"
+VENV="$(realpath $2)"
 
 BASE_DIR="$(dirname "$REMOTE_WHEEL")"
 DIR="$BASE_DIR/project"
@@ -30,7 +30,7 @@ pip install torch==1.10.2+cpu -f https://download.pytorch.org/whl/cpu/torch_stab
 
 cat <<EOT > .torchxconfig
 [slurm]
-partition=compute
+partition=queue1
 time=10
 comment=hello
 job_dir=$JOB_DIR
