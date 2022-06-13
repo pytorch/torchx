@@ -20,7 +20,7 @@ if [[ -z "${SLURM_INSTANCE_MASTER}" ]]; then
 fi
 
 JOB="$USER-$(uuidgen)"
-DIR="/home/ubuntu/integ-tests/$JOB"
+DIR="integ-tests/$JOB"
 VENV="$DIR/venv"
 
 function run_cmd {
@@ -45,7 +45,7 @@ SCRIPT="scripts/slurmtest.sh"
 REMOTE_SCRIPT="$DIR/$(basename "$SCRIPT")"
 
 run_cmd mkdir -p "$DIR"
-run_cmd virtualenv -p /home/ubuntu/miniconda3/bin/python "$VENV"
+run_cmd miniconda3/bin/python -m venv "$VENV"
 run_scp "$WHEEL" "$REMOTE_WHEEL"
 run_scp "$SCRIPT" "$REMOTE_SCRIPT"
 run_cmd "$REMOTE_SCRIPT" "$REMOTE_WHEEL" "$VENV"
