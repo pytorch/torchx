@@ -1,5 +1,62 @@
 # CHANGELOG
 
+## torchx-0.2.0
+
+* Milestone: https://github.com/pytorch/torchx/milestone/4
+
+* `torchx.schedulers`
+    * DeviceMounts
+        * New mount type 'DeviceMount' that allows mounting a host device into a container in the supported schedulers (Docker, AWS Batch, K8). Custom accelerators and network devices such as Infiniband or Amazon EFA are now supported.
+    * Slurm
+        * Scheduler integration now supports "max_retries" the same way that our other schedulers do. This only handles whole job level retries and doesn't support per replica retries.
+        * Autodetects "nomem" setting by using `sinfo` to get the "Memory" setting for the specified partition
+        * More robust slurmint script
+    * Kubernetes
+        * Support for k8s device plugins/resource limits
+            * Added "devices" list of (str, int) tuples to role/resource
+            * Added devices.py to map from named devices to DeviceMounts
+            * Added logic in kubernetes_scheduler to add devices from resource to resource limits
+            * Added logic in aws_batch_scheduler and docker_scheduler to add DeviceMounts for any devices from resource
+        * Added "priority_class" argument to kubernetes scheduler to set the priorityClassName of the volcano job.
+    * Ray
+        * fixes for distributed training, now supported in Beta
+
+* `torchx.specs`
+    * Moved factory/builder methods from datastruct specific "specs.api" to "specs.factory" module
+
+* `torchx.runner`
+    * Renamed "stop" method to "cancel" for consistency. `Runner.stop` is now deprecated
+    * Added warning message when "name" parameter is specified. It is used as part of Session name, which is deprecated so makes "name" obsolete.
+    * New env variable TORCHXCONFIG for specified config
+
+* `torchx.components`
+    * Removed "base" + "torch_dist_role" since users should prefer to use the `dist.ddp` components instead
+    * Removed custom components for example apps in favor of using builtins.
+    * Added "env", "max_retries" and "mounts" arguments to utils.sh
+
+* `torchx.cli`
+    * Better parsing of configs from a string literal
+    * Added support to delimit kv-pairs and list values with "," and ";" interchangeably
+    * allow the default scheduler to be specified via .torchxconfig
+    * better invalid scheduler messaging
+    * Log message about how to disable workspaces
+    * Job cancellation support via `torchx cancel <job>`
+
+`torchx.workspace`
+    * Support for .dockerignore files used as include lists to fixe some behavioral differences between how .dockerignore files are interpreted by torchx and docker
+
+* Testing
+    * Component tests now run sequentially
+    * Components can be tested with a runner using `components.components_test_base.ComponentTestCase#run_component()` method.
+
+* Additional Changes
+    * Updated Pyre configuration to preemptively guard again upcoming semantic changes
+    * Formatting changes from black 22.3.0
+    * Now using pyfmt with usort 1.0 and the new import merging behavior.
+    * Added script to automatically get system diagnostics for reporting purposes
+
+
+
 ## torchx-0.1.2
 
 Milestone: https://github.com/pytorch/torchx/milestones/3
