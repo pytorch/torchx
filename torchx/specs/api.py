@@ -477,6 +477,25 @@ class AppStatus:
         app_status_dict["state"] = repr(app_status_dict["state"])
         return yaml.dump({"AppStatus": app_status_dict})
 
+    def raise_for_status(self) -> None:
+        """
+        raise_for_status will raise an AppStatusError if the state is not SUCCEEDED.
+        """
+        if self.state != AppState.SUCCEEDED:
+            raise AppStatusError(self, f"job did not succeed: {self}")
+
+
+class AppStatusError(Exception):
+    """
+    AppStatusError is raised when the job status is in an exceptional state i.e.
+    not SUCCEEDED.
+    """
+
+    def __init__(self, status: AppStatus, *args: object) -> None:
+        super().__init__(*args)
+
+        self.status = status
+
 
 # valid run cfg values; only support primitives (str, int, float, bool, List[str])
 # TODO(wilsonhong): python 3.9+ supports list[T] in typing, which can be used directly
