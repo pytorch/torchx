@@ -47,7 +47,7 @@
 
 * Testing
     * Component tests now run sequentially
-    * It is possible to run python tests with `fb.python.unittest`
+    * Components can be tested with a runner using `components.components_test_base.ComponentTestCase#run_component()` method.
 
 * Additional Changes
     * Updated Pyre configuration to preemptively guard again upcoming semantic changes
