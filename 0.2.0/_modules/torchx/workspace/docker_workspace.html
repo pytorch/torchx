@@ -1,0 +1,843 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torchx.workspace.docker_workspace &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchx/">
+                  <span class="dropdown-title">TorchX</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  <div id="redirect-banner" style="display: none">
+    <p>
+      This is the public documentation. There's an internal wiki with extra
+      information for Meta employees at
+      <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+    </p>
+  </div>
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.2.0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.config.html">.torchxconfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom_components.html">Custom Components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workspace.html">torchx.workspace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>torchx.workspace.docker_workspace</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <h1>Source code for torchx.workspace.docker_workspace</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the BSD-style license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">posixpath</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span> <span class="nn">fsspec</span>
+<span class="kn">import</span> <span class="nn">torchx</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span>
+<span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">walk_workspace</span><span class="p">,</span> <span class="n">Workspace</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
+
+<span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">TORCHX_DOCKERFILE</span> <span class="o">=</span> <span class="s2">&quot;Dockerfile.torchx&quot;</span>
+
+
+<div class="viewcode-block" id="DockerWorkspace"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspace</span><span class="p">(</span><span class="n">Workspace</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DockerWorkspace will build patched docker images from the workspace. These</span>
+<span class="sd">    patched images are docker images and can be either used locally via the</span>
+<span class="sd">    docker daemon or pushed using the helper methods to a remote repository for</span>
+<span class="sd">    remote jobs.</span>
+
+<span class="sd">    This requires a running docker daemon locally and for remote pushing</span>
+<span class="sd">    requires being authenticated to those repositories via ``docker login``.</span>
+
+<span class="sd">    If there is a ``Dockerfile.torchx`` file present in the workspace that will</span>
+<span class="sd">    be used instead to build the container.</span>
+
+<span class="sd">    To exclude files from the build context you can use the standard</span>
+<span class="sd">    `.dockerignore` file.</span>
+
+<span class="sd">    See more:</span>
+
+<span class="sd">    * https://docs.docker.com/engine/reference/commandline/login/</span>
+<span class="sd">    * https://docs.docker.com/get-docker/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">docker_client</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_docker_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DockerClient&quot;</span><span class="p">:</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">docker</span>
+
+            <span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="k">return</span> <span class="n">client</span>
+
+<div class="viewcode-block" id="DockerWorkspace.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds a new docker image using the ``role``&#39;s image as the base image</span>
+<span class="sd">        and updates the ``role``&#39;s image with this newly built docker image id</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            role: the role whose image (a Docker image) is to be used as the base image</span>
+<span class="sd">            workspace: a fsspec path to a directory with contents to be overlaid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">context</span> <span class="o">=</span> <span class="n">_build_context</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">workspace</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;failed to pull image </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">, falling back to local: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="n">image</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+                <span class="n">fileobj</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+                <span class="n">custom_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">dockerfile</span><span class="o">=</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">,</span>
+                <span class="n">pull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">rm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DockerWorkspace._update_app_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._update_app_images">[docs]</a>    <span class="k">def</span> <span class="nf">_update_app_images</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        _update_app_images replaces the local Docker images (identified via</span>
+<span class="sd">        ``sha256:...``) in the provided ``AppDef`` with the remote path that they will be uploaded to and</span>
+<span class="sd">        returns a mapping of local to remote names.</span>
+
+<span class="sd">        ``_push_images`` must be called with the returned mapping before</span>
+<span class="sd">        launching the job.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dict of [local image name, (remote repo, tag)].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HASH_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;sha256:&quot;</span>
+
+        <span class="n">images_to_push</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">HASH_PREFIX</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">image_repo</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;must specify the image repository via `image_repo` config to be able to upload local image </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_repo</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;image_repo must be str&quot;</span>
+
+                <span class="n">image_hash</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">HASH_PREFIX</span><span class="p">)</span> <span class="p">:]</span>
+                <span class="n">remote_image</span> <span class="o">=</span> <span class="n">image_repo</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">image_hash</span>
+                <span class="n">images_to_push</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">image_repo</span><span class="p">,</span>
+                    <span class="n">image_hash</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">remote_image</span>
+        <span class="k">return</span> <span class="n">images_to_push</span></div>
+
+<div class="viewcode-block" id="DockerWorkspace._push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._push_images">[docs]</a>    <span class="k">def</span> <span class="nf">_push_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        _push_images pushes the specified images to the remote container</span>
+<span class="sd">        repository with the specified tag. The docker daemon must be</span>
+<span class="sd">        authenticated to the remote repository using ``docker login``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            images_to_push: A dict of [local image name, (remote repo, tag)].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">images_to_push</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docker_client</span>
+        <span class="k">for</span> <span class="n">local</span><span class="p">,</span> <span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="n">images_to_push</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pushing image </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">ERROR_KEY</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+                <span class="k">if</span> <span class="n">ERROR_KEY</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;failed to push docker image: </span><span class="si">{</span><span class="n">line</span><span class="p">[</span><span class="n">ERROR_KEY</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docker: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_build_context</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+    <span class="c1"># f is closed by parent, NamedTemporaryFile auto closes on GC</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>  <span class="c1"># noqa P201</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx-context&quot;</span><span class="p">,</span>
+        <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.tar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dockerfile</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FROM </span><span class="si">{</span><span class="n">img</span><span class="si">}</span><span class="se">\n</span><span class="s2">COPY . .</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tf</span><span class="p">:</span>
+        <span class="n">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">tf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">TORCHX_DOCKERFILE</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">getnames</span><span class="p">():</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">)</span>
+            <span class="n">info</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span>
+
+
+<span class="k">def</span> <span class="nf">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">fs</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">url_to_fs</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
+
+    <span class="k">for</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">walk_workspace</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.dockerignore&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;path must be str&quot;</span>
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="n">relpath</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span> <span class="k">else</span> <span class="n">file</span>
+                <span class="n">tinfo</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;size must be an int&quot;</span>
+                <span class="n">tinfo</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">tinfo</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</pre></div>
+
+     </article>
+     
+    </div>
+    <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="../../../_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+         <script src="../../../_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchx/">TorchX</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
