@@ -1,6 +1,6 @@
 # CHANGELOG
 
-	## torchx-0.2.0
+## torchx-0.2.0
 
 * Milestone: https://github.com/pytorch/torchx/milestone/4
 
