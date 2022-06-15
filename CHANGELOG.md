@@ -53,7 +53,7 @@
     * Updated Pyre configuration to preemptively guard again upcoming semantic changes
     * Formatting changes from black 22.3.0
     * Now using pyfmt with usort 1.0 and the new import merging behavior.
-	* Added script to automatically get system diagnostics for reporting purposes
+    * Added script to automatically get system diagnostics for reporting purposes
 
 
 ## torchx-0.1.2
