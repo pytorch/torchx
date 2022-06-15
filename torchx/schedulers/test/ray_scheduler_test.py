@@ -298,6 +298,23 @@ if has_ray():
                 job = req.request
                 self.assertEqual(job.requirements, reqs)
 
+        def test_parse_app_id(self) -> None:
+            test_addr_appid = [
+                (
+                    "0.0.0.0:1234-app_id",
+                    "0.0.0.0:1234",
+                    "app_id",
+                ),  # (full address, address:port, app_id)
+                ("addr-of-cluster:1234-app-id", "addr-of-cluster:1234", "app-id"),
+                ("www.test.com:1234-app:id", "www.test.com:1234", "app:id"),
+                ("foo", "foo", ""),
+                ("foo-bar-bar", "foo", "bar-bar"),
+            ]
+            for test_example, addr, app_id in test_addr_appid:
+                parsed_addr, parsed_appid = self._scheduler._parse_app_id(test_example)
+                self.assertEqual(parsed_addr, addr)
+                self.assertEqual(parsed_appid, app_id)
+
     class RayClusterSetup:
         _instance = None  # pyre-ignore[4]
 
