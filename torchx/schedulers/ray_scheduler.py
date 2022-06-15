@@ -8,12 +8,13 @@ import dataclasses
 import json
 import logging
 import os
+import re
 import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
-from typing import Any, cast, Dict, Iterable, List, Mapping, Optional, Set, Type  # noqa
+from typing import Any, cast, Dict, Iterable, List, Optional, Tuple  # noqa
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -322,13 +323,25 @@ if _has_ray:
                     break
                 time.sleep(1)
 
-        def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover
+        def _parse_app_id(self, app_id: str) -> Tuple[str, str]:
+            # find index of '-' in the first :\d+-
+            m = re.search(r":\d+-", app_id)
+            if m:
+                sep = m.span()[1]
+                addr = app_id[: sep - 1]
+                app_id = app_id[sep:]
+                return addr, app_id
+
             addr, _, app_id = app_id.partition("-")
+            return addr, app_id
+
+        def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover
+            addr, app_id = self._parse_app_id(app_id)
             client = JobSubmissionClient(f"http://{addr}")
             client.stop_job(app_id)
 
         def _get_job_status(self, app_id: str) -> JobStatus:
-            addr, _, app_id = app_id.partition("-")
+            addr, app_id = self._parse_app_id(app_id)
             client = JobSubmissionClient(f"http://{addr}")
             status = client.get_job_status(app_id)
             if isinstance(status, str):
@@ -375,7 +388,7 @@ if _has_ray:
             streams: Optional[Stream] = None,
         ) -> Iterable[str]:
             # TODO: support tailing, streams etc..
-            addr, _, app_id = app_id.partition("-")
+            addr, app_id = self._parse_app_id(app_id)
             client: JobSubmissionClient = JobSubmissionClient(f"http://{addr}")
             logs: str = client.get_job_logs(app_id)
             iterator = split_lines(logs)
