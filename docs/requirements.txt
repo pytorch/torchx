@@ -10,3 +10,4 @@ jupytext
 ipython_genutils
 # https://github.com/jupyter/nbconvert/issues/1736
 jinja2<=3.0.3
+apache-airflow

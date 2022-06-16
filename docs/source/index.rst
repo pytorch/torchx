@@ -68,6 +68,7 @@ Works With
    :caption: Pipelines
 
    pipelines/kfp
+   pipelines/airflow.md
 
 
 Examples

@@ -18,6 +18,7 @@ from torchx.specs.api import (
     AppDryRunInfo,
     AppState,
     AppStatus,
+    AppStatusError,
     CfgVal,
     get_type_name,
     InvalidRunConfigException,
@@ -85,6 +86,24 @@ class AppDefStatusTest(unittest.TestCase):
   ui_url: null
 """,
         )
+
+    def test_raise_on_status(self) -> None:
+        AppStatus(state=AppState.SUCCEEDED).raise_for_status()
+
+        with self.assertRaisesRegex(
+            AppStatusError, r"(?s)job did not succeed:.*FAILED.*"
+        ):
+            AppStatus(state=AppState.FAILED).raise_for_status()
+
+        with self.assertRaisesRegex(
+            AppStatusError, r"(?s)job did not succeed:.*CANCELLED.*"
+        ):
+            AppStatus(state=AppState.CANCELLED).raise_for_status()
+
+        with self.assertRaisesRegex(
+            AppStatusError, r"(?s)job did not succeed:.*RUNNING.*"
+        ):
+            AppStatus(state=AppState.RUNNING).raise_for_status()
 
 
 class ResourceTest(unittest.TestCase):
