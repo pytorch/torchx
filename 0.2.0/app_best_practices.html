@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -373,7 +373,7 @@
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
   <section id="app-best-practices">
-<h1>App Best Practices<a class="headerlink" href="#app-best-practices" title="Permalink to this headline">¶</a></h1>
+<h1>App Best Practices<a class="headerlink" href="#app-best-practices" title="Permalink to this heading">¶</a></h1>
 <p>TorchX apps can be written using any language as well as with any set of
 libraries to allow for maximum flexibility. However, we do have a standard set
 of recommended libraries and practices to have a starting point for users and to
@@ -381,7 +381,7 @@ provide consistency across the built in components and applications.</p>
 <p>See <a class="reference internal" href="component_best_practices.html#component-best-practices"><span class="std std-ref">Component Best Practices</span></a> for information how to handle component
 management and AppDefs.</p>
 <section id="data-passing-and-storage">
-<h2>Data Passing and Storage<a class="headerlink" href="#data-passing-and-storage" title="Permalink to this headline">¶</a></h2>
+<h2>Data Passing and Storage<a class="headerlink" href="#data-passing-and-storage" title="Permalink to this heading">¶</a></h2>
 <p>We recommend
 <a class="reference external" href="https://filesystem-spec.readthedocs.io/en/latest/index.html">fsspec</a>. fsspec
 allows pluggable filesystems so apps can be written once and run on most
@@ -396,7 +396,7 @@ with distributed support via libraries such as
 <a class="reference external" href="https://pytorch.org/docs/stable/distributed.elastic.html">torch.distributed.elastic</a>.</p>
 </section>
 <section id="train-loops">
-<h2>Train Loops<a class="headerlink" href="#train-loops" title="Permalink to this headline">¶</a></h2>
+<h2>Train Loops<a class="headerlink" href="#train-loops" title="Permalink to this heading">¶</a></h2>
 <p>There are lots of ways to structure a training loop and it depends a lot on your
 model type and architecture which is why we don’t provide one out of the box.</p>
 <p>Some common choices are:</p>
@@ -414,7 +414,7 @@ model type and architecture which is why we don’t provide one out of the box.<
 <p>See <a class="reference internal" href="components/train.html#module-torchx.components.train"><span class="std std-ref">Train</span></a> for more information.</p>
 </section>
 <section id="metrics">
-<h2>Metrics<a class="headerlink" href="#metrics" title="Permalink to this headline">¶</a></h2>
+<h2>Metrics<a class="headerlink" href="#metrics" title="Permalink to this heading">¶</a></h2>
 <p>For logging metrics and monitoring your job we recommend using standalone
 Tensorboard since it’s supported natively by
 <a class="reference external" href="https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html">Pytorch tensorboard integrations</a>
@@ -426,7 +426,7 @@ information about your model while it’s training.</p>
 within TorchX.</p>
 </section>
 <section id="checkpointing">
-<h2>Checkpointing<a class="headerlink" href="#checkpointing" title="Permalink to this headline">¶</a></h2>
+<h2>Checkpointing<a class="headerlink" href="#checkpointing" title="Permalink to this heading">¶</a></h2>
 <p>Periodic checkpoints allow your application to recover from failures and in some
 cases allow you to restart your trainer with different parameters without losing
 training progress.</p>
@@ -434,7 +434,7 @@ training progress.</p>
 provides a standardized way to checkpoint your models.</p>
 </section>
 <section id="fine-tuning">
-<h2>Fine Tuning<a class="headerlink" href="#fine-tuning" title="Permalink to this headline">¶</a></h2>
+<h2>Fine Tuning<a class="headerlink" href="#fine-tuning" title="Permalink to this heading">¶</a></h2>
 <p>To support things like transfer learning, fine tuning and resuming from
 checkpoints we recommend having a command line argument to your app that will
 resume from a checkpoint file.</p>
@@ -444,18 +444,18 @@ data, or later adjust the learning rate without losing training progress.</p>
 can have one app doing a number of similar tasks.</p>
 </section>
 <section id="interpretability">
-<h2>Interpretability<a class="headerlink" href="#interpretability" title="Permalink to this headline">¶</a></h2>
+<h2>Interpretability<a class="headerlink" href="#interpretability" title="Permalink to this heading">¶</a></h2>
 <p>We recommend <a class="reference external" href="https://captum.ai/">captum</a> for model interpretability and
 analysing model results. This can be used interactively from a Jupyter notebook
 or from a component.</p>
 <p>See <a class="reference internal" href="components/interpret.html#module-torchx.components.interpret"><span class="std std-ref">Interpret</span></a> for more information.</p>
 </section>
 <section id="model-packaging">
-<h2>Model Packaging<a class="headerlink" href="#model-packaging" title="Permalink to this headline">¶</a></h2>
+<h2>Model Packaging<a class="headerlink" href="#model-packaging" title="Permalink to this heading">¶</a></h2>
 <p>The pytorch community hasn’t standardized on one package format. Here’s a couple
 of options and when you might need to use them.</p>
 <section id="python-saved-weights">
-<h3>Python + Saved Weights<a class="headerlink" href="#python-saved-weights" title="Permalink to this headline">¶</a></h3>
+<h3>Python + Saved Weights<a class="headerlink" href="#python-saved-weights" title="Permalink to this heading">¶</a></h3>
 <p>This is the most common format for packaging models. To use you’ll load your
 model definition from a python file and then you’ll load the weights and state
 dict from a <code class="docutils literal notranslate"><span class="pre">.ckpt</span></code> or <code class="docutils literal notranslate"><span class="pre">.pt</span></code> file.</p>
@@ -465,7 +465,7 @@ dict from a <code class="docutils literal notranslate"><span class="pre">.ckpt</
 trainer app needs to include the model definition code.</p>
 </section>
 <section id="torchscript-models">
-<h3>TorchScript Models<a class="headerlink" href="#torchscript-models" title="Permalink to this headline">¶</a></h3>
+<h3>TorchScript Models<a class="headerlink" href="#torchscript-models" title="Permalink to this heading">¶</a></h3>
 <p>TorchScript is a way to create serializable and optimized Pytorch models that
 can be executed without Python. This can be used for inference or training in a
 performant way without relying on Python’s GIL.</p>
@@ -474,7 +474,7 @@ be automatically converted to TorchScript.</p>
 <p>See the <a class="reference external" href="https://pytorch.org/docs/stable/jit.html">TorchScript documentation</a>.</p>
 </section>
 <section id="torchserve-model-archiver-mar">
-<h3>TorchServe Model Archiver (<cite>.mar</cite>)<a class="headerlink" href="#torchserve-model-archiver-mar" title="Permalink to this headline">¶</a></h3>
+<h3>TorchServe Model Archiver (<cite>.mar</cite>)<a class="headerlink" href="#torchserve-model-archiver-mar" title="Permalink to this heading">¶</a></h3>
 <p>If you want to use TorchServe for inference you’ll need to export your model to
 this format. For inference it’s common to use a quantized version of the model
 so it’s best to have your trainer export both a full precision model for fine
@@ -483,7 +483,7 @@ tuning as well as a quantized <code class="docutils literal notranslate"><span c
 <a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README.md">Model Archiver documentation</a>.</p>
 </section>
 <section id="torch-package">
-<h3>torch.package<a class="headerlink" href="#torch-package" title="Permalink to this headline">¶</a></h3>
+<h3>torch.package<a class="headerlink" href="#torch-package" title="Permalink to this heading">¶</a></h3>
 <p>This is a new format as of pytorch 1.9.0 and can be used to save and load model
 definitions and their weights so you don’t need to manage the model definition
 separately.</p>
@@ -492,7 +492,7 @@ separately.</p>
 </section>
 </section>
 <section id="serving-inference">
-<h2>Serving / Inference<a class="headerlink" href="#serving-inference" title="Permalink to this headline">¶</a></h2>
+<h2>Serving / Inference<a class="headerlink" href="#serving-inference" title="Permalink to this heading">¶</a></h2>
 <p>For serving and inference we recommend using
 <a class="reference external" href="https://github.com/pytorch/serve">TorchServe</a>
 for common use cases.
@@ -504,7 +504,7 @@ custom inference logic. Torchscript and torch::deploy are some standard
 utilities you can use to build your own inference server.</p>
 </section>
 <section id="testing">
-<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h2>
 <p>Since TorchX apps are typically standard python you can write unit tests for
 them like you would with any other Python code.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unittest</span>
@@ -598,6 +598,7 @@ them like you would with any other Python code.</p>
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

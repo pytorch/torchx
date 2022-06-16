@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -373,7 +373,7 @@
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
   <section id="advanced-usage">
-<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading">¶</a></h1>
 <p>TorchX defines plugin points for you to configure TorchX to best support
 your infrastructure setup. Most of the configuration is done through
 Python’s <a class="reference external" href="https://packaging.python.org/specifications/entry-points/">entry points</a>.</p>
@@ -401,7 +401,7 @@ file as</p>
 </pre></div>
 </div>
 <section id="registering-custom-schedulers">
-<h2>Registering Custom Schedulers<a class="headerlink" href="#registering-custom-schedulers" title="Permalink to this headline">¶</a></h2>
+<h2>Registering Custom Schedulers<a class="headerlink" href="#registering-custom-schedulers" title="Permalink to this heading">¶</a></h2>
 <p>You may implement a custom scheduler by implementing the
 .. py::class torchx.schedulers.Scheduler interface.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">create_scheduler</span></code> function should have the following function signature:</p>
@@ -424,7 +424,7 @@ to your python project.</p>
 </div>
 </section>
 <section id="registering-named-resources">
-<h2>Registering Named Resources<a class="headerlink" href="#registering-named-resources" title="Permalink to this headline">¶</a></h2>
+<h2>Registering Named Resources<a class="headerlink" href="#registering-named-resources" title="Permalink to this heading">¶</a></h2>
 <p>A Named Resource is a set of predefined resource specs that are given a
 string name. This is particularly useful
 when your cluster has a fixed set of instance types. For instance if your
@@ -481,7 +481,7 @@ resource can then be used in the following manner:</p>
 </div>
 </section>
 <section id="registering-custom-components">
-<h2>Registering Custom Components<a class="headerlink" href="#registering-custom-components" title="Permalink to this headline">¶</a></h2>
+<h2>Registering Custom Components<a class="headerlink" href="#registering-custom-components" title="Permalink to this heading">¶</a></h2>
 <p>It is possible to author and register a custom set of components with the
 <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI as builtins to the CLI. This makes it possible to customize
 a set of components most relevant to your team or organization and support
@@ -591,6 +591,7 @@ there will be two sets of overlapping components with different aliases.</p>
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

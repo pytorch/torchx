@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -373,7 +373,7 @@
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
   <section id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
 <img alt="../_images/components_diagram.jpg" src="../_images/components_diagram.jpg" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -388,7 +388,7 @@ module are what we refer to as components.</p>
 <p>You can browse the library of components in the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> module
 or on our <a class="reference internal" href="../index.html#components-library"><span class="std std-ref">docs page</span></a>.</p>
 <section id="using-builtins">
-<h2>Using Builtins<a class="headerlink" href="#using-builtins" title="Permalink to this headline">¶</a></h2>
+<h2>Using Builtins<a class="headerlink" href="#using-builtins" title="Permalink to this heading">¶</a></h2>
 <p>Once you’ve found a builtin component, you can either:</p>
 <ol class="arabic simple">
 <li><p>Run the component as a job</p></li>
@@ -414,7 +414,7 @@ Use this rule of thumb:</p>
 </ol>
 </section>
 <section id="authoring">
-<h2>Authoring<a class="headerlink" href="#authoring" title="Permalink to this headline">¶</a></h2>
+<h2>Authoring<a class="headerlink" href="#authoring" title="Permalink to this heading">¶</a></h2>
 <p>Since a component is simply a python function that returns an <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>,
 authoring your own component is as simple as writing a python function with the following
 rules:</p>
@@ -542,7 +542,7 @@ in the docstring as such:</p>
 </div>
 </section>
 <section id="validating">
-<h2>Validating<a class="headerlink" href="#validating" title="Permalink to this headline">¶</a></h2>
+<h2>Validating<a class="headerlink" href="#validating" title="Permalink to this heading">¶</a></h2>
 <p>To validate that you’ve defined your component correctly you can either:</p>
 <ol class="arabic simple">
 <li><p>(easiest) Dryrun your component’s <code class="docutils literal notranslate"><span class="pre">--help</span></code> with the cli: <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">--dryrun</span> <span class="pre">~/component.py:train</span> <span class="pre">--help</span></code></p></li>
@@ -551,13 +551,13 @@ in the docstring as such:</p>
 </ol>
 </section>
 <section id="running-as-a-job">
-<h2>Running as a Job<a class="headerlink" href="#running-as-a-job" title="Permalink to this headline">¶</a></h2>
+<h2>Running as a Job<a class="headerlink" href="#running-as-a-job" title="Permalink to this heading">¶</a></h2>
 <p>You can run a component as a job with the <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">torchx cli</span></a> or programmatically with
 the <a class="reference internal" href="../runner.html#torchx-runner"><span class="std std-ref">torchx.runner</span></a>. Both are identical, in fact the
 cli uses the runner under the hood, so the choice is yours. The <a class="reference internal" href="../quickstart.html"><span class="doc">quickstart</span></a>
 guide walks though the basics for you to get started.</p>
 <section id="programmatic-run">
-<h3>Programmatic Run<a class="headerlink" href="#programmatic-run" title="Permalink to this headline">¶</a></h3>
+<h3>Programmatic Run<a class="headerlink" href="#programmatic-run" title="Permalink to this heading">¶</a></h3>
 <p>To run builtins or your own component programmatically, simply invoke the
 component as a regular python function and pass it along to the <a class="reference internal" href="../runner.html#module-torchx.runner" title="torchx.runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.runner</span></code></a>.
 Below is an example of calling the <code class="docutils literal notranslate"><span class="pre">utils.echo</span></code> builtin:</p>
@@ -569,7 +569,7 @@ Below is an example of calling the <code class="docutils literal notranslate"><s
 </div>
 </section>
 <section id="cli-run-builtins">
-<h3>CLI Run (Builtins)<a class="headerlink" href="#cli-run-builtins" title="Permalink to this headline">¶</a></h3>
+<h3>CLI Run (Builtins)<a class="headerlink" href="#cli-run-builtins" title="Permalink to this heading">¶</a></h3>
 <p>When running components from the cli, you have to pass which component function to invoke.
 For builtin components this  is of the form <code class="docutils literal notranslate"><span class="pre">{component_module}.{component_fn}</span></code>, where
 the <code class="docutils literal notranslate"><span class="pre">{component_module}</span></code> is the module path of the component relative to <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code>
@@ -581,7 +581,7 @@ and the <code class="docutils literal notranslate"><span class="pre">{component_
 <p>See <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">CLI docs</span></a> for more information.</p>
 </section>
 <section id="cli-run-custom">
-<h3>CLI Run (Custom)<a class="headerlink" href="#cli-run-custom" title="Permalink to this headline">¶</a></h3>
+<h3>CLI Run (Custom)<a class="headerlink" href="#cli-run-custom" title="Permalink to this heading">¶</a></h3>
 <p>To run your custom component with the cli, you have to use a slightly different syntax of
 the form <code class="docutils literal notranslate"><span class="pre">{component_path}:{component_fn}</span></code>. Where <code class="docutils literal notranslate"><span class="pre">{component_path}</span></code> is the
 file path of your component’s python file, and <code class="docutils literal notranslate"><span class="pre">{component_fn}</span></code> is the name of the
@@ -609,7 +609,7 @@ and the component function is called <code class="docutils literal notranslate">
 </section>
 </section>
 <section id="passing-component-params-from-cli">
-<h2>Passing Component Params from CLI<a class="headerlink" href="#passing-component-params-from-cli" title="Permalink to this headline">¶</a></h2>
+<h2>Passing Component Params from CLI<a class="headerlink" href="#passing-component-params-from-cli" title="Permalink to this heading">¶</a></h2>
 <p>Since components are simply python functions, using them programmatically is straight forward.
 As seen above, when running components via the cli’s <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand the component parameters are passed
 as program arguments using the double-dash + param_name syntax (e.g <code class="docutils literal notranslate"><span class="pre">--param1=1</span></code> or <code class="docutils literal notranslate"><span class="pre">--param1</span> <span class="pre">1</span></code>).
@@ -656,13 +656,13 @@ the <code class="docutils literal notranslate"><span class="pre">--help</span></
 </ol>
 </section>
 <section id="run-in-a-pipeline">
-<h2>Run in a Pipeline<a class="headerlink" href="#run-in-a-pipeline" title="Permalink to this headline">¶</a></h2>
+<h2>Run in a Pipeline<a class="headerlink" href="#run-in-a-pipeline" title="Permalink to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../pipelines.html#module-torchx.pipelines"><span class="std std-ref">torchx.pipelines</span></a> define adapters that
 convert a torchx component into the object that represents a pipeline “stage” in the
 target pipeline platform (see <a class="reference internal" href="../index.html#pipelines"><span class="std std-ref">Pipelines</span></a> for a list of supported pipeline orchestrators).</p>
 </section>
 <section id="additional-resources">
-<h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this headline">¶</a></h2>
+<h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this heading">¶</a></h2>
 <p>See:</p>
 <ol class="arabic simple">
 <li><p>Components defined in this module as expository examples</p></li>
@@ -749,6 +749,7 @@ target pipeline platform (see <a class="reference internal" href="../index.html#
          <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

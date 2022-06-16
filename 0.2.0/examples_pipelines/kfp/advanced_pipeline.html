@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -399,13 +399,13 @@
 <p>Click <a class="reference internal" href="#sphx-glr-download-examples-pipelines-kfp-advanced-pipeline-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
 </div>
 <section class="sphx-glr-example-title" id="advanced-kubeflow-pipelines-example">
-<span id="sphx-glr-examples-pipelines-kfp-advanced-pipeline-py"></span><h1>Advanced KubeFlow Pipelines Example<a class="headerlink" href="#advanced-kubeflow-pipelines-example" title="Permalink to this headline">¶</a></h1>
+<span id="sphx-glr-examples-pipelines-kfp-advanced-pipeline-py"></span><h1>Advanced KubeFlow Pipelines Example<a class="headerlink" href="#advanced-kubeflow-pipelines-example" title="Permalink to this heading">¶</a></h1>
 <p>This is an example pipeline using KubeFlow Pipelines built with only TorchX
 components.</p>
 <p>KFP adapters can be used transform the TorchX components directly into
 something that can be used within KFP.</p>
 <section id="input-arguments">
-<h2>Input Arguments<a class="headerlink" href="#input-arguments" title="Permalink to this headline">¶</a></h2>
+<h2>Input Arguments<a class="headerlink" href="#input-arguments" title="Permalink to this heading">¶</a></h2>
 <p>Lets first define some arguments for the pipeline.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
@@ -484,7 +484,7 @@ on how to setup TorchServe.</p>
 </div>
 </section>
 <section id="creating-the-components">
-<h2>Creating the Components<a class="headerlink" href="#creating-the-components" title="Permalink to this headline">¶</a></h2>
+<h2>Creating the Components<a class="headerlink" href="#creating-the-components" title="Permalink to this heading">¶</a></h2>
 <p>The first step is downloading the data to somewhere we can work on it. For
 this we can just the builtin copy component. This component takes two valid
 fsspec paths and copies them from one to another. In this case we’re using
@@ -595,7 +595,7 @@ train components and produces images with integrated gradient results.</p>
 </div>
 </section>
 <section id="pipeline-definition">
-<h2>Pipeline Definition<a class="headerlink" href="#pipeline-definition" title="Permalink to this headline">¶</a></h2>
+<h2>Pipeline Definition<a class="headerlink" href="#pipeline-definition" title="Permalink to this heading">¶</a></h2>
 <p>The last step is to define the actual pipeline using the torchx components via
 the KFP adapter and export the pipeline package that can be uploaded to a KFP
 cluster.</p>
@@ -725,6 +725,7 @@ a kfp.Client.</p>
          <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
          <script src="../../_static/jquery.js"></script>
          <script src="../../_static/underscore.js"></script>
+         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
