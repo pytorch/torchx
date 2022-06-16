@@ -261,6 +261,7 @@
 <p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/airflow.html">Airflow</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
@@ -847,7 +848,26 @@
             <span class="n">structured_error_msg_parsed</span> <span class="o">=</span> <span class="n">NONE</span>
         <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;structured_error_msg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">structured_error_msg_parsed</span>
         <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;AppStatus&quot;</span><span class="p">:</span> <span class="n">app_status_dict</span><span class="p">})</span></div>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;AppStatus&quot;</span><span class="p">:</span> <span class="n">app_status_dict</span><span class="p">})</span>
+
+<div class="viewcode-block" id="AppStatus.raise_for_status"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.raise_for_status">[docs]</a>    <span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        raise_for_status will raise an AppStatusError if the state is not SUCCEEDED.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AppStatusError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job did not succeed: </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">AppStatusError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AppStatusError is raised when the job status is in an exceptional state i.e.</span>
+<span class="sd">    not SUCCEEDED.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">AppStatus</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
 
 
 <span class="c1"># valid run cfg values; only support primitives (str, int, float, bool, List[str])</span>
