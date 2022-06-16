@@ -724,12 +724,12 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-06-15 23:46:25 INFO     loaded configs from /home/ubuntu/release/torchx/docs/source/.torchxconfig
-torchx 2022-06-15 23:46:25 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2022-06-15 23:46:25 INFO     Log directory is: /tmp/torchx_pkbfw9cc
-torchx 2022-06-15 23:46:25 INFO     Waiting for the app to finish...
+torchx 2022-06-16 00:15:50 INFO     loaded configs from /home/ubuntu/release/torchx/docs/source/.torchxconfig
+torchx 2022-06-16 00:15:50 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2022-06-16 00:15:50 INFO     Log directory is: /tmp/torchx_rip97n4l
+torchx 2022-06-16 00:15:50 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-06-15 23:46:26 INFO     Job finished: SUCCEEDED
+torchx 2022-06-16 00:15:51 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -737,7 +737,7 @@ torchx 2022-06-15 23:46:26 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-ctnmpgsnnf42rc
+local_cwd://torchx/hello_world-g0k2hv0p2clnm
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -803,14 +803,14 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-06-15 23:46:27 INFO     loaded configs from /home/ubuntu/release/torchx/docs/source/.torchxconfig
-torchx 2022-06-15 23:46:27 INFO     Checking for changes in workspace `file:///home/ubuntu/release/torchx/docs/source`...
-torchx 2022-06-15 23:46:27 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-06-15 23:46:29 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-06-15 23:46:29 INFO     Built new image `sha256:eb2393b9e0d390cfa103c177ab5ae2b6a62bb22a8c716093904576c4d79a15fa` based on original image `my_app:latest` and changes in workspace `file:///home/ubuntu/release/torchx/docs/source` for role[0]=greeter.
-torchx 2022-06-15 23:46:30 INFO     Waiting for the app to finish...
+torchx 2022-06-16 00:15:52 INFO     loaded configs from /home/ubuntu/release/torchx/docs/source/.torchxconfig
+torchx 2022-06-16 00:15:53 INFO     Checking for changes in workspace `file:///home/ubuntu/release/torchx/docs/source`...
+torchx 2022-06-16 00:15:53 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-06-16 00:15:54 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-06-16 00:15:54 INFO     Built new image `sha256:60df8b0c52d54994c109f76c6db6646116bf5fbd161e77b1bb7d25bcb5c937e9` based on original image `my_app:latest` and changes in workspace `file:///home/ubuntu/release/torchx/docs/source` for role[0]=greeter.
+torchx 2022-06-16 00:15:55 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-06-15 23:46:31 INFO     Job finished: SUCCEEDED
+torchx 2022-06-16 00:15:56 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -818,7 +818,7 @@ torchx 2022-06-15 23:46:31 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-lvrldqk4ngg2m
+local_docker://torchx/hello_world-xlw5ssjhf322xc
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -872,12 +872,12 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-06-15 23:46:33 INFO     loaded configs from /home/ubuntu/release/torchx/docs/source/.torchxconfig
-torchx 2022-06-15 23:46:33 INFO     Checking for changes in workspace `file:///home/ubuntu/release/torchx/docs/source`...
-torchx 2022-06-15 23:46:33 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-06-15 23:46:34 INFO     Built new image `sha256:eb2393b9e0d390cfa103c177ab5ae2b6a62bb22a8c716093904576c4d79a15fa` based on original image `ghcr.io/pytorch/torchx:0.2.0` and changes in workspace `file:///home/ubuntu/release/torchx/docs/source` for role[0]=echo.
-torchx 2022-06-15 23:46:35 INFO     Waiting for the app to finish...
-torchx 2022-06-15 23:46:35 INFO     Job finished: SUCCEEDED
+torchx 2022-06-16 00:15:58 INFO     loaded configs from /home/ubuntu/release/torchx/docs/source/.torchxconfig
+torchx 2022-06-16 00:15:59 INFO     Checking for changes in workspace `file:///home/ubuntu/release/torchx/docs/source`...
+torchx 2022-06-16 00:15:59 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-06-16 00:15:59 INFO     Built new image `sha256:60df8b0c52d54994c109f76c6db6646116bf5fbd161e77b1bb7d25bcb5c937e9` based on original image `ghcr.io/pytorch/torchx:0.2.0` and changes in workspace `file:///home/ubuntu/release/torchx/docs/source` for role[0]=echo.
+torchx 2022-06-16 00:16:00 INFO     Waiting for the app to finish...
+torchx 2022-06-16 00:16:00 INFO     Job finished: SUCCEEDED
 echo/0 Hello :)
 </pre></div></div>
 </div>
@@ -886,7 +886,7 @@ echo/0 Hello :)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-vhwwmxk9n2lbcc
+local_docker://torchx/echo-sdx3mrpzcgr30
 </pre></div></div>
 </div>
 </section>
