@@ -1,4 +1,4 @@
-sphinx==4.0.2
+sphinx==5.0.1
 -e git+http://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
 sphinx-gallery<=0.7.0
 sphinxcontrib.katex
