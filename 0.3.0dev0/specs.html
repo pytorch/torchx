@@ -1,0 +1,1343 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torchx.specs &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchx.runner" href="runner.html" />
+    <link rel="prev" title="Tracking" href="runtime/tracking.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchx/">
+                  <span class="dropdown-title">TorchX</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  <div id="redirect-banner" style="display: none">
+    <p>
+      This is the public documentation. There's an internal wiki with extra
+      information for Meta employees at
+      <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+    </p>
+  </div>
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.3.0dev0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>torchx.specs</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/specs.rst.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <section id="module-torchx.specs">
+<span id="torchx-specs"></span><h1>torchx.specs<a class="headerlink" href="#module-torchx.specs" title="Permalink to this heading">¶</a></h1>
+<p>This contains the TorchX AppDef and related component definitions. These are
+used by components to define the apps which can then be launched via a TorchX
+scheduler or pipeline adapter.</p>
+<section id="appdef">
+<h2>AppDef<a class="headerlink" href="#appdef" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.AppDef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">AppDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roles:</span> <span class="pre">~typing.List[~torchx.specs.api.Role]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#AppDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.AppDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a distributed application made up of multiple <code class="docutils literal notranslate"><span class="pre">Roles</span></code>
+and metadata. Contains the necessary information for the driver
+to submit this app to the scheduler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of application</p></li>
+<li><p><strong>roles</strong> – List of roles</p></li>
+<li><p><strong>metadata</strong> – metadata to the app (treament of metadata is scheduler dependent)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="role">
+<h2>Role<a class="headerlink" href="#role" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.Role">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_image:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'&lt;MISSING&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args:</span> <span class="pre">~typing.List[str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicas:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_policy:</span> <span class="pre">~torchx.specs.api.RetryPolicy</span> <span class="pre">=</span> <span class="pre">RetryPolicy.APPLICATION</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource:</span> <span class="pre">~torchx.specs.api.Resource</span> <span class="pre">=</span> <span class="pre">Resource(cpu=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memMB=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capabilities={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">devices={})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_map:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mounts:</span> <span class="pre">~typing.List[~typing.Union[~torchx.specs.api.BindMount</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~torchx.specs.api.VolumeMount</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~torchx.specs.api.DeviceMount]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Role" title="Permalink to this definition">¶</a></dt>
+<dd><p>A set of nodes that perform a specific duty within the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code>.
+Examples:</p>
+<ol class="arabic simple">
+<li><p>Distributed data parallel app - made up of a single role (trainer).</p></li>
+<li><p>App with parameter server - made up of multiple roles (trainer, ps).</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An <code class="docutils literal notranslate"><span class="pre">image</span></code> is a software bundle that is installed on the container
+scheduled by the scheduler. The container on the scheduler dictates
+what an image actually is. An image could be as simple as a tar-ball
+or map to a docker image. The scheduler typically knows how to “pull”
+the image given an image name (str), which could be a simple name
+(e.g. docker image) or a url e.g. <code class="docutils literal notranslate"><span class="pre">s3://path/my_image.tar</span></code>).</p>
+</div>
+<p>Usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+               <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;pytorch/torch:1&quot;</span><span class="p">,</span>
+               <span class="n">entrypoint</span> <span class="o">=</span> <span class="s2">&quot;my_trainer.py&quot;</span>
+               <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--arg&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">ENV_VAR</span><span class="o">=</span><span class="s2">&quot;FOOBAR&quot;</span><span class="p">],</span>
+               <span class="n">num_replicas</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+               <span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span>
+               <span class="n">port_map</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tcp_store&quot;</span><span class="p">:</span><span class="mi">8080</span><span class="p">,</span> <span class="s2">&quot;tensorboard&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">},</span>
+               <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;local_cwd.property&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">})</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of the role</p></li>
+<li><p><strong>image</strong> – a software bundle that is installed on a container.</p></li>
+<li><p><strong>entrypoint</strong> – command (within the container) to invoke the role</p></li>
+<li><p><strong>args</strong> – commandline arguments to the entrypoint cmd</p></li>
+<li><p><strong>env</strong> – environment variable mappings</p></li>
+<li><p><strong>replicas</strong> – number of container replicas to run</p></li>
+<li><p><strong>max_retries</strong> – max number of retries before giving up</p></li>
+<li><p><strong>retry_policy</strong> – retry behavior upon replica failures</p></li>
+<li><p><strong>resource</strong> – Resource requirement for the role. The role should be scheduled
+by the scheduler on <code class="docutils literal notranslate"><span class="pre">num_replicas</span></code> container, each of them should have at
+least <code class="docutils literal notranslate"><span class="pre">resource</span></code> guarantees.</p></li>
+<li><p><strong>port_map</strong> – Port mapping for the role. The key is the unique identifier of the port
+e.g. “tensorboard”: 9090</p></li>
+<li><p><strong>metadata</strong> – Free form information that is associated with the role, for example
+scheduler specific data. The key should follow the pattern: <code class="docutils literal notranslate"><span class="pre">$scheduler.$key</span></code></p></li>
+<li><p><strong>mounts</strong> – a list of mounts on the machine</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.Role.pre_proc">
+<span class="sig-name descname"><span class="pre">pre_proc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheduler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AppDryRunInfo</span></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#Role.pre_proc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Role.pre_proc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the scheduler request based on the role specific configuration.
+The method is invoked for each role during scheduler <code class="docutils literal notranslate"><span class="pre">submit_dryrun</span></code>.
+If there are multiple roles, the method is invoked for each role in
+order that is defined by the <code class="docutils literal notranslate"><span class="pre">AppDef.roles</span></code> list.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.RetryPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">RetryPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#RetryPolicy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.RetryPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the retry policy for the <code class="docutils literal notranslate"><span class="pre">Roles</span></code> in the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code>.
+The policy defines the behavior when the role replica encounters a failure:</p>
+<ol class="arabic simple">
+<li><p>unsuccessful (non zero) exit code</p></li>
+<li><p>hardware/host crashes</p></li>
+<li><p>preemption</p></li>
+<li><p>eviction</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all retry policies are supported by all schedulers.
+However all schedulers must support <code class="docutils literal notranslate"><span class="pre">RetryPolicy.APPLICATION</span></code>.
+Please refer to the scheduler’s documentation for more information
+on the retry policies they support and behavior caveats (if any).</p>
+</div>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>REPLICA: Replaces the replica instance. Surviving replicas are untouched.</dt><dd><p>Use with <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> component to have torchelastic coordinate
+restarts and membership changes. Otherwise, it is up to the
+application to deal with failed replica departures and
+replacement replica admittance.</p>
+</dd>
+</dl>
+</li>
+<li><p>APPLICATION: Restarts the entire application.</p></li>
+</ol>
+</dd></dl>
+
+</section>
+<section id="resource">
+<h2>Resource<a class="headerlink" href="#resource" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.Resource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpu:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memMB:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capabilities:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">devices:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents resource requirements for a <code class="docutils literal notranslate"><span class="pre">Role</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cpu</strong> – number of logical cpu cores. The definition of a CPU core depends
+on the scheduler. See your scheduler documentation for how a logical
+CPU core maps to physical cores and threads.</p></li>
+<li><p><strong>gpu</strong> – number of gpus</p></li>
+<li><p><strong>memMB</strong> – MB of ram</p></li>
+<li><p><strong>capabilities</strong> – additional hardware specs (interpreted by scheduler)</p></li>
+<li><p><strong>devices</strong> – a list of named devices with their quantities</p></li>
+</ul>
+</dd>
+</dl>
+<p>Note: you should prefer to use named_resources instead of specifying the raw
+resource requirement directly.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.Resource.copy">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">capabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#Resource.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Resource.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies a resource and applies new capabilities. If the same capabilities
+are present in the original resource and as parameter, the one from parameter
+will be used.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.resource">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memMB</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs.html#resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to create a <code class="docutils literal notranslate"><span class="pre">Resource</span></code> object from either the
+raw resource specs (cpu, gpu, memMB) or the registered named resource (<code class="docutils literal notranslate"><span class="pre">h</span></code>).
+Note that the (cpu, gpu, memMB) is mutually exclusive with <code class="docutils literal notranslate"><span class="pre">h</span></code>
+with <code class="docutils literal notranslate"><span class="pre">h</span></code> taking predecence if specified.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">h</span></code> is specified then it is used to look up the
+resource specs from the list of registered named resources.
+See <a class="reference external" href="https://pytorch.org/torchx/latest/advanced.html#registering-named-resources">registering named resource</a>.</p>
+<p>Otherwise a <code class="docutils literal notranslate"><span class="pre">Resource</span></code> object is created from the raw resource specs.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># returns Resource(cpu=1)</span>
+<span class="n">resource</span><span class="p">(</span><span class="n">named_resource</span><span class="o">=</span><span class="s2">&quot;foobar&quot;</span><span class="p">)</span> <span class="c1"># returns registered named resource &quot;foo&quot;</span>
+<span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">named_resource</span><span class="o">=</span><span class="s2">&quot;foobar&quot;</span><span class="p">)</span> <span class="c1"># returns registered named resource &quot;foo&quot; (cpu=1 ignored)</span>
+<span class="n">resource</span><span class="p">()</span> <span class="c1"># returns default resource values</span>
+<span class="n">resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># throws</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.get_named_resources">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">get_named_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs.html#get_named_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.get_named_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get resource object based on the string definition registered via entrypoints.txt.</p>
+<p>TorchX implements <code class="docutils literal notranslate"><span class="pre">named_resource</span></code> registration mechanism, which consists of
+the following steps:</p>
+<ol class="arabic simple">
+<li><p>Create a module and define your resource retrieval function:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># my_module.resources</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">Resource</span>
+
+<span class="k">def</span> <span class="nf">gpu_x_1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Resource</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">64</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span> <span class="n">gpu</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Register resource retrieval in the entrypoints section:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">torchx</span><span class="o">.</span><span class="n">named_resources</span><span class="p">]</span>
+<span class="n">gpu_x_1</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">resources</span><span class="p">:</span><span class="n">gpu_x_1</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">gpu_x_1</span></code> can be used as string argument to this function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">named_resources</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;gpu_x_1&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<section id="module-torchx.specs.named_resources_aws">
+<span id="aws-named-resources"></span><h3>AWS Named Resources<a class="headerlink" href="#module-torchx.specs.named_resources_aws" title="Permalink to this heading">¶</a></h3>
+<p><cite>torchx.specs.named_resources_aws</cite> contains resource definitions that represent corresponding AWS instance types
+taken from <a class="reference external" href="https://aws.amazon.com/ec2/instance-types/">https://aws.amazon.com/ec2/instance-types/</a>. The resources are exposed
+via entrypoints after installing torchx lib. The mapping is stored in the <cite>setup.py</cite> file.</p>
+<p>The named resources currently do not specify AWS instance type capabilities but merely represent
+the equvalent resource in mem, cpu and gpu numbers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These resource definitions may change in future. It is expected for each user to
+manage their own resources. Follow <a class="reference external" href="https://pytorch.org/torchx/latest/specs.html#torchx.specs.get_named_resources">https://pytorch.org/torchx/latest/specs.html#torchx.specs.get_named_resources</a>
+to set up named resources.</p>
+</div>
+<p>Usage:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">named_resources</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_t3.medium&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_m5.2xlarge&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_p3.2xlarge&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_resources</span><span class="p">[</span><span class="s2">&quot;aws_p3.8xlarge&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.named_resources_aws.aws_m5_2xlarge">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.named_resources_aws.</span></span><span class="sig-name descname"><span class="pre">aws_m5_2xlarge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/named_resources_aws.html#aws_m5_2xlarge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.named_resources_aws.aws_m5_2xlarge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.named_resources_aws.aws_p3_2xlarge">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.named_resources_aws.</span></span><span class="sig-name descname"><span class="pre">aws_p3_2xlarge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/named_resources_aws.html#aws_p3_2xlarge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.named_resources_aws.aws_p3_2xlarge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.named_resources_aws.aws_p3_8xlarge">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.named_resources_aws.</span></span><span class="sig-name descname"><span class="pre">aws_p3_8xlarge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/named_resources_aws.html#aws_p3_8xlarge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.named_resources_aws.aws_p3_8xlarge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.named_resources_aws.aws_t3_medium">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.named_resources_aws.</span></span><span class="sig-name descname"><span class="pre">aws_t3_medium</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Resource" title="torchx.specs.api.Resource"><span class="pre">Resource</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/named_resources_aws.html#aws_t3_medium"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.named_resources_aws.aws_t3_medium" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+<section id="macros">
+<h2>Macros<a class="headerlink" href="#macros" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.macros">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">macros</span></span><a class="reference internal" href="_modules/torchx/specs/api.html#macros"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.macros" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines macros that can be used in the elements of <code class="docutils literal notranslate"><span class="pre">Role.args</span></code>
+values of <code class="docutils literal notranslate"><span class="pre">Role.env</span></code>. The macros will be substituted at runtime
+to their actual values.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Macros used fields of <a class="reference internal" href="#torchx.specs.Role" title="torchx.specs.Role"><code class="xref py py-class docutils literal notranslate"><span class="pre">Role</span></code></a> other than the ones
+mentioned above, are NOT substituted.</p>
+</div>
+<p>Available macros:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">img_root</span></code> - root directory of the pulled container.image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">app_id</span></code> - application id as assigned by the scheduler</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">replica_id</span></code> - unique id for each instance of a replica of a Role,</dt><dd><p>for instance a role with 3 replicas could have the 0, 1, 2
+as replica ids. Note that when the container fails and is
+replaced, the new container will have the same <code class="docutils literal notranslate"><span class="pre">replica_id</span></code>
+as the one it is replacing. For instance if node 1 failed and
+was replaced by the scheduler the replacing node will also
+have <code class="docutils literal notranslate"><span class="pre">replica_id=1</span></code>.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># runs: hello_world.py --app_id ${app_id}</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span>
+           <span class="n">name</span><span class="o">=</span><span class="s2">&quot;trainer&quot;</span><span class="p">,</span>
+           <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;hello_world.py&quot;</span><span class="p">,</span>
+           <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--app_id&quot;</span><span class="p">,</span> <span class="n">macros</span><span class="o">.</span><span class="n">app_id</span><span class="p">],</span>
+           <span class="n">env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;IMAGE_ROOT_DIR&quot;</span><span class="p">:</span> <span class="n">macros</span><span class="o">.</span><span class="n">img_root</span><span class="p">})</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">AppDef</span><span class="p">(</span><span class="s2">&quot;train_app&quot;</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="n">trainer</span><span class="p">])</span>
+<span class="n">app_handle</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="o">=</span><span class="s2">&quot;local_docker&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="p">{})</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.macros.Values">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">replica_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank0_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_img_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DEPRECATED'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#macros.Values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.macros.Values" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.macros.Values.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">Role</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">Role</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#macros.Values.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.macros.Values.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>apply applies the values to a copy the specified role and returns it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.macros.Values.substitute">
+<span class="sig-name descname"><span class="pre">substitute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#macros.Values.substitute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.macros.Values.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>substitute applies the values to the template arg.</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="run-configs">
+<h2>Run Configs<a class="headerlink" href="#run-configs" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.runopts">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">runopts</span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds the accepted scheduler run configuration
+keys, default value (if any), and help message string.
+These options are provided by the <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code> and validated
+in <code class="docutils literal notranslate"><span class="pre">Session.run</span></code> against user provided run cfg.
+Allows <code class="docutils literal notranslate"><span class="pre">None</span></code> default values. Required opts must NOT have a
+non-None default.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This class has no accessors because it is intended to
+be constructed and returned by <code class="docutils literal notranslate"><span class="pre">Scheduler.run_config_options</span></code>
+and printed out as a “help” tool or as part of an exception msg.</p>
+</div>
+<p>Usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
+
+<span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;run_as_user&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;user to run the job as&quot;</span><span class="p">)</span>
+<span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;cluster_id&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;cluster to submit the job&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;job priority&quot;</span><span class="p">)</span>
+<span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;preemptible&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;is the job preemptible&quot;</span><span class="p">)</span>
+
+<span class="c1"># invalid</span>
+<span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;illegal&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;bad_type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">opts</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.runopts.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the <code class="docutils literal notranslate"><span class="pre">config</span></code> option with the given help string and <code class="docutils literal notranslate"><span class="pre">default</span></code>
+value (if any). If the <code class="docutils literal notranslate"><span class="pre">default</span></code> is not specified then this option
+is a required option.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.runopts.cfg_from_str">
+<span class="sig-name descname"><span class="pre">cfg_from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.cfg_from_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.cfg_from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses scheduler <code class="docutils literal notranslate"><span class="pre">runcfg</span></code> from a string literal and returns
+a cfg map where the cfg values have been cast into the appropriate
+types as specified by this runopts object. Unknown keys are ignored
+and not returned in the resulting map.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the method <code class="docutils literal notranslate"><span class="pre">resolve</span></code>, this method does NOT resolve
+default options or check that the required options are actually
+present in the given <code class="docutils literal notranslate"><span class="pre">cfg_str</span></code>. This method is intended to be
+called before calling <code class="docutils literal notranslate"><span class="pre">resolve()</span></code> when the input is a string
+encoded run cfg. That is to fully resolve the cfg, call
+<code class="docutils literal notranslate"><span class="pre">opt.resolve(opt.cfg_from_str(cfg_literal))</span></code>.</p>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">cfg_str</span></code> is an empty string, then an empty
+<code class="docutils literal notranslate"><span class="pre">cfg</span></code> is returned. Otherwise, at least one kv-pair delimited by
+<code class="docutils literal notranslate"><span class="pre">&quot;=&quot;</span></code> (equal) is expected.</p>
+<p>Either <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> (comma) or <code class="docutils literal notranslate"><span class="pre">&quot;;&quot;</span></code> (semi-colon)
+can be used to delimit multiple kv-pairs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CfgVal</span></code> allows <code class="docutils literal notranslate"><span class="pre">List</span></code> of primitives, which can be passed as
+either <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;;&quot;</span></code> (semi-colon) delimited. Since the same
+delimiters are used to delimit between cfg kv pairs, this method
+interprets the last (trailing) <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;;&quot;</span></code> as the delimiter between
+kv pairs. See example below.</p>
+<p>Examples:</p>
+<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="go">opts = runopts()</span>
+<span class="go">opts.add(&quot;FOO&quot;, type_=List[str], default=[&quot;a&quot;], help=&quot;an optional list option&quot;)</span>
+<span class="go">opts.add(&quot;BAR&quot;, type_=str, required=True, help=&quot;a required str option&quot;)</span>
+
+<span class="go"># required and default options not checked</span>
+<span class="go"># method returns strictly parsed cfg from the cfg literal string</span>
+<span class="go">opts.cfg_from_str(&quot;&quot;) == {}</span>
+
+<span class="go"># however, unknown options are ignored</span>
+<span class="go"># since the value type is unknown hence cannot cast to the correct type</span>
+<span class="go">opts.cfg_from_str(&quot;UNKNOWN=VALUE&quot;) == {}</span>
+
+<span class="go">opts.cfg_from_str(&quot;FOO=v1&quot;) == {&quot;FOO&quot;: &quot;v1&quot;}</span>
+
+<span class="go">opts.cfg_from_str(&quot;FOO=v1,v2&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;]}</span>
+<span class="go">opts.cfg_from_str(&quot;FOO=v1;v2&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;]}</span>
+
+<span class="go">opts.cfg_from_str(&quot;FOO=v1,v2,BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+<span class="go">opts.cfg_from_str(&quot;FOO=v1;v2,BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+<span class="go">opts.cfg_from_str(&quot;FOO=v1;v2;BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.runopts.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">runopt</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns option if any was registered, or None otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.runopts.is_type">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.is_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.is_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if <code class="docutils literal notranslate"><span class="pre">obj</span></code> is type of <code class="docutils literal notranslate"><span class="pre">tp</span></code>. Similar to isinstance() but supports
+tp = List[str], thus can be used to validate ConfigValue.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.runopts.resolve">
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.10)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#runopts.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.runopts.resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the given config against this <code class="docutils literal notranslate"><span class="pre">runopts</span></code> and sets default configs
+if not set.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Extra configs unknown to this run option are ignored.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="run-status">
+<h2>Run Status<a class="headerlink" href="#run-status" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.AppStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">AppStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state:</span> <span class="pre">~torchx.specs.api.AppState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_restarts:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structured_error_msg:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'&lt;NONE&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_url:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roles:</span> <span class="pre">~typing.List[~torchx.specs.api.RoleStatus]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#AppStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.AppStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>The runtime status of the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code>. The scheduler can
+return an arbitrary text message (msg field).
+If any error occurs, scheduler can populate <code class="docutils literal notranslate"><span class="pre">structured_error_msg</span></code>
+with json response.</p>
+<p><code class="docutils literal notranslate"><span class="pre">replicas</span></code> represent the statuses of the replicas in the job. If the job
+runs with multiple retries, the parameter will contain the statuses of the
+most recent retry. Note: if the previous retries failed, but the most recent
+retry succeeded or in progress, <code class="docutils literal notranslate"><span class="pre">replicas</span></code> will not contain occurred errors.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.AppState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">AppState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#AppState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.AppState" title="Permalink to this definition">¶</a></dt>
+<dd><p>State of the application. An application starts from an initial
+<code class="docutils literal notranslate"><span class="pre">UNSUBMITTED</span></code> state and moves through <code class="docutils literal notranslate"><span class="pre">SUBMITTED</span></code>, <code class="docutils literal notranslate"><span class="pre">PENDING</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RUNNING</span></code> states finally reaching a terminal state:
+<code class="docutils literal notranslate"><span class="pre">SUCCEEDED</span></code>,``FAILED``, <code class="docutils literal notranslate"><span class="pre">CANCELLED</span></code>.</p>
+<p>If the scheduler supports preemption, the app moves from a <code class="docutils literal notranslate"><span class="pre">RUNNING</span></code>
+state to <code class="docutils literal notranslate"><span class="pre">PENDING</span></code> upon preemption.</p>
+<p>If the user stops the application, then the application state moves
+to <code class="docutils literal notranslate"><span class="pre">STOPPED</span></code>, then to <code class="docutils literal notranslate"><span class="pre">CANCELLED</span></code> when the job is actually cancelled
+by the scheduler.</p>
+<ol class="arabic simple">
+<li><p>UNSUBMITTED - app has not been submitted to the scheduler yet</p></li>
+<li><p>SUBMITTED - app has been successfully submitted to the scheduler</p></li>
+<li><p>PENDING - app has been submitted to the scheduler pending allocation</p></li>
+<li><p>RUNNING - app is running</p></li>
+<li><p>SUCCEEDED - app has successfully completed</p></li>
+<li><p>FAILED - app has unsuccessfully completed</p></li>
+<li><p>CANCELLED - app was cancelled before completing</p></li>
+<li><p>UNKNOWN - app state is unknown</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torchx.specs.ReplicaState">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">ReplicaState</span></span><a class="headerlink" href="#torchx.specs.ReplicaState" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#torchx.specs.AppState" title="torchx.specs.api.AppState"><code class="xref py py-class docutils literal notranslate"><span class="pre">AppState</span></code></a></p>
+</dd></dl>
+
+</section>
+<section id="mounts">
+<h2>Mounts<a class="headerlink" href="#mounts" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.parse_mounts">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">parse_mounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.BindMount" title="torchx.specs.api.BindMount"><span class="pre">BindMount</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#torchx.specs.VolumeMount" title="torchx.specs.api.VolumeMount"><span class="pre">VolumeMount</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DeviceMount</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/builders.html#parse_mounts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.parse_mounts" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse_mounts parses a list of options into typed mounts following a similar
+format to Dockers bind mount.</p>
+<p>Multiple mounts can be specified in the same list. <code class="docutils literal notranslate"><span class="pre">type</span></code> must be
+specified first in each.</p>
+<dl class="simple">
+<dt>Ex:</dt><dd><p>type=bind,src=/host,dst=/container,readonly,[type=bind,src=…,dst=…]</p>
+</dd>
+<dt>Supported types:</dt><dd><p>BindMount: type=bind,src=&lt;host path&gt;,dst=&lt;container path&gt;[,readonly]
+VolumeMount: type=volume,src=&lt;name/id&gt;,dst=&lt;container path&gt;[,readonly]
+DeviceMount: type=device,src=/dev/&lt;dev&gt;[,dst=&lt;container path&gt;][,perm=rwm]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.BindMount">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">BindMount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#BindMount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.BindMount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a bind mount to <cite>mount –bind</cite> a host path into the worker
+environment. See scheduler documentation on how bind mounts operate for each
+scheduler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_path</strong> – the path on the host</p></li>
+<li><p><strong>dst_path</strong> – the path in the worker environment/container</p></li>
+<li><p><strong>read_only</strong> – whether the mount should be read only</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.VolumeMount">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">VolumeMount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#VolumeMount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.VolumeMount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a persistent volume mount to mount into the worker environment.
+:param src: the name or ID of the volume to mount
+:param dst_path: the path in the worker environment/container
+:param read_only: whether the mount should be read only</p>
+</dd></dl>
+
+</section>
+<section id="module-torchx.specs.file_linter">
+<span id="component-linter"></span><h2>Component Linter<a class="headerlink" href="#module-torchx.specs.file_linter" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.validate">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the function to make sure it complies the component standard.</p>
+<p><code class="docutils literal notranslate"><span class="pre">validate</span></code> finds the <code class="docutils literal notranslate"><span class="pre">component_function</span></code> and vaidates it for according to the following rules:</p>
+<ol class="arabic simple">
+<li><p>The function must have <a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">google-styple docs</a></p></li>
+<li><p>All function parameters must be annotated</p></li>
+<li><p>The function must return <a class="reference internal" href="#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.api.AppDef</span></code></a></p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – Path to python source file.</p></li>
+<li><p><strong>component_function</strong> – Name of the function to be validated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of validation errors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage">LinterMessage</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.get_fn_docstring">
+<span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">get_fn_docstring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#get_fn_docstring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.get_fn_docstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the function and arguments description from the provided function. Docstring should be in
+<a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">google-style format</a></p>
+<p>If function has no docstring, the function description will be the name of the function, TIP
+on how to improve the help message and arguments descriptions will be names of the arguments.</p>
+<p>The arguments that are not present in the docstring will contain default/required information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fn</strong> – Function with or without docstring</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>function description, arguments description where key is the name of the argument and value</dt><dd><p>if the description</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.LinterMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">LinterMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">severity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'error'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#LinterMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.LinterMessage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchFunctionVisitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchFunctionVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_function_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchFunctionVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchFunctionVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visitor that finds the component_function and runs registered validators on it.
+Current registered validators:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>TorchxFunctionArgsValidator - validates arguments of the function.</dt><dd><dl class="simple">
+<dt>Criteria:</dt><dd><ul>
+<li><p>Each argument should be annotated with the type</p></li>
+<li><dl class="simple">
+<dt>The following types are supported:</dt><dd><ul>
+<li><p>primitive_types: {int, str, float},</p></li>
+<li><p>Optional[primitive_types],</p></li>
+<li><p>Dict[primitive_types, primitive_types],</p></li>
+<li><p>List[primitive_types],</p></li>
+<li><p>Optional[Dict[primitive_types, primitive_types]],</p></li>
+<li><p>Optional[List[primitive_types]]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef">
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchFunctionVisitor.visit_FunctionDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the function def with the child validators.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchXArgumentHelpFormatter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchXArgumentHelpFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_help_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchXArgumentHelpFormatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchXArgumentHelpFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help message formatter which adds default values and required to argument help.</p>
+<p>If the argument is required, the class appends <cite>(required)</cite> at the end of the help message.
+If the argument has default value, the class appends <cite>(default: $DEFAULT)</cite> at the end.
+The formatter is designed to be used only for the torchx components functions.
+These functions do not have both required and default arguments.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxFunctionArgsValidator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxFunctionArgsValidator</span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionArgsValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionArgsValidator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxFunctionArgsValidator.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionArgsValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionArgsValidator.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to call to validate the provided function def.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxFunctionValidator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxFunctionValidator</span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionValidator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxFunctionValidator.validate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxFunctionValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxFunctionValidator.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to call to validate the provided function def.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxReturnValidator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.file_linter.</span></span><span class="sig-name descname"><span class="pre">TorchxReturnValidator</span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxReturnValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxReturnValidator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.file_linter.TorchxReturnValidator.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_specs_func_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage"><span class="pre">LinterMessage</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/specs/file_linter.html#TorchxReturnValidator.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.file_linter.TorchxReturnValidator.validate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Validates return annotation of the torchx function. Current allowed annotations:</dt><dd><ul class="simple">
+<li><p>AppDef</p></li>
+<li><p>specs.AppDef</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+     </article>
+     
+    </div>
+    <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="runner.html" class="btn btn-neutral float-right" title="torchx.runner" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="runtime/tracking.html" class="btn btn-neutral" title="Tracking" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">torchx.specs</a><ul>
+<li><a class="reference internal" href="#appdef">AppDef</a></li>
+<li><a class="reference internal" href="#role">Role</a></li>
+<li><a class="reference internal" href="#resource">Resource</a><ul>
+<li><a class="reference internal" href="#module-torchx.specs.named_resources_aws">AWS Named Resources</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#macros">Macros</a></li>
+<li><a class="reference internal" href="#run-configs">Run Configs</a></li>
+<li><a class="reference internal" href="#run-status">Run Status</a></li>
+<li><a class="reference internal" href="#mounts">Mounts</a></li>
+<li><a class="reference internal" href="#module-torchx.specs.file_linter">Component Linter</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+         <script src="_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/pytorch" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/pytorch" target="_blank" class="twitter"></a>
+            <a href="https://www.youtube.com/pytorch" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/hub">PyTorch Hub</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchx/">TorchX</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
