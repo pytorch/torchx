@@ -122,8 +122,8 @@ Putting everything together, running ``echo`` with the ``local_cwd`` scheduler:
 
  $ torchx run --scheduler local_cwd --scheduler_args log_dir=/tmp utils.echo --msg "hello $USER"
  === RUN RESULT ===
-torchx 2022-06-15 16:08:57 INFO     Log files located in: /tmp/torchx/echo-crls3hcpwjmhc/echo/0
-local_cwd://torchx/echo-crls3hcpwjmhc
+ torchx 2022-06-15 16:08:57 INFO     Log files located in: /tmp/torchx/echo-crls3hcpwjmhc/echo/0
+ local_cwd://torchx/echo-crls3hcpwjmhc
 
 By default the ``run`` subcommand does not block for the job to finish, instead it simply
 schedules the job on the specified scheduler and prints an ``app handle``
