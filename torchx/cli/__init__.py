@@ -26,9 +26,9 @@ If so, no need to even author an app spec!
 
  $ torchx builtins
  Found <n> builtin configs:
-  1. echo
-  2. simple_example
-  3. touch
+  1. metrics.tensorboard
+  2. serve.torchserve
+  3. utils.binary
   ... <omitted for brevity>
 
 Listing the supported schedulers and arguments
@@ -57,8 +57,9 @@ The ``run``  subcommand takes either one of:
 
    .. code-block:: shell-session
 
-    $ torchx run --scheduler <sched_name> echo
+    $ torchx run --scheduler <sched_name> utils.echo
 
+#doesn't work
 2. full python module path of the component function
 
    .. code-block:: shell-session
@@ -122,16 +123,18 @@ Putting everything together, running ``echo`` with the ``local_cwd`` scheduler:
 
  $ torchx run --scheduler local_cwd --scheduler_args log_dir=/tmp utils.echo --msg "hello $USER"
  === RUN RESULT ===
- Launched app: local://torchx_kiuk/echo_ecd30f74
+torchx 2022-06-15 16:08:57 INFO     Log files located in: /tmp/torchx/echo-crls3hcpwjmhc/echo/0
+local_cwd://torchx/echo-crls3hcpwjmhc
+...
 
 By default the ``run`` subcommand does not block for the job to finish, instead it simply
 schedules the job on the specified scheduler and prints an ``app handle``
-which is a URL of the form: ``$scheduler_name://torchx_$user/$job_id``.
+which is a URL of the form: ``$scheduler_name://torchx/$job_id``.
 Keep note of this handle since this is what you'll need to provide to other
 subcommands to identify your job.
 
 .. note:: If the ``--scheduler`` option is not provided, then it defaults to
-          the scheduler backend ``default`` which points to ``local``. To change
+          the scheduler backend ``default`` which points to ``local_cwd``. To change
           the default scheduler, see: :ref:`advanced:Registering Custom Schedulers`.
 
 

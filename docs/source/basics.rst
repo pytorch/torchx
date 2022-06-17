@@ -31,7 +31,7 @@ In TorchX an ``AppDef`` is simply a struct with the *definition* of
 the actual application. In scheduler lingo, this is a ``JobDefinition`` and a
 similar concept in Kubernetes is the ``spec.yaml``. To disambiguate between the
 application binary (logic) and the spec, we typically refer to a TorchX
-``AppDef`` as an "app spec" or ``specs.AppDef``. ``specs.AppDef``
+``AppDef`` as an "app spec" or ``specs.AppDef``. It
 is the common interface understood by ``torchx.runner``
 and ``torchx.pipelines`` allowing you to run your app as a standalone job
 or as a stage in an ML pipeline.

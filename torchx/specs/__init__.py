@@ -77,7 +77,7 @@ def resource(
     Convenience method to create a ``Resource`` object from either the
     raw resource specs (cpu, gpu, memMB) or the registered named resource (``h``).
     Note that the (cpu, gpu, memMB) is mutually exclusive with ``h``
-    with ``h`` taking predecence if specified.
+    taking predecence if specified.
 
     If ``h`` is specified then it is used to look up the
     resource specs from the list of registered named resources.
