@@ -59,7 +59,6 @@ The ``run``  subcommand takes either one of:
 
     $ torchx run --scheduler <sched_name> utils.echo
 
-#doesn't work
 2. full python module path of the component function
 
    .. code-block:: shell-session
@@ -125,7 +124,6 @@ Putting everything together, running ``echo`` with the ``local_cwd`` scheduler:
  === RUN RESULT ===
 torchx 2022-06-15 16:08:57 INFO     Log files located in: /tmp/torchx/echo-crls3hcpwjmhc/echo/0
 local_cwd://torchx/echo-crls3hcpwjmhc
-...
 
 By default the ``run`` subcommand does not block for the job to finish, instead it simply
 schedules the job on the specified scheduler and prints an ``app handle``
