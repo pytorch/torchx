@@ -68,6 +68,8 @@ class ComponentsFinder(abc.ABC):
         """
 
     def _get_module_source(self, module: ModuleType) -> str:
+        # pyre-fixme[6]: For 1st param expected `PathLike[Variable[AnyStr <: [str,
+        #  bytes]]]` but got `Optional[str]`.
         module_path = os.path.abspath(module.__file__)
         return read_conf_file(module_path)
 
@@ -98,6 +100,8 @@ class ModuleComponentsFinder(ComponentsFinder):
 
     def find(self) -> List[_Component]:
         module = self._try_load_module(self._module)
+        # pyre-fixme[6]: For 1st param expected `PathLike[Variable[AnyStr <: [str,
+        #  bytes]]]` but got `Optional[str]`.
         dir_name = os.path.dirname(module.__file__)
         return self._get_components_from_dir(
             dir_name, self._get_base_module_name(module)
@@ -151,6 +155,8 @@ class ModuleComponentsFinder(ComponentsFinder):
     ) -> List[_Component]:
         functions = getmembers(module, isfunction)
         component_defs = []
+        # pyre-fixme[6]: For 1st param expected `PathLike[Variable[AnyStr <: [str,
+        #  bytes]]]` but got `Optional[str]`.
         module_path = os.path.abspath(module.__file__)
         for function_name, function in functions:
             linter_errors = validate(module_path, function_name)

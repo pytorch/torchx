@@ -64,6 +64,7 @@ def record(event: TorchxEvent, destination: str = "null") -> None:
         try:
             from torch import monitor
 
+            # pyre-fixme[16]: Module `monitor` has no attribute `log_event`.
             monitor.log_event(event.to_monitor_event())
         except ImportError:
             pass

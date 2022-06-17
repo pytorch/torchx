@@ -30,7 +30,7 @@ from torch.distributed.elastic.multiprocessing.errors import record
 from torchx.examples.apps.compute_world_size.module.util import compute_world_size
 
 
-@record  # pyre-ignore[56]
+@record
 def run(cfg: DictConfig) -> None:
     print(OmegaConf.to_yaml(cfg))
 
