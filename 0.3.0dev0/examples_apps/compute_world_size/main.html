@@ -418,7 +418,7 @@ to ensure that the stack has been setup properly for more serious distributed tr
 <span class="kn">from</span> <span class="nn">torchx.examples.apps.compute_world_size.module.util</span> <span class="kn">import</span> <span class="n">compute_world_size</span>
 
 
-<span class="nd">@record</span>  <span class="c1"># pyre-ignore[56]</span>
+<span class="nd">@record</span>
 <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">))</span>
 

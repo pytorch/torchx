@@ -31,3 +31,14 @@ torchx.workspace.dir_workspace
 
 .. autoclass:: DirWorkspace
   :members:
+
+.. fbcode::
+
+   torchx.workspace.fb.jetter_workspace
+   #######################################
+
+   .. automodule:: torchx.workspace.fb.jetter_workspace
+   .. currentmodule:: torchx.workspace.fb.jetter_workspace
+
+   .. autoclass:: JetterWorkspace
+     :members:
