@@ -38,6 +38,7 @@ if True:  # stop isort from reordering
     sys.path.append(os.path.abspath("../.."))
     import torchx
 
+FBCODE = "fbcode" in os.getcwd()
 
 # -- General configuration ------------------------------------------------
 
@@ -52,19 +53,26 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinxcontrib.katex",
     "sphinx.ext.autosectionlabel",
-    "sphinx_gallery.gen_gallery",
     "compatibility",
     "runopts",
+    "fbcode",
     "nbsphinx",
     "IPython.sphinxext.ipython_console_highlighting",
 ]
+if not FBCODE:
+    extensions += [
+        "sphinx.ext.intersphinx",
+        "sphinxcontrib.katex",
+        "sphinx_gallery.gen_gallery",
+    ]
+
+if FBCODE:
+    nbsphinx_execute = "never"
 
 # coverage options
 
@@ -313,8 +321,11 @@ TypedField.make_field = patched_make_field
 
 # -- Options for Sphinx-Gallery -----
 
-tags_raw = subprocess.check_output(["git", "tag", "-l"])
-tags = set(tags_raw.decode("utf-8").strip().split("\n"))
+if FBCODE:
+    tags = []
+else:
+    tags_raw = subprocess.check_output(["git", "tag", "-l"])
+    tags = set(tags_raw.decode("utf-8").strip().split("\n"))
 
 if version in tags:
     notebook_version = version
