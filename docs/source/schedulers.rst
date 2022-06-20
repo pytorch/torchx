@@ -18,6 +18,14 @@ All Schedulers
 
    schedulers/*
 
+.. fbcode::
+
+   .. toctree::
+      :maxdepth: 1
+      :glob:
+
+      schedulers/fb/*
+
 Scheduler Functions
 ~~~~~~~~~~~~~~~~~~~~
 
