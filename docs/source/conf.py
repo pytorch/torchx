@@ -74,6 +74,8 @@ if not FBCODE:
 if FBCODE:
     nbsphinx_execute = "never"
 
+html_context = {"fbcode": FBCODE}
+
 # coverage options
 
 coverage_ignore_modules = [
