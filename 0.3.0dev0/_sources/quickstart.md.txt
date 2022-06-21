@@ -222,7 +222,7 @@ automatically build the image with the newly provided Dockerfile instead of the
 default one.
 
 ```sh
-torchx run --scheduler local_docker utils.python --script timm_app.py "your name"
+torchx run --scheduler local_docker utils.python --script timm_app.py
 ```
 
 ### Slurm

@@ -401,7 +401,7 @@ For how to create and run an app check out the <a class="reference internal" hre
 the actual application. In scheduler lingo, this is a <code class="docutils literal notranslate"><span class="pre">JobDefinition</span></code> and a
 similar concept in Kubernetes is the <code class="docutils literal notranslate"><span class="pre">spec.yaml</span></code>. To disambiguate between the
 application binary (logic) and the spec, we typically refer to a TorchX
-<code class="docutils literal notranslate"><span class="pre">AppDef</span></code> as an “app spec” or <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>. <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>
+<code class="docutils literal notranslate"><span class="pre">AppDef</span></code> as an “app spec” or <code class="docutils literal notranslate"><span class="pre">specs.AppDef</span></code>. It
 is the common interface understood by <code class="docutils literal notranslate"><span class="pre">torchx.runner</span></code>
 and <code class="docutils literal notranslate"><span class="pre">torchx.pipelines</span></code> allowing you to run your app as a standalone job
 or as a stage in an ML pipeline.</p>

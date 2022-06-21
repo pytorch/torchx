@@ -393,9 +393,9 @@ browse through the builtins to see if there is one that fits your needs already.
 If so, no need to even author an app spec!</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 <span class="go">Found &lt;n&gt; builtin configs:</span>
-<span class="go"> 1. echo</span>
-<span class="go"> 2. simple_example</span>
-<span class="go"> 3. touch</span>
+<span class="go"> 1. metrics.tensorboard</span>
+<span class="go"> 2. serve.torchserve</span>
+<span class="go"> 3. utils.binary</span>
 <span class="go"> ... &lt;omitted for brevity&gt;</span>
 </pre></div>
 </div>
@@ -422,7 +422,7 @@ If so, no need to even author an app spec!</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">run</span></code>  subcommand takes either one of:</p>
 <ol class="arabic">
 <li><p>name of the builtin</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; <span class="nb">echo</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; utils.echo
 </pre></div>
 </div>
 </li>
@@ -483,18 +483,19 @@ component and can be seen with the <code class="docutils literal notranslate"><s
 <p>Putting everything together, running <code class="docutils literal notranslate"><span class="pre">echo</span></code> with the <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler local_cwd --scheduler_args <span class="nv">log_dir</span><span class="o">=</span>/tmp utils.echo --msg <span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
 <span class="go">=== RUN RESULT ===</span>
-<span class="go">Launched app: local://torchx_kiuk/echo_ecd30f74</span>
+<span class="go">torchx 2022-06-15 16:08:57 INFO     Log files located in: /tmp/torchx/echo-crls3hcpwjmhc/echo/0</span>
+<span class="go">local_cwd://torchx/echo-crls3hcpwjmhc</span>
 </pre></div>
 </div>
 <p>By default the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand does not block for the job to finish, instead it simply
 schedules the job on the specified scheduler and prints an <code class="docutils literal notranslate"><span class="pre">app</span> <span class="pre">handle</span></code>
-which is a URL of the form: <code class="docutils literal notranslate"><span class="pre">$scheduler_name://torchx_$user/$job_id</span></code>.
+which is a URL of the form: <code class="docutils literal notranslate"><span class="pre">$scheduler_name://torchx/$job_id</span></code>.
 Keep note of this handle since this is what you’ll need to provide to other
 subcommands to identify your job.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--scheduler</span></code> option is not provided, then it defaults to
-the scheduler backend <code class="docutils literal notranslate"><span class="pre">default</span></code> which points to <code class="docutils literal notranslate"><span class="pre">local</span></code>. To change
+the scheduler backend <code class="docutils literal notranslate"><span class="pre">default</span></code> which points to <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code>. To change
 the default scheduler, see: <a class="reference internal" href="advanced.html#registering-custom-schedulers"><span class="std std-ref">Registering Custom Schedulers</span></a>.</p>
 </div>
 </section>
