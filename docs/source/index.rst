@@ -46,6 +46,14 @@ Documentation
    advanced
    custom_components.md
 
+.. fbcode::
+
+   .. toctree::
+      :maxdepth: 1
+      :caption: Usage (Meta)
+
+      fb/named_resources
+
 
 Works With
 ---------------
@@ -79,7 +87,13 @@ Works With
    pipelines/kfp
    pipelines/airflow.md
 
+.. fbcode::
 
+   .. toctree::
+      :maxdepth: 1
+      :caption: Pipelines (Meta)
+
+      pipelines/fb/flow
 
 
 Examples
