@@ -281,6 +281,8 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app = AppDef(name="test_app", roles=[role])
         self.scheduler.submit(app, cfg={})
         self.scheduler.close()
+        # pyre-fixme[6]: For 1st param expected `Union[PathLike[bytes],
+        #  PathLike[str], bytes, int, str]` but got `Optional[str]`.
         self.assertFalse(os.path.exists(self.scheduler._base_log_dir))
         self.assertTrue(self.scheduler._created_tmp_log_dir)
 
