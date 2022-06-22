@@ -60,6 +60,7 @@ class AppDefStatusTest(unittest.TestCase):
         self.assertEqual(
             serialized,
             """AppStatus:
+  metadata_urls: {}
   msg: ''
   num_restarts: 0
   roles: []
@@ -77,6 +78,7 @@ class AppDefStatusTest(unittest.TestCase):
         self.assertEqual(
             serialized,
             """AppStatus:
+  metadata_urls: {}
   msg: ''
   num_restarts: 0
   roles: []

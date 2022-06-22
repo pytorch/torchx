@@ -461,6 +461,7 @@ class AppStatus:
     msg: str = ""
     structured_error_msg: str = NONE
     ui_url: Optional[str] = None
+    metadata_urls: Dict[str, str] = field(default_factory=dict)
     roles: List[RoleStatus] = field(default_factory=list)
 
     def is_terminal(self) -> bool:

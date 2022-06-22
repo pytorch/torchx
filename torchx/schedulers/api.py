@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Generic, Iterable, List, Optional, TypeVar
+from typing import Dict, Generic, Iterable, List, Optional, TypeVar
 
 from torchx.specs import (
     AppDef,
@@ -59,6 +59,7 @@ class DescribeAppResponse:
 
     roles_statuses: List[RoleStatus] = field(default_factory=list)
     roles: List[Role] = field(default_factory=list)
+    metadata: Dict[str, str] = field(default_factory=dict)
 
 
 T = TypeVar("T")

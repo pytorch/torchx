@@ -356,6 +356,11 @@ class Runner:
             )
             if app_status:
                 app_status.ui_url = desc.ui_url
+            for k, v in desc.metadata.items():
+                if not isinstance(v, str):
+                    continue
+                if v.startswith("http://") or v.startswith("https://"):
+                    app_status.metadata_urls[k] = v
             return app_status
 
     def wait(
@@ -459,7 +464,7 @@ class Runner:
             if not app:
                 desc = scheduler.describe(app_id)
                 if desc:
-                    app = AppDef(name=app_id, roles=desc.roles)
+                    app = AppDef(name=app_id, roles=desc.roles, metadata=desc.metadata)
             return app
 
     def log_lines(
