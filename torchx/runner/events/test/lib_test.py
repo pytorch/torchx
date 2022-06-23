@@ -95,20 +95,16 @@ class TorchxEventLibTest(unittest.TestCase):
             api="test_api",
             source=SourceType.EXTERNAL,
         )
-        # pyre-fixme[11]: Annotation `Event` is not defined as a type.
         events: List[monitor.Event] = []
 
         def handler(e: monitor.Event) -> None:
             events.append(e)
 
-        # pyre-fixme[16]: Module `monitor` has no attribute `register_event_handler`.
         handle = monitor.register_event_handler(handler)
 
         try:
             record(event)
         finally:
-            # pyre-fixme[16]: Module `monitor` has no attribute
-            #  `unregister_event_handler`.
             monitor.unregister_event_handler(handle)
 
         self.assertEqual(get_logging_handler.call_count, 1)
