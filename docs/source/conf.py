@@ -375,5 +375,7 @@ nbsphinx_epilog = r"""
     <div id="is-nbsphinx"></div>
 """
 
+nbsphinx_requirejs_path = ""
+
 if os.environ.get("SKIP_NB"):
     nbsphinx_execute = "never"
