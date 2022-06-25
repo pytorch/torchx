@@ -59,16 +59,6 @@ def _get_or_create_logger(destination: str = "null") -> logging.Logger:
 def record(event: TorchxEvent, destination: str = "null") -> None:
     _get_or_create_logger(destination).info(event.serialize())
 
-    if destination != "console":
-        # if using torch>1.11 log the event to torch.monitor
-        try:
-            from torch import monitor
-
-            # pyre-fixme[16]: Module `monitor` has no attribute `log_event`.
-            monitor.log_event(event.to_monitor_event())
-        except ImportError:
-            pass
-
 
 class log_event:
     """

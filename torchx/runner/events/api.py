@@ -7,12 +7,8 @@
 
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime
 from enum import Enum
-from typing import Optional, TYPE_CHECKING, Union
-
-if TYPE_CHECKING:
-    from torch import monitor
+from typing import Optional, Union
 
 
 class SourceType(str, Enum):
@@ -64,14 +60,3 @@ class TorchxEvent:
 
     def serialize(self) -> str:
         return json.dumps(asdict(self))
-
-    # pyre-fixme[11]: Annotation `Event` is not defined as a type.
-    def to_monitor_event(self) -> "monitor.Event":
-        from torch import monitor
-
-        # pyre-fixme[16]: Module `monitor` has no attribute `Event`.
-        return monitor.Event(
-            name="torch.runner.Event",
-            timestamp=datetime.now(),
-            data={k: v for k, v in self.__dict__.items() if v is not None},
-        )
