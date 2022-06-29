@@ -39,7 +39,7 @@ import re
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, Mapping, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, TYPE_CHECKING
 
 import torchx
 import yaml
@@ -66,6 +66,7 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
+from torchx.specs.builders import make_app_handle
 from torchx.workspace.docker_workspace import DockerWorkspace
 from typing_extensions import TypedDict
 
@@ -756,6 +757,24 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             return filter_regex(regex, iterator)
         else:
             return iterator
+
+    def list(self) -> List[str]:
+        job_names = []
+        namespace = "default"
+        resp = self._custom_objects_api().list_namespaced_custom_object(
+            group="batch.volcano.sh",
+            version="v1alpha1",
+            namespace=namespace,
+            plural="jobs",
+            timeout_seconds=30,
+        )
+        items = resp["items"]
+        for item in items:
+            name = item["metadata"]["name"]
+            app_id = f"{namespace}:{name}"
+            app_handle = make_app_handle("kubernetes", "default", app_id)
+            job_names.append(app_handle)
+        return job_names
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:

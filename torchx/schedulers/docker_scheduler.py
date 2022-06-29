@@ -447,6 +447,9 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
         else:
             return logs
 
+    def list(self) -> List[str]:
+        raise NotImplementedError()
+
 
 def _to_str(a: Union[str, bytes]) -> str:
     if isinstance(a, bytes):

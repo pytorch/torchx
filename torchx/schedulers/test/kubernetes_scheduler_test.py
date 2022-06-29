@@ -699,6 +699,102 @@ spec:
             },
         )
 
+    @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
+    def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
+        scheduler = create_scheduler("test")
+        scheduler.list()
+        call = list_namespaced_custom_object.call_args
+        args, kwargs = call
+        self.assertEqual(
+            kwargs,
+            {
+                "group": "batch.volcano.sh",
+                "version": "v1alpha1",
+                "namespace": "default",
+                "plural": "jobs",
+                "timeout_seconds": 30,
+            },
+        )
+
+    @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
+    def test_list_values(self, list_namespaced_custom_object: MagicMock) -> None:
+        list_namespaced_custom_object.return_value = {
+            "apiVersion": "batch.volcano.sh/v1alpha1",
+            "items": [
+                {
+                    "apiVersion": "batch.volcano.sh/v1alpha1",
+                    "kind": "Job",
+                    "metadata": {
+                        "creationTimestamp": "2021-10-11T20:49:35Z",
+                        "name": "cifar-trainer-something",
+                        "namespace": "default",
+                        "resourceVersion": "100000000",
+                        "selfLink": "/apis/batch.volcano.sh/v1alpha1/namespaces/default/jobs/cifar-trainer-something",
+                        "uid": "ab6a11d3-aaaa-aaaa-aaaa-88220d5190ee",
+                    },
+                    "status": {
+                        "runningDuration": "3262h8m50.910883962s",
+                        "state": {
+                            "lastTransitionTime": "2021-10-11T20:52:08Z",
+                            "phase": "Completed",
+                        },
+                        "succeeded": 2,
+                    },
+                },
+                {
+                    "apiVersion": "batch.volcano.sh/v1alpha1",
+                    "kind": "Job",
+                    "metadata": {
+                        "creationTimestamp": "2021-10-11T20:49:35Z",
+                        "name": "test-trainer",
+                        "namespace": "default",
+                        "resourceVersion": "100000000",
+                        "selfLink": "/apis/batch.volcano.sh/v1alpha1/namespaces/default/jobs/test-trainer",
+                        "uid": "ab6a11d3-bbbb-bbbb-bbbb-88220d5190ee",
+                    },
+                    "status": {
+                        "runningDuration": "3262h8m50.910883962s",
+                        "state": {
+                            "lastTransitionTime": "2021-10-11T20:52:08Z",
+                            "phase": "Completed",
+                        },
+                        "succeeded": 2,
+                    },
+                },
+            ],
+        }
+        scheduler = create_scheduler("test")
+        app_handles = scheduler.list()
+        call = list_namespaced_custom_object.call_args
+        args, kwargs = call
+        self.assertEqual(
+            kwargs,
+            {
+                "group": "batch.volcano.sh",
+                "version": "v1alpha1",
+                "namespace": "default",
+                "plural": "jobs",
+                "timeout_seconds": 30,
+            },
+        )
+        self.assertEqual(
+            app_handles,
+            [
+                "kubernetes://default/default:cifar-trainer-something",
+                "kubernetes://default/default:test-trainer",
+            ],
+        )
+
+    @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
+    def test_list_failure(self, list_namespaced_custom_object: MagicMock) -> None:
+        from kubernetes.client.rest import ApiException
+
+        api_exc = ApiException(status=404, reason="Invalid kube config")
+        list_namespaced_custom_object.side_effect = api_exc
+        scheduler = create_scheduler("test")
+        with self.assertRaises(ApiException):
+            scheduler.list()
+
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
     def test_log_iter(self, read_namespaced_pod_log: MagicMock) -> None:
         scheduler = create_scheduler("test")
