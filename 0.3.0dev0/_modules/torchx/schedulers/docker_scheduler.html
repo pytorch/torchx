@@ -820,7 +820,10 @@
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">logs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">logs</span></div></div>
+            <span class="k">return</span> <span class="n">logs</span></div>
+
+<div class="viewcode-block" id="DockerScheduler.list"><a class="viewcode-back" href="../../../schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_to_str</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

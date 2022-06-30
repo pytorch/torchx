@@ -1347,6 +1347,9 @@
 
         <span class="k">return</span> <span class="n">LogIterator</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">regex</span> <span class="ow">or</span> <span class="s2">&quot;.*&quot;</span><span class="p">,</span> <span class="n">log_file</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="LocalScheduler.list"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
     <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># can assume app_id exists</span>
         <span class="n">local_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">[</span><span class="n">app_id</span><span class="p">]</span>

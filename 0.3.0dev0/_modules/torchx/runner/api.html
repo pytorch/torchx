@@ -767,17 +767,6 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_interval</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Runner.list"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the applications that were run with this session mapped by the app handle.</span>
-<span class="sd">        The persistence of the session is implementation dependent.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">):</span>
-            <span class="n">app_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">for</span> <span class="n">app_id</span> <span class="ow">in</span> <span class="n">app_ids</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span></div>
-
 <div class="viewcode-block" id="Runner.cancel"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stops the application, effectively directing the scheduler to cancel</span>
@@ -927,6 +916,18 @@
                 <span class="n">streams</span><span class="o">=</span><span class="n">streams</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">log_iter</span></div>
+
+<div class="viewcode-block" id="Runner.list"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of app handles launched by the scheduler.</span>
+<span class="sd">        Note: This API is in prototype phase and is subject to change.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">):</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sched</span><span class="o">.</span><span class="n">list</span><span class="p">()</span></div>
 
     <span class="c1"># pyre-fixme: Scheduler opts</span>
     <span class="k">def</span> <span class="nf">_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>

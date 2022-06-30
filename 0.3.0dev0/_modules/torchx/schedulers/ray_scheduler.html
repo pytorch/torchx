@@ -769,7 +769,10 @@
             <span class="n">iterator</span> <span class="o">=</span> <span class="n">split_lines</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">iterator</span></div></div>
+            <span class="k">return</span> <span class="n">iterator</span></div>
+
+<div class="viewcode-block" id="RayScheduler.list"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.list">[docs]</a>        <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
 <div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.create_scheduler">[docs]</a>    <span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RayScheduler</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">has_ray</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
