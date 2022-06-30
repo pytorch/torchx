@@ -59,6 +59,9 @@ class TestScheduler(Scheduler):
     ) -> Iterable[str]:
         raise NotImplementedError()
 
+    def list(self) -> List[str]:
+        raise NotImplementedError()
+
     def run_opts(self) -> runopts:
         opts = runopts()
         opts.add(

@@ -14,6 +14,7 @@ from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_cancel import CmdCancel
 from torchx.cli.cmd_configure import CmdConfigure
 from torchx.cli.cmd_describe import CmdDescribe
+from torchx.cli.cmd_list import CmdList
 from torchx.cli.cmd_log import CmdLog
 from torchx.cli.cmd_run import CmdBuiltins, CmdRun
 from torchx.cli.cmd_runopts import CmdRunopts
@@ -33,6 +34,7 @@ def get_default_sub_cmds() -> Dict[str, SubCommand]:
         "cancel": CmdCancel(),
         "configure": CmdConfigure(),
         "describe": CmdDescribe(),
+        "list": CmdList(),
         "log": CmdLog(),
         "run": CmdRun(),
         "runopts": CmdRunopts(),

@@ -171,6 +171,14 @@ class Scheduler(abc.ABC, Generic[T]):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def list(self) -> List[str]:
+        """
+        Lists the app handles launched on the scheduler.
+        Note: This API is in prototype phase and is subject to change.
+        """
+        raise NotImplementedError()
+
     def exists(self, app_id: str) -> bool:
         """
         Returns:

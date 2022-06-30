@@ -8,7 +8,7 @@
 
 import unittest
 from datetime import datetime
-from typing import Iterable, Mapping, Optional, TypeVar, Union
+from typing import Iterable, List, Mapping, Optional, TypeVar, Union
 from unittest.mock import MagicMock, patch
 
 from torchx.schedulers.api import DescribeAppResponse, Scheduler, split_lines, Stream
@@ -62,6 +62,9 @@ class SchedulerTest(unittest.TestCase):
             streams: Optional[Stream] = None,
         ) -> Iterable[str]:
             return iter([])
+
+        def list(self) -> List[str]:
+            return []
 
         def run_opts(self) -> runopts:
             opts = runopts()

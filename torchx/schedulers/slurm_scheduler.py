@@ -556,6 +556,9 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
             app_id, regex or ".*", log_file, self, should_tail=should_tail
         )
 
+    def list(self) -> List[str]:
+        raise NotImplementedError()
+
 
 def create_scheduler(session_name: str, **kwargs: Any) -> SlurmScheduler:
     return SlurmScheduler(

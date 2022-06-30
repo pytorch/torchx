@@ -10,7 +10,7 @@ import os
 import shutil
 import tempfile
 import unittest
-from typing import Mapping, Optional
+from typing import List, Mapping, Optional
 from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
@@ -150,6 +150,9 @@ class RunnerTest(unittest.TestCase):
             def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
                 pass
 
+            def list(self) -> List[str]:
+                pass
+
             def _cancel_existing(self, app_id: str) -> None:
                 pass
 
@@ -214,68 +217,6 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(app, runner.describe(app_handle))
             # unknown app should return None
             self.assertIsNone(runner.describe("local_dir://session1/unknown_app"))
-
-    def test_list(self, _) -> None:
-        with Runner(
-            name=SESSION_NAME,
-            schedulers={"local_dir": self.scheduler},
-        ) as runner:
-            role = Role(
-                name="touch",
-                image=self.test_dir,
-                resource=resource.SMALL,
-                entrypoint="sleep.sh",
-                args=["1"],
-            )
-            app = AppDef("sleeper", roles=[role])
-
-            num_apps = 4
-
-            for _ in range(num_apps):
-                # since this test validates the list() API,
-                # we do not wait for the apps to finish so run the apps
-                # in managed mode so that the local scheduler reaps the apps on exit
-                runner.run(app, scheduler="local_dir")
-
-            apps = runner.list()
-            self.assertEqual(num_apps, len(apps))
-
-    def test_evict_non_existent_app(self, _) -> None:
-        # tests that apps previously run with this session that are finished and eventually
-        # removed by the scheduler also get removed from the session after a status() API has been
-        # called on the app
-
-        scheduler = LocalScheduler(
-            SESSION_NAME, cache_size=1, image_provider_class=LocalDirectoryImageProvider
-        )
-        with Runner(
-            name=SESSION_NAME,
-            schedulers={"local_dir": scheduler},
-        ) as runner:
-            test_file = os.path.join(self.test_dir, "test_file")
-            role = Role(
-                name="touch",
-                image=self.test_dir,
-                resource=resource.SMALL,
-                entrypoint="touch.sh",
-                args=[test_file],
-            )
-            app = AppDef("touch_test_file", roles=[role])
-
-            # local scheduler was setup with a cache size of 1
-            # run the same app twice (the first will be removed from the scheduler's cache)
-            # then validate that the first one will drop from the session's app cache as well
-            app_id1 = runner.run(app, scheduler="local_dir", cfg=self.cfg)
-            runner.wait(app_id1, wait_interval=0.1)
-
-            app_id2 = runner.run(app, scheduler="local_dir", cfg=self.cfg)
-            runner.wait(app_id2, wait_interval=0.1)
-
-            apps = runner.list()
-
-            self.assertEqual(1, len(apps))
-            self.assertFalse(app_id1 in apps)
-            self.assertTrue(app_id2 in apps)
 
     def test_status(self, _) -> None:
         with Runner(
@@ -419,6 +360,17 @@ class RunnerTest(unittest.TestCase):
             scheduler_mock.log_iter.assert_called_once_with(
                 app_id, role_name, replica_id, regex, since, until, False, streams=None
             )
+
+    def test_list(self, _) -> None:
+        scheduler_mock = MagicMock()
+        app_handles_return = ["app_handle1", "app_handle2"]
+        scheduler_mock.list.return_value = app_handles_return
+        with Runner(
+            name=SESSION_NAME, schedulers={"kubernetes": scheduler_mock}
+        ) as runner:
+            app_handles = runner.list("kubernetes")
+            self.assertEqual(app_handles, app_handles_return)
+            scheduler_mock.list.assert_called_once()
 
     @patch("json.dumps")
     def test_get_schedulers(self, json_dumps_mock: MagicMock, _) -> None:

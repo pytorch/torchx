@@ -394,17 +394,6 @@ class Runner:
                 else:
                     time.sleep(wait_interval)
 
-    def list(self) -> Dict[AppHandle, AppDef]:
-        """
-        Returns the applications that were run with this session mapped by the app handle.
-        The persistence of the session is implementation dependent.
-        """
-        with log_event("list"):
-            app_ids = list(self._apps.keys())
-            for app_id in app_ids:
-                self.status(app_id)
-            return self._apps
-
     def cancel(self, app_handle: AppHandle) -> None:
         """
         Stops the application, effectively directing the scheduler to cancel
@@ -554,6 +543,18 @@ class Runner:
                 streams=streams,
             )
             return log_iter
+
+    def list(
+        self,
+        scheduler: str,
+    ) -> List[str]:
+        """
+        Returns the list of app handles launched by the scheduler.
+        Note: This API is in prototype phase and is subject to change.
+        """
+        with log_event("list", scheduler):
+            sched = self._scheduler(scheduler)
+            return sched.list()
 
     # pyre-fixme: Scheduler opts
     def _scheduler(self, scheduler: str) -> Scheduler:

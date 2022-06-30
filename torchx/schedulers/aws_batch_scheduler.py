@@ -43,6 +43,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -517,6 +518,9 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             return filter_regex(regex, iterator)
         else:
             return iterator
+
+    def list(self) -> List[str]:
+        raise NotImplementedError()
 
     def _stream_events(
         self,

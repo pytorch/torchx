@@ -396,6 +396,9 @@ if _has_ray:
                 return filter_regex(regex, iterator)
             return iterator
 
+        def list(self) -> List[str]:
+            raise NotImplementedError()
+
     def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
         if not has_ray():  # pragma: no cover
             raise RuntimeError(
