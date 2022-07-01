@@ -288,6 +288,71 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ],
         )
 
+    def _mock_scheduler_running_job(self) -> AWSBatchScheduler:
+        scheduler = AWSBatchScheduler(
+            "test",
+            client=MagicMock(),
+            log_client=MagicMock(),
+        )
+        scheduler._client.list_jobs.return_value = {
+            "jobSummaryList": [
+                {
+                    "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                    "createdAt": 1656651215531,
+                    "status": "RUNNING",
+                    "nodeProperties": {"numNodes": 2},
+                    "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                }
+            ]
+        }
+        scheduler._client.describe_jobs.return_value = {
+            "jobs": [
+                {
+                    "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                    "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobQueue": "arn:aws:batch:us-east-1:761163492645:job-queue/torchx-proto-queue",
+                    "status": "RUNNING",
+                    "attempts": [],  # This is empty on running jobs (unlike completed jobs)
+                    "createdAt": 1656651215531,
+                    "retryStrategy": {
+                        "attempts": 1,
+                        "evaluateOnExit": [{"onExitCode": "0", "action": "exit"}],
+                    },
+                    "startedAt": 1656651662589,
+                    "dependsOn": [],
+                    "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                    "parameters": {},
+                    "container": {
+                        "logStreamName": "running_log_stream",
+                    },
+                    "nodeProperties": {
+                        "numNodes": 2,
+                        "mainNode": 0,
+                        "nodeRangeProperties": [],
+                    },
+                    "tags": {
+                        "torchx.pytorch.org/version": "0.3.0dev0",
+                        "torchx.pytorch.org/app-name": "fairseq-train",
+                    },
+                    "platformCapabilities": [],
+                }
+            ]
+        }
+
+        scheduler._log_client.get_log_events.return_value = {
+            "nextForwardToken": "some_token",
+            "events": [
+                {"message": "foo"},
+                {"message": "foobar"},
+                {"message": "bar"},
+            ],
+        }
+
+        return scheduler
+
     def _mock_scheduler(self) -> AWSBatchScheduler:
         scheduler = AWSBatchScheduler(
             "test",
@@ -461,6 +526,17 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_log_iter(self) -> None:
         scheduler = self._mock_scheduler()
+        logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
+        self.assertEqual(
+            list(logs),
+            [
+                "foo\n",
+                "foobar\n",
+            ],
+        )
+
+    def test_log_iter_running_job(self) -> None:
+        scheduler = self._mock_scheduler_running_job()
         logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
         self.assertEqual(
             list(logs),
