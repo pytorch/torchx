@@ -68,6 +68,31 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         app = _test_app()
         scheduler._validate(app, "kubernetes")
 
+    def test_submit_dryrun_with_share_id(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "fooshare"})
+        info = scheduler._submit_dryrun(app, cfg)
+
+        req = info.request
+        job_def = req.job_def
+        self.assertEqual(req.share_id, "fooshare")
+        # must be set for jobs submitted to a queue with scheduling policy
+        self.assertEqual(job_def["schedulingPriority"], 0)
+
+    def test_submit_dryrun_with_priority(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        cfg = AWSBatchOpts(
+            {"queue": "testqueue", "share_id": "fooshare", "priority": 42}
+        )
+        info = scheduler._submit_dryrun(app, cfg)
+
+        req = info.request
+        job_def = req.job_def
+        self.assertEqual(req.share_id, "fooshare")
+        self.assertEqual(job_def["schedulingPriority"], 42)
+
     @mock_rand()
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
@@ -76,6 +101,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         info = scheduler._submit_dryrun(app, cfg)
 
         req = info.request
+        self.assertEqual(req.share_id, None)
         self.assertEqual(req.queue, "testqueue")
         job_def = req.job_def
 
