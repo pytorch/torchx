@@ -351,7 +351,8 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                 "(implied by 'share_id' not being set)"
             )
 
-        name = make_unique(app.name)
+        name_suffix = f"-{share_id}" if share_id is not None else ""
+        name = make_unique(f"{app.name}{name_suffix}")
 
         # map any local images to the remote image
         images_to_push = self._update_app_images(app, cfg.get("image_repo"))
