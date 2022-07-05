@@ -973,7 +973,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         return LogIterator(app_id, regex or ".*", log_file, self)
 
     def list(self) -> List[str]:
-        raise NotImplementedError()
+        raise Exception("Apps cannot be listed for local scheduler as they are not persisted")
 
     def _cancel_existing(self, app_id: str) -> None:
         # can assume app_id exists
