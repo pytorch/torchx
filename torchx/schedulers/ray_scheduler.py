@@ -323,16 +323,11 @@ if _has_ray:
                     break
                 time.sleep(1)
 
-        def _parse_app_id(self, app_id: str) -> Tuple[str, str]:
+        def _parse_app_id(self, app_id: str) -> str:
             # find index of '-' in the first :\d+-
-            m = re.search(r":\d+-", app_id)
-            if m:
-                sep = m.span()[1]
-                addr = app_id[: sep - 1]
-                app_id = app_id[sep:]
-                return addr, app_id
-
-            addr, _, app_id = app_id.partition("-")
+            sep = re.search(r':\d+-', app_id).span()[1]
+            addr = app_id[:sep-1]
+            app_id = app_id[sep:]
             return addr, app_id
 
         def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover
