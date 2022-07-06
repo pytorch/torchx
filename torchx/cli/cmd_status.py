@@ -25,7 +25,9 @@ logger: logging.Logger = logging.getLogger(__name__)
 _APP_STATUS_FORMAT_TEMPLATE = """AppDef:
   State: ${state}
   Num Restarts: ${num_restarts}
-Roles:${roles}"""
+Roles:${roles}
+UI URL: ${ui_url}
+Metadata URLs:${metadata_urls}"""
 
 _ROLE_FORMAT_TEMPLATE = "\n  ${role}:${replicas}"
 
@@ -137,6 +139,10 @@ def format_app_status(
         state=app_status.state,
         num_restarts=app_status.num_restarts,
         roles=roles_data,
+        ui_url=app_status.ui_url,
+        metadata_urls="".join(
+            f"\n  {k}: {v}" for k, v in app_status.metadata_urls.items()
+        ),
     )
 
 
@@ -160,7 +166,7 @@ class CmdStatus(SubCommand):
     def run(self, args: argparse.Namespace) -> None:
         app_handle = args.app_handle
         scheduler, session_name, app_id = parse_app_handle(app_handle)
-        runner = get_runner(name=session_name)
+        runner = get_runner()
         app_status = runner.status(app_handle)
         filter_roles = parse_list_arg(args.roles)
         if app_status:

@@ -268,10 +268,9 @@ class RunnerTest(unittest.TestCase):
             status = none_throws(runner.status(app_handle))
             self.assertEquals(resp.ui_url, status.ui_url)
 
-    @patch("json.dumps")
+    @patch("json.dumps", return_value="{}")
     def test_status_structured_msg(self, json_dumps_mock: MagicMock, _) -> None:
         app_id = "test_app"
-        json_dumps_mock.return_value = "{}"
         mock_scheduler = MagicMock()
         resp = DescribeAppResponse()
         resp.structured_error_msg = '{"message": "test error"}'
@@ -290,6 +289,39 @@ class RunnerTest(unittest.TestCase):
             app_handle = runner.run(AppDef(app_id, roles=[role]), scheduler="local_dir")
             status = none_throws(runner.status(app_handle))
             self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
+
+    @patch("json.dumps", return_value="{}")
+    def test_status_metadata_urls(self, json_dumps_mock: MagicMock, _) -> None:
+        app_id = "test_app"
+        mock_scheduler = MagicMock()
+        resp = DescribeAppResponse()
+        resp.metadata = {
+            "var": "1",
+            "http": "http://...",
+            "https": "https://...",
+            "s3": "s3://...",
+        }
+        mock_scheduler.submit.return_value = app_id
+        mock_scheduler.describe.return_value = resp
+
+        with Runner(
+            name="test_structured_msg", schedulers={"local_dir": mock_scheduler}
+        ) as runner:
+            role = Role(
+                "ignored",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="/bin/echo",
+            )
+            app_handle = runner.run(AppDef(app_id, roles=[role]), scheduler="local_dir")
+            status = none_throws(runner.status(app_handle))
+            self.assertEquals(
+                status.metadata_urls,
+                {
+                    "http": "http://...",
+                    "https": "https://...",
+                },
+            )
 
     def test_wait_unknown_app(self, _) -> None:
         with Runner(

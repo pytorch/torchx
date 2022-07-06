@@ -76,7 +76,15 @@ Traceback (most recent call last):
         )
 
         role_status = RoleStatus(role="worker", replicas=[replica1, replica2])
-        return AppStatus(state=AppState.RUNNING, roles=[role_status])
+        return AppStatus(
+            state=AppState.RUNNING,
+            roles=[role_status],
+            ui_url="https://ui",
+            metadata_urls={
+                "a": "http://...",
+                "b": "https://...",
+            },
+        )
 
     def test_format_app_status(self) -> None:
         os.environ["TZ"] = "Europe/London"
@@ -93,5 +101,9 @@ Roles:
     timestamp: 1970-01-16 00:13:02
     hostname: localhost
     error_msg: error
-  worker[1]:RUNNING"""
+  worker[1]:RUNNING
+UI URL: https://ui
+Metadata URLs:
+  a: http://...
+  b: https://..."""
         self.assertEqual(expected_message, actual_message)
