@@ -735,6 +735,10 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         assert desc is not None
         self.assertEqual(AppState.CANCELLED, desc.state)
 
+    def test_list(self) -> None:
+        with self.assertRaisesRegex(Exception, "cannot be listed"):
+            self.scheduler.list()
+
     def test_exists(self) -> None:
         role = Role(
             "role1",
