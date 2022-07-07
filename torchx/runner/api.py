@@ -554,7 +554,12 @@ class Runner:
         """
         with log_event("list", scheduler):
             sched = self._scheduler(scheduler)
-            return sched.list()
+            app_handles = []
+            app_ids = sched.list()
+            for app_id in app_ids:
+                app_handle = make_app_handle(scheduler, self._name, app_id)
+                app_handles.append(app_handle)
+            return app_handles
 
     # pyre-fixme: Scheduler opts
     def _scheduler(self, scheduler: str) -> Scheduler:

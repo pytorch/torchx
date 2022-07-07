@@ -174,7 +174,7 @@ class Scheduler(abc.ABC, Generic[T]):
     @abc.abstractmethod
     def list(self) -> List[str]:
         """
-        Lists the app handles launched on the scheduler.
+        Lists the app ids launched on the scheduler.
         Note: This API is in prototype phase and is subject to change.
         """
         raise NotImplementedError()
