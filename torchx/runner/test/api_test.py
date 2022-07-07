@@ -363,13 +363,14 @@ class RunnerTest(unittest.TestCase):
 
     def test_list(self, _) -> None:
         scheduler_mock = MagicMock()
-        app_handles_return = ["app_handle1", "app_handle2"]
-        scheduler_mock.list.return_value = app_handles_return
+        app_ids_return = ["app_handle1", "app_handle2"]
+        scheduler_mock.list.return_value = app_ids_return
+        app_handles_expected = ["kubernetes://test_session/app_handle1", "kubernetes://test_session/app_handle2"]
         with Runner(
             name=SESSION_NAME, schedulers={"kubernetes": scheduler_mock}
         ) as runner:
             app_handles = runner.list("kubernetes")
-            self.assertEqual(app_handles, app_handles_return)
+            self.assertEqual(app_handles, app_handles_expected)
             scheduler_mock.list.assert_called_once()
 
     @patch("json.dumps")

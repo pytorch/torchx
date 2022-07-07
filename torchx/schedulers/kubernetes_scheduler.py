@@ -759,7 +759,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             return iterator
 
     def list(self) -> List[str]:
-        job_names = []
+        app_ids = []
         namespace = "default"
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
@@ -772,9 +772,8 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         for item in items:
             name = item["metadata"]["name"]
             app_id = f"{namespace}:{name}"
-            app_handle = make_app_handle("kubernetes", "default", app_id)
-            job_names.append(app_handle)
-        return job_names
+            app_ids.append(app_id)
+        return app_ids
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
