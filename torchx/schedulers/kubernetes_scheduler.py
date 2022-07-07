@@ -66,7 +66,6 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
-from torchx.specs.builders import make_app_handle
 from torchx.workspace.docker_workspace import DockerWorkspace
 from typing_extensions import TypedDict
 

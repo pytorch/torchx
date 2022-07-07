@@ -365,7 +365,10 @@ class RunnerTest(unittest.TestCase):
         scheduler_mock = MagicMock()
         app_ids_return = ["app_handle1", "app_handle2"]
         scheduler_mock.list.return_value = app_ids_return
-        app_handles_expected = ["kubernetes://test_session/app_handle1", "kubernetes://test_session/app_handle2"]
+        app_handles_expected = [
+            "kubernetes://test_session/app_handle1",
+            "kubernetes://test_session/app_handle2",
+        ]
         with Runner(
             name=SESSION_NAME, schedulers={"kubernetes": scheduler_mock}
         ) as runner:
