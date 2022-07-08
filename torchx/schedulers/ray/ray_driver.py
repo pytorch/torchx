@@ -125,18 +125,53 @@ def create_command_actors(
 
     return cmd_actors
 
+class PG_Result:
+    def __init__(self, replicas=None, pg=None):
+        self.pg = pg
+        self.replicas = replicas
+    
+    def is_success(self):
+        if self.pg is not None:
+            return True
+        if self.replicas is not None:
+            return False
+
+
+@ray.remote
+def create_placement_group_on_ray(replicas: List[RayActor]) -> PG_Result:
+    bundles = []
+    for replica in replicas:
+        bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
+
+    pg = ray.util.placement_group(bundles, strategy="SPREAD")
+
+    _logger.info("Waiting for placement group to start.")
+    ready = pg.wait(timeout_seconds=100)
+
+    if not ready:  # pragma: no cover
+        return PG_Result(replicas=replicas)
+    return PG_Result(pg=pg)
+
 
 def main() -> None:  # pragma: no cover
+
+    MIN_NNODES = 1
+    MAX_NNODES = 4
+
     actors: List[RayActor] = load_actor_json("actors.json")
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
-    pg: PlacementGroup = create_placement_group(actors)
-    command_actors: List[CommandActor] = create_command_actors(actors, pg)
+
+    # Create the minimum requirement placement_group
+    pg: PlacementGroup = create_placement_group(actors[:MIN_NNODES])
+    command_actors: List[CommandActor] = create_command_actors(actors[:MIN_NNODES], pg)
 
     active_workers = [
         command_actor.exec_module.remote()  # pyre-ignore
         for command_actor in command_actors
     ]
+
+    active_workers.append(create_placement_group_on_ray.remote(actors[MIN_NNODES:]))
 
     # Await return result of remote ray function
     while len(active_workers) > 0:
@@ -147,7 +182,16 @@ def main() -> None:  # pragma: no cover
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_workers:
-            ray.get(object_ref)
+            result = ray.get(object_ref)
+            if isinstance(result, PG_Result):
+                if result.is_success():
+                    new_actors: List[CommandActor] = create_command_actors(actors[MIN_NNODES:], result.pg)
+                    for actor in new_actors:
+                        active_workers.append(actor.exec_module.remote())
+                else:
+                    active_workers.append(create_placement_group_on_ray.remote(result.replicas))
+
+
 
 
 if __name__ == "__main__":
