@@ -927,7 +927,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">):</span>
             <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">sched</span><span class="o">.</span><span class="n">list</span><span class="p">()</span></div>
+            <span class="n">app_handles</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">make_app_handle</span><span class="p">(</span><span class="n">scheduler</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">app_id</span> <span class="ow">in</span> <span class="n">sched</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="n">app_handles</span></div>
 
     <span class="c1"># pyre-fixme: Scheduler opts</span>
     <span class="k">def</span> <span class="nf">_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
