@@ -764,7 +764,7 @@ spec:
             ],
         }
         scheduler = create_scheduler("test")
-        app_handles = scheduler.list()
+        app_ids = scheduler.list()
         call = list_namespaced_custom_object.call_args
         args, kwargs = call
         self.assertEqual(
@@ -778,10 +778,10 @@ spec:
             },
         )
         self.assertEqual(
-            app_handles,
+            app_ids,
             [
-                "kubernetes://default/default:cifar-trainer-something",
-                "kubernetes://default/default:test-trainer",
+                "default:cifar-trainer-something",
+                "default:test-trainer",
             ],
         )
 
