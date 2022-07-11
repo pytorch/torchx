@@ -354,6 +354,11 @@ if has_docker():
                 ],
             )
 
+        def test_docker_list(self) -> None:
+            app = self._docker_app("echo", "bar")
+            app_id = self.scheduler.submit(app, cfg={})
+            self.assertTrue(app_id in self.scheduler.list())
+
         def test_docker_cancel(self) -> None:
             app = self._docker_app("sleep", "10000")
             app_id = self.scheduler.submit(app, cfg={})
