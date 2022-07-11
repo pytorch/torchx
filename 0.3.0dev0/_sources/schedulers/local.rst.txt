@@ -24,7 +24,7 @@ Image Providers
 Reference
 ~~~~~~~~~~~~
 
-.. autofunction:: create_cwd_scheduler
+.. autofunction:: create_scheduler
 
 .. autoclass:: LogIterator
    :members:

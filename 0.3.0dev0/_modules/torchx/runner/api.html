@@ -388,7 +388,7 @@
 
 <span class="kn">from</span> <span class="nn">pyre_extensions</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.runner.events</span> <span class="kn">import</span> <span class="n">log_event</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">get_schedulers</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">get_scheduler_factories</span><span class="p">,</span> <span class="n">SchedulerFactory</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">Scheduler</span><span class="p">,</span> <span class="n">Stream</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
@@ -423,9 +423,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="c1"># pyre-fixme: Scheduler opts</span>
-        <span class="n">schedulers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">],</span>
+        <span class="n">scheduler_factories</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SchedulerFactory</span><span class="p">],</span>
         <span class="n">component_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a new runner instance.</span>
@@ -436,7 +436,10 @@
 <span class="sd">            schedulers: a list of schedulers the runner can use.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span> <span class="o">=</span> <span class="n">schedulers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span> <span class="o">=</span> <span class="n">scheduler_factories</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="n">scheduler_params</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="c1"># pyre-ignore[24]: Scheduler opts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_instances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># component_name -&gt; map of component_fn_param_name -&gt; user-specified default val encoded as str</span>
@@ -469,7 +472,7 @@
 <span class="sd">        It is ok to call this method multiple times on the same runner object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scheduler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scheduler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_instances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">scheduler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Runner.run_component"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_component">[docs]</a>    <span class="k">def</span> <span class="nf">run_component</span><span class="p">(</span>
@@ -677,7 +680,7 @@
             <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span> <span class="o">=</span> <span class="n">scheduler</span>
             <span class="k">return</span> <span class="n">dryrun_info</span></div>
 
-<div class="viewcode-block" id="Runner.run_opts"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopts</span><span class="p">]:</span>
+<div class="viewcode-block" id="Runner.scheduler_run_opts"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">scheduler_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the ``runopts`` for the supported scheduler backends.</span>
 
@@ -685,22 +688,19 @@
 
 <span class="sd">        ::</span>
 
-<span class="sd">         local_runopts = session.run_opts()[&quot;local&quot;]</span>
+<span class="sd">         local_runopts = session.scheduler_run_opts(&quot;local_cwd&quot;)</span>
 <span class="sd">         print(&quot;local scheduler run options: {local_runopts}&quot;)</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A map of scheduler backend to its ``runopts``</span>
+<span class="sd">            The ``runopts`` for the specified scheduler type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="n">scheduler_backend</span><span class="p">:</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">scheduler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Runner.scheduler_backends"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_backends">[docs]</a>    <span class="k">def</span> <span class="nf">scheduler_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of all supported scheduler backends.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="Runner.status"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.status">[docs]</a>    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppStatus</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -935,10 +935,15 @@
 
     <span class="c1"># pyre-fixme: Scheduler opts</span>
     <span class="k">def</span> <span class="nf">_scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
-        <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+        <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_instances</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sched</span><span class="p">:</span>
+            <span class="n">factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">factory</span><span class="p">:</span>
+                <span class="n">sched</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_params</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_instances</span><span class="p">[</span><span class="n">scheduler</span><span class="p">]</span> <span class="o">=</span> <span class="n">sched</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">sched</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Undefined scheduler backend: </span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">. Use one of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Undefined scheduler backend: </span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">. Use one of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">sched</span>
 
@@ -964,7 +969,7 @@
         <span class="k">return</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">,</span> <span class="n">app_id</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Runner(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">, schedulers=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedulers</span><span class="si">}</span><span class="s2">, apps=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Runner(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">, schedulers=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span><span class="si">}</span><span class="s2">, apps=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
 <div class="viewcode-block" id="get_runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.get_runner">[docs]</a><span class="k">def</span> <span class="nf">get_runner</span><span class="p">(</span>
@@ -1011,8 +1016,10 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;torchx&quot;</span>
 
-    <span class="n">schedulers</span> <span class="o">=</span> <span class="n">get_schedulers</span><span class="p">(</span><span class="n">session_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">scheduler_params</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">Runner</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">schedulers</span><span class="p">,</span> <span class="n">component_defaults</span><span class="p">)</span></div>
+    <span class="n">scheduler_factories</span> <span class="o">=</span> <span class="n">get_scheduler_factories</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Runner</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">scheduler_factories</span><span class="p">,</span> <span class="n">component_defaults</span><span class="p">,</span> <span class="n">scheduler_params</span><span class="o">=</span><span class="n">scheduler_params</span>
+    <span class="p">)</span></div>
 </pre></div>
 
      </article>

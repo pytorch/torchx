@@ -504,14 +504,14 @@
         <li><a href="specs.html#torchx.specs.Resource.copy">(torchx.specs.Resource static method)</a>
 </li>
       </ul></li>
-      <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.create_cwd_scheduler">create_cwd_scheduler() (in module torchx.schedulers.local_scheduler)</a>
-</li>
       <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.create_scheduler">create_scheduler() (in module torchx.schedulers.aws_batch_scheduler)</a>
 
       <ul>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.create_scheduler">(in module torchx.schedulers.docker_scheduler)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.create_scheduler">(in module torchx.schedulers.kubernetes_scheduler)</a>
+</li>
+        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.create_scheduler">(in module torchx.schedulers.local_scheduler)</a>
 </li>
         <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.create_scheduler">(in module torchx.schedulers.ray_scheduler)</a>
 </li>
@@ -622,6 +622,8 @@
       </ul></li>
       <li><a href="schedulers.html#torchx.schedulers.get_default_scheduler_name">get_default_scheduler_name() (in module torchx.schedulers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_entrypoint">get_entrypoint() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
@@ -630,8 +632,6 @@
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.file_linter.get_fn_docstring">get_fn_docstring() (in module torchx.specs.file_linter)</a>
 </li>
       <li><a href="specs.html#torchx.specs.get_named_resources">get_named_resources() (in module torchx.specs)</a>
@@ -641,8 +641,6 @@
       <li><a href="runner.html#torchx.runner.get_runner">get_runner() (in module torchx.runner)</a>
 </li>
       <li><a href="schedulers.html#torchx.schedulers.get_scheduler_factories">get_scheduler_factories() (in module torchx.schedulers)</a>
-</li>
-      <li><a href="schedulers.html#torchx.schedulers.get_schedulers">get_schedulers() (in module torchx.schedulers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -861,10 +859,10 @@
 </li>
       <li><a href="specs.html#torchx.specs.Role">Role (class in torchx.specs)</a>
 </li>
-      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_scheduler)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_scheduler)</a>
+</li>
       <li><a href="runner.html#torchx.runner.Runner.run">run() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.run_component">run_component() (torchx.components.component_test_base.ComponentTestCase method)</a>
@@ -873,11 +871,9 @@
         <li><a href="runner.html#torchx.runner.Runner.run_component">(torchx.runner.Runner method)</a>
 </li>
       </ul></li>
-      <li><a href="runner.html#torchx.runner.Runner.run_opts">run_opts() (torchx.runner.Runner method)</a>
+      <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.run_opts">run_opts() (torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
 
       <ul>
-        <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.run_opts">(torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
-</li>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.run_opts">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.run_opts">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
@@ -925,10 +921,12 @@
 </li>
       <li><a href="runner.html#torchx.runner.Runner.scheduler_backends">scheduler_backends() (torchx.runner.Runner method)</a>
 </li>
-      <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
+      <li><a href="runner.html#torchx.runner.Runner.scheduler_run_opts">scheduler_run_opts() (torchx.runner.Runner method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
+</li>
       <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.serialize">serialize() (in module torchx.schedulers.ray_scheduler)</a>
 </li>
       <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.setUp">setUp() (torchx.components.component_test_base.ComponentTestCase method)</a>

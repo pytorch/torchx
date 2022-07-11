@@ -774,13 +774,14 @@
 <div class="viewcode-block" id="RayScheduler.list"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.list">[docs]</a>        <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.create_scheduler">[docs]</a>    <span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RayScheduler</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_ray</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;Ray is not installed in the current Python environment.&quot;</span>
-            <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">RayScheduler</span><span class="p">(</span><span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">)</span></div>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RayScheduler&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_ray</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;Ray is not installed in the current Python environment.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">RayScheduler</span><span class="p">(</span><span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">)</span></div>
 </pre></div>
 
      </article>
