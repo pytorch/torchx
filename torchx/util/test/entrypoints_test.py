@@ -106,17 +106,9 @@ class EntryPointsTest(unittest.TestCase):
         self.assertEqual("foobar", eps["bar"]())
 
     @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
-    def test_load_group_ignore_missing(self, mock_md_eps: MagicMock) -> None:
-        eps = load_group("ep.grp.missing.attr.test", ignore_missing=True)
-        self.assertFalse(eps)
-
-        eps = load_group("ep.grp.missing.mod.test", ignore_missing=True)
-        self.assertFalse(eps)
-
-    @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
-    def test_load_group_not_ignore_missing(self, mock_md_eps: MagicMock) -> None:
+    def test_load_group_not_missing(self, mock_md_eps: MagicMock) -> None:
         with self.assertRaises(AttributeError):
-            load_group("ep.grp.missing.attr.test", ignore_missing=False)
+            load_group("ep.grp.missing.attr.test")["baz"]()
 
         with self.assertRaises(ModuleNotFoundError):
-            load_group("ep.grp.missing.mod.test", ignore_missing=False)
+            load_group("ep.grp.missing.mod.test")["baz"]()

@@ -11,7 +11,7 @@ import sys
 
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner.config import dump
-from torchx.schedulers import get_schedulers
+from torchx.schedulers import get_scheduler_factories
 
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class CmdConfigure(SubCommand):
         if args.schedulers:
             schedulers = args.schedulers.split(",")
         else:
-            schedulers = get_schedulers(session_name="_").keys()
+            schedulers = get_scheduler_factories().keys()
 
         required_only = not args.all
 

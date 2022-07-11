@@ -59,7 +59,6 @@ def get_sub_cmds() -> Dict[str, SubCommand]:
     override_sub_cmds = load_group(
         "torchx.cli.cmds",
         default={},
-        ignore_missing=True,
     )
     for cmd_name, cmd_cls in override_sub_cmds.items():
         sub_cmds[cmd_name] = cmd_cls()

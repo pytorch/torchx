@@ -5,16 +5,21 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict, Optional
+import importlib
+from typing import Dict, Mapping
 
-import torchx.schedulers.aws_batch_scheduler as aws_batch_scheduler
-import torchx.schedulers.docker_scheduler as docker_scheduler
-import torchx.schedulers.kubernetes_scheduler as kubernetes_scheduler
-import torchx.schedulers.local_scheduler as local_scheduler
-import torchx.schedulers.slurm_scheduler as slurm_scheduler
 from torchx.schedulers.api import Scheduler
 from torchx.util.entrypoints import load_group
 from typing_extensions import Protocol
+
+DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
+    "local_docker": "torchx.schedulers.docker_scheduler",
+    "local_cwd": "torchx.schedulers.local_scheduler",
+    "slurm": "torchx.schedulers.slurm_scheduler",
+    "kubernetes": "torchx.schedulers.kubernetes_scheduler",
+    "aws_batch": "torchx.schedulers.aws_batch_scheduler",
+    "ray": "torchx.schedulers.ray_scheduler",
+}
 
 
 class SchedulerFactory(Protocol):
@@ -23,17 +28,13 @@ class SchedulerFactory(Protocol):
         ...
 
 
-def _try_get_ray_scheduler() -> Optional[SchedulerFactory]:
-    try:
-        from torchx.schedulers.ray_scheduler import _has_ray  # @manual
+def _defer_load_scheduler(path: str) -> SchedulerFactory:
+    # pyre-ignore[24]: Scheduler opts
+    def run(*args: object, **kwargs: object) -> Scheduler:
+        module = importlib.import_module(path)
+        return module.create_scheduler(*args, **kwargs)
 
-        if _has_ray:
-            import torchx.schedulers.ray_scheduler as ray_scheduler  # @manual
-
-            return ray_scheduler.create_scheduler
-
-    except ImportError:  # pragma: no cover
-        return None
+    return run
 
 
 def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
@@ -44,22 +45,13 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
     The first scheduler in the dictionary is used as the default scheduler.
     """
 
-    default_schedulers: Dict[str, SchedulerFactory] = {
-        "local_docker": docker_scheduler.create_scheduler,
-        "local_cwd": local_scheduler.create_cwd_scheduler,
-        "slurm": slurm_scheduler.create_scheduler,
-        "kubernetes": kubernetes_scheduler.create_scheduler,
-        "aws_batch": aws_batch_scheduler.create_scheduler,
-    }
-
-    ray_scheduler_creator = _try_get_ray_scheduler()
-    if ray_scheduler_creator:
-        default_schedulers["ray"] = ray_scheduler_creator
+    default_schedulers: Dict[str, SchedulerFactory] = {}
+    for scheduler, path in DEFAULT_SCHEDULER_MODULES.items():
+        default_schedulers[scheduler] = _defer_load_scheduler(path)
 
     return load_group(
         "torchx.schedulers",
         default=default_schedulers,
-        ignore_missing=True,
     )
 
 
@@ -69,18 +61,3 @@ def get_default_scheduler_name() -> str:
     get_scheduler_factories.
     """
     return next(iter(get_scheduler_factories().keys()))
-
-
-def get_schedulers(
-    session_name: str,
-    **scheduler_params: object
-    # pyre-fixme: Scheduler opts
-) -> Dict[str, Scheduler]:
-    """
-    get_schedulers returns all available schedulers.
-    """
-    schedulers = get_scheduler_factories()
-    return {
-        scheduler_backend: scheduler_factory_method(session_name, **scheduler_params)
-        for scheduler_backend, scheduler_factory_method in schedulers.items()
-    }

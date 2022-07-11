@@ -15,7 +15,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
 
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
-from torchx.schedulers import get_schedulers
+from torchx.schedulers import get_scheduler_factories, SchedulerFactory
 from torchx.schedulers.api import Scheduler, Stream
 from torchx.specs import (
     AppDef,
@@ -50,9 +50,9 @@ class Runner:
     def __init__(
         self,
         name: str,
-        # pyre-fixme: Scheduler opts
-        schedulers: Dict[str, Scheduler],
+        scheduler_factories: Dict[str, SchedulerFactory],
         component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
+        scheduler_params: Optional[Dict[str, object]] = None,
     ) -> None:
         """
         Creates a new runner instance.
@@ -63,7 +63,10 @@ class Runner:
             schedulers: a list of schedulers the runner can use.
         """
         self._name: str = name
-        self._schedulers = schedulers
+        self._scheduler_factories = scheduler_factories
+        self._scheduler_params: Dict[str, object] = scheduler_params or {}
+        # pyre-ignore[24]: Scheduler opts
+        self._scheduler_instances: Dict[str, Scheduler] = {}
         self._apps: Dict[AppHandle, AppDef] = {}
 
         # component_name -> map of component_fn_param_name -> user-specified default val encoded as str
@@ -96,7 +99,7 @@ class Runner:
         It is ok to call this method multiple times on the same runner object.
         """
 
-        for name, scheduler in self._schedulers.items():
+        for name, scheduler in self._scheduler_instances.items():
             scheduler.close()
 
     def run_component(
@@ -304,7 +307,7 @@ class Runner:
             dryrun_info._scheduler = scheduler
             return dryrun_info
 
-    def run_opts(self) -> Dict[str, runopts]:
+    def scheduler_run_opts(self, scheduler: str) -> runopts:
         """
         Returns the ``runopts`` for the supported scheduler backends.
 
@@ -312,22 +315,19 @@ class Runner:
 
         ::
 
-         local_runopts = session.run_opts()["local"]
+         local_runopts = session.scheduler_run_opts("local_cwd")
          print("local scheduler run options: {local_runopts}")
 
         Returns:
-            A map of scheduler backend to its ``runopts``
+            The ``runopts`` for the specified scheduler type.
         """
-        return {
-            scheduler_backend: scheduler.run_opts()
-            for scheduler_backend, scheduler in self._schedulers.items()
-        }
+        return self._scheduler(scheduler).run_opts()
 
     def scheduler_backends(self) -> List[str]:
         """
         Returns a list of all supported scheduler backends.
         """
-        return list(self._schedulers.keys())
+        return list(self._scheduler_factories.keys())
 
     def status(self, app_handle: AppHandle) -> Optional[AppStatus]:
         """
@@ -562,10 +562,15 @@ class Runner:
 
     # pyre-fixme: Scheduler opts
     def _scheduler(self, scheduler: str) -> Scheduler:
-        sched = self._schedulers.get(scheduler)
+        sched = self._scheduler_instances.get(scheduler)
+        if not sched:
+            factory = self._scheduler_factories.get(scheduler)
+            if factory:
+                sched = factory(self._name, **self._scheduler_params)
+                self._scheduler_instances[scheduler] = sched
         if not sched:
             raise KeyError(
-                f"Undefined scheduler backend: {scheduler}. Use one of: {self._schedulers.keys()}"
+                f"Undefined scheduler backend: {scheduler}. Use one of: {self._scheduler_factories.keys()}"
             )
         return sched
 
@@ -591,7 +596,7 @@ class Runner:
         return scheduler, scheduler_backend, app_id
 
     def __repr__(self) -> str:
-        return f"Runner(name={self._name}, schedulers={self._schedulers}, apps={self._apps})"
+        return f"Runner(name={self._name}, schedulers={self._scheduler_factories}, apps={self._apps})"
 
 
 def get_runner(
@@ -638,5 +643,7 @@ def get_runner(
     if not name:
         name = "torchx"
 
-    schedulers = get_schedulers(session_name=name, **scheduler_params)
-    return Runner(name, schedulers, component_defaults)
+    scheduler_factories = get_scheduler_factories()
+    return Runner(
+        name, scheduler_factories, component_defaults, scheduler_params=scheduler_params
+    )

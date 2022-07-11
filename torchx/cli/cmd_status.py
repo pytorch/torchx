@@ -159,15 +159,15 @@ class CmdStatus(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         app_handle = args.app_handle
-        scheduler, session_name, app_id = parse_app_handle(app_handle)
-        runner = get_runner(name=session_name)
+        scheduler, _, app_id = parse_app_handle(app_handle)
+        runner = get_runner()
         app_status = runner.status(app_handle)
         filter_roles = parse_list_arg(args.roles)
         if app_status:
             logger.info(format_app_status(app_status, filter_roles))
         else:
             logger.error(
-                f"AppDef: {app_id} on session: {session_name},"
+                f"AppDef: {app_id},"
                 f" does not exist or has been removed from {scheduler}'s data plane"
             )
             sys.exit(1)
