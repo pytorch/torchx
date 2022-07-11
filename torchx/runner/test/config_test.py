@@ -25,14 +25,14 @@ from torchx.runner.config import (
     load,
     load_sections,
 )
-from torchx.schedulers import get_schedulers, Scheduler
+from torchx.schedulers import get_scheduler_factories, Scheduler
 from torchx.schedulers.api import DescribeAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
 
 
 class TestScheduler(Scheduler):
-    def __init__(self) -> None:
-        super().__init__("_", "_")
+    def __init__(self, session_name: str) -> None:
+        super().__init__("test", session_name)
 
     def schedule(self, dryrun_info: AppDryRunInfo) -> str:
         raise NotImplementedError()
@@ -176,7 +176,7 @@ file = tmp.txt
 """
 
 PATH_CWD = "torchx.runner.config.Path.cwd"
-TORCHX_GET_SCHEDULERS = "torchx.runner.config.get_schedulers"
+TORCHX_GET_SCHEDULER_FACTORIES = "torchx.runner.config.get_scheduler_factories"
 
 
 class ConfigTest(unittest.TestCase):
@@ -358,8 +358,8 @@ image = foobar_custom
         self.assertEqual(True, cfg.get("prepend_cwd"))
 
     @patch(
-        TORCHX_GET_SCHEDULERS,
-        return_value={"test": TestScheduler()},
+        TORCHX_GET_SCHEDULER_FACTORIES,
+        return_value={"test": TestScheduler},
     )
     def test_apply_default(self, _) -> None:
         with patch(PATH_CWD, return_value=Path(self.test_dir)):
@@ -371,8 +371,8 @@ image = foobar_custom
             self.assertEqual(1.2, cfg.get("f"))
 
     @patch(
-        TORCHX_GET_SCHEDULERS,
-        return_value={"test": TestScheduler()},
+        TORCHX_GET_SCHEDULER_FACTORIES,
+        return_value={"test": TestScheduler},
     )
     def test_apply_dirs(self, _) -> None:
         cfg: Dict[str, CfgVal] = {"s": "runtime_value"}
@@ -390,8 +390,8 @@ image = foobar_custom
             dump(f=StringIO(), schedulers=["does-not-exist"])
 
     @patch(
-        TORCHX_GET_SCHEDULERS,
-        return_value={"test": TestScheduler()},
+        TORCHX_GET_SCHEDULER_FACTORIES,
+        return_value={"test": TestScheduler},
     )
     def test_dump_only_required(self, _) -> None:
         sfile = StringIO()
@@ -407,8 +407,8 @@ image = foobar_custom
         self.assertEqual({}, cfg)
 
     @patch(
-        TORCHX_GET_SCHEDULERS,
-        return_value={"test": TestScheduler()},
+        TORCHX_GET_SCHEDULER_FACTORIES,
+        return_value={"test": TestScheduler},
     )
     def test_load_invalid_runopt(self, _) -> None:
         cfg = {}
@@ -443,8 +443,8 @@ image = foobar_custom
         self.assertEqual({}, cfg)
 
     @patch(
-        TORCHX_GET_SCHEDULERS,
-        return_value={"test": TestScheduler()},
+        TORCHX_GET_SCHEDULER_FACTORIES,
+        return_value={"test": TestScheduler},
     )
     def test_dump_and_load_all_runopt_types(self, _) -> None:
         sfile = StringIO()
@@ -456,7 +456,7 @@ image = foobar_custom
         load(scheduler="test", f=sfile, cfg=cfg)
 
         # all runopts in the TestScheduler have defaults, just check against those
-        for opt_name, opt in TestScheduler().run_opts():
+        for opt_name, opt in TestScheduler("test").run_opts():
             self.assertEqual(cfg.get(opt_name), opt.default)
 
     def test_dump_and_load_all_registered_schedulers(self) -> None:
@@ -467,10 +467,10 @@ image = foobar_custom
         sfile = StringIO()
         dump(sfile)
 
-        for sched_name, sched in get_schedulers(session_name="_").items():
+        for sched_name, sched in get_scheduler_factories().items():
             sfile.seek(0)  # reset the file pos
             cfg = {}
             load(scheduler=sched_name, f=sfile, cfg=cfg)
 
-            for opt_name, _ in sched.run_opts():
+            for opt_name, _ in sched("test").run_opts():
                 self.assertTrue(opt_name in cfg)

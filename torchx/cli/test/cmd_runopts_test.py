@@ -9,7 +9,7 @@ import argparse
 import unittest
 
 from torchx.cli.cmd_runopts import CmdRunopts
-from torchx.schedulers import get_schedulers
+from torchx.schedulers import get_scheduler_factories
 
 
 class CmdRunOptsTest(unittest.TestCase):
@@ -20,7 +20,7 @@ class CmdRunOptsTest(unittest.TestCase):
         cmd_runopts = CmdRunopts()
         cmd_runopts.add_arguments(parser)
 
-        schedulers = get_schedulers(session_name="test").keys()
+        schedulers = get_scheduler_factories().keys()
         test_configs = [[]] + [[scheduler] for scheduler in schedulers]
         for scheduler in test_configs:
             with self.subTest(scheduler=scheduler):

@@ -9,7 +9,7 @@ import unittest
 from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
 
-from torchx.schedulers import get_default_scheduler_name, get_schedulers
+from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 from torchx.schedulers.docker_scheduler import DockerScheduler
 from torchx.schedulers.local_scheduler import LocalScheduler
 
@@ -27,7 +27,12 @@ class spy_load_group:
 class SchedulersTest(unittest.TestCase):
     @patch("torchx.schedulers.load_group", new_callable=spy_load_group)
     def test_get_local_schedulers(self, mock_load_group: MagicMock) -> None:
-        schedulers = get_schedulers(session_name="test_session")
+        schedulers = {}
+        for k, v in get_scheduler_factories().items():
+            try:
+                schedulers[k] = v("test_session")
+            except ModuleNotFoundError:
+                pass
         self.assertTrue(isinstance(schedulers["local_cwd"], LocalScheduler))
         self.assertTrue(isinstance(schedulers["local_docker"], DockerScheduler))
 

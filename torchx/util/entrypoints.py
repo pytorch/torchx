@@ -4,8 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import warnings
-
 try:
     from importlib import metadata
     from importlib.metadata import EntryPoint
@@ -47,9 +45,17 @@ def load(group: str, name: str, default=None):
         return ep.load()
 
 
+def _defer_load_ep(ep: EntryPoint) -> object:
+    def run(*args: object, **kwargs: object) -> object:
+        return ep.load()(*args, **kwargs)
+
+    return run
+
+
 # pyre-ignore-all-errors[3, 2]
 def load_group(
-    group: str, default: Optional[Dict[str, Any]] = None, ignore_missing: bool = False
+    group: str,
+    default: Optional[Dict[str, Any]] = None,
 ):
     """
     Loads all the entry points specified by ``group`` and returns
@@ -76,14 +82,5 @@ def load_group(
 
     eps = {}
     for ep in entrypoints[group]:
-        try:
-            eps[ep.name] = ep.load()
-        except (ModuleNotFoundError, AttributeError) as e:
-            if ignore_missing:
-                warnings.warn(
-                    f"{str(e)}, but ignore_missing={ignore_missing},"
-                    f" skipping over `{ep.name} = {ep.value}`"
-                )
-            else:
-                raise e
+        eps[ep.name] = _defer_load_ep(ep)
     return eps

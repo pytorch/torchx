@@ -399,10 +399,11 @@ if _has_ray:
         def list(self) -> List[str]:
             raise NotImplementedError()
 
-    def create_scheduler(session_name: str, **kwargs: Any) -> RayScheduler:
-        if not has_ray():  # pragma: no cover
-            raise RuntimeError(
-                "Ray is not installed in the current Python environment."
-            )
 
-        return RayScheduler(session_name=session_name)
+def create_scheduler(session_name: str, **kwargs: Any) -> "RayScheduler":
+    if not has_ray():  # pragma: no cover
+        raise ModuleNotFoundError(
+            "Ray is not installed in the current Python environment."
+        )
+
+    return RayScheduler(session_name=session_name)

@@ -1068,7 +1068,7 @@ class LogIterator:
                     return line
 
 
-def create_cwd_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
+def create_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
     return LocalScheduler(
         session_name=session_name,
         cache_size=kwargs.get("cache_size", 100),
