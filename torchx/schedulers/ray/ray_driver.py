@@ -156,11 +156,12 @@ def create_placement_group_on_ray(replicas: List[RayActor]) -> PG_Result:
 def main() -> None:  # pragma: no cover
 
     MIN_NNODES = 1
-    MAX_NNODES = 4
+    MAX_NNODES = 2
 
     actors: List[RayActor] = load_actor_json("actors.json")
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
+    print(actors)
 
     # Create the minimum requirement placement_group
     pg: PlacementGroup = create_placement_group(actors[:MIN_NNODES])
@@ -186,6 +187,8 @@ def main() -> None:  # pragma: no cover
             if isinstance(result, PG_Result):
                 if result.is_success():
                     new_actors: List[CommandActor] = create_command_actors(actors[MIN_NNODES:], result.pg)
+                    # import time
+                    # time.sleep(40)
                     for actor in new_actors:
                         active_workers.append(actor.exec_module.remote())
                 else:

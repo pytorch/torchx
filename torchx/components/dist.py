@@ -151,8 +151,11 @@ def ddp(
         rdzv_endpoint,
         "--rdzv_id",
         f"{macros.app_id}",
+
         "--nnodes",
-        str(nnodes),
+        # str(nnodes),
+        '1:2',
+
         "--nproc_per_node",
         str(nproc_per_node),
         "--tee",
