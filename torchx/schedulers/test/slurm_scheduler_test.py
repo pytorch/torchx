@@ -395,7 +395,6 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         self.assertEqual(out.msg, "RUNNING")
         self.assertEqual(out.state, specs.AppState.RUNNING)
 
-
     @patch("subprocess.run")
     def test_list(self, run: MagicMock) -> None:
         run.return_value.stdout = b"""{\n   "meta": {\n   },\n   "errors": [\n   ],\n   "jobs": [
