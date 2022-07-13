@@ -71,7 +71,9 @@ def load_actor_json(filename: str) -> List[RayActor]:
         actors: List[RayActor] = []
         # Yes this is gross but it works
         actor_dict = json.load(f)
+        print(">>>>>>>>>> ", actor_dict)
         actor_dict = json.loads(actor_dict)
+        print("<<<<<<<<<< ", actor_dict)
         for actor in actor_dict:
             actors.append(RayActor(**actor))
         return actors
@@ -100,6 +102,14 @@ def create_placement_group(replicas: List[RayActor]) -> PlacementGroup:
     return pg
 
 
+def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
+    bundles = []
+    for replica in replicas:
+        bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
+
+    pg = ray.util.placement_group(bundles, strategy="SPREAD")
+    return pg
+
 def create_command_actors(
     actors: List[RayActor], pg: PlacementGroup
 ) -> List[CommandActor]:
@@ -125,54 +135,32 @@ def create_command_actors(
 
     return cmd_actors
 
-class PG_Result:
-    def __init__(self, replicas=None, pg=None):
-        self.pg = pg
-        self.replicas = replicas
-    
-    def is_success(self):
-        if self.pg is not None:
-            return True
-        if self.replicas is not None:
-            return False
-
-
-@ray.remote
-def create_placement_group_on_ray(replicas: List[RayActor]) -> PG_Result:
-    bundles = []
-    for replica in replicas:
-        bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
-
-    pg = ray.util.placement_group(bundles, strategy="SPREAD")
-
-    _logger.info("Waiting for placement group to start.")
-    ready = pg.wait(timeout_seconds=100)
-
-    if not ready:  # pragma: no cover
-        return PG_Result(replicas=replicas)
-    return PG_Result(pg=pg)
-
 
 def main() -> None:  # pragma: no cover
 
     MIN_NNODES = 1
-    MAX_NNODES = 2
+    MAX_NNODES = 3
 
+    created = 0
     actors: List[RayActor] = load_actor_json("actors.json")
+    print(actors)
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
-    print(actors)
 
     # Create the minimum requirement placement_group
     pg: PlacementGroup = create_placement_group(actors[:MIN_NNODES])
     command_actors: List[CommandActor] = create_command_actors(actors[:MIN_NNODES], pg)
+    created += MIN_NNODES
 
     active_workers = [
         command_actor.exec_module.remote()  # pyre-ignore
         for command_actor in command_actors
     ]
 
-    active_workers.append(create_placement_group_on_ray.remote(actors[MIN_NNODES:]))
+    # keep creating placement groups until the maximum number of nodes is reached
+    if created < MAX_NNODES:
+        active_workers.append(
+            create_placement_group_async(actors[created:created+1]).ready())
 
     # Await return result of remote ray function
     while len(active_workers) > 0:
@@ -184,16 +172,17 @@ def main() -> None:  # pragma: no cover
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_workers:
             result = ray.get(object_ref)
-            if isinstance(result, PG_Result):
-                if result.is_success():
-                    new_actors: List[CommandActor] = create_command_actors(actors[MIN_NNODES:], result.pg)
-                    # import time
-                    # time.sleep(40)
-                    for actor in new_actors:
-                        active_workers.append(actor.exec_module.remote())
-                else:
-                    active_workers.append(create_placement_group_on_ray.remote(result.replicas))
-
+            if isinstance(result, PlacementGroup):
+                new_actors: List[CommandActor] = create_command_actors(actors[created:created+1], result)
+                for actor in new_actors:
+                    active_workers.append(actor.exec_module.remote())
+                created += 1
+                if created < MAX_NNODES:
+                    active_workers.append(
+                        create_placement_group_async(actors[created:created+1]).ready())
+            else:
+                # if the result is None, it's returned by a completed worker, and the job is completed
+                return
 
 
 
