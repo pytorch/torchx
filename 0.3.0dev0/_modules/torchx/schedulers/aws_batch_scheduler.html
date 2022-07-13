@@ -880,13 +880,16 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">job</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="n">attempts</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;attempts&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attempts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s2">&quot;status&quot;</span> <span class="ow">in</span> <span class="n">job</span> <span class="ow">and</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RUNNING&quot;</span><span class="p">:</span>
+            <span class="n">stream_name</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;logStreamName&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attempts</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;attempts&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attempts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="n">attempt</span> <span class="o">=</span> <span class="n">attempts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">container</span> <span class="o">=</span> <span class="n">attempt</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span>
-        <span class="n">stream_name</span> <span class="o">=</span> <span class="n">container</span><span class="p">[</span><span class="s2">&quot;logStreamName&quot;</span><span class="p">]</span>
+            <span class="n">attempt</span> <span class="o">=</span> <span class="n">attempts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">container</span> <span class="o">=</span> <span class="n">attempt</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span>
+            <span class="n">stream_name</span> <span class="o">=</span> <span class="n">container</span><span class="p">[</span><span class="s2">&quot;logStreamName&quot;</span><span class="p">]</span>
 
         <span class="n">iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_events</span><span class="p">(</span><span class="n">stream_name</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="n">since</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
