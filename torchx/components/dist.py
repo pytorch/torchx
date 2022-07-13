@@ -59,6 +59,21 @@ import torchx
 import torchx.specs as specs
 from torchx.specs import macros
 
+_TORCH_DEBUG_FLAGS: Dict[str, str] = {
+    "CUDA_LAUNCH_BLOCKING": "1",
+    "NCCL_DESYNC_DEBUG": "1",
+    "TORCH_DISTRIBUTED_DEBUG": "DETAIL",
+    "TORCH_SHOW_CPP_STACKTRACES": "1",
+}
+"""
+These are commonly set environment variables to debug PyTorch execution.
+
+* ``CUDA_LAUNCH_BLOCKING``: Read more `here <https://docs.nvidia.com/cuda/cuda-gdb/index.html#set-cuda-launch-blocking>`__.
+* ``NCCL_DESYNC_DEBUG``
+* ``TORCH_DISTRIBUTED_DEBUG``: Read more `here <https://pytorch.org/docs/stable/distributed.html#torch-distributed-debug>`__.
+* ``TORCH_SHOW_CPP_STACKTRACES``: Read more `here <https://pytorch.org/docs/stable/distributed.html#torch-distributed-debug>`__.
+"""
+
 
 def ddp(
     *script_args: str,
@@ -75,6 +90,7 @@ def ddp(
     max_retries: int = 0,
     rdzv_port: int = 29500,
     mounts: Optional[List[str]] = None,
+    debug: bool = False,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -106,6 +122,7 @@ def ddp(
                    is ignored and a random free port is chosen.
         mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
                 See scheduler documentation for more info.
+        debug: whether to run with preset debug flags enabled
     """
 
     if (script is None) == (m is None):
@@ -140,6 +157,9 @@ def ddp(
     if env is None:
         env = {}
     env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
+
+    if debug:
+        env.update(_TORCH_DEBUG_FLAGS)
 
     cmd = [
         "python",
