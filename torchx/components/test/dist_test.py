@@ -17,3 +17,9 @@ class DistributedComponentTest(ComponentTestCase):
             script="foo.py", mounts=["type=bind", "src=/dst", "dst=/dst", "readonly"]
         )
         self.assertEqual(len(app.roles[0].mounts), 1)
+
+    def test_ddp_debug(self) -> None:
+        app = dist.ddp(script="foo.py", debug=True)
+        env = app.roles[0].env
+        for k, v in dist._TORCH_DEBUG_FLAGS.items():
+            self.assertEqual(env[k], v)
