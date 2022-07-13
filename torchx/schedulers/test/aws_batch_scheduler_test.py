@@ -483,6 +483,17 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ],
         }
 
+        scheduler._client.describe_job_queues.return_value = {
+            "ResponseMetadata": {},
+            "jobQueues": [
+                {
+                    "jobQueueName": "torchx",
+                    "jobQueueArn": "arn:aws:batch:test-region:4000005:job-queue/torchx",
+                    "state": "ENABLED",
+                },
+            ],
+        }
+
         return scheduler
 
     @mock_rand()
@@ -523,6 +534,12 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 },
             ),
         )
+
+    def test_list(self) -> None:
+        scheduler = self._mock_scheduler()
+        expected_app_ids = ["torchx:echo-v1r560pmwn5t3c"]
+        app_ids = scheduler.list()
+        self.assertEqual(app_ids, expected_app_ids)
 
     def test_log_iter(self) -> None:
         scheduler = self._mock_scheduler()

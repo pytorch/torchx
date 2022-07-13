@@ -523,7 +523,33 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             return iterator
 
     def list(self) -> List[str]:
-        raise NotImplementedError()
+        # TODO: get queue name input instead of iterating over all queues?
+        resp = self._client.describe_job_queues()
+        queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
+        all_app_ids = []
+        for qn in queue_names:
+            all_app_ids += self._list_by_queue(qn)
+        return all_app_ids
+
+    def _list_by_queue(self, queue_name: str) -> List[str]:
+        # By default only running jobs are listed by batch/boto client's list_jobs API
+        # When 'filters' parameter is specified, jobs with all statuses are listed
+        # So use AFTER_CREATED_AT filter to list jobs in all statuses
+        # milli_seconds_after_epoch can later be used to list jobs by timeframe
+        milli_seconds_after_epoch = "1"
+        jobs = self._client.list_jobs(
+            jobQueue=queue_name,
+            filters=[
+                {
+                    "name": "AFTER_CREATED_AT",
+                    "values": [
+                        milli_seconds_after_epoch,
+                    ],
+                },
+            ],
+        )["jobSummaryList"]
+        app_ids = [f"{queue_name}:{job['jobName']}" for job in jobs]
+        return app_ids
 
     def _stream_events(
         self,
