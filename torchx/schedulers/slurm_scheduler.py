@@ -9,9 +9,8 @@
 This contains the TorchX Slurm scheduler which can be used to run TorchX
 components on a Slurm cluster.
 """
-import json
-
 import csv
+import json
 import logging
 import os.path
 import shlex
@@ -562,7 +561,9 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
         # To return all jobs launched, set starttime to one second past unix epoch time
         # Starttime will be modified when listing jobs by timeframe is supported
         p = subprocess.run(
-            ["sacct", "--json", "-S1970-01-01-00:00:01"], stdout=subprocess.PIPE, check=True
+            ["sacct", "--json", "-S1970-01-01-00:00:01"],
+            stdout=subprocess.PIPE,
+            check=True,
         )
         output_jsons = p.stdout.decode("utf-8")
         output_json = json.loads(output_jsons)
