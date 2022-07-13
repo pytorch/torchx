@@ -505,13 +505,16 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         if not job:
             return []
 
-        attempts = job["attempts"]
-        if len(attempts) == 0:
-            return []
+        if "status" in job and job["status"] == "RUNNING":
+            stream_name = job["container"]["logStreamName"]
+        else:
+            attempts = job["attempts"]
+            if len(attempts) == 0:
+                return []
 
-        attempt = attempts[-1]
-        container = attempt["container"]
-        stream_name = container["logStreamName"]
+            attempt = attempts[-1]
+            container = attempt["container"]
+            stream_name = container["logStreamName"]
 
         iterator = self._stream_events(stream_name, since=since, until=until)
         if regex:
