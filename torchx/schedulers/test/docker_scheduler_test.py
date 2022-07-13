@@ -8,7 +8,7 @@
 import posixpath
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import fsspec
 import torchx
@@ -182,11 +182,6 @@ class DockerSchedulerTest(unittest.TestCase):
                 "TORCHX_RANK0_HOST": "app_name_42-trainer-0",
             },
         )
-
-    @patch("docker.DockerClient.containers")
-    def test_list(self, containers: MagicMock) -> None:
-        self.scheduler.list()
-        containers.list.assert_called_once()
 
 
 if has_docker():
