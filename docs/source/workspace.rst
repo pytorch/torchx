@@ -42,3 +42,4 @@ torchx.workspace.dir_workspace
 
    .. autoclass:: JetterWorkspace
      :members:
+     :show-inheritance:

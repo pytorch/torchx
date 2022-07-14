@@ -527,7 +527,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.local_scheduler.LocalScheduler
+        class: torchx.schedulers.local_scheduler.create_scheduler
 
     **Compatibility**
 

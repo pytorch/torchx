@@ -289,7 +289,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.slurm_scheduler.SlurmScheduler
+        class: torchx.schedulers.slurm_scheduler.create_scheduler
 
     **Compatibility**
 

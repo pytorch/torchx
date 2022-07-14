@@ -126,7 +126,7 @@ if _has_ray:
         **Config Options**
 
         .. runopts::
-            class: torchx.schedulers.ray_scheduler.RayScheduler
+            class: torchx.schedulers.ray_scheduler.create_scheduler
 
         **Compatibility**
 
