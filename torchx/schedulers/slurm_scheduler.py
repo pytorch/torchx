@@ -565,8 +565,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
             stdout=subprocess.PIPE,
             check=True,
         )
-        output_jsons = p.stdout.decode("utf-8")
-        output_json = json.loads(output_jsons)
+        output_json = json.loads(p.stdout.decode("utf-8"))
         return [str(job["job_id"]) for job in output_json["jobs"]]
 
 

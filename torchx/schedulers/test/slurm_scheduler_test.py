@@ -399,9 +399,9 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
     def test_list(self, run: MagicMock) -> None:
         run.return_value.stdout = b"""{\n   "meta": {\n   },\n   "errors": [\n   ],\n   "jobs": [
 \n     {\n       "account": null,\n       "job_id": 123,\n       "name": "main-0",
-\n       "working_directory": "\\/home\\/ec2-user\\/integ-tests\\/runner-1234\\/job"\n     },
+\n       "working_directory": "\\/home\\/ec2-user\\/tests\\/runner-1234\\/job"\n     },
 \n     {\n       "account": null,\n       "job_id": 124,\n       "name": "main-0",
-\n       "working_directory": "\\/home\\/ec2-user\\/integ-tests\\/runner-1234\\/job"\n     }\n   ]\n }"""
+\n       "working_directory": "\\/home\\/ec2-user\\/tests\\/runner-1234\\/job"\n     }\n   ]\n }"""
         scheduler = create_scheduler("foo")
         expected_app_ids = ["123", "124"]
         app_ids = scheduler.list()
