@@ -952,7 +952,33 @@
             <span class="k">return</span> <span class="n">iterator</span></div>
 
 <div class="viewcode-block" id="AWSBatchScheduler.list"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        <span class="c1"># TODO: get queue name input instead of iterating over all queues?</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">describe_job_queues</span><span class="p">()</span>
+        <span class="n">queue_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">queue</span><span class="p">[</span><span class="s2">&quot;jobQueueName&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">queue</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;jobQueues&quot;</span><span class="p">]]</span>
+        <span class="n">all_app_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">qn</span> <span class="ow">in</span> <span class="n">queue_names</span><span class="p">:</span>
+            <span class="n">all_app_ids</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_by_queue</span><span class="p">(</span><span class="n">qn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_app_ids</span></div>
+
+    <span class="k">def</span> <span class="nf">_list_by_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># By default only running jobs are listed by batch/boto client&#39;s list_jobs API</span>
+        <span class="c1"># When &#39;filters&#39; parameter is specified, jobs with all statuses are listed</span>
+        <span class="c1"># So use AFTER_CREATED_AT filter to list jobs in all statuses</span>
+        <span class="c1"># milli_seconds_after_epoch can later be used to list jobs by timeframe</span>
+        <span class="n">milli_seconds_after_epoch</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">list_jobs</span><span class="p">(</span>
+            <span class="n">jobQueue</span><span class="o">=</span><span class="n">queue_name</span><span class="p">,</span>
+            <span class="n">filters</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AFTER_CREATED_AT&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="n">milli_seconds_after_epoch</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)[</span><span class="s2">&quot;jobSummaryList&quot;</span><span class="p">]</span>
+        <span class="n">app_ids</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">queue_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">job</span><span class="p">[</span><span class="s1">&#39;jobName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">app_ids</span>
 
     <span class="k">def</span> <span class="nf">_stream_events</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
