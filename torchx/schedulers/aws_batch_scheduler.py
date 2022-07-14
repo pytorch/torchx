@@ -189,6 +189,7 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
 class BatchJob:
     name: str
     queue: str
+    share_id: Optional[str]
     job_def: Dict[str, object]
     images_to_push: Dict[str, Tuple[str, str]]
 
@@ -227,6 +228,8 @@ def _local_session() -> "boto3.session.Session":
 class AWSBatchOpts(TypedDict, total=False):
     queue: str
     image_repo: Optional[str]
+    share_id: Optional[str]
+    priority: Optional[int]
 
 
 class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
@@ -322,12 +325,16 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         req = dryrun_info.request
         self._client.register_job_definition(**req.job_def)
 
-        self._client.submit_job(
-            jobName=req.name,
-            jobQueue=req.queue,
-            jobDefinition=req.name,
-            tags=req.job_def["tags"],
-        )
+        batch_job_req = {
+            **{
+                "jobName": req.name,
+                "jobQueue": req.queue,
+                "jobDefinition": req.name,
+                "tags": req.job_def["tags"],
+            },
+            **({"shareIdentifier": req.share_id} if req.share_id is not None else {}),
+        }
+        self._client.submit_job(**batch_job_req)
 
         return f"{req.queue}:{req.name}"
 
@@ -335,7 +342,17 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         queue = cfg.get("queue")
         if not isinstance(queue, str):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
-        name = make_unique(app.name)
+
+        share_id = cfg.get("share_id")
+        priority = cfg.get("priority")
+        if share_id is None and priority is not None:
+            raise ValueError(
+                "config value 'priority' takes no effect for job queues without a scheduling policy "
+                "(implied by 'share_id' not being set)"
+            )
+
+        name_suffix = f"-{share_id}" if share_id is not None else ""
+        name = make_unique(f"{app.name}{name_suffix}")
 
         # map any local images to the remote image
         images_to_push = self._update_app_images(app, cfg.get("image_repo"))
@@ -367,10 +384,8 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                     replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
                 nodes.append(_role_to_node_properties(rank, replica_role))
 
-        req = BatchJob(
-            name=name,
-            queue=queue,
-            job_def={
+        job_def = {
+            **{
                 "jobDefinitionName": name,
                 "type": "multinode",
                 "nodeProperties": {
@@ -389,6 +404,18 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                     "torchx.pytorch.org/app-name": app.name,
                 },
             },
+            **(
+                {"schedulingPriority": priority if priority is not None else 0}
+                if share_id is not None
+                else {}
+            ),
+        }
+
+        req = BatchJob(
+            name=name,
+            queue=queue,
+            share_id=share_id,
+            job_def=job_def,
             images_to_push=images_to_push,
         )
         info = AppDryRunInfo(req, repr)
@@ -415,6 +442,19 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             "image_repo",
             type_=str,
             help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
+        )
+        opts.add(
+            "share_id",
+            type_=str,
+            help="The share identifier for the job. "
+            "This must be set if and only if the job queue has a scheduling policy.",
+        )
+        opts.add(
+            "priority",
+            type_=int,
+            help="The scheduling priority for the job within the context of share_id. "
+            "Higher number (between 0 and 9999) means higher priority. "
+            "This will only take effect if the job queue has a scheduling policy.",
         )
         return opts
 
