@@ -410,6 +410,7 @@
 <span class="sd">for how to create a image repository.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -558,6 +559,18 @@
         <span class="s2">&quot;targetNodes&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span>
         <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container</span><span class="p">,</span>
     <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_job_ui_url</span><span class="p">(</span><span class="n">job_arn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+        <span class="s2">&quot;arn:aws:batch:([a-z-0-9]+):[0-9]+:job/([a-z-0-9]+)&quot;</span><span class="p">,</span>
+        <span class="n">job_arn</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">region</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">job_id</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;https://</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.console.aws.amazon.com/batch/home?region=</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">#jobs/mnp-job/</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
 <div class="viewcode-block" id="BatchJob"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.BatchJob">[docs]</a><span class="nd">@dataclass</span>
@@ -887,6 +900,7 @@
             <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
             <span class="n">state</span><span class="o">=</span><span class="n">JOB_STATE</span><span class="p">[</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]],</span>
             <span class="n">roles</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="n">ui_url</span><span class="o">=</span><span class="n">_job_ui_url</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;jobArn&quot;</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AWSBatchScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
