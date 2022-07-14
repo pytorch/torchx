@@ -108,6 +108,7 @@ def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
     pg = ray.util.placement_group(bundles, strategy="SPREAD")
     return pg
 
+
 def create_command_actors(
     actors: List[RayActor], pg: PlacementGroup
 ) -> List[CommandActor]:
@@ -145,7 +146,7 @@ def main() -> None:  # pragma: no cover
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
 
-    created = 0 # number of placement group has been created
+    created = 0  # number of placement group has been created
     # Create the minimum requirement placement_group
     pg: PlacementGroup = create_placement_group(actors[:MIN_NNODES])
     command_actors: List[CommandActor] = create_command_actors(actors[:MIN_NNODES], pg)
@@ -159,8 +160,9 @@ def main() -> None:  # pragma: no cover
     # keep creating placement groups until the maximum number of actors is reached
     if created < MAX_NNODES:
         active_workers.append(
-            create_placement_group_async(actors[created:created+1]).ready())
- 
+            create_placement_group_async(actors[created : created + 1]).ready()
+        )
+
     # Await return result of remote ray function
     while len(active_workers) > 0:
         _logger.info(f"running ray.wait on {active_workers}")
@@ -172,17 +174,21 @@ def main() -> None:  # pragma: no cover
         for object_ref in completed_workers:
             result = ray.get(object_ref)
             if isinstance(result, PlacementGroup):
-                new_actors: List[CommandActor] = create_command_actors(actors[created:created+1], result)
+                new_actors: List[CommandActor] = create_command_actors(
+                    actors[created : created + 1], result
+                )
                 for actor in new_actors:
                     active_workers.append(actor.exec_module.remote())
                 created += 1
                 if created < MAX_NNODES:
                     active_workers.append(
-                        create_placement_group_async(actors[created:created+1]).ready())
+                        create_placement_group_async(
+                            actors[created : created + 1]
+                        ).ready()
+                    )
             else:
                 # if the result is None, it's returned by a completed worker, and the job is completed
                 return
-
 
 
 if __name__ == "__main__":

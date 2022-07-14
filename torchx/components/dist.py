@@ -50,8 +50,8 @@ under the hood. Read more about torchelastic `here <https://pytorch.org/docs/sta
 Components APIs
 -----------------
 """
-import re
 import os
+import re
 import shlex
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
@@ -116,20 +116,20 @@ def ddp(
     # max_nnodes: maximum number of nodes for elastic launch
     # nproc_per_node: number of processes on each node
     nnodes, max_nnodes, nproc_per_node, nnodes_rep = None, None, None, None
-    is_elastic = False # elastic launch flag
-    if re.match('\d+:\d+x\d+', j): # match 2:4x1
-        print("grats, it's elastic launch")
-        nnodes_rep, nproc_per_node = j.split('x')
-        nnodes, max_nnodes = nnodes_rep.split(':')
+    is_elastic = False  # elastic launch flag
+    if re.match("\\d+:\\d+x\\d+", j):  # match 2:4x1
+        nnodes_rep, nproc_per_node = j.split("x")
+        nnodes, max_nnodes = nnodes_rep.split(":")
         is_elastic = True
-    elif re.match('\d+x\d+', j): # match 2x1
-        print("normal launch")
-        nnodes, nproc_per_node = j.split('x')
-    elif re.match('\d+', j): # match 2
+    elif re.match("\\d+x\\d+", j):  # match 2x1
+        nnodes, nproc_per_node = j.split("x")
+    elif re.match("\\d+", j):  # match 2
         nnodes = 1
         nproc_per_node = int(j)
     else:
-        raise ValueError(f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}")
+        raise ValueError(
+            f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}"
+        )
 
     if script:
         # script name/module no extension
@@ -140,7 +140,9 @@ def ddp(
         raise ValueError("failed to compute role_name")
 
     rdzv_backend = "c10d"
-    if (not is_elastic and int(nnodes) == 1) or (is_elastic and int(nnodes)==0 and int(max_nnodes) == 1):
+    if (not is_elastic and int(nnodes) == 1) or (
+        is_elastic and int(nnodes) == 0 and int(max_nnodes) == 1
+    ):
         # using port 0 makes elastic chose a free random port which is ok
         # for single-node jobs since all workers run under a single agent
         # When nnodes is 0 and max_nnodes is 1, it's stil a single node job
@@ -164,7 +166,7 @@ def ddp(
         "--rdzv_id",
         f"{macros.app_id}",
         "--nnodes",
-        nnodes_rep if is_elastic else nnodes, # Use nnodes_rep only when elastic launch
+        nnodes_rep if is_elastic else nnodes,  # Use nnodes_rep only when elastic launch
         "--nproc_per_node",
         str(nproc_per_node),
         "--tee",
