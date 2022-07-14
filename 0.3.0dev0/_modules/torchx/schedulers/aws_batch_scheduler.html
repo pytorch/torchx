@@ -564,6 +564,7 @@
 <span class="k">class</span> <span class="nc">BatchJob</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">share_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">job_def</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
     <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
@@ -602,6 +603,8 @@
 <span class="k">class</span> <span class="nc">AWSBatchOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">share_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSBatchOpts</span><span class="p">],</span> <span class="n">DockerWorkspace</span><span class="p">):</span>
@@ -697,12 +700,16 @@
         <span class="n">req</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">register_job_definition</span><span class="p">(</span><span class="o">**</span><span class="n">req</span><span class="o">.</span><span class="n">job_def</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span>
-            <span class="n">jobName</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">jobQueue</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">queue</span><span class="p">,</span>
-            <span class="n">jobDefinition</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">job_def</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span>
-        <span class="p">)</span>
+        <span class="n">batch_job_req</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="s2">&quot;jobName&quot;</span><span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;jobQueue&quot;</span><span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">queue</span><span class="p">,</span>
+                <span class="s2">&quot;jobDefinition&quot;</span><span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">job_def</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">&quot;shareIdentifier&quot;</span><span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">share_id</span><span class="p">}</span> <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">share_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span><span class="o">**</span><span class="n">batch_job_req</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">queue</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
@@ -710,7 +717,17 @@
         <span class="n">queue</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config value &#39;queue&#39; must be a string, got </span><span class="si">{</span><span class="n">queue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">share_id</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;share_id&quot;</span><span class="p">)</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;config value &#39;priority&#39; takes no effect for job queues without a scheduling policy &quot;</span>
+                <span class="s2">&quot;(implied by &#39;share_id&#39; not being set)&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">name_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">share_id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">name_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># map any local images to the remote image</span>
         <span class="n">images_to_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_app_images</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_repo&quot;</span><span class="p">))</span>
@@ -742,10 +759,8 @@
                     <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
                 <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_role_to_node_properties</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">))</span>
 
-        <span class="n">req</span> <span class="o">=</span> <span class="n">BatchJob</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span>
-            <span class="n">job_def</span><span class="o">=</span><span class="p">{</span>
+        <span class="n">job_def</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span>
                 <span class="s2">&quot;jobDefinitionName&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
                 <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;multinode&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;nodeProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -764,6 +779,18 @@
                     <span class="s2">&quot;torchx.pytorch.org/app-name&quot;</span><span class="p">:</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">},</span>
+            <span class="o">**</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;schedulingPriority&quot;</span><span class="p">:</span> <span class="n">priority</span> <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">}</span>
+                <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">req</span> <span class="o">=</span> <span class="n">BatchJob</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span>
+            <span class="n">share_id</span><span class="o">=</span><span class="n">share_id</span><span class="p">,</span>
+            <span class="n">job_def</span><span class="o">=</span><span class="n">job_def</span><span class="p">,</span>
             <span class="n">images_to_push</span><span class="o">=</span><span class="n">images_to_push</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
@@ -790,6 +817,19 @@
             <span class="s2">&quot;image_repo&quot;</span><span class="p">,</span>
             <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;share_id&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The share identifier for the job. &quot;</span>
+            <span class="s2">&quot;This must be set if and only if the job queue has a scheduling policy.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The scheduling priority for the job within the context of share_id. &quot;</span>
+            <span class="s2">&quot;Higher number (between 0 and 9999) means higher priority. &quot;</span>
+            <span class="s2">&quot;This will only take effect if the job queue has a scheduling policy.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span></div>
 
