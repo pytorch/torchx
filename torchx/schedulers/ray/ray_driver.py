@@ -71,9 +71,7 @@ def load_actor_json(filename: str) -> List[RayActor]:
         actors: List[RayActor] = []
         # Yes this is gross but it works
         actor_dict = json.load(f)
-        print(">>>>>>>>>> ", actor_dict)
         actor_dict = json.loads(actor_dict)
-        print("<<<<<<<<<< ", actor_dict)
         for actor in actor_dict:
             actors.append(RayActor(**actor))
         return actors
@@ -138,15 +136,16 @@ def create_command_actors(
 
 def main() -> None:  # pragma: no cover
 
-    MIN_NNODES = 1
-    MAX_NNODES = 3
-
-    created = 0
     actors: List[RayActor] = load_actor_json("actors.json")
-    print(actors)
+    if actors[0].nnodes_rep is not None:
+        MIN_NNODES, MAX_NNODES = actors[0].nnodes_rep.split(":")
+        MIN_NNODES, MAX_NNODES = int(MIN_NNODES), int(MAX_NNODES)
+    else:
+        MIN_NNODES, MAX_NNODES = len(actors), len(actors)
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
 
+    created = 0 # number of placement group has been created
     # Create the minimum requirement placement_group
     pg: PlacementGroup = create_placement_group(actors[:MIN_NNODES])
     command_actors: List[CommandActor] = create_command_actors(actors[:MIN_NNODES], pg)
@@ -157,11 +156,11 @@ def main() -> None:  # pragma: no cover
         for command_actor in command_actors
     ]
 
-    # keep creating placement groups until the maximum number of nodes is reached
+    # keep creating placement groups until the maximum number of actors is reached
     if created < MAX_NNODES:
         active_workers.append(
             create_placement_group_async(actors[created:created+1]).ready())
-
+ 
     # Await return result of remote ray function
     while len(active_workers) > 0:
         _logger.info(f"running ray.wait on {active_workers}")

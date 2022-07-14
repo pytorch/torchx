@@ -281,6 +281,7 @@ if _has_ray:
                         env=replica_role.env,
                         num_cpus=max(1, replica_role.resource.cpu),
                         num_gpus=max(0, replica_role.resource.gpu),
+                        nnodes_rep=role.nnodes_rep,
                     )
 
                     job.actors.append(actor)
@@ -323,11 +324,16 @@ if _has_ray:
                     break
                 time.sleep(1)
 
-        def _parse_app_id(self, app_id: str) -> str:
+        def _parse_app_id(self, app_id: str) -> Tuple[str, str]:
             # find index of '-' in the first :\d+-
-            sep = re.search(r':\d+-', app_id).span()[1]
-            addr = app_id[:sep-1]
-            app_id = app_id[sep:]
+            m = re.search(r":\d+-", app_id)
+            if m:
+                sep = m.span()[1]
+                addr = app_id[: sep - 1]
+                app_id = app_id[sep:]
+                return addr, app_id
+
+            addr, _, app_id = app_id.partition("-")
             return addr, app_id
 
         def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover

@@ -290,6 +290,7 @@ class Role:
                 scheduler specific data. The key should follow the pattern: ``$scheduler.$key``
             mounts: a list of mounts on the machine
     """
+
     name: str
     image: str
     base_image: Optional[str] = None  # DEPRECATED DO NOT SET, WILL BE REMOVED SOON
@@ -305,7 +306,7 @@ class Role:
     mounts: List[Union[BindMount, VolumeMount, DeviceMount]] = field(
         default_factory=list
     )
-    # nnodes_rep: str = None # the representation of nnodes for elastic launch
+    nnodes_rep: str = None # the representation of nnodes for elastic launch
 
     def pre_proc(
         self,
