@@ -35,6 +35,7 @@ https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#
 for how to create a image repository.
 """
 
+import re
 import threading
 from dataclasses import dataclass
 from datetime import datetime
@@ -183,6 +184,18 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
         "targetNodes": str(idx),
         "container": container,
     }
+
+
+def _job_ui_url(job_arn: str) -> Optional[str]:
+    match = re.match(
+        "arn:aws:batch:([a-z-0-9]+):[0-9]+:job/([a-z-0-9]+)",
+        job_arn,
+    )
+    if match is None:
+        return None
+    region = match.group(1)
+    job_id = match.group(2)
+    return f"https://{region}.console.aws.amazon.com/batch/home?region={region}#jobs/mnp-job/{job_id}"
 
 
 @dataclass
@@ -512,6 +525,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             app_id=app_id,
             state=JOB_STATE[job["status"]],
             roles=list(roles.values()),
+            ui_url=_job_ui_url(job["jobArn"]),
         )
 
     def log_iter(

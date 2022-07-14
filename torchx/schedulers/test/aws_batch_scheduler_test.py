@@ -408,7 +408,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler._client.describe_jobs.return_value = {
             "jobs": [
                 {
-                    "jobArn": "thejobarn",
+                    "jobArn": "arn:aws:batch:us-west-2:495572122715:job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
                     "jobName": "app-name-42",
                     "jobId": "6afc27d7-3559-43ca-89fd-1007b6bf2546",
                     "jobQueue": "testqueue",
@@ -538,6 +538,10 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         self.assertIsNotNone(status)
         self.assertEqual(status.state, specs.AppState.SUCCEEDED)
         self.assertEqual(status.app_id, "testqueue:app-name-42")
+        self.assertEqual(
+            status.ui_url,
+            "https://us-west-2.console.aws.amazon.com/batch/home?region=us-west-2#jobs/mnp-job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
+        )
         self.assertEqual(
             status.roles[0],
             specs.Role(
