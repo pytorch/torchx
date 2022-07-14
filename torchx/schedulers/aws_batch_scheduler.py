@@ -263,7 +263,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler
+        class: torchx.schedulers.aws_batch_scheduler.create_scheduler
 
     **Mounts**
 

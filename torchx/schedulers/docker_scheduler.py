@@ -115,7 +115,7 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.docker_scheduler.DockerScheduler
+        class: torchx.schedulers.docker_scheduler.create_scheduler
 
     **Mounts**
 
