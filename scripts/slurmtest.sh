@@ -59,6 +59,6 @@ LIST_LINES="$(torchx list -s slurm | grep -c "$APP_ID")"
 
 if [ "$LIST_LINES" -ne 1 ]
 then
-    echo "expected "$APP_ID" to be listed"
+    echo "expected $APP_ID to be listed"
     exit 1
 fi

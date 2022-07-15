@@ -557,7 +557,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
         )
 
     def list(self) -> List[str]:
-        # By default sacct only returns accounting informations of jobs launched on the current day
+        # By default sacct only returns accounting information of jobs launched on the current day
         # To return all jobs launched, set starttime to one second past unix epoch time
         # Starttime will be modified when listing jobs by timeframe is supported
         p = subprocess.run(
