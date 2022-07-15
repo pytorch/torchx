@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 TORCHX_RANK0_HOST: str = "TORCHX_RANK0_HOST"
 
@@ -15,8 +15,8 @@ class RayActor:
     """Describes an actor (a.k.a. worker/replica in TorchX terms)."""
 
     name: str
+    nnodes_rep: str
     command: List[str]
     env: Dict[str, str] = field(default_factory=dict)
     num_cpus: int = 1
     num_gpus: int = 0
-    nnodes_rep: Optional[str] = None

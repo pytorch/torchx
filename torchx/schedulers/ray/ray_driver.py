@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import json
+import re
 import logging
 import os
 import subprocess
@@ -138,7 +139,7 @@ def create_command_actors(
 def main() -> None:  # pragma: no cover
 
     actors: List[RayActor] = load_actor_json("actors.json")
-    if actors[0].nnodes_rep is not None:
+    if re.match('\\d+:\\d+', actors[0].nnodes_rep):
         MIN_NNODES, MAX_NNODES = actors[0].nnodes_rep.split(":")
         MIN_NNODES, MAX_NNODES = int(MIN_NNODES), int(MAX_NNODES)
     else:

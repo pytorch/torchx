@@ -115,7 +115,7 @@ def ddp(
     # nnodes: number of nodes or minimum nodes for elastic launch
     # max_nnodes: maximum number of nodes for elastic launch
     # nproc_per_node: number of processes on each node
-    nnodes, max_nnodes, nproc_per_node, nnodes_rep = None, None, None, None
+    nnodes, max_nnodes, nproc_per_node, nnodes_rep = "", "", "", ""
     is_elastic = False  # elastic launch flag
     if re.match("\\d+:\\d+x\\d+", j):  # match 2:4x1
         nnodes_rep, nproc_per_node = j.split("x")
@@ -124,8 +124,8 @@ def ddp(
     elif re.match("\\d+x\\d+", j):  # match 2x1
         nnodes, nproc_per_node = j.split("x")
     elif re.match("\\d+", j):  # match 2
-        nnodes = 1
-        nproc_per_node = int(j)
+        nnodes = "1"
+        nproc_per_node = j
     else:
         raise ValueError(
             f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}"
@@ -195,7 +195,7 @@ def ddp(
                 },
                 max_retries=max_retries,
                 mounts=specs.parse_mounts(mounts) if mounts else [],
-                nnodes_rep=nnodes_rep if is_elastic else None,
+                nnodes_rep=nnodes_rep,
             )
         ],
     )
