@@ -13,6 +13,7 @@ import sys
 from datetime import datetime
 from string import Template
 from typing import List, Optional, Pattern
+from pyre_extensions import none_throws
 
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
@@ -23,6 +24,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 _APP_STATUS_FORMAT_TEMPLATE = """AppDef:
+  JOB URL: ${url}
   State: ${state}
   Num Restarts: ${num_restarts}
 Roles:${roles}"""
@@ -134,6 +136,7 @@ def format_app_status(
     for role_status in roles:
         roles_data += format_role_status(role_status)
     return Template(_APP_STATUS_FORMAT_TEMPLATE).substitute(
+        url=none_throws(app_status).ui_url,
         state=app_status.state,
         num_restarts=app_status.num_restarts,
         roles=roles_data,

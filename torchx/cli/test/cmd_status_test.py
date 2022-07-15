@@ -86,6 +86,7 @@ Traceback (most recent call last):
         actual_message = format_app_status(app_status)
         print(actual_message)
         expected_message = """AppDef:
+  JOB URL: None
   State: RUNNING
   Num Restarts: 0
 Roles:
