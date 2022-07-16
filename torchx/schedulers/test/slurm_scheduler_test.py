@@ -396,6 +396,19 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
         self.assertEqual(out.state, specs.AppState.RUNNING)
 
     @patch("subprocess.run")
+    def test_list(self, run: MagicMock) -> None:
+        run.return_value.stdout = b"""{\n   "meta": {\n   },\n   "errors": [\n   ],\n   "jobs": [
+\n     {\n       "account": null,\n       "job_id": 123,\n       "name": "main-0",
+\n       "working_directory": "\\/home\\/ec2-user\\/tests\\/runner-1234\\/job"\n     },
+\n     {\n       "account": null,\n       "job_id": 124,\n       "name": "main-0",
+\n       "working_directory": "\\/home\\/ec2-user\\/tests\\/runner-1234\\/job"\n     }\n   ]\n }"""
+        scheduler = create_scheduler("foo")
+        expected_app_ids = ["123", "124"]
+        app_ids = scheduler.list()
+        self.assertIsNotNone(app_ids)
+        self.assertEqual(app_ids, expected_app_ids)
+
+    @patch("subprocess.run")
     def test_log_iter(self, run: MagicMock) -> None:
         scheduler = create_scheduler("foo")
 

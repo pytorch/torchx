@@ -53,3 +53,12 @@ then
     echo "expected 2 log lines"
     exit 1
 fi
+
+torchx list -s slurm
+LIST_LINES="$(torchx list -s slurm | grep -c "$APP_ID")"
+
+if [ "$LIST_LINES" -ne 1 ]
+then
+    echo "expected $APP_ID to be listed"
+    exit 1
+fi
