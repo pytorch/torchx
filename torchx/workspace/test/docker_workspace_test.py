@@ -3,8 +3,11 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+import os
+import pathlib
+import stat
 import tarfile
+import tempfile
 import unittest
 from unittest.mock import MagicMock
 
@@ -212,3 +215,17 @@ class DockerWorkspaceMockTest(unittest.TestCase):
                     },
                 )
                 self.assertEqual(tf.getmember("Dockerfile.torchx").size, 0)
+
+    def test_unix_file_permissions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpDirName:
+            pathlib.Path(os.path.join(tmpDirName, "foo_644")).touch(
+                mode=0o644, exist_ok=True
+            )
+            pathlib.Path(os.path.join(tmpDirName, "foo_755")).touch(
+                mode=0o755, exist_ok=True
+            )
+
+            with _build_context("img", tmpDirName) as f:
+                with tarfile.open(fileobj=f, mode="r") as tf:
+                    self.assertEqual(stat.S_IMODE(tf.getmember("foo_644").mode), 0o644)
+                    self.assertEqual(stat.S_IMODE(tf.getmember("foo_755").mode), 0o755)
