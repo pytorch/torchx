@@ -7,6 +7,7 @@
 import io
 import logging
 import posixpath
+import stat
 import tarfile
 import tempfile
 from typing import Dict, IO, Mapping, Optional, Tuple, TYPE_CHECKING
@@ -189,4 +190,12 @@ def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
                 size = info["size"]
                 assert isinstance(size, int), "size must be an int"
                 tinfo.size = size
+
+                # preserve unix mode for supported filesystems; fsspec.filesystem("memory") for example does not support
+                # unix file mode, hence conditional check here
+                if "mode" in info:
+                    mode = info["mode"]
+                    assert isinstance(mode, int), "mode must be an int"
+                    tinfo.mode = stat.S_IMODE(mode)
+
                 tf.addfile(tinfo, f)
