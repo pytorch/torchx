@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
-from torchx.cli.cmd_log import ENDC, get_logs, GREEN, validate
+from torchx.cli.cmd_log import _prefix_line, ENDC, get_logs, GREEN, validate
 from torchx.runner.api import Runner
 from torchx.schedulers.api import Stream
 from torchx.specs import AppDef, AppHandle, AppState, AppStatus, parse_app_handle, Role
@@ -192,3 +192,13 @@ class CmdLogTest(unittest.TestCase):
 
         with self.assertRaisesRegex(SystemExit, "1"):
             validate("kubernetes://session/queue:name-1234/role/")
+
+    def test_prefix_line(self) -> None:
+        self.assertEqual(_prefix_line("<prefix>", "test\n"), "<prefix>test\n")
+        self.assertEqual(_prefix_line("<prefix>", "\rtest\n"), "\r<prefix>test\n")
+        self.assertEqual(
+            _prefix_line("<prefix>", "foo\rtest\n"), "<prefix>foo\r<prefix>test\n"
+        )
+        self.assertEqual(
+            _prefix_line("<prefix>", "foo\ntest\n"), "<prefix>foo\n<prefix>test\n"
+        )
