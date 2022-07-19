@@ -213,10 +213,9 @@ class CmdRun(SubCommand):
                     self._wait_and_exit(runner, app_handle, log=True)
                 else:
                     logger.info(f"Launched app: {app_handle}")
-                    status = runner.status(app_handle)
-                    logger.info(status)
-                    logger.info(f"Job URL: {none_throws(status).ui_url}")
-
+                    app_status = runner.status(app_handle)
+                    if app_status:
+                        logger.info(app_status.format())
                     if args.wait:
                         self._wait_and_exit(runner, app_handle, log=args.log)
 
