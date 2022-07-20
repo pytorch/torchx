@@ -709,6 +709,17 @@
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
             <span class="k">break</span>
     <span class="k">return</span> <span class="n">lines</span>
+
+
+<span class="k">def</span> <span class="nf">split_lines_iterator</span><span class="p">(</span><span class="n">chunks</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    split_lines_iterator splits each chunk in the iterator by new lines and</span>
+<span class="sd">    returns them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">split_lines</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">line</span>
 </pre></div>
 
      </article>

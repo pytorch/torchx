@@ -396,7 +396,14 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="n">AppDryRunInfo</span><span class="p">,</span> <span class="n">DescribeAppResponse</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">,</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AppDryRunInfo</span><span class="p">,</span>
+    <span class="n">DescribeAppResponse</span><span class="p">,</span>
+    <span class="n">filter_regex</span><span class="p">,</span>
+    <span class="n">Scheduler</span><span class="p">,</span>
+    <span class="n">split_lines_iterator</span><span class="p">,</span>
+    <span class="n">Stream</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.schedulers.local_scheduler</span> <span class="kn">import</span> <span class="n">LogIterator</span>
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDef</span><span class="p">,</span>
@@ -927,9 +934,12 @@
         <span class="k">if</span> <span class="n">app_id</span> <span class="ow">in</span> <span class="n">job_dirs</span><span class="p">:</span>
             <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">job_dirs</span><span class="p">[</span><span class="n">app_id</span><span class="p">],</span> <span class="n">log_file</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">LogIterator</span><span class="p">(</span>
-            <span class="n">app_id</span><span class="p">,</span> <span class="n">regex</span> <span class="ow">or</span> <span class="s2">&quot;.*&quot;</span><span class="p">,</span> <span class="n">log_file</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">should_tail</span><span class="o">=</span><span class="n">should_tail</span>
-        <span class="p">)</span></div>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">LogIterator</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">log_file</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">should_tail</span><span class="o">=</span><span class="n">should_tail</span><span class="p">)</span>
+        <span class="c1"># sometimes there&#39;s multiple lines per logged line</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">split_lines_iterator</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
+            <span class="n">iterator</span> <span class="o">=</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">iterator</span></div>
 
 <div class="viewcode-block" id="SlurmScheduler.list"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="c1"># By default sacct only returns accounting information of jobs launched on the current day</span>
