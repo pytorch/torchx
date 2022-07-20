@@ -382,7 +382,9 @@
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
@@ -394,6 +396,7 @@
     <span class="n">List</span><span class="p">,</span>
     <span class="n">Mapping</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Pattern</span><span class="p">,</span>
     <span class="n">Tuple</span><span class="p">,</span>
     <span class="n">Type</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
@@ -402,6 +405,31 @@
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">to_dict</span>
+
+<span class="n">_APP_STATUS_FORMAT_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;AppStatus:</span>
+<span class="s2">    State: $</span><span class="si">{state}</span><span class="s2"></span>
+<span class="s2">    Num Restarts: $</span><span class="si">{num_restarts}</span><span class="s2"></span>
+<span class="s2">    Roles: $</span><span class="si">{roles}</span><span class="s2"></span>
+<span class="s2">    Msg: $</span><span class="si">{msg}</span><span class="s2"></span>
+<span class="s2">    Structured Error Msg: $</span><span class="si">{structured_error_msg}</span><span class="s2"></span>
+<span class="s2">    UI URL: $</span><span class="si">{url}</span><span class="s2"></span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+<span class="c1"># RPC Error message. Example:</span>
+<span class="c1"># RuntimeError(&#39;On WorkerInfo(id=1, name=trainer:0:0):</span>
+<span class="c1"># &lt;message with the Traceback&gt;</span>
+<span class="c1"># &#39;)</span>
+<span class="n">_RPC_ERROR_MESSAGE_RE</span><span class="p">:</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;exception_type&gt;\w*)\(&#39;On WorkerInfo\(.+\):\n&quot;</span> <span class="sa">r</span><span class="s2">&quot;(.*\n)*&quot;</span> <span class="sa">r</span><span class="s2">&quot;&#39;\)&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Sometimes another exception is nested as a message of the outer exception</span>
+<span class="c1"># rather than proper exception chaining. Example:</span>
+<span class="c1">#  c10::Error: CUDA error: an illegal memory access was encountered</span>
+<span class="c1"># Exception</span>
+<span class="c1">#   raised from create_event_internal at caffe2/c10/cuda/CUDACachingAllocator.cpp:733</span>
+<span class="c1">#     (most recent call first):</span>
+<span class="n">_EMBEDDED_ERROR_MESSAGE_RE</span><span class="p">:</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;msg&gt;.+)\nException.*&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># ========================================</span>
@@ -857,7 +885,103 @@
 <span class="sd">        raise_for_status will raise an AppStatusError if the state is not SUCCEEDED.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AppStatusError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job did not succeed: </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="n">AppStatusError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job did not succeed: </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_format_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">width</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_RPC_ERROR_MESSAGE_RE</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">start_pos</span><span class="p">,</span> <span class="n">end_pos</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">()</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="n">start_pos</span><span class="p">:</span><span class="n">end_pos</span><span class="p">]</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_EMBEDDED_ERROR_MESSAGE_RE</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;msg&quot;</span><span class="p">)</span>
+
+        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">msg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="n">width</span><span class="p">):</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">header</span><span class="si">}{</span><span class="n">msg</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">length</span><span class="p">:</span> <span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_replica_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_status</span><span class="p">:</span> <span class="n">ReplicaStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
+            <span class="n">error_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">)</span>
+            <span class="n">error_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_error_message</span><span class="p">(</span>
+                <span class="n">msg</span><span class="o">=</span><span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;    error_msg: &quot;</span>
+            <span class="p">)</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;extraInfo&quot;</span><span class="p">][</span><span class="s2">&quot;timestamp&quot;</span><span class="p">])</span>
+            <span class="n">exitcode</span> <span class="o">=</span> <span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;errorCode&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exitcode</span><span class="p">:</span>
+                <span class="n">exitcode</span> <span class="o">=</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">state</span><span class="p">)</span><span class="si">}</span><span class="s2"> (exitcode: </span><span class="si">{</span><span class="n">exitcode</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">        timestamp: </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        hostname: </span><span class="si">{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">    </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">state</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">ReplicaState</span><span class="o">.</span><span class="n">CANCELLED</span><span class="p">,</span>
+                <span class="n">ReplicaState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="s2">&quot; (no reply file)&quot;</span>
+
+        <span class="c1"># mark index 0 for each role with a &quot;*&quot; for a visual queue on role boundaries</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+        <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">header</span><span class="si">}{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">role</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_role_statuses</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">],</span> <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filter_roles</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">roles</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">role_status</span> <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span> <span class="k">if</span> <span class="n">role_status</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="n">filter_roles</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_format_role_status</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">role_status</span><span class="p">:</span> <span class="n">RoleStatus</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">replica_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">role_status</span><span class="o">.</span><span class="n">replicas</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+            <span class="n">replica_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_replica_status</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">replica_data</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="AppStatus.format"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Format logs for app status. The app status include:</span>
+<span class="sd">            1. State: State of the application.</span>
+<span class="sd">            2. Num Restarts: The number of application restarts.</span>
+<span class="sd">            3. Roles: List of roles.</span>
+<span class="sd">            4. Msg: Arbitrary text message the scheduler returned.</span>
+<span class="sd">            5. Structured Error Msg: Json response error msg.</span>
+<span class="sd">            6. UI URL: Application URL</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">roles_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_role_statuses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="n">filter_roles</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+            <span class="n">roles_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_role_status</span><span class="p">(</span><span class="n">role_status</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Template</span><span class="p">(</span><span class="n">_APP_STATUS_FORMAT_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
+            <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">num_restarts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_restarts</span><span class="p">,</span>
+            <span class="n">roles</span><span class="o">=</span><span class="n">roles_data</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span>
+            <span class="n">structured_error_msg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_url</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">AppStatusError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>

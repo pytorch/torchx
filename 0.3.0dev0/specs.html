@@ -816,6 +816,22 @@ runs with multiple retries, the parameter will contain the statuses of the
 most recent retry. Note: if the previous retries failed, but the most recent
 retry succeeded or in progress, <code class="docutils literal notranslate"><span class="pre">replicas</span></code> will not contain occurred errors.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="torchx.specs.AppStatus.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_roles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#AppStatus.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.AppStatus.format" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Format logs for app status. The app status include:</dt><dd><ol class="arabic simple">
+<li><p>State: State of the application.</p></li>
+<li><p>Num Restarts: The number of application restarts.</p></li>
+<li><p>Roles: List of roles.</p></li>
+<li><p>Msg: Arbitrary text message the scheduler returned.</p></li>
+<li><p>Structured Error Msg: Json response error msg.</p></li>
+<li><p>UI URL: Application URL</p></li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="torchx.specs.AppStatus.raise_for_status">
 <span class="sig-name descname"><span class="pre">raise_for_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/torchx/specs/api.html#AppStatus.raise_for_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.AppStatus.raise_for_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>raise_for_status will raise an AppStatusError if the state is not SUCCEEDED.</p>
