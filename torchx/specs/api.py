@@ -7,7 +7,9 @@
 
 import copy
 import json
+import re
 from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from enum import Enum
 from string import Template
 from typing import (
@@ -19,6 +21,7 @@ from typing import (
     List,
     Mapping,
     Optional,
+    Pattern,
     Tuple,
     Type,
     TypeVar,
@@ -27,6 +30,31 @@ from typing import (
 
 import yaml
 from torchx.util.types import to_dict
+
+_APP_STATUS_FORMAT_TEMPLATE = """AppStatus:
+    State: ${state}
+    Num Restarts: ${num_restarts}
+    Roles: ${roles}
+    Msg: ${msg}
+    Structured Error Msg: ${structured_error_msg}
+    UI URL: ${url}
+    """
+
+# RPC Error message. Example:
+# RuntimeError('On WorkerInfo(id=1, name=trainer:0:0):
+# <message with the Traceback>
+# ')
+_RPC_ERROR_MESSAGE_RE: Pattern[str] = re.compile(
+    (r"(?P<exception_type>\w*)\('On WorkerInfo\(.+\):\n" r"(.*\n)*" r"'\)")
+)
+
+# Sometimes another exception is nested as a message of the outer exception
+# rather than proper exception chaining. Example:
+#  c10::Error: CUDA error: an illegal memory access was encountered
+# Exception
+#   raised from create_event_internal at caffe2/c10/cuda/CUDACachingAllocator.cpp:733
+#     (most recent call first):
+_EMBEDDED_ERROR_MESSAGE_RE: Pattern[str] = re.compile(r"(?P<msg>.+)\nException.*")
 
 
 # ========================================
@@ -483,6 +511,102 @@ class AppStatus:
         """
         if self.state != AppState.SUCCEEDED:
             raise AppStatusError(self, f"job did not succeed: {self}")
+
+    def _format_error_message(self, msg: str, header: str, width: int = 80) -> str:
+        assert len(header) < width
+
+        match = re.search(_RPC_ERROR_MESSAGE_RE, msg)
+        if match:
+            start_pos, end_pos = match.span()
+            msg = msg[start_pos:end_pos]
+
+        match = re.search(_EMBEDDED_ERROR_MESSAGE_RE, msg)
+        if match:
+            msg = match.group("msg")
+
+        length = 0
+        lines = []
+        for i in range(len(msg) + 1):
+            if (i == (len(msg))) or (msg[i] == " " and length >= width):
+                lines.append(f"{header}{msg[i - length: i]}")
+                header = " " * len(header)
+                length = 0
+            length += 1
+        return "\n".join(lines)
+
+    def _format_replica_status(self, replica_status: ReplicaStatus) -> str:
+        if replica_status.structured_error_msg != NONE:
+            error_data = json.loads(replica_status.structured_error_msg)
+            error_message = self._format_error_message(
+                msg=error_data["message"]["message"], header="    error_msg: "
+            )
+            timestamp = int(error_data["message"]["extraInfo"]["timestamp"])
+            exitcode = error_data["message"]["errorCode"]
+            if not exitcode:
+                exitcode = "<N/A>"
+            data = f"""{str(replica_status.state)} (exitcode: {exitcode})
+        timestamp: {datetime.fromtimestamp(timestamp)}
+        hostname: {replica_status.hostname}
+    {error_message}"""
+        else:
+            data = f"{str(replica_status.state)}"
+            if replica_status.state in [
+                ReplicaState.CANCELLED,
+                ReplicaState.FAILED,
+            ]:
+                data += " (no reply file)"
+
+        # mark index 0 for each role with a "*" for a visual queue on role boundaries
+        header = " "
+        if replica_status.id == 0:
+            header = "*"
+
+        return f"\n {header}{replica_status.role}[{replica_status.id}]:{data}"
+
+    def _get_role_statuses(
+        self, roles: List[RoleStatus], filter_roles: Optional[List[str]] = None
+    ) -> List[RoleStatus]:
+        if not filter_roles:
+            return roles
+        return [
+            role_status for role_status in roles if role_status.role in filter_roles
+        ]
+
+    def _format_role_status(
+        self,
+        role_status: RoleStatus,
+    ) -> str:
+        replica_data = ""
+
+        for replica in sorted(role_status.replicas, key=lambda r: r.id):
+            replica_data += self._format_replica_status(replica)
+        return f"{replica_data}"
+
+    def format(
+        self,
+        filter_roles: Optional[List[str]] = None,
+    ) -> str:
+        """
+        Format logs for app status. The app status include:
+            1. State: State of the application.
+            2. Num Restarts: The number of application restarts.
+            3. Roles: List of roles.
+            4. Msg: Arbitrary text message the scheduler returned.
+            5. Structured Error Msg: Json response error msg.
+            6. UI URL: Application URL
+        """
+        roles_data = ""
+        roles = self._get_role_statuses(self.roles, filter_roles)
+        for role_status in roles:
+            roles_data += self._format_role_status(role_status)
+        return Template(_APP_STATUS_FORMAT_TEMPLATE).substitute(
+            state=self.state,
+            num_restarts=self.num_restarts,
+            roles=roles_data,
+            msg=self.msg,
+            structured_error_msg=self.structured_error_msg,
+            url=self.ui_url,
+        )
 
 
 class AppStatusError(Exception):
