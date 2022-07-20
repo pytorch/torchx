@@ -21,7 +21,14 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import torchx
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    DescribeAppResponse,
+    filter_regex,
+    Scheduler,
+    split_lines_iterator,
+    Stream,
+)
 from torchx.schedulers.local_scheduler import LogIterator
 from torchx.specs import (
     AppDef,
@@ -552,9 +559,12 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
         if app_id in job_dirs:
             log_file = os.path.join(job_dirs[app_id], log_file)
 
-        return LogIterator(
-            app_id, regex or ".*", log_file, self, should_tail=should_tail
-        )
+        iterator = LogIterator(app_id, log_file, self, should_tail=should_tail)
+        # sometimes there's multiple lines per logged line
+        iterator = split_lines_iterator(iterator)
+        if regex:
+            iterator = filter_regex(regex, iterator)
+        return iterator
 
     def list(self) -> List[str]:
         # By default sacct only returns accounting information of jobs launched on the current day

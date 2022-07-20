@@ -16,7 +16,6 @@ import json
 import logging
 import os
 import pprint
-import re
 import shutil
 import signal
 import subprocess
@@ -28,20 +27,17 @@ import warnings
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from types import FrameType
-from typing import (
-    Any,
-    BinaryIO,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Pattern,
-    TextIO,
-)
+from typing import Any, BinaryIO, Callable, Dict, Iterable, List, Optional, TextIO
 
 from pyre_extensions import none_throws
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    DescribeAppResponse,
+    filter_regex,
+    Scheduler,
+    split_lines_iterator,
+    Stream,
+)
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.streams import Tee
 from torchx.specs.api import AppDef, AppState, is_terminal, macros, NONE, Role, runopts
@@ -969,8 +965,12 @@ class LocalScheduler(Scheduler[LocalOpts]):
                 f"app: {app_id} was not configured to log into a file."
                 f" Did you run it with log_dir set in Dict[str, CfgVal]?"
             )
-
-        return LogIterator(app_id, regex or ".*", log_file, self)
+        iterator = LogIterator(app_id, log_file, self)
+        # sometimes there's multiple lines per logged line
+        iterator = split_lines_iterator(iterator)
+        if regex:
+            iterator = filter_regex(regex, iterator)
+        return iterator
 
     def list(self) -> List[str]:
         raise Exception(
@@ -1007,14 +1007,12 @@ class LogIterator:
     def __init__(
         self,
         app_id: str,
-        regex: str,
         log_file: str,
         # pyre-fixme: Scheduler opts
         scheduler: Scheduler,
         should_tail: bool = True,
     ) -> None:
         self._app_id: str = app_id
-        self._regex: Pattern[str] = re.compile(regex)
         self._log_file: str = log_file
         self._log_fp: Optional[TextIO] = None
         # pyre-fixme: Scheduler opts
@@ -1051,8 +1049,9 @@ class LogIterator:
     def __next__(self) -> str:
         log_fp = self._log_fp
         assert log_fp is not None
+        BUFSIZE = 64000
         while True:
-            line = log_fp.readline()
+            line = log_fp.read(BUFSIZE)
             if not line:
                 # we have reached EOF and app finished
                 if self._app_finished:
@@ -1064,8 +1063,7 @@ class LogIterator:
                 time.sleep(0.1)
                 self._check_finished()
             else:
-                if re.match(self._regex, line):
-                    return line
+                return line
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
