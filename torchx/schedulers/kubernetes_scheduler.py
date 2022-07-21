@@ -13,24 +13,18 @@ components on a Kubernetes cluster.
 Prerequisites
 ==============
 
-TorchX kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.
+The TorchX Kubernetes scheduler depends on Volcano. If you're trying to do an
+upgrade you'll need to completely remove all non-Job Volcano resources and recreate.
 
-Install volcano 1.4.0 version
-
-.. code:: bash
-
-    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
-
-TorchX uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
-This requires the installation of etcd service on your kubernetes cluster:
+Install Volcano:
 
 .. code:: bash
 
-    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
+    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
 
-
-Learn more about running distributed trainers :py:mod:`torchx.components.dist`
-
+See the
+`Volcano Quickstart <https://github.com/volcano-sh/volcano#quick-start-guide>`_
+for more information.
 """
 
 import json
