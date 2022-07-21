@@ -26,7 +26,7 @@ This requires the installation of etcd service on your kubernetes cluster:
 
 .. code:: bash
 
-    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
+    kubectl apply -f https://raw.githubusercontent.com/pytorch/torchx/main/resources/etcd.yaml
 
 
 Learn more about running distributed trainers :py:mod:`torchx.components.dist`
