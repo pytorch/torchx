@@ -13,24 +13,18 @@ components on a Kubernetes cluster.
 Prerequisites
 ==============
 
-TorchX kubernetes scheduler depends on volcano and requires etcd intalled for distributed job execution.
+The TorchX Kubernetes scheduler depends on Volcano. If you're trying to do an
+upgrade you'll need to completely remove all non-Job Volcano resources and recreate.
 
-Install volcano 1.4.0 version
-
-.. code:: bash
-
-    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.4.0/installer/volcano-development.yaml
-
-TorchX uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
-This requires the installation of etcd service on your kubernetes cluster:
+Install Volcano:
 
 .. code:: bash
 
-    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
+    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
 
-
-Learn more about running distributed trainers :py:mod:`torchx.components.dist`
-
+See the
+`Volcano Quickstart <https://github.com/volcano-sh/volcano#user-content-quick-start-guide>`_
+for more information.
 """
 
 import json
@@ -66,7 +60,6 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
-from torchx.specs.builders import make_app_handle
 from torchx.workspace.docker_workspace import DockerWorkspace
 from typing_extensions import TypedDict
 
@@ -474,7 +467,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.kubernetes_scheduler.KubernetesScheduler
+        class: torchx.schedulers.kubernetes_scheduler.create_scheduler
 
     **Mounts**
 
@@ -759,7 +752,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             return iterator
 
     def list(self) -> List[str]:
-        job_names = []
+        app_ids = []
         namespace = "default"
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
@@ -772,9 +765,8 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         for item in items:
             name = item["metadata"]["name"]
             app_id = f"{namespace}:{name}"
-            app_handle = make_app_handle("kubernetes", "default", app_id)
-            job_names.append(app_handle)
-        return job_names
+            app_ids.append(app_id)
+        return app_ids
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:

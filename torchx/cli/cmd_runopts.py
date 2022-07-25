@@ -26,8 +26,12 @@ class CmdRunopts(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         filter = args.scheduler
-        run_opts = get_runner().run_opts()
-
-        for scheduler, opts in run_opts.items():
-            if not filter or scheduler == filter:
-                print(f"{GREEN}{scheduler}{ENDC}:\n{repr(opts)}\n")
+        with get_runner() as runner:
+            for scheduler in runner.scheduler_backends():
+                if filter and scheduler != filter:
+                    continue
+                try:
+                    opts = runner.scheduler_run_opts(scheduler)
+                    print(f"{GREEN}{scheduler}{ENDC}:\n{repr(opts)}\n")
+                except ModuleNotFoundError as e:
+                    print(f"{GREEN}{scheduler}{ENDC}: {e}\n")

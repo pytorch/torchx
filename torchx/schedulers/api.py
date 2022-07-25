@@ -174,7 +174,7 @@ class Scheduler(abc.ABC, Generic[T]):
     @abc.abstractmethod
     def list(self) -> List[str]:
         """
-        Lists the app handles launched on the scheduler.
+        Lists the app ids launched on the scheduler.
         Note: This API is in prototype phase and is subject to change.
         """
         raise NotImplementedError()
@@ -334,3 +334,14 @@ def split_lines(text: str) -> List[str]:
             lines.append(text)
             break
     return lines
+
+
+def split_lines_iterator(chunks: Iterable[str]) -> Iterable[str]:
+    """
+    split_lines_iterator splits each chunk in the iterator by new lines and
+    returns them.
+    """
+    for chunk in chunks:
+        lines = split_lines(chunk)
+        for line in lines:
+            yield line

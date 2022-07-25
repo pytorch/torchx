@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+from torchx.util.entrypoints import load
+
 # Follows PEP-0440 version scheme guidelines
 # https://www.python.org/dev/peps/pep-0440/#version-scheme
 #
@@ -18,4 +20,11 @@ __version__ = "0.3.0dev0"
 
 # Use the github container registry images corresponding to the current package
 # version.
-TORCHX_IMAGE = f"ghcr.io/pytorch/torchx:{__version__}"
+def _get_torchx_image(torchx_version: str) -> str:
+    return f"ghcr.io/pytorch/torchx:{__version__}"
+
+
+# Check if there's an environment override on the default image.
+TORCHX_IMAGE: str = load(
+    "torchx.version", "get_torchx_image", default=_get_torchx_image
+)(__version__)

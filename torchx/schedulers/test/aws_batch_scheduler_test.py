@@ -68,6 +68,36 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         app = _test_app()
         scheduler._validate(app, "kubernetes")
 
+    def test_submit_dryrun_with_share_id(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "fooshare"})
+        info = scheduler._submit_dryrun(app, cfg)
+
+        req = info.request
+        job_def = req.job_def
+        self.assertEqual(req.share_id, "fooshare")
+        # must be set for jobs submitted to a queue with scheduling policy
+        self.assertEqual(job_def["schedulingPriority"], 0)
+
+    def test_submit_dryrun_with_priority(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+
+        with self.assertRaisesRegex(ValueError, "config value.*priority.*share_id"):
+            cfg = AWSBatchOpts({"queue": "testqueue", "priority": 42})
+            info = scheduler._submit_dryrun(app, cfg)
+
+        cfg = AWSBatchOpts(
+            {"queue": "testqueue", "share_id": "fooshare", "priority": 42}
+        )
+        info = scheduler._submit_dryrun(app, cfg)
+
+        req = info.request
+        job_def = req.job_def
+        self.assertEqual(req.share_id, "fooshare")
+        self.assertEqual(job_def["schedulingPriority"], 42)
+
     @mock_rand()
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
@@ -76,6 +106,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         info = scheduler._submit_dryrun(app, cfg)
 
         req = info.request
+        self.assertEqual(req.share_id, None)
         self.assertEqual(req.queue, "testqueue")
         job_def = req.job_def
 
@@ -288,6 +319,71 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ],
         )
 
+    def _mock_scheduler_running_job(self) -> AWSBatchScheduler:
+        scheduler = AWSBatchScheduler(
+            "test",
+            client=MagicMock(),
+            log_client=MagicMock(),
+        )
+        scheduler._client.list_jobs.return_value = {
+            "jobSummaryList": [
+                {
+                    "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                    "createdAt": 1656651215531,
+                    "status": "RUNNING",
+                    "nodeProperties": {"numNodes": 2},
+                    "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                }
+            ]
+        }
+        scheduler._client.describe_jobs.return_value = {
+            "jobs": [
+                {
+                    "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                    "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                    "jobQueue": "arn:aws:batch:us-east-1:761163492645:job-queue/torchx-proto-queue",
+                    "status": "RUNNING",
+                    "attempts": [],  # This is empty on running jobs (unlike completed jobs)
+                    "createdAt": 1656651215531,
+                    "retryStrategy": {
+                        "attempts": 1,
+                        "evaluateOnExit": [{"onExitCode": "0", "action": "exit"}],
+                    },
+                    "startedAt": 1656651662589,
+                    "dependsOn": [],
+                    "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                    "parameters": {},
+                    "container": {
+                        "logStreamName": "running_log_stream",
+                    },
+                    "nodeProperties": {
+                        "numNodes": 2,
+                        "mainNode": 0,
+                        "nodeRangeProperties": [],
+                    },
+                    "tags": {
+                        "torchx.pytorch.org/version": "0.3.0dev0",
+                        "torchx.pytorch.org/app-name": "fairseq-train",
+                    },
+                    "platformCapabilities": [],
+                }
+            ]
+        }
+
+        scheduler._log_client.get_log_events.return_value = {
+            "nextForwardToken": "some_token",
+            "events": [
+                {"message": "foo"},
+                {"message": "foobar"},
+                {"message": "bar"},
+            ],
+        }
+
+        return scheduler
+
     def _mock_scheduler(self) -> AWSBatchScheduler:
         scheduler = AWSBatchScheduler(
             "test",
@@ -312,7 +408,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler._client.describe_jobs.return_value = {
             "jobs": [
                 {
-                    "jobArn": "thejobarn",
+                    "jobArn": "arn:aws:batch:us-west-2:495572122715:job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
                     "jobName": "app-name-42",
                     "jobId": "6afc27d7-3559-43ca-89fd-1007b6bf2546",
                     "jobQueue": "testqueue",
@@ -418,6 +514,17 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ],
         }
 
+        scheduler._client.describe_job_queues.return_value = {
+            "ResponseMetadata": {},
+            "jobQueues": [
+                {
+                    "jobQueueName": "torchx",
+                    "jobQueueArn": "arn:aws:batch:test-region:4000005:job-queue/torchx",
+                    "state": "ENABLED",
+                },
+            ],
+        }
+
         return scheduler
 
     @mock_rand()
@@ -443,6 +550,10 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         self.assertEqual(status.state, specs.AppState.SUCCEEDED)
         self.assertEqual(status.app_id, "testqueue:app-name-42")
         self.assertEqual(
+            status.ui_url,
+            "https://us-west-2.console.aws.amazon.com/batch/home?region=us-west-2#jobs/mnp-job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
+        )
+        self.assertEqual(
             status.roles[0],
             specs.Role(
                 name="echo",
@@ -459,8 +570,25 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ),
         )
 
+    def test_list(self) -> None:
+        scheduler = self._mock_scheduler()
+        expected_app_ids = ["torchx:echo-v1r560pmwn5t3c"]
+        app_ids = scheduler.list()
+        self.assertEqual(app_ids, expected_app_ids)
+
     def test_log_iter(self) -> None:
         scheduler = self._mock_scheduler()
+        logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
+        self.assertEqual(
+            list(logs),
+            [
+                "foo\n",
+                "foobar\n",
+            ],
+        )
+
+    def test_log_iter_running_job(self) -> None:
+        scheduler = self._mock_scheduler_running_job()
         logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
         self.assertEqual(
             list(logs),

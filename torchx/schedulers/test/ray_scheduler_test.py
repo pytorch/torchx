@@ -12,7 +12,7 @@ from typing import Any, cast, Iterable, Iterator, Optional, Type
 from unittest import TestCase
 from unittest.mock import patch
 
-from torchx.schedulers import get_schedulers
+from torchx.schedulers import get_scheduler_factories
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import has_ray
@@ -33,11 +33,11 @@ if has_ray():
 
     class RaySchedulerRegistryTest(TestCase):
         def test_get_schedulers_returns_ray_scheduler(self) -> None:
-            schedulers = get_schedulers("test_session")
+            schedulers = get_scheduler_factories()
 
             self.assertIn("ray", schedulers)
 
-            scheduler = schedulers["ray"]
+            scheduler = schedulers["ray"]("test_session")
 
             self.assertIsInstance(scheduler, RayScheduler)
 

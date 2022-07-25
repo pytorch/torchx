@@ -21,8 +21,9 @@ class RunOptsDirective(SphinxDirective):
         raw_content = "\n".join(self.content)
         args = yaml.safe_load(raw_content)
         cls = locate(args["class"])
+        scheduler = cls("docs")
 
-        body = nodes.literal_block(text=str(cls.run_opts(None)))
+        body = nodes.literal_block(text=str(scheduler.run_opts()))
         return [
             body,
         ]

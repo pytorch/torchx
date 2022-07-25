@@ -35,6 +35,7 @@ https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#
 for how to create a image repository.
 """
 
+import re
 import threading
 from dataclasses import dataclass
 from datetime import datetime
@@ -185,10 +186,23 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
     }
 
 
+def _job_ui_url(job_arn: str) -> Optional[str]:
+    match = re.match(
+        "arn:aws:batch:([a-z-0-9]+):[0-9]+:job/([a-z-0-9]+)",
+        job_arn,
+    )
+    if match is None:
+        return None
+    region = match.group(1)
+    job_id = match.group(2)
+    return f"https://{region}.console.aws.amazon.com/batch/home?region={region}#jobs/mnp-job/{job_id}"
+
+
 @dataclass
 class BatchJob:
     name: str
     queue: str
+    share_id: Optional[str]
     job_def: Dict[str, object]
     images_to_push: Dict[str, Tuple[str, str]]
 
@@ -227,6 +241,8 @@ def _local_session() -> "boto3.session.Session":
 class AWSBatchOpts(TypedDict, total=False):
     queue: str
     image_repo: Optional[str]
+    share_id: Optional[str]
+    priority: Optional[int]
 
 
 class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
@@ -247,7 +263,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler
+        class: torchx.schedulers.aws_batch_scheduler.create_scheduler
 
     **Mounts**
 
@@ -322,12 +338,16 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         req = dryrun_info.request
         self._client.register_job_definition(**req.job_def)
 
-        self._client.submit_job(
-            jobName=req.name,
-            jobQueue=req.queue,
-            jobDefinition=req.name,
-            tags=req.job_def["tags"],
-        )
+        batch_job_req = {
+            **{
+                "jobName": req.name,
+                "jobQueue": req.queue,
+                "jobDefinition": req.name,
+                "tags": req.job_def["tags"],
+            },
+            **({"shareIdentifier": req.share_id} if req.share_id is not None else {}),
+        }
+        self._client.submit_job(**batch_job_req)
 
         return f"{req.queue}:{req.name}"
 
@@ -335,7 +355,17 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         queue = cfg.get("queue")
         if not isinstance(queue, str):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
-        name = make_unique(app.name)
+
+        share_id = cfg.get("share_id")
+        priority = cfg.get("priority")
+        if share_id is None and priority is not None:
+            raise ValueError(
+                "config value 'priority' takes no effect for job queues without a scheduling policy "
+                "(implied by 'share_id' not being set)"
+            )
+
+        name_suffix = f"-{share_id}" if share_id is not None else ""
+        name = make_unique(f"{app.name}{name_suffix}")
 
         # map any local images to the remote image
         images_to_push = self._update_app_images(app, cfg.get("image_repo"))
@@ -367,10 +397,8 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                     replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
                 nodes.append(_role_to_node_properties(rank, replica_role))
 
-        req = BatchJob(
-            name=name,
-            queue=queue,
-            job_def={
+        job_def = {
+            **{
                 "jobDefinitionName": name,
                 "type": "multinode",
                 "nodeProperties": {
@@ -389,6 +417,18 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                     "torchx.pytorch.org/app-name": app.name,
                 },
             },
+            **(
+                {"schedulingPriority": priority if priority is not None else 0}
+                if share_id is not None
+                else {}
+            ),
+        }
+
+        req = BatchJob(
+            name=name,
+            queue=queue,
+            share_id=share_id,
+            job_def=job_def,
             images_to_push=images_to_push,
         )
         info = AppDryRunInfo(req, repr)
@@ -415,6 +455,19 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             "image_repo",
             type_=str,
             help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
+        )
+        opts.add(
+            "share_id",
+            type_=str,
+            help="The share identifier for the job. "
+            "This must be set if and only if the job queue has a scheduling policy.",
+        )
+        opts.add(
+            "priority",
+            type_=int,
+            help="The scheduling priority for the job within the context of share_id. "
+            "Higher number (between 0 and 9999) means higher priority. "
+            "This will only take effect if the job queue has a scheduling policy.",
         )
         return opts
 
@@ -472,6 +525,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             app_id=app_id,
             state=JOB_STATE[job["status"]],
             roles=list(roles.values()),
+            ui_url=_job_ui_url(job["jobArn"]),
         )
 
     def log_iter(
@@ -505,13 +559,16 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         if not job:
             return []
 
-        attempts = job["attempts"]
-        if len(attempts) == 0:
-            return []
+        if "status" in job and job["status"] == "RUNNING":
+            stream_name = job["container"]["logStreamName"]
+        else:
+            attempts = job["attempts"]
+            if len(attempts) == 0:
+                return []
 
-        attempt = attempts[-1]
-        container = attempt["container"]
-        stream_name = container["logStreamName"]
+            attempt = attempts[-1]
+            container = attempt["container"]
+            stream_name = container["logStreamName"]
 
         iterator = self._stream_events(stream_name, since=since, until=until)
         if regex:
@@ -520,7 +577,33 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             return iterator
 
     def list(self) -> List[str]:
-        raise NotImplementedError()
+        # TODO: get queue name input instead of iterating over all queues?
+        resp = self._client.describe_job_queues()
+        queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
+        all_app_ids = []
+        for qn in queue_names:
+            all_app_ids += self._list_by_queue(qn)
+        return all_app_ids
+
+    def _list_by_queue(self, queue_name: str) -> List[str]:
+        # By default only running jobs are listed by batch/boto client's list_jobs API
+        # When 'filters' parameter is specified, jobs with all statuses are listed
+        # So use AFTER_CREATED_AT filter to list jobs in all statuses
+        # milli_seconds_after_epoch can later be used to list jobs by timeframe
+        milli_seconds_after_epoch = "1"
+        jobs = self._client.list_jobs(
+            jobQueue=queue_name,
+            filters=[
+                {
+                    "name": "AFTER_CREATED_AT",
+                    "values": [
+                        milli_seconds_after_epoch,
+                    ],
+                },
+            ],
+        )["jobSummaryList"]
+        app_ids = [f"{queue_name}:{job['jobName']}" for job in jobs]
+        return app_ids
 
     def _stream_events(
         self,
