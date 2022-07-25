@@ -772,7 +772,17 @@
             <span class="k">return</span> <span class="n">iterator</span></div>
 
 <div class="viewcode-block" id="RayScheduler.list"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.list">[docs]</a>        <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+            <span class="n">address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;RAY_ADDRESS&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">address</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                    <span class="s2">&quot;RAY_ADDRESS env variable is expected to be set to list jobs on ray scheduler.&quot;</span>
+                    <span class="s2">&quot; See https://docs.ray.io/en/latest/cluster/jobs-package-ref.html#job-submission-sdk for more info&quot;</span>
+                <span class="p">)</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">JobSubmissionClient</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="n">jobs_dict</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_jobs</span><span class="p">()</span>
+            <span class="n">ip</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">app_handles</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="n">jobs_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="n">app_handles</span></div></div>
 
 
 <div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RayScheduler&quot;</span><span class="p">:</span>
