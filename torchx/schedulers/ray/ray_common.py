@@ -15,8 +15,8 @@ class RayActor:
     """Describes an actor (a.k.a. worker/replica in TorchX terms)."""
 
     name: str
-    nnodes_rep: str
     command: List[str]
     env: Dict[str, str] = field(default_factory=dict)
     num_cpus: int = 1
     num_gpus: int = 0
+    nnodes_rep: str = ""

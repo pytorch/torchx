@@ -323,10 +323,10 @@ if has_ray():
                 self._scheduler.list()
 
     class RayClusterSetup:
-        _instance = None
-        _cluster = None
+        _instance = None  # pyre-ignore
+        _cluster = None  # pyre-ignore
 
-        def __new__(cls):
+        def __new__(cls):  # pyre-ignore
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
                 ray.shutdown()
@@ -338,18 +338,18 @@ if has_ray():
                 )
                 cls._cluster.connect()
                 cls._cluster.add_node()
-                cls.reference_count = 0
+                cls.reference_count: int = 0
             return cls._instance
 
         @property
         def workers(self):
             return list(self._cluster.worker_nodes)
 
-        def add_node(cls):
+        def add_node(cls) -> None:
             # add 1 node with 2 cpus to the cluster
             cls._cluster.add_node(num_cpus=2)
 
-        def remove_node(cls):
+        def remove_node(cls) -> None:
             # randomly remove 1 node from the cluster
             cls._cluster.remove_node(cls.workers[0])
 
@@ -439,7 +439,7 @@ if has_ray():
 
             active_workers = [
                 command_actor1.exec_module.remote(),
-            ]  # pyre-ignore
+            ]
             pg2 = ray_driver.create_placement_group_async(
                 [
                     actor2,
