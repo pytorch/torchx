@@ -333,6 +333,7 @@ if has_ray():
                 cls._cluster.connect()
                 cls._cluster.add_node()
                 cls.reference_count = 0
+            return cls._instance
 
         @property
         def workers(self):
