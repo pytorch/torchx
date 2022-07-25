@@ -333,7 +333,7 @@ if has_ray():
                 cls._cluster = Cluster(
                     initialize_head=True,
                     head_node_args={
-                        "num_cpus": 2,
+                        "num_cpus": 1,
                     },
                 )
                 cls._cluster.connect()
@@ -343,16 +343,16 @@ if has_ray():
                 ">>>>> What is the CPU number? Answer: "
                 + str(ray.cluster_resources()["CPU"])
             )
-            assert ray.cluster_resources()["CPU"] == 4
+            assert ray.cluster_resources()["CPU"] == 2
             return cls._instance
 
         @property
-        def workers(self):
+        def workers(self) -> List[ray.node.Node]:
             return list(self._cluster.worker_nodes)
 
         def add_node(cls) -> None:
             # add 1 node with 2 cpus to the cluster
-            cls._cluster.add_node(num_cpus=2)
+            cls._cluster.add_node(num_cpus=1)
 
         def remove_node(cls) -> None:
             # randomly remove 1 node from the cluster
@@ -376,7 +376,7 @@ if has_ray():
 
     class RayDriverTest(TestCase):
         def test_actors_serialize(self) -> None:
-            assert ray.cluster_resources()["CPU"] == 4
+            assert ray.cluster_resources()["CPU"] == 2
             actor1 = RayActor(
                 name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
             )
@@ -396,7 +396,7 @@ if has_ray():
             """Create enough placement groups before the creation of the command actors"""
             ray_cluster_setup = RayClusterSetup()
             ray_cluster_setup.increment_reference()
-            assert ray.cluster_resources()["CPU"] == 4
+            assert ray.cluster_resources()["CPU"] == 2
 
             actor1 = RayActor(
                 name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
@@ -474,7 +474,7 @@ if has_ray():
 
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
-            assert ray.cluster_resources()["CPU"] == 4
+            assert ray.cluster_resources()["CPU"] == 2
             ray_cluster_setup = RayClusterSetup()
             ray_cluster_setup.increment_reference()
             ray_scheduler = self.setup_ray_cluster()
