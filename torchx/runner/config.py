@@ -146,7 +146,7 @@ import os
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, TextIO
 
-from torchx.schedulers import get_schedulers, Scheduler
+from torchx.schedulers import get_scheduler_factories, Scheduler
 from torchx.specs import CfgVal, get_type_name
 from torchx.specs.api import runopt
 
@@ -179,12 +179,12 @@ def _configparser() -> configparser.ConfigParser:
 
 
 def _get_scheduler(name: str) -> Scheduler:
-    schedulers = get_schedulers(session_name="_")
-    sched = schedulers.get(name)
-    if not sched:
+    schedulers = get_scheduler_factories()
+    if name not in schedulers:
         raise ValueError(
             f"`{name}` is not a registered scheduler. Valid scheduler names: {schedulers.keys()}"
         )
+    sched = schedulers[name](session_name="_")
     return sched
 
 
@@ -223,11 +223,14 @@ def dump(
     if schedulers:
         scheds = schedulers
     else:
-        scheds = get_schedulers(session_name="_").keys()
+        scheds = get_scheduler_factories().keys()
 
     config = _configparser()
     for sched_name in scheds:
-        sched = _get_scheduler(sched_name)
+        try:
+            sched = _get_scheduler(sched_name)
+        except ModuleNotFoundError:
+            continue
 
         section = f"{sched_name}"
         config.add_section(section)

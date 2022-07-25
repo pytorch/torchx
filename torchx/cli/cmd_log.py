@@ -42,6 +42,8 @@ def _prefix_line(prefix: str, line: str) -> str:
     """
     if "\r" in line:
         line = line.replace("\r", f"\r{prefix}")
+    if "\n" in line[:-1]:
+        line = line[:-1].replace("\n", f"\n{prefix}") + line[-1:]
     if not line.startswith("\r"):
         line = f"{prefix}{line}"
     return line
@@ -68,7 +70,7 @@ def print_log_lines(
             streams=streams,
         ):
             prefix = f"{GREEN}{role_name}/{replica_id}{ENDC} "
-            print(_prefix_line(prefix, line), file=file, end="")
+            print(_prefix_line(prefix, line), file=file, end="", flush=True)
     except Exception as e:
         exceptions.put(e)
         raise
@@ -92,7 +94,7 @@ def get_logs(
     role_name = path[2] if len(path) > 2 else None
 
     if not runner:
-        runner = get_runner(name=session_name)
+        runner = get_runner()
     app_handle = make_app_handle(scheduler_backend, session_name, app_id)
 
     if len(path) == 4:

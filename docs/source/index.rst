@@ -51,8 +51,9 @@ Documentation
    .. toctree::
       :maxdepth: 1
       :caption: Usage (Meta)
+      :glob:
 
-      fb/named_resources
+      fb/*
 
 
 Works With
@@ -75,9 +76,9 @@ Works With
    .. toctree::
       :maxdepth: 1
       :caption: Schedulers (Meta)
+      :glob:
 
-      schedulers/fb/mast
-      schedulers/fb/flow
+      schedulers/fb/*
 
 .. _Pipelines:
 .. toctree::
@@ -92,8 +93,9 @@ Works With
    .. toctree::
       :maxdepth: 1
       :caption: Pipelines (Meta)
+      :glob:
 
-      pipelines/fb/flow
+      pipelines/fb/*
 
 
 Examples

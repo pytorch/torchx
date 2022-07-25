@@ -115,7 +115,7 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.docker_scheduler.DockerScheduler
+        class: torchx.schedulers.docker_scheduler.create_scheduler
 
     **Mounts**
 
@@ -448,7 +448,13 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
             return logs
 
     def list(self) -> List[str]:
-        raise NotImplementedError()
+        unique_app_ids = {
+            cntr.labels[LABEL_APP_ID]
+            for cntr in self._docker_client.containers.list(
+                all=True, filters={"label": f"{LABEL_APP_ID}"}
+            )
+        }
+        return list(unique_app_ids)
 
 
 def _to_str(a: Union[str, bytes]) -> str:

@@ -11,7 +11,13 @@ from datetime import datetime
 from typing import Iterable, List, Mapping, Optional, TypeVar, Union
 from unittest.mock import MagicMock, patch
 
-from torchx.schedulers.api import DescribeAppResponse, Scheduler, split_lines, Stream
+from torchx.schedulers.api import (
+    DescribeAppResponse,
+    Scheduler,
+    split_lines,
+    split_lines_iterator,
+    Stream,
+)
 from torchx.specs.api import (
     AppDef,
     AppDryRunInfo,
@@ -163,3 +169,22 @@ class SchedulerTest(unittest.TestCase):
         self.assertEqual(split_lines("\n"), ["\n"])
         self.assertEqual(split_lines("foo\nbar"), ["foo\n", "bar"])
         self.assertEqual(split_lines("foo\nbar\n"), ["foo\n", "bar\n"])
+
+    def test_split_lines_iterator(self) -> None:
+        self.assertEqual(
+            list(split_lines_iterator(["1\n2\n3\n4\n"])),
+            [
+                "1\n",
+                "2\n",
+                "3\n",
+                "4\n",
+            ],
+        )
+        self.assertEqual(
+            list(split_lines_iterator(["foo\nbar", "foobar"])),
+            [
+                "foo\n",
+                "bar",
+                "foobar",
+            ],
+        )

@@ -125,15 +125,14 @@ class CmdRun(SubCommand):
             default=get_default_scheduler_name(),
             choices=list(scheduler_names),
             action=torchxconfig_run,
-            help=f"Name of the scheduler to use. One of: [{','.join(scheduler_names)}]",
+            help="Name of the scheduler to use.",
         )
         subparser.add_argument(
             "-cfg",
             "--scheduler_args",
             type=str,
             help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."
-            " For a list of scheduler run options run: `torchx runopts`"
-            "",
+            " For a list of scheduler run options run: `torchx runopts`",
         )
         subparser.add_argument(
             "--dryrun",
@@ -175,8 +174,7 @@ class CmdRun(SubCommand):
                 " (e.g. `local_cwd`)"
             )
 
-        run_opts = runner.run_opts()
-        scheduler_opts = run_opts[args.scheduler]
+        scheduler_opts = runner.scheduler_run_opts(args.scheduler)
         cfg = scheduler_opts.cfg_from_str(args.scheduler_args)
         config.apply(scheduler=args.scheduler, cfg=cfg, dirs=CONFIG_DIRS)
 
@@ -215,10 +213,9 @@ class CmdRun(SubCommand):
                     self._wait_and_exit(runner, app_handle, log=True)
                 else:
                     logger.info(f"Launched app: {app_handle}")
-                    status = runner.status(app_handle)
-                    logger.info(status)
-                    logger.info(f"Job URL: {none_throws(status).ui_url}")
-
+                    app_status = runner.status(app_handle)
+                    if app_status:
+                        logger.info(app_status.format())
                     if args.wait:
                         self._wait_and_exit(runner, app_handle, log=args.log)
 

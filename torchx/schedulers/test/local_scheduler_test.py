@@ -27,7 +27,7 @@ from pyre_extensions import none_throws
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     _join_PATH,
-    create_cwd_scheduler,
+    create_scheduler,
     CWDImageProvider,
     LocalDirectoryImageProvider,
     LocalOpts,
@@ -161,8 +161,8 @@ class CWDImageProviderTest(unittest.TestCase):
         )
         self.assertEqual(self.provider.get_entrypoint("asdf", role), "entrypoint.sh")
 
-    def test_create_cwd_scheduler(self) -> None:
-        sched = create_cwd_scheduler("foo")
+    def test_create_scheduler(self) -> None:
+        sched = create_scheduler("foo")
         self.assertEqual(sched.session_name, "foo")
         self.assertEqual(sched._image_provider_class, CWDImageProvider)
 
@@ -734,6 +734,10 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         desc = self.scheduler.describe(app_id)
         assert desc is not None
         self.assertEqual(AppState.CANCELLED, desc.state)
+
+    def test_list(self) -> None:
+        with self.assertRaisesRegex(Exception, "cannot be listed"):
+            self.scheduler.list()
 
     def test_exists(self) -> None:
         role = Role(

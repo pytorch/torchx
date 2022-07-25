@@ -9,8 +9,8 @@
 This contains the TorchX Slurm scheduler which can be used to run TorchX
 components on a Slurm cluster.
 """
-
 import csv
+import json
 import logging
 import os.path
 import shlex
@@ -21,7 +21,14 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import torchx
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, Scheduler, Stream
+from torchx.schedulers.api import (
+    AppDryRunInfo,
+    DescribeAppResponse,
+    filter_regex,
+    Scheduler,
+    split_lines_iterator,
+    Stream,
+)
 from torchx.schedulers.local_scheduler import LogIterator
 from torchx.specs import (
     AppDef,
@@ -289,7 +296,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.slurm_scheduler.SlurmScheduler
+        class: torchx.schedulers.slurm_scheduler.create_scheduler
 
     **Compatibility**
 
@@ -552,12 +559,24 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
         if app_id in job_dirs:
             log_file = os.path.join(job_dirs[app_id], log_file)
 
-        return LogIterator(
-            app_id, regex or ".*", log_file, self, should_tail=should_tail
-        )
+        iterator = LogIterator(app_id, log_file, self, should_tail=should_tail)
+        # sometimes there's multiple lines per logged line
+        iterator = split_lines_iterator(iterator)
+        if regex:
+            iterator = filter_regex(regex, iterator)
+        return iterator
 
     def list(self) -> List[str]:
-        raise NotImplementedError()
+        # By default sacct only returns accounting information of jobs launched on the current day
+        # To return all jobs launched, set starttime to one second past unix epoch time
+        # Starttime will be modified when listing jobs by timeframe is supported
+        p = subprocess.run(
+            ["sacct", "--json", "-S1970-01-01-00:00:01"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        output_json = json.loads(p.stdout.decode("utf-8"))
+        return [str(job["job_id"]) for job in output_json["jobs"]]
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> SlurmScheduler:
