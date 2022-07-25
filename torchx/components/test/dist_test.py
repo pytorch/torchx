@@ -35,7 +35,7 @@ class DistributedComponentTest(ComponentTestCase):
             app = dist.ddp(script="foo.py", j=j_list[i])
             self.assertEqual(app.roles[0].num_replicas, num_replicas_list[i])
             self.assertEqual(app.roles[0].nnodes_rep, nnodes_rep_list[i])
-            
+
     def test_ddp_debug(self) -> None:
         app = dist.ddp(script="foo.py", debug=True)
         env = app.roles[0].env

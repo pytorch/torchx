@@ -369,7 +369,6 @@ if has_ray():
             cls._cluster.shutdown()
             del os.environ["RAY_ADDRESS"]
 
-
     class RayDriverTest(TestCase):
         def test_actors_serialize(self) -> None:
             assert ray.cluster_resources()["CPU"] == 4
