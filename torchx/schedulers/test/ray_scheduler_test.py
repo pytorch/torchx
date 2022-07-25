@@ -339,6 +339,11 @@ if has_ray():
                 cls._cluster.connect()
                 cls._cluster.add_node()
                 cls.reference_count: int = 0
+            print(
+                ">>>>> What is the CPU number? Answer: "
+                + str(ray.cluster_resources()["CPU"])
+            )
+            assert ray.cluster_resources()["CPU"] == 4
             return cls._instance
 
         @property
