@@ -394,28 +394,28 @@ if has_ray():
             )
             self.assertEqual(loaded_actor, actors)
 
-        # def test_command_actor_setup(self) -> None:
-        #     """Create enough placement groups before the creation of the command actors"""
-        #     ray_cluster_setup = RayClusterSetup()
-        #     ray_cluster_setup._lock.acquire()
-        #     ray_cluster_setup.increment_reference()
-        #     assert ray.cluster_resources()["CPU"] == 2
+        def test_command_actor_setup(self) -> None:
+            """Create enough placement groups before the creation of the command actors"""
+            ray_cluster_setup = RayClusterSetup()
+            ray_cluster_setup._lock.acquire()
+            ray_cluster_setup.increment_reference()
+            assert ray.cluster_resources()["CPU"] == 2
 
-        #     actor1 = RayActor(
-        #         name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
-        #     )
-        #     actor2 = RayActor(
-        #         name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}
-        #     )
-        #     actors = [actor1, actor2]
+            actor1 = RayActor(
+                name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
+            )
+            actor2 = RayActor(
+                name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}
+            )
+            actors = [actor1, actor2]
 
-        #     pg = ray_driver.create_placement_group(actors)
-        #     command_actors = ray_driver.create_command_actors(actors, pg)
+            pg = ray_driver.create_placement_group(actors)
+            command_actors = ray_driver.create_command_actors(actors, pg)
 
-        #     self.assertEqual(len(command_actors), 2)
-        #     remove_placement_group(pg)
-        #     ray_cluster_setup.decrement_reference()
-        #     ray_cluster_setup._lock.release()
+            self.assertEqual(len(command_actors), 2)
+            remove_placement_group(pg)
+            ray_cluster_setup.decrement_reference()
+            ray_cluster_setup._lock.release()
 
         def test_placement_group_creation(self) -> None:
             """Test the logic in ray driver's main loop, if the placement group can be created
