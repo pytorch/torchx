@@ -318,11 +318,11 @@ if has_ray():
                 self.assertEqual(parsed_addr, addr)
                 self.assertEqual(parsed_appid, app_id)
 
-        # def test_list_throws_without_address(self) -> None:
-        #     with self.assertRaisesRegex(
-        #         Exception, "RAY_ADDRESS env variable is expected"
-        #     ):
-        #         self._scheduler.list()
+        def test_list_throws_without_address(self) -> None:
+            with self.assertRaisesRegex(
+                Exception, "RAY_ADDRESS env variable is expected"
+            ):
+                self._scheduler.list()
 
     class RayClusterSetup:
         _instance = None  # pyre-ignore
@@ -355,7 +355,7 @@ if has_ray():
 
         def remove_node(cls) -> None:
             # randomly remove 1 node from the cluster
-            ray.shutdown()
+            ray.shutdown()  # pyre-ignore
             cls._cluster.remove_node(cls.workers[0])
             cls._cluster.connected = False
             cls._cluster.connect()
@@ -373,10 +373,16 @@ if has_ray():
     class RayDriverTest(TestCase):
         def test_actors_serialize(self) -> None:
             actor1 = RayActor(
-                name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}, nnodes_rep="1:2"
+                name="test_actor_1",
+                command=["python", "1", "2"],
+                env={"fake": "1"},
+                nnodes_rep="1:2",
             )
             actor2 = RayActor(
-                name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}, nnodes_rep="3:4"
+                name="test_actor_2",
+                command=["python", "3", "4"],
+                env={"fake": "2"},
+                nnodes_rep="3:4",
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -385,11 +391,6 @@ if has_ray():
             loaded_actor = ray_driver.load_actor_json(
                 os.path.join(current_dir, "actors.json")
             )
-            print("??? ", loaded_actor[0])
-            print("??? ", actors[0])
-            print("???! ", type(actors[0]))
-            print("???! ", type(loaded_actor[0]))
-            print("???! ", loaded_actor[0] == actors[0])
             self.assertEqual(loaded_actor, actors)
 
         def test_command_actor_setup(self) -> None:
