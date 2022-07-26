@@ -376,7 +376,6 @@ if has_ray():
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
             cls._cluster.shutdown()
-            del os.environ["RAY_ADDRESS"]
 
     class RayDriverTest(TestCase):
         def test_actors_serialize(self) -> None:
