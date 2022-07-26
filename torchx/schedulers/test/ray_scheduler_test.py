@@ -331,7 +331,7 @@ if has_ray():
         def __new__(cls):  # pyre-ignore
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
-                ray.shutdown() # pyre-ignore
+                ray.shutdown()  # pyre-ignore
                 cls._cluster = Cluster(
                     initialize_head=True,
                     head_node_args={
@@ -448,7 +448,7 @@ if has_ray():
             command_actor1 = ray_driver.create_command_actors([actor1], pg1)[0]
 
             active_workers = [
-                command_actor1.exec_module.remote(), # pyre-ignore
+                command_actor1.exec_module.remote(),  # pyre-ignore
             ]
             pg2 = ray_driver.create_placement_group_async(
                 [
@@ -459,14 +459,14 @@ if has_ray():
                 pg2.ready()
             )  # before we add a node, pg2 should be always pending
 
-            completed_workers, active_workers = ray.wait( # pyre-ignore
+            completed_workers, active_workers = ray.wait(  # pyre-ignore
                 active_workers
             )  # wait for actor in pg1 to be finished
             self.assertEqual(len(completed_workers), 1)
             self.assertEqual(len(active_workers), 1)
 
             ray_cluster_setup.add_node()  # now it should have enough cpus to create pg2
-            completed_workers, active_workers = ray.wait( # pyre-ignore
+            completed_workers, active_workers = ray.wait(  # pyre-ignore
                 active_workers
             )  # wait for actor in pg2 to be finished
             self.assertEqual(len(completed_workers), 1)
