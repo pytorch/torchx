@@ -8,7 +8,6 @@ import os
 import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass
-from threading import Lock
 from typing import Any, cast, Iterable, Iterator, List, Optional, Type
 from unittest import TestCase
 from unittest.mock import patch
@@ -327,7 +326,6 @@ if has_ray():
     class RayClusterSetup:
         _instance = None  # pyre-ignore
         _cluster = None  # pyre-ignore
-        _lock = None  # pyre-ignore
 
         def __new__(cls):  # pyre-ignore
             if cls._instance is None:
@@ -340,7 +338,6 @@ if has_ray():
                     },
                 )
                 cls._cluster.add_node()
-                cls._lock = Lock()
                 cls.reference_count: int = 3
                 cls._cluster.connect()
             return cls._instance
@@ -369,6 +366,7 @@ if has_ray():
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
             cls._cluster.shutdown()
+            del os.environ["RAY_ADDRESS"]
 
     class RayDriverTest(TestCase):
         def test_actors_serialize(self) -> None:
@@ -396,8 +394,6 @@ if has_ray():
         def test_command_actor_setup(self) -> None:
             """Create enough placement groups before the creation of the command actors"""
             ray_cluster_setup = RayClusterSetup()
-            ray_cluster_setup._lock.acquire()
-            assert ray.cluster_resources()["CPU"] == 2
 
             actor1 = RayActor(
                 name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
@@ -413,7 +409,6 @@ if has_ray():
             self.assertEqual(len(command_actors), 2)
             remove_placement_group(pg)
             ray_cluster_setup.decrement_reference()
-            ray_cluster_setup._lock.release()
 
         def test_placement_group_creation(self) -> None:
             """Test the logic in ray driver's main loop, if the placement group can be created
@@ -422,9 +417,7 @@ if has_ray():
             from ray.util.placement_group import PlacementGroup
 
             ray_cluster_setup = RayClusterSetup()
-            ray_cluster_setup._lock.acquire()
             ray_cluster_setup.remove_node()  # remove one nod , now there should be only one node
-            assert ray.cluster_resources()["CPU"] == 1
 
             actor1 = RayActor(
                 name="test_actor_1",
@@ -473,12 +466,10 @@ if has_ray():
             remove_placement_group(pg1)
             remove_placement_group(pg2)
             ray_cluster_setup.decrement_reference()
-            ray_cluster_setup._lock.release()
 
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
-            ray_cluster_setup._lock.acquire()
             ray_scheduler = self.setup_ray_cluster()
             # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
             self.assertTrue(ray.is_initialized())
@@ -499,7 +490,6 @@ if has_ray():
             self.assertEqual(app_handles, [job_id])
 
             ray_cluster_setup.decrement_reference()
-            ray_cluster_setup._lock.release()
 
         def setup_ray_cluster(self) -> RayScheduler:
             ray_scheduler = RayScheduler(session_name="test")

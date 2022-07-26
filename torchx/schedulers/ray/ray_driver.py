@@ -75,7 +75,6 @@ def load_actor_json(filename: str) -> List[RayActor]:
         actor_dict = json.loads(actor_dict)
         for actor in actor_dict:
             actors.append(RayActor(**actor))
-            print(actor)
         return actors
 
 
