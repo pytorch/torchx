@@ -23,6 +23,7 @@ from torchx.specs import AppDef, Resource, Role, runopts
 if has_ray():
     import ray
     from ray.cluster_utils import Cluster
+    from ray.util.placement_group import remove_placement_group
     from torchx.schedulers.ray import ray_driver
     from torchx.schedulers.ray_scheduler import (
         _logger,
@@ -413,7 +414,7 @@ if has_ray():
         #     command_actors = ray_driver.create_command_actors(actors, pg)
 
         #     self.assertEqual(len(command_actors), 2)
-        #     ray.util.placement_group.remove_placement_group(pg)
+        #     remove_placement_group(pg)
         #     ray_cluster_setup.decrement_reference()
         #     ray_cluster_setup._lock.release()
 
@@ -473,8 +474,8 @@ if has_ray():
             self.assertEqual(len(active_workers), 0)
             self.assertTrue(isinstance(ray.get(completed_workers[0]), PlacementGroup))
 
-            ray.util.placement_group.remove_placement_group(pg1)
-            ray.util.placement_group.remove_placement_group(pg2)
+            remove_placement_group(pg1)
+            remove_placement_group(pg2)
             ray_cluster_setup.decrement_reference()
             ray_cluster_setup._lock.release()
 
