@@ -471,7 +471,7 @@ if has_ray():
             )  # wait for actor in pg2 to be finished
             self.assertEqual(len(completed_workers), 1)
             self.assertEqual(len(active_workers), 0)
-            self.assertTrue(isinstance(ray.get(active_workers[0]), PlacementGroup))
+            self.assertTrue(isinstance(ray.get(completed_workers[0]), PlacementGroup))
 
             ray.util.placement_group.remove_placement_group(pg1)
             ray.util.placement_group.remove_placement_group(pg2)
