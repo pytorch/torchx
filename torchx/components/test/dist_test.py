@@ -21,20 +21,30 @@ class DistributedComponentTest(ComponentTestCase):
     def test_ddp_parse_j(self) -> None:
         """test samples for different forms of -j {nnodes}x{nproc_per_node}"""
         j_list = ["1", "1x2", "1:2x3"]
-        num_replicas_list = [
-            1,
-            1,
-            2,
-        ]  # number of replicas should be either nnodes or max_nnodes when it's elastic
+        nnodes_list = [
+            "1",
+            "1",
+            "1",
+        ]  # minimum nnodes
+        max_nnodes_list = [
+            "1",
+            "1",
+            "2",
+        ]  # maximum nnodes
         nnodes_rep_list = [
-            "",
-            "",
+            "1",
+            "1",
             "1:2",
-        ]  # nnodes representation should only contain the nodes numbers or nothing if not elastic
+        ]  # nnodes representation
+        nproc_per_node_list = ["1", "2", "3"]
         for i in range(3):
-            app = dist.ddp(script="foo.py", j=j_list[i])
-            self.assertEqual(app.roles[0].num_replicas, num_replicas_list[i])
-            self.assertEqual(app.roles[0].nnodes_rep, nnodes_rep_list[i])
+            nnodes, max_nnodes, nproc_per_node, nnodes_rep = dist.parse_nnodes(
+                j_list[i]
+            )
+            self.assertEqual(nnodes, nnodes_list[i])
+            self.assertEqual(max_nnodes, max_nnodes_list[i])
+            self.assertEqual(nproc_per_node, nproc_per_node_list[i])
+            self.assertEqual(nnodes_rep, nnodes_rep_list[i])
 
     def test_ddp_debug(self) -> None:
         app = dist.ddp(script="foo.py", debug=True)

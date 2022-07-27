@@ -7,7 +7,6 @@
 import json
 import logging
 import os
-import re
 import subprocess
 import sys
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
@@ -137,56 +136,40 @@ def create_command_actors(
 
 
 def main() -> None:  # pragma: no cover
-
     actors: List[RayActor] = load_actor_json("actors.json")
-    if re.match("\\d+:\\d+", actors[0].nnodes_rep):
-        MIN_NNODES, MAX_NNODES = actors[0].nnodes_rep.split(":")
-        MIN_NNODES, MAX_NNODES = int(MIN_NNODES), int(MAX_NNODES)
-    else:
-        MIN_NNODES, MAX_NNODES = len(actors), len(actors)
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
 
-    created = 0  # number of placement group has been created
-    # Create the minimum requirement placement_group
-    pg: PlacementGroup = create_placement_group(actors[:MIN_NNODES])
-    command_actors: List[CommandActor] = create_command_actors(actors[:MIN_NNODES], pg)
-    created += MIN_NNODES
-
-    active_workers = [
-        command_actor.exec_module.remote()  # pyre-ignore
-        for command_actor in command_actors
-    ]
-
-    # keep creating placement groups until the maximum number of actors is reached
-    if created < MAX_NNODES:
-        active_workers.append(
-            create_placement_group_async(actors[created : created + 1]).ready()
-        )
+    pending_placement_groups = [
+        create_placement_group(actors[i : i + 1]) for i in range(len(actors))
+    ]  # trace all the placement groups
+    active_tasks = [
+        pg.ready() for pg in pending_placement_groups
+    ]  # tasks of creating all required placement groups
 
     # Await return result of remote ray function
-    while len(active_workers) > 0:
-        _logger.info(f"running ray.wait on {active_workers}")
+    while len(active_tasks) > 0:
+
+        _logger.info(f"running ray.wait on {active_tasks}")
 
         # pyre-fixme[16]: Module `worker` has no attribute `wait`.
-        completed_workers, active_workers = ray.wait(active_workers)
+        completed_tasks, active_tasks = ray.wait(active_tasks)
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
-        for object_ref in completed_workers:
-            result = ray.get(object_ref)
+        for object_ref in completed_tasks:
+            # completed tasks contains two kinds of tasks:
+            # 1) placement group creation; 2) command actor execution
+            result: Optional[PlacementGroup] = ray.get(object_ref)
             if isinstance(result, PlacementGroup):
-                new_actors: List[CommandActor] = create_command_actors(
-                    actors[created : created + 1], result
-                )
-                for actor in new_actors:
-                    active_workers.append(actor.exec_module.remote())
-                created += 1
-                if created < MAX_NNODES:
-                    active_workers.append(
-                        create_placement_group_async(
-                            actors[created : created + 1]
-                        ).ready()
-                    )
+                new_actor: CommandActor = create_command_actors(
+                    actors[
+                        0:1
+                    ],  # use actors[0:1] since every actor in the list is the same
+                    result,
+                )[0]
+                active_tasks.append(
+                    new_actor.exec_module.remote()
+                )  # add a command actor execution task
             else:
                 # if the result is None, it's returned by a completed worker, and the job is completed
                 return

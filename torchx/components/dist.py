@@ -54,7 +54,7 @@ import os
 import re
 import shlex
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import torchx
 import torchx.specs as specs
@@ -132,21 +132,7 @@ def ddp(
     # nnodes: number of nodes or minimum nodes for elastic launch
     # max_nnodes: maximum number of nodes for elastic launch
     # nproc_per_node: number of processes on each node
-    nnodes, max_nnodes, nproc_per_node, nnodes_rep = "", "", "", ""
-    is_elastic = False  # elastic launch flag
-    if re.match("\\d+:\\d+x\\d+", j):  # match 2:4x1
-        nnodes_rep, nproc_per_node = j.split("x")
-        nnodes, max_nnodes = nnodes_rep.split(":")
-        is_elastic = True
-    elif re.match("\\d+x\\d+", j):  # match 2x1
-        nnodes, nproc_per_node = j.split("x")
-    elif re.match("\\d+", j):  # match 2
-        nnodes = "1"
-        nproc_per_node = j
-    else:
-        raise ValueError(
-            f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}"
-        )
+    nnodes, max_nnodes, nproc_per_node, nnodes_rep = parse_nnodes(j)
 
     if script:
         # script name/module no extension
@@ -157,9 +143,7 @@ def ddp(
         raise ValueError("failed to compute role_name")
 
     rdzv_backend = "c10d"
-    if (not is_elastic and int(nnodes) == 1) or (
-        is_elastic and int(nnodes) == 0 and int(max_nnodes) == 1
-    ):
+    if int(nnodes) == 1:
         # using port 0 makes elastic chose a free random port which is ok
         # for single-node jobs since all workers run under a single agent
         # When nnodes is 0 and max_nnodes is 1, it's stil a single node job
@@ -186,7 +170,7 @@ def ddp(
         "--rdzv_id",
         f"{macros.app_id}",
         "--nnodes",
-        nnodes_rep if is_elastic else nnodes,  # Use nnodes_rep only when elastic launch
+        nnodes_rep,
         "--nproc_per_node",
         str(nproc_per_node),
         "--tee",
@@ -206,7 +190,7 @@ def ddp(
                 name=role_name,
                 image=image,
                 entrypoint="bash",
-                num_replicas=int(max_nnodes) if is_elastic else int(nnodes),
+                num_replicas=int(max_nnodes),
                 resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
                 args=["-c", _args_join(cmd)],
                 env=env,
@@ -237,3 +221,24 @@ class _noquote(str):
     """
 
     pass
+
+
+def parse_nnodes(j: str) -> Tuple[str, str, str, str]:
+    # nnodes: 1:2x3
+    if re.match("\\d+:\\d+x\\d+", j):  # match 2:4x1
+        nnodes_rep, nproc_per_node = j.split("x")
+        nnodes, max_nnodes = nnodes_rep.split(":")
+    elif re.match("\\d+x\\d+", j):  # match 2x1
+        nnodes, nproc_per_node = j.split("x")
+        max_nnodes = nnodes
+        nnodes_rep = nnodes
+    elif re.match("\\d+", j):  # match 2
+        nnodes = "1"
+        max_nnodes = nnodes
+        nnodes_rep = nnodes
+        nproc_per_node = j
+    else:
+        raise ValueError(
+            f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}"
+        )
+    return nnodes, max_nnodes, nproc_per_node, nnodes_rep
