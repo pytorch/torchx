@@ -141,7 +141,7 @@ def main() -> None:  # pragma: no cover
     ray.init(address="auto", namespace="torchx-ray")
 
     pending_placement_groups = [
-        create_placement_group(actors[i : i + 1]) for i in range(len(actors))
+        create_placement_group_async(actors[i : i + 1]) for i in range(len(actors))
     ]  # trace all the placement groups
     active_tasks = [
         pg.ready() for pg in pending_placement_groups
