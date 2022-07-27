@@ -25,6 +25,9 @@ from torchx.specs import (
 from torchx.workspace.api import Workspace
 
 
+LIST_DAYS = 14
+
+
 class Stream(str, Enum):
     STDOUT = "stdout"
     STDERR = "stderr"
