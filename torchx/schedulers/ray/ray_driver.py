@@ -147,6 +147,9 @@ def main() -> None:  # pragma: no cover
         pg.ready() for pg in pending_placement_groups
     ]  # tasks of creating all required placement groups
 
+    result: Optional[
+        PlacementGroup
+    ]  # result from a completed task, either a command execution result None or a created placement group
     # Await return result of remote ray function
     while len(active_tasks) > 0:
 
@@ -159,7 +162,7 @@ def main() -> None:  # pragma: no cover
         for object_ref in completed_tasks:
             # completed tasks contains two kinds of tasks:
             # 1) placement group creation; 2) command actor execution
-            result: Optional[PlacementGroup] = ray.get(object_ref)
+            result = ray.get(object_ref)  # pyre-ignore
             if isinstance(result, PlacementGroup):
                 new_actor: CommandActor = create_command_actors(
                     actors[
@@ -168,7 +171,7 @@ def main() -> None:  # pragma: no cover
                     result,
                 )[0]
                 active_tasks.append(
-                    new_actor.exec_module.remote()
+                    new_actor.exec_module.remote()  # pyre-ignore
                 )  # add a command actor execution task
             else:
                 # if the result is None, it's returned by a completed worker, and the job is completed
