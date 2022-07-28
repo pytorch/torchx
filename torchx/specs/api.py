@@ -334,7 +334,6 @@ class Role:
     mounts: List[Union[BindMount, VolumeMount, DeviceMount]] = field(
         default_factory=list
     )
-    nnodes_rep: Optional[str] = None  # the representation of nnodes for elastic launch
 
     def pre_proc(
         self,

@@ -281,7 +281,6 @@ if _has_ray:
                         env=replica_role.env,
                         num_cpus=max(1, replica_role.resource.cpu),
                         num_gpus=max(0, replica_role.resource.gpu),
-                        nnodes_rep=role.nnodes_rep,
                     )
 
                     job.actors.append(actor)

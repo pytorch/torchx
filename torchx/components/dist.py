@@ -199,7 +199,6 @@ def ddp(
                 },
                 max_retries=max_retries,
                 mounts=specs.parse_mounts(mounts) if mounts else [],
-                nnodes_rep=nnodes_rep,
             )
         ],
     )

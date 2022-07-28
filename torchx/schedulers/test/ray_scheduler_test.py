@@ -374,13 +374,11 @@ if has_ray():
                 name="test_actor_1",
                 command=["python", "1", "2"],
                 env={"fake": "1"},
-                nnodes_rep="1:2",
             )
             actor2 = RayActor(
                 name="test_actor_2",
                 command=["python", "3", "4"],
                 env={"fake": "2"},
-                nnodes_rep="3:4",
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
