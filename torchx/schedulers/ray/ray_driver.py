@@ -3,6 +3,16 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+#
+# ray_driver.py logic:
+# Instead use a single placement group for all the command actors, each
+# placement group only holds one command actor. In both elastic and
+# non-elastic settings, we create all the placement groups at the beginning,
+# this step is non-blocking, since we don't wait until all the placement
+# groups to be scheduled. When a placement group is scheduled successfully(we
+# will know from pg.ready()), we create a new command actor in the group,
+# and let the actor execute the script. The elastic training will be managed
+# by the module used, such as `torch.distributed.run`.
 
 import json
 import logging
@@ -101,6 +111,8 @@ def create_placement_group(replicas: List[RayActor]) -> PlacementGroup:
 
 
 def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
+    # return a placement group reference, the corresponding placement group could be
+    # scheduled or pending
     bundles = []
     for replica in replicas:
         bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
@@ -143,6 +155,7 @@ def main() -> None:  # pragma: no cover
     placement_groups: List[PlacementGroup] = [
         create_placement_group_async(actors[i : i + 1]) for i in range(len(actors))
     ]  # trace all the placement groups, {placemeng_group_reference: placement_group_index}
+    # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
     pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
         placement_groups[i].id: i for i in range(len(placement_groups))
     }  # {pg_id: actor_index}
@@ -158,6 +171,7 @@ def main() -> None:  # pragma: no cover
 
         _logger.info(f"running ray.wait on {active_tasks}")
 
+        # ray.wait is partial waiting
         # pyre-fixme[16]: Module `worker` has no attribute `wait`.
         completed_tasks, active_tasks = ray.wait(active_tasks)
         # If a failure occurs the ObjectRef will be marked as completed.
