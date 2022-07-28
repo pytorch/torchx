@@ -140,11 +140,14 @@ def main() -> None:  # pragma: no cover
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
 
-    pending_placement_groups = [
+    placement_groups: List[PlacementGroup] = [
         create_placement_group_async(actors[i : i + 1]) for i in range(len(actors))
-    ]  # trace all the placement groups
-    active_tasks = [
-        pg.ready() for pg in pending_placement_groups
+    ]  # trace all the placement groups, {placemeng_group_reference: placement_group_index}
+    pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
+        placement_groups[i].id: i for i in range(len(placement_groups))
+    }  # {pg_id: actor_index}
+    active_tasks: List["ray.ObjectRef"] = [
+        pg.ready() for pg in placement_groups
     ]  # tasks of creating all required placement groups
 
     result: Optional[
@@ -165,9 +168,11 @@ def main() -> None:  # pragma: no cover
             result = ray.get(object_ref)  # pyre-ignore
             if isinstance(result, PlacementGroup):
                 new_actor: CommandActor = create_command_actors(
-                    actors[
-                        0:1
-                    ],  # use actors[0:1] since every actor in the list is the same
+                    [
+                        actors[
+                            pg_ids[result.id]
+                        ],  # find the actor of a placement group based on pg_id
+                    ],  # must be a list
                     result,
                 )[0]
                 active_tasks.append(
