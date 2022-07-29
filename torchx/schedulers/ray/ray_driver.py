@@ -3,16 +3,19 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-#
-# ray_driver.py logic:
-# Instead use a single placement group for all the command actors, each
-# placement group only holds one command actor. In both elastic and
-# non-elastic settings, we create all the placement groups at the beginning,
-# this step is non-blocking, since we don't wait until all the placement
-# groups to be scheduled. When a placement group is scheduled successfully(we
-# will know from pg.ready()), we create a new command actor in the group,
-# and let the actor execute the script. The elastic training will be managed
-# by the module used, such as `torch.distributed.run`.
+
+"""
+ray_driver.py uses placement groups to manage command actors. each
+placement group only holds one command actor. In both elastic and
+non-elastic settings, we create all the placement groups at the beginning,
+this step is non-blocking, since it doesn't wait all the placement
+groups to be scheduled. When a placement group is scheduled successfully(
+from pg.ready()), we allocate a new command actor in this placement group,
+and let the actor execute the script. Once one of the command actor returns,
+we do not need to create more command actors, and set `need_more_actors` flag
+to False, and start waiting for all the command actors to complete. The number
+of command actors are counted by `command_actors_count`.
+"""
 
 import json
 import logging
@@ -163,6 +166,8 @@ def main() -> None:  # pragma: no cover
         pg.ready() for pg in placement_groups
     ]  # tasks of creating all required placement groups
 
+    need_more_actors: bool = True  # do we need more actors, we don't need more actors once a actor has finished
+    command_actors_count: int = 0  # number of created command actors
     result: Optional[
         PlacementGroup
     ]  # result from a completed task, either a command execution result None or a created placement group
@@ -180,7 +185,7 @@ def main() -> None:  # pragma: no cover
             # completed tasks contains two kinds of tasks:
             # 1) placement group creation; 2) command actor execution
             result = ray.get(object_ref)  # pyre-ignore
-            if isinstance(result, PlacementGroup):
+            if isinstance(result, PlacementGroup) and need_more_actors:
                 new_actor: CommandActor = create_command_actors(
                     [
                         actors[
@@ -191,10 +196,13 @@ def main() -> None:  # pragma: no cover
                 )[0]
                 active_tasks.append(
                     new_actor.exec_module.remote()  # pyre-ignore
-                )  # add a command actor execution task
+                )  # add a new command actor execution task to the active tasks
+                command_actors_count += 1  # monitor the number of active command actors
             else:
-                # if the result is None, it's returned by a completed worker, and the job is completed
-                return
+                need_more_actors = False  # don't need more actors
+                command_actors_count -= 1  # 1 completed command actor
+                if command_actors_count == 0:  # all the command actors have finished
+                    break  # exit
 
 
 if __name__ == "__main__":
