@@ -150,30 +150,44 @@ def create_command_actors(
     return cmd_actors
 
 
+def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
+    rep = actors[0].nnodes_rep
+    if ":" in rep:
+        min_nnodes, max_nnodes = rep.split(":")  # pyre-ignore
+        min_nnodes, max_nnodes = int(min_nnodes), int(max_nnodes)
+    else:
+        min_nnodes, max_nnodes = int(rep), int(rep)
+    return min_nnodes, max_nnodes
+
+
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
+    min_nnodes, max_nnodes = parse_nnodes_rep(actors)
+    print(min_nnodes, max_nnodes)
+    actor_ixs = [0] + list(range(min_nnodes, max_nnodes))
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
 
     placement_groups: List[PlacementGroup] = [
-        create_placement_group_async(actors[i : i + 1]) for i in range(len(actors))
+        create_placement_group_async(actors[actor_ixs[i] : actor_ixs[i + 1]])
+        for i in range(len(actor_ixs) - 1)
     ]  # trace all the placement groups, {placemeng_group_reference: placement_group_index}
     # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
     pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
-        placement_groups[i].id: i for i in range(len(placement_groups))
+        placement_groups[i].id: (actor_ixs[i], actor_ixs[i + 1])
+        for i in range(len(actor_ixs) - 1)
     }  # {pg_id: actor_index}
     active_tasks: List["ray.ObjectRef"] = [
         pg.ready() for pg in placement_groups
     ]  # tasks of creating all required placement groups
 
-    need_more_actors: bool = True  # do we need more actors, we don't need more actors once a actor has finished
+    need_more_actors: bool = True  # if need more actors
     command_actors_count: int = 0  # number of created command actors
     result: Optional[
         PlacementGroup
     ]  # result from a completed task, either a command execution result None or a created placement group
     # Await return result of remote ray function
     while len(active_tasks) > 0:
-
         _logger.info(f"running ray.wait on {active_tasks}")
 
         # ray.wait is partial waiting
@@ -186,18 +200,19 @@ def main() -> None:  # pragma: no cover
             # 1) placement group creation; 2) command actor execution
             result = ray.get(object_ref)  # pyre-ignore
             if isinstance(result, PlacementGroup) and need_more_actors:
-                new_actor: CommandActor = create_command_actors(
-                    [
-                        actors[
-                            pg_ids[result.id]
-                        ],  # find the actor of a placement group based on pg_id
-                    ],  # must be a list
+                new_actors: CommandActor = create_command_actors(
+                    actors[
+                        pg_ids[result.id][0] : pg_ids[result.id][1]
+                    ],  # find the actor of a placement group based on pg_id
                     result,
-                )[0]
-                active_tasks.append(
-                    new_actor.exec_module.remote()  # pyre-ignore
-                )  # add a new command actor execution task to the active tasks
-                command_actors_count += 1  # monitor the number of active command actors
+                )
+                for new_actor in new_actors:
+                    active_tasks.append(
+                        new_actor.exec_module.remote()
+                    )  # add a new command actor execution task to the active tasks
+                    command_actors_count += (
+                        1  # monitor the number of active command actors
+                    )
             else:
                 need_more_actors = False  # don't need more actors
                 command_actors_count -= 1  # 1 completed command actor

@@ -189,6 +189,7 @@ def ddp(
             specs.Role(
                 name=role_name,
                 image=image,
+                nnodes_rep=nnodes_rep,
                 entrypoint="bash",
                 num_replicas=int(max_nnodes),
                 resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
