@@ -152,6 +152,8 @@ def create_command_actors(
 
 def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     rep = actors[0].nnodes_rep
+    if rep is None:
+        return len(actors), len(actors)
     if ":" in rep:  # pyre-ignore
         min_nnodes, max_nnodes = rep.split(":")  # pyre-ignore
         min_nnodes, max_nnodes = int(min_nnodes), int(max_nnodes)
@@ -163,8 +165,7 @@ def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
     min_nnodes, max_nnodes = parse_nnodes_rep(actors)
-    print(min_nnodes, max_nnodes)
-    actor_ixs = [0] + list(range(min_nnodes, max_nnodes))
+    actor_ixs = [0] + list(range(min_nnodes, max_nnodes + 1))
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
 
