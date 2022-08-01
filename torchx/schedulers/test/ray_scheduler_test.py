@@ -15,7 +15,7 @@ from unittest.mock import patch
 from torchx.schedulers import get_scheduler_factories
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
-from torchx.schedulers.ray.ray_driver import parse_nnodes_rep
+from torchx.schedulers.ray.ray_driver import RayDriver, parse_nnodes_rep
 from torchx.schedulers.ray_scheduler import has_ray
 from torchx.specs import AppDef, Resource, Role, runopts
 
@@ -408,23 +408,44 @@ if has_ray():
             )
             self.assertEqual(loaded_actor, actors)
 
-        def test_command_actor_setup(self) -> None:
-            """Create enough placement groups before the creation of the command actors"""
-            ray_cluster_setup = RayClusterSetup()
-
+        def test_ray_driver(self) -> None:
             actor1 = RayActor(
-                name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
+                name="test_actor_1",
+                command=["python", "-c" 'print("test_actor_1")'],
+                env={"fake": "1"},
+                nnodes_rep="1:2"
             )
             actor2 = RayActor(
-                name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}
+                name="test_actor_2",
+                command=["python", "-c" 'print("test_actor_2")'],
+                env={"fake": "2"},
+                nnodes_rep="1:2"
             )
             actors = [actor1, actor2]
 
-            pg = ray_driver.create_placement_group(actors)
-            command_actors = ray_driver.create_command_actors(actors, pg)
+            driver = ray_driver.RayDriver(actors)
+            ray_cluster_setup = RayClusterSetup()
 
-            self.assertEqual(len(command_actors), 2)
-            remove_placement_group(pg)
+            # test init_placement_groups
+            driver.init_placement_groups()
+            self.assertEqual(len(driver.placement_groups), 2)
+            self.assertEqual(len(driver.active_tasks), 2)
+
+            # test get_actors_in_placement_group
+            self.assertEqual(
+                driver.get_actors_in_placement_group(driver.placement_groups[0])[0],
+                actor1
+            )
+            self.assertEqual(
+                driver.get_actors_in_placement_group(driver.placement_groups[1])[0],
+                actor2
+            )
+
+            driver.run()  # execute commands on command actors
+            self.assertEqual(len(driver.active_tasks), 0)
+            self.assertIsNotNone(driver.rank_0_address)
+            self.assertIsNotNone(driver.rank_0_port)
+
             ray_cluster_setup.decrement_reference()
 
         def test_placement_group_creation(self) -> None:
@@ -447,11 +468,12 @@ if has_ray():
                 env={"fake": "2"},
             )
 
-            pg1 = ray_driver.create_placement_group(
+            pg1 = ray_driver.create_placement_group_async(
                 [
                     actor1,
                 ]
             )
+            pg1.wait(timeout_seconds=100)
             command_actor1 = ray_driver.create_command_actors([actor1], pg1)[0]
 
             active_workers = [

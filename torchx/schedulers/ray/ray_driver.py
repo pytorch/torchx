@@ -90,32 +90,9 @@ def load_actor_json(filename: str) -> List[RayActor]:
         return actors
 
 
-def create_placement_group(replicas: List[RayActor]) -> PlacementGroup:
-    bundles = []
-    for replica in replicas:
-        bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
-
-    # To change the strategy type
-    # refer to available options here https://docs.ray.io/en/latest/placement-group.html#pgroup-strategy
-    pg = ray.util.placement_group(bundles, strategy="SPREAD")
-
-    _logger.info("Waiting for placement group to start.")
-    ready = pg.wait(timeout_seconds=100)
-
-    if not ready:  # pragma: no cover
-        raise TimeoutError(
-            "Placement group creation timed out. Make sure "
-            "your cluster either has enough resources or use "
-            "an autoscaling cluster. Current resources "
-            "available: {}, resources requested by the "
-            "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
-        )
-    return pg
-
-
 def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
-    # return a placement group reference, the corresponding placement group could be
-    # scheduled or pending
+    """return a placement group reference, the corresponding placement group could be scheduled or pending
+    """
     bundles = []
     for replica in replicas:
         bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
@@ -124,31 +101,98 @@ def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
     return pg
 
 
-def create_command_actors(
-    actors: List[RayActor], pg: PlacementGroup
-) -> List[CommandActor]:
-    cmd_actors: List[CommandActor] = []
-    for i, replica in enumerate(actors):
-        # Environment variables for distributed training
-        actor = CommandActor.options(  # pyre-ignore[16]
-            placement_group=pg,
-            num_cpus=replica.num_cpus,
-            num_gpus=replica.num_gpus,
-        ).remote(replica.command, replica.env)
-        cmd_actors.append(actor)
+class RayDriver:
+    def __init__(self, actors: List[RayActor]):
+        self.actors = actors
+        self.rank_0_address: Optional[str] = None
+        self.rank_0_port: Optional[int] = None
+        min_nnodes, max_nnodes = parse_nnodes_rep(actors)
+        self.actor_ixs = [0] + list(range(min_nnodes, max_nnodes + 1))  # helper for find placement groups
 
-        if i == 0:
-            rank_0_address = "localhost"
-            rank_0_port = 0
-        else:
-            rank_0_address, rank_0_port = ray.get(
-                # pyre-ignore[16]
-                cmd_actors[0].get_actor_address_and_port.remote()
-            )
-        ray.get(actor.set_address_and_port.remote(rank_0_address, rank_0_port))
+    def init_placement_groups(self):
+        """Initialize all placement groups needed for this job"""
+        # trace all the placement groups, {placemeng_group_reference: placement_group_index}
+        self.placement_groups: List[PlacementGroup] = [
+            create_placement_group_async(self.actors[self.actor_ixs[i] : self.actor_ixs[i + 1]])
+                for i in range(len(self.actor_ixs) - 1)
+        ]
 
-    return cmd_actors
+        # the indices of actors in the placement group
+        # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
+        self.pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
+            self.placement_groups[i].id: (self.actor_ixs[i], self.actor_ixs[i + 1])
+                for i in range(len(self.actor_ixs) - 1)
+        }
 
+        # monitoring creation of the placement groups
+        self.active_tasks: List["ray.ObjectRef"] = [
+            pg.ready() for pg in self.placement_groups
+        ]
+
+    def create_command_actors(
+        self, actors: List[RayActor], pg: PlacementGroup
+    ) -> List[CommandActor]:
+        """Create command actors in a give placement group"""
+        cmd_actors: List[CommandActor] = []
+        for _, replica in enumerate(actors):
+            # Environment variables for distributed training
+            actor = CommandActor.options(  # pyre-ignore[16]
+                placement_group=pg,
+                num_cpus=replica.num_cpus,
+                num_gpus=replica.num_gpus,
+            ).remote(replica.command, replica.env)
+            cmd_actors.append(actor)
+
+            if self.rank_0_address is None: 
+                # make this actor the master node
+                ray.get(actor.set_address_and_port.remote("localhost", 0))
+                self.rank_0_address, self.rank_0_port = ray.get(
+                    # pyre-ignore[16]
+                    cmd_actors[0].get_actor_address_and_port.remote()
+                )
+            else:
+                ray.get(actor.set_address_and_port.remote(self.rank_0_address, self.rank_0_port))
+        return cmd_actors
+
+    def get_actors_in_placement_group(self, id: "ray._raylet.PlacementGroupID") -> List[RayActor]:
+        """Find the actors for a given placement group"""
+        begin, end = self.pg_ids[id]
+        return self.actors[begin: end]
+
+    def run(self):
+        result: Optional[PlacementGroup]  # execution result
+        need_more_actors: bool = True  # if need more actors
+        command_actors_count: int = 0  # number of created command actors
+        # Await return result of remote ray function and initialize new command actors
+        while len(self.active_tasks) > 0:
+            _logger.info(f"running ray.wait on {self.active_tasks}")
+            # ray.wait is partial waiting
+            # pyre-fixme[16]: Module `worker` has no attribute `wait`.
+            completed_tasks, self.active_tasks = ray.wait(self.active_tasks)
+            # If a failure occurs the ObjectRef will be marked as completed.
+            # Calling ray.get will expose the failure as a RayActorError.
+            for object_ref in completed_tasks:
+                # completed tasks contains two kinds of tasks:
+                # 1) placement group creation; 2) command actor execution
+                result = ray.get(object_ref)  # pyre-ignore
+                if isinstance(result, PlacementGroup) and need_more_actors:
+                    new_actors: List[CommandActor] = self.create_command_actors(
+                        self.get_actors_in_placement_group(result.id),
+                        result,
+                    )
+                    for new_actor in new_actors:
+                        # add a new command actor execution task to the active tasks
+                        self.active_tasks.append(
+                            new_actor.exec_module.remote()  # pyre-ignore
+                        )
+                        # monitor the number of active command actors
+                        command_actors_count += 1
+                else:
+                    need_more_actors = False  # don't need more actors
+                    command_actors_count -= 1  # 1 completed command actor
+                    if command_actors_count == 0:  # all the command actors have finished
+                        break  # exit
+    
 
 def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     rep: Optional[str] = actors[0].nnodes_rep
@@ -164,61 +208,11 @@ def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
 
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
-    min_nnodes, max_nnodes = parse_nnodes_rep(actors)
-    actor_ixs = [0] + list(range(min_nnodes, max_nnodes + 1))
+    driver = RayDriver(actors)
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
-
-    placement_groups: List[PlacementGroup] = [
-        create_placement_group_async(actors[actor_ixs[i] : actor_ixs[i + 1]])
-        for i in range(len(actor_ixs) - 1)
-    ]  # trace all the placement groups, {placemeng_group_reference: placement_group_index}
-    # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
-    pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
-        placement_groups[i].id: (actor_ixs[i], actor_ixs[i + 1])
-        for i in range(len(actor_ixs) - 1)
-    }  # {pg_id: actor_index}
-    active_tasks: List["ray.ObjectRef"] = [
-        pg.ready() for pg in placement_groups
-    ]  # tasks of creating all required placement groups
-
-    need_more_actors: bool = True  # if need more actors
-    command_actors_count: int = 0  # number of created command actors
-    result: Optional[
-        PlacementGroup
-    ]  # result from a completed task, either a command execution result None or a created placement group
-    # Await return result of remote ray function
-    while len(active_tasks) > 0:
-        _logger.info(f"running ray.wait on {active_tasks}")
-
-        # ray.wait is partial waiting
-        # pyre-fixme[16]: Module `worker` has no attribute `wait`.
-        completed_tasks, active_tasks = ray.wait(active_tasks)
-        # If a failure occurs the ObjectRef will be marked as completed.
-        # Calling ray.get will expose the failure as a RayActorError.
-        for object_ref in completed_tasks:
-            # completed tasks contains two kinds of tasks:
-            # 1) placement group creation; 2) command actor execution
-            result = ray.get(object_ref)  # pyre-ignore
-            if isinstance(result, PlacementGroup) and need_more_actors:
-                new_actors: List[CommandActor] = create_command_actors(
-                    actors[
-                        pg_ids[result.id][0] : pg_ids[result.id][1]
-                    ],  # find the actor of a placement group based on pg_id
-                    result,
-                )
-                for new_actor in new_actors:
-                    active_tasks.append(
-                        new_actor.exec_module.remote()  # pyre-ignore
-                    )  # add a new command actor execution task to the active tasks
-                    command_actors_count += (
-                        1  # monitor the number of active command actors
-                    )
-            else:
-                need_more_actors = False  # don't need more actors
-                command_actors_count -= 1  # 1 completed command actor
-                if command_actors_count == 0:  # all the command actors have finished
-                    break  # exit
+    driver.init_placement_groups()
+    driver.run()
 
 
 if __name__ == "__main__":
