@@ -217,7 +217,9 @@ def main() -> None:  # pragma: no cover
             else:
                 need_more_actors = False  # don't need more actors
                 command_actors_count -= 1  # 1 completed command actor
-                if command_actors_count == 0:  # all the command actors have finished
+                if (
+                    command_actors_count == 0
+                ):  # all the command actors have finished
                     break  # exit
 
 
