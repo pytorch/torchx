@@ -153,7 +153,7 @@ def create_command_actors(
 def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     rep = actors[0].nnodes_rep
     if ":" in rep:  # pyre-ignore
-        min_nnodes, max_nnodes = rep.split(":")
+        min_nnodes, max_nnodes = rep.split(":")  # pyre-ignore
         min_nnodes, max_nnodes = int(min_nnodes), int(max_nnodes)
     else:
         min_nnodes, max_nnodes = int(rep), int(rep)  # pyre-ignore
