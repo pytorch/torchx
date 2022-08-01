@@ -17,6 +17,7 @@ to False, and start waiting for all the command actors to complete. The number
 of command actors are counted by `command_actors_count`.
 """
 
+from hashlib import new
 import json
 import logging
 import os
@@ -25,6 +26,7 @@ import sys
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
+from ray.exceptions import RayActorError
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
@@ -47,11 +49,12 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 @ray.remote
 class CommandActor:  # pragma: no cover
-    def __init__(self, command: List[str], env: Dict[str, str]) -> None:
+    def __init__(self, command: List[str], env: Dict[str, str], pg: PlacementGroup) -> None:
         self.cmd: List[str] = command
         self.env = env
         self.master_addr: Optional[str] = None
         self.master_port: Optional[int] = None
+        self.pg: PlacementGroup = pg
 
     def exec_module(self) -> None:
         if self.master_addr is None or self.master_port is None:
@@ -134,7 +137,7 @@ def create_command_actors(
             placement_group=pg,
             num_cpus=replica.num_cpus,
             num_gpus=replica.num_gpus,
-        ).remote(replica.command, replica.env)
+        ).remote(replica.command, replica.env, pg)
         cmd_actors.append(actor)
 
         if i == 0:
@@ -162,6 +165,13 @@ def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     return min_nnodes, max_nnodes
 
 
+def parse_actor_id_from_error(err: RayActorError) -> RayActor:
+    msg = err.error_msg.split()
+    id_ix = msg.index("actor_id:")+1
+    actor_id = msg[id_ix]
+    return actor_id
+
+
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
     min_nnodes, max_nnodes = parse_nnodes_rep(actors)
@@ -182,6 +192,7 @@ def main() -> None:  # pragma: no cover
         pg.ready() for pg in placement_groups
     ]  # tasks of creating all required placement groups
 
+    active_actors: Dict[str, CommandActor] = {}
     need_more_actors: bool = True  # if need more actors
     command_actors_count: int = 0  # number of created command actors
     result: Optional[
@@ -199,29 +210,34 @@ def main() -> None:  # pragma: no cover
         for object_ref in completed_tasks:
             # completed tasks contains two kinds of tasks:
             # 1) placement group creation; 2) command actor execution
-            result = ray.get(object_ref)  # pyre-ignore
-            if isinstance(result, PlacementGroup) and need_more_actors:
-                new_actors: List[CommandActor] = create_command_actors(
-                    actors[
-                        pg_ids[result.id][0] : pg_ids[result.id][1]
-                    ],  # find the actor of a placement group based on pg_id
-                    result,
-                )
-                for new_actor in new_actors:
-                    active_tasks.append(
-                        new_actor.exec_module.remote()  # pyre-ignore
-                    )  # add a new command actor execution task to the active tasks
-                    command_actors_count += (
-                        1  # monitor the number of active command actors
+            try:
+                result = ray.get(object_ref)  # pyre-ignore
+                if isinstance(result, PlacementGroup) and need_more_actors:
+                    new_actors: List[CommandActor] = create_command_actors(
+                        actors[
+                            pg_ids[result.id][0] : pg_ids[result.id][1]
+                        ],  # find the actor of a placement group based on pg_id
+                        result,
                     )
-            else:
-                need_more_actors = False  # don't need more actors
-                command_actors_count -= 1  # 1 completed command actor
-                if (
-                    command_actors_count == 0
-                ):  # all the command actors have finished
-                    break  # exit
-
+                    for new_actor in new_actors:
+                        active_actors[new_actor._actor_id.hex()] = new_actor
+                        active_tasks.append(
+                            new_actor.exec_module.remote()  # pyre-ignore
+                        )  # add a new command actor execution task to the active tasks
+                        command_actors_count += (
+                            1  # monitor the number of active command actors
+                        )
+                else:
+                    need_more_actors = False  # don't need more actors
+                    command_actors_count -= 1  # 1 completed command actor
+                    if (
+                        command_actors_count == 0
+                    ):  # all the command actors have finished
+                        break  # exit
+            except RayActorError as err:
+                actor_id = parse_actor_id_from_error(err)
+                actor = active_actors[actor_id]
+                pg = actor.pg
 
 if __name__ == "__main__":
     main()
