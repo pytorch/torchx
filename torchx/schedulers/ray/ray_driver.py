@@ -152,8 +152,8 @@ def create_command_actors(
 
 def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     rep = actors[0].nnodes_rep
-    if ":" in rep:
-        min_nnodes, max_nnodes = rep.split(":")  # pyre-ignore
+    if ":" in rep:  # pyre-ignore
+        min_nnodes, max_nnodes = rep.split(":")
         min_nnodes, max_nnodes = int(min_nnodes), int(max_nnodes)
     else:
         min_nnodes, max_nnodes = int(rep), int(rep)  # pyre-ignore
@@ -206,9 +206,9 @@ def main() -> None:  # pragma: no cover
                     ],  # find the actor of a placement group based on pg_id
                     result,
                 )
-                for new_actor in new_actors:  # pyre-ignore
+                for new_actor in new_actors:
                     active_tasks.append(
-                        new_actor.exec_module.remote()
+                        new_actor.exec_module.remote()  # pyre-ignore
                     )  # add a new command actor execution task to the active tasks
                     command_actors_count += (
                         1  # monitor the number of active command actors
