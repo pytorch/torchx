@@ -156,7 +156,7 @@ def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
         min_nnodes, max_nnodes = rep.split(":")  # pyre-ignore
         min_nnodes, max_nnodes = int(min_nnodes), int(max_nnodes)
     else:
-        min_nnodes, max_nnodes = int(rep), int(rep)
+        min_nnodes, max_nnodes = int(rep), int(rep)  # pyre-ignore
     return min_nnodes, max_nnodes
 
 
@@ -200,13 +200,13 @@ def main() -> None:  # pragma: no cover
             # 1) placement group creation; 2) command actor execution
             result = ray.get(object_ref)  # pyre-ignore
             if isinstance(result, PlacementGroup) and need_more_actors:
-                new_actors: CommandActor = create_command_actors(
+                new_actors: List[CommandActor] = create_command_actors(
                     actors[
                         pg_ids[result.id][0] : pg_ids[result.id][1]
                     ],  # find the actor of a placement group based on pg_id
                     result,
                 )
-                for new_actor in new_actors:
+                for new_actor in new_actors:  # pyre-ignore
                     active_tasks.append(
                         new_actor.exec_module.remote()
                     )  # add a new command actor execution task to the active tasks
