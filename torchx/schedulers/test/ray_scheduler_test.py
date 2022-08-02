@@ -15,7 +15,7 @@ from unittest.mock import patch
 from torchx.schedulers import get_scheduler_factories
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
-from torchx.schedulers.ray.ray_driver import RayDriver, parse_nnodes_rep
+from torchx.schedulers.ray.ray_driver import parse_nnodes_rep
 from torchx.schedulers.ray_scheduler import has_ray
 from torchx.specs import AppDef, Resource, Role, runopts
 
@@ -338,8 +338,10 @@ if has_ray():
                         "num_cpus": 1,
                     },
                 )
-                cls._cluster.add_node()
-                cls.reference_count: int = 3
+                cls._cluster.add_node()  # total of 2 cpus available
+                cls.reference_count: int = (
+                    2  # the number of tests that use this cluster
+                )
                 cls._cluster.connect()
             return cls._instance
 
@@ -413,13 +415,13 @@ if has_ray():
                 name="test_actor_1",
                 command=["python", "-c" 'print("test_actor_1")'],
                 env={"fake": "1"},
-                nnodes_rep="1:2"
+                nnodes_rep="1:2",
             )
             actor2 = RayActor(
                 name="test_actor_2",
                 command=["python", "-c" 'print("test_actor_2")'],
                 env={"fake": "2"},
-                nnodes_rep="1:2"
+                nnodes_rep="1:2",
             )
             actors = [actor1, actor2]
 
@@ -431,79 +433,26 @@ if has_ray():
             self.assertEqual(len(driver.placement_groups), 2)
             self.assertEqual(len(driver.active_tasks), 2)
 
-            # test get_actors_in_placement_group
             self.assertEqual(
-                driver.get_actors_in_placement_group(driver.placement_groups[0])[0],
-                actor1
+                driver.get_actors_in_placement_group(driver.placement_groups[0].id)[0],
+                actor1,
             )
             self.assertEqual(
-                driver.get_actors_in_placement_group(driver.placement_groups[1])[0],
-                actor2
+                driver.get_actors_in_placement_group(driver.placement_groups[1].id)[0],
+                actor2,
             )
 
             driver.run()  # execute commands on command actors
-            self.assertEqual(len(driver.active_tasks), 0)
+            self.assertEqual(
+                len(driver.active_tasks), 0
+            )  # wait util all active tasks finishes
             self.assertIsNotNone(driver.rank_0_address)
             self.assertIsNotNone(driver.rank_0_port)
 
-            ray_cluster_setup.decrement_reference()
+            for pg in driver.placement_groups:
+                # clear used placement groups
+                remove_placement_group(pg)
 
-        def test_placement_group_creation(self) -> None:
-            """Test the logic in ray driver's main loop, if the placement group can be created
-            during the execution of other actors
-            """
-            from ray.util.placement_group import PlacementGroup
-
-            ray_cluster_setup = RayClusterSetup()
-            ray_cluster_setup.remove_node()  # remove one nod , now there should be only one node
-
-            actor1 = RayActor(
-                name="test_actor_1",
-                command=["python", "-c" 'print("test_actor_1")'],
-                env={"fake": "1"},
-            )
-            actor2 = RayActor(
-                name="test_actor_2",
-                command=["python", "-c" 'print("test_actor_2")'],
-                env={"fake": "2"},
-            )
-
-            pg1 = ray_driver.create_placement_group_async(
-                [
-                    actor1,
-                ]
-            )
-            pg1.wait(timeout_seconds=100)
-            command_actor1 = ray_driver.create_command_actors([actor1], pg1)[0]
-
-            active_workers = [
-                command_actor1.exec_module.remote(),  # pyre-ignore
-            ]
-            pg2 = ray_driver.create_placement_group_async(
-                [
-                    actor2,
-                ]
-            )
-            active_workers.append(
-                pg2.ready()
-            )  # before we add a node, pg2 should be always pending
-
-            completed_workers, active_workers = ray.wait(  # pyre-ignore
-                active_workers
-            )  # wait for actor in pg1 to be finished
-            self.assertEqual(len(completed_workers), 1)
-            self.assertEqual(len(active_workers), 1)
-
-            ray_cluster_setup.add_node()  # now it should have enough cpus to create pg2
-            completed_workers, active_workers = ray.wait(  # pyre-ignore
-                active_workers
-            )  # wait for actor in pg2 to be finished
-            self.assertEqual(len(completed_workers), 1)
-            self.assertEqual(len(active_workers), 0)
-            self.assertTrue(isinstance(ray.get(completed_workers[0]), PlacementGroup))
-
-            remove_placement_group(pg1)
-            remove_placement_group(pg2)
             ray_cluster_setup.decrement_reference()
 
     class RayIntegrationTest(TestCase):

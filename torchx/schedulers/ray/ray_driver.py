@@ -91,8 +91,7 @@ def load_actor_json(filename: str) -> List[RayActor]:
 
 
 def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
-    """return a placement group reference, the corresponding placement group could be scheduled or pending
-    """
+    """return a placement group reference, the corresponding placement group could be scheduled or pending"""
     bundles = []
     for replica in replicas:
         bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
@@ -102,32 +101,37 @@ def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
 
 
 class RayDriver:
-    def __init__(self, actors: List[RayActor]):
+    def __init__(self, actors: List[RayActor]) -> None:
         self.actors = actors
         self.rank_0_address: Optional[str] = None
         self.rank_0_port: Optional[int] = None
         min_nnodes, max_nnodes = parse_nnodes_rep(actors)
-        self.actor_ixs = [0] + list(range(min_nnodes, max_nnodes + 1))  # helper for find placement groups
+        self.actor_ixs: List[int] = [0] + list(
+            range(min_nnodes, max_nnodes + 1)
+        )  # helper for find placement groups
+        self.placement_groups: List[PlacementGroup] = []
+        # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
+        self.pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {}
+        self.active_tasks: List["ray.ObjectRef"] = []
 
-    def init_placement_groups(self):
+    def init_placement_groups(self) -> None:
         """Initialize all placement groups needed for this job"""
         # trace all the placement groups, {placemeng_group_reference: placement_group_index}
-        self.placement_groups: List[PlacementGroup] = [
-            create_placement_group_async(self.actors[self.actor_ixs[i] : self.actor_ixs[i + 1]])
-                for i in range(len(self.actor_ixs) - 1)
+        self.placement_groups = [
+            create_placement_group_async(
+                self.actors[self.actor_ixs[i] : self.actor_ixs[i + 1]]
+            )
+            for i in range(len(self.actor_ixs) - 1)
         ]
 
         # the indices of actors in the placement group
-        # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
-        self.pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
+        self.pg_ids = {
             self.placement_groups[i].id: (self.actor_ixs[i], self.actor_ixs[i + 1])
-                for i in range(len(self.actor_ixs) - 1)
+            for i in range(len(self.actor_ixs) - 1)
         }
 
         # monitoring creation of the placement groups
-        self.active_tasks: List["ray.ObjectRef"] = [
-            pg.ready() for pg in self.placement_groups
-        ]
+        self.active_tasks = [pg.ready() for pg in self.placement_groups]
 
     def create_command_actors(
         self, actors: List[RayActor], pg: PlacementGroup
@@ -143,7 +147,7 @@ class RayDriver:
             ).remote(replica.command, replica.env)
             cmd_actors.append(actor)
 
-            if self.rank_0_address is None: 
+            if self.rank_0_address is None:
                 # make this actor the master node
                 ray.get(actor.set_address_and_port.remote("localhost", 0))
                 self.rank_0_address, self.rank_0_port = ray.get(
@@ -151,15 +155,21 @@ class RayDriver:
                     cmd_actors[0].get_actor_address_and_port.remote()
                 )
             else:
-                ray.get(actor.set_address_and_port.remote(self.rank_0_address, self.rank_0_port))
+                ray.get(
+                    actor.set_address_and_port.remote(
+                        self.rank_0_address, self.rank_0_port
+                    )
+                )
         return cmd_actors
 
-    def get_actors_in_placement_group(self, id: "ray._raylet.PlacementGroupID") -> List[RayActor]:
+    def get_actors_in_placement_group(
+        self, id: "ray._raylet.PlacementGroupID"
+    ) -> List[RayActor]:
         """Find the actors for a given placement group"""
         begin, end = self.pg_ids[id]
-        return self.actors[begin: end]
+        return self.actors[begin:end]
 
-    def run(self):
+    def run(self) -> None:
         result: Optional[PlacementGroup]  # execution result
         need_more_actors: bool = True  # if need more actors
         command_actors_count: int = 0  # number of created command actors
@@ -190,9 +200,11 @@ class RayDriver:
                 else:
                     need_more_actors = False  # don't need more actors
                     command_actors_count -= 1  # 1 completed command actor
-                    if command_actors_count == 0:  # all the command actors have finished
+                    if (
+                        command_actors_count == 0
+                    ):  # all the command actors have finished
                         break  # exit
-    
+
 
 def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     rep: Optional[str] = actors[0].nnodes_rep
