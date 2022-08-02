@@ -18,6 +18,34 @@ class DistributedComponentTest(ComponentTestCase):
         )
         self.assertEqual(len(app.roles[0].mounts), 1)
 
+    def test_ddp_parse_j(self) -> None:
+        """test samples for different forms of -j {nnodes}x{nproc_per_node}"""
+        j_list = ["1", "1x2", "1:2x3"]
+        nnodes_list = [
+            "1",
+            "1",
+            "1",
+        ]  # minimum nnodes
+        max_nnodes_list = [
+            "1",
+            "1",
+            "2",
+        ]  # maximum nnodes
+        nnodes_rep_list = [
+            "1",
+            "1",
+            "1:2",
+        ]  # nnodes representation
+        nproc_per_node_list = ["1", "2", "3"]
+        for i in range(3):
+            nnodes, max_nnodes, nproc_per_node, nnodes_rep = dist.parse_nnodes(
+                j_list[i]
+            )
+            self.assertEqual(nnodes, nnodes_list[i])
+            self.assertEqual(max_nnodes, max_nnodes_list[i])
+            self.assertEqual(nproc_per_node, nproc_per_node_list[i])
+            self.assertEqual(nnodes_rep, nnodes_rep_list[i])
+
     def test_ddp_debug(self) -> None:
         app = dist.ddp(script="foo.py", debug=True)
         env = app.roles[0].env
