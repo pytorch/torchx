@@ -17,12 +17,12 @@ to False, and start waiting for all the command actors to complete. The number
 of command actors are counted by `command_actors_count`.
 """
 
-from hashlib import new
 import json
 import logging
 import os
 import subprocess
 import sys
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
@@ -31,16 +31,31 @@ from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
 if TYPE_CHECKING:
-    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
+    from torchx.schedulers.ray.ray_common import (
+        CommandActorScheduled,
+        RayActor,
+        TaskCompleted,
+        TORCHX_RANK0_HOST,
+    )
 
 # Hack to make code work for tests as well as running ray job.
 # For tests the `torchx.schedulers.ray.ray_common` import must be used
 # For running ray jobs `ray_common` import must be used
 try:
     # pyre-fixme[21]: Could not find a module corresponding to import `ray_common`.
-    from ray_common import RayActor, TORCHX_RANK0_HOST  # noqa: F811
+    from ray_common import (
+        CommandActorScheduled,
+        RayActor,
+        TaskCompleted,
+        TORCHX_RANK0_HOST,
+    )
 except ModuleNotFoundError:
-    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
+    from torchx.schedulers.ray.ray_common import (
+        CommandActorScheduled,
+        RayActor,
+        TaskCompleted,
+        TORCHX_RANK0_HOST,
+    )
 
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
@@ -49,15 +64,15 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 @ray.remote
 class CommandActor:  # pragma: no cover
-    def __init__(self, command: List[str], env: Dict[str, str], pg: PlacementGroup) -> None:
-        self.cmd: List[str] = command
-        self.env = env
-        self.master_addr: Optional[str] = None
-        self.master_port: Optional[int] = None
-        self.pg: PlacementGroup = pg
+    def __init__(self, cmd: List[str], env: Dict[str, str]) -> None:
+        self.cmd: List[str] = cmd
+        self.env: Dict[str, str] = env
 
-    def exec_module(self) -> None:
-        if self.master_addr is None or self.master_port is None:
+    def exec_module(
+        self, master_addr: str, master_port: int, actor_id: str
+    ) -> TaskCompleted:
+        """Execute a user script"""
+        if master_addr is None or master_port is None:
             raise RuntimeError(
                 "Either MASTER_ADDR or MASTER_PORT are not set. This is most likely bug in torchx"
                 "Open issue at https://github.com/pytorch/torchx"
@@ -65,7 +80,7 @@ class CommandActor:  # pragma: no cover
         worker_evn = {}
         worker_evn.update(os.environ)
         worker_evn.update(self.env)
-        worker_evn[TORCHX_RANK0_HOST] = self.master_addr
+        worker_evn[TORCHX_RANK0_HOST] = master_addr
         popen = subprocess.Popen(self.cmd, env=worker_evn)
 
         returncode = popen.wait()
@@ -74,15 +89,18 @@ class CommandActor:  # pragma: no cover
         if returncode != 0:
             raise RuntimeError(f"exec_module failed with return code {returncode}")
 
+        return TaskCompleted(actor_id)
+
+    def schedule(self, actor_id: str) -> CommandActorScheduled:
+        """Testing if a command actor is scheduled"""
+        return CommandActorScheduled(actor_id)
+
     def get_actor_address_and_port(self) -> Tuple[str, int]:
         return get_address_and_port()
 
-    def set_address_and_port(self, address: str, port: int) -> None:
-        self.master_addr = address
-        self.master_port = port
-
 
 def load_actor_json(filename: str) -> List[RayActor]:
+    """Loading replicas specifications from a JSON file"""
     with open(filename) as f:
         actors: List[RayActor] = []
         # Yes this is gross but it works
@@ -93,32 +111,8 @@ def load_actor_json(filename: str) -> List[RayActor]:
         return actors
 
 
-def create_placement_group(replicas: List[RayActor]) -> PlacementGroup:
-    bundles = []
-    for replica in replicas:
-        bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
-
-    # To change the strategy type
-    # refer to available options here https://docs.ray.io/en/latest/placement-group.html#pgroup-strategy
-    pg = ray.util.placement_group(bundles, strategy="SPREAD")
-
-    _logger.info("Waiting for placement group to start.")
-    ready = pg.wait(timeout_seconds=100)
-
-    if not ready:  # pragma: no cover
-        raise TimeoutError(
-            "Placement group creation timed out. Make sure "
-            "your cluster either has enough resources or use "
-            "an autoscaling cluster. Current resources "
-            "available: {}, resources requested by the "
-            "placement group: {}".format(ray.available_resources(), pg.bundle_specs)
-        )
-    return pg
-
-
 def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
-    # return a placement group reference, the corresponding placement group could be
-    # scheduled or pending
+    """return a placement group reference, the corresponding placement group could be scheduled or pending"""
     bundles = []
     for replica in replicas:
         bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
@@ -127,30 +121,135 @@ def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
     return pg
 
 
-def create_command_actors(
-    actors: List[RayActor], pg: PlacementGroup
-) -> List[CommandActor]:
-    cmd_actors: List[CommandActor] = []
-    for i, replica in enumerate(actors):
-        # Environment variables for distributed training
+@dataclass
+class ActorInfo:
+    pg: PlacementGroup
+    replica: RayActor
+    actor: CommandActor
+
+
+class RayDriver:
+    def __init__(self, replicas: List[RayActor]) -> None:
+        self.replicas = replicas
+        self.master_node_id: Optional[str] = None
+        self.rank_0_address: Optional[str] = None
+        self.rank_0_port: Optional[int] = None
+        self.min_nnodes, self.max_nnodes = parse_nnodes_rep(replicas)  # pyre-ignore
+
+        self.placement_groups: List[PlacementGroup] = []
+        self.actor_info_of_id: Dict[str, ActorInfo] = {}
+        self.active_tasks: List["ray.ObjectRef"] = []
+
+    def init_placement_groups(self) -> None:
+        """Initialize all placement groups needed for this job"""
+        replica_ix_of_pg: List[int] = [0] + list(
+            range(self.min_nnodes, self.max_nnodes + 1)
+        )
+        # trace all the placement groups, {placemeng_group_reference: placement_group_index}
+        self.placement_groups = [
+            create_placement_group_async(
+                self.replicas[replica_ix_of_pg[i] : replica_ix_of_pg[i + 1]]
+            )
+            for i in range(len(replica_ix_of_pg) - 1)
+        ]
+
+    def pop_actor_info(self, actor_id: str) -> ActorInfo:
+        """Remove the info of  (dead) command actor"""
+        return self.actor_info_of_id.pop(actor_id)
+
+    def reschedule_actor(self, actor_id: str) -> None:
+        """Rescheule a failed actor"""
+        # pop the information of failed actor
+        info = self.pop_actor_info(actor_id)
+        _logger.info(f"Rescheduling actor {actor_id} to placement group {info.pg}")
+        self.create_and_schedule_actor(info.pg, info.replica)
+
+    def create_and_schedule_actor(self, pg: PlacementGroup, replica: RayActor) -> None:
+        """create an command actor in the given placement group"""
         actor = CommandActor.options(  # pyre-ignore[16]
             placement_group=pg,
             num_cpus=replica.num_cpus,
             num_gpus=replica.num_gpus,
-        ).remote(replica.command, replica.env, pg)
-        cmd_actors.append(actor)
+        ).remote(replica.command, replica.env)
 
-        if i == 0:
-            rank_0_address = "localhost"
-            rank_0_port = 0
-        else:
-            rank_0_address, rank_0_port = ray.get(
-                # pyre-ignore[16]
-                cmd_actors[0].get_actor_address_and_port.remote()
-            )
-        ray.get(actor.set_address_and_port.remote(rank_0_address, rank_0_port))
+        actor_id = actor._actor_id.hex()
+        # launch a task to check if the actor is scheduled
+        self.active_tasks.append(actor.schedule.remote(actor_id))
+        self.actor_info_of_id[actor_id] = ActorInfo(
+            actor=actor,
+            pg=pg,
+            replica=replica,
+        )
 
-    return cmd_actors
+    def place_command_actors(self) -> None:
+        """Creating pending tasks to initialize command actors in placement groups"""
+        pg_ix_of_replica: List[int] = [
+            max(0, i - self.min_nnodes + 1) for i in range(len(self.replicas))
+        ]  # the placement group indices for corresponding replicas
+        for i in range(len(self.replicas)):
+            pg_ix = pg_ix_of_replica[i]
+            pg = self.placement_groups[pg_ix]  # find the created placement group
+            replica = self.replicas[i]
+            self.create_and_schedule_actor(pg, replica)
+
+    def run(self) -> None:
+        result: Optional[PlacementGroup]  # execution result
+        need_more_actors: bool = True  # if need more actors
+        command_actors_count: int = 0  # number of created command actors
+        # Await return result of remote ray function and initialize new command actors
+        while len(self.active_tasks) > 0:
+            _logger.info(f"running ray.wait on {self.active_tasks}")
+            # ray.wait is partial waiting
+            # pyre-fixme[16]: Module `worker` has no attribute `wait`.
+            completed_tasks, self.active_tasks = ray.wait(self.active_tasks)
+            # If a failure occurs the ObjectRef will be marked as completed.
+            # Calling ray.get will expose the failure as a RayActorError.
+            for object_ref in completed_tasks:
+                try:
+                    result = ray.get(object_ref)  # pyre-ignore
+                    if isinstance(result, CommandActorScheduled) and need_more_actors:
+                        actor = self.actor_info_of_id[result.id].actor
+                        if self.master_node_id is None:
+                            # make this actor be the master node
+                            self.master_node_id = result.id
+                            self.rank_0_address, self.rank_0_port = ray.get(
+                                actor.get_actor_address_and_port.remote()
+                            )
+                            self.active_tasks.append(
+                                actor.exec_module.remote("localhost", 0, result.id)
+                            )
+                        else:
+                            self.active_tasks.append(
+                                actor.exec_module.remote(
+                                    self.rank_0_address, self.rank_0_port, result.id
+                                )
+                            )
+                        command_actors_count += 1
+                    elif isinstance(result, TaskCompleted):
+                        need_more_actors = False  # don't need more actors
+                        command_actors_count -= 1  # 1 completed command actor
+                        self.pop_actor_info(result.id)
+                        if (
+                            command_actors_count == 0
+                        ):  # all the command actors have finished
+                            break  # exit
+                    else:
+                        raise RuntimeError(
+                            "Ray actor returns unkown type. This is most likely bug in torchx"
+                            "Open issue at https://github.com/pytorch/torchx"
+                        )
+                except RayActorError as err:
+                    # reschedule the failed command actor (node failure)
+                    command_actors_count -= 1  # remove the failed actor
+                    failed_actor_id: str = parse_actor_id_from_error(err)
+                    _logger.info(
+                        f"Node failure detected on command actor: {failed_actor_id}"
+                    )
+                    if failed_actor_id == self.master_node_id:
+                        raise RuntimeError(
+                            "Master node failed, cannot recover from master node failure"
+                        )
+                    self.reschedule_actor(failed_actor_id)
 
 
 def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
@@ -165,79 +264,32 @@ def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
     return min_nnodes, max_nnodes
 
 
-def parse_actor_id_from_error(err: RayActorError) -> RayActor:
+def parse_actor_id_from_error(err: RayActorError) -> str:
     msg = err.error_msg.split()
-    id_ix = msg.index("actor_id:")+1
+    try:
+        id_ix = msg.index("actor_id:") + 1
+    except ValueError:
+        raise RuntimeError(
+            "Experiencing a node failure,fault tolerance feature is not compatible with current ray version"
+            "This is most likely bug in torchx"
+            "Open issue at https://github.com/pytorch/torchx"
+        )
     actor_id = msg[id_ix]
     return actor_id
 
 
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
-    min_nnodes, max_nnodes = parse_nnodes_rep(actors)
-    actor_ixs = [0] + list(range(min_nnodes, max_nnodes + 1))
+    driver = RayDriver(actors)
     # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
+    driver.init_placement_groups()
+    _logger.info("Successfully created placement groups")
+    driver.place_command_actors()
+    _logger.info("Successfully placed command actors")
+    _logger.info("Entering main loop, start executing the script on worker nodes")
+    driver.run()
 
-    placement_groups: List[PlacementGroup] = [
-        create_placement_group_async(actors[actor_ixs[i] : actor_ixs[i + 1]])
-        for i in range(len(actor_ixs) - 1)
-    ]  # trace all the placement groups, {placemeng_group_reference: placement_group_index}
-    # pyre-ignore: `ray._raylet.PlacementGroupID` is not defined as a type.
-    pg_ids: Dict["ray._raylet.PlacementGroupID", int] = {
-        placement_groups[i].id: (actor_ixs[i], actor_ixs[i + 1])
-        for i in range(len(actor_ixs) - 1)
-    }  # {pg_id: actor_index}
-    active_tasks: List["ray.ObjectRef"] = [
-        pg.ready() for pg in placement_groups
-    ]  # tasks of creating all required placement groups
-
-    active_actors: Dict[str, CommandActor] = {}
-    need_more_actors: bool = True  # if need more actors
-    command_actors_count: int = 0  # number of created command actors
-    result: Optional[
-        PlacementGroup
-    ]  # result from a completed task, either a command execution result None or a created placement group
-    # Await return result of remote ray function
-    while len(active_tasks) > 0:
-        _logger.info(f"running ray.wait on {active_tasks}")
-
-        # ray.wait is partial waiting
-        # pyre-fixme[16]: Module `worker` has no attribute `wait`.
-        completed_tasks, active_tasks = ray.wait(active_tasks)
-        # If a failure occurs the ObjectRef will be marked as completed.
-        # Calling ray.get will expose the failure as a RayActorError.
-        for object_ref in completed_tasks:
-            # completed tasks contains two kinds of tasks:
-            # 1) placement group creation; 2) command actor execution
-            try:
-                result = ray.get(object_ref)  # pyre-ignore
-                if isinstance(result, PlacementGroup) and need_more_actors:
-                    new_actors: List[CommandActor] = create_command_actors(
-                        actors[
-                            pg_ids[result.id][0] : pg_ids[result.id][1]
-                        ],  # find the actor of a placement group based on pg_id
-                        result,
-                    )
-                    for new_actor in new_actors:
-                        active_actors[new_actor._actor_id.hex()] = new_actor
-                        active_tasks.append(
-                            new_actor.exec_module.remote()  # pyre-ignore
-                        )  # add a new command actor execution task to the active tasks
-                        command_actors_count += (
-                            1  # monitor the number of active command actors
-                        )
-                else:
-                    need_more_actors = False  # don't need more actors
-                    command_actors_count -= 1  # 1 completed command actor
-                    if (
-                        command_actors_count == 0
-                    ):  # all the command actors have finished
-                        break  # exit
-            except RayActorError as err:
-                actor_id = parse_actor_id_from_error(err)
-                actor = active_actors[actor_id]
-                pg = actor.pg
 
 if __name__ == "__main__":
     main()
