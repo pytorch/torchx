@@ -21,6 +21,8 @@ from torchx.specs import AppDef, Resource, Role, runopts
 
 if has_ray():
     import ray
+    from ray.cluster_utils import Cluster
+    from ray.util.placement_group import remove_placement_group
     from torchx.schedulers.ray import ray_driver
     from torchx.schedulers.ray_scheduler import (
         _logger,
@@ -322,44 +324,63 @@ if has_ray():
                 self._scheduler.list()
 
     class RayClusterSetup:
-        _instance = None  # pyre-ignore[4]
+        _instance = None  # pyre-ignore
+        _cluster = None  # pyre-ignore
 
-        def __new__(cls):  # pyre-ignore[3]
+        def __new__(cls):  # pyre-ignore
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
-                # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
-                ray.shutdown()
-                os.system("ray stop")
-                start_status: int = os.system("ray start --head")
-                if start_status != 0:
-                    raise AssertionError(
-                        "ray start --head command has failed. Cannot proceed with running tests"
-                    )
-                # pyre-fixme[16]: Module `worker` has no attribute `init`.
-                ray.init(address="auto", ignore_reinit_error=True)
+                ray.shutdown()  # pyre-ignore
+                cls._cluster = Cluster(
+                    initialize_head=True,
+                    head_node_args={
+                        "num_cpus": 1,
+                    },
+                )
+                cls._cluster.add_node()  # total of 2 cpus available
                 cls.reference_count: int = 2
+                cls._cluster.connect()
             return cls._instance
 
+        @property
+        def workers(cls) -> List[ray.node.Node]:
+            return list(cls._cluster.worker_nodes)
+
+        def add_node(cls) -> None:
+            # add 1 node with 2 cpus to the cluster
+            cls._cluster.add_node(num_cpus=1)
+
+        def remove_node(cls) -> None:
+            # randomly remove 1 node from the cluster
+            ray.shutdown()  # pyre-ignore
+            cls._cluster.remove_node(cls.workers[0])
+            cls._cluster.connected = False
+            cls._cluster.connect()
+
         def decrement_reference(cls) -> None:
-            cls.reference_count = cls.reference_count - 1
+            cls.reference_count -= 1
             if cls.reference_count == 0:
                 cls.teardown_ray_cluster()
 
         def teardown_ray_cluster(cls) -> None:
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
+            cls._cluster.shutdown()
             del os.environ["RAY_ADDRESS"]
-            os.system("ray stop")
 
     class RayDriverTest(TestCase):
-        def test_command_actor_setup(self) -> None:
-            ray_cluster_setup = RayClusterSetup()
-
+        def test_actors_serialize(self) -> None:
             actor1 = RayActor(
-                name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
+                name="test_actor_1",
+                command=["python", "1", "2"],
+                env={"fake": "1"},
+                min_nnodes=2,
             )
             actor2 = RayActor(
-                name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}
+                name="test_actor_2",
+                command=["python", "3", "4"],
+                env={"fake": "2"},
+                min_nnodes=2,
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -370,9 +391,47 @@ if has_ray():
             )
             self.assertEqual(loaded_actor, actors)
 
-            pg = ray_driver.create_placement_group(actors)
-            command_actors = ray_driver.create_command_actors(actors, pg)
-            self.assertEqual(len(command_actors), 2)
+        def test_ray_driver_gang(self) -> None:
+            actor1 = RayActor(
+                name="test_actor_1",
+                command=["python", "-c" 'print("test_actor_1")'],
+                env={"fake": "1"},
+                min_nnodes=2,
+            )
+            actor2 = RayActor(
+                name="test_actor_2",
+                command=["python", "-c" 'print("test_actor_2")'],
+                env={"fake": "2"},
+                min_nnodes=2,
+            )
+            actors = [actor1, actor2]
+
+            driver = ray_driver.RayDriver(actors)
+            ray_cluster_setup = RayClusterSetup()
+
+            # test init_placement_groups
+            driver.init_placement_groups()
+            self.assertEqual(len(driver.placement_groups), 1)
+            self.assertEqual(len(driver.active_tasks), 0)
+
+            driver.place_command_actors()
+            self.assertEqual(
+                len(driver.placement_groups), 1
+            )  # one placement group for minimum requirement
+            self.assertEqual(len(driver.active_tasks), 2)
+            self.assertEqual(len(driver.actor_info_of_id), 2)
+
+            driver.run()  # execute commands on command actors
+            self.assertEqual(
+                len(driver.active_tasks), 0
+            )  # wait util all active tasks finishes
+            self.assertIsNotNone(driver.rank_0_address)
+            self.assertIsNotNone(driver.rank_0_port)
+
+            for pg in driver.placement_groups:
+                # clear used placement groups
+                remove_placement_group(pg)
+
             ray_cluster_setup.decrement_reference()
 
     class RayIntegrationTest(TestCase):
@@ -411,12 +470,14 @@ if has_ray():
                 RayActor(
                     name="ddp",
                     num_cpus=2,
-                    command=os.path.join(current_dir, "train.py"),
+                    command=[os.path.join(current_dir, "train.py")],
+                    min_nnodes=2,
                 ),
                 RayActor(
                     name="ddp",
                     num_cpus=2,
-                    command=os.path.join(current_dir, "train.py"),
+                    command=[os.path.join(current_dir, "train.py")],
+                    min_nnodes=2,
                 ),
             ]
 
