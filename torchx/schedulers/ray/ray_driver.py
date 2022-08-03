@@ -5,16 +5,8 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-ray_driver.py uses placement groups to manage command actors. each
-placement group only holds one command actor. In both elastic and
-non-elastic settings, we create all the placement groups at the beginning,
-this step is non-blocking, since it doesn't wait all the placement
-groups to be scheduled. When a placement group is scheduled successfully(
-from pg.ready()), we allocate a new command actor in this placement group,
-and let the actor execute the script. Once one of the command actor returns,
-we do not need to create more command actors, and set `need_more_actors` flag
-to False, and start waiting for all the command actors to complete. The number
-of command actors are counted by `command_actors_count`.
+For an explanation of the logic in this file, please refer to
+https://github.com/pytorch/torchx/pull/572
 """
 
 import json
@@ -31,35 +23,35 @@ from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
 if TYPE_CHECKING:
-    from torchx.schedulers.ray.ray_common import (
-        CommandActorScheduled,
-        RayActor,
-        TaskCompleted,
-        TORCHX_RANK0_HOST,
-    )
+    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 
 # Hack to make code work for tests as well as running ray job.
 # For tests the `torchx.schedulers.ray.ray_common` import must be used
 # For running ray jobs `ray_common` import must be used
 try:
     # pyre-fixme[21]: Could not find a module corresponding to import `ray_common`.
-    from ray_common import (
-        CommandActorScheduled,
-        RayActor,
-        TaskCompleted,
-        TORCHX_RANK0_HOST,
-    )
+    from ray_common import RayActor, TORCHX_RANK0_HOST  # noqa: F811
 except ModuleNotFoundError:
-    from torchx.schedulers.ray.ray_common import (
-        CommandActorScheduled,
-        RayActor,
-        TaskCompleted,
-        TORCHX_RANK0_HOST,
-    )
+    from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+
+@dataclass
+class RayResult:
+    id: str
+
+
+class TaskCompleted(RayResult):
+    def __init__(self, id: str) -> None:
+        super().__init__(id=id)
+
+
+class CommandActorScheduled(RayResult):
+    def __init__(self, id: str) -> None:
+        super().__init__(id=id)
 
 
 @ray.remote
@@ -123,6 +115,8 @@ def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
 
 @dataclass
 class ActorInfo:
+    """Used to store the information for restoring a failed command actor"""
+
     pg: PlacementGroup
     replica: RayActor
     actor: CommandActor
@@ -131,30 +125,55 @@ class ActorInfo:
 class RayDriver:
     def __init__(self, replicas: List[RayActor]) -> None:
         self.replicas = replicas
-        self.master_node_id: Optional[str] = None
+        self.master_node_id: Optional[str] = None  # the actor id of the master node
         self.rank_0_address: Optional[str] = None
         self.rank_0_port: Optional[int] = None
-        self.min_nnodes, self.max_nnodes = parse_nnodes_rep(replicas)  # pyre-ignore
+        self.min_nnodes: int = get_min_nnodes(replicas)
+        self.max_nnodes: int = len(replicas)
 
-        self.placement_groups: List[PlacementGroup] = []
-        self.actor_info_of_id: Dict[str, ActorInfo] = {}
-        self.active_tasks: List["ray.ObjectRef"] = []
+        self.placement_groups: List[
+            PlacementGroup
+        ] = []  # all the placement groups, shall never change
+        self.actor_info_of_id: Dict[
+            str, ActorInfo
+        ] = {}  # store the info used to recover an actor
+        self.active_tasks: List["ray.ObjectRef"] = []  # list of active tasks
+
+        self.need_more_actors: bool = True  # need more actors before any actor finishes and exits
+        self.command_actors_count: int = 0  # number of created command actors
 
     def init_placement_groups(self) -> None:
         """Initialize all placement groups needed for this job"""
+        # find the actor specifications of a given placement group
         replica_ix_of_pg: List[int] = [0] + list(
             range(self.min_nnodes, self.max_nnodes + 1)
         )
-        # trace all the placement groups, {placemeng_group_reference: placement_group_index}
-        self.placement_groups = [
-            create_placement_group_async(
-                self.replicas[replica_ix_of_pg[i] : replica_ix_of_pg[i + 1]]
+        # create all the placement groups
+        initial_group = create_placement_group_async(
+            self.replicas[replica_ix_of_pg[0] : replica_ix_of_pg[1]]
+        )
+        _logger.info("Waiting for minimum placement group to start.")
+        ready = initial_group.wait(100)
+        if not ready:  # pragma: no cover
+            raise TimeoutError(
+                "Placement group creation timed out. Make sure "
+                "your cluster either has enough resources or use "
+                "an autoscaling cluster. Current resources "
+                "available: {}, resources requested by the "
+                "placement group: {}".format(
+                    ray.available_resources(), initial_group.bundle_specs
+                )
             )
-            for i in range(len(replica_ix_of_pg) - 1)
-        ]
+        self.placement_groups.append(initial_group)
+        for i in range(1, len(replica_ix_of_pg) - 1):
+            self.placement_groups.append(
+                create_placement_group_async(
+                    self.replicas[replica_ix_of_pg[i] : replica_ix_of_pg[i + 1]]
+                )
+            )
 
     def pop_actor_info(self, actor_id: str) -> ActorInfo:
-        """Remove the info of  (dead) command actor"""
+        """Remove and return the info of a dead command actor"""
         return self.actor_info_of_id.pop(actor_id)
 
     def reschedule_actor(self, actor_id: str) -> None:
@@ -166,15 +185,18 @@ class RayDriver:
 
     def create_and_schedule_actor(self, pg: PlacementGroup, replica: RayActor) -> None:
         """create an command actor in the given placement group"""
+        # create the command actor
         actor = CommandActor.options(  # pyre-ignore[16]
             placement_group=pg,
             num_cpus=replica.num_cpus,
             num_gpus=replica.num_gpus,
         ).remote(replica.command, replica.env)
 
+        # get the actor id of the created actor
         actor_id = actor._actor_id.hex()
         # launch a task to check if the actor is scheduled
         self.active_tasks.append(actor.schedule.remote(actor_id))
+        # save the actor info for recovering from node failures
         self.actor_info_of_id[actor_id] = ActorInfo(
             actor=actor,
             pg=pg,
@@ -182,86 +204,90 @@ class RayDriver:
         )
 
     def place_command_actors(self) -> None:
-        """Creating pending tasks to initialize command actors in placement groups"""
+        """Creating all command actors in all placement groups"""
+        # find the placement group index for a replica(actor's specification)
         pg_ix_of_replica: List[int] = [
             max(0, i - self.min_nnodes + 1) for i in range(len(self.replicas))
-        ]  # the placement group indices for corresponding replicas
+        ]
+        # create the actors
         for i in range(len(self.replicas)):
             pg_ix = pg_ix_of_replica[i]
             pg = self.placement_groups[pg_ix]  # find the created placement group
             replica = self.replicas[i]
             self.create_and_schedule_actor(pg, replica)
 
+    def _step(self) -> None:
+        """Handling command actor's return"""
+        result: RayResult  # execution result
+        _logger.info(f"running ray.wait on {self.active_tasks}")
+        # ray.wait is partial waiting
+        # pyre-fixme[16]: Module `worker` has no attribute `wait`.
+        completed_tasks, self.active_tasks = ray.wait(self.active_tasks)
+        # If a failure occurs the ObjectRef will be marked as completed.
+        # Calling ray.get will expose the failure as a RayActorError.
+        for object_ref in completed_tasks:
+            try:
+                result = ray.get(object_ref)  # pyre-ignore
+                if isinstance(result, CommandActorScheduled) and self.need_more_actors:
+                    actor = self.actor_info_of_id[result.id].actor
+                    if self.master_node_id is None:
+                        # make this actor be the master node
+                        self.master_node_id = result.id
+                        self.rank_0_address, self.rank_0_port = ray.get(
+                            actor.get_actor_address_and_port.remote()  # pyre-ignore
+                        )
+                        self.active_tasks.append(
+                            actor.exec_module.remote("localhost", 0, result.id)  # pyre-ignore
+                        )
+                    else:
+                        self.active_tasks.append(
+                            actor.exec_module.remote(
+                                self.rank_0_address, self.rank_0_port, result.id
+                            )
+                        )
+                    self.command_actors_count += 1
+                elif isinstance(result, TaskCompleted):
+                    self.need_more_actors = False  # don't need more actors
+                    self.command_actors_count -= 1  # 1 completed command actor
+                    self.pop_actor_info(result.id)
+                    if (
+                        self.command_actors_count == 0
+                    ):  # all the command actors have finished
+                        return  # exit
+                else:
+                    raise RuntimeError(
+                        f"Ray actor returns unknown type {type(result)}"
+                        "This is most likely bug in torchx"
+                        "Open issue at https://github.com/pytorch/torchx"
+                    )
+            except RayActorError as err:
+                # reschedule the failed command actor (node failure)
+                self.command_actors_count -= 1  # removing the failed actor
+                failed_actor_id: str = parse_actor_id_from_error(err)
+                _logger.info(
+                    f"Node failure detected on command actor: {failed_actor_id}"
+                )
+                if failed_actor_id == self.master_node_id:
+                    raise RuntimeError(
+                        "Master node failed, currently TorchX cannot recover from master node failure"
+                    )
+                self.reschedule_actor(failed_actor_id)
+
     def run(self) -> None:
-        result: Optional[PlacementGroup]  # execution result
-        need_more_actors: bool = True  # if need more actors
-        command_actors_count: int = 0  # number of created command actors
+        """This is the main loop the ray driver, it executes the user script on the scheduled nodes,
+        and restart the failed nodes(node failures). The loop ends when all the actors that joining
+        the job exits."""
+        self.need_more_actors = True
+        self.command_actors_count = 0
         # Await return result of remote ray function and initialize new command actors
         while len(self.active_tasks) > 0:
-            _logger.info(f"running ray.wait on {self.active_tasks}")
-            # ray.wait is partial waiting
-            # pyre-fixme[16]: Module `worker` has no attribute `wait`.
-            completed_tasks, self.active_tasks = ray.wait(self.active_tasks)
-            # If a failure occurs the ObjectRef will be marked as completed.
-            # Calling ray.get will expose the failure as a RayActorError.
-            for object_ref in completed_tasks:
-                try:
-                    result = ray.get(object_ref)  # pyre-ignore
-                    if isinstance(result, CommandActorScheduled) and need_more_actors:
-                        actor = self.actor_info_of_id[result.id].actor
-                        if self.master_node_id is None:
-                            # make this actor be the master node
-                            self.master_node_id = result.id
-                            self.rank_0_address, self.rank_0_port = ray.get(
-                                actor.get_actor_address_and_port.remote()
-                            )
-                            self.active_tasks.append(
-                                actor.exec_module.remote("localhost", 0, result.id)
-                            )
-                        else:
-                            self.active_tasks.append(
-                                actor.exec_module.remote(
-                                    self.rank_0_address, self.rank_0_port, result.id
-                                )
-                            )
-                        command_actors_count += 1
-                    elif isinstance(result, TaskCompleted):
-                        need_more_actors = False  # don't need more actors
-                        command_actors_count -= 1  # 1 completed command actor
-                        self.pop_actor_info(result.id)
-                        if (
-                            command_actors_count == 0
-                        ):  # all the command actors have finished
-                            break  # exit
-                    else:
-                        raise RuntimeError(
-                            "Ray actor returns unkown type. This is most likely bug in torchx"
-                            "Open issue at https://github.com/pytorch/torchx"
-                        )
-                except RayActorError as err:
-                    # reschedule the failed command actor (node failure)
-                    command_actors_count -= 1  # remove the failed actor
-                    failed_actor_id: str = parse_actor_id_from_error(err)
-                    _logger.info(
-                        f"Node failure detected on command actor: {failed_actor_id}"
-                    )
-                    if failed_actor_id == self.master_node_id:
-                        raise RuntimeError(
-                            "Master node failed, cannot recover from master node failure"
-                        )
-                    self.reschedule_actor(failed_actor_id)
+            self._step()
 
 
-def parse_nnodes_rep(actors: List[RayActor]) -> Tuple[int, int]:
-    rep: Optional[str] = actors[0].nnodes_rep
-    if rep is None:
-        return len(actors), len(actors)
-    if ":" in rep:
-        min_nnodes, max_nnodes = rep.split(":")
-        min_nnodes, max_nnodes = int(min_nnodes), int(max_nnodes)
-    else:
-        min_nnodes, max_nnodes = int(rep), int(rep)
-    return min_nnodes, max_nnodes
+def get_min_nnodes(actors: List[RayActor]) -> Optional[int]:
+    """Extract minimum number of nodes from actors, should always return int"""
+    min_nnodes: Optional[int] = actors[0].min_nnodes
+    return min_nnodes
 
 
 def parse_actor_id_from_error(err: RayActorError) -> str:

@@ -21,7 +21,7 @@ class DistributedComponentTest(ComponentTestCase):
     def test_ddp_parse_j(self) -> None:
         """test samples for different forms of -j {nnodes}x{nproc_per_node}"""
         j_list = ["1", "1x2", "1:2x3"]
-        nnodes_list = [
+        min_nnodes_list = [
             "1",
             "1",
             "1",
@@ -38,10 +38,10 @@ class DistributedComponentTest(ComponentTestCase):
         ]  # nnodes representation
         nproc_per_node_list = ["1", "2", "3"]
         for i in range(3):
-            nnodes, max_nnodes, nproc_per_node, nnodes_rep = dist.parse_nnodes(
+            min_nnodes, max_nnodes, nproc_per_node, nnodes_rep = dist.parse_nnodes(
                 j_list[i]
             )
-            self.assertEqual(nnodes, nnodes_list[i])
+            self.assertEqual(min_nnodes, min_nnodes_list[i])
             self.assertEqual(max_nnodes, max_nnodes_list[i])
             self.assertEqual(nproc_per_node, nproc_per_node_list[i])
             self.assertEqual(nnodes_rep, nnodes_rep_list[i])

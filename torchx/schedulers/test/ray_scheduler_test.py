@@ -15,7 +15,6 @@ from unittest.mock import patch
 from torchx.schedulers import get_scheduler_factories
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
-from torchx.schedulers.ray.ray_driver import parse_nnodes_rep
 from torchx.schedulers.ray_scheduler import has_ray
 from torchx.specs import AppDef, Resource, Role, runopts
 
@@ -372,24 +371,6 @@ if has_ray():
             del os.environ["RAY_ADDRESS"]
 
     class RayDriverTest(TestCase):
-        def test_parse_nnodes_rep(self) -> None:
-            actors_1: List[RayActor] = [
-                RayActor(name="foo1", command=["bar1"]),
-            ] * 2
-            actors_2: List[RayActor] = [
-                RayActor(name="foo2", command=["bar2"], nnodes_rep="1:3"),
-            ] * 3
-            actors_3: List[RayActor] = [
-                RayActor(name="foo3", command=["bar3"], nnodes_rep="3"),
-            ] * 3
-            test_samples = [actors_1, actors_2, actors_3]
-            min_list = [2, 1, 3]
-            max_list = [2, 3, 3]
-            for i in range(3):
-                min_nnode, max_nnode = parse_nnodes_rep(test_samples[i])
-                self.assertEqual(min_nnode, min_list[i])
-                self.assertEqual(max_nnode, max_list[i])
-
         def test_actors_serialize(self) -> None:
             actor1 = RayActor(
                 name="test_actor_1",
@@ -415,13 +396,13 @@ if has_ray():
                 name="test_actor_1",
                 command=["python", "-c" 'print("test_actor_1")'],
                 env={"fake": "1"},
-                nnodes_rep="1:2",
+                min_nnodes=1,
             )
             actor2 = RayActor(
                 name="test_actor_2",
                 command=["python", "-c" 'print("test_actor_2")'],
                 env={"fake": "2"},
-                nnodes_rep="1:2",
+                min_nnodes=1,
             )
             actors = [actor1, actor2]
 
