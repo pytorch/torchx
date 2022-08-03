@@ -288,9 +288,9 @@ class RayDriver:
             self._step()
 
 
-def get_min_nnodes(actors: List[RayActor]) -> Optional[int]:
+def get_min_nnodes(actors: List[RayActor]) -> int:
     """Extract minimum number of nodes from actors, should always return int"""
-    min_nnodes: Optional[int] = actors[0].min_nnodes
+    min_nnodes: int = actors[0].min_nnodes  # pyre-ignore
     return min_nnodes
 
 
