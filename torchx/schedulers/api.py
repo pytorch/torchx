@@ -25,7 +25,7 @@ from torchx.specs import (
 from torchx.workspace.api import Workspace
 
 
-LIST_DAYS = 14
+DEFAULT_LIST_DAYS = 14
 
 
 class Stream(str, Enum):
