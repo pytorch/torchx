@@ -139,7 +139,9 @@ class RayDriver:
         ] = {}  # store the info used to recover an actor
         self.active_tasks: List["ray.ObjectRef"] = []  # list of active tasks
 
-        self.need_more_actors: bool = True  # need more actors before any actor finishes and exits
+        self.need_more_actors: bool = (
+            True  # need more actors before any actor finishes and exits
+        )
         self.command_actors_count: int = 0  # number of created command actors
 
     def init_placement_groups(self) -> None:
@@ -237,7 +239,9 @@ class RayDriver:
                             actor.get_actor_address_and_port.remote()  # pyre-ignore
                         )
                         self.active_tasks.append(
-                            actor.exec_module.remote("localhost", 0, result.id)  # pyre-ignore
+                            actor.exec_module.remote(
+                                "localhost", 0, result.id
+                            )  # pyre-ignore
                         )
                     else:
                         self.active_tasks.append(
