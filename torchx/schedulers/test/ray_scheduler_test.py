@@ -346,7 +346,7 @@ if has_ray():
         def workers(cls) -> List[ray.node.Node]:
             return list(cls._cluster.worker_nodes)
 
-        def add_node(cls, num_cpus: int=1) -> None:
+        def add_node(cls, num_cpus: int = 1) -> None:
             # add 1 node with 2 cpus to the cluster
             cls._cluster.add_node(num_cpus=num_cpus)
 
@@ -392,13 +392,19 @@ if has_ray():
             """Test launching a gang scheduling job"""
             actor1 = RayActor(
                 name="test_actor_1",
-                command=["python", "-c" 'import time; time.sleep(1); print("test_actor_1")'],
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_1")',
+                ],
                 env={"fake": "1"},
                 min_nnodes=2,
             )
             actor2 = RayActor(
                 name="test_actor_2",
-                command=["python", "-c" 'import time; time.sleep(1); print("test_actor_2")'],
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_2")',
+                ],
                 env={"fake": "2"},
                 min_nnodes=2,
             )
@@ -436,13 +442,19 @@ if has_ray():
             """Test launching an elasticity job"""
             actor1 = RayActor(
                 name="test_actor_1",
-                command=["python", "-c" 'import time; time.sleep(1); print("test_actor_elasticity_1")'],
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_elasticity_1")',
+                ],
                 env={"fake": "1"},
                 min_nnodes=1,
             )
             actor2 = RayActor(
                 name="test_actor_2",
-                command=["python", "-c" 'import time; time.sleep(1); print("test_actor_elasticity_2")'],
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_elasticity_2")',
+                ],
                 env={"fake": "2"},
                 min_nnodes=1,
             )
@@ -454,11 +466,14 @@ if has_ray():
 
             # 1. test init_placement_groups
             driver.init_placement_groups()
-            self.assertEqual(len(driver.placement_groups), 2)  # 2 placement groups created
+            self.assertEqual(
+                len(driver.placement_groups), 2
+            )  # 2 placement groups created
             self.assertEqual(len(driver.active_tasks), 0)
+            # pyre-ignore
             created, pending = ray.wait(
                 [driver.placement_groups[0].ready(), driver.placement_groups[1].ready()]
-                )
+            )
             self.assertEqual(len(created), 1)
             self.assertEqual(len(pending), 1)
 
@@ -468,34 +483,30 @@ if has_ray():
             self.assertEqual(len(driver.actor_info_of_id), 2)
             self.assertEqual(driver.command_actors_count, 0)
 
-            # 3-1 
+            # 3-1
             teriminal = driver._step()  # actor 1 scheduled, execute the script
             self.assertEqual(teriminal, False)
-            self.assertEqual(
-                len(driver.active_tasks), 2
-            )  # actor1 should be finished
+            self.assertEqual(len(driver.active_tasks), 2)  # actor1 should be finished
             self.assertEqual(driver.command_actors_count, 1)
             self.assertIsNotNone(driver.rank_0_address)
             self.assertIsNotNone(driver.rank_0_port)
 
             # 3-2
-            terminal = driver._step()  # actor 1 finished, actor 2 has been scheduled yet, usually, the driver stops here
+            terminal = (
+                driver._step()
+            )  # actor 1 finished, actor 2 has been scheduled yet, usually, the driver stops here
             self.assertEqual(terminal, True)
             self.assertEqual(driver.command_actors_count, 0)
-            self.assertEqual(
-                len(driver.active_tasks), 1  # actor schedule task
-            )
-            self.assertEqual(
-                driver.need_more_actors, False
-            )
+            self.assertEqual(len(driver.active_tasks), 1)  # actor schedule task
+            self.assertEqual(driver.need_more_actors, False)
 
             ray_cluster_setup.add_node()  # add 1 cpu to the cluster
-            # 3-3 
-            teriminal = driver._step()  # pg 2 becomes availiable, but actor 2 shouldn't be executed
+            # 3-3
+            teriminal = (
+                driver._step()
+            )  # pg 2 becomes availiable, but actor 2 shouldn't be executed
             self.assertEqual(teriminal, False)
-            self.assertEqual(
-                len(driver.active_tasks), 0
-            )  # actor1 should be finished
+            self.assertEqual(len(driver.active_tasks), 0)  # actor1 should be finished
             self.assertEqual(driver.command_actors_count, 0)
 
             for pg in driver.placement_groups:
@@ -510,12 +521,18 @@ if has_ray():
             actor1 = RayActor(
                 name="test_actor_1",
                 # time in the sleep should be longer than the time it needs to remove the node
-                command=["python", "-c" 'import time; time.sleep(3); print("test_actor_fault_tolerance_1")'],
+                command=[
+                    "python",
+                    "-c"
+                    'import time; time.sleep(3); print("test_actor_fault_tolerance_1")',
+                ],
                 env={"fake": "1"},
                 min_nnodes=1,
                 num_cpus=2,
             )
-            actors = [actor1,]
+            actors = [
+                actor1,
+            ]
 
             driver = ray_driver.RayDriver(actors)
             ray_cluster_setup = RayClusterSetup()

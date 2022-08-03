@@ -20,8 +20,7 @@ from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 import ray
 from ray.exceptions import RayActorError
 from ray.train.utils import get_address_and_port
-from ray.util.placement_group import PlacementGroup
-from ray.util.placement_group import remove_placement_group
+from ray.util.placement_group import PlacementGroup, remove_placement_group
 
 if TYPE_CHECKING:
     from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
@@ -129,8 +128,10 @@ class RayDriver:
         self.master_node_id: Optional[str] = None  # the actor id of the master node
         self.rank_0_address: Optional[str] = None
         self.rank_0_port: Optional[int] = None
-        self.min_nnodes: int = get_min_nnodes(replicas)
+        self.min_nnodes: Optional[int] = get_min_nnodes(replicas)
         self.max_nnodes: int = len(replicas)
+        if self.min_nnodes is None:
+            self.min_nnodes = self.max_nnodes
 
         self.placement_groups: List[
             PlacementGroup
@@ -238,12 +239,10 @@ class RayDriver:
                             # make this actor be the master node
                             self.master_node_id = result.id
                             self.rank_0_address, self.rank_0_port = ray.get(
-                                actor.get_actor_address_and_port.remote()  # pyre-ignore
+                                actor.get_actor_address_and_port.remote()
                             )
                             self.active_tasks.append(
-                                actor.exec_module.remote(
-                                    "localhost", 0, result.id
-                                )  # pyre-ignore
+                                actor.exec_module.remote("localhost", 0, result.id)
                             )
                         else:
                             self.active_tasks.append(
@@ -294,13 +293,13 @@ class RayDriver:
 
     def clear_up(self) -> None:
         for pg in self.placement_groups:
-        # clear used placement groups
+            # clear used placement groups
             remove_placement_group(pg)
 
 
-def get_min_nnodes(actors: List[RayActor]) -> int:
+def get_min_nnodes(actors: List[RayActor]) -> Optional[int]:
     """Extract minimum number of nodes from actors, should always return int"""
-    min_nnodes: int = actors[0].min_nnodes  # pyre-ignore
+    min_nnodes: Optional[int] = actors[0].min_nnodes  # pyre-ignore
     return min_nnodes
 
 
