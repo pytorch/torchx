@@ -338,7 +338,7 @@ if has_ray():
                     },
                 )
                 cls._cluster.add_node()  # total of 2 cpus available
-                cls.reference_count: int = 0
+                cls.reference_count: int = 2
                 cls._cluster.connect()
             return cls._instance
 
@@ -361,9 +361,6 @@ if has_ray():
             cls.reference_count -= 1
             if cls.reference_count == 0:
                 cls.teardown_ray_cluster()
-
-        def increment_reference(cls) -> None:
-            cls.reference_count += 1
 
         def teardown_ray_cluster(cls) -> None:
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
@@ -411,7 +408,6 @@ if has_ray():
 
             driver = ray_driver.RayDriver(actors)
             ray_cluster_setup = RayClusterSetup()
-            ray_cluster_setup.increment_reference()
 
             # test init_placement_groups
             driver.init_placement_groups()
@@ -441,7 +437,6 @@ if has_ray():
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
-            ray_cluster_setup.increment_reference()
             ray_scheduler = self.setup_ray_cluster()
             # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
             self.assertTrue(ray.is_initialized())
@@ -476,11 +471,13 @@ if has_ray():
                     name="ddp",
                     num_cpus=2,
                     command=[os.path.join(current_dir, "train.py")],
+                    min_nnodes=2,
                 ),
                 RayActor(
                     name="ddp",
                     num_cpus=2,
                     command=[os.path.join(current_dir, "train.py")],
+                    min_nnodes=2,
                 ),
             ]
 
