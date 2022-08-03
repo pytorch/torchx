@@ -1,0 +1,1355 @@
+Script started on Tue Aug  2 21:00:34 2022
+. ^CTraceback (most recent call last):
+  File "/Users/jiajie/miniconda3/bin/conda", line 13, in <module>
+    sys.exit(main())
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/conda/cli/main.py", line 142, in main
+    from ..activate import main as activator_main
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/conda/activate.py", line 22, in <module>
+    from .base.context import ROOT_ENV_NAME, context, locate_prefix_by_name
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/conda/base/context.py", line 32, in <module>
+    from ..common.configuration import (Configuration, ConfigurationLoadError, MapParameter,
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/conda/common/configuration.py", line 36, in <module>
+    from .path import expand
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/conda/common/path.py", line 17, in <module>
+    from distutils.spawn import find_executable
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 982, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 925, in _find_spec
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/_distutils_hack/__init__.py", line 90, in find_spec
+    return method()
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/_distutils_hack/__init__.py", line 101, in spec_for_distutils
+    mod = importlib.import_module('setuptools._distutils')
+  File "/Users/jiajie/miniconda3/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/setuptools/__init__.py", line 16, in <module>
+    import setuptools.version
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/setuptools/version.py", line 1, in <module>
+    import pkg_resources
+  File "/Users/jiajie/miniconda3/lib/python3.9/site-packages/pkg_resources/__init__.py", line 33, in <module>
+    import email.parser
+  File "/Users/jiajie/miniconda3/lib/python3.9/email/parser.py", line 12, in <module>
+    from email.feedparser import FeedParser, BytesFeedParser
+  File "/Users/jiajie/miniconda3/lib/python3.9/email/feedparser.py", line 27, in <module>
+    from email._policybase import compat32
+  File "/Users/jiajie/miniconda3/lib/python3.9/email/_policybase.py", line 9, in <module>
+    from email.utils import _has_surrogates
+  File "/Users/jiajie/miniconda3/lib/python3.9/email/utils.py", line 31, in <module>
+    import urllib.parse
+  File "/Users/jiajie/miniconda3/lib/python3.9/urllib/parse.py", line 249, in <module>
+    _SplitResultBase = namedtuple(
+  File "/Users/jiajie/miniconda3/lib/python3.9/collections/__init__.py", line 371, in namedtuple
+    if isinstance(field_names, str):
+KeyboardInterrupt
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx]1;..de/OSP/torchx
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx[00m                                                                                                             [21:00:35]
+[0m[27m[24m[J(base) > [32m$[00m [K[114C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][136D[?1h=[?2004hsscripts[?1l>[?2004l
+]2;scripts]1;scripts[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:00:37]
+[0m[27m[24m[J(base) > [32m$[00m [K[114C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][136D[?1h=[?2004hllint
+[J[0m_lintian   [J_portlint  [Jxmllint  [J[A[0m[27m[24m[11Clint[K[110C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][132D.lint./lint[4C.sh[1m [0m[0m [?1l>[?2004l
+[J]2;./lint.sh]1;./lint.sh./lint.sh: line 10: black: command not found
+Please install black.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:00:40]
+[0m[27m[24m[J(base) > [32m$[00m [K[114C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][136D[?1h=[?2004h../  cconda activate torchx-dev[?1l>[?2004l
+]2;conda activate torchx-dev]1;conda[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:00:46]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004h../lint.sh[1m [0m[0m [?1l>[?2004l
+]2;./lint.sh]1;./lint.shRunning linters ...
+Checking torchx/components/dist.py
+Checking torchx/components/test/dist_test.py
+Checking torchx/schedulers/ray/ray_common.py
+Checking torchx/schedulers/ray/ray_driver.py
+Checking torchx/schedulers/ray_scheduler.py
+Checking torchx/schedulers/test/ray_scheduler_test.py
+Checking torchx/specs/api.py
+[?1049h[?1h=torchx/schedulers/test/ray_scheduler_test.py[m
+[7m(END)[27m[K[K[?1l>[?1049lThere are uncommitted changes on disk likely caused by the linters.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:00:58]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004h../y pyre.sh[1m [0m[0m [?1l>[?2004l
+]2;./pyre.sh]1;./pyre.sh+ pyre --version
+
+[0G[K[1A[?25lƛ[0m [?7lNo binary specified, looking for `pyre.bin` in PATH[0G[K[?7h[?25hBinary version: 12ef0d6253cfb5e1b5d22849899630fb8a37a101
+Client version: 0.9.15
++ pyre --noninteractive check
+2022-08-02 21:01:01,312 [PID 37260] WARNING Your running version does not match the configured version for this
+project (running 0.9.15, expected 0.0.101650971427).
+2022-08-02 21:01:01,312 [PID 37260] INFO No binary specified, looking for `pyre.bin` in PATH
+2022-08-02 21:01:01,312 [PID 37260] INFO Could not determine the number of Pyre workers from configuration. Auto-set the value to 7.
+2022-08-02 21:01:01,313 [PID 37260] INFO No typeshed specified, looking for it...
+2022-08-02 21:01:01,313 [PID 37260] INFO Found: `/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed`
+2022-08-02 21:01:01,316 [PID 37260] INFO Writing arguments into /var/folders/58/n29f80x570921t66pvrpmb240000gn/T/pyre_arguments_mxog7itn.json...
+2022-08-02 21:01:01,316 [PID 37260] DEBUG Arguments:
+{
+  "source_paths": {
+    "kind": "simple",
+    "paths": [
+      "/Users/jiajie/Code/OSP/torchx"
+    ]
+  },
+  "search_paths": [
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/python3.9/site-packages",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stdlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/DateTimeRange",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Deprecated",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-Cors",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/JACK-Client",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Markdown",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pillow",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyMySQL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyYAML",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pygments",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Send2Trash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aiofiles",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/annoy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/appdirs",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/atomicwrites",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aws-xray-sdk",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/babel",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/backports.ssl_match_hostname",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/beautifulsoup4",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/bleach",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/boto",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/braintree",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cachetools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/caldav",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/certifi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/characteristic",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chardet",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chevron",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/click-spinner",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/colorama",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/commonmark",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/contextvars",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/croniter",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cryptography",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dataclasses",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dateparser",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/decorator",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docopt",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docutils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/editdistance",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/emoji",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/entrypoints",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/filelock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/first",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-2020",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-bugbear",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-builtins",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-plugin-utils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-rst-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-simplify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-typing-imports",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/fpdf2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/freezegun",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/frozendict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/google-cloud-ndb",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/hdbcli",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/html5lib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/httplib2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/humanfriendly",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/invoke",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jmespath",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jsonschema",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ldap3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mypy-extensions",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mysqlclient",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/oauthlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/openpyxl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/opentracing",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/paramiko",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/parsimonious",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passpy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pep8-naming",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/playsound",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/polib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/prettytable",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/protobuf",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psycopg2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyOpenSSL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyRFC3339",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyaudio",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pycurl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyfarmhash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyflakes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pynput",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pysftp",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytest-lazy-fixture",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-dateutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-gflags",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-nmap",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-slugify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytz",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyvmomi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/redis",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/regex",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/requests",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/retry",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/selenium",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/setuptools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/simplejson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/singledispatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/six",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/slumber",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stdlib-list",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stripe",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tabulate",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/termcolor",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toml",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toposort",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ttkthemes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/typed-ast",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tzlocal",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ujson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/urllib3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/vobject",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/waitress",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/whatthepatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xmltodict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xxhash"
+  ],
+  "excludes": [
+    ".*/build/.*",
+    ".*/docs/.*",
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*",
+    ".*/torchx/examples/apps/compute_world_size/.*"
+  ],
+  "checked_directory_allowlist": [
+    "/Users/jiajie/Code/OSP/torchx"
+  ],
+  "checked_directory_blocklist": [],
+  "extensions": [],
+  "log_path": "/Users/jiajie/Code/OSP/torchx/.pyre",
+  "global_root": "/Users/jiajie/Code/OSP/torchx",
+  "debug": false,
+  "python_version": {
+    "major": 3,
+    "minor": 9,
+    "micro": 0
+  },
+  "shared_memory": {},
+  "parallel": true,
+  "number_of_workers": 7,
+  "additional_logging_sections": [
+    "-progress"
+  ],
+  "show_error_traces": false,
+  "strict": true
+}
+2022-08-02 21:01:01,382 [PID 37260] INFO  Initializing shared memory [heap_size=8589934592, dep_table_pow=27, hash_table_pow=26]
+2022-08-02 21:01:01,392 [PID 37260] INFO  Building type environment...
+2022-08-02 21:01:01,392 [PID 37260] INFO  Building module tracker...
+2022-08-02 21:01:02,449 [PID 37260] PERFORMANCE  Module tracker built: 1.058s
+2022-08-02 21:01:02,513 [PID 37260] PERFORMANCE  Full environment built: 1.122s
+2022-08-02 21:01:03,015 [PID 37260] INFO  Checking 1511 functions...
+2022-08-02 21:01:05,079 [PID 37260] PERFORMANCE  Check_TypeCheck: 2.064s
+2022-08-02 21:01:05,080 [PID 37260] MEMORY  Shared memory size post-typecheck (size: 16)
+2022-08-02 21:01:05,130 [PID 37260] PERFORMANCE  Check_Postprocessing: 0.051s
+2022-08-02 21:01:05,136 [PID 37260] PERFORMANCE  Check: 3.746s
+2022-08-02 21:01:05,177 [PID 37260] ERROR Found 52 type errors!
+[31m../torchx/components/component_test_base.py[0m:[33m71[0m:[33m42[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m22[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `classy_vision.dataset.classy_dataset`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m35[0m:[33m26[0m Undefined or invalid type [11]: Annotation `ClassyDataset` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m49[0m:[33m8[0m Too many arguments [19]: Call `object.__init__` expects 0 positional arguments, 5 were provided.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m50[0m:[33m12[0m Unused ignore [0]: The `pyre-ignore[6]` or `pyre-fixme[6]` comment is not suppressing type errors, please remove it.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m8[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `ts.torch_handler.image_classifier`.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m11[0m:[33m28[0m Undefined or invalid type [11]: Annotation `ImageClassifier` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/interpret.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `captum.attr`.
+[31m../torchx/examples/pipelines/kfp/advanced_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m17[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m40[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.BaseOp` is not defined as a type.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m53[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/__init__.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m18[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp.components.structures`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m19[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m77[0m:[33m59[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m87[0m:[33m20[0m Undefined or invalid type [11]: Annotation `ComponentSpec` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m129[0m:[33m8[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m187[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.Sidecar` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m239[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.ResourceOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m89[0m:[33m23[0m Undefined or invalid type [11]: Annotation `V1ResourceRequirements` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m104[0m:[33m19[0m Undefined or invalid type [11]: Annotation `V1ContainerPort` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m146[0m:[33m15[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m235[0m:[33m24[0m Undefined or invalid type [11]: Annotation `boto3.session.Session` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m236[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `boto3.session`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m69[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m78[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m161[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m167[0m:[33m74[0m Undefined or invalid type [11]: Annotation `V1Pod` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m529[0m:[33m16[0m Undefined or invalid type [11]: Annotation `ApiClient` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m535[0m:[33m8[0m Missing attribute annotation [4]: Attribute `_client` of class `KubernetesScheduler` has no type specified.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m552[0m:[33m37[0m Undefined or invalid type [11]: Annotation `CustomObjectsApi` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m557[0m:[33m46[0m Undefined or invalid type [11]: Annotation `ApiException` is not defined as a type.
+[31m../torchx/schedulers/ray/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/ray/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m112[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m577[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/test/local_scheduler_test.py[0m:[33m284[0m:[33m40[0m Incompatible parameter type [6]: In call `genericpath.exists`, for 1st positional only parameter expected `Union[PathLike[bytes], PathLike[str], bytes, int, str]` but got `Optional[str]`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m24[0m:[33m25[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m32[0m:[33m23[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m33[0m:[33m35[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m36[0m:[33m19[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/specs/finder.py[0m:[33m71[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m101[0m:[33m35[0m Incompatible parameter type [6]: In call `posixpath.dirname`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m154[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:01:05]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004h./pyre.sh[?1l>[?2004l
+]2;./pyre.sh]1;./pyre.sh+ pyre --version
+
+[0G[K[1A[?25lƛ[0m [?7lNo binary specified, looking for `pyre.bin` in PATH[0G[K[?7h[?25hBinary version: 12ef0d6253cfb5e1b5d22849899630fb8a37a101
+Client version: 0.9.15
++ pyre --noninteractive check
+2022-08-02 21:01:52,883 [PID 37408] WARNING Your running version does not match the configured version for this
+project (running 0.9.15, expected 0.0.101650971427).
+2022-08-02 21:01:52,883 [PID 37408] INFO No binary specified, looking for `pyre.bin` in PATH
+2022-08-02 21:01:52,884 [PID 37408] INFO Could not determine the number of Pyre workers from configuration. Auto-set the value to 7.
+2022-08-02 21:01:52,884 [PID 37408] INFO No typeshed specified, looking for it...
+2022-08-02 21:01:52,884 [PID 37408] INFO Found: `/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed`
+2022-08-02 21:01:52,887 [PID 37408] INFO Writing arguments into /var/folders/58/n29f80x570921t66pvrpmb240000gn/T/pyre_arguments_59s2iwyt.json...
+2022-08-02 21:01:52,887 [PID 37408] DEBUG Arguments:
+{
+  "source_paths": {
+    "kind": "simple",
+    "paths": [
+      "/Users/jiajie/Code/OSP/torchx"
+    ]
+  },
+  "search_paths": [
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/python3.9/site-packages",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stdlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/DateTimeRange",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Deprecated",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-Cors",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/JACK-Client",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Markdown",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pillow",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyMySQL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyYAML",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pygments",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Send2Trash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aiofiles",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/annoy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/appdirs",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/atomicwrites",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aws-xray-sdk",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/babel",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/backports.ssl_match_hostname",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/beautifulsoup4",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/bleach",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/boto",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/braintree",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cachetools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/caldav",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/certifi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/characteristic",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chardet",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chevron",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/click-spinner",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/colorama",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/commonmark",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/contextvars",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/croniter",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cryptography",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dataclasses",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dateparser",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/decorator",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docopt",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docutils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/editdistance",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/emoji",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/entrypoints",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/filelock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/first",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-2020",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-bugbear",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-builtins",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-plugin-utils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-rst-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-simplify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-typing-imports",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/fpdf2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/freezegun",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/frozendict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/google-cloud-ndb",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/hdbcli",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/html5lib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/httplib2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/humanfriendly",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/invoke",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jmespath",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jsonschema",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ldap3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mypy-extensions",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mysqlclient",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/oauthlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/openpyxl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/opentracing",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/paramiko",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/parsimonious",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passpy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pep8-naming",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/playsound",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/polib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/prettytable",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/protobuf",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psycopg2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyOpenSSL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyRFC3339",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyaudio",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pycurl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyfarmhash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyflakes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pynput",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pysftp",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytest-lazy-fixture",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-dateutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-gflags",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-nmap",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-slugify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytz",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyvmomi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/redis",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/regex",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/requests",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/retry",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/selenium",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/setuptools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/simplejson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/singledispatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/six",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/slumber",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stdlib-list",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stripe",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tabulate",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/termcolor",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toml",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toposort",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ttkthemes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/typed-ast",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tzlocal",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ujson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/urllib3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/vobject",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/waitress",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/whatthepatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xmltodict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xxhash"
+  ],
+  "excludes": [
+    ".*/build/.*",
+    ".*/docs/.*",
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*",
+    ".*/torchx/examples/apps/compute_world_size/.*"
+  ],
+  "checked_directory_allowlist": [
+    "/Users/jiajie/Code/OSP/torchx"
+  ],
+  "checked_directory_blocklist": [],
+  "extensions": [],
+  "log_path": "/Users/jiajie/Code/OSP/torchx/.pyre",
+  "global_root": "/Users/jiajie/Code/OSP/torchx",
+  "debug": false,
+  "python_version": {
+    "major": 3,
+    "minor": 9,
+    "micro": 0
+  },
+  "shared_memory": {},
+  "parallel": true,
+  "number_of_workers": 7,
+  "additional_logging_sections": [
+    "-progress"
+  ],
+  "show_error_traces": false,
+  "strict": true
+}
+2022-08-02 21:01:52,955 [PID 37408] INFO  Initializing shared memory [heap_size=8589934592, dep_table_pow=27, hash_table_pow=26]
+2022-08-02 21:01:52,966 [PID 37408] INFO  Building type environment...
+2022-08-02 21:01:52,967 [PID 37408] INFO  Building module tracker...
+2022-08-02 21:01:54,210 [PID 37408] PERFORMANCE  Module tracker built: 1.244s
+2022-08-02 21:01:54,276 [PID 37408] PERFORMANCE  Full environment built: 1.310s
+2022-08-02 21:01:54,835 [PID 37408] INFO  Checking 1511 functions...
+2022-08-02 21:01:56,924 [PID 37408] PERFORMANCE  Check_TypeCheck: 2.089s
+2022-08-02 21:01:56,924 [PID 37408] MEMORY  Shared memory size post-typecheck (size: 16)
+2022-08-02 21:01:56,976 [PID 37408] PERFORMANCE  Check_Postprocessing: 0.052s
+2022-08-02 21:01:56,984 [PID 37408] PERFORMANCE  Check: 4.018s
+2022-08-02 21:01:57,027 [PID 37408] ERROR Found 50 type errors!
+[31m../torchx/components/component_test_base.py[0m:[33m71[0m:[33m42[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m22[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `classy_vision.dataset.classy_dataset`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m35[0m:[33m26[0m Undefined or invalid type [11]: Annotation `ClassyDataset` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m49[0m:[33m8[0m Too many arguments [19]: Call `object.__init__` expects 0 positional arguments, 5 were provided.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m50[0m:[33m12[0m Unused ignore [0]: The `pyre-ignore[6]` or `pyre-fixme[6]` comment is not suppressing type errors, please remove it.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m8[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `ts.torch_handler.image_classifier`.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m11[0m:[33m28[0m Undefined or invalid type [11]: Annotation `ImageClassifier` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/interpret.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `captum.attr`.
+[31m../torchx/examples/pipelines/kfp/advanced_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m17[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m40[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.BaseOp` is not defined as a type.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m53[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/__init__.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m18[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp.components.structures`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m19[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m77[0m:[33m59[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m87[0m:[33m20[0m Undefined or invalid type [11]: Annotation `ComponentSpec` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m129[0m:[33m8[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m187[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.Sidecar` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m239[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.ResourceOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m89[0m:[33m23[0m Undefined or invalid type [11]: Annotation `V1ResourceRequirements` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m104[0m:[33m19[0m Undefined or invalid type [11]: Annotation `V1ContainerPort` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m146[0m:[33m15[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m235[0m:[33m24[0m Undefined or invalid type [11]: Annotation `boto3.session.Session` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m236[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `boto3.session`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m69[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m78[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m161[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m167[0m:[33m74[0m Undefined or invalid type [11]: Annotation `V1Pod` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m529[0m:[33m16[0m Undefined or invalid type [11]: Annotation `ApiClient` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m535[0m:[33m8[0m Missing attribute annotation [4]: Attribute `_client` of class `KubernetesScheduler` has no type specified.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m552[0m:[33m37[0m Undefined or invalid type [11]: Annotation `CustomObjectsApi` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m557[0m:[33m46[0m Undefined or invalid type [11]: Annotation `ApiException` is not defined as a type.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m112[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m577[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/test/local_scheduler_test.py[0m:[33m284[0m:[33m40[0m Incompatible parameter type [6]: In call `genericpath.exists`, for 1st positional only parameter expected `Union[PathLike[bytes], PathLike[str], bytes, int, str]` but got `Optional[str]`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m24[0m:[33m25[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m32[0m:[33m23[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m33[0m:[33m35[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m36[0m:[33m19[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/specs/finder.py[0m:[33m71[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m101[0m:[33m35[0m Incompatible parameter type [6]: In call `posixpath.dirname`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m154[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:01:57]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004h./pyre.sh[?1l>[?2004l
+]2;./pyre.sh]1;./pyre.sh+ pyre --version
+
+[0G[K[1A[?25lƛ[0m [?7lNo binary specified, looking for `pyre.bin` in PATH[0G[K[?7h[?25hBinary version: 12ef0d6253cfb5e1b5d22849899630fb8a37a101
+Client version: 0.9.15
++ pyre --noninteractive check
+2022-08-02 21:02:12,828 [PID 37486] WARNING Your running version does not match the configured version for this
+project (running 0.9.15, expected 0.0.101650971427).
+2022-08-02 21:02:12,828 [PID 37486] INFO No binary specified, looking for `pyre.bin` in PATH
+2022-08-02 21:02:12,829 [PID 37486] INFO Could not determine the number of Pyre workers from configuration. Auto-set the value to 7.
+2022-08-02 21:02:12,829 [PID 37486] INFO No typeshed specified, looking for it...
+2022-08-02 21:02:12,829 [PID 37486] INFO Found: `/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed`
+2022-08-02 21:02:12,831 [PID 37486] INFO Writing arguments into /var/folders/58/n29f80x570921t66pvrpmb240000gn/T/pyre_arguments_fxegywxs.json...
+2022-08-02 21:02:12,832 [PID 37486] DEBUG Arguments:
+{
+  "source_paths": {
+    "kind": "simple",
+    "paths": [
+      "/Users/jiajie/Code/OSP/torchx"
+    ]
+  },
+  "search_paths": [
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/python3.9/site-packages",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stdlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/DateTimeRange",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Deprecated",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-Cors",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/JACK-Client",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Markdown",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pillow",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyMySQL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyYAML",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pygments",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Send2Trash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aiofiles",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/annoy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/appdirs",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/atomicwrites",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aws-xray-sdk",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/babel",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/backports.ssl_match_hostname",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/beautifulsoup4",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/bleach",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/boto",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/braintree",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cachetools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/caldav",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/certifi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/characteristic",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chardet",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chevron",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/click-spinner",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/colorama",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/commonmark",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/contextvars",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/croniter",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cryptography",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dataclasses",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dateparser",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/decorator",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docopt",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docutils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/editdistance",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/emoji",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/entrypoints",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/filelock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/first",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-2020",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-bugbear",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-builtins",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-plugin-utils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-rst-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-simplify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-typing-imports",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/fpdf2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/freezegun",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/frozendict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/google-cloud-ndb",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/hdbcli",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/html5lib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/httplib2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/humanfriendly",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/invoke",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jmespath",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jsonschema",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ldap3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mypy-extensions",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mysqlclient",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/oauthlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/openpyxl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/opentracing",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/paramiko",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/parsimonious",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passpy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pep8-naming",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/playsound",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/polib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/prettytable",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/protobuf",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psycopg2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyOpenSSL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyRFC3339",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyaudio",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pycurl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyfarmhash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyflakes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pynput",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pysftp",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytest-lazy-fixture",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-dateutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-gflags",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-nmap",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-slugify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytz",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyvmomi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/redis",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/regex",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/requests",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/retry",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/selenium",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/setuptools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/simplejson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/singledispatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/six",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/slumber",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stdlib-list",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stripe",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tabulate",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/termcolor",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toml",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toposort",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ttkthemes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/typed-ast",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tzlocal",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ujson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/urllib3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/vobject",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/waitress",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/whatthepatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xmltodict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xxhash"
+  ],
+  "excludes": [
+    ".*/build/.*",
+    ".*/docs/.*",
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*",
+    ".*/torchx/examples/apps/compute_world_size/.*"
+  ],
+  "checked_directory_allowlist": [
+    "/Users/jiajie/Code/OSP/torchx"
+  ],
+  "checked_directory_blocklist": [],
+  "extensions": [],
+  "log_path": "/Users/jiajie/Code/OSP/torchx/.pyre",
+  "global_root": "/Users/jiajie/Code/OSP/torchx",
+  "debug": false,
+  "python_version": {
+    "major": 3,
+    "minor": 9,
+    "micro": 0
+  },
+  "shared_memory": {},
+  "parallel": true,
+  "number_of_workers": 7,
+  "additional_logging_sections": [
+    "-progress"
+  ],
+  "show_error_traces": false,
+  "strict": true
+}
+2022-08-02 21:02:12,901 [PID 37486] INFO  Initializing shared memory [heap_size=8589934592, dep_table_pow=27, hash_table_pow=26]
+2022-08-02 21:02:12,911 [PID 37486] INFO  Building type environment...
+2022-08-02 21:02:12,911 [PID 37486] INFO  Building module tracker...
+2022-08-02 21:02:13,990 [PID 37486] PERFORMANCE  Module tracker built: 1.079s
+2022-08-02 21:02:14,051 [PID 37486] PERFORMANCE  Full environment built: 1.139s
+2022-08-02 21:02:14,547 [PID 37486] INFO  Checking 1511 functions...
+2022-08-02 21:02:16,473 [PID 37486] PERFORMANCE  Check_TypeCheck: 1.926s
+2022-08-02 21:02:16,473 [PID 37486] MEMORY  Shared memory size post-typecheck (size: 16)
+2022-08-02 21:02:16,523 [PID 37486] PERFORMANCE  Check_Postprocessing: 0.050s
+2022-08-02 21:02:16,531 [PID 37486] PERFORMANCE  Check: 3.620s
+2022-08-02 21:02:16,576 [PID 37486] ERROR Found 51 type errors!
+[31m../torchx/components/component_test_base.py[0m:[33m71[0m:[33m42[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m22[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `classy_vision.dataset.classy_dataset`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m35[0m:[33m26[0m Undefined or invalid type [11]: Annotation `ClassyDataset` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m49[0m:[33m8[0m Too many arguments [19]: Call `object.__init__` expects 0 positional arguments, 5 were provided.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m50[0m:[33m12[0m Unused ignore [0]: The `pyre-ignore[6]` or `pyre-fixme[6]` comment is not suppressing type errors, please remove it.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m8[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `ts.torch_handler.image_classifier`.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m11[0m:[33m28[0m Undefined or invalid type [11]: Annotation `ImageClassifier` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/interpret.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `captum.attr`.
+[31m../torchx/examples/pipelines/kfp/advanced_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m17[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m40[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.BaseOp` is not defined as a type.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m53[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/__init__.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m18[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp.components.structures`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m19[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m77[0m:[33m59[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m87[0m:[33m20[0m Undefined or invalid type [11]: Annotation `ComponentSpec` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m129[0m:[33m8[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m187[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.Sidecar` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m239[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.ResourceOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m89[0m:[33m23[0m Undefined or invalid type [11]: Annotation `V1ResourceRequirements` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m104[0m:[33m19[0m Undefined or invalid type [11]: Annotation `V1ContainerPort` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m146[0m:[33m15[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m235[0m:[33m24[0m Undefined or invalid type [11]: Annotation `boto3.session.Session` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m236[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `boto3.session`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m69[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m78[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m161[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m167[0m:[33m74[0m Undefined or invalid type [11]: Annotation `V1Pod` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m529[0m:[33m16[0m Undefined or invalid type [11]: Annotation `ApiClient` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m535[0m:[33m8[0m Missing attribute annotation [4]: Attribute `_client` of class `KubernetesScheduler` has no type specified.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m552[0m:[33m37[0m Undefined or invalid type [11]: Annotation `CustomObjectsApi` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m557[0m:[33m46[0m Undefined or invalid type [11]: Annotation `ApiException` is not defined as a type.
+[31m../torchx/schedulers/ray/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m112[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m577[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/test/local_scheduler_test.py[0m:[33m284[0m:[33m40[0m Incompatible parameter type [6]: In call `genericpath.exists`, for 1st positional only parameter expected `Union[PathLike[bytes], PathLike[str], bytes, int, str]` but got `Optional[str]`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m24[0m:[33m25[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m32[0m:[33m23[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m33[0m:[33m35[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m36[0m:[33m19[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/specs/finder.py[0m:[33m71[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m101[0m:[33m35[0m Incompatible parameter type [6]: In call `posixpath.dirname`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m154[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:02:16]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004h./pyre.sh[?1l>[?2004l
+]2;./pyre.sh]1;./pyre.sh+ pyre --version
+
+[0G[K[1A[?25lƛ[0m [?7lNo binary specified, looking for `pyre.bin` in PATH[0G[K[?7h[?25hBinary version: 12ef0d6253cfb5e1b5d22849899630fb8a37a101
+Client version: 0.9.15
++ pyre --noninteractive check
+2022-08-02 21:02:39,106 [PID 37590] WARNING Your running version does not match the configured version for this
+project (running 0.9.15, expected 0.0.101650971427).
+2022-08-02 21:02:39,106 [PID 37590] INFO No binary specified, looking for `pyre.bin` in PATH
+2022-08-02 21:02:39,106 [PID 37590] INFO Could not determine the number of Pyre workers from configuration. Auto-set the value to 7.
+2022-08-02 21:02:39,107 [PID 37590] INFO No typeshed specified, looking for it...
+2022-08-02 21:02:39,107 [PID 37590] INFO Found: `/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed`
+2022-08-02 21:02:39,110 [PID 37590] INFO Writing arguments into /var/folders/58/n29f80x570921t66pvrpmb240000gn/T/pyre_arguments_x4xre9d5.json...
+2022-08-02 21:02:39,110 [PID 37590] DEBUG Arguments:
+{
+  "source_paths": {
+    "kind": "simple",
+    "paths": [
+      "/Users/jiajie/Code/OSP/torchx"
+    ]
+  },
+  "search_paths": [
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/python3.9/site-packages",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stdlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/DateTimeRange",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Deprecated",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-Cors",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/JACK-Client",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Markdown",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pillow",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyMySQL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyYAML",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pygments",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Send2Trash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aiofiles",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/annoy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/appdirs",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/atomicwrites",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aws-xray-sdk",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/babel",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/backports.ssl_match_hostname",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/beautifulsoup4",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/bleach",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/boto",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/braintree",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cachetools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/caldav",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/certifi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/characteristic",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chardet",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chevron",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/click-spinner",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/colorama",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/commonmark",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/contextvars",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/croniter",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cryptography",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dataclasses",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dateparser",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/decorator",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docopt",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docutils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/editdistance",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/emoji",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/entrypoints",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/filelock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/first",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-2020",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-bugbear",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-builtins",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-plugin-utils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-rst-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-simplify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-typing-imports",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/fpdf2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/freezegun",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/frozendict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/google-cloud-ndb",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/hdbcli",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/html5lib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/httplib2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/humanfriendly",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/invoke",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jmespath",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jsonschema",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ldap3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mypy-extensions",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mysqlclient",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/oauthlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/openpyxl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/opentracing",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/paramiko",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/parsimonious",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passpy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pep8-naming",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/playsound",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/polib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/prettytable",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/protobuf",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psycopg2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyOpenSSL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyRFC3339",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyaudio",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pycurl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyfarmhash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyflakes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pynput",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pysftp",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytest-lazy-fixture",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-dateutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-gflags",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-nmap",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-slugify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytz",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyvmomi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/redis",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/regex",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/requests",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/retry",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/selenium",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/setuptools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/simplejson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/singledispatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/six",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/slumber",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stdlib-list",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stripe",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tabulate",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/termcolor",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toml",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toposort",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ttkthemes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/typed-ast",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tzlocal",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ujson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/urllib3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/vobject",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/waitress",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/whatthepatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xmltodict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xxhash"
+  ],
+  "excludes": [
+    ".*/build/.*",
+    ".*/docs/.*",
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*",
+    ".*/torchx/examples/apps/compute_world_size/.*"
+  ],
+  "checked_directory_allowlist": [
+    "/Users/jiajie/Code/OSP/torchx"
+  ],
+  "checked_directory_blocklist": [],
+  "extensions": [],
+  "log_path": "/Users/jiajie/Code/OSP/torchx/.pyre",
+  "global_root": "/Users/jiajie/Code/OSP/torchx",
+  "debug": false,
+  "python_version": {
+    "major": 3,
+    "minor": 9,
+    "micro": 0
+  },
+  "shared_memory": {},
+  "parallel": true,
+  "number_of_workers": 7,
+  "additional_logging_sections": [
+    "-progress"
+  ],
+  "show_error_traces": false,
+  "strict": true
+}
+2022-08-02 21:02:39,176 [PID 37590] INFO  Initializing shared memory [heap_size=8589934592, dep_table_pow=27, hash_table_pow=26]
+2022-08-02 21:02:39,188 [PID 37590] INFO  Building type environment...
+2022-08-02 21:02:39,189 [PID 37590] INFO  Building module tracker...
+2022-08-02 21:02:40,303 [PID 37590] PERFORMANCE  Module tracker built: 1.115s
+2022-08-02 21:02:40,378 [PID 37590] PERFORMANCE  Full environment built: 1.190s
+2022-08-02 21:02:40,915 [PID 37590] INFO  Checking 1511 functions...
+2022-08-02 21:02:43,314 [PID 37590] PERFORMANCE  Check_TypeCheck: 2.399s
+2022-08-02 21:02:43,315 [PID 37590] MEMORY  Shared memory size post-typecheck (size: 16)
+2022-08-02 21:02:43,366 [PID 37590] PERFORMANCE  Check_Postprocessing: 0.051s
+2022-08-02 21:02:43,373 [PID 37590] PERFORMANCE  Check: 4.185s
+2022-08-02 21:02:43,415 [PID 37590] ERROR Found 52 type errors!
+[31m../torchx/components/component_test_base.py[0m:[33m71[0m:[33m42[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m22[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `classy_vision.dataset.classy_dataset`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m35[0m:[33m26[0m Undefined or invalid type [11]: Annotation `ClassyDataset` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m49[0m:[33m8[0m Too many arguments [19]: Call `object.__init__` expects 0 positional arguments, 5 were provided.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m50[0m:[33m12[0m Unused ignore [0]: The `pyre-ignore[6]` or `pyre-fixme[6]` comment is not suppressing type errors, please remove it.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m8[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `ts.torch_handler.image_classifier`.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m11[0m:[33m28[0m Undefined or invalid type [11]: Annotation `ImageClassifier` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/interpret.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `captum.attr`.
+[31m../torchx/examples/pipelines/kfp/advanced_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m17[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m40[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.BaseOp` is not defined as a type.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m53[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/__init__.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m18[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp.components.structures`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m19[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m77[0m:[33m59[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m87[0m:[33m20[0m Undefined or invalid type [11]: Annotation `ComponentSpec` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m129[0m:[33m8[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m187[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.Sidecar` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m239[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.ResourceOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m89[0m:[33m23[0m Undefined or invalid type [11]: Annotation `V1ResourceRequirements` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m104[0m:[33m19[0m Undefined or invalid type [11]: Annotation `V1ContainerPort` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m146[0m:[33m15[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m235[0m:[33m24[0m Undefined or invalid type [11]: Annotation `boto3.session.Session` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m236[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `boto3.session`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m69[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m78[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m161[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m167[0m:[33m74[0m Undefined or invalid type [11]: Annotation `V1Pod` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m529[0m:[33m16[0m Undefined or invalid type [11]: Annotation `ApiClient` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m535[0m:[33m8[0m Missing attribute annotation [4]: Attribute `_client` of class `KubernetesScheduler` has no type specified.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m552[0m:[33m37[0m Undefined or invalid type [11]: Annotation `CustomObjectsApi` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m557[0m:[33m46[0m Undefined or invalid type [11]: Annotation `ApiException` is not defined as a type.
+[31m../torchx/schedulers/ray/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/ray/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m112[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m577[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/test/local_scheduler_test.py[0m:[33m284[0m:[33m40[0m Incompatible parameter type [6]: In call `genericpath.exists`, for 1st positional only parameter expected `Union[PathLike[bytes], PathLike[str], bytes, int, str]` but got `Optional[str]`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m24[0m:[33m25[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m32[0m:[33m23[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m33[0m:[33m35[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m36[0m:[33m19[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/specs/finder.py[0m:[33m71[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m101[0m:[33m35[0m Incompatible parameter type [6]: In call `posixpath.dirname`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m154[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:02:43]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004h./pyre.sh[?1l>[?2004l
+]2;./pyre.sh]1;./pyre.sh+ pyre --version
+
+[0G[K[1A[?25lƛ[0m [?7lNo binary specified, looking for `pyre.bin` in PATH[0G[K[?7h[?25hBinary version: 12ef0d6253cfb5e1b5d22849899630fb8a37a101
+Client version: 0.9.15
++ pyre --noninteractive check
+2022-08-02 21:03:06,528 [PID 37689] WARNING Your running version does not match the configured version for this
+project (running 0.9.15, expected 0.0.101650971427).
+2022-08-02 21:03:06,529 [PID 37689] INFO No binary specified, looking for `pyre.bin` in PATH
+2022-08-02 21:03:06,529 [PID 37689] INFO Could not determine the number of Pyre workers from configuration. Auto-set the value to 7.
+2022-08-02 21:03:06,529 [PID 37689] INFO No typeshed specified, looking for it...
+2022-08-02 21:03:06,530 [PID 37689] INFO Found: `/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed`
+2022-08-02 21:03:06,533 [PID 37689] INFO Writing arguments into /var/folders/58/n29f80x570921t66pvrpmb240000gn/T/pyre_arguments_8ue36xc2.json...
+2022-08-02 21:03:06,533 [PID 37689] DEBUG Arguments:
+{
+  "source_paths": {
+    "kind": "simple",
+    "paths": [
+      "/Users/jiajie/Code/OSP/torchx"
+    ]
+  },
+  "search_paths": [
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/python3.9/site-packages",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stdlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/DateTimeRange",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Deprecated",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-Cors",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Flask-SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/JACK-Client",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Markdown",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pillow",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyMySQL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/PyYAML",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Pygments",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/SQLAlchemy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/Send2Trash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aiofiles",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/annoy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/appdirs",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/atomicwrites",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/aws-xray-sdk",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/babel",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/backports.ssl_match_hostname",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/beautifulsoup4",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/bleach",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/boto",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/braintree",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cachetools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/caldav",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/certifi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/characteristic",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chardet",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/chevron",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/click-spinner",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/colorama",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/commonmark",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/contextvars",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/croniter",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/cryptography",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dataclasses",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/dateparser",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/decorator",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docopt",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/docutils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/editdistance",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/emoji",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/entrypoints",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/filelock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/first",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-2020",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-bugbear",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-builtins",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-plugin-utils",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-rst-docstrings",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-simplify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/flake8-typing-imports",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/fpdf2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/freezegun",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/frozendict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/google-cloud-ndb",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/hdbcli",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/html5lib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/httplib2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/humanfriendly",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/invoke",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jmespath",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/jsonschema",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ldap3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mock",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mypy-extensions",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/mysqlclient",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/oauthlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/openpyxl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/opentracing",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/paramiko",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/parsimonious",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passlib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/passpy",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pep8-naming",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/playsound",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/polib",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/prettytable",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/protobuf",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/psycopg2",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyOpenSSL",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyRFC3339",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyaudio",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pycurl",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyfarmhash",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyflakes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pynput",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pysftp",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytest-lazy-fixture",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-dateutil",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-gflags",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-nmap",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/python-slugify",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pytz",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/pyvmomi",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/redis",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/regex",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/requests",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/retry",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/selenium",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/setuptools",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/simplejson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/singledispatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/six",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/slumber",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stdlib-list",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/stripe",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tabulate",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/termcolor",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toml",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/toposort",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ttkthemes",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/typed-ast",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/tzlocal",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/ujson",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/urllib3",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/vobject",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/waitress",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/whatthepatch",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xmltodict",
+    "/Users/jiajie/miniconda3/envs/torchx-dev/lib/pyre_check/typeshed/stubs/xxhash"
+  ],
+  "excludes": [
+    ".*/build/.*",
+    ".*/docs/.*",
+    ".*/setup.py",
+    ".*/IPython/core/tests/nonascii.*",
+    ".*/torchx/examples/apps/compute_world_size/.*"
+  ],
+  "checked_directory_allowlist": [
+    "/Users/jiajie/Code/OSP/torchx"
+  ],
+  "checked_directory_blocklist": [],
+  "extensions": [],
+  "log_path": "/Users/jiajie/Code/OSP/torchx/.pyre",
+  "global_root": "/Users/jiajie/Code/OSP/torchx",
+  "debug": false,
+  "python_version": {
+    "major": 3,
+    "minor": 9,
+    "micro": 0
+  },
+  "shared_memory": {},
+  "parallel": true,
+  "number_of_workers": 7,
+  "additional_logging_sections": [
+    "-progress"
+  ],
+  "show_error_traces": false,
+  "strict": true
+}
+2022-08-02 21:03:06,596 [PID 37689] INFO  Initializing shared memory [heap_size=8589934592, dep_table_pow=27, hash_table_pow=26]
+2022-08-02 21:03:06,607 [PID 37689] INFO  Building type environment...
+2022-08-02 21:03:06,608 [PID 37689] INFO  Building module tracker...
+2022-08-02 21:03:07,675 [PID 37689] PERFORMANCE  Module tracker built: 1.067s
+2022-08-02 21:03:07,749 [PID 37689] PERFORMANCE  Full environment built: 1.142s
+2022-08-02 21:03:08,242 [PID 37689] INFO  Checking 1511 functions...
+2022-08-02 21:03:10,249 [PID 37689] PERFORMANCE  Check_TypeCheck: 2.007s
+2022-08-02 21:03:10,250 [PID 37689] MEMORY  Shared memory size post-typecheck (size: 16)
+2022-08-02 21:03:10,300 [PID 37689] PERFORMANCE  Check_Postprocessing: 0.051s
+2022-08-02 21:03:10,307 [PID 37689] PERFORMANCE  Check: 3.701s
+2022-08-02 21:03:10,346 [PID 37689] ERROR Found 50 type errors!
+[31m../torchx/components/component_test_base.py[0m:[33m71[0m:[33m42[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m22[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `classy_vision.dataset.classy_dataset`.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m35[0m:[33m26[0m Undefined or invalid type [11]: Annotation `ClassyDataset` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m49[0m:[33m8[0m Too many arguments [19]: Call `object.__init__` expects 0 positional arguments, 5 were provided.
+[31m../torchx/examples/apps/lightning_classy_vision/data.py[0m:[33m50[0m:[33m12[0m Unused ignore [0]: The `pyre-ignore[6]` or `pyre-fixme[6]` comment is not suppressing type errors, please remove it.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m8[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `ts.torch_handler.image_classifier`.
+[31m../torchx/examples/apps/lightning_classy_vision/handler/handler.py[0m:[33m11[0m:[33m28[0m Undefined or invalid type [11]: Annotation `ImageClassifier` is not defined as a type.
+[31m../torchx/examples/apps/lightning_classy_vision/interpret.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `captum.attr`.
+[31m../torchx/examples/pipelines/kfp/advanced_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m17[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/dist_pipeline.py[0m:[33m40[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.BaseOp` is not defined as a type.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m29[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/examples/pipelines/kfp/intro_pipeline.py[0m:[33m53[0m:[33m20[0m Undefined or invalid type [11]: Annotation `kfp.dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/__init__.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m18[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp.components.structures`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m19[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m77[0m:[33m59[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m87[0m:[33m20[0m Undefined or invalid type [11]: Annotation `ComponentSpec` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m129[0m:[33m8[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m187[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.Sidecar` is not defined as a type.
+[31m../torchx/pipelines/kfp/adapter.py[0m:[33m239[0m:[33m5[0m Undefined or invalid type [11]: Annotation `dsl.ResourceOp` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m15[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kfp`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m16[0m:[33m0[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m89[0m:[33m23[0m Undefined or invalid type [11]: Annotation `V1ResourceRequirements` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m104[0m:[33m19[0m Undefined or invalid type [11]: Annotation `V1ContainerPort` is not defined as a type.
+[31m../torchx/pipelines/kfp/test/adapter_test.py[0m:[33m146[0m:[33m15[0m Undefined or invalid type [11]: Annotation `dsl.ContainerOp` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m235[0m:[33m24[0m Undefined or invalid type [11]: Annotation `boto3.session.Session` is not defined as a type.
+[31m../torchx/schedulers/aws_batch_scheduler.py[0m:[33m236[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `boto3.session`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m69[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m70[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m78[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m161[0m:[33m4[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes`.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m167[0m:[33m74[0m Undefined or invalid type [11]: Annotation `V1Pod` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m529[0m:[33m16[0m Undefined or invalid type [11]: Annotation `ApiClient` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m535[0m:[33m8[0m Missing attribute annotation [4]: Attribute `_client` of class `KubernetesScheduler` has no type specified.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m552[0m:[33m37[0m Undefined or invalid type [11]: Annotation `CustomObjectsApi` is not defined as a type.
+[31m../torchx/schedulers/kubernetes_scheduler.py[0m:[33m557[0m:[33m46[0m Undefined or invalid type [11]: Annotation `ApiException` is not defined as a type.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m112[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.models`.
+[31m../torchx/schedulers/test/kubernetes_scheduler_test.py[0m:[33m577[0m:[33m8[0m Undefined import [21]: Could not find a module corresponding to import `kubernetes.client.rest`.
+[31m../torchx/schedulers/test/local_scheduler_test.py[0m:[33m284[0m:[33m40[0m Incompatible parameter type [6]: In call `genericpath.exists`, for 1st positional only parameter expected `Union[PathLike[bytes], PathLike[str], bytes, int, str]` but got `Optional[str]`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m242[0m:[33m28[0m Undefined attribute [16]: Callable `CommandActor.exec_module` has no attribute `remote`.
+[31m../torchx/schedulers/test/ray_driver.py[0m:[33m244[0m:[33m31[0m Unused ignore [0]: The `pyre-ignore` or `pyre-fixme` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m24[0m:[33m25[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m32[0m:[33m23[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m33[0m:[33m35[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/schedulers/test/train.py[0m:[33m36[0m:[33m19[0m Unused ignore [0]: The `pyre-ignore[16]` or `pyre-fixme[16]` comment is not suppressing type errors, please remove it.
+[31m../torchx/specs/finder.py[0m:[33m71[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m101[0m:[33m35[0m Incompatible parameter type [6]: In call `posixpath.dirname`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[31m../torchx/specs/finder.py[0m:[33m154[0m:[33m38[0m Incompatible parameter type [6]: In call `posixpath.abspath`, for 1st positional only parameter expected `PathLike[Variable[AnyStr <: [str, bytes]]]` but got `Optional[str]`.
+[1m[7m%[27m[1m[0m                                                                                                                                                    ]2;jiajie@sun:~/Code/OSP/torchx/scripts]1;..orchx/scripts
+[01;37mjiajie[00m@sun [01;37m~/Code/OSP/torchx/scripts[00m                                                                                                     [21:03:10]
+[0m[27m[24m[J(torchx-dev) > [32m$[00m [K[108C [[01;32m±[00m[01;37mfault-tolerance [01;33m●[00m[01;31m●[00m[00m][130D[?1h=[?2004hggit sa  diff[?1l>[?2004l
+]2;git diff]1;git[?1049h[?1h=[1mdiff --git a/torchx/schedulers/ray/ray_driver.py b/torchx/schedulers/ray/ray_driver.py[m[m
+[1mindex 82cb6f61..b4961a91 100644[m[m
+[1m--- a/torchx/schedulers/ray/ray_driver.py[m[m
+[1m+++ b/torchx/schedulers/ray/ray_driver.py[m[m
+[36m@@ -241,7 +241,7 @@[m [mclass RayDriver:[m[m
+                         self.active_tasks.append([m[m
+                             actor.exec_module.remote([m[m
+                                 "localhost", 0, result.id[m[m
+[31m-                            )  # pyre-ignore[m[m
+[32m+[m[32m                            )   # pyre-ignore[m[m
+                         )[m[m
+                     else:[m[m
+                         self.active_tasks.append([m[m
+[1mdiff --git a/torchx/schedulers/test/ray_scheduler_test.py b/torchx/schedulers/test/ray_scheduler_test.py[m[m
+[1mindex 62b7c8df..eba627d1 100644[m[m
+[1m--- a/torchx/schedulers/test/ray_scheduler_test.py[m[m
+[1m+++ b/torchx/schedulers/test/ray_scheduler_test.py[m[m
+[36m@@ -377,11 +377,13 @@[m [mif has_ray():[m[m
+                 name="test_actor_1",[m[m
+                 command=["python", "1", "2"],[m[m
+                 env={"fake": "1"},[m[m
+[32m+[m[32m                min_nnodes=2,[m[m
+             )[m[m
+             actor2 = RayActor([m[m
+                 name="test_actor_2",[m[m
+                 command=["python", "3", "4"],[m[m
+                 env={"fake": "2"},[m[m
+[32m+[m[32m                min_nnodes=2,[m[m
+             )[m[m
+             actors = [actor1, actor2][m[m
+             current_dir = os.path.dirname(os.path.realpath(__file__))[m[m
+:[K[K[36m@@ -392,18 +394,18 @@[m [mif has_ray():[m[m
+:[K[K             )[m[m
+:[K[K             self.assertEqual(loaded_actor, actors)[m[m
+:[K[K [m[m
+:[K[K[31m-        def test_ray_driver(self) -> None:[m[m
+:[K[K[32m+[m[32m        def test_ray_driver_gang(self) -> None:[m[m
+:[K[K             actor1 = RayActor([m[m
+:[K[K                 name="test_actor_1",[m[m
+:[K[K                 command=["python", "-c" 'print("test_actor_1")'],[m[m
+:[K[K                 env={"fake": "1"},[m[m
+:[K[K[31m-                min_nnodes=1,[m[m
+:[K[K[32m+[m[32m                min_nnodes=2,[m[m
+:[K[K             )[m[m
+:[K[K             actor2 = RayActor([m[m
+:[K[K                 name="test_actor_2",[m[m
+:[K[K                 command=["python", "-c" 'print("test_actor_2")'],[m[m
+:[K[K                 env={"fake": "2"},[m[m
+:[K[K[31m-                min_nnodes=1,[m[m
+:[K[K[32m+[m[32m                min_nnodes=2,[m[m
+:[K[K             )[m[m
+:[K[K             actors = [actor1, actor2][m[m
+:[K[K [m[m
+:[K[K[36m@@ -413,10 +415,15 @@[m [mif has_ray():[m[m
+:[K[K [m[m
+:[K[K             # test init_placement_groups[m[m
+:[K[K             driver.init_placement_groups()[m[m
+:[K[K[31m-            self.assertEqual(len(driver.placement_groups), 2)[m[m
+:[K[K[31m-            self.assertEqual(len(driver.active_tasks), 2)[m[m
+:[K[K[32m+[m[32m            self.assertEqual(len(driver.placement_groups), 1)[m[m
+:[K[K[32m+[m[32m            self.assertEqual(len(driver.active_tasks), 0)[m[m
+:[K[K [m[m
+:[K[K             driver.place_command_actors()[m[m
+:[K[K[32m+[m[32m            self.assertEqual([m[m
+:[K[K[32m+[m[32m                len(driver.placement_groups), 1[m[m
+:[K[K[32m+[m[32m            )  # one placement group for minimum requirement[m[m
+:[K[K[32m+[m[32m            self.assertEqual(len(driver.active_tasks), 2)[m[m
+:[K[K[32m+[m[32m            self.assertEqual(len(driver.actor_info_of_id), 2)[m[m
+:[K[K [m[m
+:[K[K             driver.run()  # execute commands on command actors[m[m
+:[K[K             self.assertEqual([m[m
+:[K[K[36m@@ -434,6 +441,7 @@[m [mif has_ray():[m[m
+:[K[K     class RayIntegrationTest(TestCase):[m[m
+:[K[K         def test_ray_cluster(self) -> None:[m[m
+:[K[K             ray_cluster_setup = RayClusterSetup()[m[m
+:[K[K[32m+[m[32m            ray_cluster_setup.increment_reference()[m[m
+:[K[K             ray_scheduler = self.setup_ray_cluster()[m[m
+:[K[K             # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.[m[m
+:[K[K             self.assertTrue(ray.is_initialized())[m[m
+:[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K[K[K[7m(END)[27m[K

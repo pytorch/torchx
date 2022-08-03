@@ -377,11 +377,13 @@ if has_ray():
                 name="test_actor_1",
                 command=["python", "1", "2"],
                 env={"fake": "1"},
+                min_nnodes=2,
             )
             actor2 = RayActor(
                 name="test_actor_2",
                 command=["python", "3", "4"],
                 env={"fake": "2"},
+                min_nnodes=2,
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -392,18 +394,18 @@ if has_ray():
             )
             self.assertEqual(loaded_actor, actors)
 
-        def test_ray_driver(self) -> None:
+        def test_ray_driver_gang(self) -> None:
             actor1 = RayActor(
                 name="test_actor_1",
                 command=["python", "-c" 'print("test_actor_1")'],
                 env={"fake": "1"},
-                min_nnodes=1,
+                min_nnodes=2,
             )
             actor2 = RayActor(
                 name="test_actor_2",
                 command=["python", "-c" 'print("test_actor_2")'],
                 env={"fake": "2"},
-                min_nnodes=1,
+                min_nnodes=2,
             )
             actors = [actor1, actor2]
 
@@ -413,10 +415,15 @@ if has_ray():
 
             # test init_placement_groups
             driver.init_placement_groups()
-            self.assertEqual(len(driver.placement_groups), 2)
-            self.assertEqual(len(driver.active_tasks), 2)
+            self.assertEqual(len(driver.placement_groups), 1)
+            self.assertEqual(len(driver.active_tasks), 0)
 
             driver.place_command_actors()
+            self.assertEqual(
+                len(driver.placement_groups), 1
+            )  # one placement group for minimum requirement
+            self.assertEqual(len(driver.active_tasks), 2)
+            self.assertEqual(len(driver.actor_info_of_id), 2)
 
             driver.run()  # execute commands on command actors
             self.assertEqual(
@@ -434,6 +441,7 @@ if has_ray():
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
+            ray_cluster_setup.increment_reference()
             ray_scheduler = self.setup_ray_cluster()
             # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
             self.assertTrue(ray.is_initialized())
