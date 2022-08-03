@@ -211,8 +211,8 @@ class RayDriver:
         """Creating all command actors in all placement groups"""
         # find the placement group index for a replica(actor's specification)
         pg_ix_of_replica: List[int] = [
-            max(0, i - self.min_nnodes + 1)
-            for i in range(len(self.replicas))  # pyre-ignore
+            max(0, i - self.min_nnodes + 1)  # pyre-ignore
+            for i in range(len(self.replicas))
         ]
         # create the actors
         for i in range(len(self.replicas)):
