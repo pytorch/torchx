@@ -139,6 +139,34 @@ class RunnerTest(unittest.TestCase):
             scheduler_mock.submit_dryrun.assert_called_once_with(app, self.cfg)
             scheduler_mock._validate.assert_called_once()
 
+    def test_dryrun_env_variables(self, _) -> None:
+        scheduler_mock = MagicMock()
+        with Runner(
+            name=SESSION_NAME,
+            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+        ) as runner:
+            role1 = Role(
+                name="echo1",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            role2 = Role(
+                name="echo2",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            app = AppDef("name", roles=[role1, role2])
+            runner.dryrun(app, "local_dir", cfg=self.cfg)
+            for role in app.roles:
+                self.assertEqual(
+                    role.env["TORCHX_JOB_ID"],
+                    "local_dir://" + SESSION_NAME + "/${app_id}",
+                )
+
     def test_dryrun_with_workspace(self, _) -> None:
         class TestScheduler(Scheduler, Workspace):
             def __init__(self, build_new_img: bool):

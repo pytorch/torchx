@@ -23,6 +23,7 @@ from torchx.specs import (
     AppHandle,
     AppStatus,
     CfgVal,
+    macros,
     make_app_handle,
     materialize_appdef,
     parse_app_handle,
@@ -276,6 +277,10 @@ class Runner:
                     f"Non-positive replicas for role: {role.name}."
                     f" Did you forget to set role.num_replicas?"
                 )
+            # inject job identity as env variable that will apps look up its owning job
+            role.env["TORCHX_JOB_ID"] = make_app_handle(
+                scheduler, self._name, macros.app_id
+            )
 
         cfg = cfg or dict()
         with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
