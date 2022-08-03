@@ -509,7 +509,8 @@ if has_ray():
             """Test launching a gang scheduling job"""
             actor1 = RayActor(
                 name="test_actor_1",
-                command=["python", "-c" 'import time; time.sleep(10); print("test_actor_fault_tolerance_1")'],
+                # time in the sleep should be longer than the time it needs to remove the node
+                command=["python", "-c" 'import time; time.sleep(3); print("test_actor_fault_tolerance_1")'],
                 env={"fake": "1"},
                 min_nnodes=1,
                 num_cpus=2,
@@ -520,46 +521,43 @@ if has_ray():
             ray_cluster_setup = RayClusterSetup()
             ray_cluster_setup.remove_node()
             ray_cluster_setup.add_node(2)
-            self.assertEqual(ray.available_resources()['CPU'], 3)
 
-            print("fault tolerance test 1")
             # test init_placement_groups
             driver.init_placement_groups()
             self.assertEqual(len(driver.placement_groups), 1)
             self.assertEqual(len(driver.active_tasks), 0)
 
-            print("fault tolerance test 2")
             driver.place_command_actors()
             self.assertEqual(len(driver.active_tasks), 1)
             self.assertEqual(len(driver.actor_info_of_id), 1)
 
             driver._step()  # execute actor 2
-            print("fault tolerance test 5")
             self.assertEqual(
                 len(driver.active_tasks), 1
             )  # wait util all active tasks finishes
             self.assertEqual(driver.command_actors_count, 1)
 
-            print("fault tolerance test 6")
+            # mock node failure
             ray_cluster_setup.remove_node()
-            driver.master_node_id = None
+            driver.master_node_id = ""  # it's going to be a master node failure
 
-            print("fault tolerance test 7")
-            driver._step()  # reschedule one
+            driver._step()  # reschedule one after receive node failure
+            self.assertEqual(len(driver.active_tasks), 1)
+            self.assertEqual(driver.command_actors_count, 0)
 
+            # recover failed node
             ray_cluster_setup.add_node(2)
             driver._step()
+            self.assertEqual(driver.command_actors_count, 1)
 
-            print("fault tolerance test 8")
-            # ray.available_resources()['CPU'] == 0
+            terminal = driver._step()
+            self.assertTrue(terminal)
+
             for pg in driver.placement_groups:
                 # clear used placement groups
                 remove_placement_group(pg)
-            print("fault tolerance test 9")
             ray_cluster_setup.remove_node()
             ray_cluster_setup.add_node()
-            self.assertEqual(ray.available_resources()['CPU'], 2)
-            print("fault tolerance test 10")
 
             ray_cluster_setup.decrement_reference()
 
