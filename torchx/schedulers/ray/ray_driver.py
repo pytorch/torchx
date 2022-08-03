@@ -21,6 +21,7 @@ import ray
 from ray.exceptions import RayActorError
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
+from ray.util.placement_group import remove_placement_group
 
 if TYPE_CHECKING:
     from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
@@ -218,7 +219,7 @@ class RayDriver:
             replica = self.replicas[i]
             self.create_and_schedule_actor(pg, replica)
 
-    def _step(self) -> None:
+    def _step(self) -> bool:
         """Handling command actor's return"""
         result: RayResult  # execution result
         _logger.info(f"running ray.wait on {self.active_tasks}")
@@ -230,26 +231,27 @@ class RayDriver:
         for object_ref in completed_tasks:
             try:
                 result = ray.get(object_ref)  # pyre-ignore
-                if isinstance(result, CommandActorScheduled) and self.need_more_actors:
-                    actor = self.actor_info_of_id[result.id].actor
-                    if self.master_node_id is None:
-                        # make this actor be the master node
-                        self.master_node_id = result.id
-                        self.rank_0_address, self.rank_0_port = ray.get(
-                            actor.get_actor_address_and_port.remote()  # pyre-ignore
-                        )
-                        self.active_tasks.append(
-                            actor.exec_module.remote(
-                                "localhost", 0, result.id
-                            )  # pyre-ignore
-                        )
-                    else:
-                        self.active_tasks.append(
-                            actor.exec_module.remote(
-                                self.rank_0_address, self.rank_0_port, result.id
+                if isinstance(result, CommandActorScheduled):
+                    if self.need_more_actors:
+                        actor = self.actor_info_of_id[result.id].actor
+                        if self.master_node_id is None:
+                            # make this actor be the master node
+                            self.master_node_id = result.id
+                            self.rank_0_address, self.rank_0_port = ray.get(
+                                actor.get_actor_address_and_port.remote()  # pyre-ignore
                             )
-                        )
-                    self.command_actors_count += 1
+                            self.active_tasks.append(
+                                actor.exec_module.remote(
+                                    "localhost", 0, result.id
+                                )  # pyre-ignore
+                            )
+                        else:
+                            self.active_tasks.append(
+                                actor.exec_module.remote(
+                                    self.rank_0_address, self.rank_0_port, result.id
+                                )
+                            )
+                        self.command_actors_count += 1
                 elif isinstance(result, TaskCompleted):
                     self.need_more_actors = False  # don't need more actors
                     self.command_actors_count -= 1  # 1 completed command actor
@@ -257,7 +259,7 @@ class RayDriver:
                     if (
                         self.command_actors_count == 0
                     ):  # all the command actors have finished
-                        return  # exit
+                        return True  # is terminal
                 else:
                     raise RuntimeError(
                         f"Ray actor returns unknown type {type(result)}"
@@ -276,6 +278,7 @@ class RayDriver:
                         "Master node failed, currently TorchX cannot recover from master node failure"
                     )
                 self.reschedule_actor(failed_actor_id)
+        return False
 
     def run(self) -> None:
         """This is the main loop the ray driver, it executes the user script on the scheduled nodes,
@@ -285,7 +288,14 @@ class RayDriver:
         self.command_actors_count = 0
         # Await return result of remote ray function and initialize new command actors
         while len(self.active_tasks) > 0:
-            self._step()
+            terminal = self._step()
+            if terminal:
+                break
+
+    def clear_up(self) -> None:
+        for pg in self.placement_groups:
+        # clear used placement groups
+            remove_placement_group(pg)
 
 
 def get_min_nnodes(actors: List[RayActor]) -> int:
