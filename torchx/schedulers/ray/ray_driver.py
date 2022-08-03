@@ -150,7 +150,7 @@ class RayDriver:
         """Initialize all placement groups needed for this job"""
         # find the actor specifications of a given placement group
         replica_ix_of_pg: List[int] = [0] + list(
-            range(self.min_nnodes, self.max_nnodes + 1)
+            range(self.min_nnodes, self.max_nnodes + 1)  # pyre-ignore
         )
         # create all the placement groups
         initial_group = create_placement_group_async(
@@ -211,7 +211,8 @@ class RayDriver:
         """Creating all command actors in all placement groups"""
         # find the placement group index for a replica(actor's specification)
         pg_ix_of_replica: List[int] = [
-            max(0, i - self.min_nnodes + 1) for i in range(len(self.replicas))
+            max(0, i - self.min_nnodes + 1)
+            for i in range(len(self.replicas))  # pyre-ignore
         ]
         # create the actors
         for i in range(len(self.replicas)):
@@ -239,10 +240,12 @@ class RayDriver:
                             # make this actor be the master node
                             self.master_node_id = result.id
                             self.rank_0_address, self.rank_0_port = ray.get(
-                                actor.get_actor_address_and_port.remote()
+                                actor.get_actor_address_and_port.remote()  # pyre-ignore
                             )
                             self.active_tasks.append(
-                                actor.exec_module.remote("localhost", 0, result.id)
+                                actor.exec_module.remote(  # pyre-ignore
+                                    "localhost", 0, result.id
+                                )
                             )
                         else:
                             self.active_tasks.append(
@@ -299,7 +302,7 @@ class RayDriver:
 
 def get_min_nnodes(actors: List[RayActor]) -> Optional[int]:
     """Extract minimum number of nodes from actors, should always return int"""
-    min_nnodes: Optional[int] = actors[0].min_nnodes  # pyre-ignore
+    min_nnodes: Optional[int] = actors[0].min_nnodes
     return min_nnodes
 
 
