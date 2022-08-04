@@ -13,7 +13,7 @@ kfp==1.8.9
 moto==3.0.2
 pyre-extensions==0.0.21
 pytest
-pytorch-lightning==1.5.10
+pytorch-lightning==1.6.0
 torch-model-archiver>=0.4.2
 torch>=1.10.0
 torchserve>=0.4.2
