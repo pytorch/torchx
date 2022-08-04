@@ -46,6 +46,12 @@ class DistributedComponentTest(ComponentTestCase):
             self.assertEqual(nproc_per_node, nproc_per_node_list[i])
             self.assertEqual(nnodes_rep, nnodes_rep_list[i])
 
+    def test_ddp_parse_j_exception(self) -> None:
+        j_exception = ["1x", "x2", ":3", ":2x1", "1x2:3"]
+        for j in j_exception:
+            with self.assertRaises(ValueError):
+                dist.parse_nnodes(j)
+
     def test_ddp_debug(self) -> None:
         app = dist.ddp(script="foo.py", debug=True)
         env = app.roles[0].env

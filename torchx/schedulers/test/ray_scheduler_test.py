@@ -22,6 +22,7 @@ from torchx.specs import AppDef, Resource, Role, runopts
 if has_ray():
     import ray
     from ray.cluster_utils import Cluster
+    from ray.exceptions import RayActorError
     from ray.util.placement_group import remove_placement_group
     from torchx.schedulers.ray import ray_driver
     from torchx.schedulers.ray_scheduler import (
@@ -339,7 +340,7 @@ if has_ray():
                 )
                 cls._cluster.connect()  # connect before any node changes
                 cls._cluster.add_node()  # total of 2 cpus available
-                cls.reference_count: int = 4
+                cls.reference_count: int = 5
             return cls._instance
 
         @property
@@ -387,6 +388,33 @@ if has_ray():
                 os.path.join(current_dir, "actors.json")
             )
             self.assertEqual(loaded_actor, actors)
+
+        def test_unknown_result(self) -> None:
+            actor1 = RayActor(
+                name="test_actor_1",
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_1")',
+                ],
+                env={"fake": "1"},
+            )
+            actors = [
+                actor1,
+            ]
+            driver = ray_driver.RayDriver(actors)
+            ray_cluster_setup = RayClusterSetup()
+            self.assertEqual(driver.min_nnodes, 1)
+            self.assertEqual(driver.max_nnodes, 1)
+
+            @ray.remote
+            def f() -> int:
+                return 1
+
+            driver.active_tasks = [f.remote()]
+            with self.assertRaises(RuntimeError):
+                driver._step()
+
+            ray_cluster_setup.decrement_reference()
 
         def test_ray_driver_gang(self) -> None:
             """Test launching a gang scheduling job"""
@@ -555,8 +583,13 @@ if has_ray():
 
             # mock node failure
             ray_cluster_setup.remove_node()
-            driver.master_node_id = ""  # it's going to be a master node failure
+            active_task_temp = driver.active_tasks[0]
+            # test if master node failure is captured
+            with self.assertRaises(RuntimeError):
+                driver._step()
+            driver.active_tasks.append(active_task_temp)
 
+            driver.master_node_id = ""  # it's going to be a master node failure
             driver._step()  # reschedule one after receive node failure
             self.assertEqual(len(driver.active_tasks), 1)
             self.assertEqual(driver.command_actors_count, 0)
@@ -576,6 +609,11 @@ if has_ray():
             ray_cluster_setup.add_node()
 
             ray_cluster_setup.decrement_reference()
+
+        def test_parse_actor_id_from_err(self) -> None:
+            err = RayActorError()
+            with self.assertRaises(RuntimeError):
+                ray_driver.parse_actor_id_from_error(err)
 
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:
