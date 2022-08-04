@@ -20,7 +20,7 @@ from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 import ray
 from ray.exceptions import RayActorError
 from ray.train.utils import get_address_and_port
-from ray.util.placement_group import PlacementGroup, remove_placement_group
+from ray.util.placement_group import PlacementGroup
 
 if TYPE_CHECKING:
     from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
