@@ -128,7 +128,7 @@ class RayDriver:
         self.master_node_id: Optional[str] = None  # the actor id of the master node
         self.rank_0_address: Optional[str] = None
         self.rank_0_port: Optional[int] = None
-        self.min_nnodes: Optional[int] = get_min_nnodes(replicas)
+        self.min_nnodes: Optional[int] = replicas[0].min_nnodes
         self.max_nnodes: int = len(replicas)
         if self.min_nnodes is None:
             self.min_nnodes = self.max_nnodes
@@ -270,7 +270,6 @@ class RayDriver:
                     )
             except RayActorError as err:
                 # reschedule the failed command actor (node failure)
-                self.command_actors_count -= 1  # removing the failed actor
                 failed_actor_id: str = parse_actor_id_from_error(err)
                 _logger.info(
                     f"Node failure detected on command actor: {failed_actor_id}"
@@ -279,6 +278,7 @@ class RayDriver:
                     raise RuntimeError(
                         "Master node failed, currently TorchX cannot recover from master node failure"
                     )
+                self.command_actors_count -= 1  # removing the failed actor
                 self.reschedule_actor(failed_actor_id)
         return False
 
@@ -293,17 +293,6 @@ class RayDriver:
             terminal = self._step()
             if terminal:
                 break
-
-    def clear_up(self) -> None:
-        for pg in self.placement_groups:
-            # clear used placement groups
-            remove_placement_group(pg)
-
-
-def get_min_nnodes(actors: List[RayActor]) -> Optional[int]:
-    """Extract minimum number of nodes from actors, should always return int"""
-    min_nnodes: Optional[int] = actors[0].min_nnodes
-    return min_nnodes
 
 
 def parse_actor_id_from_error(err: RayActorError) -> str:

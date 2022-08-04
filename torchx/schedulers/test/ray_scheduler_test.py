@@ -516,7 +516,6 @@ if has_ray():
             ray_cluster_setup.decrement_reference()
 
         def test_ray_driver_fault_tolerance(self) -> None:
-            print("fault tolerance test")
             """Test launching a gang scheduling job"""
             actor1 = RayActor(
                 name="test_actor_1",
