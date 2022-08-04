@@ -225,14 +225,14 @@ class _noquote(str):
 
 def parse_nnodes(j: str) -> Tuple[str, str, str, str]:
     # nnodes: 1:2x3
-    if re.match("\\d+:\\d+x\\d+", j):  # match 2:4x1
+    if re.match("^\\d+:\\d+x\\d+$", j):  # match 2:4x1
         nnodes_rep, nproc_per_node = j.split("x")
         min_nnodes, max_nnodes = nnodes_rep.split(":")
-    elif re.match("\\d+x\\d+", j):  # match 2x1
+    elif re.match("^\\d+x\\d+$", j):  # match 2x1
         min_nnodes, nproc_per_node = j.split("x")
         max_nnodes = min_nnodes
         nnodes_rep = min_nnodes
-    elif re.match("\\d+", j):  # match 2
+    elif re.match("^\\d+$", j):  # match 2
         min_nnodes = "1"
         max_nnodes = min_nnodes
         nnodes_rep = min_nnodes
