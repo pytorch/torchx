@@ -75,7 +75,7 @@ if __name__ == "__main__":
             ],
         },
         extras_require={
-            "kfp": ["kfp==1.6.2"],
+            "kfp": ["kfp==1.8.13"],
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,
