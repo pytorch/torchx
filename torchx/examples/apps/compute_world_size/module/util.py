@@ -22,7 +22,6 @@ def compute_world_size(cfg: DictConfig) -> int:
     backend = cfg.main.backend
 
     print(f"initializing `{backend}` process group")
-    # pyre-fixme[16]: Module `distributed` has no attribute `init_process_group`.
     dist.init_process_group(
         backend=backend,
         init_method=f"tcp://{master_addr}:{master_port}",
@@ -31,13 +30,10 @@ def compute_world_size(cfg: DictConfig) -> int:
     )
     print("successfully initialized process group")
 
-    # pyre-fixme[16]: Module `distributed` has no attribute `get_rank`.
     rank = dist.get_rank()
-    # pyre-fixme[16]: Module `distributed` has no attribute `get_world_size`.
     world_size = dist.get_world_size()
 
     t = F.one_hot(torch.tensor(rank), num_classes=world_size)
-    # pyre-fixme[16]: Module `distributed` has no attribute `all_reduce`.
     dist.all_reduce(t)
     computed_world_size = int(torch.sum(t).item())
     print(
