@@ -340,7 +340,7 @@ if has_ray():
                 )
                 cls._cluster.connect()  # connect before any node changes
                 cls._cluster.add_node()  # total of 2 cpus available
-                cls.reference_count: int = 5
+                cls.reference_count: int = 4
             return cls._instance
 
         @property
