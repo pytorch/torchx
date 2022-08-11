@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 
 from torchx.schedulers.api import (
     DescribeAppResponse,
+    ListAppResponse,
     Scheduler,
     split_lines,
     split_lines_iterator,
@@ -69,7 +70,7 @@ class SchedulerTest(unittest.TestCase):
         ) -> Iterable[str]:
             return iter([])
 
-        def list(self) -> List[str]:
+        def list(self) -> List[ListAppResponse]:
             return []
 
         def run_opts(self) -> runopts:

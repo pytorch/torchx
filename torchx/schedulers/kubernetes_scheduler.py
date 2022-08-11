@@ -41,6 +41,7 @@ from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
+    ListAppResponse,
     Scheduler,
     split_lines,
     Stream,
@@ -751,8 +752,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         else:
             return iterator
 
-    def list(self) -> List[str]:
-        app_ids = []
+    def list(self) -> List[ListAppResponse]:
         namespace = "default"
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
@@ -761,12 +761,13 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             plural="jobs",
             timeout_seconds=30,
         )
-        items = resp["items"]
-        for item in items:
-            name = item["metadata"]["name"]
-            app_id = f"{namespace}:{name}"
-            app_ids.append(app_id)
-        return app_ids
+        return [
+            ListAppResponse(
+                app_id=f"{namespace}:{app['metadata']['name']}",
+                state=JOB_STATE[app["status"]["state"]["phase"]],
+            )
+            for app in resp["items"]
+        ]
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:

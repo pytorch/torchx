@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 
 from pyre_extensions import none_throws
 from torchx.runner import get_runner, Runner
-from torchx.schedulers.api import DescribeAppResponse, Scheduler
+from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
     LocalDirectoryImageProvider,
     LocalScheduler,
@@ -184,7 +184,7 @@ class RunnerTest(unittest.TestCase):
             def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
                 pass
 
-            def list(self) -> List[str]:
+            def list(self) -> List[DescribeAppResponse]:
                 pass
 
             def _cancel_existing(self, app_id: str) -> None:
@@ -380,18 +380,29 @@ class RunnerTest(unittest.TestCase):
 
     def test_list(self, _) -> None:
         scheduler_mock = MagicMock()
-        app_ids_return = ["app_handle1", "app_handle2"]
-        scheduler_mock.list.return_value = app_ids_return
-        app_handles_expected = [
-            "kubernetes://test_session/app_handle1",
-            "kubernetes://test_session/app_handle2",
+        sched_list_return = [
+            ListAppResponse(app_id="app_id1", state=AppState.RUNNING),
+            ListAppResponse(app_id="app_id2", state=AppState.SUCCEEDED),
+        ]
+        scheduler_mock.list.return_value = sched_list_return
+        apps_expected = [
+            ListAppResponse(
+                app_id="app_id1",
+                app_handle="kubernetes://test_session/app_id1",
+                state=AppState.RUNNING,
+            ),
+            ListAppResponse(
+                app_id="app_id2",
+                app_handle="kubernetes://test_session/app_id2",
+                state=AppState.SUCCEEDED,
+            ),
         ]
         with Runner(
             name=SESSION_NAME,
             scheduler_factories={"kubernetes": lambda name: scheduler_mock},
         ) as runner:
-            app_handles = runner.list("kubernetes")
-            self.assertEqual(app_handles, app_handles_expected)
+            apps = runner.list("kubernetes")
+            self.assertEqual(apps, apps_expected)
             scheduler_mock.list.assert_called_once()
 
     @patch("json.dumps")

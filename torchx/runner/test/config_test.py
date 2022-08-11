@@ -26,7 +26,7 @@ from torchx.runner.config import (
     load_sections,
 )
 from torchx.schedulers import get_scheduler_factories, Scheduler
-from torchx.schedulers.api import DescribeAppResponse, Stream
+from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
 
 
@@ -59,7 +59,7 @@ class TestScheduler(Scheduler):
     ) -> Iterable[str]:
         raise NotImplementedError()
 
-    def list(self) -> List[str]:
+    def list(self) -> List[ListAppResponse]:
         raise NotImplementedError()
 
     def run_opts(self) -> runopts:

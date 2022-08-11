@@ -16,7 +16,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
 from pyre_extensions import none_throws
 from torchx.runner.events import log_event
 from torchx.schedulers import get_scheduler_factories, SchedulerFactory
-from torchx.schedulers.api import Scheduler, Stream
+from torchx.schedulers.api import ListAppResponse, Scheduler, Stream
 from torchx.specs import (
     AppDef,
     AppDryRunInfo,
@@ -552,18 +552,18 @@ class Runner:
     def list(
         self,
         scheduler: str,
-    ) -> List[str]:
+    ) -> List[ListAppResponse]:
         """
-        Returns the list of app handles launched by the scheduler.
+        For apps launched on the scheduler, this API returns a list of ListAppResponse
+        objects each of which have app id, app handle and its status.
         Note: This API is in prototype phase and is subject to change.
         """
         with log_event("list", scheduler):
             sched = self._scheduler(scheduler)
-            app_handles = [
-                make_app_handle(scheduler, self._name, app_id)
-                for app_id in sched.list()
-            ]
-            return app_handles
+            apps = sched.list()
+            for app in apps:
+                app.app_handle = make_app_handle(scheduler, self._name, app.app_id)
+            return apps
 
     # pyre-fixme: Scheduler opts
     def _scheduler(self, scheduler: str) -> Scheduler:

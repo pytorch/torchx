@@ -21,6 +21,7 @@ from torchx.schedulers.api import (
     AppState,
     DescribeAppResponse,
     filter_regex,
+    ListAppResponse,
     Scheduler,
     split_lines,
     Stream,
@@ -396,7 +397,7 @@ if _has_ray:
                 return filter_regex(regex, iterator)
             return iterator
 
-        def list(self) -> List[str]:
+        def list(self) -> List[ListAppResponse]:
             address = os.getenv("RAY_ADDRESS")
             if not address:
                 raise Exception(
@@ -406,8 +407,13 @@ if _has_ray:
             client = JobSubmissionClient(address)
             jobs_dict = client.list_jobs()
             ip = address.split("http://", 1)[-1]
-            app_handles = [f"{ip}-{job_id}" for job_id in jobs_dict.keys()]
-            return app_handles
+            return [
+                ListAppResponse(
+                    app_id=f"{ip}-{job_id}",
+                    state=_ray_status_to_torchx_appstate[details.status],
+                )
+                for job_id, details in jobs_dict.items()
+            ]
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> "RayScheduler":

@@ -25,6 +25,7 @@ from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
+    ListAppResponse,
     Scheduler,
     split_lines_iterator,
     Stream,
@@ -566,7 +567,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
             iterator = filter_regex(regex, iterator)
         return iterator
 
-    def list(self) -> List[str]:
+    def list(self) -> List[ListAppResponse]:
         # By default sacct only returns accounting information of jobs launched on the current day
         # To return all jobs launched, set starttime to one second past unix epoch time
         # Starttime will be modified when listing jobs by timeframe is supported
@@ -576,7 +577,12 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
             check=True,
         )
         output_json = json.loads(p.stdout.decode("utf-8"))
-        return [str(job["job_id"]) for job in output_json["jobs"]]
+        return [
+            ListAppResponse(
+                app_id=str(job["job_id"]), state=SLURM_STATES[job["state"]["current"]]
+            )
+            for job in output_json["jobs"]
+        ]
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> SlurmScheduler:

@@ -12,6 +12,7 @@ from unittest.mock import MagicMock, patch
 
 import torchx
 from torchx import specs
+from torchx.schedulers.api import ListAppResponse
 from torchx.schedulers.aws_batch_scheduler import (
     _local_session,
     _role_to_node_properties,
@@ -19,6 +20,7 @@ from torchx.schedulers.aws_batch_scheduler import (
     AWSBatchScheduler,
     create_scheduler,
 )
+from torchx.specs import AppState
 
 
 def _test_app() -> specs.AppDef:
@@ -572,9 +574,13 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_list(self) -> None:
         scheduler = self._mock_scheduler()
-        expected_app_ids = ["torchx:echo-v1r560pmwn5t3c"]
-        app_ids = scheduler.list()
-        self.assertEqual(app_ids, expected_app_ids)
+        expected_apps = [
+            ListAppResponse(
+                app_id="torchx:echo-v1r560pmwn5t3c", state=AppState.SUCCEEDED
+            )
+        ]
+        apps = scheduler.list()
+        self.assertEqual(apps, expected_apps)
 
     def test_log_iter(self) -> None:
         scheduler = self._mock_scheduler()

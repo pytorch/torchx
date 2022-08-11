@@ -34,6 +34,7 @@ from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
+    ListAppResponse,
     Scheduler,
     split_lines_iterator,
     Stream,
@@ -972,7 +973,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
             iterator = filter_regex(regex, iterator)
         return iterator
 
-    def list(self) -> List[str]:
+    def list(self) -> List[ListAppResponse]:
         raise Exception(
             "App handles cannot be listed for local scheduler as they are not persisted by torchx"
         )

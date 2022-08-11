@@ -15,7 +15,7 @@ import torchx
 from docker.types import DeviceRequest, Mount
 from torchx import specs
 from torchx.components.dist import ddp
-from torchx.schedulers.api import Stream
+from torchx.schedulers.api import ListAppResponse, Stream
 from torchx.schedulers.docker_scheduler import (
     create_scheduler,
     DockerContainer,
@@ -357,7 +357,12 @@ if has_docker():
         def test_docker_list(self) -> None:
             app = self._docker_app("echo", "bar")
             app_id = self.scheduler.submit(app, cfg={})
-            self.assertTrue(app_id in self.scheduler.list())
+
+            self.wait(app_id)
+            self.assertTrue(
+                ListAppResponse(app_id=app_id, state=AppState.SUCCEEDED)
+                in self.scheduler.list()
+            )
 
         def test_docker_cancel(self) -> None:
             app = self._docker_app("sleep", "10000")

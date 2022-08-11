@@ -18,6 +18,7 @@ from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
+    ListAppResponse,
     Scheduler,
     split_lines,
     Stream,
@@ -354,6 +355,19 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
         )
         return opts
 
+    def _get_app_state(self, container: "Container") -> AppState:
+        if container.status == "exited":
+            # docker doesn't have success/failed states -- we have to call
+            # `wait()` to get the exit code to determine that
+            status = container.wait(timeout=10)
+            if status["StatusCode"] == 0:
+                state = AppState.SUCCEEDED
+            else:
+                state = AppState.FAILED
+        else:
+            state = CONTAINER_STATE[container.status]
+        return state
+
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         roles = {}
         roles_statuses = {}
@@ -374,16 +388,7 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
                 roles_statuses[role] = RoleStatus(role, [])
             roles[role].num_replicas += 1
 
-            if container.status == "exited":
-                # docker doesn't have success/failed states -- we have to call
-                # `wait()` to get the exit code to determine that
-                status = container.wait(timeout=10)
-                if status["StatusCode"] == 0:
-                    state = AppState.SUCCEEDED
-                else:
-                    state = AppState.FAILED
-            else:
-                state = CONTAINER_STATE[container.status]
+            state = self._get_app_state(container)
 
             roles_statuses[role].replicas.append(
                 ReplicaStatus(
@@ -447,14 +452,16 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
         else:
             return logs
 
-    def list(self) -> List[str]:
-        unique_app_ids = {
-            cntr.labels[LABEL_APP_ID]
+    def list(self) -> List[ListAppResponse]:
+        unique_apps = {
+            ListAppResponse(
+                app_id=cntr.labels[LABEL_APP_ID], state=self._get_app_state(cntr)
+            )
             for cntr in self._docker_client.containers.list(
                 all=True, filters={"label": f"{LABEL_APP_ID}"}
             )
         }
-        return list(unique_app_ids)
+        return list(unique_apps)
 
 
 def _to_str(a: Union[str, bytes]) -> str:

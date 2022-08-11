@@ -57,6 +57,7 @@ from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
+    ListAppResponse,
     Scheduler,
     Stream,
 )
@@ -576,22 +577,28 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         else:
             return iterator
 
-    def list(self) -> List[str]:
+    def list(self) -> List[ListAppResponse]:
         # TODO: get queue name input instead of iterating over all queues?
         resp = self._client.describe_job_queues()
         queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
-        all_app_ids = []
+        all_apps = []
         for qn in queue_names:
-            all_app_ids += self._list_by_queue(qn)
-        return all_app_ids
+            apps_in_queue = self._list_by_queue(qn)
+            all_apps += [
+                ListAppResponse(
+                    app_id=f"{qn}:{app['jobName']}", state=JOB_STATE[app["status"]]
+                )
+                for app in apps_in_queue
+            ]
+        return all_apps
 
-    def _list_by_queue(self, queue_name: str) -> List[str]:
+    def _list_by_queue(self, queue_name: str) -> List[Dict[str, Any]]:
         # By default only running jobs are listed by batch/boto client's list_jobs API
         # When 'filters' parameter is specified, jobs with all statuses are listed
         # So use AFTER_CREATED_AT filter to list jobs in all statuses
         # milli_seconds_after_epoch can later be used to list jobs by timeframe
         milli_seconds_after_epoch = "1"
-        jobs = self._client.list_jobs(
+        return self._client.list_jobs(
             jobQueue=queue_name,
             filters=[
                 {
@@ -602,8 +609,6 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                 },
             ],
         )["jobSummaryList"]
-        app_ids = [f"{queue_name}:{job['jobName']}" for job in jobs]
-        return app_ids
 
     def _stream_events(
         self,
