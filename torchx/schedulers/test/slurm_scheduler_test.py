@@ -15,7 +15,7 @@ from unittest.mock import call, MagicMock, patch
 
 import torchx
 from torchx import specs
-from torchx.schedulers.api import DescribeAppResponse, Stream
+from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Stream
 from torchx.schedulers.slurm_scheduler import (
     _get_job_dirs,
     _save_job_dir,
@@ -25,6 +25,7 @@ from torchx.schedulers.slurm_scheduler import (
     SlurmReplicaRequest,
     SlurmScheduler,
 )
+from torchx.specs import AppState
 
 
 @contextmanager
@@ -399,14 +400,19 @@ JobID|JobName|Partition|Account|AllocCPUS|State|ExitCode
     def test_list(self, run: MagicMock) -> None:
         run.return_value.stdout = b"""{\n   "meta": {\n   },\n   "errors": [\n   ],\n   "jobs": [
 \n     {\n       "account": null,\n       "job_id": 123,\n       "name": "main-0",
+\n       "state": {\n   "current": "COMPLETED",\n   "reason": "None"},
 \n       "working_directory": "\\/home\\/ec2-user\\/tests\\/runner-1234\\/job"\n     },
 \n     {\n       "account": null,\n       "job_id": 124,\n       "name": "main-0",
+\n       "state": {\n   "current": "CANCELLED",\n   "reason": "None"},
 \n       "working_directory": "\\/home\\/ec2-user\\/tests\\/runner-1234\\/job"\n     }\n   ]\n }"""
         scheduler = create_scheduler("foo")
-        expected_app_ids = ["123", "124"]
-        app_ids = scheduler.list()
-        self.assertIsNotNone(app_ids)
-        self.assertEqual(app_ids, expected_app_ids)
+        expected_apps = [
+            ListAppResponse(app_id="123", state=AppState.SUCCEEDED),
+            ListAppResponse(app_id="124", state=AppState.CANCELLED),
+        ]
+        apps = scheduler.list()
+        self.assertIsNotNone(apps)
+        self.assertEqual(apps, expected_apps)
 
     @patch("subprocess.run")
     def test_log_iter(self, run: MagicMock) -> None:

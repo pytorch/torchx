@@ -8,11 +8,17 @@
 import argparse
 import logging
 
+from tabulate import tabulate
+
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+HANDLE_HEADER = "APP HANDLE"
+STATUS_HEADER = "APP STATUS"
 
 
 class CmdList(SubCommand):
@@ -30,5 +36,6 @@ class CmdList(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         with get_runner() as runner:
-            jobs = runner.list(args.scheduler)
-            print(*jobs, sep="\n")
+            apps = runner.list(args.scheduler)
+            apps_data = [[app.app_handle, str(app.state)] for app in apps]
+            print(tabulate(apps_data, headers=[HANDLE_HEADER, STATUS_HEADER]))

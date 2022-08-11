@@ -13,7 +13,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from torchx.schedulers import get_scheduler_factories
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import has_ray
 from torchx.specs import AppDef, Resource, Role, runopts
@@ -394,8 +394,9 @@ if has_ray():
             status = self.describe(ray_scheduler, job_id)
             self.assertIsNotNone(status)
 
-            app_handles = self.list(ray_scheduler)
-            self.assertEqual(app_handles, [job_id])
+            apps = self.list(ray_scheduler)
+            self.assertEquals(len(apps), 1)
+            self.assertEqual(apps[0].app_id, job_id)
 
             ray_cluster_setup.decrement_reference()
 
@@ -440,6 +441,6 @@ if has_ray():
         ) -> Iterable[str]:
             return ray_scheduler.log_iter(app_id=app_id)
 
-        def list(self, ray_scheduler: RayScheduler) -> List[str]:
+        def list(self, ray_scheduler: RayScheduler) -> List[ListAppResponse]:
             os.environ["RAY_ADDRESS"] = "http://127.0.0.1:8265"
             return ray_scheduler.list()

@@ -64,6 +64,33 @@ class DescribeAppResponse:
     roles: List[Role] = field(default_factory=list)
 
 
+@dataclass
+class ListAppResponse:
+    """
+    Response object returned by ``scheduler.list()`` and ``runner.list()`` APIs.
+    Contains the app_id, app_handle and status of the application.
+    App ID : The unique identifier that identifies apps submitted on the scheduler
+    App handle: Identifier for apps run with torchx in a url format like
+    {scheduler_backend}://{session_name}/{app_id}, which is created by the runner
+    when it submits a job on a scheduler. Handle info in ListAppResponse is filled
+    in by ``runner.list()``. This handle can be used to further describe the app
+    with torchx CLI or a torchx runner instance.
+
+    Since this class is a data class with some member variables we keep the usage
+    simple and chose to access the member vars directly rather than provide accessors.
+    """
+
+    app_id: str
+    state: AppState
+    app_handle: str = "<NOT_SET>"
+
+    # Implementing __hash__() makes ListAppResponse hashable which makes
+    # it easier to check if a ListAppResponse object exists in a list of
+    # objects for testing purposes.
+    def __hash__(self) -> int:
+        return hash((self.app_id, self.app_handle, self.state))
+
+
 T = TypeVar("T")
 
 
@@ -175,9 +202,10 @@ class Scheduler(abc.ABC, Generic[T]):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def list(self) -> List[str]:
+    def list(self) -> List[ListAppResponse]:
         """
-        Lists the app ids launched on the scheduler.
+        For apps launched on the scheduler, this API returns a list of ListAppResponse
+        objects each of which have app id and its status.
         Note: This API is in prototype phase and is subject to change.
         """
         raise NotImplementedError()
