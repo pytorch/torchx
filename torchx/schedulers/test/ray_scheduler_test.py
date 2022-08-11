@@ -543,10 +543,6 @@ if has_ray():
 
             ray_cluster_setup.decrement_reference()
 
-        def test_parse_actor_id_from_err(self) -> None:
-            err = RayActorError()
-            with self.assertRaises(RuntimeError):
-                ray_driver.parse_actor_id_from_error(err)
 
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:

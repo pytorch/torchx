@@ -275,20 +275,6 @@ class RayDriver:
                 break
 
 
-def parse_actor_id_from_error(err: RayActorError) -> str:
-    msg = err.error_msg.split()
-    try:
-        id_ix = msg.index("actor_id:") + 1
-    except ValueError:
-        raise RuntimeError(
-            "Experiencing a node failure,fault tolerance feature is not compatible with current ray version"
-            "This is most likely bug in torchx"
-            "Open issue at https://github.com/pytorch/torchx"
-        )
-    actor_id = msg[id_ix]
-    return actor_id
-
-
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
     driver = RayDriver(actors)
