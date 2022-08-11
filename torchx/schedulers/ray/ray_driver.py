@@ -180,13 +180,6 @@ class RayDriver:
         """Remove and return the info of a dead command actor"""
         return self.actor_info_of_id.pop(actor_id)
 
-    # def reschedule_actor(self, actor_id: str) -> None:
-    #     """Rescheule a failed actor"""
-    #     # pop the information of failed actor
-    #     info = self.pop_actor_info(actor_id)
-    #     _logger.info(f"Rescheduling actor {actor_id} to placement group {info.pg}")
-    #     self.create_and_schedule_actor(info.pg, info.replica)
-
     def create_and_schedule_actor(self, pg: PlacementGroup, replica: RayActor) -> None:
         """create an command actor in the given placement group"""
         # create the command actor
@@ -231,55 +224,42 @@ class RayDriver:
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_tasks:
-            try:
-                result = ray.get(object_ref)  # pyre-ignore
-                if isinstance(result, CommandActorScheduled):
-                    if self.need_more_actors:
-                        actor = self.actor_info_of_id[result.id].actor
-                        if self.master_node_id is None:
-                            # make this actor be the master node
-                            self.master_node_id = result.id
-                            self.rank_0_address, self.rank_0_port = ray.get(
-                                actor.get_actor_address_and_port.remote()  # pyre-ignore
+            result = ray.get(object_ref)  # pyre-ignore
+            if isinstance(result, CommandActorScheduled):
+                if self.need_more_actors:
+                    actor = self.actor_info_of_id[result.id].actor
+                    if self.master_node_id is None:
+                        # make this actor be the master node
+                        self.master_node_id = result.id
+                        self.rank_0_address, self.rank_0_port = ray.get(
+                            actor.get_actor_address_and_port.remote()  # pyre-ignore
+                        )
+                        self.active_tasks.append(
+                            actor.exec_module.remote(  # pyre-ignore
+                                "localhost", 0, result.id
                             )
-                            self.active_tasks.append(
-                                actor.exec_module.remote(  # pyre-ignore
-                                    "localhost", 0, result.id
-                                )
+                        )
+                    else:
+                        self.active_tasks.append(
+                            actor.exec_module.remote(
+                                self.rank_0_address, self.rank_0_port, result.id
                             )
-                        else:
-                            self.active_tasks.append(
-                                actor.exec_module.remote(
-                                    self.rank_0_address, self.rank_0_port, result.id
-                                )
-                            )
-                        self.command_actors_count += 1
-                elif isinstance(result, TaskCompleted):
-                    self.need_more_actors = False  # don't need more actors
-                    self.command_actors_count -= 1  # 1 completed command actor
-                    self.pop_actor_info(result.id)
-                    if (
-                        self.command_actors_count == 0
-                    ):  # all the command actors have finished
-                        return True  # is terminal
-                else:
-                    raise RuntimeError(
-                        f"Ray actor returns unknown type {type(result)}"
-                        "This is most likely bug in torchx"
-                        "Open issue at https://github.com/pytorch/torchx"
-                    )
-            # except RayActorError as err:
-            #     # reschedule the failed command actor (node failure)
-            #     failed_actor_id: str = parse_actor_id_from_error(err)
-            #     _logger.info(
-            #         f"Node failure detected on command actor: {failed_actor_id}"
-            #     )
-            #     if failed_actor_id == self.master_node_id:
-            #         raise RuntimeError(
-            #             "Master node failed, currently TorchX cannot recover from master node failure"
-            #         )
-            #     self.command_actors_count -= 1  # removing the failed actor
-            #     self.reschedule_actor(failed_actor_id)
+                        )
+                    self.command_actors_count += 1
+            elif isinstance(result, TaskCompleted):
+                self.need_more_actors = False  # don't need more actors
+                self.command_actors_count -= 1  # 1 completed command actor
+                self.pop_actor_info(result.id)
+                if (
+                    self.command_actors_count == 0
+                ):  # all the command actors have finished
+                    return True  # is terminal
+            else:
+                raise RuntimeError(
+                    f"Ray actor returns unknown type {type(result)}"
+                    "This is most likely bug in torchx"
+                    "Open issue at https://github.com/pytorch/torchx"
+                )
         return False
 
     def run(self) -> None:
