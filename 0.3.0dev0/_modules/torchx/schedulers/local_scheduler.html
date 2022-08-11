@@ -409,6 +409,7 @@
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
     <span class="n">DescribeAppResponse</span><span class="p">,</span>
     <span class="n">filter_regex</span><span class="p">,</span>
+    <span class="n">ListAppResponse</span><span class="p">,</span>
     <span class="n">Scheduler</span><span class="p">,</span>
     <span class="n">split_lines_iterator</span><span class="p">,</span>
     <span class="n">Stream</span><span class="p">,</span>
@@ -1347,7 +1348,7 @@
             <span class="n">iterator</span> <span class="o">=</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">iterator</span></div>
 
-<div class="viewcode-block" id="LocalScheduler.list"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="LocalScheduler.list"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
             <span class="s2">&quot;App handles cannot be listed for local scheduler as they are not persisted by torchx&quot;</span>
         <span class="p">)</span></div>
