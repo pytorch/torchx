@@ -180,12 +180,12 @@ class RayDriver:
         """Remove and return the info of a dead command actor"""
         return self.actor_info_of_id.pop(actor_id)
 
-    def reschedule_actor(self, actor_id: str) -> None:
-        """Rescheule a failed actor"""
-        # pop the information of failed actor
-        info = self.pop_actor_info(actor_id)
-        _logger.info(f"Rescheduling actor {actor_id} to placement group {info.pg}")
-        self.create_and_schedule_actor(info.pg, info.replica)
+    # def reschedule_actor(self, actor_id: str) -> None:
+    #     """Rescheule a failed actor"""
+    #     # pop the information of failed actor
+    #     info = self.pop_actor_info(actor_id)
+    #     _logger.info(f"Rescheduling actor {actor_id} to placement group {info.pg}")
+    #     self.create_and_schedule_actor(info.pg, info.replica)
 
     def create_and_schedule_actor(self, pg: PlacementGroup, replica: RayActor) -> None:
         """create an command actor in the given placement group"""
@@ -268,18 +268,18 @@ class RayDriver:
                         "This is most likely bug in torchx"
                         "Open issue at https://github.com/pytorch/torchx"
                     )
-            except RayActorError as err:
-                # reschedule the failed command actor (node failure)
-                failed_actor_id: str = parse_actor_id_from_error(err)
-                _logger.info(
-                    f"Node failure detected on command actor: {failed_actor_id}"
-                )
-                if failed_actor_id == self.master_node_id:
-                    raise RuntimeError(
-                        "Master node failed, currently TorchX cannot recover from master node failure"
-                    )
-                self.command_actors_count -= 1  # removing the failed actor
-                self.reschedule_actor(failed_actor_id)
+            # except RayActorError as err:
+            #     # reschedule the failed command actor (node failure)
+            #     failed_actor_id: str = parse_actor_id_from_error(err)
+            #     _logger.info(
+            #         f"Node failure detected on command actor: {failed_actor_id}"
+            #     )
+            #     if failed_actor_id == self.master_node_id:
+            #         raise RuntimeError(
+            #             "Master node failed, currently TorchX cannot recover from master node failure"
+            #         )
+            #     self.command_actors_count -= 1  # removing the failed actor
+            #     self.reschedule_actor(failed_actor_id)
         return False
 
     def run(self) -> None:
