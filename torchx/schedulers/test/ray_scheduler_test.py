@@ -22,7 +22,6 @@ from torchx.specs import AppDef, Resource, Role, runopts
 if has_ray():
     import ray
     from ray.cluster_utils import Cluster
-    from ray.exceptions import RayActorError
     from ray.util.placement_group import remove_placement_group
     from torchx.schedulers.ray import ray_driver
     from torchx.schedulers.ray_scheduler import (
@@ -542,7 +541,6 @@ if has_ray():
                 remove_placement_group(pg)
 
             ray_cluster_setup.decrement_reference()
-
 
     class RayIntegrationTest(TestCase):
         def test_ray_cluster(self) -> None:

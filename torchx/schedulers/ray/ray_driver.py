@@ -18,7 +18,6 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
-from ray.exceptions import RayActorError
 from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
