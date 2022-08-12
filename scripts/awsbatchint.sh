@@ -47,13 +47,4 @@ else
       echo "expected 2 log lines"
       exit 1
   fi
-
-  torchx list -s aws_batch
-  LIST_LINES="$(torchx list -s aws_batch | grep -c "$APP_ID")"
-
-  if [ "$LIST_LINES" -ne 1 ]
-  then
-      echo "expected $APP_ID to be listed"
-      exit 1
-  fi
 fi
