@@ -343,26 +343,26 @@ if has_ray():
             return cls._instance
 
         @property
-        def workers(cls) -> List[ray.node.Node]:
-            return list(cls._cluster.worker_nodes)
+        def workers(self) -> List[ray.node.Node]:
+            return list(self._cluster.worker_nodes)
 
-        def add_node(cls, num_cpus: int = 1) -> None:
+        def add_node(self, num_cpus: int = 1) -> None:
             # add 1 node with 2 cpus to the cluster
-            cls._cluster.add_node(num_cpus=num_cpus)
+            self._cluster.add_node(num_cpus=num_cpus)
 
-        def remove_node(cls) -> None:
+        def remove_node(self) -> None:
             # randomly remove 1 node from the cluster
-            cls._cluster.remove_node(cls.workers[0])
+            self._cluster.remove_node(self.workers[0])
 
-        def decrement_reference(cls) -> None:
-            cls.reference_count -= 1
-            if cls.reference_count == 0:
-                cls.teardown_ray_cluster()
+        def decrement_reference(self) -> None:
+            self.reference_count -= 1
+            if self.reference_count == 0:
+                self.teardown_ray_cluster()
 
-        def teardown_ray_cluster(cls) -> None:
+        def teardown_ray_cluster(self) -> None:
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
-            cls._cluster.shutdown()
+            self._cluster.shutdown()
             del os.environ["RAY_ADDRESS"]
 
     class RayDriverTest(TestCase):
@@ -371,13 +371,13 @@ if has_ray():
                 name="test_actor_1",
                 command=["python", "1", "2"],
                 env={"fake": "1"},
-                min_nnodes=2,
+                min_replicas=2,
             )
             actor2 = RayActor(
                 name="test_actor_2",
                 command=["python", "3", "4"],
                 env={"fake": "2"},
-                min_nnodes=2,
+                min_replicas=2,
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -402,8 +402,8 @@ if has_ray():
             ]
             driver = ray_driver.RayDriver(actors)
             ray_cluster_setup = RayClusterSetup()
-            self.assertEqual(driver.min_nnodes, 1)
-            self.assertEqual(driver.max_nnodes, 1)
+            self.assertEqual(driver.min_replicas, 1)
+            self.assertEqual(driver.max_replicas, 1)
 
             @ray.remote
             def f() -> int:
@@ -424,7 +424,7 @@ if has_ray():
                     "-c" 'import time; time.sleep(1); print("test_actor_1")',
                 ],
                 env={"fake": "1"},
-                min_nnodes=2,
+                min_replicas=2,
             )
             actor2 = RayActor(
                 name="test_actor_2",
@@ -433,7 +433,7 @@ if has_ray():
                     "-c" 'import time; time.sleep(1); print("test_actor_2")',
                 ],
                 env={"fake": "2"},
-                min_nnodes=2,
+                min_replicas=2,
             )
             actors = [actor1, actor2]
 
@@ -474,7 +474,7 @@ if has_ray():
                     "-c" 'import time; time.sleep(1); print("test_actor_elasticity_1")',
                 ],
                 env={"fake": "1"},
-                min_nnodes=1,
+                min_replicas=1,
             )
             actor2 = RayActor(
                 name="test_actor_2",
@@ -483,7 +483,7 @@ if has_ray():
                     "-c" 'import time; time.sleep(1); print("test_actor_elasticity_2")',
                 ],
                 env={"fake": "2"},
-                min_nnodes=1,
+                min_replicas=1,
             )
             actors = [actor1, actor2]
 
@@ -525,7 +525,7 @@ if has_ray():
             self.assertEqual(terminal, True)
             self.assertEqual(driver.command_actors_count, 0)
             self.assertEqual(len(driver.active_tasks), 1)  # actor schedule task
-            self.assertEqual(driver.need_more_actors, False)
+            self.assertEqual(driver.terminating, True)
 
             ray_cluster_setup.add_node()  # add 1 cpu to the cluster
             # 3-3
@@ -579,13 +579,13 @@ if has_ray():
                     name="ddp",
                     num_cpus=1,
                     command=[os.path.join(current_dir, "train.py")],
-                    min_nnodes=2,
+                    min_replicas=2,
                 ),
                 RayActor(
                     name="ddp",
                     num_cpus=1,
                     command=[os.path.join(current_dir, "train.py")],
-                    min_nnodes=2,
+                    min_replicas=2,
                 ),
             ]
 

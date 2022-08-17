@@ -277,7 +277,7 @@ if _has_ray:
 
                     actor = RayActor(
                         name=role.name,
-                        min_nnodes=role.min_nnodes,
+                        min_replicas=role.min_nnodes,
                         command=[replica_role.entrypoint] + replica_role.args,
                         env=replica_role.env,
                         num_cpus=max(1, replica_role.resource.cpu),

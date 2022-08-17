@@ -5,8 +5,18 @@
 # LICENSE file in the root directory of this source tree.
 
 """
-For an explanation of the logic in this file, please refer to
-https://github.com/pytorch/torchx/pull/572
+We use placement groups to reserve resources in the ray cluster, it
+ensure that a job will not lose the resources it used to have before
+the job is finished. The deadlock situtation while launch multiple jobs at the
+same time is avoided by create a big placement group that contains the minimum
+required command actors for the job. Once the placement groups are created(may
+not be scheduled on a physical node yet), then we schedule command actors to
+the corresponding placement group, each actor is associated with a placement
+group which hold the resource the acotr needs. Each time a placement group successfully
+acquired the resources from the ray cluster, the actor scheduled to this placement group
+will be executed. Command actors are state machines their behavior is defined by the
+_step function, this give more flexibility to us if we want to bette handle the
+node failures.
 """
 
 import json
@@ -44,13 +54,11 @@ class RayResult:
 
 
 class TaskCompleted(RayResult):
-    def __init__(self, id: str) -> None:
-        super().__init__(id=id)
+    pass
 
 
 class CommandActorScheduled(RayResult):
-    def __init__(self, id: str) -> None:
-        super().__init__(id=id)
+    pass
 
 
 @ray.remote
@@ -127,10 +135,12 @@ class RayDriver:
         self.master_node_id: Optional[str] = None  # the actor id of the master node
         self.rank_0_address: Optional[str] = None
         self.rank_0_port: Optional[int] = None
-        self.min_nnodes: Optional[int] = replicas[0].min_nnodes
-        self.max_nnodes: int = len(replicas)
-        if self.min_nnodes is None:
-            self.min_nnodes = self.max_nnodes
+        self.max_replicas: int = len(replicas)
+        self.min_replicas: int
+        if replicas[0].min_replicas is None:
+            self.min_replicas = self.max_replicas
+        else:
+            self.min_replicas = replicas[0].min_replicas  # pyre-ignore[8]
 
         self.placement_groups: List[
             PlacementGroup
@@ -140,16 +150,17 @@ class RayDriver:
         ] = {}  # store the info used to recover an actor
         self.active_tasks: List["ray.ObjectRef"] = []  # list of active tasks
 
-        self.need_more_actors: bool = (
-            True  # need more actors before any actor finishes and exits
-        )
+        self.terminating: bool = False  # if the job has finished and being terminated
         self.command_actors_count: int = 0  # number of created command actors
 
     def init_placement_groups(self) -> None:
         """Initialize all placement groups needed for this job"""
         # find the actor specifications of a given placement group
         replica_ix_of_pg: List[int] = [0] + list(
-            range(self.min_nnodes, self.max_nnodes + 1)  # pyre-ignore
+            range(
+                self.min_replicas,
+                self.max_replicas + 1,
+            )
         )
         # create all the placement groups
         initial_group = create_placement_group_async(
@@ -203,8 +214,7 @@ class RayDriver:
         """Creating all command actors in all placement groups"""
         # find the placement group index for a replica(actor's specification)
         pg_ix_of_replica: List[int] = [
-            max(0, i - self.min_nnodes + 1)  # pyre-ignore
-            for i in range(len(self.replicas))
+            max(0, i - self.min_replicas + 1) for i in range(len(self.replicas))
         ]
         # create the actors
         for i in range(len(self.replicas)):
@@ -225,7 +235,7 @@ class RayDriver:
         for object_ref in completed_tasks:
             result = ray.get(object_ref)  # pyre-ignore
             if isinstance(result, CommandActorScheduled):
-                if self.need_more_actors:
+                if not self.terminating:
                     actor = self.actor_info_of_id[result.id].actor
                     if self.master_node_id is None:
                         # make this actor be the master node
@@ -246,7 +256,9 @@ class RayDriver:
                         )
                     self.command_actors_count += 1
             elif isinstance(result, TaskCompleted):
-                self.need_more_actors = False  # don't need more actors
+                self.terminating = (
+                    True  # terminating the job, wait for all actors to finish
+                )
                 self.command_actors_count -= 1  # 1 completed command actor
                 self.pop_actor_info(result.id)
                 if (
@@ -265,7 +277,7 @@ class RayDriver:
         """This is the main loop the ray driver, it executes the user script on the scheduled nodes,
         and restart the failed nodes(node failures). The loop ends when all the actors that joining
         the job exits."""
-        self.need_more_actors = True
+        self.terminating = False
         self.command_actors_count = 0
         # Await return result of remote ray function and initialize new command actors
         while len(self.active_tasks) > 0:

@@ -19,4 +19,4 @@ class RayActor:
     env: Dict[str, str] = field(default_factory=dict)
     num_cpus: int = 1
     num_gpus: int = 0
-    min_nnodes: Optional[int] = None
+    min_replicas: Optional[int] = None
