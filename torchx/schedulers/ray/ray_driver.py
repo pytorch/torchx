@@ -12,10 +12,10 @@ same time is avoided by create a big placement group that contains the minimum
 required command actors for the job. Once the placement groups are created(may
 not be scheduled on a physical node yet), then we schedule command actors to
 the corresponding placement group, each actor is associated with a placement
-group which hold the resource the acotr needs. Each time a placement group successfully
+group which hold the resource the actor needs. Each time a placement group successfully
 acquired the resources from the ray cluster, the actor scheduled to this placement group
 will be executed. Command actors are state machines their behavior is defined by the
-_step function, this give more flexibility to us if we want to bette handle the
+_step function, this give more flexibility to us if we want to better handle the
 node failures.
 """
 

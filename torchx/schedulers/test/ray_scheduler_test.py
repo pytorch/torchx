@@ -347,7 +347,7 @@ if has_ray():
             return list(self._cluster.worker_nodes)
 
         def add_node(self, num_cpus: int = 1) -> None:
-            # add 1 node with 2 cpus to the cluster
+            # add 1 node with a given number of cpus to the cluster
             self._cluster.add_node(num_cpus=num_cpus)
 
         def remove_node(self) -> None:
