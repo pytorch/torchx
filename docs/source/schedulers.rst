@@ -42,3 +42,9 @@ Scheduler Classes
 
 .. autoclass:: SchedulerFactory
    :members:
+
+.. autoclass:: torchx.schedulers.api.DescribeAppResponse
+   :members:
+
+.. autoclass:: torchx.schedulers.api.ListAppResponse
+   :members:
