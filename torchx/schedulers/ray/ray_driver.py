@@ -18,17 +18,17 @@ will be executed. Command actors are state machines their behavior is defined by
 _step function, this give more flexibility to us if we want to bette handle the
 node failures.
 """
-
+import closing
 import json
 import logging
 import os
+import socket
 import subprocess
 import sys
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
-from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
 if TYPE_CHECKING:
@@ -95,7 +95,12 @@ class CommandActor:  # pragma: no cover
         return CommandActorScheduled(actor_id)
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
-        return get_address_and_port()
+        addr = ray.util.get_node_ip_address()
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(("", 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            port = s.getsockname()[1]
+        return addr, port
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
