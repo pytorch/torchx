@@ -21,6 +21,8 @@ from torchx.specs import AppDef, Resource, Role, runopts
 
 if has_ray():
     import ray
+    from ray.cluster_utils import Cluster
+    from ray.util.placement_group import remove_placement_group
     from torchx.schedulers.ray import ray_driver
     from torchx.schedulers.ray_scheduler import (
         _logger,
@@ -322,44 +324,60 @@ if has_ray():
                 self._scheduler.list()
 
     class RayClusterSetup:
-        _instance = None  # pyre-ignore[4]
+        _instance = None  # pyre-ignore
+        _cluster = None  # pyre-ignore
 
-        def __new__(cls):  # pyre-ignore[3]
+        def __new__(cls):  # pyre-ignore
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
-                # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
-                ray.shutdown()
-                os.system("ray stop")
-                start_status: int = os.system("ray start --head")
-                if start_status != 0:
-                    raise AssertionError(
-                        "ray start --head command has failed. Cannot proceed with running tests"
-                    )
-                # pyre-fixme[16]: Module `worker` has no attribute `init`.
-                ray.init(address="auto", ignore_reinit_error=True)
-                cls.reference_count: int = 2
+                ray.shutdown()  # pyre-ignore
+                cls._cluster = Cluster(
+                    initialize_head=True,
+                    head_node_args={
+                        "num_cpus": 1,
+                    },
+                )
+                cls._cluster.connect()  # connect before any node changes
+                cls._cluster.add_node()  # total of 2 cpus available
+                cls.reference_count: int = 4
             return cls._instance
 
-        def decrement_reference(cls) -> None:
-            cls.reference_count = cls.reference_count - 1
-            if cls.reference_count == 0:
-                cls.teardown_ray_cluster()
+        @property
+        def workers(self) -> List[ray.node.Node]:
+            return list(self._cluster.worker_nodes)
 
-        def teardown_ray_cluster(cls) -> None:
+        def add_node(self, num_cpus: int = 1) -> None:
+            # add 1 node with 2 cpus to the cluster
+            self._cluster.add_node(num_cpus=num_cpus)
+
+        def remove_node(self) -> None:
+            # randomly remove 1 node from the cluster
+            self._cluster.remove_node(self.workers[0])
+
+        def decrement_reference(self) -> None:
+            self.reference_count -= 1
+            if self.reference_count == 0:
+                self.teardown_ray_cluster()
+
+        def teardown_ray_cluster(self) -> None:
             # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
+            self._cluster.shutdown()
             del os.environ["RAY_ADDRESS"]
-            os.system("ray stop")
 
     class RayDriverTest(TestCase):
-        def test_command_actor_setup(self) -> None:
-            ray_cluster_setup = RayClusterSetup()
-
+        def test_actors_serialize(self) -> None:
             actor1 = RayActor(
-                name="test_actor_1", command=["python", "1", "2"], env={"fake": "1"}
+                name="test_actor_1",
+                command=["python", "1", "2"],
+                env={"fake": "1"},
+                min_replicas=2,
             )
             actor2 = RayActor(
-                name="test_actor_2", command=["python", "3", "4"], env={"fake": "2"}
+                name="test_actor_2",
+                command=["python", "3", "4"],
+                env={"fake": "2"},
+                min_replicas=2,
             )
             actors = [actor1, actor2]
             current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -370,9 +388,158 @@ if has_ray():
             )
             self.assertEqual(loaded_actor, actors)
 
-            pg = ray_driver.create_placement_group(actors)
-            command_actors = ray_driver.create_command_actors(actors, pg)
-            self.assertEqual(len(command_actors), 2)
+        def test_unknown_result(self) -> None:
+            actor1 = RayActor(
+                name="test_actor_1",
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_1")',
+                ],
+                env={"fake": "1"},
+            )
+            actors = [
+                actor1,
+            ]
+            driver = ray_driver.RayDriver(actors)
+            ray_cluster_setup = RayClusterSetup()
+            self.assertEqual(driver.min_replicas, 1)
+            self.assertEqual(driver.max_replicas, 1)
+
+            @ray.remote
+            def f() -> int:
+                return 1
+
+            driver.active_tasks = [f.remote()]
+            with self.assertRaises(RuntimeError):
+                driver._step()
+
+            ray_cluster_setup.decrement_reference()
+
+        def test_ray_driver_gang(self) -> None:
+            """Test launching a gang scheduling job"""
+            actor1 = RayActor(
+                name="test_actor_1",
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_1")',
+                ],
+                env={"fake": "1"},
+                min_replicas=2,
+            )
+            actor2 = RayActor(
+                name="test_actor_2",
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_2")',
+                ],
+                env={"fake": "2"},
+                min_replicas=2,
+            )
+            actors = [actor1, actor2]
+
+            driver = ray_driver.RayDriver(actors)
+            ray_cluster_setup = RayClusterSetup()
+
+            # test init_placement_groups
+            driver.init_placement_groups()
+            self.assertEqual(len(driver.placement_groups), 1)
+            self.assertEqual(len(driver.active_tasks), 0)
+
+            driver.place_command_actors()
+            self.assertEqual(len(driver.active_tasks), 2)
+            self.assertEqual(len(driver.actor_info_of_id), 2)
+
+            driver.run()  # execute commands on command actors
+            self.assertEqual(
+                len(driver.active_tasks), 0
+            )  # wait util all active tasks finishes
+            self.assertEqual(driver.command_actors_count, 0)
+            self.assertIsNotNone(driver.rank_0_address)
+            self.assertIsNotNone(driver.rank_0_port)
+
+            # ray.available_resources()['CPU'] == 0
+            for pg in driver.placement_groups:
+                # clear used placement groups
+                remove_placement_group(pg)
+            # ray.available_resources()['CPU'] == 2
+
+            ray_cluster_setup.decrement_reference()
+
+        def test_ray_driver_elasticity(self) -> None:
+            """Test launching an elasticity job"""
+            actor1 = RayActor(
+                name="test_actor_1",
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_elasticity_1")',
+                ],
+                env={"fake": "1"},
+                min_replicas=1,
+            )
+            actor2 = RayActor(
+                name="test_actor_2",
+                command=[
+                    "python",
+                    "-c" 'import time; time.sleep(1); print("test_actor_elasticity_2")',
+                ],
+                env={"fake": "2"},
+                min_replicas=1,
+            )
+            actors = [actor1, actor2]
+
+            driver = ray_driver.RayDriver(actors)
+            ray_cluster_setup = RayClusterSetup()
+            ray_cluster_setup.remove_node()  # Remove 1 cpu, should have 1 cpu in the cluster
+
+            # 1. test init_placement_groups
+            driver.init_placement_groups()
+            self.assertEqual(
+                len(driver.placement_groups), 2
+            )  # 2 placement groups created
+            self.assertEqual(len(driver.active_tasks), 0)
+            # pyre-ignore
+            created, pending = ray.wait(
+                [driver.placement_groups[0].ready(), driver.placement_groups[1].ready()]
+            )
+            self.assertEqual(len(created), 1)
+            self.assertEqual(len(pending), 1)
+
+            # 2. test place_command_actors
+            driver.place_command_actors()
+            self.assertEqual(len(driver.active_tasks), 2)  # 2 command actors
+            self.assertEqual(len(driver.actor_info_of_id), 2)
+            self.assertEqual(driver.command_actors_count, 0)
+
+            # 3-1
+            teriminal = driver._step()  # actor 1 scheduled, execute the script
+            self.assertEqual(teriminal, False)
+            self.assertEqual(len(driver.active_tasks), 2)  # actor1 should be finished
+            self.assertEqual(driver.command_actors_count, 1)
+            self.assertIsNotNone(driver.rank_0_address)
+            self.assertIsNotNone(driver.rank_0_port)
+
+            # 3-2
+            terminal = (
+                driver._step()
+            )  # actor 1 finished, actor 2 has been scheduled yet, usually, the driver stops here
+            self.assertEqual(terminal, True)
+            self.assertEqual(driver.command_actors_count, 0)
+            self.assertEqual(len(driver.active_tasks), 1)  # actor schedule task
+            self.assertEqual(driver.terminating, True)
+
+            ray_cluster_setup.add_node()  # add 1 cpu to the cluster
+            # 3-3
+            teriminal = (
+                driver._step()
+            )  # pg 2 becomes availiable, but actor 2 shouldn't be executed
+            self.assertEqual(teriminal, False)
+            self.assertEqual(len(driver.active_tasks), 0)  # actor1 should be finished
+            self.assertEqual(driver.command_actors_count, 0)
+
+            for pg in driver.placement_groups:
+                # clear used placement groups
+                remove_placement_group(pg)
+
             ray_cluster_setup.decrement_reference()
 
     class RayIntegrationTest(TestCase):
@@ -411,13 +578,15 @@ if has_ray():
             actors = [
                 RayActor(
                     name="ddp",
-                    num_cpus=2,
-                    command=os.path.join(current_dir, "train.py"),
+                    num_cpus=1,
+                    command=[os.path.join(current_dir, "train.py")],
+                    min_replicas=2,
                 ),
                 RayActor(
                     name="ddp",
-                    num_cpus=2,
-                    command=os.path.join(current_dir, "train.py"),
+                    num_cpus=1,
+                    command=[os.path.join(current_dir, "train.py")],
+                    min_replicas=2,
                 ),
             ]
 

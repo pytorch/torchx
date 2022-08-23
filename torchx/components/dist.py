@@ -51,9 +51,10 @@ Components APIs
 -----------------
 """
 import os
+import re
 import shlex
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import torchx
 import torchx.specs as specs
@@ -128,15 +129,10 @@ def ddp(
     if (script is None) == (m is None):
         raise ValueError("exactly one of --script and -m must be specified")
 
-    rep = j.split("x")
-    if len(rep) == 1:  # num replicas only
-        nnodes = 1
-        nproc_per_node = int(rep[0])
-    elif len(rep) == 2:
-        nnodes = int(rep[0])
-        nproc_per_node = int(rep[1])
-    else:
-        raise ValueError(f"Invalid format for -j, usage example: 1x4. Given: {j}")
+    # nnodes: number of nodes or minimum nodes for elastic launch
+    # max_nnodes: maximum number of nodes for elastic launch
+    # nproc_per_node: number of processes on each node
+    min_nnodes, max_nnodes, nproc_per_node, nnodes_rep = parse_nnodes(j)
 
     if script:
         # script name/module no extension
@@ -147,9 +143,11 @@ def ddp(
         raise ValueError("failed to compute role_name")
 
     rdzv_backend = "c10d"
-    if nnodes == 1:
+    if max_nnodes == 1:
         # using port 0 makes elastic chose a free random port which is ok
         # for single-node jobs since all workers run under a single agent
+        # When nnodes is 0 and max_nnodes is 1, it's stil a single node job
+        # but pending until the resources become available
         rdzv_endpoint = "localhost:0"
     else:
         rdzv_endpoint = _noquote(f"$${macros.rank0_env}:{rdzv_port}")
@@ -172,7 +170,7 @@ def ddp(
         "--rdzv_id",
         f"{macros.app_id}",
         "--nnodes",
-        str(nnodes),
+        nnodes_rep,
         "--nproc_per_node",
         str(nproc_per_node),
         "--tee",
@@ -191,8 +189,9 @@ def ddp(
             specs.Role(
                 name=role_name,
                 image=image,
+                min_replicas=min_nnodes,
                 entrypoint="bash",
-                num_replicas=nnodes,
+                num_replicas=int(max_nnodes),
                 resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
                 args=["-c", _args_join(cmd)],
                 env=env,
@@ -222,3 +221,23 @@ class _noquote(str):
     """
 
     pass
+
+
+def parse_nnodes(j: str) -> Tuple[int, int, int, str]:
+    if re.match("^\\d+:\\d+x\\d+$", j):  # match 2:4x1
+        nnodes_rep, nproc_per_node = j.split("x")
+        min_nnodes, max_nnodes = nnodes_rep.split(":")
+    elif re.match("^\\d+x\\d+$", j):  # match 2x1
+        min_nnodes, nproc_per_node = j.split("x")
+        max_nnodes = min_nnodes
+        nnodes_rep = min_nnodes
+    elif re.match("^\\d+$", j):  # match 2
+        min_nnodes = "1"
+        max_nnodes = min_nnodes
+        nnodes_rep = min_nnodes
+        nproc_per_node = j
+    else:
+        raise ValueError(
+            f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}"
+        )
+    return int(min_nnodes), int(max_nnodes), int(nproc_per_node), nnodes_rep

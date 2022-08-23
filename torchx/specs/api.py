@@ -321,6 +321,7 @@ class Role:
 
     name: str
     image: str
+    min_replicas: Optional[int] = None
     base_image: Optional[str] = None  # DEPRECATED DO NOT SET, WILL BE REMOVED SOON
     entrypoint: str = MISSING
     args: List[str] = field(default_factory=list)
