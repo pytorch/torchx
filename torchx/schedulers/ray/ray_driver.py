@@ -22,13 +22,14 @@ node failures.
 import json
 import logging
 import os
+import socket
 import subprocess
 import sys
+from contextlib import closing
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
-from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
 if TYPE_CHECKING:
@@ -46,6 +47,13 @@ except ModuleNotFoundError:
 _logger: logging.Logger = logging.getLogger(__name__)
 _logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+
+def find_free_port() -> int:
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(("", 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
 
 
 @dataclass
@@ -95,7 +103,9 @@ class CommandActor:  # pragma: no cover
         return CommandActorScheduled(actor_id)
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
-        return get_address_and_port()
+        addr = ray.util.get_node_ip_address()
+        port = find_free_port()
+        return addr, port
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
