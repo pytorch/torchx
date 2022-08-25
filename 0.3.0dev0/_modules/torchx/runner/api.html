@@ -596,9 +596,13 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scheduler</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">)</span>
+        <span class="n">app_image</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
         <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span>
-            <span class="s2">&quot;schedule&quot;</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">runcfg</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="s2">&quot;schedule&quot;</span><span class="p">,</span>
+            <span class="n">scheduler</span><span class="p">,</span>
+            <span class="n">app_image</span><span class="o">=</span><span class="n">app_image</span><span class="p">,</span>
+            <span class="n">runcfg</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
             <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
             <span class="n">app_id</span> <span class="o">=</span> <span class="n">sched</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span>
