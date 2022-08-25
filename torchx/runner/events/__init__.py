@@ -80,10 +80,11 @@ class log_event:
         api: str,
         scheduler: Optional[str] = None,
         app_id: Optional[str] = None,
+        app_image: Optional[str] = None,
         runcfg: Optional[str] = None,
     ) -> None:
         self._torchx_event: TorchxEvent = self._generate_torchx_event(
-            api, scheduler or "", app_id, runcfg
+            api, scheduler or "", app_id, app_image=app_image, runcfg=runcfg
         )
 
     def __enter__(self) -> "log_event":
@@ -104,6 +105,7 @@ class log_event:
         api: str,
         scheduler: str,
         app_id: Optional[str] = None,
+        app_image: Optional[str] = None,
         runcfg: Optional[str] = None,
         source: SourceType = SourceType.UNKNOWN,
     ) -> TorchxEvent:
@@ -112,6 +114,7 @@ class log_event:
             scheduler=scheduler,
             api=api,
             app_id=app_id,
+            app_image=app_image,
             runcfg=runcfg,
             source=source,
         )

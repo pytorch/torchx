@@ -26,6 +26,7 @@ class TorchxEventLibTest(unittest.TestCase):
         self.assertEqual(actual_event.scheduler, expected_event.scheduler)
         self.assertEqual(actual_event.api, expected_event.api)
         self.assertEqual(actual_event.app_id, expected_event.app_id)
+        self.assertEqual(actual_event.app_image, expected_event.app_image)
         self.assertEqual(actual_event.runcfg, expected_event.runcfg)
         self.assertEqual(actual_event.source, expected_event.source)
 
@@ -39,11 +40,15 @@ class TorchxEventLibTest(unittest.TestCase):
 
     def test_event_created(self) -> None:
         event = TorchxEvent(
-            session="test_session", scheduler="test_scheduler", api="test_api"
+            session="test_session",
+            scheduler="test_scheduler",
+            api="test_api",
+            app_image="test_app_image",
         )
         self.assertEqual("test_session", event.session)
         self.assertEqual("test_scheduler", event.scheduler)
         self.assertEqual("test_api", event.api)
+        self.assertEqual("test_app_image", event.app_image)
         self.assertEqual(SourceType.UNKNOWN, event.source)
 
     def test_event_deser(self) -> None:
@@ -51,6 +56,7 @@ class TorchxEventLibTest(unittest.TestCase):
             session="test_session",
             scheduler="test_scheduler",
             api="test_api",
+            app_image="test_app_image",
             source=SourceType.EXTERNAL,
         )
         json_event = event.serialize()
@@ -64,22 +70,45 @@ class LogEventTest(unittest.TestCase):
         self.assertEqual(expected.session, actual.session)
         self.assertEqual(expected.app_id, actual.app_id)
         self.assertEqual(expected.api, actual.api)
+        self.assertEqual(expected.app_image, actual.app_image)
         self.assertEqual(expected.source, actual.source)
 
     def test_create_context(self, _) -> None:
         cfg = json.dumps({"test_key": "test_value"})
-        context = log_event("test_call", "local", "test_app_id", cfg)
+        context = log_event(
+            "test_call",
+            "local",
+            "test_app_id",
+            app_image="test_app_image_id",
+            runcfg=cfg,
+        )
         expected_torchx_event = TorchxEvent(
-            "test_app_id", "local", "test_call", "test_app_id", cfg
+            "test_app_id",
+            "local",
+            "test_call",
+            "test_app_id",
+            app_image="test_app_image_id",
+            runcfg=cfg,
         )
         self.assert_torchx_event(expected_torchx_event, context._torchx_event)
 
     def test_record_event(self, record_mock: MagicMock) -> None:
         cfg = json.dumps({"test_key": "test_value"})
         expected_torchx_event = TorchxEvent(
-            "test_app_id", "local", "test_call", "test_app_id", cfg
+            "test_app_id",
+            "local",
+            "test_call",
+            "test_app_id",
+            app_image="test_app_image_id",
+            runcfg=cfg,
         )
-        with log_event("test_call", "local", "test_app_id", cfg) as ctx:
+        with log_event(
+            "test_call",
+            "local",
+            "test_app_id",
+            app_image="test_app_image_id",
+            runcfg=cfg,
+        ) as ctx:
             pass
         self.assert_torchx_event(expected_torchx_event, ctx._torchx_event)
 

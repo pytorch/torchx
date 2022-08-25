@@ -223,9 +223,13 @@ class Runner:
 
         """
         scheduler = none_throws(dryrun_info._scheduler)
+        app_image = none_throws(dryrun_info._app).roles[0].image
         cfg = dryrun_info._cfg
         with log_event(
-            "schedule", scheduler, runcfg=json.dumps(cfg) if cfg else None
+            "schedule",
+            scheduler,
+            app_image=app_image,
+            runcfg=json.dumps(cfg) if cfg else None,
         ) as ctx:
             sched = self._scheduler(scheduler)
             app_id = sched.schedule(dryrun_info)
