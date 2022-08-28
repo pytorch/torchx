@@ -19,6 +19,7 @@ from typing import Callable, Optional
 import fsspec
 import numpy
 import pytorch_lightning as pl
+
 # pyre-fixme[21]: Could not find module `classy_vision.dataset.classy_dataset`.
 from classy_vision.dataset.classy_dataset import ClassyDataset
 from PIL import Image

@@ -67,8 +67,10 @@ from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from docker import DockerClient
+
     # pyre-fixme[21]: Could not find module `kubernetes.client`.
     from kubernetes.client import ApiClient, CustomObjectsApi
+
     # pyre-fixme[21]: Could not find module `kubernetes.client.models`.
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Container,
@@ -78,6 +80,7 @@ if TYPE_CHECKING:
         V1PodSpec,
         V1ResourceRequirements,
     )
+
     # pyre-fixme[21]: Could not find module `kubernetes.client.rest`.
     from kubernetes.client.rest import ApiException
 
