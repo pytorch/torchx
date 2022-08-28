@@ -49,13 +49,6 @@ _logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
-def find_free_port() -> int:
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
-
-
 @dataclass
 class RayResult:
     id: str
@@ -104,7 +97,10 @@ class CommandActor:  # pragma: no cover
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
         addr = ray.util.get_node_ip_address()
-        port = find_free_port()
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(("", 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            port = s.getsockname()[1]
         return addr, port
 
 

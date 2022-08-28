@@ -44,8 +44,6 @@ def run(
             return None
         return match.group(1)
 
-    # pyre-fixme[7]: Expected `Optional[Tuple[int, bytes, bytes]]` but got
-    #  `Tuple[typing.Any, str, str]`.
     return rc, raw_output, raw_err
 
 

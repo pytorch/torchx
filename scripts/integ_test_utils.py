@@ -37,7 +37,6 @@ def run(*args: str) -> None:
 
 def run_in_bg(*args: str) -> "subprocess.Popen[str]":
     print(f"run {args}")
-    # pyre-fixme[7]: Expected `Popen[str]` but got `Popen[bytes]`.
     return subprocess.Popen(args)
 
 
