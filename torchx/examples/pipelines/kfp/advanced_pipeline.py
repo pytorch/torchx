@@ -26,6 +26,7 @@ import os.path
 import sys
 from typing import Dict
 
+# pyre-fixme[21]: Could not find module `kfp`.
 import kfp
 import torchx
 from torchx import specs

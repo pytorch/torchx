@@ -26,6 +26,7 @@ Typically you have a separate component file but for this example we define the
 AppDef inline.
 """
 
+# pyre-fixme[21]: Could not find module `kfp`.
 import kfp
 from torchx import specs
 from torchx.pipelines.kfp.adapter import container_from_app
@@ -50,6 +51,7 @@ def pipeline() -> None:
     # To convert the TorchX AppDef into a KFP container we use
     # the container_from_app adapter. This takes generates a KFP component
     # definition from the TorchX app def and instantiates it into a container.
+    # pyre-fixme[11]: Annotation `ContainerOp` is not defined as a type.
     echo_container: kfp.dsl.ContainerOp = container_from_app(echo_app)
 
 

@@ -13,6 +13,7 @@ The current KFP adapters only support single node (1 role and 1 replica)
 components.
 """
 
+# pyre-fixme[21]: Could not find module `kfp`.
 import kfp
 
 from .version import __version__ as __version__  # noqa F401

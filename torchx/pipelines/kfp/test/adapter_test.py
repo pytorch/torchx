@@ -12,7 +12,9 @@ from typing import Callable, List
 
 import torchx
 import yaml
+# pyre-fixme[21]: Could not find module `kfp`.
 from kfp import compiler, components, dsl
+# pyre-fixme[21]: Could not find module `kubernetes.client.models`.
 from kubernetes.client.models import V1ContainerPort, V1ResourceRequirements
 from torchx.pipelines.kfp.adapter import (
     component_from_app,
@@ -86,6 +88,8 @@ outputs: []
 
         def pipeline() -> None:
             a = kfp_copy()
+            # pyre-fixme[11]: Annotation `V1ResourceRequirements` is not defined as
+            #  a type.
             resources: V1ResourceRequirements = a.container.resources
             self.assertEqual(
                 resources,
@@ -101,6 +105,7 @@ outputs: []
                     },
                 ),
             )
+            # pyre-fixme[11]: Annotation `V1ContainerPort` is not defined as a type.
             ports: List[V1ContainerPort] = a.container.ports
             self.assertEqual(
                 ports,
@@ -143,6 +148,7 @@ outputs: []
         app: api.AppDef = self._test_app()
 
         def pipeline() -> None:
+            # pyre-fixme[11]: Annotation `ContainerOp` is not defined as a type.
             a: dsl.ContainerOp = container_from_app(app)
             b: dsl.ContainerOp = container_from_app(app)
             b.after(a)

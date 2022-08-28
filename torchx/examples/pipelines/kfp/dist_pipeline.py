@@ -14,6 +14,7 @@ distributed operator using the kubernetes/volcano job scheduler. This only works
 in Kubernetes KFP clusters with https://volcano.sh/en/docs/ installed on them.
 """
 
+# pyre-fixme[21]: Could not find module `kfp`.
 import kfp
 from torchx import specs
 from torchx.pipelines.kfp.adapter import resource_from_app
@@ -37,6 +38,7 @@ def pipeline() -> None:
     # To convert the TorchX AppDef into a KFP container we use
     # the resource_from_app adapter. This takes generates a KFP Kubernetes
     # resource operator definition from the TorchX app def and instantiates it.
+    # pyre-fixme[11]: Annotation `BaseOp` is not defined as a type.
     echo_container: kfp.dsl.BaseOp = resource_from_app(echo_app, queue="test")
 
 

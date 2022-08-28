@@ -233,7 +233,9 @@ def _thread_local_cache(f: Callable[[], T]) -> Callable[[], T]:
 
 
 @_thread_local_cache
+# pyre-fixme[11]: Annotation `Session` is not defined as a type.
 def _local_session() -> "boto3.session.Session":
+    # pyre-fixme[21]: Could not find module `boto3.session`.
     import boto3.session
 
     return boto3.session.Session()

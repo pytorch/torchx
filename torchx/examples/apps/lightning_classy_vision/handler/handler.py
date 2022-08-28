@@ -5,9 +5,11 @@
 # LICENSE file in the root directory of this source tree.
 
 from torchvision import transforms
+# pyre-fixme[21]: Could not find module `ts.torch_handler.image_classifier`.
 from ts.torch_handler.image_classifier import ImageClassifier
 
 
+# pyre-fixme[11]: Annotation `ImageClassifier` is not defined as a type.
 class CustomImageClassifier(ImageClassifier):
     image_processing = transforms.Compose(
         [

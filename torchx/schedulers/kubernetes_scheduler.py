@@ -67,7 +67,9 @@ from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from docker import DockerClient
+    # pyre-fixme[21]: Could not find module `kubernetes.client`.
     from kubernetes.client import ApiClient, CustomObjectsApi
+    # pyre-fixme[21]: Could not find module `kubernetes.client.models`.
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Container,
         V1ContainerPort,
@@ -76,6 +78,7 @@ if TYPE_CHECKING:
         V1PodSpec,
         V1ResourceRequirements,
     )
+    # pyre-fixme[21]: Could not find module `kubernetes.client.rest`.
     from kubernetes.client.rest import ApiException
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -159,12 +162,14 @@ LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
 
 
 def sanitize_for_serialization(obj: object) -> object:
+    # pyre-fixme[21]: Could not find module `kubernetes`.
     from kubernetes import client
 
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
 
 
+# pyre-fixme[11]: Annotation `V1Pod` is not defined as a type.
 def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
@@ -527,12 +532,14 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
     def __init__(
         self,
         session_name: str,
+        # pyre-fixme[11]: Annotation `ApiClient` is not defined as a type.
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
         Scheduler.__init__(self, "kubernetes", session_name)
         DockerWorkspace.__init__(self, docker_client)
 
+        # pyre-fixme[4]: Attribute must be annotated.
         self._client = client
 
     def _api_client(self) -> "ApiClient":
@@ -550,11 +557,13 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
 
         return c
 
+    # pyre-fixme[11]: Annotation `CustomObjectsApi` is not defined as a type.
     def _custom_objects_api(self) -> "CustomObjectsApi":
         from kubernetes import client
 
         return client.CustomObjectsApi(self._api_client())
 
+    # pyre-fixme[11]: Annotation `ApiException` is not defined as a type.
     def _get_job_name_from_exception(self, e: "ApiException") -> Optional[str]:
         try:
             return json.loads(e.body)["details"]["name"]

@@ -67,6 +67,7 @@ sys.path.append(".")
 # FIXME: captum must be imported after torch otherwise it causes python to crash
 if True:
     import numpy as np
+    # pyre-fixme[21]: Could not find module `captum.attr`.
     from captum.attr import IntegratedGradients, visualization as viz
 
 

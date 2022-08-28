@@ -110,6 +110,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
         self.assertFalse("maxRetry" in resource["spec"]["tasks"][0])
 
     def test_role_to_pod(self) -> None:
+        # pyre-fixme[21]: Could not find module `kubernetes.client.models`.
         from kubernetes.client.models import (
             V1Container,
             V1ContainerPort,
@@ -575,6 +576,7 @@ spec:
     def test_submit_job_name_conflict(
         self, create_namespaced_custom_object: MagicMock
     ) -> None:
+        # pyre-fixme[21]: Could not find module `kubernetes.client.rest`.
         from kubernetes.client.rest import ApiException
 
         api_exc = ApiException(status=409, reason="Conflict")

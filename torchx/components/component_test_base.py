@@ -68,6 +68,8 @@ class ComponentTestCase(unittest.TestCase):
         """
 
         # make it the same as a custom component (e.g. /abs/path/to/component.py:train)
+        # pyre-fixme[6]: For 1st param expected `PathLike[Variable[AnyStr <: [str,
+        #  bytes]]]` but got `Optional[str]`.
         component_id = f"{os.path.abspath(module.__file__)}:{function_name}"
         component_def = get_component(component_id)
 
