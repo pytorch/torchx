@@ -20,7 +20,10 @@ import torchx.specs as specs
 
 
 def echo(
-    msg: str = "hello world", image: str = torchx.IMAGE, num_replicas: int = 1
+    msg: str = "hello world",
+    image: str = torchx.IMAGE,
+    num_replicas: int = 1,
+    region: Optional[str] = None,
 ) -> specs.AppDef:
     """
     Echos a message to stdout (calls echo)
@@ -29,6 +32,7 @@ def echo(
         msg: message to echo
         image: image to use
         num_replicas: number of replicas to run
+        region: region scheduler will use for placing the job
 
     """
     return specs.AppDef(
@@ -40,7 +44,7 @@ def echo(
                 entrypoint="echo",
                 args=[msg],
                 num_replicas=num_replicas,
-                resource=specs.Resource(cpu=1, gpu=0, memMB=1024),
+                resource=specs.Resource(cpu=1, gpu=0, memMB=1024, region=region),
             )
         ],
     )
@@ -77,6 +81,7 @@ def sh(
     cpu: int = 1,
     gpu: int = 0,
     memMB: int = 1024,
+    region: Optional[str] = None,
     h: Optional[str] = None,
     env: Optional[Dict[str, str]] = None,
     max_retries: int = 0,
@@ -93,6 +98,7 @@ def sh(
         cpu: number of cpus per replica
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
+        region: region scheduler will use for placing the job
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
         max_retries: the number of scheduler retries allowed
@@ -114,7 +120,9 @@ def sh(
                 entrypoint="sh",
                 args=["-c", escaped_args],
                 num_replicas=num_replicas,
-                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
+                resource=specs.resource(
+                    cpu=cpu, gpu=gpu, memMB=memMB, h=h, region=region
+                ),
                 env=env,
                 max_retries=max_retries,
                 mounts=specs.parse_mounts(mounts) if mounts else [],
@@ -135,6 +143,7 @@ def python(
     memMB: int = 1024,
     h: Optional[str] = None,
     num_replicas: int = 1,
+    region: Optional[str] = None,
 ) -> specs.AppDef:
     """
     Runs ``python`` with the specified module, command or script on the specified
@@ -155,6 +164,7 @@ def python(
         cpu: number of cpus per replica
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
+        region: region scheduler will use for placing the job
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         num_replicas: number of copies to run (each on its own container)
     :return:
@@ -181,7 +191,9 @@ def python(
                 image=image,
                 entrypoint="python",
                 num_replicas=num_replicas,
-                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
+                resource=specs.resource(
+                    cpu=cpu, gpu=gpu, memMB=memMB, h=h, region=region
+                ),
                 args=[*cmd, *args],
                 env={"HYDRA_MAIN_MODULE": m} if m else {},
             )
@@ -197,6 +209,7 @@ def binary(
     cpu: int = 1,
     gpu: int = 0,
     memMB: int = 1024,
+    region: Optional[str] = None,
     h: Optional[str] = None,
 ) -> specs.AppDef:
     """
@@ -209,6 +222,7 @@ def binary(
         cpu: number of cpus per replica
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
+        region: region scheduler will use for placing the job
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
     :return:
     """
@@ -221,7 +235,9 @@ def binary(
                 entrypoint=entrypoint,
                 num_replicas=num_replicas,
                 args=[*args],
-                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
+                resource=specs.resource(
+                    cpu=cpu, gpu=gpu, memMB=memMB, h=h, region=region
+                ),
             )
         ],
     )

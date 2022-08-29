@@ -92,6 +92,7 @@ def ddp(
     rdzv_port: int = 29500,
     mounts: Optional[List[str]] = None,
     debug: bool = False,
+    region: Optional[str] = None,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -114,6 +115,7 @@ def ddp(
         cpu: number of cpus per replica
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
+        region: region scheduler will use for placing the job
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
         j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
@@ -192,7 +194,9 @@ def ddp(
                 min_replicas=min_nnodes,
                 entrypoint="bash",
                 num_replicas=int(max_nnodes),
-                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
+                resource=specs.resource(
+                    cpu=cpu, gpu=gpu, memMB=memMB, h=h, region=region
+                ),
                 args=["-c", _args_join(cmd)],
                 env=env,
                 port_map={

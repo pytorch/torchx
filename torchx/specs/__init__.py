@@ -71,6 +71,7 @@ def resource(
     cpu: Optional[int] = None,
     gpu: Optional[int] = None,
     memMB: Optional[int] = None,
+    region: Optional[str] = None,
     h: Optional[str] = None,
 ) -> Resource:
     """
@@ -110,6 +111,7 @@ def resource(
             cpu=cpu or DEFAULT_CPU,
             gpu=gpu or DEFAULT_GPU,
             memMB=memMB or DEFAULT_MEM_MB,
+            region=region,
         )
 
 

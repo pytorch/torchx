@@ -73,6 +73,7 @@ class Resource:
         memMB: MB of ram
         capabilities: additional hardware specs (interpreted by scheduler)
         devices: a list of named devices with their quantities
+        region: optional locality constraint that is scheduler specific
 
     Note: you should prefer to use named_resources instead of specifying the raw
     resource requirement directly.
@@ -83,6 +84,7 @@ class Resource:
     memMB: int
     capabilities: Dict[str, Any] = field(default_factory=dict)
     devices: Dict[str, int] = field(default_factory=dict)
+    region: Optional[str] = None
 
     @staticmethod
     def copy(original: "Resource", **capabilities: Any) -> "Resource":
@@ -99,6 +101,7 @@ class Resource:
             memMB=original.memMB,
             capabilities=res_capabilities,
             devices=original.devices,
+            region=original.region,
         )
 
 

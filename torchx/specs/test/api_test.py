@@ -176,13 +176,15 @@ Traceback (most recent call last):
 class ResourceTest(unittest.TestCase):
     def test_copy_resource(self) -> None:
         old_capabilities = {"test_key": "test_value", "old_key": "old_value"}
-        resource = Resource(1, 2, 3, old_capabilities)
+        resource = Resource(1, 2, 3, old_capabilities, {"device": 1}, region="zone1")
         new_resource = Resource.copy(
             resource, test_key="test_value_new", new_key="new_value"
         )
         self.assertEqual(new_resource.cpu, 1)
         self.assertEqual(new_resource.gpu, 2)
         self.assertEqual(new_resource.memMB, 3)
+        self.assertEqual(new_resource.devices, {"device": 1})
+        self.assertEqual(new_resource.region, "zone1")
 
         self.assertEqual(len(new_resource.capabilities), 3)
         self.assertEqual(new_resource.capabilities["old_key"], "old_value")
@@ -208,6 +210,10 @@ class ResourceTest(unittest.TestCase):
         self.assertEqual(Resource(cpu=2, gpu=0, memMB=1024), resource())
         self.assertEqual(Resource(cpu=1, gpu=0, memMB=1024), resource(cpu=1))
         self.assertEqual(Resource(cpu=2, gpu=1, memMB=1024), resource(cpu=2, gpu=1))
+        self.assertEqual(
+            Resource(cpu=2, gpu=1, memMB=1024, region="zone1"),
+            resource(cpu=2, gpu=1, region="zone1"),
+        )
         self.assertEqual(
             Resource(cpu=2, gpu=1, memMB=2048), resource(cpu=2, gpu=1, memMB=2048)
         )
