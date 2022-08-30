@@ -51,9 +51,10 @@ Documentation
    .. toctree::
       :maxdepth: 1
       :caption: Usage (Meta)
-      :glob:
 
-      fb/*
+      fb/quickstart.md
+      fb/cogwheel.rst
+      fb/named_resources.rst
 
 
 Works With
