@@ -727,11 +727,11 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-08-26 21:36:25 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2022-08-26 21:36:25 INFO     Log directory is: /tmp/torchx_c3eljltd
-torchx 2022-08-26 21:36:25 INFO     Waiting for the app to finish...
+torchx 2022-08-31 01:26:42 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2022-08-31 01:26:42 INFO     Log directory is: /tmp/torchx_q3s9g7jh
+torchx 2022-08-31 01:26:42 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-08-26 21:36:26 INFO     Job finished: SUCCEEDED
+torchx 2022-08-31 01:26:43 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -739,7 +739,7 @@ torchx 2022-08-26 21:36:26 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-rcj11pqgvntrnc
+local_cwd://torchx/hello_world-tv6zd7vmxk1bgd
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -808,14 +808,12 @@ c0ad16d9fa05: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
 88d87059c913: Waiting
-d2e110be24e1: Verifying Checksum
 d2e110be24e1: Download complete
-889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
-6009a622672a: Verifying Checksum
-6009a622672a: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
+6009a622672a: Verifying Checksum
+6009a622672a: Download complete
 eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
 06b5edd6bf52: Verifying Checksum
@@ -824,22 +822,22 @@ d4c7af0d4fa7: Verifying Checksum
 d4c7af0d4fa7: Download complete
 c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
+4bbfd2c87b75: Pull complete
 30587ba7fd6b: Verifying Checksum
 30587ba7fd6b: Download complete
+d2e110be24e1: Pull complete
+889a7173dcfe: Pull complete
 909695be1d50: Verifying Checksum
 909695be1d50: Download complete
 f119a6d0a466: Verifying Checksum
 f119a6d0a466: Download complete
 88d87059c913: Verifying Checksum
 88d87059c913: Download complete
-4bbfd2c87b75: Pull complete
+6009a622672a: Pull complete
 f18d016c4ccc: Verifying Checksum
 f18d016c4ccc: Download complete
 143f80195431: Verifying Checksum
 143f80195431: Download complete
-d2e110be24e1: Pull complete
-889a7173dcfe: Pull complete
-6009a622672a: Pull complete
 143f80195431: Pull complete
 eccbe17c44e1: Pull complete
 d4c7af0d4fa7: Pull complete
@@ -854,8 +852,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; 8942f1be6078
-Successfully built 8942f1be6078
+ ---&gt; 4c5fd273dd55
+Successfully built 4c5fd273dd55
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -874,13 +872,13 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-08-26 21:38:45 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-08-26 21:38:45 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-08-26 21:38:45 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-08-26 21:38:53 INFO     Built new image `sha256:8adcbfd5f06244b897b21553e4ecf4ea1664138e5b4d68aa70a87d54847bc96b` based on original image `my_app:latest` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=greeter.
-torchx 2022-08-26 21:38:53 INFO     Waiting for the app to finish...
+torchx 2022-08-31 01:29:22 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-08-31 01:29:22 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-08-31 01:29:24 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-08-31 01:29:32 INFO     Built new image `sha256:16b46720beaca140ca6f8d7b30970d5f5156dfe18bc3ae4488e668d24c29d5e5` based on original image `my_app:latest` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=greeter.
+torchx 2022-08-31 01:29:33 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-08-26 21:38:54 INFO     Job finished: SUCCEEDED
+torchx 2022-08-31 01:29:34 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -888,7 +886,7 @@ torchx 2022-08-26 21:38:54 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-j4ln4mj14fs2m
+local_docker://torchx/hello_world-dqpck27wmqz3bc
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -942,12 +940,12 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-08-26 21:38:57 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-08-26 21:38:57 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-08-26 21:41:11 INFO     Built new image `sha256:20b3ea1994be0c8e27381d7ba4eaa58a65f13ad11dd023e1cc13690ae88c272e` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=echo.
-torchx 2022-08-26 21:41:11 INFO     Waiting for the app to finish...
+torchx 2022-08-31 01:29:38 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-08-31 01:29:38 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-08-31 01:32:18 INFO     Built new image `sha256:c70d242010cae3553b993577d6faaa353cf766deb0df45eb97d3f2c90436d155` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=echo.
+torchx 2022-08-31 01:32:18 INFO     Waiting for the app to finish...
 echo/0 Hello :)
-torchx 2022-08-26 21:41:12 INFO     Job finished: SUCCEEDED
+torchx 2022-08-31 01:32:19 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -955,7 +953,7 @@ torchx 2022-08-26 21:41:12 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-nkl373wj65dd2
+local_docker://torchx/echo-jplm7kpwjjmkpc
 </pre></div></div>
 </div>
 </section>
