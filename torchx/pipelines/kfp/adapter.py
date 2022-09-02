@@ -13,14 +13,10 @@ from typing import Mapping, Optional, Tuple
 
 import yaml
 
-# pyre-fixme[21]: Could not find module `kfp`.
 from kfp import components, dsl
 
-# pyre-fixme[21]: Could not find module `kfp.components.structures`.
-# @manual=fbsource//third-party/pypi/kfp:kfp
 from kfp.components.structures import ComponentSpec, OutputSpec
 
-# pyre-fixme[21]: Could not find module `kubernetes.client.models`.
 from kubernetes.client.models import (
     V1ContainerPort,
     V1EmptyDirVolumeSource,
@@ -79,7 +75,6 @@ class ContainerFactory(Protocol):
     kfp.dsl.ContainerOp.
     """
 
-    # pyre-fixme[11]: Annotation `ContainerOp` is not defined as a type.
     def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp:
         ...
 
@@ -90,7 +85,6 @@ class KFPContainerFactory(ContainerFactory, Protocol):
     attached to it.
     """
 
-    # pyre-fixme[11]: Annotation `ComponentSpec` is not defined as a type.
     component_spec: ComponentSpec
 
 
@@ -133,6 +127,7 @@ def component_from_app(
     component_factory: KFPContainerFactory = components.load_component_from_text(spec)
 
     if ui_metadata is not None:
+        # pyre-fixme[16]: `ComponentSpec` has no attribute `outputs`.
         component_factory.component_spec.outputs.append(
             OutputSpec(
                 name="mlpipeline-ui-metadata",
@@ -191,7 +186,6 @@ def component_from_app(
 def _ui_metadata_sidecar(
     ui_metadata: Mapping[str, object],
     image: str = "alpine"
-    # pyre-fixme[11]: Annotation `Sidecar` is not defined as a type.
 ) -> dsl.Sidecar:
     shell_encoded = shlex.quote(json.dumps(ui_metadata))
     dirname = os.path.dirname(METADATA_FILE)
@@ -244,7 +238,6 @@ def resource_from_app(
     app: api.AppDef,
     queue: str,
     service_account: Optional[str] = None,
-    # pyre-fixme[11]: Annotation `ResourceOp` is not defined as a type.
 ) -> dsl.ResourceOp:
     """
     resource_from_app generates a KFP ResourceOp from the provided app that uses

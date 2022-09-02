@@ -20,7 +20,6 @@ import fsspec
 import numpy
 import pytorch_lightning as pl
 
-# pyre-fixme[21]: Could not find module `classy_vision.dataset.classy_dataset`.
 from classy_vision.dataset.classy_dataset import ClassyDataset
 from PIL import Image
 from torch.utils.data import DataLoader
@@ -34,7 +33,6 @@ from tqdm import tqdm
 # Pytorch Lightning data module.
 
 
-# pyre-fixme[11]: Annotation `ClassyDataset` is not defined as a type.
 class TinyImageNetDataset(ClassyDataset):
     """
     TinyImageNetDataset is a ClassyDataset for the tiny imagenet dataset.
@@ -49,8 +47,9 @@ class TinyImageNetDataset(ClassyDataset):
         batchsize_per_replica = 16
         shuffle = False
         dataset = datasets.ImageFolder(data_path)
-        # pyre-fixme[19]: Expected 0 positional arguments.
         super().__init__(
+            # pyre-fixme[6]: For 1st param expected `Sequence[typing.Any]` but got
+            #  `ImageFolder`.
             dataset,
             batchsize_per_replica,
             shuffle,
