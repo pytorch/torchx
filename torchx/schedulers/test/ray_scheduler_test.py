@@ -330,7 +330,6 @@ if has_ray():
         def __new__(cls):  # pyre-ignore
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
-                # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
                 ray.shutdown()
                 cls._cluster = Cluster(
                     initialize_head=True,
@@ -344,6 +343,7 @@ if has_ray():
             return cls._instance
 
         @property
+        # pyre-fixme[11]: Annotation `Node` is not defined as a type.
         def workers(self) -> List[ray.node.Node]:
             return list(self._cluster.worker_nodes)
 
@@ -361,7 +361,6 @@ if has_ray():
                 self.teardown_ray_cluster()
 
         def teardown_ray_cluster(self) -> None:
-            # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
             self._cluster.shutdown()
             del os.environ["RAY_ADDRESS"]
@@ -498,7 +497,6 @@ if has_ray():
                 len(driver.placement_groups), 2
             )  # 2 placement groups created
             self.assertEqual(len(driver.active_tasks), 0)
-            # pyre-fixme[16]: Module `worker` has no attribute `wait`.
             created, pending = ray.wait(
                 [driver.placement_groups[0].ready(), driver.placement_groups[1].ready()]
             )
@@ -547,7 +545,6 @@ if has_ray():
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
             ray_scheduler = self.setup_ray_cluster()
-            # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
             self.assertTrue(ray.is_initialized())
 
             job_id = self.schedule_ray_job(ray_scheduler)
