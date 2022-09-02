@@ -184,8 +184,7 @@ def component_from_app(
 
 
 def _ui_metadata_sidecar(
-    ui_metadata: Mapping[str, object],
-    image: str = "alpine"
+    ui_metadata: Mapping[str, object], image: str = "alpine"
 ) -> dsl.Sidecar:
     shell_encoded = shlex.quote(json.dumps(ui_metadata))
     dirname = os.path.dirname(METADATA_FILE)
