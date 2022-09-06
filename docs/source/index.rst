@@ -53,6 +53,7 @@ Documentation
       :caption: Usage (Meta)
 
       fb/quickstart.md
+      fb/setup.md
       fb/cogwheel.rst
       fb/named_resources.rst
 
