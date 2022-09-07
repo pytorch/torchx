@@ -447,6 +447,21 @@
 <span class="sd">   variable TORCHX_CONFIG. It also disables hierarchy loading configs from multiple</span>
 <span class="sd">   directories as the cases otherwise.</span>
 
+<span class="sd">#. User level .torchxconfig</span>
+<span class="sd">   In addition to the project-level .torchxconfig at the root of the project directory,</span>
+<span class="sd">   you can create one in ``$HOME/.torchxconfig`` to override or specify additional default configs.</span>
+<span class="sd">   This config file will get overlaid on top of the one defined at the project root.</span>
+
+<span class="sd">#. Config options take the following precedence (high to low):</span>
+<span class="sd">    1. Options specified directly from the CLI</span>
+<span class="sd">    2. If TORCHXCONFIG env variable is set, the options specified in that file</span>
+<span class="sd">    3. If TORCHXCONFIG env variable is not set,</span>
+<span class="sd">        a. Options specified in user level .torchxconfig (``$HOME/.torchxconfig``)</span>
+<span class="sd">        b. Options specified in .torchxconfig</span>
+<span class="sd">    4. Any default values in the code</span>
+
+<span class="sd">   Note that malformed or unrecognized options are simply skipped and not applied</span>
+
 <span class="sd">**Component Config**</span>
 
 <span class="sd">You can specify component defaults by adding a section prefixed with</span>

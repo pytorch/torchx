@@ -433,6 +433,28 @@ has <code class="docutils literal notranslate"><span class="pre">.torchxconfig</
 load at runtime. Requirements are that the config path is specified by enviornment
 variable TORCHX_CONFIG. It also disables hierarchy loading configs from multiple
 directories as the cases otherwise.</p></li>
+<li><p>User level .torchxconfig
+In addition to the project-level .torchxconfig at the root of the project directory,
+you can create one in <code class="docutils literal notranslate"><span class="pre">$HOME/.torchxconfig</span></code> to override or specify additional default configs.
+This config file will get overlaid on top of the one defined at the project root.</p></li>
+<li><dl class="simple">
+<dt>Config options take the following precedence (high to low):</dt><dd><ol class="arabic simple">
+<li><p>Options specified directly from the CLI</p></li>
+<li><p>If TORCHXCONFIG env variable is set, the options specified in that file</p></li>
+<li><dl class="simple">
+<dt>If TORCHXCONFIG env variable is not set,</dt><dd><ol class="loweralpha simple">
+<li><p>Options specified in user level .torchxconfig (<code class="docutils literal notranslate"><span class="pre">$HOME/.torchxconfig</span></code>)</p></li>
+<li><p>Options specified in .torchxconfig</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><p>Any default values in the code</p></li>
+</ol>
+</dd>
+</dl>
+<p>Note that malformed or unrecognized options are simply skipped and not applied</p>
+</li>
 </ol>
 <p><strong>Component Config</strong></p>
 <p>You can specify component defaults by adding a section prefixed with
