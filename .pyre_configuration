@@ -6,10 +6,16 @@
     ".*/IPython/core/tests/nonascii.*",
     ".*/torchx/examples/apps/compute_world_size/.*"
   ],
+  "ignore_all_errors": [
+    "./stubs/"
+  ],
   "site_package_search_strategy": "all",
   "source_directories": [
     "."
   ],
+  "search_path": [
+    "stubs"
+  ],
   "strict": true,
-  "version": "0.0.101650971427"
+  "version": "0.0.101662549039"
 }
