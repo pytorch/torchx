@@ -54,6 +54,7 @@ Documentation
 
       fb/quickstart.md
       fb/setup.md
+      fb/images.md
       fb/cogwheel.rst
       fb/named_resources.rst
 
