@@ -130,6 +130,15 @@ Components Library
    components/serve
    components/utils
 
+.. fbcode::
+
+   .. toctree::
+      :maxdepth: 1
+      :caption: Components (Meta)
+      :glob:
+
+      components/fb/*
+
 Runtime Library
 ----------------
 .. toctree::
