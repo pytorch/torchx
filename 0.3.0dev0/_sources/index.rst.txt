@@ -54,6 +54,8 @@ Documentation
 
       fb/quickstart.md
       fb/setup.md
+      fb/images.md
+      fb/workspace.md
       fb/cogwheel.rst
       fb/named_resources.rst
 
@@ -127,6 +129,15 @@ Components Library
    components/metrics
    components/serve
    components/utils
+
+.. fbcode::
+
+   .. toctree::
+      :maxdepth: 1
+      :caption: Components (Meta)
+      :glob:
+
+      components/fb/*
 
 Runtime Library
 ----------------
