@@ -60,7 +60,7 @@ from integ_test_utils import (
     run,
     run_in_bg,
 )
-from pyre_extensions import none_throws
+from torchx.util.types import none_throws
 from urllib3.exceptions import MaxRetryError
 
 T = TypeVar("T")

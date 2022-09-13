@@ -11,7 +11,6 @@ from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple
 from unittest.mock import patch
 
-from pyre_extensions import none_throws
 from torchx.specs.api import AppDef, Resource, Role
 from torchx.specs.builders import (
     _create_args_parser,
@@ -22,6 +21,8 @@ from torchx.specs.builders import (
     parse_mounts,
     VolumeMount,
 )
+
+from torchx.util.types import none_throws
 
 
 class AppHandleTest(unittest.TestCase):

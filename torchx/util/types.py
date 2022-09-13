@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import typing_inspect
 
@@ -198,3 +198,15 @@ def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], obj
         return parameter.annotation
     else:
         return str
+
+
+_T = TypeVar("_T")
+
+
+def none_throws(optional: Optional[_T], message: str = "Unexpected `None`") -> _T:
+    """Convert an optional to its value. Raises an `AssertionError` if the value is `None`
+    Copied from https://github.com/facebook/pyre-check/blob/main/pyre_extensions/refinement.py for performance reasons.
+    """
+    if optional is None:
+        raise AssertionError(message)
+    return optional

@@ -13,8 +13,8 @@ from dataclasses import dataclass
 from typing import Callable, cast, Dict, List, Optional, Tuple
 
 from docstring_parser import parse
-from pyre_extensions import none_throws
 from torchx.util.io import read_conf_file
+from torchx.util.types import none_throws
 
 
 # pyre-ignore-all-errors[16]

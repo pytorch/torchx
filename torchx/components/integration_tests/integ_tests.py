@@ -12,11 +12,12 @@ from json import dumps
 from types import ModuleType
 from typing import Callable, cast, Dict, List, Optional, Type
 
-from pyre_extensions import none_throws
 from torchx.cli.cmd_log import get_logs
 from torchx.components.integration_tests.component_provider import ComponentProvider
 from torchx.runner import get_runner
 from torchx.specs import AppHandle, AppState, AppStatus, CfgVal
+
+from torchx.util.types import none_throws
 
 
 log: logging.Logger = logging.getLogger(__name__)

@@ -14,7 +14,6 @@ from contextlib import contextmanager
 from typing import Generator, List, Mapping, Optional
 from unittest.mock import MagicMock, patch
 
-from pyre_extensions import none_throws
 from torchx.runner import get_runner, Runner
 from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
@@ -25,6 +24,8 @@ from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs import AppDryRunInfo, CfgVal
 from torchx.specs.api import AppDef, AppState, Resource, Role, UnknownAppException
 from torchx.specs.finder import ComponentNotFoundException
+
+from torchx.util.types import none_throws
 from torchx.workspace import Workspace
 
 

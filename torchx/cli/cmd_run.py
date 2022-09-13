@@ -15,7 +15,6 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple
 
 import torchx.specs as specs
-from pyre_extensions import none_throws
 from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
@@ -29,6 +28,7 @@ from torchx.specs.finder import (
     get_builtin_source,
     get_components,
 )
+from torchx.util.types import none_throws
 
 
 MISSING_COMPONENT_ERROR_MSG = (

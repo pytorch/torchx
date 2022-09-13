@@ -13,7 +13,6 @@ from datetime import datetime
 from types import TracebackType
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
 
-from pyre_extensions import none_throws
 from torchx.runner.events import log_event
 from torchx.schedulers import get_scheduler_factories, SchedulerFactory
 from torchx.schedulers.api import ListAppResponse, Scheduler, Stream
@@ -31,6 +30,8 @@ from torchx.specs import (
     UnknownAppException,
 )
 from torchx.specs.finder import get_component
+
+from torchx.util.types import none_throws
 from torchx.workspace.api import Workspace
 
 
