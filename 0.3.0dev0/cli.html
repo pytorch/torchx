@@ -616,6 +616,22 @@ will have to be passed through the client. This may be very taxing to
 the local host. Please use your best judgment when using the logs API.</p>
 </div>
 </section>
+<section id="listing-jobs">
+<h2>Listing Jobs<a class="headerlink" href="#listing-jobs" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">list</span></code> subcommand lets you list app handles and statuses of apps launched on a scheduler.
+You can then use the app handles to further describe the app, view the logs, etc.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx list -s &lt;scheduler_name&gt;
+
+<span class="gp">$ </span>torchx list -s kubernetes
+<span class="go">APP HANDLE                                          APP STATUS</span>
+<span class="go">--------------------------------------------------  ------------</span>
+<span class="go">kubernetes://torchx/default:trainer-a5qvfhe1hyq2w   SUCCEEDED</span>
+<span class="go">kubernetes://torchx/default:trainer-d796ei2tdtest   SUCCEEDED</span>
+<span class="go">kubernetes://torchx/default:trainer-em0iao2m90000   FAILED</span>
+<span class="go">kubernetes://torchx/default:trainer-ew33oxmdg0123   SUCCEEDED</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -668,6 +684,7 @@ the local host. Please use your best judgment when using the logs API.</p>
 <li><a class="reference internal" href="#inspecting-what-will-run-dryrun">Inspecting what will run (dryrun)</a></li>
 <li><a class="reference internal" href="#describing-and-querying-the-status-of-a-job">Describing and querying the status of a job</a></li>
 <li><a class="reference internal" href="#viewing-logs">Viewing Logs</a></li>
+<li><a class="reference internal" href="#listing-jobs">Listing Jobs</a></li>
 </ul>
 </li>
 </ul>
