@@ -253,4 +253,22 @@ patterns that are useful and self explanatory
           will have to be passed through the client. This may be very taxing to
           the local host. Please use your best judgment when using the logs API.
 
+Listing Jobs
+---------------------
+
+The ``list`` subcommand lets you list app handles and statuses of apps launched on a scheduler.
+You can then use the app handles to further describe the app, view the logs, etc.
+
+.. code-block:: shell-session
+
+ $ torchx list -s <scheduler_name>
+
+ $ torchx list -s kubernetes
+ APP HANDLE                                          APP STATUS
+ --------------------------------------------------  ------------
+ kubernetes://torchx/default:trainer-a5qvfhe1hyq2w   SUCCEEDED
+ kubernetes://torchx/default:trainer-d796ei2tdtest   SUCCEEDED
+ kubernetes://torchx/default:trainer-em0iao2m90000   FAILED
+ kubernetes://torchx/default:trainer-ew33oxmdg0123   SUCCEEDED
+
 """
