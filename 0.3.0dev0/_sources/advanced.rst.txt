@@ -125,9 +125,9 @@ resource can then be used in the following manner:
 
 .. testsetup:: role
 
-   from torchx.specs import named_resources, Resource
+   from torchx.specs import _named_resource_factories, Resource
 
-   named_resources["gpu_x2"] = Resource(cpu=16, gpu=2, memMB=122_000)
+   _named_resource_factories["gpu_x2"] = lambda: Resource(cpu=16, gpu=2, memMB=122_000)
 
 
 .. doctest:: role

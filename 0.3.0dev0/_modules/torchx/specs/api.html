@@ -403,7 +403,6 @@
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">to_dict</span>
 
 <span class="n">_APP_STATUS_FORMAT_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;AppStatus:</span>
@@ -879,6 +878,9 @@
             <span class="n">structured_error_msg_parsed</span> <span class="o">=</span> <span class="n">NONE</span>
         <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;structured_error_msg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">structured_error_msg_parsed</span>
         <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">])</span>
+
+        <span class="kn">import</span> <span class="nn">yaml</span>
+
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;AppStatus&quot;</span><span class="p">:</span> <span class="n">app_status_dict</span><span class="p">})</span>
 
 <div class="viewcode-block" id="AppStatus.raise_for_status"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.raise_for_status">[docs]</a>    <span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
