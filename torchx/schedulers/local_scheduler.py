@@ -29,7 +29,6 @@ from datetime import datetime
 from types import FrameType
 from typing import Any, BinaryIO, Callable, Dict, Iterable, List, Optional, TextIO
 
-from pyre_extensions import none_throws
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -42,6 +41,8 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.streams import Tee
 from torchx.specs.api import AppDef, AppState, is_terminal, macros, NONE, Role, runopts
+
+from torchx.util.types import none_throws
 from typing_extensions import TypedDict
 
 

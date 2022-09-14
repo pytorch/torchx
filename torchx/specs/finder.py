@@ -16,11 +16,12 @@ from inspect import getmembers, isfunction
 from types import ModuleType
 from typing import Callable, Dict, List, Optional, Union
 
-from pyre_extensions import none_throws
 from torchx.specs import AppDef
 from torchx.specs.file_linter import get_fn_docstring, validate
 from torchx.util import entrypoints
 from torchx.util.io import read_conf_file
+
+from torchx.util.types import none_throws
 
 
 logger: logging.Logger = logging.getLogger(__name__)

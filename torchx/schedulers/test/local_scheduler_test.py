@@ -23,7 +23,6 @@ from typing import Callable, Generator, Optional
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-from pyre_extensions import none_throws
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     _join_PATH,
@@ -36,6 +35,8 @@ from torchx.schedulers.local_scheduler import (
     ReplicaParam,
 )
 from torchx.specs.api import AppDef, AppState, is_terminal, macros, Resource, Role
+
+from torchx.util.types import none_throws
 
 from .test_util import write_shell_script
 

@@ -28,7 +28,6 @@ from typing import (
     Union,
 )
 
-import yaml
 from torchx.util.types import to_dict
 
 _APP_STATUS_FORMAT_TEMPLATE = """AppStatus:
@@ -504,6 +503,9 @@ class AppStatus:
             structured_error_msg_parsed = NONE
         app_status_dict["structured_error_msg"] = structured_error_msg_parsed
         app_status_dict["state"] = repr(app_status_dict["state"])
+
+        import yaml
+
         return yaml.dump({"AppStatus": app_status_dict})
 
     def raise_for_status(self) -> None:

@@ -13,10 +13,10 @@ import argparse
 import os
 
 from integ_test_utils import build_images, BuildInfo, MissingEnvError, push_images
-from pyre_extensions import none_throws
 from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
-from torchx.specs import AppState, named_resources, Resource
+from torchx.specs import _named_resource_factories, AppState, Resource
+from torchx.util.types import none_throws
 
 
 # pyre-ignore-all-errors[21] # Cannot find module utils
@@ -37,7 +37,7 @@ def register_gpu_resource() -> None:
         },
     )
     print(f"Registering resource: {res}")
-    named_resources["GPU_X1"] = res
+    _named_resource_factories["GPU_X1"] = lambda: res
 
 
 def build_and_push_image() -> BuildInfo:

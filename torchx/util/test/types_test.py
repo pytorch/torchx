@@ -15,6 +15,7 @@ from torchx.util.types import (
     get_argparse_param_type,
     is_bool,
     is_primitive,
+    none_throws,
     to_dict,
     to_list,
 )
@@ -195,3 +196,9 @@ class TypesTest(unittest.TestCase):
         self.assertEqual(str, get_argparse_param_type(params["l"]))
         self.assertEqual(str, get_argparse_param_type(params["m"]))
         self.assertEqual(str, get_argparse_param_type(params["o"]))
+
+    def test_none_throws(self) -> None:
+        self.assertEqual(none_throws(10), 10)
+        self.assertEqual(none_throws("str"), "str")
+        with self.assertRaisesRegex(AssertionError, "Unexpected.*None"):
+            none_throws(None)

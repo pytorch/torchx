@@ -14,7 +14,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import torchx.specs.finder as finder
-from pyre_extensions import none_throws
 from torchx.runner import get_runner
 from torchx.runtime.tracking import FsspecResultTracker
 from torchx.specs.api import AppDef, AppState, Role
@@ -27,6 +26,7 @@ from torchx.specs.finder import (
     get_components,
     ModuleComponentsFinder,
 )
+from torchx.util.types import none_throws
 
 
 def _test_component(name: str, role_name: str = "worker") -> AppDef:
