@@ -7,7 +7,7 @@ log_dir = None
 prepend_cwd = False
 
 [mast]
-hpcClusterUuid = TSCTestCluster
+hpcClusterUuid = MastProdCluster
 runningTimeoutSec = None
 hpcIdentity = pytorch_r2p
 hpcJobOncall = pytorch_r2p
