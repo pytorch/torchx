@@ -7,6 +7,7 @@
 
 import json
 import logging
+import os
 import time
 import warnings
 from datetime import datetime
@@ -34,11 +35,43 @@ from torchx.specs.finder import get_component
 from torchx.util.types import none_throws
 from torchx.workspace.api import Workspace
 
+from .config import get_config, get_configs
 
 logger: logging.Logger = logging.getLogger(__name__)
 
 
 NONE: str = "<NONE>"
+
+
+def _get_configured_trackers() -> Dict[str, str]:
+    tracker_names = []
+    if "TORCHX_TRACKERS" in os.environ and os.environ["TORCHX_TRACKERS"]:
+        trackers = os.environ["TORCHX_TRACKERS"]
+        tracker_names = os.environ["TORCHX_TRACKERS"].split(",")
+        logger.info(
+            f"Using 'TORCHX_TRACKERS'='{trackers}' env variable to setup trackers"
+        )
+    else:
+        tracker_names = get_configs(prefix="torchx", name="tracker")
+        if tracker_names:
+            names = (",").join(tracker_names.keys())
+            logger.info(f"Using #torchx.tracker=['{names}'] config to setup trackers")
+
+    tracker_names_with_config = {}
+    for tracker_name in tracker_names:
+        config_env_name = f"TORCHX_TRACKER_{tracker_name.upper()}_CONFIG"
+        config_value = None
+
+        if config_env_name in os.environ:
+            config_value = os.environ[config_env_name]
+            logger.info(
+                f"Using {config_env_name}=['{config_value}'] config to setup {tracker_name} tracker"
+            )
+        else:
+            config_value = get_config(prefix="tracker", name=tracker_name, key="config")
+
+        tracker_names_with_config[tracker_name] = config_value
+    return tracker_names_with_config
 
 
 class Runner:
@@ -111,6 +144,7 @@ class Runner:
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
+        parent_run_id: Optional[str] = None,
     ) -> AppHandle:
         """
         Runs a component.
@@ -150,6 +184,7 @@ class Runner:
             scheduler,
             cfg=cfg,
             workspace=workspace,
+            parent_run_id=parent_run_id,
         )
         return self.schedule(dryrun_info)
 
@@ -160,6 +195,7 @@ class Runner:
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
+        parent_run_id: Optional[str] = None,
     ) -> AppDryRunInfo:
         """
         Dryrun version of :py:func:`run_component`. Will not actually run the
@@ -250,6 +286,7 @@ class Runner:
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
+        parent_run_id: Optional[str] = None,
     ) -> AppDryRunInfo:
         """
         Dry runs an app on the given scheduler with the provided run configs.
@@ -271,6 +308,14 @@ class Runner:
                 f"No roles for app: {app.name}. Did you forget to add roles to AppDef?"
             )
 
+        if "TORCHX_PARENT_RUN_ID" in os.environ:
+            parent_run_id = os.environ["TORCHX_PARENT_RUN_ID"]
+            logger.info(
+                f"Using 'TORCHX_PARENT_RUN_ID'='{parent_run_id}' env variable as tracker parent run ID"
+            )
+
+        configured_trackers = _get_configured_trackers()
+
         for role in app.roles:
             if not role.entrypoint:
                 raise ValueError(
@@ -282,10 +327,27 @@ class Runner:
                     f"Non-positive replicas for role: {role.name}."
                     f" Did you forget to set role.num_replicas?"
                 )
-            # inject job identity as env variable that will apps look up its owning job
+            # Setup tracking
+            # 1. Inject parent identifier
+            # 2. Inject this run's job ID
+            # 3. Get the list of backends to support from .torchconfig
+            #    - inject it as TORCHX_TRACKERS=names (it is expected that entrypoints are defined)
+            #    - for each backend check configuration file, if exists:
+            #        - inject it as TORCHX_TRACKER_<name>_CONFIGFILE=filename
             role.env["TORCHX_JOB_ID"] = make_app_handle(
                 scheduler, self._name, macros.app_id
             )
+
+            # TODO extract constants into tracker API module
+            if parent_run_id:
+                role.env["TORCHX_PARENT_RUN_ID"] = parent_run_id
+
+            if configured_trackers:
+                role.env["TORCHX_TRACKERS"] = ",".join(configured_trackers.keys())
+
+            for name, config in configured_trackers.items():
+                if config:
+                    role.env[f"TORCHX_TRACKER_{name.upper()}_CONFIG"] = config
 
         cfg = cfg or dict()
         with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
