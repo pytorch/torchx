@@ -398,7 +398,7 @@ def load_sections(
 def get_configs(
     prefix: str,
     name: str,
-    dirs: Optional[List[str]],
+    dirs: Optional[List[str]] = None,
 ) -> Dict[str, str]:
     """
     Gets all the config values in the section ``["{prefix}:{name}"]``.
