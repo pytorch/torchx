@@ -82,17 +82,15 @@ def get_docker_command(job_name: str, role: Role, cfg: LsfOpts) -> str:
                 rw = "ro"
             cmds += ["-v", f"{mount.src_path}:{mount.dst_path}:{rw}"]
         elif isinstance(mount, VolumeMount):
-            rw = "rw"
+            ro = ""
             if mount.read_only:
-                rw = "ro"
+                ro = ",ro"
             cmds += [
                 "--mount",
-                f'"type=volume,src={mount.src}:dst={mount.dst_path},{rw}"',
+                f"type=volume,src={mount.src},dst={mount.dst_path}{ro}",
             ]
         elif isinstance(mount, DeviceMount):
             cmds += [f"--device={mount.src_path}:{mount.dst_path}:{mount.permissions}"]
-        else:
-            raise Exception(f"Unknown mount type: {mount}")
     container_workdir = cfg.get("container_workdir")
     if container_workdir:
         cmds += ["-w", container_workdir]
@@ -161,7 +159,7 @@ def get_bsub(
         bsub_args += ["-q", queue]
     resource = role.resource
 
-    if resource != NONE:
+    if resource is not None:
         if resource.cpu > 0:
             bsub_args += ["-n", str(resource.cpu)]
         if resource.memMB > 0:
@@ -193,7 +191,7 @@ def cleanup_str(data: str) -> str:
     return "".join(re.findall(pattern, data.lower()))
 
 
-def find_rank0_host(role: Role) -> str:
+def find_rank0_host_from_bhosts_stdout(msg: str, role: Role) -> str:
     resource = role.resource
     cpu = 1
     gpu = 0
@@ -204,32 +202,31 @@ def find_rank0_host(role: Role) -> str:
         if resource.gpu > 0:
             gpu = resource.gpu
 
+    for line in msg.split("\n"):
+        split = line.split(" ")
+        if len(split) >= 3 and cpu <= int(split[1]) and gpu <= int(split[2]):
+            return split[0]
+    raise Exception(
+        f"cannot find a host with {cpu} CPUs, and {gpu} GPUs. Try again with enough available resource."
+    )
+
+
+def find_rank0_host(role: Role) -> str:
     p = subprocess.run(
         ["bhosts", "-noheader", "-o", "hname max ng"],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         check=True,
     )
-    msg = p.stdout.decode("utf-8")
-    for line in msg.split("\n"):
-        split = line.split(" ")
-        try:
-            if len(split) >= 3 and cpu <= int(split[1]) and gpu <= int(split[2]):
-                return split[0]
-        except ValueError:
-            continue
-    raise Exception(
-        f"cannot find a host with {cpu} CPUs, and {gpu} GPUs. Try again with enough available resource."
-    )
+    return find_rank0_host_from_bhosts_stdout(p.stdout.decode("utf-8"), role)
 
 
-def get_submit_script(app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts) -> str:
+def get_submit_script(
+    app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts, rank0_host: str
+) -> str:
     bsubs = []
-    rank0_host = ""
     head_job_name = ""
     for role_idx, role in enumerate(app.roles):
-        if role_idx == 0:
-            rank0_host = find_rank0_host(role)
         for replica_id in range(role.num_replicas):
             values = macros.Values(
                 img_root="",
@@ -237,8 +234,8 @@ def get_submit_script(app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts) ->
                 replica_id=str(replica_id),
                 rank0_env="TORCHX_RANK0_HOST",
             )
-            name = cleanup_str(f"{role.name}-{replica_id}")
             replica_role = values.apply(role)
+            name = cleanup_str(f"{role.name}-{replica_id}")
             replica_role.env["TORCHX_RANK0_HOST"] = rank0_host
             job_name = app_id + "-" + name
             bsubs.append(
@@ -255,17 +252,126 @@ def get_submit_script(app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts) ->
     return script + "\n".join(bsubs) + "\n"
 
 
+def bjobs_msg_to_describe(app_id: str, msg: str) -> Optional[DescribeAppResponse]:
+    if msg == "":
+        return None
+    roles = {}
+    roles_statuses = {}
+    app_state = AppState.RUNNING
+    success_count = 0
+    total_count = 0
+    for line in msg.split("\n"):
+        split = line.split(" ")
+        if len(split) < 2:
+            continue
+        proj = split[0]
+        role, _, idx = split[1][len(proj) + 1 :].rpartition("-")
+        idx = int(idx)
+        if role not in roles:
+            roles[role] = Role(name=role, num_replicas=0, image="")
+            roles_statuses[role] = RoleStatus(role, [])
+        roles[role].num_replicas += 1
+        state = get_job_state(split[2], split[3])
+        roles_statuses[role].replicas.append(
+            ReplicaStatus(id=idx, role=role, state=state, hostname="")
+        )
+        if (
+            state == AppState.FAILED
+            or state == AppState.CANCELLED
+            or state == AppState.PENDING
+            or state == AppState.UNKNOWN
+        ):
+            app_state = state
+        elif state == AppState.SUCCEEDED:
+            success_count += 1
+        total_count += 1
+    if success_count == total_count:
+        app_state = AppState.SUCCEEDED
+    # set roles, roles_statuses, app_state
+    return DescribeAppResponse(
+        app_id=app_id,
+        roles=list(roles.values()),
+        roles_statuses=list(roles_statuses.values()),
+        state=app_state,
+        msg=msg,
+    )
+
+
+def bjobs_msg_to_log_file(
+    app_id: str,
+    role_name: str,
+    k: int = 0,
+    streams: Optional[Stream] = None,
+    msg: str = "",
+) -> str:
+    if streams == Stream.COMBINED:
+        raise ValueError(
+            "LsfScheduler does not support COMBINED log stream."
+            " Use `stdout` or `stderr`"
+        )
+
+    extension = "err" if streams == Stream.STDERR else "out"
+
+    lines = msg.split("\n")
+    jobs = {}
+    log_file = ""
+    for line in lines:
+        if line != "":
+            split = line.split(" ")
+            if split[2] == "-":
+                continue
+            proj = split[0]
+            role, _, idx = split[1][len(proj) + 1 :].rpartition("-")
+            if app_id == proj and role == role_name and idx == str(k):
+                log_file = split[2] + f"/{split[1]}.{extension}"
+    if log_file == "":
+        raise ValueError(
+            f"cannot find log directory for {app_id}. Note: need to specify -cfg jobdir to use this functionality."
+        )
+    return log_file
+
+
+def bjobs_msg_to_list(msg: str) -> List[ListAppResponse]:
+    ret = []
+    lines = msg.split("\n")
+    apps = {}
+    for line in lines:
+        if line != "":
+            split = line.split(" ")
+            state = get_job_state(split[1], split[2])
+            if split[0] not in apps.keys():
+                apps[split[0]] = []
+            apps[split[0]].append(state)
+    for app_id, states in apps.items():
+        success_count = 0
+        app_state = AppState.RUNNING
+        for state in states:
+            if (
+                state == AppState.FAILED
+                or state == AppState.CANCELLED
+                or state == AppState.PENDING
+                or state == AppState.UNKNOWN
+            ):
+                app_state = state
+                break
+            elif state == AppState.SUCCEEDED:
+                success_count += 1
+        if success_count == len(states):
+            app_state = AppState.SUCCEEDED
+        ret.append(ListAppResponse(app_id=app_id, state=app_state))
+    return ret
+
+
 @dataclass
 class LsfBsub:
     jobdir: Optional[str]
     app_id: str
     app: AppDef
     cfg: LsfOpts
-
     cmd: List[str]
 
-    def materialize(self) -> str:
-        return get_submit_script(self.app_id, self.cmd, self.app, self.cfg)
+    def materialize(self, rank0_host: str = "RANK0_HOST") -> str:
+        return get_submit_script(self.app_id, self.cmd, self.app, self.cfg, rank0_host)
 
     def __repr__(self) -> str:
         return f"""{' '.join(self.cmd + ['$BSUB_SCRIPT'])}
@@ -351,15 +457,12 @@ class LsfScheduler(Scheduler[LsfOpts]):
 
     def schedule(self, dryrun_info: AppDryRunInfo[LsfBsub]) -> str:
         req = dryrun_info.request
-        jobdir = req.jobdir
         with tempfile.TemporaryDirectory() as tempdir:
-            path = os.path.join(jobdir or tempdir, f"{req.app_id}.sh")
+            path = os.path.join(req.jobdir or tempdir, f"{req.app_id}.sh")
             req.cmd += [path]
-            script = req.materialize()
             with open(path, "w") as f:
-                f.write(script)
-            p = subprocess.run(req.cmd, stdout=subprocess.PIPE, check=True)
-            job_ret = p.stdout.decode("utf-8").strip()
+                f.write(req.materialize(find_rank0_host(req.app.roles[0])))
+            subprocess.run(req.cmd, stdout=subprocess.PIPE, check=True)
         return req.app_id
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
@@ -374,14 +477,13 @@ class LsfScheduler(Scheduler[LsfOpts]):
             check=True,
         )
         msg = p.stdout.decode("utf-8")
-        if msg == "":
-            return None
-        subprocess.run(
-            ["bkill"] + msg.strip().split("\n"),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            check=True,
-        )
+        if msg != "":
+            subprocess.run(
+                ["bkill"] + msg.strip().split("\n"),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
 
     def _submit_dryrun(self, app: AppDef, cfg: LsfOpts) -> AppDryRunInfo[LsfBsub]:
         jobdir = cfg.get("jobdir")
@@ -408,49 +510,7 @@ class LsfScheduler(Scheduler[LsfOpts]):
             stderr=subprocess.DEVNULL,
             check=True,
         )
-        msg = p.stdout.decode("utf-8")
-        if msg == "":
-            return None
-        roles = {}
-        roles_statuses = {}
-        app_state = AppState.RUNNING
-        success_count = 0
-        total_count = 0
-        for line in msg.split("\n"):
-            split = line.split(" ")
-            if len(split) < 4:
-                continue
-            proj = split[0]
-            role, _, idx = split[1][len(proj) + 1 :].rpartition("-")
-            idx = int(idx)
-            if role not in roles:
-                roles[role] = Role(name=role, num_replicas=0, image="")
-                roles_statuses[role] = RoleStatus(role, [])
-            roles[role].num_replicas += 1
-            state = get_job_state(split[2], split[3])
-            roles_statuses[role].replicas.append(
-                ReplicaStatus(id=idx, role=role, state=state, hostname="")
-            )
-            if (
-                state == AppState.FAILED
-                or state == AppState.CANCELLED
-                or state == AppState.PENDING
-                or state == AppState.UNKNOWN
-            ):
-                app_state = state
-            elif state == AppState.SUCCEEDED:
-                success_count += 1
-            total_count += 1
-        if success_count == total_count:
-            app_state = AppState.SUCCEEDED
-        # set roles, roles_statuses, app_state
-        return DescribeAppResponse(
-            app_id=app_id,
-            roles=list(roles.values()),
-            roles_statuses=list(roles_statuses.values()),
-            state=app_state,
-            msg=msg,
-        )
+        return bjobs_msg_to_describe(app_id=app_id, msg=p.stdout.decode("utf-8"))
 
     def log_iter(
         self,
@@ -463,79 +523,34 @@ class LsfScheduler(Scheduler[LsfOpts]):
         should_tail: bool = False,
         streams: Optional[Stream] = None,
     ) -> Iterable[str]:
-        if streams == Stream.COMBINED:
-            raise ValueError(
-                "LsfScheduler does not support COMBINED log stream."
-                " Use `stdout` or `stderr`"
-            )
-
-        extension = "err" if streams == Stream.STDERR else "out"
-
         p = subprocess.run(
             ["bjobs", "-noheader", "-a", "-P", app_id, "-o", "proj name output_dir"],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             check=True,
         )
-        lines = p.stdout.decode("utf-8").split("\n")
-        jobs = {}
-        log_file = ""
-        for line in lines:
-            if line != "":
-                split = line.split(" ")
-                if split[2] == "-":
-                    continue
-                proj = split[0]
-                role, _, idx = split[1][len(proj) + 1 :].rpartition("-")
-                if app_id == proj and role == role_name and idx == str(k):
-                    log_file = split[2] + f"/{split[1]}.{extension}"
-        if log_file == "":
-            raise ValueError(
-                f"cannot find log directory for {app_id}. Note: need to specify -cfg jobdir to use this functionality."
-            )
-
-        iterator = LogIterator(app_id, log_file, self, should_tail=should_tail)
-        # sometimes there's multiple lines per logged line
-        iterator = split_lines_iterator(iterator)
+        log_file = bjobs_msg_to_log_file(
+            app_id=app_id,
+            role_name=role_name,
+            k=k,
+            streams=streams,
+            msg=p.stdout.decode("utf-8"),
+        )
+        iterator = split_lines_iterator(
+            LogIterator(app_id, log_file, self, should_tail=should_tail)
+        )
         if regex:
             iterator = filter_regex(regex, iterator)
         return iterator
 
     def list(self) -> List[ListAppResponse]:
-        ret = []
         p = subprocess.run(
             ["bjobs", "-noheader", "-a", "-o", "proj stat exit_code"],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             check=True,
         )
-        lines = p.stdout.decode("utf-8").split("\n")
-        apps = {}
-        for line in lines:
-            if line != "":
-                split = line.split(" ")
-                state = get_job_state(split[1], split[2])
-                if split[0] not in apps.keys():
-                    apps[split[0]] = []
-                apps[split[0]].append(state)
-        for app_id, states in apps.items():
-            success_count = 0
-            app_state = AppState.RUNNING
-            for state in states:
-                if (
-                    state == AppState.FAILED
-                    or state == AppState.CANCELLED
-                    or state == AppState.PENDING
-                    or state == AppState.UNKNOWN
-                ):
-                    app_state = state
-                    break
-                elif state == AppState.SUCCEEDED:
-                    success_count += 1
-            if success_count == len(states):
-                app_state = AppState.SUCCEEDED
-            ret.append(ListAppResponse(app_id=app_id, state=app_state))
-        return ret
+        return bjobs_msg_to_list(p.stdout.decode("utf-8"))
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> LsfScheduler:
