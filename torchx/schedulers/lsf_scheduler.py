@@ -9,17 +9,14 @@
 This contains the TorchX LSF scheduler which can be used to run TorchX
 components on a LSF cluster.
 """
-import csv
-import json
-import logging
 import os.path
+import re
 import shlex
 import subprocess
 import tempfile
-import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import torchx
 from torchx.schedulers.api import (
@@ -38,13 +35,13 @@ from torchx.specs import (
     AppState,
     BindMount,
     DeviceMount,
-    VolumeMount,
     macros,
     NONE,
     ReplicaStatus,
     Role,
     RoleStatus,
     runopts,
+    VolumeMount,
 )
 from typing_extensions import TypedDict
 
@@ -58,13 +55,15 @@ JOB_STATE: Dict[str, AppState] = {
     "SSUSP": AppState.PENDING,
 }
 
+
 def get_job_state(state_str: str, exit_code: str) -> AppState:
     state = AppState.UNKNOWN
     if state_str in JOB_STATE.keys():
         state = JOB_STATE[state_str]
-    if state == AppState.FAILED and exit_code == "130": # likely SIGINT
+    if state == AppState.FAILED and exit_code == "130":  # likely SIGINT
         state = AppState.CANCELLED
     return state
+
 
 class LsfOpts(TypedDict, total=False):
     lsf_queue: Optional[str]
@@ -72,6 +71,7 @@ class LsfOpts(TypedDict, total=False):
     container_workdir: Optional[str]
     host_network: Optional[bool]
     shm_size: Optional[str]
+
 
 def get_docker_command(job_name: str, role: Role, cfg: LsfOpts) -> str:
     cmds = ["docker", "run", f"--name={job_name}"]
@@ -82,7 +82,10 @@ def get_docker_command(job_name: str, role: Role, cfg: LsfOpts) -> str:
         if isinstance(mount, BindMount):
             cmds += ["-v", f"{mount.src_path}:{mount.dst_path}:{rw}"]
         elif isinstance(mount, VolumeMount):
-            cmds += ["--mount", f"\"type=volume,src={mount.src_path}:dst={mount.dst_path},{rw}\""]
+            cmds += [
+                "--mount",
+                f'"type=volume,src={mount.src_path}:dst={mount.dst_path},{rw}"',
+            ]
         elif isinstance(mount, DeviceMount):
             cmds += [f"--device={mount.src_path}:{mount.dst_path}:{mount.permissions}"]
         else:
@@ -109,22 +112,47 @@ def get_docker_command(job_name: str, role: Role, cfg: LsfOpts) -> str:
         if resource.memMB > 0:
             cmds += [f"--memory={str(resource.memMB * 1024 * 1024)}"]
         if resource.gpu > 0:
-            cmds += [f"--gpus", "all"]
-    cmds += ["--entrypoint", role.entrypoint, "--rm", role.image] + [arg.replace("$", "\\$") for arg in role.args]
+            cmds += ["--gpus", "all"]
+    cmds += ["--entrypoint", role.entrypoint, "--rm", role.image] + [
+        arg.replace("$", "\\$") for arg in role.args
+    ]
     return shlex.join(cmds)
 
-def get_command(job_name: str, role: Role, cfg: LsfOpts) -> str:
-    return get_docker_command(job_name, role, cfg) #TODO: add get_singularity_command
 
-def get_bsub(app_id:str, job_name: str, role: Role, cfg: LsfOpts, head_job_name: str, head_job_host: str) -> str:
+def get_command(job_name: str, role: Role, cfg: LsfOpts) -> str:
+    return get_docker_command(job_name, role, cfg)  # TODO: add get_singularity_command
+
+
+def get_bsub(
+    app_id: str,
+    job_name: str,
+    role: Role,
+    cfg: LsfOpts,
+    head_job_name: str,
+    head_job_host: str,
+) -> str:
     bsub_args = ["bsub", "-P", app_id, "-J", job_name]
     if head_job_name != "":
-        bsub_args += ["-w", f"\"started({head_job_name})\"", "-R", f"\"select[hname!='{head_job_host}']\""]
+        bsub_args += [
+            "-w",
+            f'"started({head_job_name})"',
+            "-R",
+            f"\"select[hname!='{head_job_host}']\"",
+        ]
     else:
         bsub_args += ["-m", head_job_host]
     jobdir = cfg.get("jobdir")
     if jobdir:
-        bsub_args += ["-cwd", jobdir, "-outdir", jobdir, "-oo", f"{jobdir}/{job_name}.submit.out", "-eo", f"{jobdir}/{job_name}.submit.err"]
+        bsub_args += [
+            "-cwd",
+            jobdir,
+            "-outdir",
+            jobdir,
+            "-oo",
+            f"{jobdir}/{job_name}.submit.out",
+            "-eo",
+            f"{jobdir}/{job_name}.submit.err",
+        ]
     for k, v in cfg.items():
         if v is None:
             continue
@@ -136,16 +164,20 @@ def get_bsub(app_id:str, job_name: str, role: Role, cfg: LsfOpts, head_job_name:
         if resource.cpu > 0:
             bsub_args += ["-n", str(resource.cpu)]
         if resource.memMB > 0:
-            bsub_args += ["-R", f"\"span[hosts=1] rusage[mem={str(resource.memMB)}]\""]
+            bsub_args += ["-R", f'"span[hosts=1] rusage[mem={str(resource.memMB)}]"']
         else:
-            bsub_args += ["-R", f"\"span[hosts=1]]\""]
+            bsub_args += ["-R", '"span[hosts=1]]"']
         if resource.gpu > 0:
-            bsub_args += ["-gpu", f"\"num={str(resource.gpu)}:mode=shared:j_exclusive=yes\""]
+            bsub_args += [
+                "-gpu",
+                f'"num={str(resource.gpu)}:mode=shared:j_exclusive=yes"',
+            ]
     bsub_line = " ".join(bsub_args)
     if jobdir:
         return f"{bsub_line} << EOF\n{get_command(job_name, role, cfg)} > {jobdir}/{job_name}.out 2> {jobdir}/{job_name}.err\nEOF"
     else:
         return f"{bsub_line} << EOF\n{get_command(job_name, role, cfg)}\nEOF"
+
 
 def cleanup_str(data: str) -> str:
     """
@@ -159,6 +191,7 @@ def cleanup_str(data: str) -> str:
     pattern = r"[a-z0-9\-_]"
     return "".join(re.findall(pattern, data.lower()))
 
+
 def find_rank0_host(role: Role) -> str:
     resource = role.resource
     cpu = 1
@@ -170,18 +203,28 @@ def find_rank0_host(role: Role) -> str:
         if resource.gpu > 0:
             gpu = resource.gpu
 
-    p = subprocess.run(["bhosts", "-noheader", "-o", "hname max ng"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+    p = subprocess.run(
+        ["bhosts", "-noheader", "-o", "hname max ng"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=True,
+    )
     msg = p.stdout.decode("utf-8")
     for line in msg.split("\n"):
         split = line.split(" ")
         try:
             if len(split) >= 3 and cpu <= int(split[1]) and gpu <= int(split[2]):
                 return split[0]
-        except:
+        except ValueError:
             continue
-    raise Exception(f"cannot find a host with {cpu} CPUs, and {gpu} GPUs. Try again with enough available resource.")
+    raise Exception(
+        f"cannot find a host with {cpu} CPUs, and {gpu} GPUs. Try again with enough available resource."
+    )
 
-def get_submit_script(app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts) -> Tuple[str, str]:
+
+def get_submit_script(
+    app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts
+) -> Tuple[str, str]:
     bsubs = []
     rank0_host = ""
     head_job_name = ""
@@ -193,13 +236,15 @@ def get_submit_script(app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts) ->
                 img_root="",
                 app_id=app_id,
                 replica_id=str(replica_id),
-                rank0_env=f"TORCHX_RANK0_HOST",
+                rank0_env="TORCHX_RANK0_HOST",
             )
             name = cleanup_str(f"{role.name}-{replica_id}")
             replica_role = values.apply(role)
             replica_role.env["TORCHX_RANK0_HOST"] = rank0_host
             job_name = app_id + "-" + name
-            bsubs.append(get_bsub(app_id, job_name, replica_role, cfg, head_job_name, rank0_host))
+            bsubs.append(
+                get_bsub(app_id, job_name, replica_role, cfg, head_job_name, rank0_host)
+            )
             if role_idx == 0 and replica_id == 0:
                 head_job_name = job_name
     cmd = shlex.join(cmd)
@@ -210,6 +255,7 @@ def get_submit_script(app_id: str, cmd: List[str], app: AppDef, cfg: LsfOpts) ->
 #
 """
     return script + "\n".join(bsubs) + "\n"
+
 
 @dataclass
 class LsfBsub:
@@ -229,6 +275,7 @@ class LsfBsub:
 # BSUB_SCRIPT
 #------------
 {self.materialize()}"""
+
 
 class LsfScheduler(Scheduler[LsfOpts]):
     """
@@ -275,31 +322,31 @@ class LsfScheduler(Scheduler[LsfOpts]):
             "lsf_queue",
             type_=str,
             default=None,
-            help='queue name to submit jobs',
+            help="queue name to submit jobs",
         )
         opts.add(
             "jobdir",
             type_=str,
             default=None,
-            help='The directory to place the job code and outputs. The directory must not exist and will be created.',
+            help="The directory to place the job code and outputs. The directory must not exist and will be created.",
         )
         opts.add(
             "container_workdir",
             type_=str,
             default=None,
-            help='working directory in container jobs',
+            help="working directory in container jobs",
         )
         opts.add(
             "host_network",
             type_=bool,
             default=False,
-            help='True if using the host network for jobs',
+            help="True if using the host network for jobs",
         )
         opts.add(
             "shm_size",
             type_=str,
             default="64m",
-            help='size of shared memory (/dev/shm) for jobs',
+            help="size of shared memory (/dev/shm) for jobs",
         )
 
         return opts
@@ -317,27 +364,52 @@ class LsfScheduler(Scheduler[LsfOpts]):
             job_ret = p.stdout.decode("utf-8").strip()
         return req.app_id
 
-
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step for lsf
         pass
 
     def _cancel_existing(self, app_id: str) -> None:
-        p = subprocess.run(["bjobs", "-noheader", "-a", "-P", app_id, "-o", "id"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+        p = subprocess.run(
+            ["bjobs", "-noheader", "-a", "-P", app_id, "-o", "id"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
         msg = p.stdout.decode("utf-8")
         if msg == "":
             return None
-        subprocess.run(["bkill"] + msg.strip().split("\n"), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+        subprocess.run(
+            ["bkill"] + msg.strip().split("\n"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
 
     def _submit_dryrun(self, app: AppDef, cfg: LsfBsub) -> AppDryRunInfo[LsfBsub]:
         jobdir = cfg.get("jobdir")
         assert jobdir is None or isinstance(jobdir, str), "jobdir must be str"
 
         app_id = cleanup_str(make_unique(app.name))
-        return AppDryRunInfo(LsfBsub(app_id=app_id, cmd=["/bin/bash"], jobdir=jobdir, app=app, cfg=cfg), repr)
+        return AppDryRunInfo(
+            LsfBsub(app_id=app_id, cmd=["/bin/bash"], jobdir=jobdir, app=app, cfg=cfg),
+            repr,
+        )
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        p = subprocess.run(["bjobs", "-noheader", "-a", "-P", app_id, "-o", "proj name stat exit_code"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+        p = subprocess.run(
+            [
+                "bjobs",
+                "-noheader",
+                "-a",
+                "-P",
+                app_id,
+                "-o",
+                "proj name stat exit_code",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
         msg = p.stdout.decode("utf-8")
         if msg == "":
             return None
@@ -351,15 +423,22 @@ class LsfScheduler(Scheduler[LsfOpts]):
             if len(split) < 4:
                 continue
             proj = split[0]
-            role, _, idx = split[1][len(proj)+1:].rpartition("-")
+            role, _, idx = split[1][len(proj) + 1 :].rpartition("-")
             idx = int(idx)
             if role not in roles:
                 roles[role] = Role(name=role, num_replicas=0, image="")
                 roles_statuses[role] = RoleStatus(role, [])
             roles[role].num_replicas += 1
             state = get_job_state(split[2], split[3])
-            roles_statuses[role].replicas.append(ReplicaStatus(id=idx, role=role, state=state, hostname=""))
-            if state == AppState.FAILED or state == AppState.CANCELLED or state == AppState.PENDING or state == AppState.UNKNOWN:
+            roles_statuses[role].replicas.append(
+                ReplicaStatus(id=idx, role=role, state=state, hostname="")
+            )
+            if (
+                state == AppState.FAILED
+                or state == AppState.CANCELLED
+                or state == AppState.PENDING
+                or state == AppState.UNKNOWN
+            ):
                 app_state = state
             elif state == AppState.SUCCEEDED:
                 success_count += 1
@@ -394,7 +473,12 @@ class LsfScheduler(Scheduler[LsfOpts]):
 
         extension = "err" if streams == Stream.STDERR else "out"
 
-        p = subprocess.run(["bjobs", "-noheader", "-a", "-P", app_id, "-o", "proj name output_dir"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+        p = subprocess.run(
+            ["bjobs", "-noheader", "-a", "-P", app_id, "-o", "proj name output_dir"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
         lines = p.stdout.decode("utf-8").split("\n")
         jobs = {}
         log_file = ""
@@ -404,11 +488,13 @@ class LsfScheduler(Scheduler[LsfOpts]):
                 if split[2] == "-":
                     continue
                 proj = split[0]
-                role, _, idx = split[1][len(proj)+1:].rpartition("-")
+                role, _, idx = split[1][len(proj) + 1 :].rpartition("-")
                 if app_id == proj and role == role_name and idx == str(k):
                     log_file = split[2] + f"/{split[1]}.{extension}"
         if log_file == "":
-            raise ValueError(f"cannot find log directory for {app_id}. Note: need to specify -cfg jobdir to use this functionality.")
+            raise ValueError(
+                f"cannot find log directory for {app_id}. Note: need to specify -cfg jobdir to use this functionality."
+            )
 
         iterator = LogIterator(app_id, log_file, self, should_tail=should_tail)
         # sometimes there's multiple lines per logged line
@@ -419,7 +505,12 @@ class LsfScheduler(Scheduler[LsfOpts]):
 
     def list(self) -> List[ListAppResponse]:
         ret = []
-        p = subprocess.run(["bjobs", "-noheader", "-a", "-o", "proj stat exit_code"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+        p = subprocess.run(
+            ["bjobs", "-noheader", "-a", "-o", "proj stat exit_code"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        )
         lines = p.stdout.decode("utf-8").split("\n")
         apps = {}
         for line in lines:
@@ -433,7 +524,12 @@ class LsfScheduler(Scheduler[LsfOpts]):
             success_count = 0
             app_state = AppState.RUNNING
             for state in states:
-                if state == AppState.FAILED or state == AppState.CANCELLED or state == AppState.PENDING or state == AppState.UNKNOWN:
+                if (
+                    state == AppState.FAILED
+                    or state == AppState.CANCELLED
+                    or state == AppState.PENDING
+                    or state == AppState.UNKNOWN
+                ):
                     app_state = state
                     break
                 elif state == AppState.SUCCEEDED:
@@ -443,8 +539,8 @@ class LsfScheduler(Scheduler[LsfOpts]):
             ret.append(ListAppResponse(app_id=app_id, state=app_state))
         return ret
 
-def create_scheduler(session_name: str, **kwargs: Any) -> LsfScheduler:
-	return LsfScheduler(
-		session_name=session_name,
-	)
 
+def create_scheduler(session_name: str, **kwargs: Any) -> LsfScheduler:
+    return LsfScheduler(
+        session_name=session_name,
+    )
