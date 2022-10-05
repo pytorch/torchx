@@ -404,6 +404,7 @@
     <span class="n">UnknownAppException</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.specs.finder</span> <span class="kn">import</span> <span class="n">get_component</span>
+<span class="kn">from</span> <span class="nn">torchx.tracker.api</span> <span class="kn">import</span> <span class="n">tracker_config_env_var_name</span><span class="p">,</span> <span class="n">TRACKER_ENV_VAR_NAME</span>
 
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">Workspace</span>
@@ -418,9 +419,9 @@
 
 <span class="k">def</span> <span class="nf">_get_configured_trackers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="n">tracker_names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="s2">&quot;TORCHX_TRACKERS&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TORCHX_TRACKERS&quot;</span><span class="p">]:</span>
-        <span class="n">trackers</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TORCHX_TRACKERS&quot;</span><span class="p">]</span>
-        <span class="n">tracker_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TORCHX_TRACKERS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">TRACKER_ENV_VAR_NAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]:</span>
+        <span class="n">trackers</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]</span>
+        <span class="n">tracker_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Using &#39;TORCHX_TRACKERS&#39;=&#39;</span><span class="si">{</span><span class="n">trackers</span><span class="si">}</span><span class="s2">&#39; env variable to setup trackers&quot;</span>
         <span class="p">)</span>
@@ -432,7 +433,7 @@
 
     <span class="n">tracker_names_with_config</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">tracker_name</span> <span class="ow">in</span> <span class="n">tracker_names</span><span class="p">:</span>
-        <span class="n">config_env_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TORCHX_TRACKER_</span><span class="si">{</span><span class="n">tracker_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_CONFIG&quot;</span>
+        <span class="n">config_env_name</span> <span class="o">=</span> <span class="n">tracker_config_env_var_name</span><span class="p">(</span><span class="n">tracker_name</span><span class="p">)</span>
         <span class="n">config_value</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">config_env_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
@@ -580,7 +581,13 @@
             <span class="n">component_args</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_component_defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span>
+            <span class="n">app</span><span class="p">,</span>
+            <span class="n">scheduler</span><span class="p">,</span>
+            <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+            <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span>
+            <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.run"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -588,6 +595,7 @@
         <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent_run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs the given application in the specified mode.</span>
@@ -599,7 +607,9 @@
 <span class="sd">            An application handle that is used to call other action APIs on the app.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">)</span>
+        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span>
+            <span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span> <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.schedule"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
@@ -716,11 +726,11 @@
                 <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_PARENT_RUN_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent_run_id</span>
 
             <span class="k">if</span> <span class="n">configured_trackers</span><span class="p">:</span>
-                <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_TRACKERS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configured_trackers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configured_trackers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configured_trackers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
-                    <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;TORCHX_TRACKER_</span><span class="si">{</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_CONFIG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span>
+                    <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">tracker_config_env_var_name</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">config</span>
 
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;dryrun&quot;</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">runcfg</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span><span class="p">):</span>
