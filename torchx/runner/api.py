@@ -31,6 +31,7 @@ from torchx.specs import (
     UnknownAppException,
 )
 from torchx.specs.finder import get_component
+from torchx.tracker.api import tracker_config_env_var_name, TRACKER_ENV_VAR_NAME
 
 from torchx.util.types import none_throws
 from torchx.workspace.api import Workspace
@@ -45,9 +46,9 @@ NONE: str = "<NONE>"
 
 def _get_configured_trackers() -> Dict[str, str]:
     tracker_names = []
-    if "TORCHX_TRACKERS" in os.environ and os.environ["TORCHX_TRACKERS"]:
-        trackers = os.environ["TORCHX_TRACKERS"]
-        tracker_names = os.environ["TORCHX_TRACKERS"].split(",")
+    if TRACKER_ENV_VAR_NAME in os.environ and os.environ[TRACKER_ENV_VAR_NAME]:
+        trackers = os.environ[TRACKER_ENV_VAR_NAME]
+        tracker_names = os.environ[TRACKER_ENV_VAR_NAME].split(",")
         logger.info(
             f"Using 'TORCHX_TRACKERS'='{trackers}' env variable to setup trackers"
         )
@@ -59,7 +60,7 @@ def _get_configured_trackers() -> Dict[str, str]:
 
     tracker_names_with_config = {}
     for tracker_name in tracker_names:
-        config_env_name = f"TORCHX_TRACKER_{tracker_name.upper()}_CONFIG"
+        config_env_name = tracker_config_env_var_name(tracker_name)
         config_value = None
 
         if config_env_name in os.environ:
@@ -207,7 +208,13 @@ class Runner:
             component_args,
             self._component_defaults.get(component, None),
         )
-        return self.dryrun(app, scheduler, cfg=cfg, workspace=workspace)
+        return self.dryrun(
+            app,
+            scheduler,
+            cfg=cfg,
+            workspace=workspace,
+            parent_run_id=parent_run_id,
+        )
 
     def run(
         self,
@@ -215,6 +222,7 @@ class Runner:
         scheduler: str,
         cfg: Optional[Mapping[str, CfgVal]] = None,
         workspace: Optional[str] = None,
+        parent_run_id: Optional[str] = None,
     ) -> AppHandle:
         """
         Runs the given application in the specified mode.
@@ -226,7 +234,9 @@ class Runner:
             An application handle that is used to call other action APIs on the app.
         """
 
-        dryrun_info = self.dryrun(app, scheduler, cfg=cfg, workspace=workspace)
+        dryrun_info = self.dryrun(
+            app, scheduler, cfg=cfg, workspace=workspace, parent_run_id=parent_run_id
+        )
         return self.schedule(dryrun_info)
 
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
@@ -343,11 +353,11 @@ class Runner:
                 role.env["TORCHX_PARENT_RUN_ID"] = parent_run_id
 
             if configured_trackers:
-                role.env["TORCHX_TRACKERS"] = ",".join(configured_trackers.keys())
+                role.env[TRACKER_ENV_VAR_NAME] = ",".join(configured_trackers.keys())
 
             for name, config in configured_trackers.items():
                 if config:
-                    role.env[f"TORCHX_TRACKER_{name.upper()}_CONFIG"] = config
+                    role.env[tracker_config_env_var_name(name)] = config
 
         cfg = cfg or dict()
         with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
