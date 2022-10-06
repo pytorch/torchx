@@ -1,0 +1,2 @@
+[torchx.tracker]
+fsspec=torchx.tracker.backend.fsspec:create

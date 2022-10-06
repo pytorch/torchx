@@ -18,6 +18,7 @@ from torchx.util.entrypoints import load_group
 logger: logging.Logger = logging.getLogger(__name__)
 
 TRACKER_ENV_VAR_NAME = "TORCHX_TRACKERS"
+TRACKER_PARENT_RUN_ENV_VAR_NAME = "TORCHX_PARENT_RUN_ID"
 
 
 @dataclass
@@ -26,11 +27,11 @@ class TrackerSource:
     Dataclass to represent sources at backend tracker level
 
     Args:
-        source_id(str): source ID that can be either other TorchX handle or ID of external entity such as experiment
+        source_run_id(str): source ID that can be either other TorchX handle or ID of external entity such as experiment
         artifact_name(Optional[str]): type of of source. Can be interpreted as type of relationship that can be used for filtering.
     """
 
-    source_id: str
+    source_run_id: str
     artifact_name: Optional[str]
 
 
@@ -198,7 +199,6 @@ def trackers_from_environ() -> Iterable[TrackerBase]:
             )
             tracker = factory(None)
         trackers.append(tracker)
-
     return trackers
 
 
@@ -210,16 +210,16 @@ class AppRun:
     This API is stil experimental and may change in the future.
 
     Args:
-        run_id(str): identity of the job used by tracker API
+        id(str): identity of the job used by tracker API
         backends(Iterable[TrackerBase]): list of TrackerBase implementations that will be used to persist the data.
     """
 
-    run_id: str
+    id: str
     backends: Iterable[TrackerBase]
 
     @staticmethod
     @lru_cache(maxsize=1)  # noqa: B019
-    def from_env() -> AppRun:
+    def run_from_env() -> AppRun:
         """Factory method do build AppRun that uses environment variabes to build it.
 
         Single instance of AppRun will be available for the duration of the application, thus expect that calling
@@ -227,12 +227,20 @@ class AppRun:
         """
 
         torchx_job_id = os.environ["TORCHX_JOB_ID"]
-        return AppRun(run_id=torchx_job_id, backends=trackers_from_environ())
+
+        trackers = trackers_from_environ()
+        if TRACKER_PARENT_RUN_ENV_VAR_NAME in os.environ:
+            parent_run_id = os.environ[TRACKER_PARENT_RUN_ENV_VAR_NAME]
+            logger.info(f"Tracker parent run ID: '{parent_run_id}'")
+            for tracker in trackers:
+                tracker.add_source(torchx_job_id, parent_run_id, artifact_name=None)
+
+        return AppRun(id=torchx_job_id, backends=trackers_from_environ())
 
     def add_metadata(self, **kwargs: object) -> None:
         """Stores metadata for the current run"""
         for backend in self.backends:
-            backend.add_metadata(self.run_id, **kwargs)
+            backend.add_metadata(self.id, **kwargs)
 
     def add_artifact(
         self, name: str, path: str, metadata: Optional[Mapping[str, object]] = None
@@ -245,11 +253,11 @@ class AppRun:
             metadata(Optional[Mapping[str, object]]): optional metadata attached to artifact information
         """
         for backend in self.backends:
-            backend.add_artifact(self.run_id, name, path, metadata)
+            backend.add_artifact(self.id, name, path, metadata)
 
     def job_id(self) -> str:
         """Current Id of the run"""
-        return self.run_id
+        return self.id
 
     def add_source(self, source_id: str, artifact_name: Optional[str] = None) -> None:
         """
@@ -261,7 +269,7 @@ class AppRun:
             artifact_name(Optional[str]): optional value of type of source
         """
         for backend in self.backends:
-            backend.add_source(self.run_id, source_id, artifact_name)
+            backend.add_source(self.id, source_id, artifact_name)
 
     def sources(self) -> Iterable[AppRunTrackableSource]:
         """
@@ -273,9 +281,9 @@ class AppRun:
         model_run_sources = []
         if self.backends:
             backend = next(iter(self.backends))
-            sources = backend.sources(self.run_id)
+            sources = backend.sources(self.id)
             for source in sources:
-                parent = AppRun(source.source_id, backends=self.backends)
+                parent = AppRun(source.source_run_id, backends=self.backends)
                 model_run_source = AppRunTrackableSource(parent, source.artifact_name)
                 model_run_sources.append(model_run_source)
 

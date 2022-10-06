@@ -11,12 +11,14 @@ from typing import cast, DefaultDict, Dict, Iterable, Mapping, Optional, Tuple
 from unittest import mock, TestCase
 from unittest.mock import patch
 
+import torchx.tracker as tracker
 import torchx.tracker.api as api
 from torchx.tracker.api import (
     AppRun,
     Lineage,
     tracker_config_env_var_name,
     TRACKER_ENV_VAR_NAME,
+    TRACKER_PARENT_RUN_ENV_VAR_NAME,
     TrackerArtifact,
     TrackerBase,
     TrackerSource,
@@ -102,15 +104,20 @@ class AppRunApiTest(TestCase):
         self.model_run = AppRun(self.run_id, [self.tracker])
 
     @mock.patch.dict(
-        os.environ, {TRACKER_ENV_VAR_NAME: "tracker1", "TORCHX_JOB_ID": "run_id"}
+        os.environ,
+        {
+            TRACKER_ENV_VAR_NAME: "tracker1",
+            TRACKER_PARENT_RUN_ENV_VAR_NAME: "parent_run_id",
+            "TORCHX_JOB_ID": "run_id",
+        },
     )
     def test_env_factory_test(self) -> None:
         with patch(
             "torchx.tracker.api.load_group",
             return_value={"tracker1": tracker_factory},
         ):
-            app_run = api.AppRun.from_env()
-            self.assertEqual(app_run.run_id, self.run_id)
+            app_run = tracker.app_run_from_env()
+            self.assertEqual(app_run.id, self.run_id)
             self.assertEqual(TestTrackerBackend, type(app_run.backends[0]))
 
     def test_get_exierment_run_id(self) -> None:
@@ -135,7 +142,7 @@ class AppRunApiTest(TestCase):
         sources = self.model_run.sources()
         self.assertEqual(1, len(list(sources)))
         source = list(sources)[0]
-        self.assertEqual(source.parent.run_id, "parent_model_run")
+        self.assertEqual(source.parent.id, "parent_model_run")
         self.assertEqual(source.parent.backends, self.model_run.backends)
 
     def test_add_metadata(self) -> None:
