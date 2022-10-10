@@ -19,6 +19,7 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
     "kubernetes": "torchx.schedulers.kubernetes_scheduler",
     "aws_batch": "torchx.schedulers.aws_batch_scheduler",
     "ray": "torchx.schedulers.ray_scheduler",
+    "lsf": "torchx.schedulers.lsf_scheduler",
 }
 
 

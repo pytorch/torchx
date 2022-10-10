@@ -51,7 +51,7 @@ def main() -> None:
     torchx_image = "dummy_image"
     dryrun = False
 
-    if scheduler in ("kubernetes", "local_docker", "aws_batch"):
+    if scheduler in ("kubernetes", "local_docker", "aws_batch", "lsf"):
         try:
             build = build_and_push_image()
             torchx_image = build.torchx_image
@@ -104,6 +104,17 @@ def main() -> None:
                 "requirements": "",
             },
             "workspace": f"file://{os.getcwd()}",
+        },
+        "lsf": {
+            "providers": [
+                component_provider,
+            ],
+            "image": torchx_image,
+            "cfg": {
+                "runtime": "docker",
+                "jobdir": "/mnt/data/torchx",
+                "host_network": True,
+            },
         },
     }
 
