@@ -169,7 +169,7 @@ def tracker_factory(config: Optional[str] = None) -> TrackerBase:
     return TestTrackerBackend(config)
 
 
-class TrackerFromEnvironTest(TestCase):
+class TrackerFactoryMethodsTest(TestCase):
     def test_config_env_var_name(self) -> None:
         value = tracker_config_env_var_name("tracker1")
         self.assertEqual(value, "TORCHX_TRACKER_TRACKER1_CONFIG")
@@ -215,3 +215,54 @@ class TrackerFromEnvironTest(TestCase):
         ):
             trackers = api.trackers_from_environ()
             self.assertEqual(0, len(list(trackers)))
+
+    def test_extract_tracker_name_and_config_from_environ_undefined(self) -> None:
+        self.assertTrue(len(api._extract_tracker_name_and_config_from_environ()) == 0)
+
+    @mock.patch.dict(os.environ, {TRACKER_ENV_VAR_NAME: "tracker1"})
+    def test_extract_tracker_name_and_config_from_environ_with_just_name(self) -> None:
+        entries = api._extract_tracker_name_and_config_from_environ()
+        self.assertEqual(entries, {"tracker1": None})
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            TRACKER_ENV_VAR_NAME: "tracker1",
+            "TORCHX_TRACKER_TRACKER1_CONFIG": "myconfig.txt",
+        },
+    )
+    def test_extract_tracker_name_and_config_from_environ_with_name_and_config(
+        self,
+    ) -> None:
+        entries = api._extract_tracker_name_and_config_from_environ()
+        self.assertEqual(entries, {"tracker1": "myconfig.txt"})
+
+    def test_build_trackers_with_no_trackers_defined(self) -> None:
+        with patch(
+            "torchx.tracker.api.load_group",
+            return_value={"tracker1": tracker_factory},
+        ):
+            no_tracker_names = {}
+            trackers = api.build_trackers(no_tracker_names)
+            self.assertEqual(0, len(list(trackers)))
+
+    def test_build_trackers_with_no_entrypoints_group_defined(self) -> None:
+        with patch(
+            "torchx.tracker.api.load_group",
+            return_value=None,
+        ):
+            tracker_names = {"tracker1": "myconfig.txt"}
+            trackers = api.build_trackers(tracker_names)
+            self.assertEqual(0, len(list(trackers)))
+
+    def test_build_trackers(self) -> None:
+        with patch(
+            "torchx.tracker.api.load_group",
+            return_value={"tracker1": tracker_factory},
+        ):
+            tracker_names = {"tracker1": "myconfig.txt"}
+            trackers = api.build_trackers(tracker_names)
+            trackers = list(trackers)
+            self.assertEqual(1, len(trackers))
+            tracker = trackers[0]
+            self.assertEqual(tracker.config_path, "myconfig.txt")  # pyre-ignore[16]
