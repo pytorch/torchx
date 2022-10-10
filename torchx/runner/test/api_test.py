@@ -199,7 +199,7 @@ class RunnerTest(unittest.TestCase):
                     expected_parent_run_id,
                 )
 
-    @patch("torchx.runner.api._get_configured_trackers")
+    @patch("torchx.runner.api.get_configured_trackers")
     def test_dryrun_setup_trackers(self, config_trackers_mock: MagicMock, _) -> None:
         config_trackers_mock.return_value = {
             "my_tracker1": "manifold://config1.txt",

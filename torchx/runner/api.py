@@ -44,7 +44,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 NONE: str = "<NONE>"
 
 
-def _get_configured_trackers() -> Dict[str, str]:
+def get_configured_trackers() -> Dict[str, Optional[str]]:
     tracker_names = []
     if TRACKER_ENV_VAR_NAME in os.environ and os.environ[TRACKER_ENV_VAR_NAME]:
         trackers = os.environ[TRACKER_ENV_VAR_NAME]
@@ -324,7 +324,7 @@ class Runner:
                 f"Using 'TORCHX_PARENT_RUN_ID'='{parent_run_id}' env variable as tracker parent run ID"
             )
 
-        configured_trackers = _get_configured_trackers()
+        configured_trackers = get_configured_trackers()
 
         for role in app.roles:
             if not role.entrypoint:

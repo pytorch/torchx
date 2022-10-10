@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import os
 import pathlib
 from argparse import Namespace
 from typing import Optional
@@ -189,6 +190,12 @@ def main() -> None:
         default=None,
         help="Tensorboard log path",
     )
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default="../data",
+        help="Model data storge path",
+    )
     args = parser.parse_args()
     use_cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -206,8 +213,12 @@ def main() -> None:
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
     )
-    dataset1 = datasets.MNIST("../data", train=True, download=True, transform=transform)
-    dataset2 = datasets.MNIST("../data", train=False, transform=transform)
+    data_path = args.data_path
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+
+    dataset1 = datasets.MNIST(data_path, train=True, download=True, transform=transform)
+    dataset2 = datasets.MNIST(data_path, train=False, transform=transform)
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
@@ -222,6 +233,7 @@ def main() -> None:
     # Metadata example
     app_run.add_metadata(**train_kwargs)
     app_run.add_metadata(lr=args.lr, gamma=args.gamma)
+    app_run.add_metadata(data_path=data_path)
 
     writer = None
     if args.tb_log_path:

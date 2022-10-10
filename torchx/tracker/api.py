@@ -156,6 +156,55 @@ def tracker_config_env_var_name(entrypoint_key: str) -> str:
     return f"TORCHX_TRACKER_{entrypoint_key.upper()}_CONFIG"
 
 
+def _extract_tracker_name_and_config_from_environ() -> Mapping[str, Optional[str]]:
+    if TRACKER_ENV_VAR_NAME not in os.environ:
+        logger.info("No trackers were configured, skipping setup.")
+        return {}
+
+    tracker_backend_entrypoints = os.environ[TRACKER_ENV_VAR_NAME]
+    logger.info(f"Trackers specified {tracker_backend_entrypoints}")
+
+    entries = {}
+    for entrypoint_key in tracker_backend_entrypoints.split(","):
+        config = None
+        config_env_name = tracker_config_env_var_name(entrypoint_key)
+        if config_env_name in os.environ:
+            config = os.environ[config_env_name]
+        entries[entrypoint_key] = config
+
+    return entries
+
+
+def build_trackers(
+    entrypoint_and_config: Mapping[str, Optional[str]]
+) -> Iterable[TrackerBase]:
+    trackers = []
+
+    entrypoint_factories = load_group("torchx.tracker")
+    if not entrypoint_factories:
+        logger.warn(
+            "No 'torchx.tracker' entry_points are defined. Tracking will not capture any data."
+        )
+        return trackers
+
+    for entrypoint_key, config in entrypoint_and_config.items():
+        logger.info(f"Configuring tracker {entrypoint_key}")
+        if entrypoint_key not in entrypoint_factories:
+            logger.warn(
+                f"Coult not find '{entrypoint_key}' tracker entrypoint, skipping."
+            )
+            continue
+        factory = entrypoint_factories[entrypoint_key]
+        if config:
+            logger.info(f"Trackers config specified for {entrypoint_key} as {config}")
+            tracker = factory(config)
+        else:
+            logger.info(f"No trackers config specified for {entrypoint_key}")
+            tracker = factory(None)
+        trackers.append(tracker)
+    return trackers
+
+
 def trackers_from_environ() -> Iterable[TrackerBase]:
     """
     Builds list of Trackers that will be used to persist tracking information and will be used by AppRun
@@ -167,39 +216,10 @@ def trackers_from_environ() -> Iterable[TrackerBase]:
     Entry-points(factory methods) must exist in runtime when job is running since this runs within user-job space.
     """
 
-    if TRACKER_ENV_VAR_NAME not in os.environ:
-        logger.info("No trackers were configured, skipping setup.")
-        return []
-
-    tracker_backend_entrypoints = os.environ[TRACKER_ENV_VAR_NAME]
-    logger.info(f"Trackers specified {tracker_backend_entrypoints}")
-
-    trackers = []
-
-    entrypoint_factories = load_group("torchx.tracker")
-    for entrypoint_key in tracker_backend_entrypoints.split(","):
-        logger.info(f"Configuring tracker {entrypoint_key}")
-        if entrypoint_key not in entrypoint_factories:
-            logger.warn(
-                f"Coult not find '{entrypoint_key}' tracker entrypoint, skipping."
-            )
-            continue
-        factory = entrypoint_factories[entrypoint_key]
-
-        config_env_name = tracker_config_env_var_name(entrypoint_key)
-        if config_env_name in os.environ:
-            config = os.environ[config_env_name]
-            logger.info(
-                f"Trackers config specified for {tracker_backend_entrypoints} as {config}"
-            )
-            tracker = factory(config)
-        else:
-            logger.info(
-                f"No trackers config specified for {tracker_backend_entrypoints}"
-            )
-            tracker = factory(None)
-        trackers.append(tracker)
-    return trackers
+    entrypoint_and_config = _extract_tracker_name_and_config_from_environ()
+    if entrypoint_and_config:
+        return build_trackers(entrypoint_and_config)
+    return []
 
 
 @dataclass

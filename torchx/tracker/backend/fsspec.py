@@ -232,6 +232,9 @@ class FsspecTracker(TrackerBase):
     def lineage(self, run_id: str) -> Lineage:
         raise NotImplementedError("")
 
+    def __repr__(self) -> str:
+        return f"<FsspecTracker: root_path={self._path_builder.path()}>"
+
 
 def _read_config(config_file: str) -> Mapping[str, str]:
     # TODO add support for resource based config
