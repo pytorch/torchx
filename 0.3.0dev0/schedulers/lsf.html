@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Slurm &mdash; PyTorch/TorchX main documentation</title>
+  <title>IBM Spectrum LSF &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Ray" href="ray.html" />
-    <link rel="prev" title="Kubernetes" href="kubernetes.html" />
+    <link rel="next" title="Kubeflow Pipelines" href="../pipelines/kfp.html" />
+    <link rel="prev" title="AWS Batch" href="aws_batch.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -259,10 +259,10 @@
 <li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="aws_batch.html">AWS Batch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lsf.html">IBM Spectrum LSF</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IBM Spectrum LSF</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
 <ul>
@@ -341,13 +341,13 @@
       </li>
 
         
-      <li>Slurm</li>
+      <li>IBM Spectrum LSF</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/schedulers/slurm.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/schedulers/lsf.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -376,65 +376,49 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.schedulers.slurm_scheduler">
-<span id="slurm"></span><h1>Slurm<a class="headerlink" href="#module-torchx.schedulers.slurm_scheduler" title="Permalink to this heading">¶</a></h1>
-<p>This contains the TorchX Slurm scheduler which can be used to run TorchX
-components on a Slurm cluster.</p>
+  <section id="module-torchx.schedulers.lsf_scheduler">
+<span id="ibm-spectrum-lsf"></span><h1>IBM Spectrum LSF<a class="headerlink" href="#module-torchx.schedulers.lsf_scheduler" title="Permalink to this heading">¶</a></h1>
+<p>This contains the TorchX LSF scheduler which can be used to run TorchX
+components on a LSF cluster.</p>
+<p>This scheduler is in prototype stage and may change without notice. If you run
+into any issues or have feedback please submit an issue.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
+<p>You’ll need either an existing LSF cluster to run your jobs or for individuals
+you can install LSF Community Edition.</p>
+<p>See the LSF documentation for more details:
+<a class="reference external" href="https://www.ibm.com/support/pages/where-do-i-download-lsf-community-edition">https://www.ibm.com/support/pages/where-do-i-download-lsf-community-edition</a></p>
+</section>
 <dl class="py class">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scheduler</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">SlurmOpts</span></code>], <a class="reference internal" href="../workspace.html#torchx.workspace.dir_workspace.DirWorkspace" title="torchx.workspace.dir_workspace.DirWorkspace"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirWorkspace</span></code></a></p>
-<p>SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects
-that slurm CLI tools are locally installed and job accounting is enabled.</p>
-<p>Each app def is scheduled using a heterogenous job via sbatch.
-Each replica of each role has a unique shell script generated with it’s
-resource allocations and args and then sbatch is used to launch all of them
-together.</p>
-<p>Logs are available in combined form via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">log</span></code>, the programmatic API
-as well as in the job launch directory as
-<code class="docutils literal notranslate"><span class="pre">slurm-&lt;jobid&gt;-&lt;role&gt;-&lt;replica_id&gt;.out</span></code>. If TorchX is running in a
-different directory than where the job was created the logs won’t be able to
-be found.</p>
-<p>Some of the config options passed to it are added as SBATCH arguments to each
-replica. See <a class="reference external" href="https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS">https://slurm.schedmd.com/sbatch.html#SECTION_OPTIONS</a> for info
-on the arguments.</p>
-<p>Slurm jobs inherit the currently active <code class="docutils literal notranslate"><span class="pre">conda</span></code> or <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> and run
-in the current working directory. This matches the behavior of the
-<code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler.</p>
-<p>For more info see:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://slurm.schedmd.com/sbatch.html">https://slurm.schedmd.com/sbatch.html</a></p></li>
-<li><p><a class="reference external" href="https://slurm.schedmd.com/heterogeneous_jobs.html">https://slurm.schedmd.com/heterogeneous_jobs.html</a></p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchx run --scheduler slurm utils.echo --msg hello
-slurm://torchx_user/1234
-$ torchx status slurm://torchx_user/1234
-$ less slurm-1234.out
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfScheduler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.lsf_scheduler.</span></span><span class="sig-name descname"><span class="pre">LsfScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scheduler</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LsfOpts</span></code>]</p>
+<p><strong>Example: hello_world</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchx run -s lsf -cfg <span class="nv">jobdir</span><span class="o">=</span>/mnt/data/torchx utils.echo --image alpine:latest --msg hello_world --num_replicas <span class="m">3</span>
+...
+</pre></div>
+</div>
+<p><strong>Example: Gloo</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cp dist_app.py /mnt/data/dist/
+$ torchx run -s lsf -cfg <span class="s2">&quot;jobdir=/mnt/data/torchx,host_network=True&quot;</span> dist.ddp -j 2x2 --gpu <span class="m">2</span>           --script /data/dist_app.py --mount <span class="s2">&quot;type=bind,src=/mnt/data/dist,dst=/data&quot;</span>
 ...
 </pre></div>
 </div>
 <p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
-        [partition=PARTITION],[time=TIME],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR]
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
+        <span class="p">[</span><span class="n">lsf_queue</span><span class="o">=</span><span class="n">LSF_QUEUE</span><span class="p">],[</span><span class="n">jobdir</span><span class="o">=</span><span class="n">JOBDIR</span><span class="p">],[</span><span class="n">container_workdir</span><span class="o">=</span><span class="n">CONTAINER_WORKDIR</span><span class="p">],[</span><span class="n">host_network</span><span class="o">=</span><span class="n">HOST_NETWORK</span><span class="p">],[</span><span class="n">shm_size</span><span class="o">=</span><span class="n">SHM_SIZE</span><span class="p">]</span>
 
-    optional arguments:
-        partition=PARTITION (str, None)
-            The partition to run the job in.
-        time=TIME (str, None)
-            The maximum time the job is allowed to run for. Formats:             &quot;minutes&quot;, &quot;minutes:seconds&quot;, &quot;hours:minutes:seconds&quot;, &quot;days-hours&quot;,             &quot;days-hours:minutes&quot; or &quot;days-hours:minutes:seconds&quot;
-        comment=COMMENT (str, None)
-            Comment to set on the slurm job.
-        constraint=CONSTRAINT (str, None)
-            Constraint to use for the slurm job.
-        mail-user=MAIL-USER (str, None)
-            User to mail on job end.
-        mail-type=MAIL-TYPE (str, None)
-            What events to mail users on.
-        job_dir=JOB_DIR (str, None)
-            The directory to place the job code and outputs. The
-            directory must not exist and will be created. To enable log
-            iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
-            
+    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+        <span class="n">lsf_queue</span><span class="o">=</span><span class="n">LSF_QUEUE</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">queue</span> <span class="n">name</span> <span class="n">to</span> <span class="n">submit</span> <span class="n">jobs</span>
+        <span class="n">jobdir</span><span class="o">=</span><span class="n">JOBDIR</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">The</span> <span class="n">directory</span> <span class="n">to</span> <span class="n">place</span> <span class="n">the</span> <span class="n">job</span> <span class="n">code</span> <span class="ow">and</span> <span class="n">outputs</span><span class="o">.</span> <span class="n">The</span> <span class="n">directory</span> <span class="n">must</span> <span class="ow">not</span> <span class="n">exist</span> <span class="ow">and</span> <span class="n">will</span> <span class="n">be</span> <span class="n">created</span><span class="o">.</span>
+        <span class="n">container_workdir</span><span class="o">=</span><span class="n">CONTAINER_WORKDIR</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">working</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">container</span> <span class="n">jobs</span>
+        <span class="n">host_network</span><span class="o">=</span><span class="n">HOST_NETWORK</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="kc">True</span> <span class="k">if</span> <span class="n">using</span> <span class="n">the</span> <span class="n">host</span> <span class="n">network</span> <span class="k">for</span> <span class="n">jobs</span>
+        <span class="n">shm_size</span><span class="o">=</span><span class="n">SHM_SIZE</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="mi">64</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">size</span> <span class="n">of</span> <span class="n">shared</span> <span class="n">memory</span> <span class="p">(</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">shm</span><span class="p">)</span> <span class="k">for</span> <span class="n">jobs</span>
 </pre></div>
 </div>
 <p><strong>Compatibility</strong></p>
@@ -455,25 +439,25 @@ $ less slurm-1234.out
 <td><p>✔️</p></td>
 </tr>
 <tr class="row-odd"><td><p>Describe Job</p></td>
-<td><p>Partial support. SlurmScheduler will return job and replica
-status but does not provide the complete original AppSpec.
+<td><p>LsfScheduler will return job.
 </p></td>
 </tr>
 <tr class="row-even"><td><p>Workspaces / Patching</p></td>
-<td><p>If ``job_dir`` is specified the DirWorkspace will create a new
-isolated directory with a snapshot of the workspace.
-</p></td>
+<td><p>❌</p></td>
 </tr>
 <tr class="row-odd"><td><p>Mounts</p></td>
-<td><p>❌</p></td>
+<td><p>✔️</p></td>
 </tr>
 </tbody>
 </table>
-<p>If a partition has less than 1GB of RealMemory configured we disable memory
-requests to workaround <a class="reference external" href="https://github.com/aws/aws-parallelcluster/issues/2198">https://github.com/aws/aws-parallelcluster/issues/2198</a>.</p>
+<p><strong>TOFIX</strong></p>
+<ul class="simple">
+<li><p>On host_network=False, tasks cannot reoslve static names such as /etc/hosts (containers cannot reach it without host network)</p></li>
+<li><p>Image downloads should be separated jobs</p></li>
+</ul>
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.describe">
-<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.DescribeAppResponse" title="torchx.schedulers.api.DescribeAppResponse"><span class="pre">DescribeAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.describe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfScheduler.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.DescribeAppResponse" title="torchx.schedulers.api.DescribeAppResponse"><span class="pre">DescribeAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfScheduler.describe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Describes the specified application.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -483,16 +467,16 @@ requests to workaround <a class="reference external" href="https://github.com/aw
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.list">
-<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.ListAppResponse" title="torchx.schedulers.api.ListAppResponse"><span class="pre">ListAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfScheduler.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.ListAppResponse" title="torchx.schedulers.api.ListAppResponse"><span class="pre">ListAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfScheduler.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfScheduler.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>For apps launched on the scheduler, this API returns a list of ListAppResponse
 objects each of which have app id and its status.
 Note: This API is in prototype phase and is subject to change.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter">
-<span class="sig-name descname"><span class="pre">log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Stream</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.10)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.log_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.log_iter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfScheduler.log_iter">
+<span class="sig-name descname"><span class="pre">log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.10)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Stream</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.10)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfScheduler.log_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfScheduler.log_iter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an iterator to the log lines of the <code class="docutils literal notranslate"><span class="pre">k``th</span> <span class="pre">replica</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">``role</span></code>.
 The iterator ends end all qualifying log lines have been read.</p>
 <p>If the scheduler supports time-based cursors fetching log lines
@@ -560,15 +544,15 @@ throw an ValueError.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts">
-<span class="sig-name descname"><span class="pre">run_opts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../specs.html#torchx.specs.runopts" title="torchx.specs.api.runopts"><span class="pre">runopts</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.run_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfScheduler.run_opts">
+<span class="sig-name descname"><span class="pre">run_opts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../specs.html#torchx.specs.runopts" title="torchx.specs.api.runopts"><span class="pre">runopts</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfScheduler.run_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfScheduler.run_opts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the run configuration options expected by the scheduler.
 Basically a <code class="docutils literal notranslate"><span class="pre">--help</span></code> for the <code class="docutils literal notranslate"><span class="pre">run</span></code> API.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.schedule">
-<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.slurm_scheduler.SlurmBatchRequest" title="torchx.schedulers.slurm_scheduler.SlurmBatchRequest"><span class="pre">SlurmBatchRequest</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfScheduler.schedule">
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.lsf_scheduler.LsfBsub" title="torchx.schedulers.lsf_scheduler.LsfBsub"><span class="pre">LsfBsub</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfScheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
 Implementors are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
@@ -581,44 +565,19 @@ implemented by:</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.create_scheduler">
-<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler" title="torchx.schedulers.slurm_scheduler.SlurmScheduler"><span class="pre">SlurmScheduler</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.LsfBsub">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.lsf_scheduler.</span></span><span class="sig-name descname"><span class="pre">LsfBsub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NoneType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">torchx.specs.api.AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torchx.schedulers.lsf_scheduler.LsfOpts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#LsfBsub"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.LsfBsub" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmBatchRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmBatchRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest" title="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest"><span class="pre">SlurmReplicaRequest</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmBatchRequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmBatchRequest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Holds parameters used to launch a slurm job via sbatch.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmBatchRequest.materialize">
-<span class="sig-name descname"><span class="pre">materialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmBatchRequest.materialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmBatchRequest.materialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>materialize returns the contents of the script that can be passed to
-sbatch to run the job.</p>
-</dd></dl>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchx.schedulers.lsf_scheduler.create_scheduler">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.lsf_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.schedulers.lsf_scheduler.LsfScheduler" title="torchx.schedulers.lsf_scheduler.LsfScheduler"><span class="pre">LsfScheduler</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/lsf_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.lsf_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmReplicaRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrypoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srun_opts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbatch_opts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmReplicaRequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Holds parameters for a single replica running on slurm and can be materialized down to a bash script.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.from_role">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../specs.html#torchx.specs.Role" title="torchx.specs.api.Role"><span class="pre">Role</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SlurmOpts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nomem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest" title="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest"><span class="pre">SlurmReplicaRequest</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmReplicaRequest.from_role"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.from_role" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">from_role</span></code> creates a SlurmReplicaRequest for the specific role and
-name.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.materialize">
-<span class="sig-name descname"><span class="pre">materialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmReplicaRequest.materialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.materialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>materialize returns the sbatch and srun groups for this role. They
-should be combined using <cite>:</cite> per slurm heterogenous groups.</p>
-</dd></dl>
-
-</dd></dl>
-
+</section>
 </section>
 
 
@@ -629,10 +588,10 @@ should be combined using <cite>:</cite> per slurm heterogenous groups.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ray.html" class="btn btn-neutral float-right" title="Ray" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="../pipelines/kfp.html" class="btn btn-neutral float-right" title="Kubeflow Pipelines" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="kubernetes.html" class="btn btn-neutral" title="Kubernetes" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="aws_batch.html" class="btn btn-neutral" title="AWS Batch" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -664,7 +623,11 @@ should be combined using <cite>:</cite> per slurm heterogenous groups.</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Slurm</a></li>
+<li><a class="reference internal" href="#">IBM Spectrum LSF</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#reference">Reference</a></li>
+</ul>
+</li>
 </ul>
 
             </div>

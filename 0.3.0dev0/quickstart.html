@@ -262,6 +262,7 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
 <ul>
@@ -767,11 +768,11 @@ torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-10 22:21:11 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2022-10-10 22:21:11 INFO     Log directory is: /tmp/torchx_czcy62yi
-torchx 2022-10-10 22:21:11 INFO     Waiting for the app to finish...
+torchx 2022-10-10 22:47:51 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2022-10-10 22:47:51 INFO     Log directory is: /tmp/torchx_zrff4wjq
+torchx 2022-10-10 22:47:51 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-10-10 22:21:12 INFO     Job finished: SUCCEEDED
+torchx 2022-10-10 22:47:52 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -779,7 +780,7 @@ torchx 2022-10-10 22:21:12 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-xzd4n60nz5nflc
+local_cwd://torchx/torchx_utils_python-xgndg7fl4q4xp
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -799,12 +800,12 @@ torchx run --scheduler local_docker utils.python --script my_app.py <span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-10 22:21:14 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-10-10 22:21:14 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-10-10 22:21:26 INFO     Built new image `sha256:ea374d920dab7a5749e8663b260aa286e4e823aa665735dfec9d32d35a610512` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2022-10-10 22:21:26 INFO     Waiting for the app to finish...
+torchx 2022-10-10 22:47:55 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-10-10 22:47:55 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-10-10 22:48:08 INFO     Built new image `sha256:c485ca579e2f5911024c044ff95b679645ab45276279723378f67bdaf9b1d71e` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2022-10-10 22:48:08 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2022-10-10 22:21:27 INFO     Job finished: SUCCEEDED
+torchx 2022-10-10 22:48:09 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -812,7 +813,7 @@ torchx 2022-10-10 22:21:27 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-mdh0jw2p02hmpd
+local_docker://torchx/torchx_utils_python-btqwhqpwlvlwnd
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -924,27 +925,27 @@ torchx run --scheduler local_docker dist.ddp -j 2x2 --script dist_app.py
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-10 22:21:31 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-10-10 22:21:31 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-10-10 22:21:43 INFO     Built new image `sha256:e0b0c8e7a15b78390241bb347874d9785acc1685fa11647d02a1065fa248f46a` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
-torchx 2022-10-10 22:21:44 INFO     Waiting for the app to finish...
-dist_app/0 WARNING:__main__:
-dist_app/0 *****************************************
-dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-dist_app/0 *****************************************
+torchx 2022-10-10 22:48:13 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-10-10 22:48:13 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-10-10 22:48:27 INFO     Built new image `sha256:3c2f562856689b4c7349f3fc6ea207aa72bc7ea206780de9a19177a65c013f05` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2022-10-10 22:48:27 INFO     Waiting for the app to finish...
 dist_app/1 WARNING:__main__:
 dist_app/1 *****************************************
 dist_app/1 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 dist_app/1 *****************************************
-dist_app/0 [1]:I am worker 1 of 4!
-dist_app/0 [1]:all_reduce output = tensor([6])
-dist_app/0 [0]:I am worker 0 of 4!
-dist_app/0 [0]:all_reduce output = tensor([6])
-dist_app/1 [1]:I am worker 3 of 4!
-dist_app/1 [1]:all_reduce output = tensor([6])
+dist_app/0 WARNING:__main__:
+dist_app/0 *****************************************
+dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 *****************************************
 dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
-torchx 2022-10-10 22:21:52 INFO     Job finished: SUCCEEDED
+dist_app/1 [1]:I am worker 3 of 4!
+dist_app/1 [1]:all_reduce output = tensor([6])
+dist_app/0 [0]:I am worker 0 of 4!
+dist_app/0 [0]:all_reduce output = tensor([6])
+dist_app/0 [1]:I am worker 1 of 4!
+dist_app/0 [1]:all_reduce output = tensor([6])
+torchx 2022-10-10 22:48:37 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -952,7 +953,7 @@ torchx 2022-10-10 22:21:52 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-cjblnrltnkvn9c
+local_docker://torchx/dist_app-lgf3h2q5hg95vd
 </pre></div></div>
 </div>
 </section>
@@ -1107,6 +1108,22 @@ ray:
         requirements=REQUIREMENTS (str, None)
             Path to requirements.txt
 
+lsf:
+    usage:
+        [lsf_queue=LSF_QUEUE],[jobdir=JOBDIR],[container_workdir=CONTAINER_WORKDIR],[host_network=HOST_NETWORK],[shm_size=SHM_SIZE]
+
+    optional arguments:
+        lsf_queue=LSF_QUEUE (str, None)
+            queue name to submit jobs
+        jobdir=JOBDIR (str, None)
+            The directory to place the job code and outputs. The directory must not exist and will be created.
+        container_workdir=CONTAINER_WORKDIR (str, None)
+            working directory in container jobs
+        host_network=HOST_NETWORK (bool, False)
+            True if using the host network for jobs
+        shm_size=SHM_SIZE (str, 64m)
+            size of shared memory (/dev/shm) for jobs
+
 </pre></div></div>
 </div>
 </section>
@@ -1172,11 +1189,11 @@ torchx run --scheduler local_docker utils.python --script timm_app.py
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-10 22:21:55 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2022-10-10 22:21:56 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-10-10 22:21:56 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-10-10 22:24:05 INFO     Built new image `sha256:c8cf91026e039b7f55e6cb51b408f6a50318aa448b4efa9bc8d74a6a2d69d761` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2022-10-10 22:24:05 INFO     Waiting for the app to finish...
+torchx 2022-10-10 22:48:40 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2022-10-10 22:48:41 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-10-10 22:48:41 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-10-10 22:50:54 INFO     Built new image `sha256:abbaa641ca9a59925bdf487b7af3caa6cd45d69760d7527cd49d52bbd1f47953` based on original image `ghcr.io/pytorch/torchx:0.3.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2022-10-10 22:50:55 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1285,7 +1302,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d (pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2022-10-10 22:24:08 INFO     Job finished: SUCCEEDED
+torchx 2022-10-10 22:50:59 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1293,7 +1310,7 @@ torchx 2022-10-10 22:24:08 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-xzsqqx66h4jhqc
+local_docker://torchx/torchx_utils_python-shsws105w0pjrc
 </pre></div></div>
 </div>
 </section>
