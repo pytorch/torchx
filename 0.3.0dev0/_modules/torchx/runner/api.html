@@ -417,7 +417,7 @@
 <span class="n">NONE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;NONE&gt;&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_get_configured_trackers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">get_configured_trackers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
     <span class="n">tracker_names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">TRACKER_ENV_VAR_NAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]:</span>
         <span class="n">trackers</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]</span>
@@ -697,7 +697,7 @@
                 <span class="sa">f</span><span class="s2">&quot;Using &#39;TORCHX_PARENT_RUN_ID&#39;=&#39;</span><span class="si">{</span><span class="n">parent_run_id</span><span class="si">}</span><span class="s2">&#39; env variable as tracker parent run ID&quot;</span>
             <span class="p">)</span>
 
-        <span class="n">configured_trackers</span> <span class="o">=</span> <span class="n">_get_configured_trackers</span><span class="p">()</span>
+        <span class="n">configured_trackers</span> <span class="o">=</span> <span class="n">get_configured_trackers</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">:</span>
