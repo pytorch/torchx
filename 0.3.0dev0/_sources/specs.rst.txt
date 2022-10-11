@@ -75,6 +75,9 @@ Mounts
 .. autoclass:: VolumeMount
    :members:
 
+.. autoclass:: DeviceMount
+   :members:
+
 
 Component Linter
 -----------------
