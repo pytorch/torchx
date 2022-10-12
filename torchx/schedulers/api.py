@@ -257,7 +257,7 @@ class Scheduler(abc.ABC, Generic[T]):
     ) -> Iterable[str]:
         """
         Returns an iterator to the log lines of the ``k``th replica of the ``role``.
-        The iterator ends end all qualifying log lines have been read.
+        The iterator ends when all qualifying log lines have been read.
 
         If the scheduler supports time-based cursors fetching log lines
         for custom time ranges, then the ``since``, ``until`` fields are
@@ -285,7 +285,7 @@ class Scheduler(abc.ABC, Generic[T]):
            the specific scheduler's documentation for the iterator's behavior.
 
         3.1 If the scheduler supports log-tailing, it should be controlled
-            by``should_tail`` parameter.
+            by ``should_tail`` parameter.
 
         4. Does not guarantee log retention. It is possible that by the time this
            method is called, the underlying scheduler may have purged the log records
