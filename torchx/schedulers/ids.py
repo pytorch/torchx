@@ -6,18 +6,25 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import random
 import struct
 
+START_CANDIDATES: str = "bcdfghjklmnpqrstvwxz"
+END_CANDIDATES: str = START_CANDIDATES + "012345679"
 
-def make_unique(name: str) -> str:
+
+def make_unique(name: str, string_length: int = 0) -> str:
     """
     Appends a unique 64-bit string to the input argument.
 
     Returns:
         string in format $name-$unique_suffix
     """
-    rand_suffix = random_id()
-    return f"{name}-{rand_suffix}"
+    return (
+        f"{name}-{random_id()}"
+        if string_length == 0
+        else f"{name}-{get_len_random_id(string_length)}"
+    )
 
 
 def random_uint64() -> int:
@@ -32,9 +39,6 @@ def random_id() -> str:
     Generates an alphanumeric string ID that matches the requirements from
     https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
     """
-    START_CANDIDATES = "bcdfghjklmnpqrstvwxz"
-    END_CANDIDATES = START_CANDIDATES + "012345679"
-
     out = ""
     v = random_uint64()
     while v > 0:
@@ -46,4 +50,21 @@ def random_id() -> str:
         char = v % len(candidates)
         v = v // len(candidates)
         out += candidates[char]
+    return out
+
+
+def get_len_random_id(string_length: int) -> str:
+    """
+    Generates an alphanumeric string ID that matches the requirements from
+    https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
+    """
+    out = ""
+    for i in range(string_length):
+        if out == "":
+            candidates = START_CANDIDATES
+        else:
+            candidates = END_CANDIDATES
+
+        out += random.choice(candidates)
+
     return out
