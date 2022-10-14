@@ -305,7 +305,12 @@ class Role:
             entrypoint: command (within the container) to invoke the role
             args: commandline arguments to the entrypoint cmd
             env: environment variable mappings
-            replicas: number of container replicas to run
+            num_replicas: number of container replicas to run
+            min_replicas: minimum number of replicas for the job to start. When
+                set the job size can automatically adjust between min_replicas
+                and num_replicas depending on the cluster resources and
+                policies. If the scheduler doesn't support auto scaling this
+                field is ignored and the job size will be num_replicas.
             max_retries: max number of retries before giving up
             retry_policy: retry behavior upon replica failures
             resource: Resource requirement for the role. The role should be scheduled

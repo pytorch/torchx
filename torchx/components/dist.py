@@ -40,7 +40,11 @@ training script is called ``main.py``, launch it as:
     # remote (optionally pass --rdzv_port to use a different master port than the default 29500)
     $ torchx run -s kubernetes -cfg queue=default dist.ddp \\
         -j 2x4 \\
-        --script main.py \\
+        --script main.py
+
+    # remote -- elastic/autoscaling with 2 minimum and max 5 nodes with 8
+    # workers each
+    $ torchx run -s kubernetes dist.ddp -j 2:5x8 --script main.py
 
 
 Note that the only difference compared to the local launch is the scheduler (``-s``).
@@ -115,7 +119,7 @@ def ddp(
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
-        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
+        j: [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
         max_retries: the number of scheduler retries allowed
         rdzv_port: the port on rank0's host to use for hosting the c10d store used for rendezvous.
@@ -224,6 +228,10 @@ class _noquote(str):
 
 
 def parse_nnodes(j: str) -> Tuple[int, int, int, str]:
+    """
+    parse_nnodes converts a node and process string into the individual
+    components. Format is ``[[<min_replicas>:]<replicas>x]<num processes>``.
+    """
     if re.match("^\\d+:\\d+x\\d+$", j):  # match 2:4x1
         nnodes_rep, nproc_per_node = j.split("x")
         min_nnodes, max_nnodes = nnodes_rep.split(":")
