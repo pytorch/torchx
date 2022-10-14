@@ -537,6 +537,7 @@
 <span class="sd">                    does not provide the complete original AppSpec.</span>
 <span class="sd">                workspaces: true</span>
 <span class="sd">                mounts: false</span>
+<span class="sd">                elasticity: Partial support. Multi role jobs are not supported.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -678,6 +679,9 @@
                     <span class="p">)</span>
 
                     <span class="n">job</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min_replicas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_replicas is only supported with single role jobs&quot;</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
 
