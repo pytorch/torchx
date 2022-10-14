@@ -323,6 +323,39 @@ if has_ray():
             ):
                 self._scheduler.list()
 
+        def test_min_replicas(self) -> None:
+            app = AppDef(
+                name="app",
+                roles=[
+                    Role(
+                        name="role",
+                        image="/tmp/",
+                        num_replicas=2,
+                    ),
+                ],
+            )
+            req = self._scheduler._submit_dryrun(app, cfg={})
+            job = req.request
+            self.assertEqual(job.actors[0].min_replicas, None)
+
+            app.roles[0].min_replicas = 1
+            req = self._scheduler._submit_dryrun(app, cfg={})
+            job = req.request
+            self.assertEqual(job.actors[0].min_replicas, 1)
+
+            app.roles.append(
+                Role(
+                    name="role",
+                    image="/tmp/",
+                    num_replicas=2,
+                    min_replicas=1,
+                )
+            )
+            with self.assertRaisesRegex(
+                ValueError, "min_replicas is only supported with single role jobs"
+            ):
+                self._scheduler._submit_dryrun(app, cfg={})
+
     class RayClusterSetup:
         _instance = None  # pyre-ignore
         _cluster = None  # pyre-ignore

@@ -850,6 +850,17 @@ spec:
         self.assertEqual(client.images.get().tag.call_count, 1)
         self.assertEqual(client.images.push.call_count, 1)
 
+    def test_min_replicas(self) -> None:
+        app = _test_app(num_replicas=3)
+        app.roles[0].min_replicas = 2
+
+        resource = app_to_resource(app, "test_queue", service_account=None)
+        min_available = [
+            task["minAvailable"]
+            for task in resource["spec"]["tasks"]  # pyre-ignore[16]
+        ]
+        self.assertEqual(min_available, [1, 1, 0])
+
 
 class KubernetesSchedulerNoImportTest(unittest.TestCase):
     """

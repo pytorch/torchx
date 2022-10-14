@@ -145,6 +145,7 @@ if _has_ray:
                     does not provide the complete original AppSpec.
                 workspaces: true
                 mounts: false
+                elasticity: Partial support. Multi role jobs are not supported.
 
         """
 
@@ -286,6 +287,9 @@ if _has_ray:
                     )
 
                     job.actors.append(actor)
+
+            if len(app.roles) > 1 and app.roles[0].min_replicas is not None:
+                raise ValueError("min_replicas is only supported with single role jobs")
 
             return AppDryRunInfo(job, repr)
 

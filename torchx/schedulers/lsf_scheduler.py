@@ -428,6 +428,7 @@ class LsfScheduler(Scheduler[LsfOpts]):
               LsfScheduler will return job.
           mounts: true
           workspaces: false
+          elasticity: false
 
     **TOFIX**
 

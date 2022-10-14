@@ -139,6 +139,7 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
                 status but does not provide the complete original AppSpec.
             workspaces: true
             mounts: true
+            elasticity: false
     """
 
     def __init__(self, session_name: str) -> None:

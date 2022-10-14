@@ -392,6 +392,9 @@ Role {role.name} configured with restarts: {role.max_retries}. As of 1.4.0 Volca
 does NOT support retries correctly. More info: https://github.com/volcano-sh/volcano/issues/1651
                 """
                 warnings.warn(msg)
+            if role.min_replicas is not None:
+                # first min_replicas tasks are required, afterward optional
+                task["minAvailable"] = 1 if replica_id < role.min_replicas else 0
             tasks.append(task)
 
     job_retries = min(role.max_retries for role in app.roles)
@@ -408,6 +411,7 @@ does NOT support retries correctly. More info: https://github.com/volcano-sh/vol
     }
     if priority_class is not None:
         job_spec["priorityClassName"] = priority_class
+
     resource: Dict[str, object] = {
         "apiVersion": "batch.volcano.sh/v1alpha1",
         "kind": "Job",
@@ -522,6 +526,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
                 status but does not provide the complete original AppSpec.
             workspaces: true
             mounts: true
+            elasticity: Requires Volcano >1.6
     """
 
     def __init__(
