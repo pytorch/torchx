@@ -546,6 +546,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
                 Partial support. LocalScheduler runs the app from a local
                 directory but does not support programmatic workspaces.
             mounts: false
+            elasticity: false
     """
 
     def __init__(

@@ -18,6 +18,7 @@ COMPATIBILITY_SETS = {
         "describe": "Describe Job",
         "workspaces": "Workspaces / Patching",
         "mounts": "Mounts",
+        "elasticity": "Elasticity",
     },
 }
 
