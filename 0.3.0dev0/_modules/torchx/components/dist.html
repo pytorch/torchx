@@ -430,7 +430,11 @@
 <span class="sd">    # remote (optionally pass --rdzv_port to use a different master port than the default 29500)</span>
 <span class="sd">    $ torchx run -s kubernetes -cfg queue=default dist.ddp \\</span>
 <span class="sd">        -j 2x4 \\</span>
-<span class="sd">        --script main.py \\</span>
+<span class="sd">        --script main.py</span>
+
+<span class="sd">    # remote -- elastic/autoscaling with 2 minimum and max 5 nodes with 8</span>
+<span class="sd">    # workers each</span>
+<span class="sd">    $ torchx run -s kubernetes dist.ddp -j 2:5x8 --script main.py</span>
 
 
 <span class="sd">Note that the only difference compared to the local launch is the scheduler (``-s``).</span>
@@ -505,7 +509,7 @@
 <span class="sd">        gpu: number of gpus per replica</span>
 <span class="sd">        memMB: cpu memory in MB per replica</span>
 <span class="sd">        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)</span>
-<span class="sd">        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus</span>
+<span class="sd">        j: [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus</span>
 <span class="sd">        env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)</span>
 <span class="sd">        max_retries: the number of scheduler retries allowed</span>
 <span class="sd">        rdzv_port: the port on rank0&#39;s host to use for hosting the c10d store used for rendezvous.</span>
@@ -614,6 +618,10 @@
 
 
 <span class="k">def</span> <span class="nf">parse_nnodes</span><span class="p">(</span><span class="n">j</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    parse_nnodes converts a node and process string into the individual</span>
+<span class="sd">    components. Format is ``[[&lt;min_replicas&gt;:]&lt;replicas&gt;x]&lt;num processes&gt;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+:</span><span class="se">\\</span><span class="s2">d+x</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>  <span class="c1"># match 2:4x1</span>
         <span class="n">nnodes_rep</span><span class="p">,</span> <span class="n">nproc_per_node</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
         <span class="n">min_nnodes</span><span class="p">,</span> <span class="n">max_nnodes</span> <span class="o">=</span> <span class="n">nnodes_rep</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
