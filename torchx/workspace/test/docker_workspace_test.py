@@ -14,7 +14,7 @@ from unittest.mock import MagicMock
 
 import fsspec
 from torchx.specs import AppDef, Role
-from torchx.workspace.docker_workspace import _build_context, DockerWorkspace
+from torchx.workspace.docker_workspace import _build_context, DockerWorkspaceMixin
 
 
 def has_docker() -> bool:
@@ -43,7 +43,7 @@ if has_docker():
                 args=["bar/foo.sh"],
             )
 
-            workspace = DockerWorkspace()
+            workspace = DockerWorkspaceMixin()
             workspace.build_workspace_and_update_role(
                 role, "memory://test_workspace", {}
             )
@@ -52,6 +52,12 @@ if has_docker():
 
 
 class DockerWorkspaceMockTest(unittest.TestCase):
+    def test_runopts(self) -> None:
+        self.assertCountEqual(
+            DockerWorkspaceMixin().workspace_opts()._opts.keys(),
+            {"image_repo"},
+        )
+
     def test_update_app_images(self) -> None:
         app = AppDef(
             name="foo",
@@ -86,9 +92,11 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         )
         # no image_repo
         with self.assertRaisesRegex(KeyError, "image_repo"):
-            DockerWorkspace()._update_app_images(app)
+            DockerWorkspaceMixin().dryrun_push_images(app, {})
         # with image_repo
-        images_to_push = DockerWorkspace()._update_app_images(app, "example.com/repo")
+        images_to_push = DockerWorkspaceMixin().dryrun_push_images(
+            app, {"image_repo": "example.com/repo"}
+        )
         self.assertEqual(
             images_to_push,
             {
@@ -102,8 +110,8 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         client = MagicMock()
         img = MagicMock()
         client.images.get.return_value = img
-        workspace = DockerWorkspace(docker_client=client)
-        workspace._push_images(
+        workspace = DockerWorkspaceMixin(docker_client=client)
+        workspace.push_images(
             {
                 "sha256:hasha": ("example.com/repo", "hasha"),
                 "sha256:hashb": ("example.com/repo", "hashb"),
@@ -114,8 +122,8 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         self.assertEqual(client.images.push.call_count, 2)
 
     def test_push_images_empty(self) -> None:
-        workspace = DockerWorkspace()
-        workspace._push_images({})
+        workspace = DockerWorkspaceMixin()
+        workspace.push_images({})
 
     def test_dockerignore(self) -> None:
         fs = fsspec.filesystem("memory")

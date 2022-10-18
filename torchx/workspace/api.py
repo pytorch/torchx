@@ -7,17 +7,19 @@
 import abc
 import fnmatch
 import posixpath
-from typing import Iterable, Mapping, Tuple, TYPE_CHECKING
+from typing import Generic, Iterable, Mapping, Tuple, TYPE_CHECKING, TypeVar
 
-from torchx.specs import CfgVal, Role
+from torchx.specs import AppDef, CfgVal, Role, runopts
 
 if TYPE_CHECKING:
     from fsspec import AbstractFileSystem
 
 TORCHX_IGNORE = ".torchxignore"
 
+T = TypeVar("T")
 
-class Workspace(abc.ABC):
+
+class WorkspaceMixin(abc.ABC, Generic[T]):
     """
     Note: (Prototype) this interface may change without notice!
 
@@ -31,6 +33,16 @@ class Workspace(abc.ABC):
     without a manual image rebuild. The exact semantics of what the
     workspace build artifact is, is implementation dependent.
     """
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)
+
+    def workspace_opts(self) -> runopts:
+        """
+        Returns the run configuration options expected by the workspace.
+        Basically a ``--help`` for the ``run`` API.
+        """
+        return runopts()
 
     @abc.abstractmethod
     def build_workspace_and_update_role(
@@ -46,6 +58,21 @@ class Workspace(abc.ABC):
         Note: this method mutates the passed ``role``.
         """
         ...
+
+    def dryrun_push_images(self, app: AppDef, cfg: Mapping[str, CfgVal]) -> T:
+        """
+        dryrun_push does a dryrun of the image push and updates the app to have
+        the final values. Only called for remote jobs.
+
+        ``push`` must be called before scheduling the job.
+        """
+        raise NotImplementedError("dryrun_push is not implemented")
+
+    def push_images(self, images_to_push: T) -> None:
+        """
+        push pushes any images to the remote repo if required.
+        """
+        raise NotImplementedError("push is not implemented")
 
 
 def _ignore(s: str, patterns: Iterable[str]) -> Tuple[int, bool]:

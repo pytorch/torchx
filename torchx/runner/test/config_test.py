@@ -62,7 +62,7 @@ class TestScheduler(Scheduler):
     def list(self) -> List[ListAppResponse]:
         raise NotImplementedError()
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "i",

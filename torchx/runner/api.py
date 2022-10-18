@@ -34,7 +34,7 @@ from torchx.specs.finder import get_component
 from torchx.tracker.api import tracker_config_env_var_name, TRACKER_ENV_VAR_NAME
 
 from torchx.util.types import none_throws
-from torchx.workspace.api import Workspace
+from torchx.workspace.api import WorkspaceMixin
 
 from .config import get_config, get_configs
 
@@ -363,7 +363,7 @@ class Runner:
         with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
             sched = self._scheduler(scheduler)
 
-            if workspace and isinstance(sched, Workspace):
+            if workspace and isinstance(sched, WorkspaceMixin):
                 role = app.roles[0]
                 old_img = role.image
 

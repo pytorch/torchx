@@ -573,7 +573,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         self._base_log_dir: Optional[str] = None
         self._created_tmp_log_dir: bool = False
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "log_dir",

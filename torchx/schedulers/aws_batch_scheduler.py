@@ -42,9 +42,11 @@ from datetime import datetime
 from typing import (
     Any,
     Callable,
+    cast,
     Dict,
     Iterable,
     List,
+    Mapping,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -67,13 +69,14 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     macros,
     Role,
     runopts,
     VolumeMount,
 )
-from torchx.workspace.docker_workspace import DockerWorkspace
+from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
@@ -246,7 +249,7 @@ class AWSBatchOpts(TypedDict, total=False):
     priority: Optional[int]
 
 
-class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
+class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     """
     AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.
 
@@ -308,8 +311,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         log_client: Optional[Any] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        Scheduler.__init__(self, "aws_batch", session_name)
-        DockerWorkspace.__init__(self, docker_client)
+        super().__init__("aws_batch", session_name, docker_client=docker_client)
 
         # pyre-fixme[4]: Attribute annotation cannot be `Any`.
         self.__client = client
@@ -335,7 +337,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         assert cfg is not None, f"{dryrun_info} missing cfg"
 
         images_to_push = dryrun_info.request.images_to_push
-        self._push_images(images_to_push)
+        self.push_images(images_to_push)
 
         req = dryrun_info.request
         self._client.register_job_definition(**req.job_def)
@@ -370,7 +372,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         name = make_unique(f"{app.name}{name_suffix}")
 
         # map any local images to the remote image
-        images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
         nodes = []
 
@@ -450,14 +452,9 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             reason="killed via torchx CLI",
         )
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add("queue", type_=str, help="queue to schedule job in", required=True)
-        opts.add(
-            "image_repo",
-            type_=str,
-            help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
-        )
         opts.add(
             "share_id",
             type_=str,

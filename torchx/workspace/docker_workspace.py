@@ -14,8 +14,8 @@ from typing import Dict, IO, Mapping, Optional, Tuple, TYPE_CHECKING
 
 import fsspec
 import torchx
-from torchx.specs import AppDef, CfgVal, Role
-from torchx.workspace.api import walk_workspace, Workspace
+from torchx.specs import AppDef, CfgVal, Role, runopts
+from torchx.workspace.api import walk_workspace, WorkspaceMixin
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -26,9 +26,9 @@ log: logging.Logger = logging.getLogger(__name__)
 TORCHX_DOCKERFILE = "Dockerfile.torchx"
 
 
-class DockerWorkspace(Workspace):
+class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
     """
-    DockerWorkspace will build patched docker images from the workspace. These
+    DockerWorkspaceMixin will build patched docker images from the workspace. These
     patched images are docker images and can be either used locally via the
     docker daemon or pushed using the helper methods to a remote repository for
     remote jobs.
@@ -50,7 +50,13 @@ class DockerWorkspace(Workspace):
 
     LABEL_VERSION: str = "torchx.pytorch.org/version"
 
-    def __init__(self, docker_client: Optional["DockerClient"] = None) -> None:
+    def __init__(
+        self,
+        *args: object,
+        docker_client: Optional["DockerClient"] = None,
+        **kwargs: object,
+    ) -> None:
+        super().__init__(*args, **kwargs)
         self.__docker_client = docker_client
 
     @property
@@ -62,6 +68,15 @@ class DockerWorkspace(Workspace):
             client = docker.from_env()
             self.__docker_client = client
         return client
+
+    def workspace_opts(self) -> runopts:
+        opts = runopts()
+        opts.add(
+            "image_repo",
+            type_=str,
+            help="(remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
+        )
+        return opts
 
     def build_workspace_and_update_role(
         self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
@@ -98,21 +113,22 @@ class DockerWorkspace(Workspace):
         finally:
             context.close()
 
-    def _update_app_images(
-        self, app: AppDef, image_repo: Optional[str] = None
+    def dryrun_push_images(
+        self, app: AppDef, cfg: Mapping[str, CfgVal]
     ) -> Dict[str, Tuple[str, str]]:
         """
         _update_app_images replaces the local Docker images (identified via
         ``sha256:...``) in the provided ``AppDef`` with the remote path that they will be uploaded to and
         returns a mapping of local to remote names.
 
-        ``_push_images`` must be called with the returned mapping before
+        ``push`` must be called with the returned mapping before
         launching the job.
 
         Returns:
             A dict of [local image name, (remote repo, tag)].
         """
         HASH_PREFIX = "sha256:"
+        image_repo = cfg.get("image_repo")
 
         images_to_push = {}
         for role in app.roles:
@@ -132,7 +148,7 @@ class DockerWorkspace(Workspace):
                 role.image = remote_image
         return images_to_push
 
-    def _push_images(self, images_to_push: Dict[str, Tuple[str, str]]) -> None:
+    def push_images(self, images_to_push: Dict[str, Tuple[str, str]]) -> None:
         """
         _push_images pushes the specified images to the remote container
         repository with the specified tag. The docker daemon must be
