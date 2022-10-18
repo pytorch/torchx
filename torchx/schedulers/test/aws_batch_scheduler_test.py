@@ -65,11 +65,6 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler = create_scheduler("foo")
         self.assertIsInstance(scheduler, AWSBatchScheduler)
 
-    def test_validate(self) -> None:
-        scheduler = create_scheduler("test")
-        app = _test_app()
-        scheduler._validate(app, "kubernetes")
-
     def test_submit_dryrun_with_share_id(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
