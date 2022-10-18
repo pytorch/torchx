@@ -22,6 +22,7 @@ class CvTrainerComponentProvider(ComponentProvider):
             image=self._image,
             j="1x1",
             m="torchx.examples.apps.lightning_classy_vision.train",
+            memMB=2048,
         )
 
 

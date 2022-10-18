@@ -296,6 +296,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                 status but does not provide the complete original AppSpec.
             workspaces: true
             mounts: true
+            elasticity: false
     """
 
     def __init__(

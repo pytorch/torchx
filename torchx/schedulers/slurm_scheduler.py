@@ -314,6 +314,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
                 If ``job_dir`` is specified the DirWorkspace will create a new
                 isolated directory with a snapshot of the workspace.
             mounts: false
+            elasticity: false
 
     If a partition has less than 1GB of RealMemory configured we disable memory
     requests to workaround https://github.com/aws/aws-parallelcluster/issues/2198.

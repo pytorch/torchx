@@ -1,0 +1,5 @@
+[torchx:tracker]
+fsspec=fsspec
+
+[tracker:fsspec]
+config=file://./torchx/examples/apps/tracker/fsspec_backend.conf

@@ -74,6 +74,7 @@ Works With
    schedulers/slurm
    schedulers/ray
    schedulers/aws_batch
+   schedulers/lsf
 
 .. fbcode::
 
