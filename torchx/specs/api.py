@@ -892,6 +892,9 @@ class runopts:
 
         self._opts[cfg_key] = runopt(default, type_, required, help)
 
+    def update(self, other: "runopts") -> None:
+        self._opts.update(other._opts)
+
     def __repr__(self) -> str:
         required = [(key, opt) for key, opt in self._opts.items() if opt.is_required]
         optional = [

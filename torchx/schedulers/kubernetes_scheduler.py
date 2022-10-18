@@ -33,7 +33,17 @@ import re
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, TYPE_CHECKING
+from typing import (
+    Any,
+    cast,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    TYPE_CHECKING,
+)
 
 import torchx
 import yaml
@@ -51,6 +61,7 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     macros,
     ReplicaState,
@@ -61,7 +72,7 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
-from torchx.workspace.docker_workspace import DockerWorkspace
+from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
 
@@ -441,7 +452,7 @@ class KubernetesOpts(TypedDict, total=False):
     priority_class: Optional[str]
 
 
-class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
+class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
     """
     KubernetesScheduler is a TorchX scheduling interface to Kubernetes.
 
@@ -535,8 +546,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        Scheduler.__init__(self, "kubernetes", session_name)
-        DockerWorkspace.__init__(self, docker_client)
+        super().__init__("kubernetes", session_name, docker_client=docker_client)
 
         self._client = client
 
@@ -575,7 +585,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         namespace = cfg.get("namespace") or "default"
 
         images_to_push = dryrun_info.request.images_to_push
-        self._push_images(images_to_push)
+        self.push_images(images_to_push)
 
         resource = dryrun_info.request.resource
         try:
@@ -605,7 +615,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
 
         # map any local images to the remote image
-        images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
         service_account = cfg.get("service_account")
         assert service_account is None or isinstance(
@@ -642,7 +652,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             name=name,
         )
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "namespace",
@@ -655,11 +665,6 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             type_=str,
             help="Volcano queue to schedule job in",
             required=True,
-        )
-        opts.add(
-            "image_repo",
-            type_=str,
-            help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
         )
         opts.add(
             "service_account",

@@ -440,7 +440,7 @@ class LsfScheduler(Scheduler[LsfOpts]):
     def __init__(self, session_name: str) -> None:
         super().__init__("lsf", session_name)
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "lsf_queue",

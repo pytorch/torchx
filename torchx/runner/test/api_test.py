@@ -26,7 +26,7 @@ from torchx.specs.api import AppDef, AppState, Resource, Role, UnknownAppExcepti
 from torchx.specs.finder import ComponentNotFoundException
 
 from torchx.util.types import none_throws
-from torchx.workspace import Workspace
+from torchx.workspace import WorkspaceMixin
 
 
 GET_SCHEDULER_FACTORIES = "torchx.runner.api.get_scheduler_factories"
@@ -293,9 +293,9 @@ class RunnerTest(unittest.TestCase):
                 )
 
     def test_dryrun_with_workspace(self, _) -> None:
-        class TestScheduler(Scheduler, Workspace):
+        class TestScheduler(WorkspaceMixin[None], Scheduler):
             def __init__(self, build_new_img: bool):
-                Scheduler.__init__(self, backend="ignored", session_name="ignored")
+                super().__init__(backend="ignored", session_name="ignored")
                 self.build_new_img = build_new_img
 
             def schedule(self, dryrun_info: AppDryRunInfo) -> str:

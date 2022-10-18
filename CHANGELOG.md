@@ -77,7 +77,7 @@ Milestone: https://github.com/pytorch/torchx/milestones/3
     * Slurm jobs will by default launch in the current working directory to match `local_cwd` and workspace behavior. #372
     * Replicas now have their own log files and can be accessed programmatically. #373
     * Support for `comment`, `mail-user` and `constraint` fields. #391
-    * Workspace support (prototype) - Slurm jobs can now be launched in isolated experiment directories. #416
+    * WorkspaceMixin support (prototype) - Slurm jobs can now be launched in isolated experiment directories. #416
   * Kubernetes
     * Support for running jobs under service accounts. #408
     * Support for specifying instance types. #433
