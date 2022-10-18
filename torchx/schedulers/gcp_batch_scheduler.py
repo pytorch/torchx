@@ -64,6 +64,9 @@ LABEL_APP_NAME: str = "torchx_app_name"
 
 DEFAULT_LOC: str = "us-central1"
 
+DEFAULT_GPU_TYPE = "nvidia-tesla-v100"
+DEFAULT_GPU_MACHINE_TYPE = "n1-standard-8"
+
 
 @dataclass
 class GCPBatchJob:
@@ -192,9 +195,9 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 allocationPolicy = batch_v1.AllocationPolicy(
                     instances=[batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
                         policy=batch_v1.AllocationPolicy.InstancePolicy(
-                            machine_type="n1-standard-8",
+                            machine_type=DEFAULT_GPU_MACHINE_TYPE,
                             accelerators=[batch_v1.AllocationPolicy.Accelerator(
-                                type_="nvidia-tesla-v100",
+                                type_=DEFAULT_GPU_TYPE,
                                 count=resource.gpu,
                             )]
                         )
