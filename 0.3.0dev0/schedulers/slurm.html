@@ -399,7 +399,7 @@ components on a Slurm cluster.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.slurm_scheduler.</span></span><span class="sig-name descname"><span class="pre">SlurmScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scheduler</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">SlurmOpts</span></code>], <a class="reference internal" href="../workspace.html#torchx.workspace.dir_workspace.DirWorkspace" title="torchx.workspace.dir_workspace.DirWorkspace"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirWorkspace</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../workspace.html#torchx.workspace.dir_workspace.DirWorkspaceMixin" title="torchx.workspace.dir_workspace.DirWorkspaceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirWorkspaceMixin</span></code></a>, <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scheduler</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">SlurmOpts</span></code>]</p>
 <p>SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects
 that slurm CLI tools are locally installed and job accounting is enabled.</p>
 <p>Each app def is scheduled using a heterogenous job via sbatch.
@@ -476,7 +476,7 @@ status but does not provide the complete original AppSpec.
 </p></td>
 </tr>
 <tr class="row-even"><td><p>Workspaces / Patching</p></td>
-<td><p>If ``job_dir`` is specified the DirWorkspace will create a new
+<td><p>If ``job_dir`` is specified the DirWorkspaceMixin will create a new
 isolated directory with a snapshot of the workspace.
 </p></td>
 </tr>
@@ -576,13 +576,6 @@ throw an ValueError.</p>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – if the scheduler does not support log iteration</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts">
-<span class="sig-name descname"><span class="pre">run_opts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../specs.html#torchx.specs.runopts" title="torchx.specs.api.runopts"><span class="pre">runopts</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/slurm_scheduler.html#SlurmScheduler.run_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the run configuration options expected by the scheduler.
-Basically a <code class="docutils literal notranslate"><span class="pre">--help</span></code> for the <code class="docutils literal notranslate"><span class="pre">run</span></code> API.</p>
 </dd></dl>
 
 <dl class="py method">

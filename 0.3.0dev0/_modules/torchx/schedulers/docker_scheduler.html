@@ -430,7 +430,7 @@
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspace</span>
+<span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
 
 
@@ -468,7 +468,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DockerWorkspace</span><span class="o">.</span><span class="n">LABEL_VERSION</span>
+<span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DockerWorkspaceMixin</span><span class="o">.</span><span class="n">LABEL_VERSION</span>
 <span class="n">LABEL_APP_ID</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/app-id&quot;</span>
 <span class="n">LABEL_ROLE_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/role-name&quot;</span>
 <span class="n">LABEL_REPLICA_ID</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/replica-id&quot;</span>
@@ -490,7 +490,7 @@
     <span class="n">copy_env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
 
-<div class="viewcode-block" id="DockerScheduler"><a class="viewcode-back" href="../../../schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler">[docs]</a><span class="k">class</span> <span class="nc">DockerScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">DockerOpts</span><span class="p">],</span> <span class="n">DockerWorkspace</span><span class="p">):</span>
+<div class="viewcode-block" id="DockerScheduler"><a class="viewcode-back" href="../../../schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler">[docs]</a><span class="k">class</span> <span class="nc">DockerScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">DockerOpts</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DockerScheduler is a TorchX scheduling interface to Docker.</span>
 
@@ -535,8 +535,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">Scheduler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
-        <span class="n">DockerWorkspace</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_ensure_network</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">filelock</span>
@@ -738,7 +737,7 @@
         <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">containers</span><span class="p">:</span>
             <span class="n">container</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
-<div class="viewcode-block" id="DockerScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;copy_env&quot;</span><span class="p">,</span>
@@ -746,7 +745,7 @@
             <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">opts</span></div>
+        <span class="k">return</span> <span class="n">opts</span>
 
     <span class="k">def</span> <span class="nf">_get_app_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">:</span> <span class="s2">&quot;Container&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;exited&quot;</span><span class="p">:</span>

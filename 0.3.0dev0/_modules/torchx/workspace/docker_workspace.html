@@ -404,8 +404,8 @@
 
 <span class="kn">import</span> <span class="nn">fsspec</span>
 <span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span>
-<span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">walk_workspace</span><span class="p">,</span> <span class="n">Workspace</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
+<span class="kn">from</span> <span class="nn">torchx.workspace.api</span> <span class="kn">import</span> <span class="n">walk_workspace</span><span class="p">,</span> <span class="n">WorkspaceMixin</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
@@ -416,9 +416,9 @@
 <span class="n">TORCHX_DOCKERFILE</span> <span class="o">=</span> <span class="s2">&quot;Dockerfile.torchx&quot;</span>
 
 
-<div class="viewcode-block" id="DockerWorkspace"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspace</span><span class="p">(</span><span class="n">Workspace</span><span class="p">):</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspaceMixin</span><span class="p">(</span><span class="n">WorkspaceMixin</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    DockerWorkspace will build patched docker images from the workspace. These</span>
+<span class="sd">    DockerWorkspaceMixin will build patched docker images from the workspace. These</span>
 <span class="sd">    patched images are docker images and can be either used locally via the</span>
 <span class="sd">    docker daemon or pushed using the helper methods to a remote repository for</span>
 <span class="sd">    remote jobs.</span>
@@ -440,7 +440,13 @@
 
     <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">docker_client</span>
 
     <span class="nd">@property</span>
@@ -453,7 +459,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__docker_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">return</span> <span class="n">client</span>
 
-<div class="viewcode-block" id="DockerWorkspace.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.workspace_opts"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.workspace_opts">[docs]</a>    <span class="k">def</span> <span class="nf">workspace_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;image_repo&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;(remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">opts</span></div>
+
+<div class="viewcode-block" id="DockerWorkspaceMixin.build_workspace_and_update_role"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.build_workspace_and_update_role">[docs]</a>    <span class="k">def</span> <span class="nf">build_workspace_and_update_role</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -488,21 +503,22 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DockerWorkspace._update_app_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._update_app_images">[docs]</a>    <span class="k">def</span> <span class="nf">_update_app_images</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.dryrun_push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.dryrun_push_images">[docs]</a>    <span class="k">def</span> <span class="nf">dryrun_push_images</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        _update_app_images replaces the local Docker images (identified via</span>
 <span class="sd">        ``sha256:...``) in the provided ``AppDef`` with the remote path that they will be uploaded to and</span>
 <span class="sd">        returns a mapping of local to remote names.</span>
 
-<span class="sd">        ``_push_images`` must be called with the returned mapping before</span>
+<span class="sd">        ``push`` must be called with the returned mapping before</span>
 <span class="sd">        launching the job.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dict of [local image name, (remote repo, tag)].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">HASH_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;sha256:&quot;</span>
+        <span class="n">image_repo</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_repo&quot;</span><span class="p">)</span>
 
         <span class="n">images_to_push</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
@@ -522,7 +538,7 @@
                 <span class="n">role</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">remote_image</span>
         <span class="k">return</span> <span class="n">images_to_push</span></div>
 
-<div class="viewcode-block" id="DockerWorkspace._push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._push_images">[docs]</a>    <span class="k">def</span> <span class="nf">_push_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="DockerWorkspaceMixin.push_images"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.push_images">[docs]</a>    <span class="k">def</span> <span class="nf">push_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        _push_images pushes the specified images to the remote container</span>
 <span class="sd">        repository with the specified tag. The docker daemon must be</span>

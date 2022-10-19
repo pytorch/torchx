@@ -832,7 +832,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;lsf&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LsfScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;lsf_queue&quot;</span><span class="p">,</span>
@@ -865,7 +865,7 @@
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;size of shared memory (/dev/shm) for jobs&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">opts</span></div>
+        <span class="k">return</span> <span class="n">opts</span>
 
 <div class="viewcode-block" id="LsfScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">LsfBsub</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span>

@@ -415,13 +415,7 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._push_images">_push_images() (torchx.workspace.docker_workspace.DockerWorkspace method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/distributed.html#torchx.components.dist._TORCH_DEBUG_FLAGS">_TORCH_DEBUG_FLAGS (in module torchx.components.dist)</a>
-</li>
-      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspace._update_app_images">_update_app_images() (torchx.workspace.docker_workspace.DockerWorkspace method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -473,12 +467,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/utils.html#torchx.components.utils.booth">booth() (in module torchx.components.utils)</a>
 </li>
-      <li><a href="workspace.html#torchx.workspace.dir_workspace.DirWorkspace.build_workspace_and_update_role">build_workspace_and_update_role() (torchx.workspace.dir_workspace.DirWorkspace method)</a>
+      <li><a href="workspace.html#torchx.workspace.dir_workspace.DirWorkspaceMixin.build_workspace_and_update_role">build_workspace_and_update_role() (torchx.workspace.dir_workspace.DirWorkspaceMixin method)</a>
 
       <ul>
-        <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspace.build_workspace_and_update_role">(torchx.workspace.docker_workspace.DockerWorkspace method)</a>
+        <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.build_workspace_and_update_role">(torchx.workspace.docker_workspace.DockerWorkspaceMixin method)</a>
 </li>
-        <li><a href="workspace.html#torchx.workspace.Workspace.build_workspace_and_update_role">(torchx.workspace.Workspace method)</a>
+        <li><a href="workspace.html#torchx.workspace.WorkspaceMixin.build_workspace_and_update_role">(torchx.workspace.WorkspaceMixin method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -569,13 +563,13 @@
         <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.describe">(torchx.schedulers.slurm_scheduler.SlurmScheduler method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers.html#torchx.schedulers.api.DescribeAppResponse">DescribeAppResponse (class in torchx.schedulers.api)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.DeviceMount">DeviceMount (class in torchx.specs)</a>
 </li>
-      <li><a href="workspace.html#torchx.workspace.dir_workspace.DirWorkspace">DirWorkspace (class in torchx.workspace.dir_workspace)</a>
+      <li><a href="workspace.html#torchx.workspace.dir_workspace.DirWorkspaceMixin">DirWorkspaceMixin (class in torchx.workspace.dir_workspace)</a>
 </li>
       <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerContainer">DockerContainer (class in torchx.schedulers.docker_scheduler)</a>
 </li>
@@ -583,12 +577,18 @@
 </li>
       <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler">DockerScheduler (class in torchx.schedulers.docker_scheduler)</a>
 </li>
-      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspace">DockerWorkspace (class in torchx.workspace.docker_workspace)</a>
+      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin">DockerWorkspaceMixin (class in torchx.workspace.docker_workspace)</a>
 </li>
       <li><a href="runner.html#torchx.runner.Runner.dryrun">dryrun() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="runner.html#torchx.runner.Runner.dryrun_component">dryrun_component() (torchx.runner.Runner method)</a>
 </li>
+      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.dryrun_push_images">dryrun_push_images() (torchx.workspace.docker_workspace.DockerWorkspaceMixin method)</a>
+
+      <ul>
+        <li><a href="workspace.html#torchx.workspace.WorkspaceMixin.dryrun_push_images">(torchx.workspace.WorkspaceMixin method)</a>
+</li>
+      </ul></li>
       <li><a href="runner.config.html#torchx.runner.config.dump">dump() (in module torchx.runner.config)</a>
 </li>
   </ul></td>
@@ -862,12 +862,18 @@
 </li>
       <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.pod_labels">pod_labels() (in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.PopenRequest">PopenRequest (class in torchx.schedulers.local_scheduler)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.Role.pre_proc">pre_proc() (torchx.specs.Role method)</a>
 </li>
+      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.push_images">push_images() (torchx.workspace.docker_workspace.DockerWorkspaceMixin method)</a>
+
+      <ul>
+        <li><a href="workspace.html#torchx.workspace.WorkspaceMixin.push_images">(torchx.workspace.WorkspaceMixin method)</a>
+</li>
+      </ul></li>
       <li><a href="components/utils.html#torchx.components.utils.python">python() (in module torchx.components.utils)</a>
 </li>
   </ul></td>
@@ -894,6 +900,8 @@
 </li>
       <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.resource_from_app">resource_from_app() (in module torchx.pipelines.kfp.adapter)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runtime/tracking.html#torchx.runtime.tracking.ResultTracker">ResultTracker (class in torchx.runtime.tracking)</a>
 </li>
       <li><a href="specs.html#torchx.specs.RetryPolicy">RetryPolicy (class in torchx.specs)</a>
@@ -902,8 +910,6 @@
 </li>
       <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="runner.html#torchx.runner.Runner.run">run() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.run_component">run_component() (torchx.components.component_test_base.ComponentTestCase method)</a>
@@ -912,24 +918,8 @@
         <li><a href="runner.html#torchx.runner.Runner.run_component">(torchx.runner.Runner method)</a>
 </li>
       </ul></li>
-      <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.run_opts">run_opts() (torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
-
-      <ul>
-        <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.run_opts">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
+      <li><a href="schedulers.html#torchx.schedulers.Scheduler.run_opts">run_opts() (torchx.schedulers.Scheduler method)</a>
 </li>
-        <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.run_opts">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
-</li>
-        <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.run_opts">(torchx.schedulers.local_scheduler.LocalScheduler method)</a>
-</li>
-        <li><a href="schedulers/lsf.html#torchx.schedulers.lsf_scheduler.LsfScheduler.run_opts">(torchx.schedulers.lsf_scheduler.LsfScheduler method)</a>
-</li>
-        <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.run_opts">(torchx.schedulers.ray_scheduler.RayScheduler method)</a>
-</li>
-        <li><a href="schedulers.html#torchx.schedulers.Scheduler.run_opts">(torchx.schedulers.Scheduler method)</a>
-</li>
-        <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler.run_opts">(torchx.schedulers.slurm_scheduler.SlurmScheduler method)</a>
-</li>
-      </ul></li>
       <li><a href="runner.html#torchx.runner.Runner">Runner (class in torchx.runner)</a>
 </li>
       <li><a href="specs.html#torchx.specs.runopts">runopts (class in torchx.specs)</a>
@@ -1259,11 +1249,17 @@
 </li>
       <li><a href="schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.wait_until_finish">wait_until_finish() (torchx.schedulers.ray_scheduler.RayScheduler method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="workspace.html#torchx.workspace.walk_workspace">walk_workspace() (in module torchx.workspace)</a>
 </li>
-      <li><a href="workspace.html#torchx.workspace.Workspace">Workspace (class in torchx.workspace)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin.workspace_opts">workspace_opts() (torchx.workspace.docker_workspace.DockerWorkspaceMixin method)</a>
+
+      <ul>
+        <li><a href="workspace.html#torchx.workspace.WorkspaceMixin.workspace_opts">(torchx.workspace.WorkspaceMixin method)</a>
+</li>
+      </ul></li>
+      <li><a href="workspace.html#torchx.workspace.WorkspaceMixin">WorkspaceMixin (class in torchx.workspace)</a>
 </li>
   </ul></td>
 </tr></table>
