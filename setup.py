@@ -73,6 +73,9 @@ if __name__ == "__main__":
             "console_scripts": [
                 "torchx=torchx.cli.main:main",
             ],
+            "torchx.tracker": [
+                "fsspec=torchx.tracker.backend.fsspec:create",
+            ],
         },
         extras_require={
             "kfp": ["kfp==1.6.2"],

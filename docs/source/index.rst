@@ -45,6 +45,7 @@ Documentation
    runner.config
    advanced
    custom_components.md
+   tracker
 
 .. fbcode::
 
