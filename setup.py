@@ -79,9 +79,6 @@ if __name__ == "__main__":
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,
-            ':python_version < "3.8"': [
-                "importlib-metadata",
-            ],
         },
         # PyPI package information.
         classifiers=[
