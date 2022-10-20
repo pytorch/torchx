@@ -16,28 +16,12 @@ This scheduler is in prototype stage and may change without notice.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-)
-from typing_extensions import TypedDict
+from typing import Any, Dict, Iterable, List, Optional
 
 import torchx
 import yaml
-from torchx.schedulers.ids import make_unique
-# TODO move cleanup_str to utils
-from torchx.schedulers.kubernetes_scheduler import cleanup_str
-from torchx.specs.api import (
-    AppDef,
-    AppState,
-    macros,
-    Role,
-    runopts,
-)
+
+from google.cloud import batch_v1, runtimeconfig
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -45,8 +29,12 @@ from torchx.schedulers.api import (
     Scheduler,
     Stream,
 )
+from torchx.schedulers.ids import make_unique
 
-from google.cloud import batch_v1, runtimeconfig
+# TODO move cleanup_str to utils
+from torchx.schedulers.kubernetes_scheduler import cleanup_str
+from torchx.specs.api import AppDef, AppState, macros, runopts
+from typing_extensions import TypedDict
 
 
 JOB_STATE: Dict[str, AppState] = {
@@ -127,7 +115,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # pyre-fixme[4]: Attribute annotation cannot be `Any`.
         self.__client = client
 
-
     @property
     # pyre-fixme[3]: Return annotation cannot be `Any`.
     def _client(self) -> Any:
@@ -143,7 +130,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         request = batch_v1.CreateJobRequest(
             parent=f"projects/{req.project}/locations/{req.location}",
             job=req.job_def,
-            job_id=req.name
+            job_id=req.name,
         )
 
         response = self._client.create_job(request=request)
@@ -161,15 +148,12 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # which is ok to start with as most components have only one role
         for role_idx, role in enumerate(app.roles):
             values = macros.Values(
-                    img_root="",
-                    app_id=name,
-                    replica_id=str(0),
-
-                    # TODO set value for rank0_env: TORCHX_RANK0_HOST is a place holder for now
-                    rank0_env=(
-                        "TORCHX_RANK0_HOST"
-                    ),
-                )
+                img_root="",
+                app_id=name,
+                replica_id=str(0),
+                # TODO set value for rank0_env: TORCHX_RANK0_HOST is a place holder for now
+                rank0_env=("TORCHX_RANK0_HOST"),
+            )
             role_dict = values.apply(role)
             role_dict.env["TORCHX_ROLE_IDX"] = str(role_idx)
             role_dict.env["TORCHX_ROLE_NAME"] = str(role.name)
@@ -193,31 +177,35 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             # TODO See if there is a better default GPU type
             if resource.gpu > 0:
                 allocationPolicy = batch_v1.AllocationPolicy(
-                    instances=[batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
-                        policy=batch_v1.AllocationPolicy.InstancePolicy(
-                            machine_type=DEFAULT_GPU_MACHINE_TYPE,
-                            accelerators=[batch_v1.AllocationPolicy.Accelerator(
-                                type_=DEFAULT_GPU_TYPE,
-                                count=resource.gpu,
-                            )]
+                    instances=[
+                        batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
+                            policy=batch_v1.AllocationPolicy.InstancePolicy(
+                                machine_type=DEFAULT_GPU_MACHINE_TYPE,
+                                accelerators=[
+                                    batch_v1.AllocationPolicy.Accelerator(
+                                        type_=DEFAULT_GPU_TYPE,
+                                        count=resource.gpu,
+                                    )
+                                ],
+                            )
                         )
-                    )],
+                    ],
                 )
 
             runnable = batch_v1.Runnable(
-                            container=batch_v1.Runnable.Container(
-                                image_uri=role_dict.image,
-                                commands=[role_dict.entrypoint] + role_dict.args,
-                                entrypoint="",
-                            )
-                        )
+                container=batch_v1.Runnable.Container(
+                    image_uri=role_dict.image,
+                    commands=[role_dict.entrypoint] + role_dict.args,
+                    entrypoint="",
+                )
+            )
 
             ts = batch_v1.TaskSpec(
-                    runnables=[runnable],
-                    environments=role_dict.env,
-                    max_retry_count=role_dict.max_retries,
-                    compute_resource=res,
-                )
+                runnables=[runnable],
+                environments=role_dict.env,
+                max_retry_count=role_dict.max_retries,
+                compute_resource=res,
+            )
 
             tg = batch_v1.TaskGroup(
                 task_spec=ts,
@@ -226,7 +214,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             )
             taskGroups.append(tg)
 
-        #2. Convert AppDef to Job
+        # 2. Convert AppDef to Job
         job = batch_v1.Job(
             name=name,
             task_groups=taskGroups,
@@ -237,26 +225,24 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             # NOTE: GCP Batch does not allow label names with "."
             labels={
                 LABEL_VERSION: torchx.__version__.replace(".", "-"),
-                LABEL_APP_NAME: name
+                LABEL_APP_NAME: name,
             },
         )
         return job
 
-    def _submit_dryrun(self, app: AppDef, cfg: GCPBatchOpts) -> AppDryRunInfo[GCPBatchJob]:
+    def _submit_dryrun(
+        self, app: AppDef, cfg: GCPBatchOpts
+    ) -> AppDryRunInfo[GCPBatchJob]:
 
         proj = cfg.get("project")
         if proj is None:
             proj = runtimeconfig.Client().project
-        assert proj is not None and isinstance(
-            proj, str
-        ), "project must be a str"
+        assert proj is not None and isinstance(proj, str), "project must be a str"
 
         loc = cfg.get("location")
         if loc is None:
             loc = DEFAULT_LOC
-        assert loc is not None and isinstance(
-            loc, str
-        ), "location must be a str"
+        assert loc is not None and isinstance(loc, str), "location must be a str"
 
         job = self._app_to_job(app)
 
@@ -274,32 +260,29 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         info._cfg = cfg
         return info
 
-
     def run_opts(self) -> runopts:
         opts = runopts()
         opts.add("project", type_=str, help="")
         opts.add("location", type_=str, help="")
         return opts
 
-
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-        #1. get project, location, job name from app_id
+        # 1. get project, location, job name from app_id
         proj, loc, name = app_id.split(":")
 
-        #2. Get the Batch job
+        # 2. Get the Batch job
         request = batch_v1.GetJobRequest(
             name=f"projects/{proj}/locations/{loc}/jobs/{name}",
             # name=name,
         )
         job = self._client.get_job(request=request)
 
-        #3. Map job -> DescribeAppResponse
+        # 3. Map job -> DescribeAppResponse
         # TODO map job taskGroup to Role, map env vars etc
         return DescribeAppResponse(
             app_id=app_id,
             state=JOB_STATE[job.status.state.name],
         )
-
 
     def log_iter(
         self,
@@ -314,24 +297,21 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     ) -> Iterable[str]:
         pass
 
-
     def list(self) -> List[ListAppResponse]:
         # Create ListJobsRequest with parent str
         # Use list_job api
         # map ListJobsPager response to ListAppResponse and return it
         pass
 
-
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
         pass
 
-
     def _cancel_existing(self, app_id: str) -> None:
         # 1.create DeleteJobRequest
-            # get job name from app_id
-            # use cancel reason - killed via torchX
-        #2. Submit request
+        # get job name from app_id
+        # use cancel reason - killed via torchX
+        # 2. Submit request
         pass
 
 

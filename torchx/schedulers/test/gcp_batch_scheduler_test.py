@@ -24,7 +24,7 @@ def _test_app() -> specs.AppDef:
         name="trainer",
         image="pytorch/torchx:latest",
         entrypoint="main",
-         args=[
+        args=[
             "--output-path",
             specs.macros.img_root,
             "--app-id",
@@ -83,20 +83,32 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         res.cpu_milli = 2000
         res.memory_mib = 3000
         allocationPolicy = batch_v1.AllocationPolicy(
-            instances=[batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
-                policy=batch_v1.AllocationPolicy.InstancePolicy(
-                    machine_type="n1-standard-8",
-                    accelerators=[batch_v1.AllocationPolicy.Accelerator(
-                        type_="nvidia-tesla-v100",
-                        count=4,
-                    )]
+            instances=[
+                batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
+                    policy=batch_v1.AllocationPolicy.InstancePolicy(
+                        machine_type="n1-standard-8",
+                        accelerators=[
+                            batch_v1.AllocationPolicy.Accelerator(
+                                type_="nvidia-tesla-v100",
+                                count=4,
+                            )
+                        ],
+                    )
                 )
-            )],
+            ],
         )
         runnable = batch_v1.Runnable(
             container=batch_v1.Runnable.Container(
                 image_uri="pytorch/torchx:latest",
-                commands=["main", "--output-path", "", "--app-id", "app-name-42", "--rank0_env", "TORCHX_RANK0_HOST"],
+                commands=[
+                    "main",
+                    "--output-path",
+                    "",
+                    "--app-id",
+                    "app-name-42",
+                    "--rank0_env",
+                    "TORCHX_RANK0_HOST",
+                ],
             )
         )
         ts = batch_v1.TaskSpec(
@@ -125,20 +137,15 @@ class GCPBatchSchedulerTest(unittest.TestCase):
             },
         )
 
-        self.assertEqual(
-            req.job_def,
-            expected_job_def
-        )
+        self.assertEqual(req.job_def, expected_job_def)
 
     def _mock_scheduler(self) -> GCPBatchScheduler:
         from google.cloud import batch_v1
-        scheduler = GCPBatchScheduler(
-            "test",
-            client=MagicMock()
-        )
+
+        scheduler = GCPBatchScheduler("test", client=MagicMock())
         scheduler._client.get_job.return_value = batch_v1.Job(
             name="projects/pytorch-ecosystem-gcp/locations/us-central1/jobs/app-name-42",
-            uid= "j-82c8495f-8cc9-443c-9e33-4904fcb1test",
+            uid="j-82c8495f-8cc9-443c-9e33-4904fcb1test",
             status=batch_v1.JobStatus(
                 state=batch_v1.JobStatus.State.SUCCEEDED,
             ),
