@@ -64,10 +64,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         app = _test_app()
         proj = "test-proj"
         loc = "us-west-1"
-        cfg = GCPBatchOpts(
-            project=proj,
-            location=loc
-        )
+        cfg = GCPBatchOpts(project=proj, location=loc)
         info = scheduler._submit_dryrun(app, cfg)
 
         req = info.request
