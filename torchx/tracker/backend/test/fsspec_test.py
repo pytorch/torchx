@@ -92,7 +92,7 @@ class FsspecTest(unittest.TestCase):
             tracker.add_source(self.run_id, self.parent_run_id)
 
             run_ids = tracker.run_ids()
-            self.assertEqual(run_ids, [self.parent_run_id, self.run_id])
+            self.assertEqual(set(run_ids), set([self.parent_run_id, self.run_id]))
 
     def test_run_ids_filter_by_parent(self) -> None:
         with tempfile.TemporaryDirectory() as root_dir:
