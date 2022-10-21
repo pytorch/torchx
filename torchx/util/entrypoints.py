@@ -4,13 +4,10 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-try:
-    from importlib import metadata
-    from importlib.metadata import EntryPoint
-except ImportError:
-    import importlib_metadata as metadata
-    from importlib_metadata import EntryPoint
 from typing import Any, Dict, Optional
+
+import importlib_metadata as metadata
+from importlib_metadata import EntryPoint
 
 
 # pyre-ignore-all-errors[3, 2]
@@ -31,18 +28,13 @@ def load(group: str, name: str, default=None):
     raises an error.
     """
 
-    entrypoints = metadata.entry_points()
+    entrypoints = metadata.entry_points().select(group=group)
 
-    if group not in entrypoints and default:
+    if name not in entrypoints.names and default is not None:
         return default
 
-    eps: Dict[str, EntryPoint] = {ep.name: ep for ep in entrypoints[group]}
-
-    if name not in eps and default:
-        return default
-    else:
-        ep = eps[name]
-        return ep.load()
+    ep = entrypoints[name]
+    return ep.load()
 
 
 def _defer_load_ep(ep: EntryPoint) -> object:
@@ -75,12 +67,12 @@ def load_group(
 
     """
 
-    entrypoints = metadata.entry_points()
+    entrypoints = metadata.entry_points().select(group=group)
 
-    if group not in entrypoints:
+    if len(entrypoints) == 0:
         return default
 
     eps = {}
-    for ep in entrypoints[group]:
+    for ep in entrypoints:
         eps[ep.name] = _defer_load_ep(ep)
     return eps

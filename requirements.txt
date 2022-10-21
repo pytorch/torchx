@@ -1,5 +1,6 @@
 pyre-extensions
 docstring-parser==0.8.1
+importlib-metadata
 pyyaml
 docker
 filelock
