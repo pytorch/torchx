@@ -13,6 +13,7 @@ import torchx
 from torchx import specs
 from torchx.schedulers.gcp_batch_scheduler import (
     create_scheduler,
+    GCPBatchOpts,
     GCPBatchScheduler,
     LABEL_APP_NAME,
     LABEL_VERSION,

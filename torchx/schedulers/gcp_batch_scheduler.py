@@ -61,7 +61,7 @@ class GCPBatchJob:
     name: str
     project: str
     location: str
-    job_def: "Job"
+    job_def: batch_v1.Job
 
     def __str__(self) -> str:
         return yaml.dump(self.job_def)
@@ -136,7 +136,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         response = self._client.create_job(request=request)
         return f"{req.project}:{req.location}:{req.name}"
 
-    def _app_to_job(self, app: AppDef) -> "Job":
+    def _app_to_job(self, app: AppDef) -> batch_v1.Job:
         name = cleanup_str(make_unique(app.name))
 
         taskGroups = []
@@ -248,7 +248,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
         # Convert JobDef + BatchOpts to GCPBatchJob
         req = GCPBatchJob(
-            name=job.name,
+            name=str(job.name),
             project=proj,
             location=loc,
             job_def=job,
@@ -273,7 +273,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # 2. Get the Batch job
         request = batch_v1.GetJobRequest(
             name=f"projects/{proj}/locations/{loc}/jobs/{name}",
-            # name=name,
         )
         job = self._client.get_job(request=request)
 
