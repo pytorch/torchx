@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchx.components.metrics &mdash; PyTorch/TorchX main documentation</title>
+  <title>torchx.cli.cmd_tracker &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -357,7 +357,7 @@
         
           <li><a href="../../index.html">Module code</a> &gt;</li>
         
-      <li>torchx.components.metrics</li>
+      <li>torchx.cli.cmd_tracker</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -388,96 +388,168 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <h1>Source code for torchx.components.metrics</h1><div class="highlight"><pre>
+  <h1>Source code for torchx.cli.cmd_tracker</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">For metrics we recommend using Tensorboard to log metrics directly to cloud</span>
-<span class="sd">storage along side your model. As the model trains you can launch a</span>
-<span class="sd">tensorboard instance locally to monitor your model progress:</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="sd">.. code-block:: shell-session</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
-<span class="sd"> $ tensorboard --log-dir provider://path/to/logs</span>
+<span class="kn">from</span> <span class="nn">torchx.cli.cmd_base</span> <span class="kn">import</span> <span class="n">SubCommand</span>
+<span class="kn">from</span> <span class="nn">torchx.runner.api</span> <span class="kn">import</span> <span class="n">get_configured_trackers</span>
+<span class="kn">from</span> <span class="nn">torchx.tracker.api</span> <span class="kn">import</span> <span class="n">build_trackers</span><span class="p">,</span> <span class="n">TrackerBase</span>
+<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">none_throws</span>
 
-<span class="sd">Or you can use the :py:meth:`torchx.components.metrics.tensorboard` component as</span>
-<span class="sd">part of your pipeline.</span>
-
-<span class="sd">See the :ref:`examples_apps/lightning_classy_vision/train:Trainer Example` for an example on how to use the PyTorch</span>
-<span class="sd">Lightning TensorboardLogger.</span>
-
-<span class="sd">Reference</span>
-<span class="sd">----------------</span>
-
-<span class="sd">* PyTorch Tensorboard Tutorial https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html</span>
-<span class="sd">* PyTorch Lightning Loggers https://pytorch-lightning.readthedocs.io/en/stable/extensions/logging.html</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">torchx</span>
-<span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="tensorboard"><a class="viewcode-back" href="../../../components/metrics.html#torchx.components.metrics.tensorboard">[docs]</a><span class="k">def</span> <span class="nf">tensorboard</span><span class="p">(</span>
-    <span class="n">logdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">torchx</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span>
-    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span>  <span class="c1"># 1 hour</span>
-    <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6006</span><span class="p">,</span>
-    <span class="n">start_on_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">exit_on_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_requires_tracker</span><span class="p">(</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;CmdTracker&quot;</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;CmdTracker&quot;</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Checks that command has valid tracker setup&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;CmdTracker&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exiting since no trackers were configured.&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<div class="viewcode-block" id="CmdTracker"><a class="viewcode-back" href="../../../tracker.html#torchx.cli.cmd_tracker.CmdTracker">[docs]</a><span class="k">class</span> <span class="nc">CmdTracker</span><span class="p">(</span><span class="n">SubCommand</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This component runs a Tensorboard server which will render the logs</span>
-<span class="sd">    specified by logdir.</span>
+<span class="sd">    Prototype TorchX tracker subcommand that allows querying data by</span>
+<span class="sd">    interacting with tracker implementation.</span>
 
-<span class="sd">    Since Tensorboard runs as a service you need to specify the termination</span>
-<span class="sd">    conditions. This consists of a timeout as well as an optional</span>
-<span class="sd">    ``exit_on_file`` which will cause the service to quit when that path is</span>
-<span class="sd">    created.</span>
+<span class="sd">    Important: commands and the arguments may be modified in the future.</span>
 
-<span class="sd">    The files are periodically polled for existence via fsspec and will trigger</span>
-<span class="sd">    the corresponding behavior when created.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        logdir: fsspec path to the Tensorboard logs</span>
-<span class="sd">        image: image to use</span>
-<span class="sd">        timeout: maximum time to run before exiting (seconds)</span>
-<span class="sd">        start_on_file: start the server when the fsspec path is created</span>
-<span class="sd">        exit_on_file: shutdown the server when the fsspec path is created</span>
+<span class="sd">    Supported commands:</span>
+<span class="sd">        - tracker list jobs [–parent-run-id RUN_ID]</span>
+<span class="sd">        - tracker list metadata RUN_ID</span>
+<span class="sd">        - tracker list artifacts  [–artifact ARTIFACT_NAME] RUN_ID</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
-        <span class="n">roles</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">specs</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
-                <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-                <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-                <span class="n">args</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;torchx.apps.utils.process_monitor&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--timeout&quot;</span><span class="p">,</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">timeout</span><span class="p">),</span>
-                    <span class="s2">&quot;--start_on_file&quot;</span><span class="p">,</span>
-                    <span class="n">start_on_file</span><span class="p">,</span>
-                    <span class="s2">&quot;--exit_on_file&quot;</span><span class="p">,</span>
-                    <span class="n">exit_on_file</span><span class="p">,</span>
-                    <span class="s2">&quot;--&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;tensorboard&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--bind_all&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--port&quot;</span><span class="p">,</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
-                    <span class="s2">&quot;--logdir&quot;</span><span class="p">,</span>
-                    <span class="n">logdir</span><span class="p">,</span>
-                <span class="p">],</span>
-                <span class="n">port_map</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;http&quot;</span><span class="p">:</span> <span class="n">port</span><span class="p">},</span>
-            <span class="p">)</span>
-        <span class="p">],</span>
-    <span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries available tracker implementations and uses the first available one.</span>
+
+<span class="sd">        Since the instance needs to be available to setup torchx arguments, subcommands</span>
+<span class="sd">        utilize `_requires_tracker()` annotation to check that tracker is available</span>
+<span class="sd">        when invoked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TrackerBase</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">configured_trackers</span> <span class="o">=</span> <span class="n">get_configured_trackers</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">configured_trackers</span><span class="p">:</span>
+            <span class="n">trackers</span> <span class="o">=</span> <span class="n">build_trackers</span><span class="p">(</span><span class="n">configured_trackers</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">trackers</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">trackers</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="si">}</span><span class="s2"> to query data&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No trackers were configured!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_list_job_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--parent-run-id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional job parent run ID&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@_requires_tracker</span>
+    <span class="k">def</span> <span class="nf">list_jobs_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parent_run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">parent_run_id</span>
+        <span class="n">job_ids</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">)</span><span class="o">.</span><span class="n">run_ids</span><span class="p">(</span><span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span><span class="p">)</span>
+
+        <span class="n">tabulated_job_ids</span> <span class="o">=</span> <span class="p">[[</span><span class="n">job_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="n">job_ids</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">tabulated_job_ids</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;JOB ID&quot;</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">add_job_lineage_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">subparser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--sources-only&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Limit to sources&quot;</span>
+        <span class="p">)</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--descendants-only&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Limit to descendants&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--artifact&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Limit to specific artifact&quot;</span>
+        <span class="p">)</span>
+        <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;RUN_ID&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job run ID&quot;</span><span class="p">)</span>
+
+    <span class="nd">@_requires_tracker</span>
+    <span class="k">def</span> <span class="nf">job_lineage_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_metadata_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;RUN_ID&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job run ID&quot;</span><span class="p">)</span>
+
+    <span class="nd">@_requires_tracker</span>
+    <span class="k">def</span> <span class="nf">list_metadata_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">RUN_ID</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">)</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+        <span class="n">print_data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">print_data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;VALUE&quot;</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">add_artifacts_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--artifact&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Limit to specific artifact&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">subparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;RUN_ID&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Job run ID&quot;</span><span class="p">)</span>
+
+    <span class="nd">@_requires_tracker</span>
+    <span class="k">def</span> <span class="nf">list_artifacts_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">run_id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">RUN_ID</span>
+        <span class="n">artifact_filter</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">artifact</span>
+
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="p">)</span><span class="o">.</span><span class="n">artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">artifact_filter</span><span class="p">:</span>
+            <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">artifact</span> <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span> <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">artifact_filter</span>
+            <span class="p">]</span>
+        <span class="n">print_data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">artifact</span><span class="o">.</span><span class="n">metadata</span><span class="p">]</span> <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span>
+        <span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">print_data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ARTIFACT&quot;</span><span class="p">,</span> <span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;METADATA&quot;</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tracker_subparsers</span> <span class="o">=</span> <span class="n">subparser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Experimental tracker subcommands to query available tracked data.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">list_subparsers</span> <span class="o">=</span> <span class="n">tracker_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+            <span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use `list --help` to get supported args&quot;</span>
+        <span class="p">)</span>
+        <span class="n">list_subcmd_subparsers</span> <span class="o">=</span> <span class="n">list_subparsers</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Tracker list subcommands&quot;</span>
+        <span class="p">)</span>
+        <span class="n">list_subcommand_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_jobs_command</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_list_job_arguments</span><span class="p">),</span>
+            <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_metadata_command</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata_arguments</span><span class="p">),</span>
+            <span class="s2">&quot;artifacts&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_artifacts_command</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_artifacts_arguments</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">sub_cmd</span><span class="p">,</span> <span class="p">[</span><span class="n">func_handler</span><span class="p">,</span> <span class="n">args_handler</span><span class="p">]</span> <span class="ow">in</span> <span class="n">list_subcommand_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">sub_cmd_subparser</span> <span class="o">=</span> <span class="n">list_subcmd_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="n">sub_cmd</span><span class="p">)</span>
+            <span class="n">sub_cmd_subparser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func_handler</span><span class="p">)</span>
+            <span class="n">args_handler</span><span class="p">(</span><span class="n">sub_cmd_subparser</span><span class="p">)</span>
+
+        <span class="n">job_lineage_subparser</span> <span class="o">=</span> <span class="n">list_subcmd_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;lineage&quot;</span><span class="p">)</span>
+        <span class="n">job_lineage_subparser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_lineage_command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_job_lineage_arguments</span><span class="p">(</span><span class="n">job_lineage_subparser</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># This command defines default func for each tracker subcomand.</span>
+        <span class="k">pass</span></div>
 </pre></div>
 
      </article>
