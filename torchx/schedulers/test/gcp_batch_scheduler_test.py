@@ -64,10 +64,10 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         app = _test_app()
         proj = "test-proj"
         loc = "us-west-1"
-        cfg = {
-            "project": proj,
-            "location": loc,
-        }
+        cfg = GCPBatchOpts(
+            project=proj,
+            location=loc
+        )
         info = scheduler._submit_dryrun(app, cfg)
 
         req = info.request
@@ -156,9 +156,9 @@ class GCPBatchSchedulerTest(unittest.TestCase):
     def test_submit(self) -> None:
         scheduler = self._mock_scheduler()
         app = _test_app()
-        cfg = {
-            "project": "test-proj",
-        }
+        cfg = GCPBatchOpts(
+            project="test-proj",
+        )
         info = scheduler._submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "test-proj:us-central1:app-name-42")

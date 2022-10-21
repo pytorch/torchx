@@ -64,7 +64,7 @@ class GCPBatchJob:
     job_def: "Job"
 
     def __str__(self) -> str:
-        return yaml.dump(sanitize_for_serialization(self.job_def))
+        return yaml.dump(self.job_def)
 
     def __repr__(self) -> str:
         return str(self)
@@ -72,7 +72,7 @@ class GCPBatchJob:
 
 class GCPBatchOpts(TypedDict, total=False):
     project: Optional[str]
-    location: Optional[str]  # possible to default location if not specified ?
+    location: Optional[str]
 
 
 class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
@@ -295,13 +295,13 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         should_tail: bool = False,
         streams: Optional[Stream] = None,
     ) -> Iterable[str]:
-        pass
+        raise NotImplementedError()
 
     def list(self) -> List[ListAppResponse]:
         # Create ListJobsRequest with parent str
         # Use list_job api
         # map ListJobsPager response to ListAppResponse and return it
-        pass
+        raise NotImplementedError()
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
@@ -312,7 +312,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # get job name from app_id
         # use cancel reason - killed via torchX
         # 2. Submit request
-        pass
+        raise NotImplementedError()
 
 
 def create_scheduler(session_name: str, **kwargs: object) -> GCPBatchScheduler:
