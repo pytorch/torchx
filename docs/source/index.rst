@@ -59,6 +59,7 @@ Documentation
       fb/workspace.md
       fb/cogwheel.rst
       fb/named_resources.rst
+      fb/tracker.md
 
 
 Works With
