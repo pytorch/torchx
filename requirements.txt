@@ -5,3 +5,5 @@ pyyaml
 docker
 filelock
 fsspec
+tabulate
+
