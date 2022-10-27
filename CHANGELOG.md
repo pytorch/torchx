@@ -13,7 +13,8 @@
     * Easily access job UI via ui_url
   * Ray
     * Add elasticity to jobs launched on ray cluster to automatically scale jobs up as resources become available
-    * Support Ray 2.0
+  * Kubernetes
+    * Add elasticity to jobs launched on Kubernetes
   * LSF Scheduler (Prototype)
     * Newly added support for scheduling on IBM Spectrum LSF scheduler
   * Local Scheduler
