@@ -1,5 +1,52 @@
 # CHANGELOG
 
+## torchx-0.3.0
+
+* Milestone: https://github.com/pytorch/torchx/milestone/5
+
+* `torchx.schedulers`
+  * List API (Prototype)
+    * New list API to list jobs and their statuses for all schedulers which removes the need to use secondary tools to list jobs
+  * AWS Batch (promoted to Beta)
+    * Get logs for running jobs
+    * Added configs for job priorities and queue policies
+    * Easily access job UI via ui_url
+  * Ray
+    * Add elasticity to jobs launched on ray cluster to automatically scale jobs up as resources become available
+  * Kubernetes
+    * Add elasticity to jobs launched on Kubernetes
+  * LSF Scheduler (Prototype)
+    * Newly added support for scheduling on IBM Spectrum LSF scheduler
+  * Local Scheduler
+    * Better formatting when using pdb
+
+* `torchx.tracker` (Prototype)
+    * TorchX Tracker is a new lightweight experiment and artifact tracking tool
+    * Add tracker API that can track any inputs and outputs to your model in any infrastructure
+    * FSSpec based Torchx tracking implementation and sample app
+
+* `torchx.runner`
+    * Allow overriding TORCHX_IMAGE via entrypoints
+    * Capture the image used when logging schedule calls
+
+* `torchx.components`
+    * Add debug flag to dist component
+
+* `torchx.cli`
+    * New list feature also available as a subcommand to list jobs and their statuses on a given scheduler
+    * New tracker feature also available as a subcommand to track experiments and artifacts
+    * Defer loading schedulers until used
+
+* `torchx.workspace`
+    * Preserve Unix file mode when patching files into docker image.
+
+* Docs
+    * Add airflow example
+
+* Additional changes
+    * Bug fixes for Python 3.10 support
+
+
 ## torchx-0.2.0
 
 * Milestone: https://github.com/pytorch/torchx/milestone/4
