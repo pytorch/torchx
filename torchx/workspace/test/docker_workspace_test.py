@@ -3,18 +3,24 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+import json
 import os
-import pathlib
 import stat
 import tarfile
 import tempfile
 import unittest
+from io import StringIO
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import fsspec
+
 from torchx.specs import AppDef, Role
-from torchx.workspace.docker_workspace import _build_context, DockerWorkspaceMixin
+from torchx.workspace.docker_workspace import (
+    _build_context,
+    DockerWorkspaceMixin,
+    print_push_events,
+)
 
 
 def has_docker() -> bool:
@@ -227,14 +233,26 @@ class DockerWorkspaceMockTest(unittest.TestCase):
 
     def test_unix_file_permissions(self) -> None:
         with tempfile.TemporaryDirectory() as tmpDirName:
-            pathlib.Path(os.path.join(tmpDirName, "foo_644")).touch(
-                mode=0o644, exist_ok=True
-            )
-            pathlib.Path(os.path.join(tmpDirName, "foo_755")).touch(
-                mode=0o755, exist_ok=True
-            )
+            Path(os.path.join(tmpDirName, "foo_644")).touch(mode=0o644, exist_ok=True)
+            Path(os.path.join(tmpDirName, "foo_755")).touch(mode=0o755, exist_ok=True)
 
             with _build_context("img", tmpDirName) as f:
                 with tarfile.open(fileobj=f, mode="r") as tf:
                     self.assertEqual(stat.S_IMODE(tf.getmember("foo_644").mode), 0o644)
                     self.assertEqual(stat.S_IMODE(tf.getmember("foo_755").mode), 0o755)
+
+    def test_print_push_events(self) -> None:
+        test_dir = Path(__file__).parent
+
+        with open(test_dir / "mock_docker_push_events.json", "r") as f:
+            mock_events_json = [json.loads(event) for event in f.readlines()]
+
+        with StringIO() as mock_console:
+            print_push_events(mock_events_json, stream=mock_console)
+            mock_console.seek(0)
+            actual = mock_console.readlines()
+
+        with open(test_dir / "expected_print_push_events.txt") as f:
+            expected = f.readlines()
+
+        self.assertEqual(expected, actual)

@@ -8,11 +8,13 @@ import io
 import logging
 import posixpath
 import stat
+import sys
 import tarfile
 import tempfile
-from typing import Dict, IO, Mapping, Optional, Tuple, TYPE_CHECKING
+from typing import Dict, IO, Iterable, Mapping, Optional, TextIO, Tuple, TYPE_CHECKING
 
 import fsspec
+
 import torchx
 from torchx.specs import AppDef, CfgVal, Role, runopts
 from torchx.workspace.api import walk_workspace, WorkspaceMixin
@@ -99,6 +101,7 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 log.warning(
                     f"failed to pull image {role.image}, falling back to local: {e}"
                 )
+            log.info("Building workspace docker image (this may take a while)...")
             image, _ = self._docker_client.images.build(
                 fileobj=context,
                 custom_context=True,
@@ -166,13 +169,51 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             log.info(f"pushing image {repo}:{tag}...")
             img = client.images.get(local)
             img.tag(repo, tag=tag)
-            for line in client.images.push(repo, tag=tag, stream=True, decode=True):
-                ERROR_KEY = "error"
-                if ERROR_KEY in line:
-                    raise RuntimeError(
-                        f"failed to push docker image: {line[ERROR_KEY]}"
-                    )
-                log.info(f"docker: {line}")
+            print_push_events(
+                client.images.push(repo, tag=tag, stream=True, decode=True)
+            )
+
+
+def print_push_events(
+    events: Iterable[Dict[str, str]],
+    stream: TextIO = sys.stdout,
+) -> None:
+    ID_KEY = "id"
+    ERROR_KEY = "error"
+    STATUS_KEY = "status"
+    PROG_KEY = "progress"
+    LINE_CLEAR = "\033[2K"
+    BLUE = "\033[34m"
+    ENDC = "\033[0m"
+    HEADER = f"{BLUE}docker push {ENDC}"
+
+    def lines_up(lines: int) -> str:
+        return f"\033[{lines}F"
+
+    def lines_down(lines: int) -> str:
+        return f"\033[{lines}E"
+
+    ids = []
+    for event in events:
+        if ERROR_KEY in event:
+            raise RuntimeError(f"failed to push docker image: {event[ERROR_KEY]}")
+
+        id = event.get(ID_KEY)
+        status = event.get(STATUS_KEY)
+
+        if not status:
+            continue
+
+        if id:
+            msg = f"{HEADER}{id}: {status} {event.get(PROG_KEY, '')}"
+            if id not in ids:
+                ids.append(id)
+                stream.write(f"{msg}\n")
+            else:
+                lineno = len(ids) - ids.index(id)
+                stream.write(f"{lines_up(lineno)}{LINE_CLEAR}{msg}{lines_down(lineno)}")
+        else:
+            stream.write(f"{HEADER}{status}\n")
 
 
 def _build_context(img: str, workspace: str) -> IO[bytes]:
@@ -182,9 +223,11 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
         suffix=".tar",
     )
     dockerfile = bytes(f"FROM {img}\nCOPY . .\n", encoding="utf-8")
+
     with tarfile.open(fileobj=f, mode="w") as tf:
         _copy_to_tarfile(workspace, tf)
         if TORCHX_DOCKERFILE not in tf.getnames():
+
             info = tarfile.TarInfo(TORCHX_DOCKERFILE)
             info.size = len(dockerfile)
             tf.addfile(info, io.BytesIO(dockerfile))
@@ -194,6 +237,7 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
 
 def _copy_to_tarfile(workspace: str, tf: tarfile.TarFile) -> None:
     fs, path = fsspec.core.url_to_fs(workspace)
+    log.info(f"Workspace `{workspace}` resolved to filesystem path `{path}`")
     assert isinstance(path, str), "path must be str"
 
     for dir, dirs, files in walk_workspace(fs, path, ".dockerignore"):
