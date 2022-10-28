@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -691,7 +691,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing my_app.py
+Overwriting my_app.py
 </pre></div></div>
 </div>
 <p>Now that we have an app we can write the component file for it. This function allows us to reuse and share our app in a user friendly way.</p>
@@ -727,7 +727,7 @@ Writing my_app.py
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing my_component.py
+Overwriting my_component.py
 </pre></div></div>
 </div>
 <p>We can execute our component via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span></code>. The <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler executes the component relative to the current directory.</p>
@@ -745,11 +745,12 @@ torchx run --scheduler local_cwd my_component.py:greet --user <span class="s2">&
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-27 22:42:08 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2022-10-27 22:42:08 INFO     Log directory is: /tmp/torchx_huzxjd7g
-torchx 2022-10-27 22:42:08 INFO     Waiting for the app to finish...
+torchx 2022-10-27 17:34:16 INFO     loaded configs from /Users/priyaramani/Workspace/repos/torchx/docs/source/.torchxconfig
+torchx 2022-10-27 17:34:16 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2022-10-27 17:34:16 INFO     Log directory is: /var/folders/ck/dsbpg4794mn2nfwc_wr5_fn40000gn/T/torchx_ukf7jjfm
+torchx 2022-10-27 17:34:16 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-10-27 22:42:09 INFO     Job finished: SUCCEEDED
+torchx 2022-10-27 17:34:17 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -757,7 +758,7 @@ torchx 2022-10-27 22:42:09 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-wkz5ppv2s5z9q
+local_cwd://torchx/hello_world-pmmv1cm65tmpgd
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -780,7 +781,7 @@ local_cwd://torchx/hello_world-wkz5ppv2s5z9q
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing Dockerfile.custom
+Overwriting Dockerfile.custom
 </pre></div></div>
 </div>
 <p>Once we have the Dockerfile created we can create our docker image.</p>
@@ -796,83 +797,43 @@ docker build -t my_app:latest -f Dockerfile.custom .
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
+<div class="output_area stderr docutils container">
 <div class="highlight"><pre>
+#1 [internal] load build definition from Dockerfile.custom
+#1 sha256:61fb24a3f30b30bf1722ffa46c850b6271dce79cc880cf1315f469ed3b274177
+#1 transferring dockerfile: 104B 0.0s done
+#1 DONE 0.0s
 
-Step 1/2 : FROM ghcr.io/pytorch/torchx:0.1.0rc1
-0.1.0rc1: Pulling from pytorch/torchx
-4bbfd2c87b75: Pulling fs layer
-d2e110be24e1: Pulling fs layer
-889a7173dcfe: Pulling fs layer
-6009a622672a: Pulling fs layer
-143f80195431: Pulling fs layer
-eccbe17c44e1: Pulling fs layer
-d4c7af0d4fa7: Pulling fs layer
-06b5edd6bf52: Pulling fs layer
-f18d016c4ccc: Pulling fs layer
-c0ad16d9fa05: Pulling fs layer
-30587ba7fd6b: Pulling fs layer
-909695be1d50: Pulling fs layer
-f119a6d0a466: Pulling fs layer
-88d87059c913: Pulling fs layer
-f18d016c4ccc: Waiting
-c0ad16d9fa05: Waiting
-6009a622672a: Waiting
-143f80195431: Waiting
-eccbe17c44e1: Waiting
-30587ba7fd6b: Waiting
-909695be1d50: Waiting
-f119a6d0a466: Waiting
-88d87059c913: Waiting
-d4c7af0d4fa7: Waiting
-06b5edd6bf52: Waiting
-889a7173dcfe: Verifying Checksum
-889a7173dcfe: Download complete
-d2e110be24e1: Verifying Checksum
-d2e110be24e1: Download complete
-4bbfd2c87b75: Verifying Checksum
-4bbfd2c87b75: Download complete
-6009a622672a: Download complete
-eccbe17c44e1: Download complete
-d4c7af0d4fa7: Verifying Checksum
-d4c7af0d4fa7: Download complete
-06b5edd6bf52: Verifying Checksum
-06b5edd6bf52: Download complete
-c0ad16d9fa05: Verifying Checksum
-c0ad16d9fa05: Download complete
-30587ba7fd6b: Verifying Checksum
-30587ba7fd6b: Download complete
-909695be1d50: Verifying Checksum
-909695be1d50: Download complete
-f119a6d0a466: Verifying Checksum
-f119a6d0a466: Download complete
-4bbfd2c87b75: Pull complete
-88d87059c913: Verifying Checksum
-88d87059c913: Download complete
-f18d016c4ccc: Verifying Checksum
-f18d016c4ccc: Download complete
-d2e110be24e1: Pull complete
-143f80195431: Verifying Checksum
-143f80195431: Download complete
-889a7173dcfe: Pull complete
-6009a622672a: Pull complete
-143f80195431: Pull complete
-eccbe17c44e1: Pull complete
-d4c7af0d4fa7: Pull complete
-06b5edd6bf52: Pull complete
-f18d016c4ccc: Pull complete
-c0ad16d9fa05: Pull complete
-30587ba7fd6b: Pull complete
-909695be1d50: Pull complete
-f119a6d0a466: Pull complete
-88d87059c913: Pull complete
-Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
-Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
- ---&gt; 3dbec59e8049
-Step 2/2 : ADD my_app.py .
- ---&gt; 621d2b914174
-Successfully built 621d2b914174
-Successfully tagged my_app:latest
+#2 [internal] load .dockerignore
+#2 sha256:566d6af428a265e63eaee87de7d011d92729024b7c0db0b90602038ae3e74218
+#2 transferring context: 2B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for ghcr.io/pytorch/torchx:0.1.0rc1
+#3 sha256:633e8f8dd2a3a4495d5dae7e523213a3449a3deffb6475efdd19f7312a781606
+#3 DONE 1.4s
+
+#4 [1/2] FROM ghcr.io/pytorch/torchx:0.1.0rc1@sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
+#4 sha256:9bc06e9084b68d5654928a267982308c15642a3206ba66cda0701bed701b3e4e
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 sha256:ff072a7cde843d0636ac5f5ecd87b11f10b0698e4ea0fbb0d90da04d12fd015e
+#5 transferring context: 425B done
+#5 DONE 0.0s
+
+#6 [2/2] ADD my_app.py .
+#6 sha256:0c58fd009420150178e4bfdf7a0487adfd64daaec16404349f83e1f8a3cda71a
+#6 CACHED
+
+#7 exporting to image
+#7 sha256:e8c613e07b0b7ff33893b694f7759a10d42e180f2b4dc349fb57dc6b71dcab00
+#7 exporting layers done
+#7 writing image sha256:eb931e46390433da7ea61b14a54a91affb86c7ce64d33f1c3e7a961f56cf98b4 done
+#7 naming to docker.io/library/my_app:latest done
+#7 DONE 0.0s
+
+Use &#39;docker scan&#39; to run Snyk tests against images to find vulnerabilities and learn how to fix them
 </pre></div></div>
 </div>
 <p>We can then launch it on the local scheduler.</p>
@@ -890,13 +851,14 @@ torchx run --scheduler local_docker my_component.py:greet --image <span class="s
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-27 22:44:24 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-10-27 22:44:24 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-10-27 22:44:24 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
-torchx 2022-10-27 22:44:32 INFO     Built new image `sha256:1c75e44f8254a6bec8492b5fbc18d640b339248bef427df2fc8e928bfe2fc146` based on original image `my_app:latest` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=greeter.
-torchx 2022-10-27 22:44:32 INFO     Waiting for the app to finish...
+torchx 2022-10-27 17:34:21 INFO     loaded configs from /Users/priyaramani/Workspace/repos/torchx/docs/source/.torchxconfig
+torchx 2022-10-27 17:34:21 INFO     Checking for changes in workspace `file:///Users/priyaramani/Workspace/repos/torchx/docs/source`...
+torchx 2022-10-27 17:34:21 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-10-27 17:34:23 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2022-10-27 17:34:24 INFO     Built new image `sha256:9215cebe702de996f350825c46b569d8b0d00260d90c40b18f8e0f7075c3f2d6` based on original image `my_app:latest` and changes in workspace `file:///Users/priyaramani/Workspace/repos/torchx/docs/source` for role[0]=greeter.
+torchx 2022-10-27 17:34:25 INFO     Waiting for the app to finish...
 greeter/0 Hello, your name!
-torchx 2022-10-27 22:44:33 INFO     Job finished: SUCCEEDED
+torchx 2022-10-27 17:34:26 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -904,7 +866,7 @@ torchx 2022-10-27 22:44:33 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-zhw6z2cm1tbf5c
+local_docker://torchx/hello_world-lt9qdxd3xbhgwd
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -933,14 +895,14 @@ torchx builtins
 Found 10 builtin components:
   1. metrics.tensorboard
   2. serve.torchserve
-  3. dist.ddp
-  4. utils.binary
-  5. utils.booth
-  6. utils.copy
-  7. utils.echo
-  8. utils.python
-  9. utils.sh
- 10. utils.touch
+  3. utils.binary
+  4. utils.booth
+  5. utils.copy
+  6. utils.echo
+  7. utils.python
+  8. utils.sh
+  9. utils.touch
+ 10. dist.ddp
 </pre></div></div>
 </div>
 <p>You can use these either from the CLI, from a pipeline or programmatically like you would any other component.</p>
@@ -958,12 +920,13 @@ torchx run utils.echo --msg <span class="s2">&quot;Hello :)&quot;</span>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2022-10-27 22:44:35 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2022-10-27 22:44:35 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2022-10-27 22:46:44 INFO     Built new image `sha256:b1175ca8aea3384708309680211de1a16d5978e089ab8aeb2ef697d2eba57967` based on original image `ghcr.io/pytorch/torchx:0.3.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=echo.
-torchx 2022-10-27 22:46:44 INFO     Waiting for the app to finish...
+torchx 2022-10-27 17:34:28 INFO     loaded configs from /Users/priyaramani/Workspace/repos/torchx/docs/source/.torchxconfig
+torchx 2022-10-27 17:34:29 INFO     Checking for changes in workspace `file:///Users/priyaramani/Workspace/repos/torchx/docs/source`...
+torchx 2022-10-27 17:34:29 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-10-27 17:34:31 INFO     Built new image `sha256:9215cebe702de996f350825c46b569d8b0d00260d90c40b18f8e0f7075c3f2d6` based on original image `ghcr.io/pytorch/torchx:0.3.0` and changes in workspace `file:///Users/priyaramani/Workspace/repos/torchx/docs/source` for role[0]=echo.
+torchx 2022-10-27 17:34:31 INFO     Waiting for the app to finish...
+torchx 2022-10-27 17:34:31 INFO     Job finished: SUCCEEDED
 echo/0 Hello :)
-torchx 2022-10-27 22:46:45 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -971,7 +934,7 @@ torchx 2022-10-27 22:46:45 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-gqzj07zmpz62k
+local_docker://torchx/echo-g4tmlzd03ljjhd
 </pre></div></div>
 </div>
 </section>
@@ -1045,8 +1008,8 @@ local_docker://torchx/echo-gqzj07zmpz62k
          <script src="_static/underscore.js"></script>
          <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
-         <script src="_static/katex.min.js"></script>
-         <script src="_static/auto-render.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="_static/katex_autorenderer.js"></script>
          <script src="_static/js/torchx.js"></script>
      

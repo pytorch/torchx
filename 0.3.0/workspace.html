@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -490,7 +490,7 @@ be used instead to build the container.</p>
 <dd><p>Builds a new docker image using the <code class="docutils literal notranslate"><span class="pre">role</span></code>’s image as the base image
 and updates the <code class="docutils literal notranslate"><span class="pre">role</span></code>’s image with this newly built docker image id</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>role</strong> – the role whose image (a Docker image) is to be used as the base image</p></li>
 <li><p><strong>workspace</strong> – a fsspec path to a directory with contents to be overlaid</p></li>
@@ -508,7 +508,7 @@ returns a mapping of local to remote names.</p>
 <p><code class="docutils literal notranslate"><span class="pre">push</span></code> must be called with the returned mapping before
 launching the job.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A dict of [local image name, (remote repo, tag)].</p>
 </dd>
 </dl>
@@ -521,7 +521,7 @@ launching the job.</p>
 repository with the specified tag. The docker daemon must be
 authenticated to the remote repository using <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">login</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>images_to_push</strong> – A dict of [local image name, (remote repo, tag)].</p>
 </dd>
 </dl>
@@ -623,8 +623,8 @@ image fields will be set to the <code class="docutils literal notranslate"><span
          <script src="_static/underscore.js"></script>
          <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
-         <script src="_static/katex.min.js"></script>
-         <script src="_static/auto-render.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="_static/katex_autorenderer.js"></script>
          <script src="_static/js/torchx.js"></script>
      

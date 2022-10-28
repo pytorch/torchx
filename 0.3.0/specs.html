@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -407,7 +407,7 @@ scheduler or pipeline adapter.</p>
 and metadata. Contains the necessary information for the driver
 to submit this app to the scheduler.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – Name of application</p></li>
 <li><p><strong>roles</strong> – List of roles</p></li>
@@ -450,7 +450,7 @@ the image given an image name (str), which could be a simple name
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – name of the role</p></li>
 <li><p><strong>image</strong> – a software bundle that is installed on a container.</p></li>
@@ -526,7 +526,7 @@ replacement replica admittance.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.specs.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpu:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memMB:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capabilities:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">devices:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchx/specs/api.html#Resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.specs.Resource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents resource requirements for a <code class="docutils literal notranslate"><span class="pre">Role</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cpu</strong> – number of logical cpu cores. The definition of a CPU core depends
 on the scheduler. See your scheduler documentation for how a logical
@@ -919,7 +919,7 @@ DeviceMount: type=device,src=/dev/&lt;dev&gt;[,dst=&lt;container path&gt;][,perm
 environment. See scheduler documentation on how bind mounts operate for each
 scheduler.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>src_path</strong> – the path on the host</p></li>
 <li><p><strong>dst_path</strong> – the path in the worker environment/container</p></li>
@@ -961,16 +961,16 @@ scheduler.</p>
 <li><p>The function must return <a class="reference internal" href="#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchx.specs.api.AppDef</span></code></a></p></li>
 </ol>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> – Path to python source file.</p></li>
 <li><p><strong>component_function</strong> – Name of the function to be validated.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>List of validation errors</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[<a class="reference internal" href="#torchx.specs.file_linter.LinterMessage" title="torchx.specs.file_linter.LinterMessage">LinterMessage</a>]</p>
 </dd>
 </dl>
@@ -985,10 +985,10 @@ scheduler.</p>
 on how to improve the help message and arguments descriptions will be names of the arguments.</p>
 <p>The arguments that are not present in the docstring will contain default/required information</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>fn</strong> – Function with or without docstring</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>function description, arguments description where key is the name of the argument and value</dt><dd><p>if the description</p>
 </dd>
@@ -1169,8 +1169,8 @@ These functions do not have both required and default arguments.</p>
          <script src="_static/underscore.js"></script>
          <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
-         <script src="_static/katex.min.js"></script>
-         <script src="_static/auto-render.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="_static/katex_autorenderer.js"></script>
          <script src="_static/js/torchx.js"></script>
      
