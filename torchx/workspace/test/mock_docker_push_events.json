@@ -1,0 +1,16 @@
+{"status": "The push refers to repository [pytorch/torchx]"}
+{"status": "Preparing", "progressDetail": {}, "id": "c937631168e7"}
+{"status": "Preparing", "progressDetail": {}, "id": "e5771311f3e8"}
+{"status": "Waiting", "progressDetail": {}, "id": "e5771311f3e8"}
+{"status": "Pushing", "progressDetail": {"current": 173568, "total": 14335631}, "progress": "[>                                                  ]  173.6kB/14.34MB", "id": "c937631168e7"}
+{"status": "Layer already exists", "progressDetail": {}, "id": "e5771311f3e8"}
+{"status": "Pushing", "progressDetail": {"current": 2139648, "total": 14335631}, "progress": "[=======>                                           ]   2.14MB/14.34MB", "id": "c937631168e7"}
+{"status": "Pushing", "progressDetail": {"current": 4105728, "total": 14335631}, "progress": "[==============>                                    ]  4.106MB/14.34MB", "id": "c937631168e7"}
+{"status": "Pushing", "progressDetail": {"current": 6563328, "total": 14335631}, "progress": "[======================>                            ]  6.563MB/14.34MB", "id": "c937631168e7"}
+{"status": "Pushing", "progressDetail": {"current": 8693248, "total": 14335631}, "progress": "[==============================>                    ]  8.693MB/14.34MB", "id": "c937631168e7"}
+{"status": "Pushing", "progressDetail": {"current": 10659328, "total": 14335631}, "progress": "[=====================================>             ]  10.66MB/14.34MB", "id": "c937631168e7"}
+{"status": "Pushing", "progressDetail": {"current": 12625408, "total": 14335631}, "progress": "[============================================>      ]  12.63MB/14.34MB", "id": "c937631168e7"}
+{"status": "Pushing", "progressDetail": {"current": 14340608, "total": 14335631}, "progress": "[==================================================>]  14.34MB", "id": "c937631168e7"}
+{"status": "Pushed", "progressDetail": {}, "id": "c937631168e7"}
+{"status": "f928918c554ad39a9e9a5549ef6933f28c00387142268845e5fcf5f07952d5c8: digest: sha256:7a7d24dfc95248f2ca4e2e82cad9330e8a7c07b86fa10ad7a632270976d95c4b size: 8101"}
+{"progressDetail": {}, "aux": {"Tag": "f928918c554ad39a9e9a5549ef6933f28c00387142268845e5fcf5f07952d5c8", "Digest": "sha256:7a7d24dfc95248f2ca4e2e82cad9330e8a7c07b86fa10ad7a632270976d95c4b", "Size": 8101}}
