@@ -60,7 +60,7 @@ def run_job(dryrun: bool = False) -> None:
     train_app = dist_ddp(
         *("--output_path", output_path),
         image=image,
-        m="torchx.examples.apps.lightning_classy_vision.train",
+        m="torchx.examples.apps.lightning.train",
         h="GPU_X1",
         j="2x1",
     )

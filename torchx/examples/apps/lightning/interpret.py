@@ -23,12 +23,12 @@ Usage
 
 Runs this main module as a python process locally. The run below assumes
 that the model has been trained using the usage instructions in
-``torchx/examples/apps/lightning_classy_vision/train.py``.
+``torchx/examples/apps/lightning/train.py``.
 
 .. code:: shell-session
 
   $ torchx run -s local_cwd utils.python
-      --script ./lightning_classy_vision/interpret.py
+      --script ./lightning/interpret.py
       --
       --load_path /tmp/torchx/train/last.ckpt
       --output_path /tmp/torchx/interpret
@@ -52,12 +52,12 @@ from typing import List
 
 import fsspec
 import torch
-from torchx.examples.apps.lightning_classy_vision.data import (
+from torchx.examples.apps.lightning.data import (
     create_random_data,
     download_data,
     TinyImageNetDataModule,
 )
-from torchx.examples.apps.lightning_classy_vision.model import TinyImageNetModel
+from torchx.examples.apps.lightning.model import TinyImageNetModel
 
 
 # ensure data and module are on the path

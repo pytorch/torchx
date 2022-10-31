@@ -16,7 +16,7 @@ tensorboard instance locally to monitor your model progress:
 Or you can use the :py:meth:`torchx.components.metrics.tensorboard` component as
 part of your pipeline.
 
-See the :ref:`examples_apps/lightning_classy_vision/train:Trainer Example` for an example on how to use the PyTorch
+See the :ref:`examples_apps/lightning/train:Trainer Example` for an example on how to use the PyTorch
 Lightning TensorboardLogger.
 
 Reference

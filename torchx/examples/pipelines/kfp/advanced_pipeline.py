@@ -164,7 +164,7 @@ trainer_app: specs.AppDef = dist_ddp(
         str(1),
     ),
     image=args.image,
-    m="torchx.examples.apps.lightning_classy_vision.train",
+    m="torchx.examples.apps.lightning.train",
     j="1x1",
     # per node resource settings
     cpu=1,
@@ -220,7 +220,7 @@ interpret_app: specs.AppDef = utils_python(
         interpret_path,
     ),
     image=args.image,
-    m="torchx.examples.apps.lightning_classy_vision.interpret",
+    m="torchx.examples.apps.lightning.interpret",
 )
 
 # %%
