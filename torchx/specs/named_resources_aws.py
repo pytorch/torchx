@@ -33,8 +33,14 @@ from typing import Callable, Mapping
 
 from torchx.specs.api import Resource
 
+# ecs and ec2 have memtax and currently AWS Batch uses hard memory limits
+# so we have to account for mem tax when registering these resources for AWS
+# otherwise the job will be stuck in the jobqueue forever
+# 97% is based on empirical observation that works well for most instance types
+# see: https://docs.aws.amazon.com/batch/latest/userguide/memory-management.html
+MEM_TAX = 0.97
 K8S_ITYPE = "node.kubernetes.io/instance-type"
-GiB: int = 1024
+GiB: int = int(1024 * MEM_TAX)
 
 
 def aws_p3_2xlarge() -> Resource:
