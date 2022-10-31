@@ -10,7 +10,7 @@ This contains the TorchX AppDef and related component definitions. These are
 used by components to define the apps which can then be launched via a TorchX
 scheduler or pipeline adapter.
 """
-
+import difflib
 from typing import Callable, Dict, Optional
 
 from torchx.specs.named_resources_aws import NAMED_RESOURCES as AWS_NAMED_RESOURCES
@@ -69,7 +69,20 @@ _named_resource_factories: Dict[str, Callable[[], Resource]] = _load_named_resou
 
 class _NamedResourcesLibrary:
     def __getitem__(self, key: str) -> Resource:
-        return _named_resource_factories[key]()
+        if key in _named_resource_factories:
+            return _named_resource_factories[key]()
+        else:
+            matches = difflib.get_close_matches(
+                key,
+                _named_resource_factories.keys(),
+                n=1,
+            )
+            if matches:
+                msg = f"Did you mean `{matches[0]}`?"
+            else:
+                msg = f"Registered named resources: {list(_named_resource_factories.keys())}"
+
+            raise KeyError(f"No named resource found for `{key}`. {msg}")
 
     def __contains__(self, key: str) -> bool:
         return key in _named_resource_factories
