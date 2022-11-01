@@ -3,11 +3,10 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
 import threading
 import unittest
 from contextlib import contextmanager
-from typing import Generator
+from typing import Any, Dict, Generator, Iterable, Optional
 from unittest.mock import MagicMock, patch
 
 import torchx
@@ -58,6 +57,35 @@ def mock_rand() -> Generator[None, None, None]:
     with patch("torchx.schedulers.aws_batch_scheduler.make_unique") as make_unique_ctx:
         make_unique_ctx.return_value = "app-name-42"
         yield
+
+
+boto3Response = Dict[str, Any]  # boto3 responses are JSON
+
+
+class MockPaginator:
+    """
+    Used for mocking ``boto3.client("<SERVICE>").get_paginator("<API>")`` calls.
+    """
+
+    def __init__(self, **op_to_pages: Iterable[boto3Response]) -> None:
+        # boto3 paginators return an iterable of API responses
+        self.op_to_pages: Dict[str, Iterable[boto3Response]] = op_to_pages
+        self.op_name: Optional[str] = None
+
+    def __call__(self, op_name: str) -> "MockPaginator":
+        self.op_name = op_name
+        return self
+
+    def paginate(self, *_1: Any, **_2: Any) -> Iterable[Dict[str, Any]]:
+        if self.op_name:
+            return self.op_to_pages[self.op_name]
+        else:
+            raise RuntimeError(
+                "`op_name` not set. Did you forget to call `__call__(op_name)`?"
+            )
+
+
+# paginators return iterables of the API responses
 
 
 class AWSBatchSchedulerTest(unittest.TestCase):
@@ -322,19 +350,24 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             client=MagicMock(),
             log_client=MagicMock(),
         )
-        scheduler._client.list_jobs.return_value = {
-            "jobSummaryList": [
+        scheduler._client.get_paginator.side_effect = MockPaginator(
+            list_jobs=[
                 {
-                    "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
-                    "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
-                    "jobName": "fairseq-train-wzt5p7p5j3tbqd",
-                    "createdAt": 1656651215531,
-                    "status": "RUNNING",
-                    "nodeProperties": {"numNodes": 2},
-                    "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                    "jobSummaryList": [
+                        {
+                            "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
+                            "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                            "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                            "createdAt": 1656651215531,
+                            "status": "RUNNING",
+                            "nodeProperties": {"numNodes": 2},
+                            "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                        }
+                    ]
                 }
             ]
-        }
+        )
+
         scheduler._client.describe_jobs.return_value = {
             "jobs": [
                 {
@@ -387,21 +420,39 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             client=MagicMock(),
             log_client=MagicMock(),
         )
-        scheduler._client.list_jobs.return_value = {
-            "jobSummaryList": [
+
+        scheduler._client.get_paginator.side_effect = MockPaginator(
+            describe_job_queues=[
                 {
-                    "jobArn": "arn:aws:batch:us-west-2:495572122715:job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
-                    "jobId": "6afc27d7-3559-43ca-89fd-1007b6bf2546",
-                    "jobName": "echo-v1r560pmwn5t3c",
-                    "createdAt": 1643949940162,
-                    "status": "SUCCEEDED",
-                    "stoppedAt": 1643950324125,
-                    "container": {"exitCode": 0},
-                    "nodeProperties": {"numNodes": 2},
-                    "jobDefinition": "arn:aws:batch:us-west-2:495572122715:job-definition/echo-v1r560pmwn5t3c:1",
+                    "ResponseMetadata": {},
+                    "jobQueues": [
+                        {
+                            "jobQueueName": "torchx",
+                            "jobQueueArn": "arn:aws:batch:test-region:4000005:job-queue/torchx",
+                            "state": "ENABLED",
+                        },
+                    ],
                 }
-            ]
-        }
+            ],
+            list_jobs=[
+                {
+                    "jobSummaryList": [
+                        {
+                            "jobArn": "arn:aws:batch:us-west-2:495572122715:job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
+                            "jobId": "6afc27d7-3559-43ca-89fd-1007b6bf2546",
+                            "jobName": "echo-v1r560pmwn5t3c",
+                            "createdAt": 1643949940162,
+                            "status": "SUCCEEDED",
+                            "stoppedAt": 1643950324125,
+                            "container": {"exitCode": 0},
+                            "nodeProperties": {"numNodes": 2},
+                            "jobDefinition": "arn:aws:batch:us-west-2:495572122715:job-definition/echo-v1r560pmwn5t3c:1",
+                        }
+                    ]
+                }
+            ],
+        )
+
         scheduler._client.describe_jobs.return_value = {
             "jobs": [
                 {
@@ -511,17 +562,6 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ],
         }
 
-        scheduler._client.describe_job_queues.return_value = {
-            "ResponseMetadata": {},
-            "jobQueues": [
-                {
-                    "jobQueueName": "torchx",
-                    "jobQueueArn": "arn:aws:batch:test-region:4000005:job-queue/torchx",
-                    "state": "ENABLED",
-                },
-            ],
-        }
-
         return scheduler
 
     @mock_rand()
@@ -592,11 +632,11 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler = self._mock_scheduler_running_job()
         logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
         self.assertEqual(
-            list(logs),
             [
                 "foo\n",
                 "foobar\n",
             ],
+            list(logs),
         )
 
     def test_local_session(self) -> None:

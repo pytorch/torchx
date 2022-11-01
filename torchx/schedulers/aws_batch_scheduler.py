@@ -473,13 +473,14 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     def _get_job_id(self, app_id: str) -> Optional[str]:
         queue, name = app_id.split(":")
 
-        job_summary_list = self._client.list_jobs(
+        for resp in self._client.get_paginator("list_jobs").paginate(
             jobQueue=queue,
             filters=[{"name": "JOB_NAME", "values": [name]}],
-        )["jobSummaryList"]
-        if len(job_summary_list) == 0:
-            return None
-        return job_summary_list[0]["jobArn"]
+        ):
+            job_summary_list = resp["jobSummaryList"]
+            if job_summary_list:
+                return job_summary_list[0]["jobArn"]
+        return None
 
     def _get_job(
         self, app_id: str, rank: Optional[int] = None
@@ -577,17 +578,18 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
 
     def list(self) -> List[ListAppResponse]:
         # TODO: get queue name input instead of iterating over all queues?
-        resp = self._client.describe_job_queues()
-        queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
         all_apps = []
-        for qn in queue_names:
-            apps_in_queue = self._list_by_queue(qn)
-            all_apps += [
-                ListAppResponse(
-                    app_id=f"{qn}:{app['jobName']}", state=JOB_STATE[app["status"]]
-                )
-                for app in apps_in_queue
-            ]
+        for resp in self._client.get_paginator("describe_job_queues").paginate():
+            queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
+            for qn in queue_names:
+                apps_in_queue = self._list_by_queue(qn)
+                all_apps += [
+                    ListAppResponse(
+                        app_id=f"{qn}:{app['jobName']}",
+                        state=JOB_STATE[app["status"]],
+                    )
+                    for app in apps_in_queue
+                ]
         return all_apps
 
     def _list_by_queue(self, queue_name: str) -> List[Dict[str, Any]]:
@@ -596,7 +598,8 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         # So use AFTER_CREATED_AT filter to list jobs in all statuses
         # milli_seconds_after_epoch can later be used to list jobs by timeframe
         milli_seconds_after_epoch = "1"
-        return self._client.list_jobs(
+        job_summary_list = []
+        for resp in self._client.get_paginator("list_jobs").paginate(
             jobQueue=queue_name,
             filters=[
                 {
@@ -606,7 +609,9 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     ],
                 },
             ],
-        )["jobSummaryList"]
+        ):
+            job_summary_list.extend(resp["jobSummaryList"])
+        return job_summary_list
 
     def _stream_events(
         self,
