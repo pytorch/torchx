@@ -21,7 +21,7 @@ class CvTrainerComponentProvider(ComponentProvider):
             *("--output_path", "/tmp", "--skip_export", "--log_path", "/tmp"),
             image=self._image,
             j="1x1",
-            m="torchx.examples.apps.lightning_classy_vision.train",
+            m="torchx.examples.apps.lightning.train",
             memMB=2048,
         )
 
