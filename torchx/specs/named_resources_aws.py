@@ -189,6 +189,8 @@ NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_p3.8xlarge": aws_p3_8xlarge,
     "aws_p3.16xlarge": aws_p3_16xlarge,
     "aws_p3dn.24xlarge": aws_p3dn_24xlarge,
+    "aws_p4d.24xlarge": aws_p4d_24xlarge,
+    "aws_p4de.24xlarge": aws_p4de_24xlarge,
     "aws_g4dn.xlarge": aws_g4dn_xlarge,
     "aws_g4dn.2xlarge": aws_g4dn_2xlarge,
     "aws_g4dn.4xlarge": aws_g4dn_4xlarge,
