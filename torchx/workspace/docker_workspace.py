@@ -176,7 +176,7 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
 
 def print_push_events(
     events: Iterable[Dict[str, str]],
-    stream: TextIO = sys.stdout,
+    stream: TextIO = sys.stderr,
 ) -> None:
     ID_KEY = "id"
     ERROR_KEY = "error"
