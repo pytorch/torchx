@@ -991,16 +991,13 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         self._test_orphan_workflow()
 
     def _test_orphan_workflow(self) -> None:
-        mp_queue = mp.get_context("spawn").Queue()
+        mp_queue = mp.Queue()
         child_nproc = 2
 
-        proc = mp.get_context("spawn").Process(
+        proc = mp.Process(
             target=start_sleep_processes, args=(self.test_dir, mp_queue, child_nproc)
         )
         proc.start()
-        # Before querying the queue we need to wait
-        # Otherwise we will get `FileNotFoundError: [Errno 2] No such file or directory` error
-        time.sleep(10)
         total_processes = child_nproc + 1
         pids = []
         for _ in range(total_processes):
