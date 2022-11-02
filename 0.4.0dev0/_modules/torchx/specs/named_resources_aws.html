@@ -426,8 +426,14 @@
 
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">Resource</span>
 
+<span class="c1"># ecs and ec2 have memtax and currently AWS Batch uses hard memory limits</span>
+<span class="c1"># so we have to account for mem tax when registering these resources for AWS</span>
+<span class="c1"># otherwise the job will be stuck in the jobqueue forever</span>
+<span class="c1"># 97% is based on empirical observation that works well for most instance types</span>
+<span class="c1"># see: https://docs.aws.amazon.com/batch/latest/userguide/memory-management.html</span>
+<span class="n">MEM_TAX</span> <span class="o">=</span> <span class="mf">0.97</span>
 <span class="n">K8S_ITYPE</span> <span class="o">=</span> <span class="s2">&quot;node.kubernetes.io/instance-type&quot;</span>
-<span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="n">MEM_TAX</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="aws_p3_2xlarge"><a class="viewcode-back" href="../../../specs.html#torchx.specs.named_resources_aws.aws_p3_2xlarge">[docs]</a><span class="k">def</span> <span class="nf">aws_p3_2xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
