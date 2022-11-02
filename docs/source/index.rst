@@ -45,6 +45,7 @@ Documentation
    runner.config
    advanced
    custom_components.md
+   tracker
 
 .. fbcode::
 
@@ -58,6 +59,7 @@ Documentation
       fb/workspace.md
       fb/cogwheel.rst
       fb/named_resources.rst
+      fb/tracker.md
 
 
 Works With

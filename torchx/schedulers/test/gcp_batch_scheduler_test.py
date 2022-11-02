@@ -78,7 +78,9 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         env["TORCHX_ROLE_NAME"] = "trainer"
         env["FOO"] = "bar"
         res = batch_v1.ComputeResource()
+        # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
         res.cpu_milli = 2000
+        # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
         res.memory_mib = 3000
         allocationPolicy = batch_v1.AllocationPolicy(
             instances=[
@@ -157,7 +159,10 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         cfg = GCPBatchOpts(
             project="test-proj",
         )
-        info = scheduler._submit_dryrun(app, cfg)
+        # pyre-fixme: GCPBatchOpts type passed to resolve
+        resolved_cfg = scheduler.run_opts().resolve(cfg)
+        # pyre-fixme: _submit_dryrun expects GCPBatchOpts
+        info = scheduler._submit_dryrun(app, resolved_cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "test-proj:us-central1:app-name-42")
         self.assertEqual(scheduler._client.create_job.call_count, 1)

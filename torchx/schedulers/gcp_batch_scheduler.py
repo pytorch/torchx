@@ -16,12 +16,11 @@ This scheduler is in prototype stage and may change without notice.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING
 
 import torchx
 import yaml
 
-from google.cloud import batch_v1, runtimeconfig
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -30,11 +29,13 @@ from torchx.schedulers.api import (
     Stream,
 )
 from torchx.schedulers.ids import make_unique
-
-# TODO move cleanup_str to utils
-from torchx.schedulers.kubernetes_scheduler import cleanup_str
 from torchx.specs.api import AppDef, AppState, macros, runopts
+from torchx.util.strings import normalize_str
 from typing_extensions import TypedDict
+
+
+if TYPE_CHECKING:
+    from google.cloud import batch_v1
 
 
 JOB_STATE: Dict[str, AppState] = {
@@ -61,7 +62,7 @@ class GCPBatchJob:
     name: str
     project: str
     location: str
-    job_def: batch_v1.Job
+    job_def: "batch_v1.Job"
 
     def __str__(self) -> str:
         return yaml.dump(self.job_def)
@@ -118,12 +119,16 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     @property
     # pyre-fixme[3]: Return annotation cannot be `Any`.
     def _client(self) -> Any:
+        from google.cloud import batch_v1
+
         c = self.__client
         if c is None:
             c = self.__client = batch_v1.BatchServiceClient()
         return c
 
     def schedule(self, dryrun_info: AppDryRunInfo[GCPBatchJob]) -> str:
+        from google.cloud import batch_v1
+
         req = dryrun_info.request
         assert req is not None, f"{dryrun_info} missing request"
 
@@ -136,8 +141,10 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         response = self._client.create_job(request=request)
         return f"{req.project}:{req.location}:{req.name}"
 
-    def _app_to_job(self, app: AppDef) -> batch_v1.Job:
-        name = cleanup_str(make_unique(app.name))
+    def _app_to_job(self, app: AppDef) -> "batch_v1.Job":
+        from google.cloud import batch_v1
+
+        name = normalize_str(make_unique(app.name))
 
         taskGroups = []
         allocationPolicy = None
@@ -164,12 +171,14 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             if cpu <= 0:
                 cpu = 1
             MILLI = 1000
+            # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
             res.cpu_milli = cpu * MILLI
             memMB = resource.memMB
             if memMB < 0:
                 raise ValueError(
                     f"memMB should to be set to a positive value, got {memMB}"
                 )
+            # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
             res.memory_mib = memMB
 
             # TODO support named resources
@@ -191,6 +200,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                         )
                     ],
                 )
+                print(f"Using {resource.gpu} GPUs of type {DEFAULT_GPU_TYPE}")
 
             runnable = batch_v1.Runnable(
                 container=batch_v1.Runnable.Container(
@@ -233,6 +243,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     def _submit_dryrun(
         self, app: AppDef, cfg: GCPBatchOpts
     ) -> AppDryRunInfo[GCPBatchJob]:
+        from google.cloud import runtimeconfig
 
         proj = cfg.get("project")
         if proj is None:
@@ -240,8 +251,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         assert proj is not None and isinstance(proj, str), "project must be a str"
 
         loc = cfg.get("location")
-        if loc is None:
-            loc = DEFAULT_LOC
         assert loc is not None and isinstance(loc, str), "location must be a str"
 
         job = self._app_to_job(app)
@@ -262,11 +271,18 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
     def run_opts(self) -> runopts:
         opts = runopts()
-        opts.add("project", type_=str, help="")
-        opts.add("location", type_=str, help="")
+        opts.add("project", type_=str, help="Name of the GCP project")
+        opts.add(
+            "location",
+            type_=str,
+            default=DEFAULT_LOC,
+            help="Name of the location to schedule the job in",
+        )
         return opts
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        from google.cloud import batch_v1
+
         # 1. get project, location, job name from app_id
         proj, loc, name = app_id.split(":")
 

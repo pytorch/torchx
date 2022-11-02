@@ -42,9 +42,11 @@ from datetime import datetime
 from typing import (
     Any,
     Callable,
+    cast,
     Dict,
     Iterable,
     List,
+    Mapping,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -67,13 +69,14 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     macros,
     Role,
     runopts,
     VolumeMount,
 )
-from torchx.workspace.docker_workspace import DockerWorkspace
+from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
@@ -246,7 +249,7 @@ class AWSBatchOpts(TypedDict, total=False):
     priority: Optional[int]
 
 
-class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
+class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     """
     AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.
 
@@ -308,8 +311,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         log_client: Optional[Any] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        Scheduler.__init__(self, "aws_batch", session_name)
-        DockerWorkspace.__init__(self, docker_client)
+        super().__init__("aws_batch", session_name, docker_client=docker_client)
 
         # pyre-fixme[4]: Attribute annotation cannot be `Any`.
         self.__client = client
@@ -335,7 +337,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         assert cfg is not None, f"{dryrun_info} missing cfg"
 
         images_to_push = dryrun_info.request.images_to_push
-        self._push_images(images_to_push)
+        self.push_images(images_to_push)
 
         req = dryrun_info.request
         self._client.register_job_definition(**req.job_def)
@@ -370,7 +372,7 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         name = make_unique(f"{app.name}{name_suffix}")
 
         # map any local images to the remote image
-        images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
         nodes = []
 
@@ -450,14 +452,9 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
             reason="killed via torchx CLI",
         )
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add("queue", type_=str, help="queue to schedule job in", required=True)
-        opts.add(
-            "image_repo",
-            type_=str,
-            help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
-        )
         opts.add(
             "share_id",
             type_=str,
@@ -476,13 +473,14 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
     def _get_job_id(self, app_id: str) -> Optional[str]:
         queue, name = app_id.split(":")
 
-        job_summary_list = self._client.list_jobs(
+        for resp in self._client.get_paginator("list_jobs").paginate(
             jobQueue=queue,
             filters=[{"name": "JOB_NAME", "values": [name]}],
-        )["jobSummaryList"]
-        if len(job_summary_list) == 0:
-            return None
-        return job_summary_list[0]["jobArn"]
+        ):
+            job_summary_list = resp["jobSummaryList"]
+            if job_summary_list:
+                return job_summary_list[0]["jobArn"]
+        return None
 
     def _get_job(
         self, app_id: str, rank: Optional[int] = None
@@ -580,17 +578,18 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
 
     def list(self) -> List[ListAppResponse]:
         # TODO: get queue name input instead of iterating over all queues?
-        resp = self._client.describe_job_queues()
-        queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
         all_apps = []
-        for qn in queue_names:
-            apps_in_queue = self._list_by_queue(qn)
-            all_apps += [
-                ListAppResponse(
-                    app_id=f"{qn}:{app['jobName']}", state=JOB_STATE[app["status"]]
-                )
-                for app in apps_in_queue
-            ]
+        for resp in self._client.get_paginator("describe_job_queues").paginate():
+            queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
+            for qn in queue_names:
+                apps_in_queue = self._list_by_queue(qn)
+                all_apps += [
+                    ListAppResponse(
+                        app_id=f"{qn}:{app['jobName']}",
+                        state=JOB_STATE[app["status"]],
+                    )
+                    for app in apps_in_queue
+                ]
         return all_apps
 
     def _list_by_queue(self, queue_name: str) -> List[Dict[str, Any]]:
@@ -599,7 +598,8 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
         # So use AFTER_CREATED_AT filter to list jobs in all statuses
         # milli_seconds_after_epoch can later be used to list jobs by timeframe
         milli_seconds_after_epoch = "1"
-        return self._client.list_jobs(
+        job_summary_list = []
+        for resp in self._client.get_paginator("list_jobs").paginate(
             jobQueue=queue_name,
             filters=[
                 {
@@ -609,7 +609,9 @@ class AWSBatchScheduler(Scheduler[AWSBatchOpts], DockerWorkspace):
                     ],
                 },
             ],
-        )["jobSummaryList"]
+        ):
+            job_summary_list.extend(resp["jobSummaryList"])
+        return job_summary_list
 
     def _stream_events(
         self,

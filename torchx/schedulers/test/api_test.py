@@ -29,13 +29,13 @@ from torchx.specs.api import (
     Role,
     runopts,
 )
-from torchx.workspace.api import Workspace
+from torchx.workspace.api import WorkspaceMixin
 
 T = TypeVar("T")
 
 
 class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler[T], Workspace):
+    class MockScheduler(Scheduler[T], WorkspaceMixin[None]):
         def __init__(self, session_name: str) -> None:
             super().__init__("mock", session_name)
 
@@ -73,7 +73,7 @@ class SchedulerTest(unittest.TestCase):
         def list(self) -> List[ListAppResponse]:
             return []
 
-        def run_opts(self) -> runopts:
+        def _run_opts(self) -> runopts:
             opts = runopts()
             opts.add("foo", type_=str, required=True, help="required option")
             return opts

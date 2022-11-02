@@ -4,17 +4,24 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import json
 import os
-import pathlib
 import stat
 import tarfile
 import tempfile
 import unittest
+from io import StringIO
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import fsspec
+
 from torchx.specs import AppDef, Role
-from torchx.workspace.docker_workspace import _build_context, DockerWorkspace
+from torchx.workspace.docker_workspace import (
+    _build_context,
+    DockerWorkspaceMixin,
+    print_push_events,
+)
 
 
 def has_docker() -> bool:
@@ -43,7 +50,7 @@ if has_docker():
                 args=["bar/foo.sh"],
             )
 
-            workspace = DockerWorkspace()
+            workspace = DockerWorkspaceMixin()
             workspace.build_workspace_and_update_role(
                 role, "memory://test_workspace", {}
             )
@@ -52,6 +59,12 @@ if has_docker():
 
 
 class DockerWorkspaceMockTest(unittest.TestCase):
+    def test_runopts(self) -> None:
+        self.assertCountEqual(
+            DockerWorkspaceMixin().workspace_opts()._opts.keys(),
+            {"image_repo"},
+        )
+
     def test_update_app_images(self) -> None:
         app = AppDef(
             name="foo",
@@ -86,9 +99,11 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         )
         # no image_repo
         with self.assertRaisesRegex(KeyError, "image_repo"):
-            DockerWorkspace()._update_app_images(app)
+            DockerWorkspaceMixin().dryrun_push_images(app, {})
         # with image_repo
-        images_to_push = DockerWorkspace()._update_app_images(app, "example.com/repo")
+        images_to_push = DockerWorkspaceMixin().dryrun_push_images(
+            app, {"image_repo": "example.com/repo"}
+        )
         self.assertEqual(
             images_to_push,
             {
@@ -102,8 +117,8 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         client = MagicMock()
         img = MagicMock()
         client.images.get.return_value = img
-        workspace = DockerWorkspace(docker_client=client)
-        workspace._push_images(
+        workspace = DockerWorkspaceMixin(docker_client=client)
+        workspace.push_images(
             {
                 "sha256:hasha": ("example.com/repo", "hasha"),
                 "sha256:hashb": ("example.com/repo", "hashb"),
@@ -114,8 +129,8 @@ class DockerWorkspaceMockTest(unittest.TestCase):
         self.assertEqual(client.images.push.call_count, 2)
 
     def test_push_images_empty(self) -> None:
-        workspace = DockerWorkspace()
-        workspace._push_images({})
+        workspace = DockerWorkspaceMixin()
+        workspace.push_images({})
 
     def test_dockerignore(self) -> None:
         fs = fsspec.filesystem("memory")
@@ -219,14 +234,26 @@ class DockerWorkspaceMockTest(unittest.TestCase):
 
     def test_unix_file_permissions(self) -> None:
         with tempfile.TemporaryDirectory() as tmpDirName:
-            pathlib.Path(os.path.join(tmpDirName, "foo_644")).touch(
-                mode=0o644, exist_ok=True
-            )
-            pathlib.Path(os.path.join(tmpDirName, "foo_755")).touch(
-                mode=0o755, exist_ok=True
-            )
+            Path(os.path.join(tmpDirName, "foo_644")).touch(mode=0o644, exist_ok=True)
+            Path(os.path.join(tmpDirName, "foo_755")).touch(mode=0o755, exist_ok=True)
 
             with _build_context("img", tmpDirName) as f:
                 with tarfile.open(fileobj=f, mode="r") as tf:
                     self.assertEqual(stat.S_IMODE(tf.getmember("foo_644").mode), 0o644)
                     self.assertEqual(stat.S_IMODE(tf.getmember("foo_755").mode), 0o755)
+
+    def test_print_push_events(self) -> None:
+        test_dir = Path(__file__).parent
+
+        with open(test_dir / "mock_docker_push_events.json", "r") as f:
+            mock_events_json = [json.loads(event) for event in f.readlines()]
+
+        with StringIO() as mock_console:
+            print_push_events(mock_events_json, stream=mock_console)
+            mock_console.seek(0)
+            actual = mock_console.readlines()
+
+        with open(test_dir / "expected_print_push_events.txt") as f:
+            expected = f.readlines()
+
+        self.assertEqual(expected, actual)

@@ -29,7 +29,7 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 from torchx.specs import AppDef, macros, NONE, ReplicaStatus, Role, RoleStatus, runopts
-from torchx.workspace.dir_workspace import TmpDirWorkspace
+from torchx.workspace.dir_workspace import TmpDirWorkspaceMixin
 from typing_extensions import TypedDict
 
 
@@ -113,7 +113,7 @@ if _has_ray:
         requirements: Optional[str] = None
         actors: List[RayActor] = field(default_factory=list)
 
-    class RayScheduler(Scheduler[RayOpts], TmpDirWorkspace):
+    class RayScheduler(TmpDirWorkspaceMixin, Scheduler[RayOpts]):
         """
         RayScheduler is a TorchX scheduling interface to Ray. The job def
         workers will be launched as Ray actors
@@ -153,7 +153,7 @@ if _has_ray:
             super().__init__("ray", session_name)
 
         # TODO: Add address as a potential CLI argument after writing ray.status() or passing in config file
-        def run_opts(self) -> runopts:
+        def _run_opts(self) -> runopts:
             opts = runopts()
             opts.add(
                 "cluster_config_file",

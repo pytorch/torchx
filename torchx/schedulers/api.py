@@ -22,7 +22,7 @@ from torchx.specs import (
     RoleStatus,
     runopts,
 )
-from torchx.workspace.api import Workspace
+from torchx.workspace.api import WorkspaceMixin
 
 
 DAYS_IN_2_WEEKS = 14
@@ -138,7 +138,7 @@ class Scheduler(abc.ABC, Generic[T]):
         """
         if workspace:
             sched = self
-            assert isinstance(sched, Workspace)
+            assert isinstance(sched, WorkspaceMixin)
             role = app.roles[0]
             sched.build_workspace_and_update_role(role, workspace, cfg)
         dryrun_info = self.submit_dryrun(app, cfg)
@@ -189,6 +189,12 @@ class Scheduler(abc.ABC, Generic[T]):
         Returns the run configuration options expected by the scheduler.
         Basically a ``--help`` for the ``run`` API.
         """
+        opts = self._run_opts()
+        if isinstance(self, WorkspaceMixin):
+            opts.update(self.workspace_opts())
+        return opts
+
+    def _run_opts(self) -> runopts:
         return runopts()
 
     @abc.abstractmethod

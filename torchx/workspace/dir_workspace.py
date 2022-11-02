@@ -13,10 +13,10 @@ from typing import Mapping
 
 import fsspec
 from torchx.specs import CfgVal, Role
-from torchx.workspace.api import walk_workspace, Workspace
+from torchx.workspace.api import walk_workspace, WorkspaceMixin
 
 
-class TmpDirWorkspace(Workspace):
+class TmpDirWorkspaceMixin(WorkspaceMixin[None]):
     def build_workspace_and_update_role(
         self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
     ) -> None:
@@ -31,7 +31,7 @@ class TmpDirWorkspace(Workspace):
         role.image = job_dir
 
 
-class DirWorkspace(Workspace):
+class DirWorkspaceMixin(WorkspaceMixin[None]):
     def build_workspace_and_update_role(
         self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
     ) -> None:

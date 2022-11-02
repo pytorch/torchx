@@ -73,15 +73,15 @@ if __name__ == "__main__":
             "console_scripts": [
                 "torchx=torchx.cli.main:main",
             ],
+            "torchx.tracker": [
+                "fsspec=torchx.tracker.backend.fsspec:create",
+            ],
         },
         extras_require={
             "kfp": ["kfp==1.6.2"],
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,
-            ':python_version < "3.8"': [
-                "importlib-metadata",
-            ],
         },
         # PyPI package information.
         classifiers=[
