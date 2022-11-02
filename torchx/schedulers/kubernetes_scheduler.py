@@ -29,7 +29,6 @@ for more information.
 
 import json
 import logging
-import re
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
@@ -72,6 +71,7 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
+from torchx.util.strings import normalize_str
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
@@ -81,11 +81,7 @@ if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Container,
-        V1ContainerPort,
-        V1EnvVar,
         V1Pod,
-        V1PodSpec,
-        V1ResourceRequirements,
     )
     from kubernetes.client.rest import ApiException
 
@@ -339,19 +335,6 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
     )
 
 
-def cleanup_str(data: str) -> str:
-    """
-    Invokes ``lower`` on thes string and removes all
-    characters that do not satisfy ``[a-z0-9]`` pattern.
-    This method is mostly used to make sure kubernetes scheduler gets
-    the job name that does not violate its validation.
-    """
-    if data.startswith("-"):
-        data = data[1:]
-    pattern = r"[a-z0-9\-]"
-    return "".join(re.findall(pattern, data.lower()))
-
-
 def app_to_resource(
     app: AppDef,
     queue: str,
@@ -372,18 +355,18 @@ def app_to_resource(
     count is set to the minimum of the max_retries of the roles.
     """
     tasks = []
-    unique_app_id = cleanup_str(make_unique(app.name))
+    unique_app_id = normalize_str(make_unique(app.name))
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
                 img_root="",
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
-                rank0_env=f"VC_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper(),
+                rank0_env=f"VC_{normalize_str(app.roles[0].name)}_0_HOSTS".upper(),
             )
             if role_idx == 0 and replica_id == 0:
                 values.rank0_env = "TORCHX_RANK0_HOST"
-            name = cleanup_str(f"{role.name}-{replica_id}")
+            name = normalize_str(f"{role.name}-{replica_id}")
             replica_role = values.apply(role)
             if role_idx == 0 and replica_id == 0:
                 replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
@@ -739,7 +722,7 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
 
         namespace, name = app_id.split(":")
 
-        pod_name = cleanup_str(f"{name}-{role_name}-{k}-0")
+        pod_name = normalize_str(f"{name}-{role_name}-{k}-0")
 
         args: Dict[str, object] = {
             "name": pod_name,

@@ -19,7 +19,6 @@ from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppRes
 from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_scheduler import (
     app_to_resource,
-    cleanup_str,
     create_scheduler,
     KubernetesJob,
     KubernetesOpts,
@@ -205,12 +204,6 @@ class KubernetesSchedulerTest(unittest.TestCase):
             pod,
             want,
         )
-
-    def test_cleanup_str(self) -> None:
-        self.assertEqual("abcd123", cleanup_str("abcd123"))
-        self.assertEqual("abcd123", cleanup_str("-/_a/b/CD!123!"))
-        self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
-        self.assertEqual("", cleanup_str("!!!"))
 
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
