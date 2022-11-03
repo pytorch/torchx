@@ -48,13 +48,18 @@ JOB_STATE: Dict[str, AppState] = {
     "DELETION_IN_PROGRESS": AppState.UNKNOWN,
 }
 
+GPU_COUNT_TO_TYPE: Dict[int, str] = {
+    1: "a2-highgpu-1g",
+    2: "a2-highgpu-2g",
+    4: "a2-highgpu-4g",
+    8: "a2-highgpu-8g",
+    16: "a2-highgpu-16g",
+}
+
 LABEL_VERSION: str = "torchx_version"
 LABEL_APP_NAME: str = "torchx_app_name"
 
 DEFAULT_LOC: str = "us-central1"
-
-DEFAULT_GPU_TYPE = "nvidia-tesla-v100"
-DEFAULT_GPU_MACHINE_TYPE = "n1-standard-8"
 
 
 @dataclass
@@ -185,22 +190,22 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             # Using v100 as default GPU type as a100 does not allow changing count for now
             # TODO See if there is a better default GPU type
             if resource.gpu > 0:
+                if resource.gpu not in GPU_COUNT_TO_TYPE:
+                    raise ValueError(
+                        f"gpu should to be set to one of these values: {GPU_COUNT_TO_TYPE.keys()}"
+                    )
+                machineType = GPU_COUNT_TO_TYPE[resource.gpu]
                 allocationPolicy = batch_v1.AllocationPolicy(
                     instances=[
                         batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
+                            install_gpu_drivers=True,
                             policy=batch_v1.AllocationPolicy.InstancePolicy(
-                                machine_type=DEFAULT_GPU_MACHINE_TYPE,
-                                accelerators=[
-                                    batch_v1.AllocationPolicy.Accelerator(
-                                        type_=DEFAULT_GPU_TYPE,
-                                        count=resource.gpu,
-                                    )
-                                ],
+                                machine_type=machineType,
                             )
                         )
                     ],
                 )
-                print(f"Using {resource.gpu} GPUs of type {DEFAULT_GPU_TYPE}")
+                print(f"Using GPUs of type: {machineType}")
 
             runnable = batch_v1.Runnable(
                 container=batch_v1.Runnable.Container(
