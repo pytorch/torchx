@@ -201,7 +201,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                             install_gpu_drivers=True,
                             policy=batch_v1.AllocationPolicy.InstancePolicy(
                                 machine_type=machineType,
-                            )
+                            ),
                         )
                     ],
                 )

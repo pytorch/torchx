@@ -88,7 +88,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                     install_gpu_drivers=True,
                     policy=batch_v1.AllocationPolicy.InstancePolicy(
                         machine_type="a2-highgpu-4g",
-                    )
+                    ),
                 )
             ],
         )
@@ -135,8 +135,6 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         self.assertEqual(req.job_def, expected_job_def)
 
     def test_submit_dryrun_throws(self) -> None:
-        from google.cloud import batch_v1
-
         scheduler = create_scheduler("test")
         app = _test_app()
         app.roles[0].resource.gpu = 3
