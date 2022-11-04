@@ -85,15 +85,10 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         allocationPolicy = batch_v1.AllocationPolicy(
             instances=[
                 batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
+                    install_gpu_drivers=True,
                     policy=batch_v1.AllocationPolicy.InstancePolicy(
-                        machine_type="n1-standard-8",
-                        accelerators=[
-                            batch_v1.AllocationPolicy.Accelerator(
-                                type_="nvidia-tesla-v100",
-                                count=4,
-                            )
-                        ],
-                    )
+                        machine_type="a2-highgpu-4g",
+                    ),
                 )
             ],
         )
@@ -138,6 +133,14 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         )
 
         self.assertEqual(req.job_def, expected_job_def)
+
+    def test_submit_dryrun_throws(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        app.roles[0].resource.gpu = 3
+        cfg = GCPBatchOpts(project="test-proj", location="us-west-1")
+        with self.assertRaises(ValueError):
+            scheduler._submit_dryrun(app, cfg)
 
     def _mock_scheduler(self) -> GCPBatchScheduler:
         from google.cloud import batch_v1
