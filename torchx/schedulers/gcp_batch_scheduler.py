@@ -285,19 +285,24 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         )
         return opts
 
+    def _app_id_to_job_full_name(self, app_id: str) -> str:
+        app_id_splits = app_id.split(":")
+        if len(app_id_splits) != 3:
+            raise ValueError(f"app_id not in expected format: {app_id}")
+        return f"projects/{app_id_splits[0]}/locations/{app_id_splits[1]}/jobs/{app_id_splits[2]}"
+
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         from google.cloud import batch_v1
 
-        # 1. get project, location, job name from app_id
-        proj, loc, name = app_id.split(":")
+        job_name = self._app_id_to_job_full_name(app_id)
 
-        # 2. Get the Batch job
+        # 1. Get the Batch job
         request = batch_v1.GetJobRequest(
-            name=f"projects/{proj}/locations/{loc}/jobs/{name}",
+            name=job_name,
         )
         job = self._client.get_job(request=request)
 
-        # 3. Map job -> DescribeAppResponse
+        # 2. Map job -> DescribeAppResponse
         # TODO map job taskGroup to Role, map env vars etc
         return DescribeAppResponse(
             app_id=app_id,
@@ -328,11 +333,14 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         pass
 
     def _cancel_existing(self, app_id: str) -> None:
-        # 1.create DeleteJobRequest
-        # get job name from app_id
-        # use cancel reason - killed via torchX
-        # 2. Submit request
-        raise NotImplementedError()
+        from google.cloud import batch_v1
+
+        job_name = self._app_id_to_job_full_name(app_id)
+        request = batch_v1.DeleteJobRequest(
+            name=job_name,
+            reason="Killed via TorchX",
+        )
+        self._client.delete_job(request=request)
 
 
 def create_scheduler(session_name: str, **kwargs: object) -> GCPBatchScheduler:
