@@ -234,12 +234,11 @@ class RayDriver:
         result: RayResult  # execution result
         _logger.info(f"running ray.wait on {self.active_tasks}")
         # ray.wait is partial waiting
-        # pyre-fixme[16]: Module `worker` has no attribute `wait`.
         completed_tasks, self.active_tasks = ray.wait(self.active_tasks)
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_tasks:
-            result = ray.get(object_ref)  # pyre-ignore
+            result = ray.get(object_ref)
             if isinstance(result, CommandActorScheduled):
                 if not self.terminating:
                     actor = self.actor_info_of_id[result.id].actor
@@ -295,7 +294,6 @@ class RayDriver:
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
     driver = RayDriver(actors)
-    # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
     driver.init_placement_groups()
     _logger.info("Successfully created placement groups")
