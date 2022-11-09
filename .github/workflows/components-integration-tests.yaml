@@ -62,7 +62,7 @@ jobs:
       - name: Start Ray
         if: ${{ matrix.scheduler == 'ray' }}
         run: |
-          ray start --head --address $(hostname)
+          ray start --head
           sleep 5 # wait till the node joins so that `status` command displays the head node info
           ray status
 
