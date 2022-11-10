@@ -142,6 +142,39 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             scheduler._submit_dryrun(app, cfg)
 
+    def test_app_id_to_job_full_name(self) -> None:
+        scheduler = create_scheduler("test")
+        app_id = "testproj:testloc:testjob"
+        job_name = scheduler._app_id_to_job_full_name(app_id)
+        self.assertEqual(job_name, "projects/testproj/locations/testloc/jobs/testjob")
+
+    def test_app_id_to_job_full_name_throws(self) -> None:
+        scheduler = create_scheduler("test")
+        app_ids = [
+            "testproj:testloc:testjob:testanotherjob",
+            "testproj:testloc",
+            "testproj:testloc/what",
+            "testprojtestloctestjob",
+        ]
+        for app_id in app_ids:
+            with self.assertRaises(ValueError):
+                scheduler._app_id_to_job_full_name(app_id)
+
+    @patch("google.cloud.batch_v1.BatchServiceClient")
+    def test_cancel_existing(self, mock_client: MagicMock) -> None:
+        from google.cloud import batch_v1
+
+        scheduler = create_scheduler("test")
+        mock_batch_client = mock_client.return_value
+        scheduler._cancel_existing("test-proj:us-central1:app-name-42")
+        mock_client.assert_called()
+        mock_batch_client.delete_job.assert_called_once_with(
+            request=batch_v1.DeleteJobRequest(
+                name="projects/test-proj/locations/us-central1/jobs/app-name-42",
+                reason="Killed via TorchX",
+            )
+        )
+
     def _mock_scheduler(self) -> GCPBatchScheduler:
         from google.cloud import batch_v1
 
