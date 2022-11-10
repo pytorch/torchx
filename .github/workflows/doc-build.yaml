@@ -8,7 +8,7 @@ on:
 
 jobs:
   docbuild:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -61,7 +61,7 @@ jobs:
           fi
 
   docpush:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: docbuild
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
