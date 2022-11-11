@@ -61,6 +61,17 @@ LABEL_APP_NAME: str = "torchx_app_name"
 
 DEFAULT_LOC: str = "us-central1"
 
+# TODO Remove LOCATIONS list once Batch supports all locations
+# or when there is an API to query locations supported by Batch
+LOCATIONS: List[str] = [
+    DEFAULT_LOC,
+    "us-west1",
+    "us-east1",
+    "asia-southeast1",
+    "europe-north1",
+    "europe-west6",
+]
+
 
 @dataclass
 class GCPBatchJob:
@@ -249,14 +260,17 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         )
         return job
 
+    def _get_project(self) -> str:
+        from google.cloud import runtimeconfig
+
+        return runtimeconfig.Client().project
+
     def _submit_dryrun(
         self, app: AppDef, cfg: GCPBatchOpts
     ) -> AppDryRunInfo[GCPBatchJob]:
-        from google.cloud import runtimeconfig
-
         proj = cfg.get("project")
         if proj is None:
-            proj = runtimeconfig.Client().project
+            proj = self._get_project()
         assert proj is not None and isinstance(proj, str), "project must be a str"
 
         loc = cfg.get("location")
@@ -280,16 +294,25 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
     def run_opts(self) -> runopts:
         opts = runopts()
-        opts.add("project", type_=str, help="Name of the GCP project")
+        opts.add(
+            "project",
+            type_=str,
+            help="Name of the GCP project. Defaults to the configured GCP project in the environment",
+        )
         opts.add(
             "location",
             type_=str,
             default=DEFAULT_LOC,
-            help="Name of the location to schedule the job in",
+            help=f"Name of the location to schedule the job in. Defaults to {DEFAULT_LOC}",
         )
         return opts
 
     def _app_id_to_job_full_name(self, app_id: str) -> str:
+        """
+        app_id format: f"{project}:{location}:{name}"
+        job_full_name format: f"projects/{project}/locations/{location}/jobs/{name}"
+        where 'name' was created uniquely for the job from the app name
+        """
         app_id_splits = app_id.split(":")
         if len(app_id_splits) != 3:
             raise ValueError(f"app_id not in expected format: {app_id}")
@@ -326,11 +349,31 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     ) -> Iterable[str]:
         raise NotImplementedError()
 
+    def _job_full_name_to_app_id(self, job_full_name: str) -> str:
+        """
+        job_full_name format: f"projects/{project}/locations/{location}/jobs/{name}"
+        app_id format: f"{project}:{location}:{name}"
+        where 'name' was created uniquely for the job from the app name
+        """
+        job_name_splits = job_full_name.split("/")
+        if len(job_name_splits) != 6:
+            raise ValueError(f"job full name not in expected format: {job_full_name}")
+        return f"{job_name_splits[1]}:{job_name_splits[3]}:{job_name_splits[5]}"
+
     def list(self) -> List[ListAppResponse]:
-        # Create ListJobsRequest with parent str
-        # Use list_job api
-        # map ListJobsPager response to ListAppResponse and return it
-        raise NotImplementedError()
+        all_jobs = []
+        proj = self._get_project()
+        for loc in LOCATIONS:
+            jobs = self._client.list_jobs(parent=f"projects/{proj}/locations/{loc}")
+            all_jobs += jobs
+        all_jobs.sort(key=lambda job: job.create_time.timestamp(), reverse=True)
+        return [
+            ListAppResponse(
+                app_id=self._job_full_name_to_app_id(job.name),
+                state=JOB_STATE[job.status.state.name],
+            )
+            for job in all_jobs
+        ]
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step

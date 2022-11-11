@@ -6,17 +6,19 @@
 
 import unittest
 from contextlib import contextmanager
-from typing import Generator
+from typing import Any, Generator
 from unittest.mock import MagicMock, patch
 
 import torchx
 from torchx import specs
+from torchx.schedulers.api import ListAppResponse
 from torchx.schedulers.gcp_batch_scheduler import (
     create_scheduler,
     GCPBatchOpts,
     GCPBatchScheduler,
     LABEL_APP_NAME,
     LABEL_VERSION,
+    LOCATIONS,
 )
 
 
@@ -175,18 +177,103 @@ class GCPBatchSchedulerTest(unittest.TestCase):
             )
         )
 
+    def test_job_full_name_to_app_id(self) -> None:
+        scheduler = create_scheduler("test")
+        job_name = "projects/testproj/locations/testloc/jobs/testjob"
+        app_id = scheduler._job_full_name_to_app_id(job_name)
+        self.assertEqual(app_id, "testproj:testloc:testjob")
+
+    def test_job_full_name_to_app_id_throws(self) -> None:
+        scheduler = create_scheduler("test")
+        job_names = [
+            "projects/testproj/locations/testloc/jobs/testjob/anotherjob",
+            "projects/testproj/locations/testloc/jobs:testjob",
+            "projects/testproj/locations/testloc/jobs",
+        ]
+        for job_name in job_names:
+            with self.assertRaises(ValueError):
+                scheduler._job_full_name_to_app_id(job_name)
+
+    @patch("google.cloud.batch_v1.BatchServiceClient")
+    @patch("torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler._get_project")
+    def test_list(self, mock_project: MagicMock, mock_client: MagicMock) -> None:
+        mock_project.return_value = "test-proj"
+        scheduler = create_scheduler("test")
+        mock_batch_client = mock_client.return_value
+
+        scheduler.list()
+        mock_client.assert_called_once()
+        mock_batch_client.list_jobs.assert_called()
+        self.assertEqual(mock_batch_client.list_jobs.call_count, len(LOCATIONS))
+
     def _mock_scheduler(self) -> GCPBatchScheduler:
         from google.cloud import batch_v1
 
         scheduler = GCPBatchScheduler("test", client=MagicMock())
         scheduler._client.get_job.return_value = batch_v1.Job(
-            name="projects/pytorch-ecosystem-gcp/locations/us-central1/jobs/app-name-42",
+            name="projects/test-proj/locations/us-central1/jobs/app-name-42",
             uid="j-82c8495f-8cc9-443c-9e33-4904fcb1test",
             status=batch_v1.JobStatus(
                 state=batch_v1.JobStatus.State.SUCCEEDED,
             ),
         )
+        scheduler._get_project = MagicMock(return_value="test-proj")
+        scheduler._client.list_jobs.side_effect = self._list_side_effect
         return scheduler
+
+    # pyre-ignore [11] : ListJobsPager type undefined as batch_v1 is not imported at top level
+    def _list_side_effect(self, *args: Any, **kwargs: Any) -> "ListJobsPager":
+        from google.api_core import datetime_helpers
+        from google.cloud import batch_v1
+
+        listJobsResp = batch_v1.ListJobsResponse(jobs=[])
+        if kwargs["parent"] == "projects/test-proj/locations/us-central1":
+            listJobsResp = batch_v1.ListJobsResponse(
+                jobs=[
+                    batch_v1.Job(
+                        name="projects/test-proj/locations/us-central1/jobs/app-name-42",
+                        uid="j-82c8495f-8cc9-443c-9e33-0test",
+                        status=batch_v1.JobStatus(
+                            state=batch_v1.JobStatus.State.SUCCEEDED,
+                        ),
+                        create_time=datetime_helpers.DatetimeWithNanoseconds(
+                            2022, 6, 22, 17, 1, 30, 12345
+                        ),
+                    ),
+                    batch_v1.Job(
+                        name="projects/test-proj/locations/us-central1/jobs/torchx-utils-abcd",
+                        uid="j-82c8495f-8cc9-443c-9e33-1test",
+                        status=batch_v1.JobStatus(
+                            state=batch_v1.JobStatus.State.FAILED,
+                        ),
+                        create_time=datetime_helpers.DatetimeWithNanoseconds(
+                            2022, 7, 22, 17, 1, 30, 12345
+                        ),
+                    ),
+                ]
+            )
+        elif kwargs["parent"] == "projects/test-proj/locations/us-west1":
+            listJobsResp = batch_v1.ListJobsResponse(
+                jobs=[
+                    batch_v1.Job(
+                        name="projects/test-proj/locations/us-west1/jobs/torchx-utils-abcd",
+                        uid="j-82c8495f-8cc9-443c-9e33-3test",
+                        status=batch_v1.JobStatus(
+                            state=batch_v1.JobStatus.State.RUNNING,
+                        ),
+                        create_time=datetime_helpers.DatetimeWithNanoseconds(
+                            2022, 6, 30, 17, 1, 30, 12345
+                        ),
+                    ),
+                ]
+            )
+        return batch_v1.services.batch_service.pagers.ListJobsPager(
+            # pyre-ignore [6] : ok for method to be None for testing
+            method=None,
+            response=listJobsResp,
+            # pyre-ignore [6] : ok for request to be None for testing
+            request=None,
+        )
 
     @mock_rand()
     def test_submit(self) -> None:
@@ -210,3 +297,24 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         self.assertIsNotNone(status)
         self.assertEqual(status.state, specs.AppState.SUCCEEDED)
         self.assertEqual(status.app_id, app_id)
+
+    def test_list_values(self) -> None:
+        scheduler = self._mock_scheduler()
+        apps = scheduler.list()
+        self.assertEqual(
+            apps,
+            [
+                ListAppResponse(
+                    app_id="test-proj:us-central1:torchx-utils-abcd",
+                    state=specs.AppState.FAILED,
+                ),
+                ListAppResponse(
+                    app_id="test-proj:us-west1:torchx-utils-abcd",
+                    state=specs.AppState.RUNNING,
+                ),
+                ListAppResponse(
+                    app_id="test-proj:us-central1:app-name-42",
+                    state=specs.AppState.SUCCEEDED,
+                ),
+            ],
+        )
