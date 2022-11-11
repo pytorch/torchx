@@ -124,11 +124,15 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     @property
     # pyre-fixme[3]: Return annotation cannot be `Any`.
     def _client(self) -> Any:
+        from google.api_core import gapic_v1
         from google.cloud import batch_v1
 
         c = self.__client
         if c is None:
-            c = self.__client = batch_v1.BatchServiceClient()
+            client_info = gapic_v1.client_info.ClientInfo(
+                user_agent=f"TorchX/{torchx.__version__}"
+            )
+            c = self.__client = batch_v1.BatchServiceClient(client_info=client_info)
         return c
 
     def schedule(self, dryrun_info: AppDryRunInfo[GCPBatchJob]) -> str:
