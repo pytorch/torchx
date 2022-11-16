@@ -6,6 +6,7 @@
 
 import unittest
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Any, Generator
 from unittest.mock import MagicMock, patch
 
@@ -206,6 +207,25 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         mock_batch_client.list_jobs.assert_called()
         self.assertEqual(mock_batch_client.list_jobs.call_count, len(LOCATIONS))
 
+    @patch("google.cloud.logging.Client")
+    def test_batch_log_iter(self, mock_log_client: MagicMock) -> None:
+        from google.cloud import logging
+
+        mock_logging_client = mock_log_client.return_value
+        mock_logger = mock_logging_client.logger.return_value
+        # pyre-ignore [28] : LogEntry type initiated with just payload for testing
+        log_lines = [logging.LogEntry(payload="log line")]
+        mock_logger.list_entries = MagicMock(return_value=iter(log_lines))
+
+        scheduler = create_scheduler("test")
+        filter = "labels.job_uid=j-82c8495f-8cc9-443c-9e33-4904fcb1test"
+        lines = scheduler._batch_log_iter(filter=filter)
+        for l in lines:
+            self.assertEqual(l, "log line")
+        mock_log_client.assert_called()
+        mock_logging_client.logger.assert_called_once_with("batch_task_logs")
+        mock_logger.list_entries.assert_called_once_with(filter_=filter)
+
     def _mock_scheduler(self) -> GCPBatchScheduler:
         from google.cloud import batch_v1
 
@@ -253,6 +273,8 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         )
         scheduler._get_project = MagicMock(return_value="test-proj")
         scheduler._client.list_jobs.side_effect = self._list_side_effect
+        log_lines = ["log line foo", "log line bar"]
+        scheduler._batch_log_iter = MagicMock(return_value=iter(log_lines))
         return scheduler
 
     # pyre-ignore [11] : ListJobsPager type undefined as batch_v1 is not imported at top level
@@ -369,5 +391,34 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                     app_id="test-proj:us-central1:app-name-42",
                     state=specs.AppState.SUCCEEDED,
                 ),
+            ],
+        )
+
+    def test_log_iter_calls(self) -> None:
+        scheduler = self._mock_scheduler()
+        logs = scheduler.log_iter(
+            app_id="test-proj:us-west1:torchx-utils-abcd", k=1, regex="foo.*"
+        )
+        scheduler._batch_log_iter.assert_called_once_with(
+            f'labels.job_uid=j-82c8495f-8cc9-443c-9e33-4904fcb1test \
+AND resource.labels.task_id:task/j-82c8495f-8cc9-443c-9e33-4904fcb1test-group0-1 \
+AND timestamp>="{str(datetime.fromtimestamp(0).isoformat())}" \
+AND textPayload =~ "foo.*"'
+        )
+
+    def test_log_iter_values(self) -> None:
+        scheduler = self._mock_scheduler()
+        app_id = "test-proj:us-central1:app-name-42"
+        logs = scheduler.log_iter(app_id)
+        scheduler._batch_log_iter.assert_called_once_with(
+            f'labels.job_uid=j-82c8495f-8cc9-443c-9e33-4904fcb1test \
+AND resource.labels.task_id:task/j-82c8495f-8cc9-443c-9e33-4904fcb1test-group0-0 \
+AND timestamp>="{str(datetime.fromtimestamp(0).isoformat())}"'
+        )
+        self.assertEqual(
+            list(logs),
+            [
+                "log line foo",
+                "log line bar",
             ],
         )
