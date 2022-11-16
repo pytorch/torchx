@@ -213,6 +213,40 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         scheduler._client.get_job.return_value = batch_v1.Job(
             name="projects/test-proj/locations/us-central1/jobs/app-name-42",
             uid="j-82c8495f-8cc9-443c-9e33-4904fcb1test",
+            allocation_policy=batch_v1.AllocationPolicy(
+                instances=[
+                    batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
+                        install_gpu_drivers=True,
+                        policy=batch_v1.AllocationPolicy.InstancePolicy(
+                            machine_type="a2-highgpu-4g",
+                        ),
+                    ),
+                ],
+            ),
+            task_groups=[
+                batch_v1.TaskGroup(
+                    task_spec=batch_v1.TaskSpec(
+                        runnables=[
+                            batch_v1.Runnable(
+                                container=batch_v1.Runnable.Container(
+                                    image_uri="ghcr.io/pytorch/torchx:0.3.0dev0",
+                                    commands=["python"] + ["-c", 'print("hello ")'],
+                                    entrypoint="",
+                                )
+                            )
+                        ],
+                        compute_resource=batch_v1.ComputeResource(
+                            cpu_milli=8000,
+                            memory_mib=1024,
+                        ),
+                        environments={
+                            "TORCHX_ROLE_NAME": "testRole",
+                        },
+                        max_retry_count=2,
+                    ),
+                    task_count=2,
+                )
+            ],
             status=batch_v1.JobStatus(
                 state=batch_v1.JobStatus.State.SUCCEEDED,
             ),
@@ -290,13 +324,32 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         self.assertEqual(id, "test-proj:us-central1:app-name-42")
         self.assertEqual(scheduler._client.create_job.call_count, 1)
 
-    def test_describe_status(self) -> None:
+    def test_describe(self) -> None:
         scheduler = self._mock_scheduler()
         app_id = "test-proj:us-central1:app-name-42"
-        status = scheduler.describe(app_id)
-        self.assertIsNotNone(status)
-        self.assertEqual(status.state, specs.AppState.SUCCEEDED)
-        self.assertEqual(status.app_id, app_id)
+        desc = scheduler.describe(app_id)
+        self.assertIsNotNone(desc)
+        self.assertEqual(desc.state, specs.AppState.SUCCEEDED)
+        self.assertEqual(desc.app_id, app_id)
+        self.assertEqual(
+            desc.roles[0],
+            specs.Role(
+                name="testRole",
+                num_replicas=2,
+                image="ghcr.io/pytorch/torchx:0.3.0dev0",
+                entrypoint="python",
+                args=["-c", 'print("hello ")'],
+                resource=specs.Resource(
+                    cpu=8,
+                    memMB=1024,
+                    gpu=4,
+                ),
+                env={
+                    "TORCHX_ROLE_NAME": "testRole",
+                },
+                max_retries=2,
+            ),
+        )
 
     def test_list_values(self) -> None:
         scheduler = self._mock_scheduler()
