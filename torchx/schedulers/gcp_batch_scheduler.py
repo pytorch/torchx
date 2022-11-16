@@ -74,6 +74,8 @@ LOCATIONS: List[str] = [
     "europe-west6",
 ]
 
+BATCH_LOGGER_NAME = "batch_task_logs"
+
 
 @dataclass
 class GCPBatchJob:
@@ -368,7 +370,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     def log_iter(
         self,
         app_id: str,
-        role_name: str,
+        role_name: str = "",
         k: int = 0,
         regex: Optional[str] = None,
         since: Optional[datetime] = None,
@@ -376,7 +378,43 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         should_tail: bool = False,
         streams: Optional[Stream] = None,
     ) -> Iterable[str]:
-        raise NotImplementedError()
+        from google.cloud import batch_v1
+
+        if streams not in (None, Stream.COMBINED):
+            raise ValueError("GCPBatchScheduler only supports COMBINED log stream")
+
+        job_name = self._app_id_to_job_full_name(app_id)
+        request = batch_v1.GetJobRequest(
+            name=job_name,
+        )
+        job = self._client.get_job(request=request)
+        if not job:
+            raise ValueError(f"app not found: {app_id}")
+
+        job_uid = job.uid
+        filters = [f"labels.job_uid={job_uid}"]
+        filters.append(f"resource.labels.task_id:task/{job_uid}-group0-{k}")
+
+        if since is not None:
+            filters.append(f'timestamp>="{str(since.isoformat())}"')
+        else:
+            # gcloud logger.list by default only returns logs in the last 24 hours
+            # Since many ML jobs can run longer add timestamp filter to get all logs
+            filters.append(f'timestamp>="{str(datetime.fromtimestamp(0).isoformat())}"')
+
+        if until is not None:
+            filters.append(f'timestamp<="{str(until.isoformat())}"')
+        if regex is not None:
+            filters.append(f'textPayload =~ "{regex}"')
+        filter = " AND ".join(filters)
+        return self._batch_log_iter(filter)
+
+    def _batch_log_iter(self, filter: str) -> Iterable[str]:
+        from google.cloud import logging
+
+        logger = logging.Client().logger(BATCH_LOGGER_NAME)
+        for entry in logger.list_entries(filter_=filter):
+            yield entry.payload
 
     def _job_full_name_to_app_id(self, job_full_name: str) -> str:
         """
