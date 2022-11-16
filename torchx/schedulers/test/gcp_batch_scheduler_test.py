@@ -164,6 +164,20 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                 scheduler._app_id_to_job_full_name(app_id)
 
     @patch("google.cloud.batch_v1.BatchServiceClient")
+    def test_get_job(self, mock_client: MagicMock) -> None:
+        from google.cloud import batch_v1
+
+        scheduler = create_scheduler("test")
+        mock_batch_client = mock_client.return_value
+        scheduler._get_job("test-proj:us-central1:app-name-42")
+        mock_client.assert_called()
+        mock_batch_client.get_job.assert_called_once_with(
+            request=batch_v1.GetJobRequest(
+                name="projects/test-proj/locations/us-central1/jobs/app-name-42",
+            )
+        )
+
+    @patch("google.cloud.batch_v1.BatchServiceClient")
     def test_cancel_existing(self, mock_client: MagicMock) -> None:
         from google.cloud import batch_v1
 

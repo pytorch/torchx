@@ -322,23 +322,29 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             raise ValueError(f"app_id not in expected format: {app_id}")
         return f"projects/{app_id_splits[0]}/locations/{app_id_splits[1]}/jobs/{app_id_splits[2]}"
 
-    def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+    def _get_job(self, app_id: str) -> "batch_v1.Job":
         from google.cloud import batch_v1
 
         job_name = self._app_id_to_job_full_name(app_id)
-
-        # 1. Get the Batch job
         request = batch_v1.GetJobRequest(
             name=job_name,
         )
-        job = self._client.get_job(request=request)
+        return self._client.get_job(request=request)
+
+    def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        job = self._get_job(app_id)
+        if job is None:
+            print(f"app not found: {app_id}")
+            return None
 
         gpu = 0
+        # pyre-fixme [16]: Pyre doesn't properly infer job field types
         if len(job.allocation_policy.instances) != 0:
             gpu_type = job.allocation_policy.instances[0].policy.machine_type
             gpu = GPU_TYPE_TO_COUNT[gpu_type]
 
         roles = {}
+        # pyre-fixme [16]: Pyre doesn't properly infer job field types
         for tg in job.task_groups:
             env = tg.task_spec.environments
             role = env["TORCHX_ROLE_NAME"]
@@ -358,10 +364,11 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 max_retries=tg.task_spec.max_retry_count,
             )
 
-        # 2. Map job -> DescribeAppResponse
+        # Map job -> DescribeAppResponse
         # TODO map role/replica status
         desc = DescribeAppResponse(
             app_id=app_id,
+            # pyre-fixme [16]: Pyre doesn't properly infer job field types
             state=JOB_STATE[job.status.state.name],
             roles=list(roles.values()),
         )
@@ -378,16 +385,10 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         should_tail: bool = False,
         streams: Optional[Stream] = None,
     ) -> Iterable[str]:
-        from google.cloud import batch_v1
-
         if streams not in (None, Stream.COMBINED):
             raise ValueError("GCPBatchScheduler only supports COMBINED log stream")
 
-        job_name = self._app_id_to_job_full_name(app_id)
-        request = batch_v1.GetJobRequest(
-            name=job_name,
-        )
-        job = self._client.get_job(request=request)
+        job = self._get_job(app_id)
         if not job:
             raise ValueError(f"app not found: {app_id}")
 
