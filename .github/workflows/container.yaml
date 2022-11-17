@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - pin_urllib3
 
 jobs:
   build:
