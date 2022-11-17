@@ -29,7 +29,7 @@ from torchx.schedulers.api import (
     Stream,
 )
 from torchx.schedulers.ids import make_unique
-from torchx.specs.api import AppDef, AppState, macros, runopts
+from torchx.specs.api import AppDef, AppState, macros, Resource, Role, runopts
 from torchx.util.strings import normalize_str
 from typing_extensions import TypedDict
 
@@ -55,6 +55,8 @@ GPU_COUNT_TO_TYPE: Dict[int, str] = {
     8: "a2-highgpu-8g",
     16: "a2-highgpu-16g",
 }
+
+GPU_TYPE_TO_COUNT: Dict[str, int] = {v: k for k, v in GPU_COUNT_TO_TYPE.items()}
 
 LABEL_VERSION: str = "torchx_version"
 LABEL_APP_NAME: str = "torchx_app_name"
@@ -329,12 +331,39 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         )
         job = self._client.get_job(request=request)
 
+        gpu = 0
+        if len(job.allocation_policy.instances) != 0:
+            gpu_type = job.allocation_policy.instances[0].policy.machine_type
+            gpu = GPU_TYPE_TO_COUNT[gpu_type]
+
+        roles = {}
+        for tg in job.task_groups:
+            env = tg.task_spec.environments
+            role = env["TORCHX_ROLE_NAME"]
+            container = tg.task_spec.runnables[0].container
+            roles[role] = Role(
+                name=role,
+                num_replicas=tg.task_count,
+                image=container.image_uri,
+                entrypoint=container.commands[0],
+                args=container.commands[1:],
+                resource=Resource(
+                    cpu=int(tg.task_spec.compute_resource.cpu_milli / 1000),
+                    memMB=tg.task_spec.compute_resource.memory_mib,
+                    gpu=gpu,
+                ),
+                env=env,
+                max_retries=tg.task_spec.max_retry_count,
+            )
+
         # 2. Map job -> DescribeAppResponse
-        # TODO map job taskGroup to Role, map env vars etc
-        return DescribeAppResponse(
+        # TODO map role/replica status
+        desc = DescribeAppResponse(
             app_id=app_id,
             state=JOB_STATE[job.status.state.name],
+            roles=list(roles.values()),
         )
+        return desc
 
     def log_iter(
         self,
