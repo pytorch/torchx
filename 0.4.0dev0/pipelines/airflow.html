@@ -503,10 +503,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -736,7 +737,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_3875/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_3665/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
 </pre></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -744,26 +745,26 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,316</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1165} INFO - Dependencies all met for &lt;TaskInstance: example_python_operator-v17s4xjd2zpkbd.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,323</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1165} INFO - Dependencies all met for &lt;TaskInstance: example_python_operator-v17s4xjd2zpkbd.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,323</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1362} INFO -
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,449</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1165} INFO - Dependencies all met for &lt;TaskInstance: example_python_operator-dbsn5m6w5k95x.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,456</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1165} INFO - Dependencies all met for &lt;TaskInstance: example_python_operator-dbsn5m6w5k95x.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,456</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1362} INFO -
 --------------------------------------------------------------------------------
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,324</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1363} INFO - Starting attempt 1 of 1
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,325</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1364} INFO -
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,457</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1363} INFO - Starting attempt 1 of 1
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,458</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1364} INFO -
 --------------------------------------------------------------------------------
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,336</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1383} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,501</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1590} INFO - Exporting the following env vars:
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,470</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1383} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
+[<span class="ansi-blue-fg">2022-11-17 00:34:46,634</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1590} INFO - Exporting the following env vars:
 AIRFLOW_CTX_DAG_OWNER=airflow
-AIRFLOW_CTX_DAG_ID=example_python_operator-v17s4xjd2zpkbd
+AIRFLOW_CTX_DAG_ID=example_python_operator-dbsn5m6w5k95x
 AIRFLOW_CTX_TASK_ID=hello_torchx
 AIRFLOW_CTX_EXECUTION_DATE=2021-09-13T00:00:00+00:00
 AIRFLOW_CTX_TRY_NUMBER=1
 AIRFLOW_CTX_DAG_RUN_ID=manual__2021-09-13T00:00:00+00:00
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,915</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>715} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-[<span class="ansi-blue-fg">2022-11-12 03:09:44,916</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>721} INFO - Log directory is: /tmp/torchx_cyry1cf4
+[<span class="ansi-blue-fg">2022-11-17 00:34:47,033</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>715} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+[<span class="ansi-blue-fg">2022-11-17 00:34:47,034</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>721} INFO - Log directory is: /tmp/torchx_vyaqr8r_
 Hello, TorchX!
-[<span class="ansi-blue-fg">2022-11-12 03:09:45,022</span>] {<span class="ansi-blue-fg">python.py:</span>177} INFO - Done. Returned value was: None
-[<span class="ansi-blue-fg">2022-11-12 03:09:45,029</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1401} INFO - Marking task as SUCCESS. dag_id=example_python_operator-v17s4xjd2zpkbd, task_id=hello_torchx, execution_date=20210913T000000, start_date=20221112T030944, end_date=20221112T030945
+[<span class="ansi-blue-fg">2022-11-17 00:34:47,145</span>] {<span class="ansi-blue-fg">python.py:</span>177} INFO - Done. Returned value was: None
+[<span class="ansi-blue-fg">2022-11-17 00:34:47,151</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1401} INFO - Marking task as SUCCESS. dag_id=example_python_operator-dbsn5m6w5k95x, task_id=hello_torchx, execution_date=20210913T000000, start_date=20221117T003446, end_date=20221117T003447
 </pre></div></div>
 </div>
 <p>If all goes well you should see <code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">TorchX!</span></code> printed above.</p>
