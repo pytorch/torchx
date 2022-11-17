@@ -78,6 +78,11 @@ if __name__ == "__main__":
             ],
         },
         extras_require={
+            "gcp_batch": [
+                "google-cloud-batch>=0.3.1",
+                "google-cloud-logging>=3.0.0",
+                "google-cloud-runtimeconfig>=0.33.2",
+            ],
             "kfp": ["kfp==1.6.2"],
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],

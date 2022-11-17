@@ -102,7 +102,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
     .. code-block:: bash
 
-        $ pip install torchx
+        $ pip install torchx[gcp_batch]
         $ torchx run --scheduler gcp_batch utils.echo --msg hello
         gcp_batch://torchx_user/1234
         $ torchx status gcp_batch://torchx_user/1234
