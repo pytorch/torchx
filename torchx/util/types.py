@@ -15,7 +15,7 @@ def to_list(arg: str) -> List[str]:
     if len(arg.strip()) == 0:
         return []
     for el in arg.split(","):
-        conf.append(el)
+        conf.append(el.strip())
     return conf
 
 
@@ -66,7 +66,7 @@ def to_dict(arg: str) -> Dict[str, str]:
                 f"`{vk}` cannot be split into `val<delim>key` with delims={delims}"
             )
         else:
-            return vk[0:idx], vk[idx + 1 :]
+            return vk[0:idx].strip(), vk[idx + 1 :].strip()
 
     arg_map: Dict[str, str] = {}
 
@@ -77,7 +77,9 @@ def to_dict(arg: str) -> Dict[str, str]:
     cfg_kv_delim = "="
 
     # ["FOO", "v1;v2,BAR", v3, "BAZ", "v4,v5"]
-    split_arg = [s for s in arg.split(cfg_kv_delim) if s]  # remove empty
+    split_arg = [
+        s.strip() for s in arg.split(cfg_kv_delim) if s.strip()
+    ]  # remove empty
     split_arg_len = len(split_arg)
 
     if split_arg_len < 2:  # no kv -> malformed str
