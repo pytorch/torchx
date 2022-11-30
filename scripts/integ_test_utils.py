@@ -52,7 +52,9 @@ def build_torchx_canary(id: str) -> str:
 
 
 def torchx_container_tag(id: str) -> str:
-    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
+    # CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
+    # return f"{CONTAINER_REPO}:canary_{id}_torchx"
+    CONTAINER_REPO = "us-central1-docker.pkg.dev/pytorch-ecosystem-gcp/quickstart-docker-repo/torchx_canary"
     return f"{CONTAINER_REPO}:canary_{id}_torchx"
 
 
