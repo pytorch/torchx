@@ -111,7 +111,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         )
         ts = batch_v1.TaskSpec(
             runnables=[runnable],
-            environments=env,
+            environment=batch_v1.Environment(variables=env),
             max_retry_count=3,
             compute_resource=res,
         )
@@ -273,9 +273,9 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                             cpu_milli=8000,
                             memory_mib=1024,
                         ),
-                        environments={
+                        environment=batch_v1.Environment(variables={
                             "TORCHX_ROLE_NAME": "testRole",
-                        },
+                        }),
                         max_retry_count=2,
                     ),
                     task_count=2,
