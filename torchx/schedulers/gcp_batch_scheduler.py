@@ -236,7 +236,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
             ts = batch_v1.TaskSpec(
                 runnables=[runnable],
-                environments=role_dict.env,
+                environment=batch_v1.Environment(variables=role_dict.env),
                 max_retry_count=role_dict.max_retries,
                 compute_resource=res,
             )
@@ -346,7 +346,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         roles = {}
         # pyre-fixme [16]: Pyre doesn't properly infer job field types
         for tg in job.task_groups:
-            env = tg.task_spec.environments
+            env = tg.task_spec.environment.variables
             role = env["TORCHX_ROLE_NAME"]
             container = tg.task_spec.runnables[0].container
             roles[role] = Role(
