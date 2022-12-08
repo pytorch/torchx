@@ -183,11 +183,20 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 app_id=name,
                 replica_id=str(0),
                 # TODO set value for rank0_env: TORCHX_RANK0_HOST is a place holder for now
-                rank0_env=("TORCHX_RANK0_HOST"),
+                # rank0_env=("BATCH_MAIN_NODE_HOSTNAME"),
+                rank0_env=(
+                    "BATCH_MAIN_NODE_HOSTNAME"
+                ),
             )
             role_dict = values.apply(role)
             role_dict.env["TORCHX_ROLE_IDX"] = str(role_idx)
             role_dict.env["TORCHX_ROLE_NAME"] = str(role.name)
+            # if role_idx == 0:
+            #     # BATCH_MAIN_NODE_HOSTNAME is only
+            #     # available on the child workers so we set the address to
+            #     # localhost for rank0.
+            #     # See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html
+            #     replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
             resource = role_dict.resource
             res = batch_v1.ComputeResource()
@@ -231,6 +240,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                     image_uri=role_dict.image,
                     commands=[role_dict.entrypoint] + role_dict.args,
                     entrypoint="",
+                    volumes=["/etc:/etc"],
                 )
             )
 
@@ -241,9 +251,21 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 compute_resource=res,
             )
 
+            task_env = []
+            for i in range(role_dict.num_replicas):
+                if i == 0:
+                    env_vars = {"BATCH_MAIN_NODE_HOSTNAME": "localhost"}
+                else:
+                    env_vars = {}
+                env_vars["TORCHX_REPLICA_IDX"] = str(i)
+                t_env = batch_v1.Environment(variables=env_vars)
+                task_env.append(t_env)
+
             tg = batch_v1.TaskGroup(
                 task_spec=ts,
                 task_count=role_dict.num_replicas,
+                task_count_per_node=1,
+                task_environments=task_env,
                 require_hosts_file=True,
             )
             taskGroups.append(tg)
