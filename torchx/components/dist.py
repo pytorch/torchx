@@ -158,7 +158,8 @@ def ddp(
 
     if env is None:
         env = {}
-    env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
+    # env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
+    env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "INFO"))
 
     if debug:
         env.update(_TORCH_DEBUG_FLAGS)

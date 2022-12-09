@@ -240,7 +240,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                     image_uri=role_dict.image,
                     commands=[role_dict.entrypoint] + role_dict.args,
                     entrypoint="",
-                    volumes=["/etc:/etc"],
+                    # volumes=["/etc:/etc", "/root/.ssh:/root/.ssh"],
                 )
             )
 
@@ -249,6 +249,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 environment=batch_v1.Environment(variables=role_dict.env),
                 max_retry_count=role_dict.max_retries,
                 compute_resource=res,
+                # volumes=[batch_v1.Volume()]
             )
 
             task_env = []
@@ -267,6 +268,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 task_count_per_node=1,
                 task_environments=task_env,
                 require_hosts_file=True,
+                # permissive_ssh=True,
             )
             taskGroups.append(tg)
 
