@@ -21,7 +21,6 @@ import pytorch_lightning as pl
 import torch
 import torch.jit
 from torch.nn import functional as F
-# from torchmetrics import Accuracy
 from torchmetrics.classification import BinaryAccuracy
 from torchvision.models.resnet import BasicBlock, ResNet
 
