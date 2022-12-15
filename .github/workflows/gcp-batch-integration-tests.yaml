@@ -35,9 +35,3 @@ jobs:
           set -ex
 
           scripts/gcpbatchint.sh
-        continue-on-error: true
-      - name: Run Components Integration Tests
-        env:
-          CONTAINER_REPO: us-central1-docker.pkg.dev/pytorch-ecosystem-gcp/quickstart-docker-repo/torchx_canary
-        run: |
-          scripts/component_integration_tests.py --scheduler gcp_batch
