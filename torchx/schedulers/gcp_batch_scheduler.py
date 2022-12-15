@@ -182,8 +182,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 img_root="",
                 app_id=name,
                 replica_id=str(0),
-                # TODO set value for rank0_env: TORCHX_RANK0_HOST is a place holder for now
-                # rank0_env=("BATCH_MAIN_NODE_HOSTNAME"),
                 rank0_env=(
                     "BATCH_MAIN_NODE_HOSTNAME"
                 ),
@@ -191,12 +189,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             role_dict = values.apply(role)
             role_dict.env["TORCHX_ROLE_IDX"] = str(role_idx)
             role_dict.env["TORCHX_ROLE_NAME"] = str(role.name)
-            # if role_idx == 0:
-            #     # BATCH_MAIN_NODE_HOSTNAME is only
-            #     # available on the child workers so we set the address to
-            #     # localhost for rank0.
-            #     # See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html
-            #     replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
             resource = role_dict.resource
             res = batch_v1.ComputeResource()
@@ -235,32 +227,34 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 )
                 print(f"Using GPUs of type: {machineType}")
 
+            # TODO add comment
+            preRunnable = batch_v1.Runnable(
+                script=batch_v1.Runnable.Script(
+                    text="/sbin/iptables -A INPUT -j ACCEPT"
+                )
+            )
+
             runnable = batch_v1.Runnable(
                 container=batch_v1.Runnable.Container(
                     image_uri=role_dict.image,
                     commands=[role_dict.entrypoint] + role_dict.args,
                     entrypoint="",
-                    # volumes=["/etc:/etc", "/root/.ssh:/root/.ssh"],
+                    # TODO add comment
+                    options="--net host",
                 )
             )
 
             ts = batch_v1.TaskSpec(
-                runnables=[runnable],
+                runnables=[preRunnable, runnable],
                 environment=batch_v1.Environment(variables=role_dict.env),
                 max_retry_count=role_dict.max_retries,
                 compute_resource=res,
-                # volumes=[batch_v1.Volume()]
             )
 
-            task_env = []
-            for i in range(role_dict.num_replicas):
-                if i == 0:
-                    env_vars = {"BATCH_MAIN_NODE_HOSTNAME": "localhost"}
-                else:
-                    env_vars = {}
-                env_vars["TORCHX_REPLICA_IDX"] = str(i)
-                t_env = batch_v1.Environment(variables=env_vars)
-                task_env.append(t_env)
+            task_env = [
+                batch_v1.Environment(variables={"TORCHX_REPLICA_IDX": str(i)})
+                for i in range(role_dict.num_replicas)
+            ]
 
             tg = batch_v1.TaskGroup(
                 task_spec=ts,
@@ -268,7 +262,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 task_count_per_node=1,
                 task_environments=task_env,
                 require_hosts_file=True,
-                # permissive_ssh=True,
             )
             taskGroups.append(tg)
 
@@ -372,7 +365,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         for tg in job.task_groups:
             env = tg.task_spec.environment.variables
             role = env["TORCHX_ROLE_NAME"]
-            container = tg.task_spec.runnables[0].container
+            container = tg.task_spec.runnables[1].container
             roles[role] = Role(
                 name=role,
                 num_replicas=tg.task_count,
