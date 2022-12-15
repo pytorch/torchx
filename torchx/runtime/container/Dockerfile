@@ -1,6 +1,9 @@
-FROM pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
+FROM pytorch/pytorch:1.13.0-cuda11.6-cudnn8-runtime
 
 WORKDIR /app
+
+# upgrade pip to 22.x+ which has a faster dependency resolver
+RUN pip install --upgrade pip
 
 # copy requirements early so we don't have to redownload dependencies on code
 # changes
