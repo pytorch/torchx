@@ -81,9 +81,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         env["TORCHX_ROLE_NAME"] = "trainer"
         env["FOO"] = "bar"
         res = batch_v1.ComputeResource()
-        # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
         res.cpu_milli = 2000
-        # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
         res.memory_mib = 3000
         allocationPolicy = batch_v1.AllocationPolicy(
             instances=[

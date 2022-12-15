@@ -194,14 +194,12 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             if cpu <= 0:
                 cpu = 1
             MILLI = 1000
-            # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
             res.cpu_milli = cpu * MILLI
             memMB = resource.memMB
             if memMB < 0:
                 raise ValueError(
                     f"memMB should to be set to a positive value, got {memMB}"
                 )
-            # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
             res.memory_mib = memMB
 
             # TODO support named resources
@@ -353,13 +351,11 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             return None
 
         gpu = 0
-        # pyre-fixme [16]: Pyre doesn't properly infer job field types
         if len(job.allocation_policy.instances) != 0:
             gpu_type = job.allocation_policy.instances[0].policy.machine_type
             gpu = GPU_TYPE_TO_COUNT[gpu_type]
 
         roles = {}
-        # pyre-fixme [16]: Pyre doesn't properly infer job field types
         for tg in job.task_groups:
             env = tg.task_spec.environment.variables
             role = env["TORCHX_ROLE_NAME"]
