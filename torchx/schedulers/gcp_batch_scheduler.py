@@ -379,7 +379,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # TODO map role/replica status
         desc = DescribeAppResponse(
             app_id=app_id,
-            # pyre-fixme [16]: Pyre doesn't properly infer job field types
             state=JOB_STATE[job.status.state.name],
             roles=list(roles.values()),
         )
