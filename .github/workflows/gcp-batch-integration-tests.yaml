@@ -35,3 +35,8 @@ jobs:
           set -ex
 
           scripts/gcpbatchint.sh
+      - name: Run Components Integration Tests
+        env:
+          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
+        run: |
+          scripts/component_integration_tests.py --scheduler gcp_batch

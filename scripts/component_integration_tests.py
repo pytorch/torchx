@@ -125,6 +125,8 @@ def main() -> None:
         },
     }
 
+    print("sssss cont repo ", os.getenv(CONTAINER_REPO))
+
     params = run_parameters[scheduler]
     test_suite: IntegComponentTest = IntegComponentTest()
     for provider in params["providers"]:
