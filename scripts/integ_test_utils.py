@@ -55,6 +55,7 @@ def torchx_container_tag(id: str) -> str:
     CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
     return f"{CONTAINER_REPO}:canary_{id}_torchx"
 
+
 def build_images() -> BuildInfo:
     id = f"{getuser()}_{random_id()}"
     torchx_image = build_torchx_canary(id)

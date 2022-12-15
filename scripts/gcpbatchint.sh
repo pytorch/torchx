@@ -19,3 +19,11 @@ then
     echo "expected $APP_ID to be listed"
     exit 1
 fi
+
+torchx log "$APP_ID"
+LINES="$(torchx log "$APP_ID" | grep -c 'hello')"
+if [ "$LINES" -ne 1 ]
+  then
+      echo "expected 1 log line with 'hello'"
+      exit 1
+  fi

@@ -35,6 +35,7 @@ jobs:
           set -ex
 
           scripts/gcpbatchint.sh
+        continue-on-error: true
       - name: Run Components Integration Tests
         env:
           CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
