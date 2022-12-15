@@ -47,8 +47,6 @@ def main() -> None:
     args = argparser().parse_args()
     scheduler = args.scheduler
 
-    # print("sssss cont repo ", os.getenv('CONTAINER_REPO'))
-
     print("Starting components integration tests")
     torchx_image = "dummy_image"
     dryrun = False

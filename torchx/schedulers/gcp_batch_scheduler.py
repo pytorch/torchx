@@ -365,13 +365,13 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 num_replicas=tg.task_count,
                 image=container.image_uri,
                 entrypoint=container.commands[0],
-                args=container.commands[1:],
+                args=[cmd for cmd in container.commands[1:]],
                 resource=Resource(
                     cpu=int(tg.task_spec.compute_resource.cpu_milli / 1000),
                     memMB=tg.task_spec.compute_resource.memory_mib,
                     gpu=gpu,
                 ),
-                env=env,
+                env={key: value for key, value in env.items()},
                 max_retries=tg.task_spec.max_retry_count,
             )
 
