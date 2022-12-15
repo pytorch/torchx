@@ -23,8 +23,8 @@ fi
 torchx log "$APP_ID"
 EXPECTED_MSG="hi from main"
 LINES="$(torchx log "$APP_ID" | grep -c "$EXPECTED_MSG")"
-if [ "$LINES" -ne 2 ]
+if [ "$LINES" -ne 4 ]
 then
-    echo "expected 2 log lines with msg $EXPECTED_MSG"
+    echo "expected 4 log lines with msg $EXPECTED_MSG"
     exit 1
 fi
