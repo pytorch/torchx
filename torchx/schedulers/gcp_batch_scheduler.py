@@ -182,9 +182,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 img_root="",
                 app_id=name,
                 replica_id=str(0),
-                rank0_env=(
-                    "BATCH_MAIN_NODE_HOSTNAME"
-                ),
+                rank0_env=("BATCH_MAIN_NODE_HOSTNAME"),
             )
             role_dict = values.apply(role)
             role_dict.env["TORCHX_ROLE_IDX"] = str(role_idx)
@@ -227,7 +225,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 )
                 print(f"Using GPUs of type: {machineType}")
 
-            # TODO add comment
+            # Configure host firewall rules to accept ingress communication
             preRunnable = batch_v1.Runnable(
                 script=batch_v1.Runnable.Script(
                     text="/sbin/iptables -A INPUT -j ACCEPT"
@@ -239,7 +237,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                     image_uri=role_dict.image,
                     commands=[role_dict.entrypoint] + role_dict.args,
                     entrypoint="",
-                    # TODO add comment
+                    # Configure docker to use the host network stack to communicate with containers/other hosts in the same network
                     options="--net host",
                 )
             )

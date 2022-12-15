@@ -95,6 +95,9 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                 )
             ],
         )
+        preRunnable = batch_v1.Runnable(
+            script=batch_v1.Runnable.Script(text="/sbin/iptables -A INPUT -j ACCEPT")
+        )
         runnable = batch_v1.Runnable(
             container=batch_v1.Runnable.Container(
                 image_uri="pytorch/torchx:latest",
@@ -105,12 +108,13 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                     "--app-id",
                     "app-name-42",
                     "--rank0_env",
-                    "TORCHX_RANK0_HOST",
+                    "BATCH_MAIN_NODE_HOSTNAME",
                 ],
+                options="--net host",
             )
         )
         ts = batch_v1.TaskSpec(
-            runnables=[runnable],
+            runnables=[preRunnable, runnable],
             environment=batch_v1.Environment(variables=env),
             max_retry_count=3,
             compute_resource=res,
@@ -119,6 +123,10 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         tg = batch_v1.TaskGroup(
             task_spec=ts,
             task_count=1,
+            task_count_per_node=1,
+            task_environments=[
+                batch_v1.Environment(variables={"TORCHX_REPLICA_IDX": "0"})
+            ],
             require_hosts_file=True,
         )
         taskGroups.append(tg)
@@ -262,20 +270,28 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                     task_spec=batch_v1.TaskSpec(
                         runnables=[
                             batch_v1.Runnable(
+                                script=batch_v1.Runnable.Script(
+                                    text="/sbin/iptables -A INPUT -j ACCEPT"
+                                )
+                            ),
+                            batch_v1.Runnable(
                                 container=batch_v1.Runnable.Container(
                                     image_uri="ghcr.io/pytorch/torchx:0.3.0dev0",
                                     commands=["python"] + ["-c", 'print("hello ")'],
                                     entrypoint="",
+                                    options="--net host",
                                 )
-                            )
+                            ),
                         ],
                         compute_resource=batch_v1.ComputeResource(
                             cpu_milli=8000,
                             memory_mib=1024,
                         ),
-                        environment=batch_v1.Environment(variables={
-                            "TORCHX_ROLE_NAME": "testRole",
-                        }),
+                        environment=batch_v1.Environment(
+                            variables={
+                                "TORCHX_ROLE_NAME": "testRole",
+                            }
+                        ),
                         max_retry_count=2,
                     ),
                     task_count=2,
