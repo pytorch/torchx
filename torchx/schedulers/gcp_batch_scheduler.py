@@ -126,17 +126,8 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
     .. compatibility::
         type: scheduler
         features:
-            describe: |
-                Partial support. GCPBatchScheduler will return job status
-                but does not provide the complete original AppSpec.
-
-    .. compatibility::
-        type: scheduler
-        features:
             cancel: true
             logs: true
-            list: true
-            status: true
             describe: true
             distributed: true
             workspaces: false
