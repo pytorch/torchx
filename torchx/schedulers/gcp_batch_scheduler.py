@@ -12,6 +12,12 @@ components directly on GCP Batch.
 
 This scheduler is in prototype stage and may change without notice.
 
+Prerequisites
+==============
+
+You need to have a GCP project configured to use Batch by enabling and setting it up.
+See https://cloud.google.com/batch/docs/get-started#prerequisites
+
 """
 
 from dataclasses import dataclass
@@ -104,8 +110,8 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
         $ pip install torchx[gcp_batch]
         $ torchx run --scheduler gcp_batch utils.echo --msg hello
-        gcp_batch://torchx_user/1234
-        $ torchx status gcp_batch://torchx_user/1234
+        # This launches a job with app handle like gcp_batch://torchx/project:location:app_id1234 and prints it
+        $ torchx status gcp_batch://torchx/project:location:app_id1234
         ...
 
     Authentication is loaded from the environment using the gcloud credential handling.
@@ -123,6 +129,19 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             describe: |
                 Partial support. GCPBatchScheduler will return job status
                 but does not provide the complete original AppSpec.
+
+    .. compatibility::
+        type: scheduler
+        features:
+            cancel: true
+            logs: true
+            list: true
+            status: true
+            describe: true
+            distributed: true
+            workspaces: false
+            mounts: false
+            elasticity: false
 
     """
 
