@@ -224,7 +224,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 print(f"Using GPUs of type: {machineType}")
 
             # Configure host firewall rules to accept ingress communication
-            preRunnable = batch_v1.Runnable(
+            config_network_runnable = batch_v1.Runnable(
                 script=batch_v1.Runnable.Script(
                     text="/sbin/iptables -A INPUT -j ACCEPT"
                 )
@@ -241,7 +241,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             )
 
             ts = batch_v1.TaskSpec(
-                runnables=[preRunnable, runnable],
+                runnables=[config_network_runnable, runnable],
                 environment=batch_v1.Environment(variables=role_dict.env),
                 max_retry_count=role_dict.max_retries,
                 compute_resource=res,
@@ -365,13 +365,13 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 num_replicas=tg.task_count,
                 image=container.image_uri,
                 entrypoint=container.commands[0],
-                args=[cmd for cmd in container.commands[1:]],
+                args=list(container.commands[1:]),
                 resource=Resource(
                     cpu=int(tg.task_spec.compute_resource.cpu_milli / 1000),
                     memMB=tg.task_spec.compute_resource.memory_mib,
                     gpu=gpu,
                 ),
-                env={key: value for key, value in env.items()},
+                env=dict(env),
                 max_retries=tg.task_spec.max_retry_count,
             )
 
