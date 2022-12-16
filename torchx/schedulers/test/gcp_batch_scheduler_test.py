@@ -273,9 +273,11 @@ class GCPBatchSchedulerTest(unittest.TestCase):
                             cpu_milli=8000,
                             memory_mib=1024,
                         ),
-                        environment=batch_v1.Environment(variables={
-                            "TORCHX_ROLE_NAME": "testRole",
-                        }),
+                        environment=batch_v1.Environment(
+                            variables={
+                                "TORCHX_ROLE_NAME": "testRole",
+                            }
+                        ),
                         max_retry_count=2,
                     ),
                     task_count=2,
