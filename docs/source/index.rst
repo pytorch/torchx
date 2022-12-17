@@ -77,6 +77,7 @@ Works With
    schedulers/ray
    schedulers/aws_batch
    schedulers/lsf
+   schedulers/gcp_batch
 
 .. fbcode::
 
