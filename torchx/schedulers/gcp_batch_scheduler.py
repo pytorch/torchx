@@ -182,8 +182,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 img_root="",
                 app_id=name,
                 replica_id=str(0),
-                # TODO set value for rank0_env: TORCHX_RANK0_HOST is a place holder for now
-                rank0_env=("TORCHX_RANK0_HOST"),
+                rank0_env=("BATCH_MAIN_NODE_HOSTNAME"),
             )
             role_dict = values.apply(role)
             role_dict.env["TORCHX_ROLE_IDX"] = str(role_idx)
@@ -195,14 +194,12 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             if cpu <= 0:
                 cpu = 1
             MILLI = 1000
-            # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
             res.cpu_milli = cpu * MILLI
             memMB = resource.memMB
             if memMB < 0:
                 raise ValueError(
                     f"memMB should to be set to a positive value, got {memMB}"
                 )
-            # pyre-ignore [8] : pyre gets confused even when types on both sides of = are int
             res.memory_mib = memMB
 
             # TODO support named resources
@@ -226,24 +223,40 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
                 )
                 print(f"Using GPUs of type: {machineType}")
 
+            # Configure host firewall rules to accept ingress communication
+            config_network_runnable = batch_v1.Runnable(
+                script=batch_v1.Runnable.Script(
+                    text="/sbin/iptables -A INPUT -j ACCEPT"
+                )
+            )
+
             runnable = batch_v1.Runnable(
                 container=batch_v1.Runnable.Container(
                     image_uri=role_dict.image,
                     commands=[role_dict.entrypoint] + role_dict.args,
                     entrypoint="",
+                    # Configure docker to use the host network stack to communicate with containers/other hosts in the same network
+                    options="--net host",
                 )
             )
 
             ts = batch_v1.TaskSpec(
-                runnables=[runnable],
+                runnables=[config_network_runnable, runnable],
                 environment=batch_v1.Environment(variables=role_dict.env),
                 max_retry_count=role_dict.max_retries,
                 compute_resource=res,
             )
 
+            task_env = [
+                batch_v1.Environment(variables={"TORCHX_REPLICA_IDX": str(i)})
+                for i in range(role_dict.num_replicas)
+            ]
+
             tg = batch_v1.TaskGroup(
                 task_spec=ts,
                 task_count=role_dict.num_replicas,
+                task_count_per_node=1,
+                task_environments=task_env,
                 require_hosts_file=True,
             )
             taskGroups.append(tg)
@@ -338,29 +351,27 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             return None
 
         gpu = 0
-        # pyre-fixme [16]: Pyre doesn't properly infer job field types
         if len(job.allocation_policy.instances) != 0:
             gpu_type = job.allocation_policy.instances[0].policy.machine_type
             gpu = GPU_TYPE_TO_COUNT[gpu_type]
 
         roles = {}
-        # pyre-fixme [16]: Pyre doesn't properly infer job field types
         for tg in job.task_groups:
             env = tg.task_spec.environment.variables
             role = env["TORCHX_ROLE_NAME"]
-            container = tg.task_spec.runnables[0].container
+            container = tg.task_spec.runnables[1].container
             roles[role] = Role(
                 name=role,
                 num_replicas=tg.task_count,
                 image=container.image_uri,
                 entrypoint=container.commands[0],
-                args=container.commands[1:],
+                args=list(container.commands[1:]),
                 resource=Resource(
                     cpu=int(tg.task_spec.compute_resource.cpu_milli / 1000),
                     memMB=tg.task_spec.compute_resource.memory_mib,
                     gpu=gpu,
                 ),
-                env=env,
+                env=dict(env),
                 max_retries=tg.task_spec.max_retry_count,
             )
 
@@ -368,7 +379,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # TODO map role/replica status
         desc = DescribeAppResponse(
             app_id=app_id,
-            # pyre-fixme [16]: Pyre doesn't properly infer job field types
             state=JOB_STATE[job.status.state.name],
             roles=list(roles.values()),
         )

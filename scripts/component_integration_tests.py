@@ -51,7 +51,7 @@ def main() -> None:
     torchx_image = "dummy_image"
     dryrun = False
 
-    if scheduler in ("kubernetes", "local_docker", "aws_batch", "lsf"):
+    if scheduler in ("kubernetes", "local_docker", "aws_batch", "lsf", "gcp_batch"):
         try:
             build = build_and_push_image()
             torchx_image = build.torchx_image
@@ -94,6 +94,13 @@ def main() -> None:
             "cfg": {
                 "queue": "torchx",
             },
+        },
+        "gcp_batch": {
+            "providers": [
+                component_provider,
+            ],
+            "image": torchx_image,
+            "cfg": {},
         },
         "ray": {
             "providers": [
