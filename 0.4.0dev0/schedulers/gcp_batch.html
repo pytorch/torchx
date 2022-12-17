@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Docker &mdash; PyTorch/TorchX main documentation</title>
+  <title>GCP Batch &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Kubernetes" href="kubernetes.html" />
-    <link rel="prev" title="Local" href="local.html" />
+    <link rel="next" title="Kubeflow Pipelines" href="../pipelines/kfp.html" />
+    <link rel="prev" title="IBM Spectrum LSF" href="lsf.html" />
   <!-- Google Analytics -->
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
@@ -274,13 +274,13 @@
 <p class="caption" role="heading"><span class="caption-text">Schedulers</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="local.html">Local</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="slurm.html">Slurm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ray.html">Ray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="aws_batch.html">AWS Batch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lsf.html">IBM Spectrum LSF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gcp_batch.html">GCP Batch</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GCP Batch</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
 <ul>
@@ -359,13 +359,13 @@
       </li>
 
         
-      <li>Docker</li>
+      <li>GCP Batch</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/schedulers/docker.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/schedulers/gcp_batch.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -394,42 +394,41 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="module-torchx.schedulers.docker_scheduler">
-<span id="docker"></span><h1>Docker<a class="headerlink" href="#module-torchx.schedulers.docker_scheduler" title="Permalink to this heading">¶</a></h1>
+  <section id="module-torchx.schedulers.gcp_batch_scheduler">
+<span id="gcp-batch"></span><h1>GCP Batch<a class="headerlink" href="#module-torchx.schedulers.gcp_batch_scheduler" title="Permalink to this heading">¶</a></h1>
+<p>This contains the TorchX GCP Batch scheduler which can be used to run TorchX
+components directly on GCP Batch.</p>
+<p>This scheduler is in prototype stage and may change without notice.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
+<p>You need to have a GCP project configured to use Batch by enabling and setting it up.
+See <a class="reference external" href="https://cloud.google.com/batch/docs/get-started#prerequisites">https://cloud.google.com/batch/docs/get-started#prerequisites</a></p>
+</section>
 <dl class="py class">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.docker_scheduler.</span></span><span class="sig-name descname"><span class="pre">DockerScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin" title="torchx.workspace.docker_workspace.DockerWorkspaceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DockerWorkspaceMixin</span></code></a>, <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scheduler</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DockerOpts</span></code>]</p>
-<p>DockerScheduler is a TorchX scheduling interface to Docker.</p>
-<p>This is exposed via the scheduler <cite>local_docker</cite>.</p>
-<p>This scheduler runs the provided app via the local docker runtime using the
-specified images in the AppDef. Docker must be installed and running.  This
-provides the closest environment to schedulers that natively use Docker such
-as Kubernetes.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>docker doesn’t provide gang scheduling mechanisms. If one replica
-in a job fails, only that replica will be restarted.</p>
-</div>
-<p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="p">[</span><span class="n">copy_env</span><span class="o">=</span><span class="n">COPY_ENV</span><span class="p">],[</span><span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span><span class="p">]</span>
-
-    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">copy_env</span><span class="o">=</span><span class="n">COPY_ENV</span> <span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="nb">list</span> <span class="n">of</span> <span class="n">glob</span> <span class="n">patterns</span> <span class="n">of</span> <span class="n">environment</span> <span class="n">variables</span> <span class="n">to</span> <span class="n">copy</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span> <span class="ow">in</span> <span class="n">AppDef</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">FOO_</span><span class="o">*</span>
-        <span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="p">(</span><span class="n">remote</span> <span class="n">jobs</span><span class="p">)</span> <span class="n">the</span> <span class="n">image</span> <span class="n">repository</span> <span class="n">to</span> <span class="n">use</span> <span class="n">when</span> <span class="n">pushing</span> <span class="n">patched</span> <span class="n">images</span><span class="p">,</span> <span class="n">must</span> <span class="n">have</span> <span class="n">push</span> <span class="n">access</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">container</span>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.gcp_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">GCPBatchScheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchScheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../schedulers.html#torchx.schedulers.Scheduler" title="torchx.schedulers.api.Scheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scheduler</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">GCPBatchOpts</span></code>]</p>
+<p>GCPBatchScheduler is a TorchX scheduling interface to GCP Batch.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install torchx<span class="o">[</span>gcp_batch<span class="o">]</span>
+$ torchx run --scheduler gcp_batch utils.echo --msg hello
+<span class="c1"># This launches a job with app handle like gcp_batch://torchx/project:location:app_id1234 and prints it</span>
+$ torchx status gcp_batch://torchx/project:location:app_id1234
+...
 </pre></div>
 </div>
-<p><strong>Mounts</strong></p>
-<p>This class supports bind mounting directories and named volumes.</p>
-<ul class="simple">
-<li><p>bind mount: <code class="docutils literal notranslate"><span class="pre">type=bind,src=&lt;host</span> <span class="pre">path&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
-<li><p>named volume: <code class="docutils literal notranslate"><span class="pre">type=volume,src=&lt;name&gt;,dst=&lt;container</span> <span class="pre">path&gt;[,readonly]</span></code></p></li>
-<li><p>devices: <code class="docutils literal notranslate"><span class="pre">type=device,src=&lt;name&gt;[,dst=&lt;container</span> <span class="pre">path&gt;][,permissions=rwm]</span></code></p></li>
-</ul>
-<p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
+<p>Authentication is loaded from the environment using the gcloud credential handling.</p>
+<p><strong>Config Options</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
+        <span class="p">[</span><span class="n">project</span><span class="o">=</span><span class="n">PROJECT</span><span class="p">],[</span><span class="n">location</span><span class="o">=</span><span class="n">LOCATION</span><span class="p">]</span>
+
+    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+        <span class="n">project</span><span class="o">=</span><span class="n">PROJECT</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">Name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">GCP</span> <span class="n">project</span><span class="o">.</span> <span class="n">Defaults</span> <span class="n">to</span> <span class="n">the</span> <span class="n">configured</span> <span class="n">GCP</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">environment</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">LOCATION</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">us</span><span class="o">-</span><span class="n">central1</span><span class="p">)</span>
+            <span class="n">Name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">location</span> <span class="n">to</span> <span class="n">schedule</span> <span class="n">the</span> <span class="n">job</span> <span class="ow">in</span><span class="o">.</span> <span class="n">Defaults</span> <span class="n">to</span> <span class="n">us</span><span class="o">-</span><span class="n">central1</span>
+</pre></div>
+</div>
+<p><strong>Compatibility</strong></p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Feature</p></th>
@@ -447,15 +446,13 @@ in a job fails, only that replica will be restarted.</p>
 <td><p>✔️</p></td>
 </tr>
 <tr class="row-odd"><td><p>Describe Job</p></td>
-<td><p>Partial support. DockerScheduler will return job and replica
-status but does not provide the complete original AppSpec.
-</p></td>
+<td><p>✔️</p></td>
 </tr>
 <tr class="row-even"><td><p>Workspaces / Patching</p></td>
-<td><p>✔️</p></td>
+<td><p>❌</p></td>
 </tr>
 <tr class="row-odd"><td><p>Mounts</p></td>
-<td><p>✔️</p></td>
+<td><p>❌</p></td>
 </tr>
 <tr class="row-even"><td><p>Elasticity</p></td>
 <td><p>❌</p></td>
@@ -463,8 +460,8 @@ status but does not provide the complete original AppSpec.
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler.describe">
-<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.DescribeAppResponse" title="torchx.schedulers.api.DescribeAppResponse"><span class="pre">DescribeAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler.describe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.DescribeAppResponse" title="torchx.schedulers.api.DescribeAppResponse"><span class="pre">DescribeAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchScheduler.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.describe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Describes the specified application.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -474,16 +471,16 @@ status but does not provide the complete original AppSpec.
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler.list">
-<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.ListAppResponse" title="torchx.schedulers.api.ListAppResponse"><span class="pre">ListAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler.list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../schedulers.html#torchx.schedulers.api.ListAppResponse" title="torchx.schedulers.api.ListAppResponse"><span class="pre">ListAppResponse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchScheduler.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>For apps launched on the scheduler, this API returns a list of ListAppResponse
 objects each of which have app id and its status.
 Note: This API is in prototype phase and is subject to change.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler.log_iter">
-<span class="sig-name descname"><span class="pre">log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Stream</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.11)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler.log_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler.log_iter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.log_iter">
+<span class="sig-name descname"><span class="pre">log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Stream</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.11)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchScheduler.log_iter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.log_iter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an iterator to the log lines of the <code class="docutils literal notranslate"><span class="pre">k``th</span> <span class="pre">replica</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">``role</span></code>.
 The iterator ends when all qualifying log lines have been read.</p>
 <p>If the scheduler supports time-based cursors fetching log lines
@@ -551,8 +548,15 @@ throw an ValueError.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerScheduler.schedule">
-<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.docker_scheduler.DockerJob" title="torchx.schedulers.docker_scheduler.DockerJob"><span class="pre">DockerJob</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerScheduler.schedule" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.run_opts">
+<span class="sig-name descname"><span class="pre">run_opts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../specs.html#torchx.specs.runopts" title="torchx.specs.api.runopts"><span class="pre">runopts</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchScheduler.run_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.run_opts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the run configuration options expected by the scheduler.
+Basically a <code class="docutils literal notranslate"><span class="pre">--help</span></code> for the <code class="docutils literal notranslate"><span class="pre">run</span></code> API.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.schedule">
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchJob" title="torchx.schedulers.gcp_batch_scheduler.GCPBatchJob"><span class="pre">GCPBatchJob</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
 Implementors are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
@@ -566,25 +570,15 @@ implemented by:</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerJob">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.docker_scheduler.</span></span><span class="sig-name descname"><span class="pre">DockerJob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">containers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.docker_scheduler.DockerContainer" title="torchx.schedulers.docker_scheduler.DockerContainer"><span class="pre">torchx.schedulers.docker_scheduler.DockerContainer</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerJob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerJob" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.GCPBatchJob">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.gcp_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">GCPBatchJob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'batch_v1.Job'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#GCPBatchJob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchJob" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <section id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.create_scheduler">
-<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.docker_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.schedulers.docker_scheduler.DockerScheduler" title="torchx.schedulers.docker_scheduler.DockerScheduler"><span class="pre">DockerScheduler</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.DockerContainer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchx.schedulers.docker_scheduler.</span></span><span class="sig-name descname"><span class="pre">DockerContainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#DockerContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.DockerContainer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="torchx.schedulers.docker_scheduler.has_docker">
-<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.docker_scheduler.</span></span><span class="sig-name descname"><span class="pre">has_docker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/docker_scheduler.html#has_docker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.docker_scheduler.has_docker" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="torchx.schedulers.gcp_batch_scheduler.create_scheduler">
+<span class="sig-prename descclassname"><span class="pre">torchx.schedulers.gcp_batch_scheduler.</span></span><span class="sig-name descname"><span class="pre">create_scheduler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><span class="pre">object</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler" title="torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler"><span class="pre">GCPBatchScheduler</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/gcp_batch_scheduler.html#create_scheduler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.gcp_batch_scheduler.create_scheduler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -598,10 +592,10 @@ implemented by:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="kubernetes.html" class="btn btn-neutral float-right" title="Kubernetes" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="../pipelines/kfp.html" class="btn btn-neutral float-right" title="Kubeflow Pipelines" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="local.html" class="btn btn-neutral" title="Local" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="lsf.html" class="btn btn-neutral" title="IBM Spectrum LSF" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -633,7 +627,8 @@ implemented by:</p>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Docker</a><ul>
+<li><a class="reference internal" href="#">GCP Batch</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li><a class="reference internal" href="#reference">Reference</a></li>
 </ul>
 </li>
