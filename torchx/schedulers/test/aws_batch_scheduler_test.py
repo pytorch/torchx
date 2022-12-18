@@ -94,10 +94,9 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         self.assertIsInstance(scheduler, AWSBatchScheduler)
 
     def test_submit_dryrun_with_share_id(self) -> None:
-        scheduler = create_scheduler("test")
         app = _test_app()
         cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "fooshare"})
-        info = scheduler._submit_dryrun(app, cfg)
+        info = create_scheduler("test").submit_dryrun(app, cfg)
 
         req = info.request
         job_def = req.job_def
@@ -105,30 +104,40 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         # must be set for jobs submitted to a queue with scheduling policy
         self.assertEqual(job_def["schedulingPriority"], 0)
 
-    def test_submit_dryrun_with_priority(self) -> None:
-        scheduler = create_scheduler("test")
-        app = _test_app()
-
+    def test_submit_dryrun_with_priority_but_not_share_id(self) -> None:
         with self.assertRaisesRegex(ValueError, "config value.*priority.*share_id"):
             cfg = AWSBatchOpts({"queue": "testqueue", "priority": 42})
-            info = scheduler._submit_dryrun(app, cfg)
+            create_scheduler("test").submit_dryrun(_test_app(), cfg)
 
-        cfg = AWSBatchOpts(
-            {"queue": "testqueue", "share_id": "fooshare", "priority": 42}
-        )
-        info = scheduler._submit_dryrun(app, cfg)
+    def test_submit_dryrun_with_priority(self) -> None:
+        cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "foo", "priority": 42})
+        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
 
         req = info.request
         job_def = req.job_def
-        self.assertEqual(req.share_id, "fooshare")
+        self.assertEqual(req.share_id, "foo")
         self.assertEqual(job_def["schedulingPriority"], 42)
+
+    @patch(
+        "torchx.schedulers.aws_batch_scheduler.getpass.getuser", return_value="testuser"
+    )
+    def test_submit_dryrun_tags(self, _) -> None:
+        # intentionally not specifying user in cfg to test default
+        cfg = AWSBatchOpts({"queue": "ignored_in_test"})
+        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        self.assertEqual(
+            {
+                "torchx.pytorch.org/version": torchx.__version__,
+                "torchx.pytorch.org/app-name": "test",
+                "torchx.pytorch.org/user": "testuser",
+            },
+            info.request.job_def["tags"],
+        )
 
     @mock_rand()
     def test_submit_dryrun(self) -> None:
-        scheduler = create_scheduler("test")
-        app = _test_app()
-        cfg = AWSBatchOpts({"queue": "testqueue"})
-        info = scheduler._submit_dryrun(app, cfg)
+        cfg = AWSBatchOpts({"queue": "testqueue", "user": "testuser"})
+        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
 
         req = info.request
         self.assertEqual(req.share_id, None)
@@ -248,6 +257,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 "tags": {
                     "torchx.pytorch.org/version": torchx.__version__,
                     "torchx.pytorch.org/app-name": "test",
+                    "torchx.pytorch.org/user": "testuser",
                 },
             },
         )
@@ -440,13 +450,13 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                         {
                             "jobArn": "arn:aws:batch:us-west-2:495572122715:job/6afc27d7-3559-43ca-89fd-1007b6bf2546",
                             "jobId": "6afc27d7-3559-43ca-89fd-1007b6bf2546",
-                            "jobName": "echo-v1r560pmwn5t3c",
+                            "jobName": "app-name-42",
                             "createdAt": 1643949940162,
                             "status": "SUCCEEDED",
                             "stoppedAt": 1643950324125,
                             "container": {"exitCode": 0},
                             "nodeProperties": {"numNodes": 2},
-                            "jobDefinition": "arn:aws:batch:us-west-2:495572122715:job-definition/echo-v1r560pmwn5t3c:1",
+                            "jobDefinition": "arn:aws:batch:us-west-2:495572122715:job-definition/app-name-42:1",
                         }
                     ]
                 }
@@ -568,11 +578,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     def test_submit(self) -> None:
         scheduler = self._mock_scheduler()
         app = _test_app()
-        cfg = AWSBatchOpts(
-            {
-                "queue": "testqueue",
-            }
-        )
+        cfg = AWSBatchOpts({"queue": "testqueue"})
 
         info = scheduler._submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
@@ -610,34 +616,35 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     def test_list(self) -> None:
         scheduler = self._mock_scheduler()
         expected_apps = [
-            ListAppResponse(
-                app_id="torchx:echo-v1r560pmwn5t3c", state=AppState.SUCCEEDED
-            )
+            ListAppResponse(app_id="torchx:app-name-42", state=AppState.SUCCEEDED)
         ]
         apps = scheduler.list()
-        self.assertEqual(apps, expected_apps)
+        self.assertEqual(expected_apps, apps)
+
+    def test_list_no_jobs(self) -> None:
+        scheduler = AWSBatchScheduler("test", client=MagicMock())
+        scheduler._client.get_paginator.side_effect = MockPaginator(
+            describe_job_queues=[
+                {
+                    "jobQueues": [
+                        {"jobQueueName": "torchx", "state": "ENABLED"},
+                    ],
+                }
+            ],
+            list_jobs=[{"jobSummaryList": []}],
+        )
+
+        self.assertEqual([], scheduler.list())
 
     def test_log_iter(self) -> None:
         scheduler = self._mock_scheduler()
         logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
-        self.assertEqual(
-            list(logs),
-            [
-                "foo\n",
-                "foobar\n",
-            ],
-        )
+        self.assertEqual(list(logs), ["foo\n", "foobar\n"])
 
     def test_log_iter_running_job(self) -> None:
         scheduler = self._mock_scheduler_running_job()
         logs = scheduler.log_iter("testqueue:app-name-42", "echo", k=1, regex="foo.*")
-        self.assertEqual(
-            [
-                "foo\n",
-                "foobar\n",
-            ],
-            list(logs),
-        )
+        self.assertEqual(["foo\n", "foobar\n"], list(logs))
 
     def test_local_session(self) -> None:
         a: object = _local_session()
