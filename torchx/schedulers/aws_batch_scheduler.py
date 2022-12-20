@@ -34,7 +34,7 @@ See
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository
 for how to create a image repository.
 """
-
+import getpass
 import re
 import threading
 from dataclasses import dataclass
@@ -78,6 +78,11 @@ from torchx.specs.api import (
 )
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
+
+TAG_TORCHX_VER = "torchx.pytorch.org/version"
+TAG_TORCHX_APPNAME = "torchx.pytorch.org/app-name"
+TAG_TORCHX_USER = "torchx.pytorch.org/user"
+
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -244,6 +249,7 @@ def _local_session() -> "boto3.session.Session":
 
 class AWSBatchOpts(TypedDict, total=False):
     queue: str
+    user: str
     image_repo: Optional[str]
     share_id: Optional[str]
     priority: Optional[int]
@@ -417,8 +423,9 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     ],
                 },
                 "tags": {
-                    "torchx.pytorch.org/version": torchx.__version__,
-                    "torchx.pytorch.org/app-name": app.name,
+                    TAG_TORCHX_VER: torchx.__version__,
+                    TAG_TORCHX_APPNAME: app.name,
+                    TAG_TORCHX_USER: cfg.get("user"),
                 },
             },
             **(
@@ -455,6 +462,12 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add("queue", type_=str, help="queue to schedule job in", required=True)
+        opts.add(
+            "user",
+            type_=str,
+            default=getpass.getuser(),
+            help="The username to tag the job with. `getpass.getuser()` if not specified.",
+        )
         opts.add(
             "share_id",
             type_=str,
@@ -582,36 +595,50 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         for resp in self._client.get_paginator("describe_job_queues").paginate():
             queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
             for qn in queue_names:
-                apps_in_queue = self._list_by_queue(qn)
-                all_apps += [
-                    ListAppResponse(
-                        app_id=f"{qn}:{app['jobName']}",
-                        state=JOB_STATE[app["status"]],
-                    )
-                    for app in apps_in_queue
-                ]
+                all_apps.extend(self._list_by_queue(qn))
         return all_apps
 
-    def _list_by_queue(self, queue_name: str) -> List[Dict[str, Any]]:
-        # By default only running jobs are listed by batch/boto client's list_jobs API
+    def _list_by_queue(self, queue_name: str) -> List[ListAppResponse]:
+        # By default, only running jobs are listed by batch/boto client's list_jobs API
         # When 'filters' parameter is specified, jobs with all statuses are listed
         # So use AFTER_CREATED_AT filter to list jobs in all statuses
         # milli_seconds_after_epoch can later be used to list jobs by timeframe
-        milli_seconds_after_epoch = "1"
-        job_summary_list = []
+        MS_AFTER_EPOCH = "1"
+        EVERY_STATUS = {"name": "AFTER_CREATED_AT", "values": [MS_AFTER_EPOCH]}
+
+        jobs = []
         for resp in self._client.get_paginator("list_jobs").paginate(
             jobQueue=queue_name,
-            filters=[
-                {
-                    "name": "AFTER_CREATED_AT",
-                    "values": [
-                        milli_seconds_after_epoch,
-                    ],
-                },
-            ],
+            filters=[EVERY_STATUS],
+            # describe-jobs API can take up to 100 jobIds
+            PaginationConfig={"MaxItems": 100},
         ):
-            job_summary_list.extend(resp["jobSummaryList"])
-        return job_summary_list
+
+            # torchx.pytorch.org/version tag is used to filter torchx jobs
+            # list_jobs() API only returns a job summary which does not include the job's tag
+            # so we need to call the describe_jobs API.
+            # Ideally batch lets us pass tags as a filter to list_jobs API
+            # but this is currently not supported
+            job_ids = [js["jobId"] for js in resp["jobSummaryList"]]
+            for jobdesc in self._get_torchx_submitted_jobs(job_ids):
+                jobs.append(
+                    ListAppResponse(
+                        app_id=f"{queue_name}:{jobdesc['jobName']}",
+                        state=JOB_STATE[jobdesc["status"]],
+                    )
+                )
+
+        return jobs
+
+    def _get_torchx_submitted_jobs(self, job_ids: List[str]) -> List[Dict[str, Any]]:
+        if not job_ids:
+            return []
+
+        return [
+            jobdesc
+            for jobdesc in self._client.describe_jobs(jobs=job_ids)["jobs"]
+            if TAG_TORCHX_VER in jobdesc["tags"]
+        ]
 
     def _stream_events(
         self,

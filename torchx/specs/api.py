@@ -794,7 +794,7 @@ class runopts:
 
     def cfg_from_str(self, cfg_str: str) -> Dict[str, CfgVal]:
         """
-        Parses scheduler ``runcfg`` from a string literal and returns
+        Parses scheduler ``cfg`` from a string literal and returns
         a cfg map where the cfg values have been cast into the appropriate
         types as specified by this runopts object. Unknown keys are ignored
         and not returned in the resulting map.
