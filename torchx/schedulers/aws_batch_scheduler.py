@@ -55,6 +55,8 @@ from typing import (
 
 import torchx
 import yaml
+
+from botocore.exceptions import NoRegionError
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -88,7 +90,7 @@ if TYPE_CHECKING:
     from docker import DockerClient
 
 JOB_STATE: Dict[str, AppState] = {
-    "SUBMITTED": AppState.PENDING,
+    "SUBMITTED": AppState.SUBMITTED,
     "PENDING": AppState.PENDING,
     "RUNNABLE": AppState.PENDING,
     "STARTING": AppState.PENDING,
@@ -240,19 +242,32 @@ def _thread_local_cache(f: Callable[[], T]) -> Callable[[], T]:
     return wrapper
 
 
-@_thread_local_cache
-def _local_session() -> "boto3.session.Session":
+def _local_session(region: str = None) -> "boto3.session.Session":
     import boto3.session
 
-    return boto3.session.Session()
+    return boto3.session.Session(region_name=region)
+
+
+@_thread_local_cache
+def _local_session_region(region: str = None) -> str:
+    import boto3.session
+
+    return boto3.session.Session(region_name=region).region_name
+
+
+@_thread_local_cache
+def _local_sessions_available_regions() -> List[str]:
+    import boto3.session
+
+    return boto3.session.Session().get_available_regions("batch")
 
 
 class AWSBatchOpts(TypedDict, total=False):
+    region: str
     queue: str
     user: str
     image_repo: Optional[str]
     share_id: Optional[str]
-    priority: Optional[int]
 
 
 class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
@@ -329,7 +344,11 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     def _client(self) -> Any:
         if self.__client:
             return self.__client
-        return _local_session().client("batch")
+        else:
+            return _local_session().client("batch")
+
+    def _regional_client(self, aws_region: str = None) -> "boto3.session.Session":
+        return _local_session(region=aws_region).client("batch")
 
     @property
     # pyre-fixme[3]: Return annotation cannot be `Any`.
@@ -346,7 +365,9 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         self.push_images(images_to_push)
 
         req = dryrun_info.request
-        self._client.register_job_definition(**req.job_def)
+        self._regional_client(aws_region=cfg["region"]).register_job_definition(
+            **req.job_def
+        )
 
         batch_job_req = {
             **{
@@ -357,9 +378,9 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             },
             **({"shareIdentifier": req.share_id} if req.share_id is not None else {}),
         }
-        self._client.submit_job(**batch_job_req)
+        self._regional_client(aws_region=cfg["region"]).submit_job(**batch_job_req)
 
-        return f"{req.queue}:{req.name}"
+        return f"{cfg['region']}:{req.queue}:{req.name}"
 
     def _submit_dryrun(self, app: AppDef, cfg: AWSBatchOpts) -> AppDryRunInfo[BatchJob]:
         queue = cfg.get("queue")
@@ -373,6 +394,13 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                 "config value 'priority' takes no effect for job queues without a scheduling policy "
                 "(implied by 'share_id' not being set)"
             )
+
+        region = cfg.get("region")
+        if not region:
+            try:
+                region = self._client.meta.region_name
+            except NoRegionError:
+                raise ValueError("Region must be specified in config or environment")
 
         name_suffix = f"-{share_id}" if share_id is not None else ""
         name = make_unique(f"{app.name}{name_suffix}")
@@ -450,13 +478,15 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
 
     def _cancel_existing(self, app_id: str) -> None:
         job_id = self._get_job_id(app_id)
-        self._client.terminate_job(
+        job_region = self._get_job_region(app_id)
+        self._regional_client(job_region).terminate_job(
             jobId=job_id,
             reason="killed via torchx CLI",
         )
 
     def _run_opts(self) -> runopts:
         opts = runopts()
+        opts.add("region", type_=str, help="AWS region to run job in")
         opts.add("queue", type_=str, help="queue to schedule job in", required=True)
         opts.add(
             "user",
@@ -480,26 +510,34 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         return opts
 
     def _get_job_id(self, app_id: str) -> Optional[str]:
-        queue, name = app_id.split(":")
+        region, queue, name = app_id.split(":")
 
-        for resp in self._client.get_paginator("list_jobs").paginate(
-            jobQueue=queue,
-            filters=[{"name": "JOB_NAME", "values": [name]}],
+        for resp in (
+            self._regional_client(aws_region=region)
+            .get_paginator("list_jobs")
+            .paginate(
+                jobQueue=queue,
+                filters=[{"name": "JOB_NAME", "values": [name]}],
+            )
         ):
             job_summary_list = resp["jobSummaryList"]
             if job_summary_list:
                 return job_summary_list[0]["jobArn"]
         return None
 
+    def _get_job_region(self, app_id: str) -> str:
+        return app_id.split(":")[0]
+
     def _get_job(
         self, app_id: str, rank: Optional[int] = None
     ) -> Optional[Dict[str, Any]]:
         job_id = self._get_job_id(app_id)
+        job_region = self._get_job_region(app_id)
         if not job_id:
             return None
         if rank is not None:
             job_id += f"#{rank}"
-        jobs = self._client.describe_jobs(jobs=[job_id])["jobs"]
+        jobs = self._regional_client(job_region).describe_jobs(jobs=[job_id])["jobs"]
         if len(jobs) == 0:
             return None
         return jobs[0]
@@ -588,13 +626,26 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     def list(self) -> List[ListAppResponse]:
         # TODO: get queue name input instead of iterating over all queues?
         all_apps = []
-        for resp in self._client.get_paginator("describe_job_queues").paginate():
-            queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
-            for qn in queue_names:
-                all_apps.extend(self._list_by_queue(qn))
+        regions = _local_sessions_available_regions()
+        for region in regions:
+            for resp in (
+                self._regional_client(aws_region=region)
+                .get_paginator("describe_job_queues")
+                .paginate()
+            ):
+                queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
+                for qn in queue_names:
+                    apps_in_queue = self._list_by_queue(qn, region)
+                    all_apps += [
+                        ListAppResponse(
+                            app_id=f"{qn}:{app['jobName']}",
+                            state=JOB_STATE[app["status"]],
+                        )
+                        for app in apps_in_queue
+                    ]
         return all_apps
 
-    def _list_by_queue(self, queue_name: str) -> List[ListAppResponse]:
+    def _list_by_queue(self, queue_name: str, region) -> List[Dict[str, Any]]:
         # By default, only running jobs are listed by batch/boto client's list_jobs API
         # When 'filters' parameter is specified, jobs with all statuses are listed
         # So use AFTER_CREATED_AT filter to list jobs in all statuses
@@ -603,7 +654,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         EVERY_STATUS = {"name": "AFTER_CREATED_AT", "values": [MS_AFTER_EPOCH]}
 
         jobs = []
-        for resp in self._client.get_paginator("list_jobs").paginate(
+        for resp in self._regional_client(aws_region=region).get_paginator("list_jobs").paginate(
             jobQueue=queue_name,
             filters=[EVERY_STATUS],
             # describe-jobs API can take up to 100 jobIds
