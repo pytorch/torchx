@@ -428,7 +428,7 @@
 <span class="sd">https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository</span>
 <span class="sd">for how to create a image repository.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
@@ -472,6 +472,11 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+
+<span class="n">TAG_TORCHX_VER</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
+<span class="n">TAG_TORCHX_APPNAME</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/app-name&quot;</span>
+<span class="n">TAG_TORCHX_USER</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/user&quot;</span>
+
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
@@ -638,6 +643,7 @@
 
 <span class="k">class</span> <span class="nc">AWSBatchOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">share_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">priority</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
@@ -811,8 +817,9 @@
                     <span class="p">],</span>
                 <span class="p">},</span>
                 <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;torchx.pytorch.org/version&quot;</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
-                    <span class="s2">&quot;torchx.pytorch.org/app-name&quot;</span><span class="p">:</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">TAG_TORCHX_VER</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
+                    <span class="n">TAG_TORCHX_APPNAME</span><span class="p">:</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">TAG_TORCHX_USER</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">},</span>
             <span class="o">**</span><span class="p">(</span>
@@ -849,6 +856,12 @@
     <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;queue to schedule job in&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">(),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The username to tag the job with. `getpass.getuser()` if not specified.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;share_id&quot;</span><span class="p">,</span>
             <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -976,36 +989,50 @@
         <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&quot;describe_job_queues&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paginate</span><span class="p">():</span>
             <span class="n">queue_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">queue</span><span class="p">[</span><span class="s2">&quot;jobQueueName&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">queue</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;jobQueues&quot;</span><span class="p">]]</span>
             <span class="k">for</span> <span class="n">qn</span> <span class="ow">in</span> <span class="n">queue_names</span><span class="p">:</span>
-                <span class="n">apps_in_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_by_queue</span><span class="p">(</span><span class="n">qn</span><span class="p">)</span>
-                <span class="n">all_apps</span> <span class="o">+=</span> <span class="p">[</span>
-                    <span class="n">ListAppResponse</span><span class="p">(</span>
-                        <span class="n">app_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qn</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">app</span><span class="p">[</span><span class="s1">&#39;jobName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                        <span class="n">state</span><span class="o">=</span><span class="n">JOB_STATE</span><span class="p">[</span><span class="n">app</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]],</span>
-                    <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">app</span> <span class="ow">in</span> <span class="n">apps_in_queue</span>
-                <span class="p">]</span>
+                <span class="n">all_apps</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list_by_queue</span><span class="p">(</span><span class="n">qn</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">all_apps</span></div>
 
-    <span class="k">def</span> <span class="nf">_list_by_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="c1"># By default only running jobs are listed by batch/boto client&#39;s list_jobs API</span>
+    <span class="k">def</span> <span class="nf">_list_by_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+        <span class="c1"># By default, only running jobs are listed by batch/boto client&#39;s list_jobs API</span>
         <span class="c1"># When &#39;filters&#39; parameter is specified, jobs with all statuses are listed</span>
         <span class="c1"># So use AFTER_CREATED_AT filter to list jobs in all statuses</span>
         <span class="c1"># milli_seconds_after_epoch can later be used to list jobs by timeframe</span>
-        <span class="n">milli_seconds_after_epoch</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-        <span class="n">job_summary_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">MS_AFTER_EPOCH</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+        <span class="n">EVERY_STATUS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AFTER_CREATED_AT&quot;</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">MS_AFTER_EPOCH</span><span class="p">]}</span>
+
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&quot;list_jobs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paginate</span><span class="p">(</span>
             <span class="n">jobQueue</span><span class="o">=</span><span class="n">queue_name</span><span class="p">,</span>
-            <span class="n">filters</span><span class="o">=</span><span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AFTER_CREATED_AT&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
-                        <span class="n">milli_seconds_after_epoch</span><span class="p">,</span>
-                    <span class="p">],</span>
-                <span class="p">},</span>
-            <span class="p">],</span>
+            <span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="n">EVERY_STATUS</span><span class="p">],</span>
+            <span class="c1"># describe-jobs API can take up to 100 jobIds</span>
+            <span class="n">PaginationConfig</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;MaxItems&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
         <span class="p">):</span>
-            <span class="n">job_summary_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resp</span><span class="p">[</span><span class="s2">&quot;jobSummaryList&quot;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">job_summary_list</span>
+
+            <span class="c1"># torchx.pytorch.org/version tag is used to filter torchx jobs</span>
+            <span class="c1"># list_jobs() API only returns a job summary which does not include the job&#39;s tag</span>
+            <span class="c1"># so we need to call the describe_jobs API.</span>
+            <span class="c1"># Ideally batch lets us pass tags as a filter to list_jobs API</span>
+            <span class="c1"># but this is currently not supported</span>
+            <span class="n">job_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">js</span><span class="p">[</span><span class="s2">&quot;jobId&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">js</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;jobSummaryList&quot;</span><span class="p">]]</span>
+            <span class="k">for</span> <span class="n">jobdesc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_torchx_submitted_jobs</span><span class="p">(</span><span class="n">job_ids</span><span class="p">):</span>
+                <span class="n">jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ListAppResponse</span><span class="p">(</span>
+                        <span class="n">app_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">queue_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">jobdesc</span><span class="p">[</span><span class="s1">&#39;jobName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">state</span><span class="o">=</span><span class="n">JOB_STATE</span><span class="p">[</span><span class="n">jobdesc</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]],</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">jobs</span>
+
+    <span class="k">def</span> <span class="nf">_get_torchx_submitted_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">job_ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">jobdesc</span>
+            <span class="k">for</span> <span class="n">jobdesc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">describe_jobs</span><span class="p">(</span><span class="n">jobs</span><span class="o">=</span><span class="n">job_ids</span><span class="p">)[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">TAG_TORCHX_VER</span> <span class="ow">in</span> <span class="n">jobdesc</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_stream_events</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

@@ -431,20 +431,22 @@ $ torchx status aws_batch://torchx_user/1234
 <p>Authentication is loaded from the environment using the <code class="docutils literal notranslate"><span class="pre">boto3</span></code> credential
 handling.</p>
 <p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span><span class="p">,[</span><span class="n">share_id</span><span class="o">=</span><span class="n">SHARE_ID</span><span class="p">],[</span><span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY</span><span class="p">],[</span><span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
+        queue=QUEUE,[user=USER],[share_id=SHARE_ID],[priority=PRIORITY],[image_repo=IMAGE_REPO]
 
-    <span class="n">required</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span> <span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-            <span class="n">queue</span> <span class="n">to</span> <span class="n">schedule</span> <span class="n">job</span> <span class="ow">in</span>
+    required arguments:
+        queue=QUEUE (str)
+            queue to schedule job in
 
-    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">share_id</span><span class="o">=</span><span class="n">SHARE_ID</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">The</span> <span class="n">share</span> <span class="n">identifier</span> <span class="k">for</span> <span class="n">the</span> <span class="n">job</span><span class="o">.</span> <span class="n">This</span> <span class="n">must</span> <span class="n">be</span> <span class="nb">set</span> <span class="k">if</span> <span class="ow">and</span> <span class="n">only</span> <span class="k">if</span> <span class="n">the</span> <span class="n">job</span> <span class="n">queue</span> <span class="n">has</span> <span class="n">a</span> <span class="n">scheduling</span> <span class="n">policy</span><span class="o">.</span>
-        <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">The</span> <span class="n">scheduling</span> <span class="n">priority</span> <span class="k">for</span> <span class="n">the</span> <span class="n">job</span> <span class="n">within</span> <span class="n">the</span> <span class="n">context</span> <span class="n">of</span> <span class="n">share_id</span><span class="o">.</span> <span class="n">Higher</span> <span class="n">number</span> <span class="p">(</span><span class="n">between</span> <span class="mi">0</span> <span class="ow">and</span> <span class="mi">9999</span><span class="p">)</span> <span class="n">means</span> <span class="n">higher</span> <span class="n">priority</span><span class="o">.</span> <span class="n">This</span> <span class="n">will</span> <span class="n">only</span> <span class="n">take</span> <span class="n">effect</span> <span class="k">if</span> <span class="n">the</span> <span class="n">job</span> <span class="n">queue</span> <span class="n">has</span> <span class="n">a</span> <span class="n">scheduling</span> <span class="n">policy</span><span class="o">.</span>
-        <span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="p">(</span><span class="n">remote</span> <span class="n">jobs</span><span class="p">)</span> <span class="n">the</span> <span class="n">image</span> <span class="n">repository</span> <span class="n">to</span> <span class="n">use</span> <span class="n">when</span> <span class="n">pushing</span> <span class="n">patched</span> <span class="n">images</span><span class="p">,</span> <span class="n">must</span> <span class="n">have</span> <span class="n">push</span> <span class="n">access</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">container</span>
+    optional arguments:
+        user=USER (str, runner)
+            The username to tag the job with. `getpass.getuser()` if not specified.
+        share_id=SHARE_ID (str, None)
+            The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
+        priority=PRIORITY (int, None)
+            The scheduling priority for the job within the context of share_id. Higher number (between 0 and 9999) means higher priority. This will only take effect if the job queue has a scheduling policy.
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
 </pre></div>
 </div>
 <p><strong>Mounts</strong></p>
