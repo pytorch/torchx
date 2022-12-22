@@ -707,11 +707,7 @@
             <span class="n">job_def</span><span class="o">=</span><span class="n">job</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">info</span> <span class="o">=</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
-        <span class="n">info</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
-        <span class="c1"># pyre-fixme: AppDryRunInfo</span>
-        <span class="n">info</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">cfg</span>
-        <span class="k">return</span> <span class="n">info</span>
+        <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GCPBatchScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
