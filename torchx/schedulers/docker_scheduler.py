@@ -302,11 +302,7 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                     ]
                 req.containers.append(c)
 
-        info = AppDryRunInfo(req, repr)
-        info._app = app
-        # pyre-fixme: AppDryRunInfo
-        info._cfg = cfg
-        return info
+        return AppDryRunInfo(req, repr)
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step

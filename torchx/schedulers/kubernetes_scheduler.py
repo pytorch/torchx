@@ -615,11 +615,7 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             resource=resource,
             images_to_push=images_to_push,
         )
-        info = AppDryRunInfo(req, repr)
-        info._app = app
-        # pyre-fixme: AppDryRunInfo
-        info._cfg = cfg
-        return info
+        return AppDryRunInfo(req, repr)
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
