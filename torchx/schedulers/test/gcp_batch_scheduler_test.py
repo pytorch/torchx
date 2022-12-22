@@ -69,7 +69,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         proj = "test-proj"
         loc = "us-west-1"
         cfg = GCPBatchOpts(project=proj, location=loc)
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
 
         req = info.request
         self.assertEqual(req.project, proj)
@@ -149,7 +149,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         app.roles[0].resource.gpu = 3
         cfg = GCPBatchOpts(project="test-proj", location="us-west-1")
         with self.assertRaises(ValueError):
-            scheduler._submit_dryrun(app, cfg)
+            scheduler.submit_dryrun(app, cfg)
 
     def test_app_id_to_job_full_name(self) -> None:
         scheduler = create_scheduler("test")
@@ -369,7 +369,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         # pyre-fixme: GCPBatchOpts type passed to resolve
         resolved_cfg = scheduler.run_opts().resolve(cfg)
         # pyre-fixme: _submit_dryrun expects GCPBatchOpts
-        info = scheduler._submit_dryrun(app, resolved_cfg)
+        info = scheduler.submit_dryrun(app, resolved_cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "test-proj:us-central1:app-name-42")
         self.assertEqual(scheduler._client.create_job.call_count, 1)

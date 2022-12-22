@@ -442,11 +442,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             job_def=job_def,
             images_to_push=images_to_push,
         )
-        info = AppDryRunInfo(req, repr)
-        info._app = app
-        # pyre-fixme: AppDryRunInfo
-        info._cfg = cfg
-        return info
+        return AppDryRunInfo(req, repr)
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step

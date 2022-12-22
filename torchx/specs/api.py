@@ -657,7 +657,7 @@ class AppDryRunInfo(Generic[T]):
         # Scheduler or Session implementations
         # and are back references to the parameters
         # to dryrun() that returned this AppDryRunInfo object
-        # thus they are set in Session.dryrun() and Scheduler.submit_dryrun()
+        # thus they are set in Runner.dryrun() and Scheduler.submit_dryrun()
         # manually rather than through constructor arguments
         # DO NOT create getters or make these public
         # unless there is a good reason to

@@ -213,7 +213,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
-            info = scheduler._submit_dryrun(app, cfg)
+            info = scheduler.submit_dryrun(app, cfg)
 
         resource = str(info.request)
 
@@ -460,9 +460,8 @@ spec:
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
-            info = scheduler._submit_dryrun(app, cfg)
+            info = scheduler.submit_dryrun(app, cfg)
 
-        # pyre-fixme[16]; `object` has no attribute `__getitem__`.
         tasks = info.request.resource["spec"]["tasks"]
         container0 = tasks[0]["template"].spec.containers[0]
         self.assertIn("TORCHX_RANK0_HOST", container0.command)
@@ -486,7 +485,7 @@ spec:
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
-            info = scheduler._submit_dryrun(app, cfg)
+            info = scheduler.submit_dryrun(app, cfg)
 
         self.assertIn("example.com/some/repo:testhash", str(info.request.resource))
         self.assertEqual(
@@ -509,11 +508,11 @@ spec:
                 "service_account": "srvacc",
             }
         )
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("'service_account_name': 'srvacc'", str(info.request.resource))
 
         del cfg["service_account"]
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("service_account_name': None", str(info.request.resource))
 
     def test_submit_dryrun_priority_class(self) -> None:
@@ -527,11 +526,11 @@ spec:
             }
         )
 
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("'priorityClassName': 'high'", str(info.request.resource))
 
         del cfg["priority_class"]
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertNotIn("'priorityClassName'", str(info.request.resource))
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
@@ -548,7 +547,7 @@ spec:
             }
         )
 
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "testnamespace:testid")
         call = create_namespaced_custom_object.call_args
@@ -577,7 +576,7 @@ spec:
                 "queue": "testqueue",
             }
         )
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         with self.assertRaises(ValueError):
             scheduler.schedule(info)
 
@@ -895,4 +894,4 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
         )
 
         with self.assertRaises(ModuleNotFoundError):
-            scheduler._submit_dryrun(app, cfg)
+            scheduler.submit_dryrun(app, cfg)

@@ -313,11 +313,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             job_def=job,
         )
 
-        info = AppDryRunInfo(req, repr)
-        info._app = app
-        # pyre-fixme: AppDryRunInfo
-        info._cfg = cfg
-        return info
+        return AppDryRunInfo(req, repr)
 
     def run_opts(self) -> runopts:
         opts = runopts()
