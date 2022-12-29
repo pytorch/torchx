@@ -39,6 +39,7 @@ import re
 import threading
 from dataclasses import dataclass
 from datetime import datetime
+import logging
 from typing import (
     Any,
     Callable,
@@ -56,7 +57,7 @@ from typing import (
 import torchx
 import yaml
 
-from botocore.exceptions import NoRegionError
+from botocore import exceptions as boto_exceptions
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -81,10 +82,14 @@ from torchx.specs.api import (
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
+<<<<<<< HEAD
 TAG_TORCHX_VER = "torchx.pytorch.org/version"
 TAG_TORCHX_APPNAME = "torchx.pytorch.org/app-name"
 TAG_TORCHX_USER = "torchx.pytorch.org/user"
 
+=======
+logger: logging.Logger = logging.getLogger(__name__)
+>>>>>>> 7f482731 (Fixing Backwards Compat and List)
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -510,7 +515,12 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         return opts
 
     def _get_job_id(self, app_id: str) -> Optional[str]:
-        region, queue, name = app_id.split(":")
+        parts = app_id.split(":")
+        if len(parts) == 3:
+            region, queue, name = app_id.split(":")
+        elif len(parts) == 2:
+            queue, name = app_id.split(":")
+            region = None
 
         for resp in (
             self._regional_client(aws_region=region)
@@ -526,7 +536,11 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         return None
 
     def _get_job_region(self, app_id: str) -> str:
-        return app_id.split(":")[0]
+        parts = app_id.split(":")
+        if len(parts) == 3:
+            return app_id.split(":")[0]
+        elif len(parts) == 2:
+            return None
 
     def _get_job(
         self, app_id: str, rank: Optional[int] = None
@@ -628,21 +642,30 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         all_apps = []
         regions = _local_sessions_available_regions()
         for region in regions:
-            for resp in (
-                self._regional_client(aws_region=region)
-                .get_paginator("describe_job_queues")
-                .paginate()
-            ):
-                queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
-                for qn in queue_names:
-                    apps_in_queue = self._list_by_queue(qn, region)
-                    all_apps += [
-                        ListAppResponse(
-                            app_id=f"{qn}:{app['jobName']}",
-                            state=JOB_STATE[app["status"]],
-                        )
-                        for app in apps_in_queue
-                    ]
+            try:
+                for resp in (
+                    self._regional_client(aws_region=region)
+                    .get_paginator("describe_job_queues")
+                    .paginate()
+                ):
+                    queue_names = [queue["jobQueueName"] for queue in resp["jobQueues"]]
+                    for qn in queue_names:
+                        apps_in_queue = self._list_by_queue(qn, region)
+                        all_apps += [
+                            ListAppResponse(
+                                app_id=f"{qn}:{app['jobName']}",
+                                state=JOB_STATE[app["status"]],
+                            )
+                            for app in apps_in_queue
+                        ]
+            except boto_exceptions.ClientError as e:
+                if e.response["Error"]["Code"] == "UnrecognizedClientException":
+                    logger.info(
+                        "AWSBatchScheduler does not have access to list jobs in region %s",
+                        region,
+                    )
+                else:
+                    raise
         return all_apps
 
     def _list_by_queue(self, queue_name: str, region) -> List[Dict[str, Any]]:
