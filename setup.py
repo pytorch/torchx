@@ -79,7 +79,7 @@ if __name__ == "__main__":
         },
         extras_require={
             "gcp_batch": [
-                "google-cloud-batch>=0.3.1",
+                "google-cloud-batch>=0.5.0",
                 "google-cloud-logging>=3.0.0",
                 "google-cloud-runtimeconfig>=0.33.2",
             ],
