@@ -82,14 +82,11 @@ from torchx.specs.api import (
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
-<<<<<<< HEAD
 TAG_TORCHX_VER = "torchx.pytorch.org/version"
 TAG_TORCHX_APPNAME = "torchx.pytorch.org/app-name"
 TAG_TORCHX_USER = "torchx.pytorch.org/user"
 
-=======
 logger: logging.Logger = logging.getLogger(__name__)
->>>>>>> 7f482731 (Fixing Backwards Compat and List)
 
 if TYPE_CHECKING:
     from docker import DockerClient
