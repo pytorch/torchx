@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## torchx-0.4.0
+
+* Milestone: https://github.com/pytorch/torchx/milestone/6
+
+* `torchx.schedulers`
+  * GCP Batch (Prototype)
+    * Newly added integration for easily scheduling jobs on GCP Batch.
+    * Features include:
+      * scheduling different types of components including DDP components
+      * scheduling on different compute resources (CPU, GPU)
+      * describing jobs including getting job status
+      * getting logs for jobs
+      * listing jobs
+      * cancelling jobs
+  * AWS Batch
+    * Listing jobs now returns just jobs launched on AWS Batch by TorchX and uses pagination to enable listing all jobs in all queues.
+    * Named resources now account for ECS and EC2 memtax, and suggests closest match when resource is not found.
+    * Named resources expanded to include all instance types for g4d, g5, p4d, p3 and trn1.
+
+* `torchx.workspace`
+  * Improve docker push logging to prevent log spamming when pushing for the first time
+
+* Additional Changes
+  * Remove classyvision from examples since it's no longer supported in OSS. Uses torchvision/torch dataset APIs instead of ClassyDataset.
+
+
 ## torchx-0.3.0
 
 * Milestone: https://github.com/pytorch/torchx/milestone/5
