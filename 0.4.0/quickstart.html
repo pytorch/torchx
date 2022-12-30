@@ -1,0 +1,1725 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quickstart &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI" href="cli.html" />
+    <link rel="prev" title="TorchX" href="index.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchx/">
+                  <span class="dropdown-title">TorchX</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  
+    <div id="redirect-banner" style="display: none">
+      <p>
+        This is the public documentation. There's an internal wiki with extra
+        information for Meta employees at
+        <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+      </p>
+    </div>
+  
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.4.0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.config.html">.torchxconfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_components.html">Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracker.html">torchx.tracker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipelines/kfp.html">Kubeflow Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines/airflow.html">Airflow</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/utils.html">Utils</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">torchx.workspace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_best_practices.html">Component Best Practices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Quickstart</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/quickstart.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Quickstart">
+<h1>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this heading">¶</a></h1>
+<p>This is a self contained guide on how to write a simple app and start launching distributed jobs on local and remote clusters.</p>
+<section id="Installation">
+<h2>Installation<a class="headerlink" href="#Installation" title="Permalink to this heading">¶</a></h2>
+<p>First thing we need to do is to install the TorchX python package which includes the CLI and the library.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># install torchx with all dependencies</span>
+$ pip install torchx<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://github.com/pytorch/torchx">README</a> for more information on installation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx --help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+usage: torchx [-h] [--log_level LOG_LEVEL] [--version]
+              {builtins,cancel,configure,describe,list,log,run,runopts,status,tracker}
+              ...
+
+torchx CLI
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --log_level LOG_LEVEL
+                        Python logging log level
+  --version             show program&#39;s version number and exit
+
+sub-commands:
+  Use the following commands to run operations, e.g.: torchx run ${JOB_NAME}
+
+  {builtins,cancel,configure,describe,list,log,run,runopts,status,tracker}
+</pre></div></div>
+</div>
+</section>
+<section id="Hello-World">
+<h2>Hello World<a class="headerlink" href="#Hello-World" title="Permalink to this heading">¶</a></h2>
+<p>Lets start off with writing a simple “Hello World” python app. This is just a normal python program and can contain anything you’d like.</p>
+<div class="admonition note"><div class="admonition-title"><p>Note</p>
+</div><p>This example uses Jupyter Notebook <code class="docutils literal notranslate"><span class="pre">%%writefile</span></code> to create local files for example purposes. Under normal usage you would have these as standalone files.</p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> my_app.py
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Overwriting my_app.py
+</pre></div></div>
+</div>
+</section>
+<section id="Launching">
+<h2>Launching<a class="headerlink" href="#Launching" title="Permalink to this heading">¶</a></h2>
+<p>We can execute our app via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span></code>. The <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler executes the app relative to the current directory.</p>
+<p>For this we’ll use the <code class="docutils literal notranslate"><span class="pre">utils.python</span></code> component:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx run --scheduler local_cwd utils.python --help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+usage: torchx run &lt;run args...&gt; python  [--help] [-m M] [-c C]
+                                        [--script SCRIPT] [--image IMAGE]
+                                        [--name NAME] [--cpu CPU] [--gpu GPU]
+                                        [--memMB MEMMB] [-h H]
+                                        [--num_replicas NUM_REPLICAS]
+                                        ...
+
+Runs ``python`` with the specified module, command or script on the specified
+...
+
+positional arguments:
+  args                  arguments passed to the program in sys.argv[1:]
+                        (ignored with `--c`) (required)
+
+optional arguments:
+  --help                show this help message and exit
+  -m M, --m M           run library module as a script (default: None)
+  -c C, --c C           program passed as string (may error if scheduler has a
+                        length limit on args) (default: None)
+  --script SCRIPT       .py script to run (default: None)
+  --image IMAGE         image to run on (default:
+                        ghcr.io/pytorch/torchx:0.4.0)
+  --name NAME           name of the job (default: torchx_utils_python)
+  --cpu CPU             number of cpus per replica (default: 1)
+  --gpu GPU             number of gpus per replica (default: 0)
+  --memMB MEMMB         cpu memory in MB per replica (default: 1024)
+  -h H, --h H           a registered named resource (if specified takes
+                        precedence over cpu, gpu, memMB) (default: None)
+  --num_replicas NUM_REPLICAS
+                        number of copies to run (each on its own container)
+                        (default: 1)
+</pre></div></div>
+</div>
+<p>The component takes in the script name and any extra arguments will be passed to the script itself.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2">&quot;your name&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2022-12-30 02:03:11 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2022-12-30 02:03:11 INFO     Log directory is: /tmp/torchx_5rwlu362
+torchx 2022-12-30 02:03:11 INFO     Waiting for the app to finish...
+python/0 Hello, your name!
+torchx 2022-12-30 02:03:12 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+local_cwd://torchx/torchx_utils_python-bh4vtj3gm4cx6c
+</pre></div></div>
+</div>
+<p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
+<div class="admonition note"><div class="admonition-title"><p>Note</p>
+</div><p>This requires Docker installed and won’t work in environments such as Google Colab. See the Docker install instructions: <a class="reference external" href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a></p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx run --scheduler local_docker utils.python --script my_app.py <span class="s2">&quot;your name&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2022-12-30 02:03:12 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-12-30 02:03:12 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-12-30 02:03:12 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2022-12-30 02:03:13 INFO     Building workspace docker image (this may take a while)...
+torchx 2022-12-30 02:03:22 INFO     Built new image `sha256:fa2308a6311b32cf09798ceea0035d06b3b5835075f8447ec534344c0d4addfd` based on original image `ghcr.io/pytorch/torchx:0.4.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2022-12-30 02:03:23 INFO     Waiting for the app to finish...
+python/0 Hello, your name!
+torchx 2022-12-30 02:03:24 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+local_docker://torchx/torchx_utils_python-d6ltkpvwxwqpdd
+</pre></div></div>
+</div>
+<p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
+</section>
+<section id="Distributed">
+<h2>Distributed<a class="headerlink" href="#Distributed" title="Permalink to this heading">¶</a></h2>
+<p>TorchX’s <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> component uses <a class="reference external" href="https://pytorch.org/docs/stable/distributed.elastic.html">TorchElastic</a> to manage the workers. This means you can launch multi-worker and multi-host jobs out of the box on all of the schedulers we support.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx run --scheduler local_docker dist.ddp --help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
+                                     [--image IMAGE] [--name NAME] [-h H]
+                                     [--cpu CPU] [--gpu GPU] [--memMB MEMMB]
+                                     [-j J] [--env ENV]
+                                     [--max_retries MAX_RETRIES]
+                                     [--rdzv_port RDZV_PORT] [--mounts MOUNTS]
+                                     [--debug DEBUG]
+                                     ...
+
+Distributed data parallel style application (one role, multi-replica). ...
+
+positional arguments:
+  script_args           arguments to the main module (required)
+
+optional arguments:
+  --help                show this help message and exit
+  --script SCRIPT       script or binary to run within the image (default:
+                        None)
+  -m M, --m M           the python module path to run (default: None)
+  --image IMAGE         image (e.g. docker) (default:
+                        ghcr.io/pytorch/torchx:0.4.0)
+  --name NAME           job name override (uses the script name if not
+                        specified) (default: None)
+  -h H, --h H           a registered named resource (if specified takes
+                        precedence over cpu, gpu, memMB) (default: None)
+  --cpu CPU             number of cpus per replica (default: 2)
+  --gpu GPU             number of gpus per replica (default: 0)
+  --memMB MEMMB         cpu memory in MB per replica (default: 1024)
+  -j J, --j J           [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu
+                        hosts, nproc_per_node must not exceed num gpus
+                        (default: 1x2)
+  --env ENV             environment varibles to be passed to the run (e.g.
+                        ENV1=v1,ENV2=v2,ENV3=v3) (default: None)
+  --max_retries MAX_RETRIES
+                        the number of scheduler retries allowed (default: 0)
+  --rdzv_port RDZV_PORT
+                        the port on rank0&#39;s host to use for hosting the c10d
+                        store used for rendezvous. Only takes effect when
+                        running multi-node. When running single node, this
+                        parameter is ignored and a random free port is chosen.
+                        (default: 29500)
+  --mounts MOUNTS       mounts to mount into the worker environment/container
+                        (ex.
+                        type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]). See
+                        scheduler documentation for more info. (default: None)
+  --debug DEBUG         whether to run with preset debug flags enabled
+                        (default: False)
+</pre></div></div>
+</div>
+<p>Lets create a slightly more interesting app to leverage the TorchX distributed support.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> dist_app.py
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+
+<span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;gloo&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I am worker </span><span class="si">{</span><span class="n">dist</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">dist</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">dist</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()])</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;all_reduce output = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing dist_app.py
+</pre></div></div>
+</div>
+<p>Let launch a small job with 2 nodes and 2 worker processes per node:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx run --scheduler local_docker dist.ddp -j 2x2 --script dist_app.py
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2022-12-30 02:03:25 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-12-30 02:03:25 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-12-30 02:03:25 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2022-12-30 02:03:26 INFO     Building workspace docker image (this may take a while)...
+torchx 2022-12-30 02:03:35 INFO     Built new image `sha256:d12f163113a204a1496d7be7b9bda5e1d9b7c9fc03f5c9b32ebb62911e83285e` based on original image `ghcr.io/pytorch/torchx:0.4.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2022-12-30 02:03:36 INFO     Waiting for the app to finish...
+dist_app/0 WARNING:__main__:
+dist_app/0 *****************************************
+dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 *****************************************
+dist_app/1 WARNING:__main__:
+dist_app/1 *****************************************
+dist_app/1 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 *****************************************
+dist_app/1 [0]:I am worker 2 of 4!
+dist_app/1 [0]:all_reduce output = tensor([6])
+dist_app/1 [1]:I am worker 3 of 4!
+dist_app/1 [1]:all_reduce output = tensor([6])
+dist_app/0 [0]:I am worker 0 of 4!
+dist_app/0 [0]:all_reduce output = tensor([6])
+dist_app/0 [1]:I am worker 1 of 4!
+dist_app/0 [1]:all_reduce output = tensor([6])
+torchx 2022-12-30 02:03:44 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+local_docker://torchx/dist_app-wz5pwrctknm9cd
+</pre></div></div>
+</div>
+</section>
+<section id="Workspaces-/-Patching">
+<h2>Workspaces / Patching<a class="headerlink" href="#Workspaces-/-Patching" title="Permalink to this heading">¶</a></h2>
+<p>For each scheduler there’s a concept of an <code class="docutils literal notranslate"><span class="pre">image</span></code>. For <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> and <code class="docutils literal notranslate"><span class="pre">slurm</span></code> it uses the current working directory. For container based schedulers such as <code class="docutils literal notranslate"><span class="pre">local_docker</span></code>, <code class="docutils literal notranslate"><span class="pre">kubernetes</span></code> and <code class="docutils literal notranslate"><span class="pre">aws_batch</span></code> it uses a docker container.</p>
+<p>To provide the same environment between local and remote jobs, TorchX CLI uses workspaces to automatically patch images for remote jobs on a per scheduler basis.</p>
+<p>When you launch a job via <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span></code> it’ll overlay the current directory on top of the provided image so your code is available in the launched job.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">docker</span></code> based schedulers you’ll need a local docker daemon to build and push the image to your remote docker repository.</p>
+</section>
+<section id=".torchxconfig">
+<h2><code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code><a class="headerlink" href="#.torchxconfig" title="Permalink to this heading">¶</a></h2>
+<p>Arguments to schedulers can be specified either via a command line flag to <code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span> <span class="pre">-s</span> <span class="pre">&lt;scheduler&gt;</span> <span class="pre">-c</span> <span class="pre">&lt;args&gt;</span></code> or on a per scheduler basis via a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> .torchxconfig
+
+<span class="p">[</span><span class="n">kubernetes</span><span class="p">]</span>
+<span class="n">queue</span><span class="o">=</span><span class="n">torchx</span>
+<span class="n">image_repo</span><span class="o">=&lt;</span><span class="n">your</span> <span class="n">docker</span> <span class="n">image</span> <span class="n">repository</span><span class="o">&gt;</span>
+
+<span class="p">[</span><span class="n">slurm</span><span class="p">]</span>
+<span class="n">partition</span><span class="o">=</span><span class="n">torchx</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing .torchxconfig
+</pre></div></div>
+</div>
+</section>
+<section id="Remote-Schedulers">
+<h2>Remote Schedulers<a class="headerlink" href="#Remote-Schedulers" title="Permalink to this heading">¶</a></h2>
+<p>TorchX supports a large number of schedulers. Don’t see yours? <a class="reference external" href="https://github.com/pytorch/torchx/issues/new?assignees=&amp;labels=&amp;template=feature-request.md">Request it!</a></p>
+<p>Remote schedulers operate the exact same way the local schedulers do. The same run command for local works out of the box on remote.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ torchx run --scheduler slurm dist.ddp -j 2x2 --script dist_app.py
+$ torchx run --scheduler kubernetes dist.ddp -j 2x2 --script dist_app.py
+$ torchx run --scheduler aws_batch dist.ddp -j 2x2 --script dist_app.py
+$ torchx run --scheduler ray dist.ddp -j 2x2 --script dist_app.py
+</pre></div>
+</div>
+<p>Depending on the scheduler there may be a few extra configuration parameters so TorchX knows where to run the job and upload built images. These can either be set via <code class="docutils literal notranslate"><span class="pre">-c</span></code> or in the <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file.</p>
+<p>All config options:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx runopts
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+local_docker:
+    usage:
+        [copy_env=COPY_ENV],[image_repo=IMAGE_REPO]
+
+    optional arguments:
+        copy_env=COPY_ENV (typing.List[str], None)
+            list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+
+local_cwd:
+    usage:
+        [log_dir=LOG_DIR],[prepend_cwd=PREPEND_CWD],[auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES]
+
+    optional arguments:
+        log_dir=LOG_DIR (str, None)
+            dir to write stdout/stderr log files of replicas
+        prepend_cwd=PREPEND_CWD (bool, False)
+            if set, prepends CWD to replica&#39;s PATH env var making any binaries in CWD take precedence over those in PATH
+        auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES (bool, False)
+            sets the `CUDA_AVAILABLE_DEVICES` for roles that request GPU resources. Each role replica will be assigned one GPU. Does nothing if the device count is less than replicas.
+
+slurm:
+    usage:
+        [partition=PARTITION],[time=TIME],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR]
+
+    optional arguments:
+        partition=PARTITION (str, None)
+            The partition to run the job in.
+        time=TIME (str, None)
+            The maximum time the job is allowed to run for. Formats:             &#34;minutes&#34;, &#34;minutes:seconds&#34;, &#34;hours:minutes:seconds&#34;, &#34;days-hours&#34;,             &#34;days-hours:minutes&#34; or &#34;days-hours:minutes:seconds&#34;
+        comment=COMMENT (str, None)
+            Comment to set on the slurm job.
+        constraint=CONSTRAINT (str, None)
+            Constraint to use for the slurm job.
+        mail-user=MAIL-USER (str, None)
+            User to mail on job end.
+        mail-type=MAIL-TYPE (str, None)
+            What events to mail users on.
+        job_dir=JOB_DIR (str, None)
+            The directory to place the job code and outputs. The
+            directory must not exist and will be created. To enable log
+            iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
+
+
+kubernetes:
+    usage:
+        queue=QUEUE,[namespace=NAMESPACE],[service_account=SERVICE_ACCOUNT],[priority_class=PRIORITY_CLASS],[image_repo=IMAGE_REPO]
+
+    required arguments:
+        queue=QUEUE (str)
+            Volcano queue to schedule job in
+
+    optional arguments:
+        namespace=NAMESPACE (str, default)
+            Kubernetes namespace to schedule job in
+        service_account=SERVICE_ACCOUNT (str, None)
+            The service account name to set on the pod specs
+        priority_class=PRIORITY_CLASS (str, None)
+            The name of the PriorityClass to set on the job specs
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+
+aws_batch:
+    usage:
+        queue=QUEUE,[user=USER],[share_id=SHARE_ID],[priority=PRIORITY],[image_repo=IMAGE_REPO]
+
+    required arguments:
+        queue=QUEUE (str)
+            queue to schedule job in
+
+    optional arguments:
+        user=USER (str, runner)
+            The username to tag the job with. `getpass.getuser()` if not specified.
+        share_id=SHARE_ID (str, None)
+            The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
+        priority=PRIORITY (int, None)
+            The scheduling priority for the job within the context of share_id. Higher number (between 0 and 9999) means higher priority. This will only take effect if the job queue has a scheduling policy.
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+
+gcp_batch:
+    usage:
+        [project=PROJECT],[location=LOCATION]
+
+    optional arguments:
+        project=PROJECT (str, None)
+            Name of the GCP project. Defaults to the configured GCP project in the environment
+        location=LOCATION (str, us-central1)
+            Name of the location to schedule the job in. Defaults to us-central1
+
+ray:
+    usage:
+        [cluster_config_file=CLUSTER_CONFIG_FILE],[cluster_name=CLUSTER_NAME],[dashboard_address=DASHBOARD_ADDRESS],[requirements=REQUIREMENTS]
+
+    optional arguments:
+        cluster_config_file=CLUSTER_CONFIG_FILE (str, None)
+            Use CLUSTER_CONFIG_FILE to access or create the Ray cluster.
+        cluster_name=CLUSTER_NAME (str, None)
+            Override the configured cluster name.
+        dashboard_address=DASHBOARD_ADDRESS (str, 127.0.0.1:8265)
+            Use ray status to get the dashboard address you will submit jobs against
+        requirements=REQUIREMENTS (str, None)
+            Path to requirements.txt
+
+lsf:
+    usage:
+        [lsf_queue=LSF_QUEUE],[jobdir=JOBDIR],[container_workdir=CONTAINER_WORKDIR],[host_network=HOST_NETWORK],[shm_size=SHM_SIZE]
+
+    optional arguments:
+        lsf_queue=LSF_QUEUE (str, None)
+            queue name to submit jobs
+        jobdir=JOBDIR (str, None)
+            The directory to place the job code and outputs. The directory must not exist and will be created.
+        container_workdir=CONTAINER_WORKDIR (str, None)
+            working directory in container jobs
+        host_network=HOST_NETWORK (bool, False)
+            True if using the host network for jobs
+        shm_size=SHM_SIZE (str, 64m)
+            size of shared memory (/dev/shm) for jobs
+
+</pre></div></div>
+</div>
+</section>
+<section id="Custom-Images">
+<h2>Custom Images<a class="headerlink" href="#Custom-Images" title="Permalink to this heading">¶</a></h2>
+<section id="Docker-based-Schedulers">
+<h3>Docker-based Schedulers<a class="headerlink" href="#Docker-based-Schedulers" title="Permalink to this heading">¶</a></h3>
+<p>If you want more than the standard PyTorch libraries you can add custom Dockerfile or build your own docker container and use it as the base image for your TorchX jobs.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> timm_app.py
+
+<span class="kn">import</span> <span class="nn">timm</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">timm</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing timm_app.py
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%writefile</span> Dockerfile.torchx
+
+<span class="n">FROM</span> <span class="n">pytorch</span><span class="o">/</span><span class="n">pytorch</span><span class="p">:</span><span class="mf">1.10.0</span><span class="o">-</span><span class="n">cuda11</span><span class="mf">.3</span><span class="o">-</span><span class="n">cudnn8</span><span class="o">-</span><span class="n">runtime</span>
+
+<span class="n">RUN</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">timm</span>
+
+<span class="n">COPY</span> <span class="o">.</span> <span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Writing Dockerfile.torchx
+</pre></div></div>
+</div>
+<p>Once we have the Dockerfile created we can launch as normal and TorchX will automatically build the image with the newly provided Dockerfile instead of the default one.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
+torchx run --scheduler local_docker utils.python --script timm_app.py
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2022-12-30 02:03:46 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2022-12-30 02:03:46 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2022-12-30 02:03:46 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2022-12-30 02:03:46 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2022-12-30 02:03:47 INFO     Building workspace docker image (this may take a while)...
+torchx 2022-12-30 02:05:13 INFO     Built new image `sha256:1b26ef0e7621bb264de1213df170576101dd3a7fa75ec4d2cfcd64aac146d346` based on original image `ghcr.io/pytorch/torchx:0.4.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2022-12-30 02:05:13 INFO     Waiting for the app to finish...
+python/0 ResNet(
+python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0   (act1): ReLU(inplace=True)
+python/0   (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+python/0   (layer1): Sequential(
+python/0     (0): BasicBlock(
+python/0       (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0     )
+python/0     (1): BasicBlock(
+python/0       (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0     )
+python/0   )
+python/0   (layer2): Sequential(
+python/0     (0): BasicBlock(
+python/0       (conv1): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0       (downsample): Sequential(
+python/0         (0): Conv2d(64, 128, kernel_size=(1, 1), stride=(2, 2), bias=False)
+python/0         (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       )
+python/0     )
+python/0     (1): BasicBlock(
+python/0       (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0     )
+python/0   )
+python/0   (layer3): Sequential(
+python/0     (0): BasicBlock(
+python/0       (conv1): Conv2d(128, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0       (downsample): Sequential(
+python/0         (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(2, 2), bias=False)
+python/0         (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       )
+python/0     )
+python/0     (1): BasicBlock(
+python/0       (conv1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0     )
+python/0   )
+python/0   (layer4): Sequential(
+python/0     (0): BasicBlock(
+python/0       (conv1): Conv2d(256, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0       (downsample): Sequential(
+python/0         (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+python/0         (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       )
+python/0     )
+python/0     (1): BasicBlock(
+python/0       (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (drop_block): Identity()
+python/0       (act1): ReLU(inplace=True)
+python/0       (aa): Identity()
+python/0       (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+python/0       (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+python/0       (act2): ReLU(inplace=True)
+python/0     )
+python/0   )
+python/0   (global_pool): SelectAdaptivePool2d (pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
+python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
+python/0 )
+torchx 2022-12-30 02:05:15 INFO     Job finished: SUCCEEDED
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+local_docker://torchx/torchx_utils_python-wf2h053bwg1q3c
+</pre></div></div>
+</div>
+</section>
+<section id="Slurm">
+<h3>Slurm<a class="headerlink" href="#Slurm" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">slurm</span></code> and <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> use the current environment so you can use <code class="docutils literal notranslate"><span class="pre">pip</span></code> and <code class="docutils literal notranslate"><span class="pre">conda</span></code> as normal.</p>
+</section>
+</section>
+<section id="Next-Steps">
+<h2>Next Steps<a class="headerlink" href="#Next-Steps" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Checkout other features of the <a class="reference internal" href="cli.html"><span class="doc">torchx CLI</span></a></p></li>
+<li><p>Take a look at the <a class="reference internal" href="schedulers.html"><span class="doc">list of schedulers</span></a> supported by the runner</p></li>
+<li><p>Browse through the collection of <a class="reference internal" href="components/overview.html"><span class="doc">builtin components</span></a></p></li>
+<li><p>See which <a class="reference internal" href="pipelines.html"><span class="doc">ML pipeline platforms</span></a> you can run components on</p></li>
+<li><p>See a <a class="reference internal" href="examples_apps/index.html"><span class="doc">training app example</span></a></p></li>
+</ol>
+</section>
+</section>
+<div id="is-nbsphinx"></div>
+
+     </article>
+     
+    </div>
+    <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cli.html" class="btn btn-neutral float-right" title="CLI" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="TorchX" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#Installation">Installation</a></li>
+<li><a class="reference internal" href="#Hello-World">Hello World</a></li>
+<li><a class="reference internal" href="#Launching">Launching</a></li>
+<li><a class="reference internal" href="#Distributed">Distributed</a></li>
+<li><a class="reference internal" href="#Workspaces-/-Patching">Workspaces / Patching</a></li>
+<li><a class="reference internal" href="#.torchxconfig"><code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code></a></li>
+<li><a class="reference internal" href="#Remote-Schedulers">Remote Schedulers</a></li>
+<li><a class="reference internal" href="#Custom-Images">Custom Images</a><ul>
+<li><a class="reference internal" href="#Docker-based-Schedulers">Docker-based Schedulers</a></li>
+<li><a class="reference internal" href="#Slurm">Slurm</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Next-Steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/katex.min.js"></script>
+         <script src="_static/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
+         <script src="_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Stay up to date</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">LinkedIn</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch Podcasts</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">Apple</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">Google</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">Amazon</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">Terms</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">Privacy</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© Copyright The Linux Foundation. The PyTorch Foundation is a project of The Linux Foundation.
+          For web site terms of use, trademark policy and other policies applicable to The PyTorch Foundation please see
+          <a href="www.linuxfoundation.org/policies/">www.linuxfoundation.org/policies/</a>. The PyTorch Foundation supports the PyTorch open source
+          project, which has been established as PyTorch Project a Series of LF Projects, LLC. For policies applicable to the PyTorch Project a Series of LF Projects, LLC,
+          please see <a href="www.lfprojects.org/policies/">www.lfprojects.org/policies/</a>.</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+            
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchx/">TorchX</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
