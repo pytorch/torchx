@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -423,7 +423,7 @@ and submits the component as a job (see diagram below).</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – human readable name that will be included as part of all launched
 jobs.</p></li>
@@ -479,7 +479,7 @@ Note that the reconstructed application may not be the complete app as
 it was submitted via the run API. How much of the app can be reconstructed
 is scheduler dependent.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>AppDef or None if the app does not exist anymore or if the
 scheduler does not support describing the app handle</p>
 </dd>
@@ -565,7 +565,7 @@ extra newline characters.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>app_handle</strong> – application handle</p></li>
 <li><p><strong>role_name</strong> – role within the app (e.g. trainer)</p></li>
@@ -577,10 +577,10 @@ first log line (start of job).</p></li>
 until the job completes and all log lines have been consumed.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>An iterator over the role k-th replica of the specified application.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>UnknownAppException</strong> – if the app does not exist in the scheduler</p>
 </dd>
 </dl>
@@ -596,7 +596,7 @@ until the job completes and all log lines have been consumed.</p></li>
 rather than overriding this method directly.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>An application handle that is used to call other action APIs on the app.</p>
 </dd>
 </dl>
@@ -637,10 +637,10 @@ entrypoints in the group <code class="docutils literal notranslate"><span class=
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>An application handle that is used to call other action APIs on the app</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ComponentValidationException</strong> – if component is invalid.</p></li>
 <li><p><strong>ComponentNotFoundException</strong> – if the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> is failed to resolve.</p></li>
@@ -698,7 +698,7 @@ this method instead of directly implementing the <code class="docutils literal n
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The <code class="docutils literal notranslate"><span class="pre">runopts</span></code> for the specified scheduler type.</p>
 </dd>
 </dl>
@@ -708,7 +708,7 @@ this method instead of directly implementing the <code class="docutils literal n
 <dt class="sig sig-object py" id="torchx.runner.Runner.status">
 <span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="specs.html#torchx.specs.AppStatus" title="torchx.specs.api.AppStatus"><span class="pre">AppStatus</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/torchx/runner/api.html#Runner.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.runner.Runner.status" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The status of the application, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the app does not exist anymore
 (e.g. was stopped in the past and removed from the scheduler’s backend).</p>
 </dd>
@@ -740,13 +740,13 @@ Possible implementation:</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>app_handle</strong> – the app handle to wait for completion</p></li>
 <li><p><strong>wait_interval</strong> – the minimum interval to wait before polling for status</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The terminal status of the application, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the app does not exist anymore</p>
 </dd>
 </dl>
@@ -825,8 +825,8 @@ Possible implementation:</p>
          <script src="_static/underscore.js"></script>
          <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
-         <script src="_static/katex.min.js"></script>
-         <script src="_static/auto-render.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
          <script src="_static/katex_autorenderer.js"></script>
          <script src="_static/js/torchx.js"></script>
      

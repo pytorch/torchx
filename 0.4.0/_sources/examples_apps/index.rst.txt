@@ -261,13 +261,13 @@ in their respective main modules: `train.py` and `interpret.py`.
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-    :download:`Download all examples in Python source code: examples_apps_python.zip <//home/runner/work/torchx/torchx/docs/source/examples_apps/examples_apps_python.zip>`
+    :download:`Download all examples in Python source code: examples_apps_python.zip <//Users/priyaramani/Workspace/repos/torchx/docs/source/examples_apps/examples_apps_python.zip>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-    :download:`Download all examples in Jupyter notebooks: examples_apps_jupyter.zip <//home/runner/work/torchx/torchx/docs/source/examples_apps/examples_apps_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: examples_apps_jupyter.zip <//Users/priyaramani/Workspace/repos/torchx/docs/source/examples_apps/examples_apps_jupyter.zip>`
 
 
 .. only:: html
