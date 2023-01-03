@@ -244,17 +244,20 @@ def _thread_local_cache(f: Callable[[], T]) -> Callable[[], T]:
     return wrapper
 
 
-def _local_session(region: str = None) -> "boto3.session.Session":
+def _local_session(region: Optional[str] = None) -> "boto3.session.Session":
     import boto3.session
-
-    return boto3.session.Session(region_name=region)
+    if region:
+        return boto3.session.Session(region_name=region)
+    return boto3.session.Session()
 
 
 @_thread_local_cache
-def _local_session_region(region: str = None) -> str:
+def _local_session_region(region: Optional[str] = None) -> str:
     import boto3.session
 
-    return boto3.session.Session(region_name=region).region_name
+    if region:
+        return boto3.session.Session(region_name=region).region_name
+    return boto3.session.Session().region_name
 
 
 @_thread_local_cache
@@ -268,6 +271,7 @@ class AWSBatchOpts(TypedDict, total=False):
     region: str
     queue: str
     user: str
+    priority: Optional[int]
     image_repo: Optional[str]
     share_id: Optional[str]
 
@@ -349,7 +353,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         else:
             return _local_session().client("batch")
 
-    def _regional_client(self, aws_region: str = None) -> "boto3.session.Session":
+    def _regional_client(self, aws_region: Optional[str] = None) -> "boto3.session.Session":
         return _local_session(region=aws_region).client("batch")
 
     @property
@@ -367,7 +371,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         self.push_images(images_to_push)
 
         req = dryrun_info.request
-        self._regional_client(aws_region=cfg["region"]).register_job_definition(
+        self._regional_client(str(aws_region=cfg["region"])).register_job_definition(
             **req.job_def
         )
 
@@ -380,7 +384,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             },
             **({"shareIdentifier": req.share_id} if req.share_id is not None else {}),
         }
-        self._regional_client(aws_region=cfg["region"]).submit_job(**batch_job_req)
+        self._regional_client(str(aws_region=cfg["region"])).submit_job(**batch_job_req)
 
         return f"{cfg['region']}:{req.queue}:{req.name}"
 
@@ -401,7 +405,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         if not region:
             try:
                 region = self._client.meta.region_name
-            except NoRegionError:
+            except boto_exceptions.NoRegionError:
                 raise ValueError("Region must be specified in config or environment")
 
         name_suffix = f"-{share_id}" if share_id is not None else ""
@@ -517,10 +521,10 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             region, queue, name = app_id.split(":")
         elif len(parts) == 2:
             queue, name = app_id.split(":")
-            region = None
+            region = ""
 
         for resp in (
-            self._regional_client(aws_region=region)
+            self._regional_client(aws_region=str(region))
             .get_paginator("list_jobs")
             .paginate(
                 jobQueue=queue,
@@ -532,7 +536,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                 return job_summary_list[0]["jobArn"]
         return None
 
-    def _get_job_region(self, app_id: str) -> str:
+    def _get_job_region(self, app_id: str) -> Optional[str]:
         parts = app_id.split(":")
         if len(parts) == 3:
             return app_id.split(":")[0]
@@ -665,7 +669,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     raise
         return all_apps
 
-    def _list_by_queue(self, queue_name: str, region) -> List[Dict[str, Any]]:
+    def _list_by_queue(self, queue_name: str, region: str) -> List[Dict[str, Any]]:
         # By default, only running jobs are listed by batch/boto client's list_jobs API
         # When 'filters' parameter is specified, jobs with all statuses are listed
         # So use AFTER_CREATED_AT filter to list jobs in all statuses
