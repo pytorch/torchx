@@ -141,3 +141,7 @@ wordlist.dic
 pipeline.yaml
 
 /codecov
+
+#emacs backup files
+*~
+.#*
