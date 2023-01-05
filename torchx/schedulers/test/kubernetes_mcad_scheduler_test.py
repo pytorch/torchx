@@ -25,8 +25,8 @@ from torchx.schedulers.kubernetes_mcad_scheduler import (
     KubernetesMCADOpts,
     KubernetesMCADScheduler,
     LABEL_INSTANCE_TYPE,
-    role_to_pod,
     mcad_svc,
+    role_to_pod,
 )
 
 SKIP_DOCKER: bool = not has_docker()
@@ -65,7 +65,9 @@ def _test_app(num_replicas: int = 1) -> specs.AppDef:
 class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         scheduler = create_scheduler("foo")
-        self.assertIsInstance(scheduler, kubernetes_mcad_scheduler.KubernetesMCADScheduler)
+        self.assertIsInstance(
+            scheduler, kubernetes_mcad_scheduler.KubernetesMCADScheduler
+        )
 
     def test_app_to_resource_resolved_macros(self) -> None:
         app = _test_app()
@@ -74,9 +76,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             "torchx.schedulers.kubernetes_mcad_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
-            resource = app_to_resource(app, "default", service_account=None, image_secret=None, priority=0)
+            resource = app_to_resource(
+                app, "default", service_account=None, image_secret=None, priority=0
+            )
             actual_cmd = (
-                resource["spec"]["resources"]["GenericItems"][0]["generictemplate"].spec.containers[0]
+                resource["spec"]["resources"]["GenericItems"][0]["generictemplate"]
+                .spec.containers[0]
                 .command
             )
             expected_cmd = [
@@ -92,7 +97,9 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
 
     def test_retry_policy_not_set(self) -> None:
         app = _test_app()
-        resource = app_to_resource(app, "default", service_account=None, image_secret=None, priority=0)
+        resource = app_to_resource(
+            app, "default", service_account=None, image_secret=None, priority=0
+        )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertListEqual(
             [
@@ -103,8 +110,10 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         )
         for role in app.roles:
             role.max_retries = 0
-        resource = app_to_resource(app, "default", service_account=None, image_secret=None, priority=0)
-        item0=resource["spec"]["resources"]["GenericItems"][0]
+        resource = app_to_resource(
+            app, "default", service_account=None, image_secret=None, priority=0
+        )
+        item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertFalse("policies" in item0)
         self.assertFalse("maxRetry" in item0)
 
@@ -115,6 +124,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             V1EmptyDirVolumeSource,
             V1EnvVar,
             V1HostPathVolumeSource,
+            V1LocalObjectReference,
             V1ObjectMeta,
             V1Pod,
             V1PodSpec,
@@ -122,14 +132,20 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             V1SecurityContext,
             V1Volume,
             V1VolumeMount,
-            V1LocalObjectReference,
         )
 
         app = _test_app()
         unique_app_name = "app-name"
         image_secret = "secret-name"
-        pod = role_to_pod("app-name-0",unique_app_name,"test_namespace", app.roles[0], service_account="srvacc",image_secret=image_secret)
-        imagesecret = V1LocalObjectReference(name=image_secret) 
+        pod = role_to_pod(
+            "app-name-0",
+            unique_app_name,
+            "test_namespace",
+            app.roles[0],
+            service_account="srvacc",
+            image_secret=image_secret,
+        )
+        imagesecret = V1LocalObjectReference(name=image_secret)
 
         limits = {
             "cpu": "2000m",
@@ -157,7 +173,10 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             ],
             image="pytorch/torchx:latest",
             name="app-name-0",
-            env=[V1EnvVar(name="FOO", value="bar"), V1EnvVar(name="MCAD_TRAINERFOO_0_HOSTS", value="app-name-0.app-name")],
+            env=[
+                V1EnvVar(name="FOO", value="bar"),
+                V1EnvVar(name="MCAD_TRAINERFOO_0_HOSTS", value="app-name-0.app-name"),
+            ],
             resources=resources,
             ports=[V1ContainerPort(name="foo", container_port=1234)],
             security_context=V1SecurityContext(),
@@ -178,7 +197,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             kind="Pod",
             spec=V1PodSpec(
                 containers=[container],
-                hostname= "app-name-0",
+                hostname="app-name-0",
                 subdomain="app-name",
                 image_pull_secrets=[imagesecret],
                 restart_policy="Never",
@@ -215,7 +234,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         )
 
     def test_create_mcad_service(self) -> None:
-        from kubernetes.client.models import (  # noqa: F811 redefinition of unused
+        from kubernetes.client.models import (  # noqa: F401 imported but unused
             V1Container,
             V1ContainerPort,
             V1EmptyDirVolumeSource,
@@ -227,19 +246,19 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             V1PodSpec,
             V1ResourceRequirements,
             V1SecurityContext,
-            V1Volume,
-            V1VolumeMount,
             V1Service,
+            V1ServicePort,
             V1ServiceSpec,
             V1ServiceStatus,
-            V1ServicePort,
+            V1Volume,
+            V1VolumeMount,
         )
 
         service_name = "test_service"
-        service_port ="1234"
+        service_port = "1234"
         namespace = "default"
         test_service = mcad_svc(service_name, namespace, service_port)
-        
+
         want = V1Service(
             api_version="v1",
             kind="Service",
@@ -257,7 +276,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                         target_port=int(service_port),
                     )
                 ],
-                selector={'appwrapper.mcad.ibm.com': service_name},
+                selector={"appwrapper.mcad.ibm.com": service_name},
                 session_affinity="None",
                 type="ClusterIP",
             ),
@@ -268,7 +287,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual(
             test_service,
             want,
-        )        
+        )
 
     def test_validate(self) -> None:
         scheduler = create_scheduler("test")
@@ -281,11 +300,10 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
         self.assertEqual("", cleanup_str("!!!"))
 
-
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KubernetesMCADOpts({"priority": 0, "namespace":"test_namespace"})
+        cfg = KubernetesMCADOpts({"priority": 0, "namespace": "test_namespace"})
         with patch(
             "torchx.schedulers.kubernetes_mcad_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -399,7 +417,6 @@ spec:
 """,
         )
 
-
     def test_volume_mounts(self) -> None:
         scheduler = create_scheduler("test")
         from kubernetes.client.models import (
@@ -416,7 +433,14 @@ spec:
                 specs.VolumeMount(src="name", dst_path="/dst", read_only=True),
             ],
         )
-        pod = role_to_pod("foo", "foo-unique", "testnamespace", role, service_account="", image_secret="")
+        pod = role_to_pod(
+            "foo",
+            "foo-unique",
+            "testnamespace",
+            role,
+            service_account="",
+            image_secret="",
+        )
         self.assertEqual(
             pod.spec.volumes,
             [
@@ -465,7 +489,14 @@ spec:
                 specs.DeviceMount(src_path="foo2", dst_path="bar2", permissions="r"),
             ],
         )
-        pod = role_to_pod("foo", "foo-unique", "testnamespace", role, service_account="", image_secret="")
+        pod = role_to_pod(
+            "foo",
+            "foo-unique",
+            "testnamespace",
+            role,
+            service_account="",
+            image_secret="",
+        )
         self.assertEqual(
             pod.spec.volumes[1:],
             [
@@ -515,7 +546,14 @@ spec:
                 },
             ),
         )
-        pod = role_to_pod("foo", "foo-unique", "testnamespace", role, service_account="", image_secret="")
+        pod = role_to_pod(
+            "foo",
+            "foo-unique",
+            "testnamespace",
+            role,
+            service_account="",
+            image_secret="",
+        )
         self.assertEqual(
             pod.spec.containers[0].resources.limits,
             {
@@ -542,7 +580,14 @@ spec:
                 },
             ),
         )
-        pod = role_to_pod("foo", "foo-unique", "testnamespace", role, service_account="", image_secret="")
+        pod = role_to_pod(
+            "foo",
+            "foo-unique",
+            "testnamespace",
+            role,
+            service_account="",
+            image_secret="",
+        )
         self.assertEqual(
             pod.spec.node_selector,
             {
@@ -562,7 +607,7 @@ spec:
             make_unique_ctx.return_value = "app-name"
             info = scheduler._submit_dryrun(app, cfg)
 
-        #pyre-fixme
+        # pyre-fixme
         tasks = info.request.resource["spec"]["resources"]["GenericItems"]
         container0 = tasks[0]["generictemplate"].spec.containers[0]
         self.assertIn("TORCHX_RANK0_HOST", container0.command)
@@ -701,7 +746,7 @@ spec:
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
     def test_describe(self, get_namespaced_custom_object: MagicMock) -> None:
 
-        #TO DO: update the return value with the Role information
+        # TO DO: update the return value with the Role information
 
         get_namespaced_custom_object.return_value = {
             "status": {
@@ -710,17 +755,18 @@ spec:
             },
             "spec": {
                 "resources": {
-                    "GenericItems": [{
-                        'generictemplate': {
-                            "metadata": {
-                                "labels": {
-                                    "torchx.pytorch.org/role-name": "echo",
-                                },   
+                    "GenericItems": [
+                        {
+                            "generictemplate": {
+                                "metadata": {
+                                    "labels": {
+                                        "torchx.pytorch.org/role-name": "echo",
+                                    },
+                                },
+                                "spec": {},
                             },
-                            "spec": {
-                            },
-                        },
-                    }],
+                        }
+                    ],
                 },
             },
         }
@@ -730,7 +776,7 @@ spec:
         info = scheduler.describe(app_id)
         call = get_namespaced_custom_object.call_args
         args, kwargs = call
-  
+
         assert "mcad.ibm.com" in args
         assert "v1beta1" in args
         assert "appwrappers" in args
@@ -762,9 +808,7 @@ spec:
         )
 
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
-    def test_describe_unknown(
-        self, get_namespaced_custom_object: MagicMock
-    ) -> None:
+    def test_describe_unknown(self, get_namespaced_custom_object: MagicMock) -> None:
         get_namespaced_custom_object.return_value = {}
         app_id = "foo:bar"
         scheduler = create_scheduler("foo")
@@ -796,7 +840,7 @@ spec:
                 "image_repo",
                 "service_account",
                 "priority",
-                "image_secret", 
+                "image_secret",
             },
         )
 
@@ -916,4 +960,3 @@ class KubernetesMCADSchedulerNoImportTest(unittest.TestCase):
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler._submit_dryrun(app, cfg)
-

@@ -36,14 +36,27 @@ Learn more about running distributed trainers :py:mod:`torchx.components.dist`
 import json
 import logging
 import re
+
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, TYPE_CHECKING, Union, cast
+from typing import (
+    Any,
+    cast,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    TYPE_CHECKING,
+)
 
 import torchx
 import yaml
-from torchx.schedulers.api import (
+
+# ListAppResponse is a planned future update
+from torchx.schedulers.api import (  # noqa: F401 imported but unused
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
@@ -62,19 +75,18 @@ from torchx.specs.api import (
     macros,
     ReplicaState,
     ReplicaStatus,
+    Resource,
     RetryPolicy,
     Role,
     RoleStatus,
     runopts,
     VolumeMount,
-    Resource,
 )
 from torchx.specs.builders import make_app_handle
-#from torchx.workspace.docker_workspace import DockerWorkspace
+
+# from torchx.workspace.docker_workspace import DockerWorkspace
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
-
-import sys
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -109,23 +121,23 @@ RETRY_POLICIES: Mapping[str, Iterable[Mapping[str, str]]] = {
     ],
 }
 
-#The AppWrapper Status - holistic view of pods/services 
+# The AppWrapper Status - holistic view of pods/services
 JOB_STATE: Dict[str, AppState] = {
-     # Pending is the AppWrapper condition waiting for scheduling by MCAD
-     "Pending": AppState.PENDING,
-     # Running is the AppWrapper condition in Running. 
-     "Running": AppState.RUNNING,
-     # Deleted is the AppWrapper condition where the torchX job is cancelled
-     # by the user, the AppWrapper is deleted by the user, or error handling
-     "Deleted": AppState.CANCELLED,
-     # Failed is the job finishes unexpectedly
-     "Failed": AppState.FAILED,
+    # Pending is the AppWrapper condition waiting for scheduling by MCAD
+    "Pending": AppState.PENDING,
+    # Running is the AppWrapper condition in Running.
+    "Running": AppState.RUNNING,
+    # Deleted is the AppWrapper condition where the torchX job is cancelled
+    # by the user, the AppWrapper is deleted by the user, or error handling
+    "Deleted": AppState.CANCELLED,
+    # Failed is the job finishes unexpectedly
+    "Failed": AppState.FAILED,
 }
 
 TASK_STATE: Dict[str, ReplicaState] = {
     # Pending dispatch means the AppWrapped task is not yet scheduled by MCAD
     "Pending dispatch": ReplicaState.PENDING,
-    # Pending means the task is scheduled by MCAD 
+    # Pending means the task is scheduled by MCAD
     "pending": ReplicaState.PENDING,
     # Running means a task is running on the host.
     "running": ReplicaState.RUNNING,
@@ -141,7 +153,7 @@ TASK_STATE: Dict[str, ReplicaState] = {
     "Unknown": ReplicaState.UNKNOWN,
 }
 
-#TO DO update to standards
+# TO DO update to standards
 LABEL_VERSION = "torchx.pytorch.org/version"
 LABEL_APP_NAME = "torchx.pytorch.org/app-name"
 LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
@@ -159,13 +171,22 @@ def sanitize_for_serialization(obj: object) -> object:
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
 
-def role_to_pod(name: str, unique_app_id: str, namespace: str, role: Role, service_account: Optional[str], image_secret: Optional[str]) -> "V1Pod":
+
+def role_to_pod(
+    name: str,
+    unique_app_id: str,
+    namespace: str,
+    role: Role,
+    service_account: Optional[str],
+    image_secret: Optional[str],
+) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
         V1ContainerPort,
         V1EmptyDirVolumeSource,
         V1EnvVar,
         V1HostPathVolumeSource,
+        V1LocalObjectReference,
         V1ObjectMeta,
         V1PersistentVolumeClaimVolumeSource,
         V1Pod,
@@ -174,8 +195,8 @@ def role_to_pod(name: str, unique_app_id: str, namespace: str, role: Role, servi
         V1SecurityContext,
         V1Volume,
         V1VolumeMount,
-        V1LocalObjectReference,
     )
+
     # limits puts an upper cap on the resources a pod may consume.
     # requests is how much the scheduler allocates. We assume that the jobs will
     # be allocation the whole machine so requests is slightly lower than the
@@ -282,23 +303,27 @@ def role_to_pod(name: str, unique_app_id: str, namespace: str, role: Role, servi
 
     torchx_env_var = [
         V1EnvVar(
-                name=name,
-                value=value,
-            ) for name, value in role.env.items()
-        ]
+            name=name,
+            value=value,
+        )
+        for name, value in role.env.items()
+    ]
 
     my_env_var = [
         V1EnvVar(
-            name=f"MCAD_{cleanup_str(role.name)}_{replica_id}_HOSTS".upper().replace('-',''),
-            value=f'{unique_app_id}-{replica_id}.{unique_app_id}',
-        ) for replica_id in range(role.num_replicas)
+            name=f"MCAD_{cleanup_str(role.name)}_{replica_id}_HOSTS".upper().replace(
+                "-", ""
+            ),
+            value=f"{unique_app_id}-{replica_id}.{unique_app_id}",
+        )
+        for replica_id in range(role.num_replicas)
     ]
 
     container = V1Container(
         command=[role.entrypoint] + role.args,
         image=role.image,
         name=name,
-        env= torchx_env_var + my_env_var,
+        env=torchx_env_var + my_env_var,
         resources=resources,
         ports=[
             V1ContainerPort(
@@ -311,14 +336,14 @@ def role_to_pod(name: str, unique_app_id: str, namespace: str, role: Role, servi
         security_context=security_context,
     )
 
-    #Get correct formatting for image secret
-    imagesecret = V1LocalObjectReference(name=image_secret) 
+    # Get correct formatting for image secret
+    imagesecret = V1LocalObjectReference(name=image_secret)
     return V1Pod(
         api_version="v1",
         kind="Pod",
         spec=V1PodSpec(
             containers=[container],
-            hostname= name,
+            hostname=name,
             subdomain=unique_app_id,
             image_pull_secrets=[imagesecret],
             restart_policy="Never",
@@ -338,9 +363,10 @@ def role_to_pod(name: str, unique_app_id: str, namespace: str, role: Role, servi
         ),
     )
 
+
 def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
-    from kubernetes.client.models import (  # noqa: F811 redefinition of unused
-        V1Container,
+    from kubernetes.client.models import (  # noqa: F401, F811
+        V1Container,  # noqa: F811 redefinition of unused
         V1ContainerPort,
         V1EmptyDirVolumeSource,
         V1EnvVar,
@@ -351,12 +377,12 @@ def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
         V1PodSpec,
         V1ResourceRequirements,
         V1SecurityContext,
-        V1Volume,
-        V1VolumeMount,
         V1Service,
+        V1ServicePort,
         V1ServiceSpec,
         V1ServiceStatus,
-        V1ServicePort,
+        V1Volume,
+        V1VolumeMount,
     )
 
     return V1Service(
@@ -376,7 +402,7 @@ def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
                     target_port=int(service_port),
                 )
             ],
-            selector={'appwrapper.mcad.ibm.com': svc_name},
+            selector={"appwrapper.mcad.ibm.com": svc_name},
             session_affinity="None",
             type="ClusterIP",
         ),
@@ -384,7 +410,6 @@ def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
             load_balancer={},
         ),
     )
-
 
 
 def cleanup_str(data: str) -> str:
@@ -399,24 +424,26 @@ def cleanup_str(data: str) -> str:
     pattern = r"[a-z0-9\-]"
     return "".join(re.findall(pattern, data.lower()))
 
+
 def get_port_for_service(app: AppDef) -> str:
-    #Initialize port to default
+    # Initialize port to default
     port = "29500"
 
-    #look for rdzv_endpoint
+    # look for rdzv_endpoint
     rdzv = "--rdzv_endpoint"
     separator = ":"
     space = " "
     for role_idx, role in enumerate(app.roles):
         if rdzv in role.args[1]:
             start_index = role.args[1].find(rdzv)
-             
-            #find first instance of : after rdzv endpoint
+
+            # find first instance of : after rdzv endpoint
             port_index = role.args[1].find(separator, start_index) + 1
             end_index = role.args[1].find(space, port_index)
             port = role.args[1][port_index:end_index]
 
     return port
+
 
 def app_to_resource(
     app: AppDef,
@@ -441,7 +468,9 @@ def app_to_resource(
                 img_root="",
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
-                rank0_env=f"MCAD_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper().replace('-',''),
+                rank0_env=f"MCAD_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper().replace(
+                    "-", ""
+                ),
             )
 
             if role_idx == 0 and replica_id == 0:
@@ -451,14 +480,21 @@ def app_to_resource(
             if role_idx == 0 and replica_id == 0:
                 replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
-            pod = role_to_pod(name, unique_app_id, namespace, replica_role, service_account, image_secret)
+            pod = role_to_pod(
+                name,
+                unique_app_id,
+                namespace,
+                replica_role,
+                service_account,
+                image_secret,
+            )
             pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
 
             genericitem: Dict[str, Any] = {
                 "replicas": 1,
                 "generictemplate": pod,
             }
-            #TODO: retry support here
+            # TODO: retry support here
             if role.max_retries > 0:
                 genericitem["maxRetry"] = role.max_retries
                 genericitem["policies"] = RETRY_POLICIES[role.retry_policy]
@@ -466,7 +502,6 @@ def app_to_resource(
 Role {role.name} configured with restarts: {role.max_retries}.
                 """
                 warnings.warn(msg)
-          
 
             genericitems.append(genericitem)
 
@@ -475,14 +510,14 @@ Role {role.name} configured with restarts: {role.max_retries}.
     The selector will have the key 'appwrapper.mcad.ibm.com', and the value will be 
     the appwrapper name
     """
-   
-    service_port=get_port_for_service(app) 
 
-    if not(0<int(service_port)<=65535):
-        msg= f"""Warning: rdzv_endpoint set to invalid port number. Value must be between 1-65535, with torchx default = 29500. Try updating --rdzv_port argument to dist.ddp. Setting port to default = 29500"""
-        service_port="29500"
-        warnings.warn(msg) 
- 
+    service_port = get_port_for_service(app)
+
+    if not (0 < int(service_port) <= 65535):
+        msg = """Warning: rdzv_endpoint set to invalid port number. Value must be between 1-65535, with torchx default = 29500. Try updating --rdzv_port argument to dist.ddp. Setting port to default = 29500"""
+        service_port = "29500"
+        warnings.warn(msg)
+
     svc_obj = mcad_svc(unique_app_id, namespace, service_port)
 
     genericitem_svc: Dict[str, Any] = {
@@ -491,8 +526,10 @@ Role {role.name} configured with restarts: {role.max_retries}.
     }
     genericitems.append(genericitem_svc)
 
-    job_spec : Dict[str, Any] = {
-        "resources": {"GenericItems": genericitems, },
+    job_spec: Dict[str, Any] = {
+        "resources": {
+            "GenericItems": genericitems,
+        },
     }
 
     if priority is not None:
@@ -506,108 +543,148 @@ Role {role.name} configured with restarts: {role.max_retries}.
     }
     return resource
 
+
 # Helper functions for MCAD generic items information -> TorchX Role
-def get_role_information(genericItems : Iterable[Dict[str,Any]]) -> Dict[str, Any]:
-    #Store unique role information
-    roles = {} 
-   
-    #nested dictionary keys
-    #meta data information
+def get_role_information(genericItems: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+    # Store unique role information
+    roles = {}
+
+    # nested dictionary keys
+    # meta data information
     gt_key = "generictemplate"
     metadata_key = "metadata"
     label_key = "labels"
     role_key = "torchx.pytorch.org/role-name"
 
-    #containers information
+    # containers information
     spec_key = "spec"
-    container_key = "containers" 
-    image_key = "image" 
+    container_key = "containers"
+    image_key = "image"
     args_key = "command"
     env_key = "env"
     resource_key = "resources"
     ports_key = "ports"
     mounts_key = "volumeMounts"
 
-    #resource keys
-    cpu_key = 'cpu'
-    gpu_key = 'gpu' 
-    request_key = 'requests'
-    mem_key = 'memory'
+    # resource keys
+    cpu_key = "cpu"
+    gpu_key = "gpu"
+    request_key = "requests"
+    mem_key = "memory"
 
     for genericItem in genericItems:
         if gt_key in genericItem.keys():
-           gt_result=genericItem[gt_key]
+            gt_result = genericItem[gt_key]
 
-           if metadata_key in gt_result.keys():
-               #Note: options in meta data : annotations, labels, name, namespace
-               metadata_result = gt_result[metadata_key]
+            if metadata_key in gt_result.keys():
+                # Note: options in meta data : annotations, labels, name, namespace
+                metadata_result = gt_result[metadata_key]
 
-               if label_key in metadata_result.keys():
-                   label_result = metadata_result[label_key]
-                   if role_key in label_result.keys():
-                       role_name : str = label_result[role_key]
-                       #save role
-                       if role_name not in roles:
-                           roles[role_name] = Role(name=role_name, num_replicas=0, image="")
-                           roles[role_name].num_replicas += 1
+                if label_key in metadata_result.keys():
+                    label_result = metadata_result[label_key]
+                    if role_key in label_result.keys():
+                        role_name: str = label_result[role_key]
+                        # save role
+                        if role_name not in roles:
+                            roles[role_name] = Role(
+                                name=role_name, num_replicas=0, image=""
+                            )
+                            roles[role_name].num_replicas += 1
 
-                           #Only get specs for first instance of TorchX role
-                           if spec_key in gt_result.keys():
-                              #Note: options in spec data: containers, hostname, imagePullSecrets, nodeSelector
-                              #      restartPolicy, subdomain, volumes
-                              spec_result = gt_result[spec_key]
-                              if container_key in spec_result.keys():
-                                  container_result = spec_result[container_key]
-                                  if image_key in container_result[0].keys():
-                                      roles[role_name].image=container_result[0][image_key]   
-                                  if args_key in container_result[0].keys():
-                                      roles[role_name].args=container_result[0][args_key]
-                                  if env_key in container_result[0].keys():
-                                      roles[role_name].env=container_result[0][env_key]
-                                  if resource_key in container_result[0].keys():
-                                      roles[role_name].resources=container_result[0][resource_key]
-                                      resource_req = Resource(cpu=-1, gpu=-1, memMB=-1)
-                                      if cpu_key in container_result[0][resource_key][request_key]:
-                                          resource_req.cpu = container_result[0][resource_key][request_key][cpu_key]                    
-                                      #Substring matching to accomodate different gpu types
-                                      gpu_key_values = dict(filter(lambda item: gpu_key in item[0], container_result[0][resource_key][request_key].items()))
-                                      if len(gpu_key_values) != 0:
-                                          for key, value in gpu_key_values.items():
-                                              resource_req.gpu = value
-                                      if mem_key in container_result[0][resource_key][request_key]:
-                                          resource_req.memMB = container_result[0][resource_key][request_key][mem_key]
-                                      roles[role_name].resource=resource_req
+                            # Only get specs for first instance of TorchX role
+                            if spec_key in gt_result.keys():
+                                # Note: options in spec data: containers, hostname, imagePullSecrets, nodeSelector
+                                #      restartPolicy, subdomain, volumes
+                                spec_result = gt_result[spec_key]
+                                if container_key in spec_result.keys():
+                                    container_result = spec_result[container_key]
+                                    if image_key in container_result[0].keys():
+                                        roles[role_name].image = container_result[0][
+                                            image_key
+                                        ]
+                                    if args_key in container_result[0].keys():
+                                        roles[role_name].args = container_result[0][
+                                            args_key
+                                        ]
+                                    if env_key in container_result[0].keys():
+                                        roles[role_name].env = container_result[0][
+                                            env_key
+                                        ]
+                                    if resource_key in container_result[0].keys():
+                                        roles[role_name].resources = container_result[
+                                            0
+                                        ][resource_key]
+                                        resource_req = Resource(
+                                            cpu=-1, gpu=-1, memMB=-1
+                                        )
+                                        if (
+                                            cpu_key
+                                            in container_result[0][resource_key][
+                                                request_key
+                                            ]
+                                        ):
+                                            resource_req.cpu = container_result[0][
+                                                resource_key
+                                            ][request_key][cpu_key]
+                                        # Substring matching to accomodate different gpu types
+                                        gpu_key_values = dict(
+                                            filter(
+                                                lambda item: gpu_key in item[0],
+                                                container_result[0][resource_key][
+                                                    request_key
+                                                ].items(),
+                                            )
+                                        )
+                                        if len(gpu_key_values) != 0:
+                                            for key, value in gpu_key_values.items():
+                                                resource_req.gpu = value
+                                        if (
+                                            mem_key
+                                            in container_result[0][resource_key][
+                                                request_key
+                                            ]
+                                        ):
+                                            resource_req.memMB = container_result[0][
+                                                resource_key
+                                            ][request_key][mem_key]
+                                        roles[role_name].resource = resource_req
 
-                                  if ports_key in container_result[0].keys():
-                                      roles[role_name].port_map=container_result[0][ports_key]
-                                  if mounts_key in container_result[0].keys():
-                                      roles[role_name].mounts=container_result[0][mounts_key]
-                       else:
-                           roles[role_name].num_replicas += 1
- 
+                                    if ports_key in container_result[0].keys():
+                                        roles[role_name].port_map = container_result[0][
+                                            ports_key
+                                        ]
+                                    if mounts_key in container_result[0].keys():
+                                        roles[role_name].mounts = container_result[0][
+                                            mounts_key
+                                        ]
+                        else:
+                            roles[role_name].num_replicas += 1
+
     return roles
 
-#Does not handle not ready to dispatch case
-def get_tasks_status_description(status : Dict[str, str]) -> Dict[str, int]:
-   
+
+# Does not handle not ready to dispatch case
+def get_tasks_status_description(status: Dict[str, str]) -> Dict[str, int]:
+
     results = {}
- 
-    #Keys related to tasks and status
-    key_run = 'running'
-    key_pend = 'pending'
-    key_fail = 'failed'
-    key_success = 'Succeeded'
+
+    # Keys related to tasks and status
+    key_run = "running"
+    key_pend = "pending"
+    key_fail = "failed"
+    key_success = "Succeeded"
 
     if key_run in status.keys():
-       results[key_run] = status[key_run]
+        results[key_run] = status[key_run]
     if key_pend in status.keys():
-       results[key_pend] = status[key_pend]
+        results[key_pend] = status[key_pend]
     if key_fail in status.keys():
-       results[key_fail] = status[key_fail]
+        results[key_fail] = status[key_fail]
     if key_success in status.keys():
-       results[key_success] = status[key_success]
+        results[key_success] = status[key_success]
 
     return results
+
 
 @dataclass
 class KubernetesMCADJob:
@@ -713,8 +790,8 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        #Scheduler.__init__(self, "kubernetes_mcad", session_name)
-        #DockerWorkspace.__init__(self, docker_client)
+        # Scheduler.__init__(self, "kubernetes_mcad", session_name)
+        # DockerWorkspace.__init__(self, docker_client)
         super().__init__("kubernetes_mcad", session_name, docker_client=docker_client)
 
         self._client = client
@@ -736,7 +813,8 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
     def _custom_objects_api(self) -> "CustomObjectsApi":
         from kubernetes import client
-        api_client=client.CustomObjectsApi(self._api_client())
+
+        api_client = client.CustomObjectsApi(self._api_client())
         return api_client
 
     def _get_job_name_from_exception(self, e: "ApiException") -> Optional[str]:
@@ -781,7 +859,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         self, app: AppDef, cfg: KubernetesMCADOpts
     ) -> AppDryRunInfo[KubernetesMCADJob]:
         # map any local images to the remote image
-        #images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        # images_to_push = self._update_app_images(app, cfg.get("image_repo"))
         images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
         service_account = cfg.get("service_account")
@@ -790,9 +868,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         ), "service_account must be a str"
 
         priority = cfg.get("priority")
-        assert priority is None or isinstance(
-            priority, int
-        ), "priority must be a int"
+        assert priority is None or isinstance(priority, int), "priority must be a int"
 
         image_secret = cfg.get("image_secret")
         assert image_secret is None or isinstance(
@@ -806,13 +882,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
  patched image push access."""
             warnings.warn(msg)
         namespace = cfg.get("namespace")
-        assert isinstance(
-            namespace, str
-        ), "namespace must be a str"
+        assert isinstance(namespace, str), "namespace must be a str"
 
-        resource = app_to_resource(app,
-                                   namespace,
-                                   service_account, image_secret, priority)
+        resource = app_to_resource(
+            app, namespace, service_account, image_secret, priority
+        )
         req = KubernetesMCADJob(
             resource=resource,
             images_to_push=images_to_push,
@@ -820,7 +894,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
         info = AppDryRunInfo(req, repr)
         info._app = app
-        #pyre-fixme
+        # pyre-fixme
         info._cfg = cfg
         return info
 
@@ -864,59 +938,62 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         opts.add(
             "image_secret",
             type_=str,
-            help="The name of the Kubernetes/OpenShift secret set up for private images"
+            help="The name of the Kubernetes/OpenShift secret set up for private images",
         )
         return opts
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         namespace, name = app_id.split(":")
         from kubernetes.client.rest import ApiException
+
         roles = {}
         roles_statuses = {}
 
-        #Production section
+        # Production section
         api_instance = self._custom_objects_api
-        group="mcad.ibm.com"
-        version="v1beta1"
-        plural="appwrappers"
-        try:        
-            api_resp = api_instance().get_namespaced_custom_object(group, version, namespace, plural, name) 
+        group = "mcad.ibm.com"
+        version = "v1beta1"
+        plural = "appwrappers"
+        try:
+            api_resp = api_instance().get_namespaced_custom_object(
+                group, version, namespace, plural, name
+            )
         except ApiException as e:
             api_resp = {}
             if e.status == 404 and e.reason == "Not Found":
                 raise ValueError(
-                   f"Kubernetes client not found. Check access to Kubernetes cluster."
+                    "Kubernetes client not found. Check access to Kubernetes cluster."
                 ) from e
             elif e.status == 401 and e.reason == "Unauthorized":
-                raise ValueError(
-                   f"Unauthorized Kubernetes access error."
-                ) from e
+                raise ValueError("Unauthorized Kubernetes access error.") from e
             else:
                 raise
 
         task_status = []
-        if 'status' in api_resp.keys():
-            status=api_resp['status']
+        if "status" in api_resp.keys():
+            status = api_resp["status"]
             tasks_results = get_tasks_status_description(status)
-            #Handle case where waiting for dispatch
+            # Handle case where waiting for dispatch
             if not tasks_results:
-                tasks_results["Pending dispatch"] = len(api_resp['spec']['resources']['GenericItems']) - 1
+                tasks_results["Pending dispatch"] = (
+                    len(api_resp["spec"]["resources"]["GenericItems"]) - 1
+                )
 
-            #Convert MCAD status to TorchX replica set status format
-            #Warning: Status is not necessarily the match for a particular Replica ID
-            for key,value in tasks_results.items():
+            # Convert MCAD status to TorchX replica set status format
+            # Warning: Status is not necessarily the match for a particular Replica ID
+            for key, value in tasks_results.items():
                 for id in range(0, value):
                     task_status.append(key)
 
-            state=status['state']
+            state = status["state"]
             app_state = JOB_STATE[state]
-      
-            #Roles
-            spec=api_resp['spec']
-            resources = spec['resources'] 
-            genericItems=resources['GenericItems']
 
-            # Note MCAD service is not considered a TorchX role   
+            # Roles
+            spec = api_resp["spec"]
+            resources = spec["resources"]
+            genericItems = resources["GenericItems"]
+
+            # Note MCAD service is not considered a TorchX role
             roles = get_role_information(genericItems)
             task_count = 0
             for role in roles:
@@ -928,9 +1005,9 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
                     state = TASK_STATE[task_status[task_count]]
                     roles_statuses[role].replicas.append(
                         ReplicaStatus(id=int(idx), role=role, state=state, hostname="")
-                    ) 
-                    task_count+=1
-                      
+                    )
+                    task_count += 1
+
         else:
             app_state = AppState.UNKNOWN
 
@@ -940,7 +1017,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             roles_statuses=list(roles_statuses.values()),
             state=app_state,
         )
-   
+
     def log_iter(
         self,
         app_id: str,
@@ -955,18 +1032,20 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         assert until is None, "kubernetes API doesn't support until"
 
         if streams not in (None, Stream.COMBINED):
-            raise ValueError("KubernetesMCADScheduler only supports COMBINED log stream")
+            raise ValueError(
+                "KubernetesMCADScheduler only supports COMBINED log stream"
+            )
 
         from kubernetes import client, watch
 
         namespace, name = app_id.split(":")
 
-        print('\033[100m' + "\n ks - log_iter \n" + '\033[0m')
+        print("\033[100m" + "\n ks - log_iter \n" + "\033[0m")
         print(f"{name}")
 
         pod_name = cleanup_str(f"{name}-{k}")
 
-        print('\033[100m' + "\n ks - log_iter \n" + '\033[0m')
+        print("\033[100m" + "\n ks - log_iter \n" + "\033[0m")
         print(f"{pod_name}")
 
         args: Dict[str, object] = {
@@ -992,7 +1071,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
     def list(self) -> List[str]:
         job_names = []
-        #TO DO: retrieve correct namespace here 
+        # TO DO: retrieve correct namespace here
         namespace = "default"
 
         resp = self._custom_objects_api().list_namespaced_custom_object(
@@ -1017,7 +1096,7 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
     )
 
 
-#TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
+# TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
 def pod_labels(
     app: AppDef, role_idx: int, role: Role, replica_id: int
 ) -> Dict[str, str]:
