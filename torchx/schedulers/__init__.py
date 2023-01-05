@@ -17,6 +17,7 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
     "local_cwd": "torchx.schedulers.local_scheduler",
     "slurm": "torchx.schedulers.slurm_scheduler",
     "kubernetes": "torchx.schedulers.kubernetes_scheduler",
+    "kubernetes_mcad": "torchx.schedulers.kubernetes_mcad_scheduler",
     "aws_batch": "torchx.schedulers.aws_batch_scheduler",
     "gcp_batch": "torchx.schedulers.gcp_batch_scheduler",
     "ray": "torchx.schedulers.ray_scheduler",
