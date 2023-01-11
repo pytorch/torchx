@@ -36,6 +36,7 @@ Learn more about running distributed trainers :py:mod:`torchx.components.dist`
 import json
 import logging
 import re
+import subprocess
 
 import warnings
 from dataclasses import dataclass
@@ -54,9 +55,7 @@ from typing import (
 
 import torchx
 import yaml
-
-# ListAppResponse is a planned future update
-from torchx.schedulers.api import (  # noqa: F401 imported but unused
+from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
     filter_regex,
@@ -82,7 +81,6 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
-from torchx.specs.builders import make_app_handle
 
 # from torchx.workspace.docker_workspace import DockerWorkspace
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
@@ -366,7 +364,7 @@ def role_to_pod(
 
 def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
     from kubernetes.client.models import (  # noqa: F401, F811
-        V1Container,  # noqa: F811 redefinition of unused
+        V1Container,
         V1ContainerPort,
         V1EmptyDirVolumeSource,
         V1EnvVar,
@@ -661,6 +659,15 @@ def get_role_information(genericItems: Iterable[Dict[str, Any]]) -> Dict[str, An
                             roles[role_name].num_replicas += 1
 
     return roles
+
+
+def get_appwrapper_status(app: Dict[str, str]) -> AppState:
+    if "status" in app.keys():
+        # pyre-fixme
+        return JOB_STATE[app["status"]["state"]]
+    else:
+        # Handle case where appwrapper is created but pending dispatch
+        return JOB_STATE["Pending"]
 
 
 # Does not handle not ready to dispatch case
@@ -1069,10 +1076,14 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         else:
             return iterator
 
-    def list(self) -> List[str]:
-        job_names = []
-        # TO DO: retrieve correct namespace here
-        namespace = "default"
+    def list(self) -> List[ListAppResponse]:
+        p1 = subprocess.run(
+            ["kubectl", "config", "view", "--minify"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
+        namespace = p1.stdout.decode("utf-8").split()[namespace_id + 1]
 
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="mcad.ibm.com",
@@ -1081,13 +1092,14 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             plural="appwrappers",
             timeout_seconds=30,
         )
-        items = resp["items"]
-        for item in items:
-            name = item["metadata"]["name"]
-            app_id = f"{namespace}:{name}"
-            app_handle = make_app_handle("kubernetes_mcad", "default", app_id)
-            job_names.append(app_handle)
-        return job_names
+
+        return [
+            ListAppResponse(
+                app_id=f"{namespace}:{item['metadata']['name']}",
+                state=get_appwrapper_status(item),
+            )
+            for item in resp["items"]
+        ]
 
 
 def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADScheduler:

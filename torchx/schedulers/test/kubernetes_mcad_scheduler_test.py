@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import importlib
+import subprocess
 import sys
 import unittest
 from datetime import datetime
@@ -15,12 +16,14 @@ from torchx import schedulers, specs
 
 # @manual=//torchx/schedulers:kubernetes_mcad_scheduler
 from torchx.schedulers import kubernetes_mcad_scheduler
-from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse
+from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
 from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_mcad_scheduler import (
     app_to_resource,
     cleanup_str,
     create_scheduler,
+    get_port_for_service,
+    get_role_information,
     KubernetesMCADJob,
     KubernetesMCADOpts,
     KubernetesMCADScheduler,
@@ -28,6 +31,7 @@ from torchx.schedulers.kubernetes_mcad_scheduler import (
     mcad_svc,
     role_to_pod,
 )
+from torchx.specs import AppState, Resource, Role
 
 SKIP_DOCKER: bool = not has_docker()
 
@@ -300,6 +304,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
         self.assertEqual("", cleanup_str("!!!"))
 
+    def test_get_port_for_service(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        test_port = get_port_for_service(app)
+        self.assertEqual(test_port, "29500")
+
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
@@ -416,6 +426,98 @@ spec:
       replicas: 1
 """,
         )
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        get_namespaced_custom_object.return_value = {
+            "status": {
+                "state": "Running",
+                "Succeeded": 1,
+            },
+            "spec": {
+                "resources": {
+                    "GenericItems": [
+                        {
+                            "generictemplate": {
+                                "metadata": {
+                                    "labels": {
+                                        "torchx.pytorch.org/role-name": "echo",
+                                    },
+                                },
+                                "spec": {
+                                    "containers": [
+                                        {
+                                            "command": [
+                                                "bash",
+                                                "-c",
+                                                "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                                            ],
+                                            "env": {
+                                                "name": "TORCH_DISTRIBUTED_DEBUG",
+                                                "value": "DETAIL",
+                                            },
+                                            "image": "echoImage",
+                                            "resources": {
+                                                "limits": {
+                                                    "cpu": "1000m",
+                                                    "memory": "514000M",
+                                                    "gpu": "2",
+                                                },
+                                                "requests": {
+                                                    "cpu": 900,
+                                                    "memory": 512976,
+                                                    "gpu": 2,
+                                                },
+                                            },
+                                            "ports": {"c10d": 29500},
+                                            "volumeMounts": [
+                                                specs.VolumeMount(
+                                                    src="dshm", dst_path="/dev/shm"
+                                                )
+                                            ],
+                                        }
+                                    ],
+                                },
+                            },
+                        }
+                    ],
+                },
+            },
+        }
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="echoImage",
+                min_replicas=None,
+                base_image=None,
+                args=[
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=900, gpu=2, memMB=512976, capabilities={}, devices={}
+                ),
+                port_map={"c10d": 29500},
+                metadata={},
+                mounts=[specs.VolumeMount(src="dshm", dst_path="/dev/shm")],
+            )
+        }
+
+        self.assertEqual(roles, expect)
 
     def test_volume_mounts(self) -> None:
         scheduler = create_scheduler("test")
@@ -746,8 +848,6 @@ spec:
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
     def test_describe(self, get_namespaced_custom_object: MagicMock) -> None:
 
-        # TO DO: update the return value with the Role information
-
         get_namespaced_custom_object.return_value = {
             "status": {
                 "state": "Running",
@@ -860,6 +960,193 @@ spec:
                 "name": "testjob",
             },
         )
+
+    @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
+    def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
+        scheduler = create_scheduler("test")
+        # Save test environment namespace
+        p1 = subprocess.run(
+            ["kubectl", "config", "view", "--minify"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
+        true_namespace = p1.stdout.decode("utf-8").split()[namespace_id + 1]
+
+        p2 = subprocess.run(
+            ["kubectl", "config", "set-context", "--current", "--namespace=default"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        scheduler.list()
+        call = list_namespaced_custom_object.call_args
+        args, kwargs = call
+
+        # reset test environment namespace
+        namespace_arg = "--namespace=" + true_namespace
+        p3 = subprocess.run(
+            ["kubectl", "config", "set-context", "--current", namespace_arg],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+
+        self.assertEqual(
+            kwargs,
+            {
+                "group": "mcad.ibm.com",
+                "version": "v1beta1",
+                "namespace": "default",
+                "plural": "appwrappers",
+                "timeout_seconds": 30,
+            },
+        )
+
+    @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
+    def test_list_values(self, list_namespaced_custom_object: MagicMock) -> None:
+        list_namespaced_custom_object.return_value = {
+            "apiVersion": "mcad.ibm.com/v1beta1",
+            "name": "test-training",
+            "namespace": "default",
+            "items": [
+                {
+                    "apiVersion": "mcad.ibm.com/v1beta1",
+                    "kind": "AppWrapper",
+                    "metadata": {
+                        "name": "test-training",
+                        "namespace": "default",
+                    },
+                    "status": {
+                        "canrun": "true",
+                        "conditions": [
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:23:55.036212Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:23:55.036211Z",
+                                "status": "True",
+                                "type": "Init",
+                            },
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:23:55.036419Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:23:55.036419Z",
+                                "reason": "AwaitingHeadOfLine",
+                                "status": "True",
+                                "type": "Queueing",
+                            },
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:23:55.050841Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:23:55.050840Z",
+                                "reason": "FrontOfQueue.",
+                                "status": "True",
+                                "type": "HeadOfLine",
+                            },
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:24:06.762455Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:24:06.762455Z",
+                                "reason": "AppWrapperRunnable",
+                                "status": "True",
+                                "type": "Dispatched",
+                            },
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:24:06.780635Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:24:06.780635Z",
+                                "reason": "PodsRunning",
+                                "status": "True",
+                                "type": "Running",
+                            },
+                        ],
+                        "controllerfirsttimestamp": "2023-01-10T16:23:55.035192Z",
+                        "filterignore": "true",
+                        "queuejobstate": "Running",
+                        "running": "2",
+                        "sender": "before [syncQueueJob] setRunning",
+                        "state": "Running",
+                    },
+                },
+                {
+                    "apiVersion": "mcad.ibm.com/v1beta1",
+                    "kind": "AppWrapper",
+                    "metadata": {
+                        "name": "test-training",
+                        "namespace": "default",
+                    },
+                    "status": {
+                        "canrun": "true",
+                        "conditions": [
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:23:55.036212Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:23:55.036211Z",
+                                "status": "True",
+                                "type": "Init",
+                            },
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:23:55.036419Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:23:55.036419Z",
+                                "reason": "AwaitingHeadOfLine",
+                                "status": "True",
+                                "type": "Queueing",
+                            },
+                            {
+                                "lastTransitionMicroTime": "2023-01-10T16:23:55.050841Z",
+                                "lastUpdateMicroTime": "2023-01-10T16:23:55.050840Z",
+                                "reason": "FrontOfQueue.",
+                                "status": "True",
+                                "type": "HeadOfLine",
+                            },
+                        ],
+                        "controllerfirsttimestamp": "2023-01-10T16:23:55.035192Z",
+                        "filterignore": "true",
+                        "queuejobstate": "HeadOfLine",
+                        "sender": "before ScheduleNext - setHOL",
+                        "state": "Pending",
+                    },
+                },
+            ],
+        }
+        scheduler = create_scheduler("test")
+
+        # Save test environment namespace
+        p1 = subprocess.run(
+            ["kubectl", "config", "view", "--minify"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
+        true_namespace = p1.stdout.decode("utf-8").split()[namespace_id + 1]
+
+        p2 = subprocess.run(
+            ["kubectl", "config", "set-context", "--current", "--namespace=default"],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+
+        apps = scheduler.list()
+        call = list_namespaced_custom_object.call_args
+        args, kwargs = call
+
+        # restore test environment namespace
+        namespace_arg = "--namespace=" + true_namespace
+        p3 = subprocess.run(
+            ["kubectl", "config", "set-context", "--current", namespace_arg],
+            stdout=subprocess.PIPE,
+            check=True,
+        )
+
+        self.assertEqual(
+            apps,
+            [
+                ListAppResponse(app_id="default:test-training", state=AppState.RUNNING),
+                ListAppResponse(app_id="default:test-training", state=AppState.PENDING),
+            ],
+        )
+
+    @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
+    def test_list_failure(self, list_namespaced_custom_object: MagicMock) -> None:
+        from kubernetes.client.rest import ApiException
+
+        api_exc = ApiException(status=404, reason="Invalid kube config")
+        list_namespaced_custom_object.side_effect = api_exc
+        scheduler = create_scheduler("test")
+        with self.assertRaises(ApiException):
+            scheduler.list()
 
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
     def test_log_iter(self, read_namespaced_pod_log: MagicMock) -> None:
