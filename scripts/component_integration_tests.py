@@ -11,6 +11,7 @@ Kubernetes integration tests.
 import argparse
 import logging
 import os
+from uuid import uuid4
 
 import example_app_defs as examples_app_defs_providers
 import torchx.components.integration_tests.component_provider as component_provider
@@ -40,6 +41,7 @@ def argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Process some integers.")
     choices = list(get_scheduler_factories().keys())
     parser.add_argument("--scheduler", required=True, choices=choices)
+    parser.add_argument("--mock", action="store_true")
     return parser
 
 
@@ -50,6 +52,12 @@ def main() -> None:
     print("Starting components integration tests")
     torchx_image = "dummy_image"
     dryrun = False
+
+    if args.mock:
+        if scheduler == "aws_batch":
+            _mock_aws_batch()
+        else:
+            raise ValueError(f"mocking is not supported for {scheduler}")
 
     if scheduler in (
         "kubernetes",
@@ -153,6 +161,68 @@ def main() -> None:
             dryrun=dryrun,
             workspace=params.get("workspace"),
         )
+
+
+def _mock_aws_batch() -> None:
+    """
+    This sets up a mock AWS batch backend that uses Docker to execute the jobs
+    locally.
+    """
+    from moto import mock_batch, mock_ec2, mock_ecs, mock_iam, mock_logs
+
+    mock_batch().__enter__()
+    mock_iam().__enter__()
+    mock_ec2().__enter__()
+    mock_ecs().__enter__()
+    mock_logs().__enter__()
+
+    import boto3.session
+
+    session = boto3.session.Session()
+    batch_client = session.client("batch")
+    iam_client = session.client("iam")
+    ec2_client = session.client("ec2")
+
+    # Setup code is from:
+    # https://github.com/getmoto/moto/blob/master/tests/test_batch/__init__.py
+
+    # setup ec2
+    resp = ec2_client.create_vpc(CidrBlock="172.30.0.0/24")
+    vpc_id = resp["Vpc"]["VpcId"]
+    resp = ec2_client.create_subnet(
+        AvailabilityZone="eu-central-1a", CidrBlock="172.30.0.0/25", VpcId=vpc_id
+    )
+    subnet_id = resp["Subnet"]["SubnetId"]
+    resp = ec2_client.create_security_group(
+        Description="test_sg_desc", GroupName=str(uuid4())[0:6], VpcId=vpc_id
+    )
+    sg_id = resp["GroupId"]
+
+    # setup IAM
+    role_name = f"{str(uuid4())[0:6]}"
+    resp = iam_client.create_role(
+        RoleName=role_name, AssumeRolePolicyDocument="some_policy"
+    )
+    iam_arn = resp["Role"]["Arn"]
+    iam_client.create_instance_profile(InstanceProfileName=role_name)
+    iam_client.add_role_to_instance_profile(
+        InstanceProfileName=role_name, RoleName=role_name
+    )
+
+    resp = batch_client.create_compute_environment(
+        computeEnvironmentName="torchx",
+        type="UNMANAGED",
+        state="ENABLED",
+        serviceRole=iam_arn,
+    )
+    arn = resp["computeEnvironmentArn"]
+
+    resp = batch_client.create_job_queue(
+        jobQueueName="torchx",
+        state="ENABLED",
+        priority=123,
+        computeEnvironmentOrder=[{"order": 123, "computeEnvironment": arn}],
+    )
 
 
 if __name__ == "__main__":
