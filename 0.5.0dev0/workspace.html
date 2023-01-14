@@ -478,6 +478,12 @@ remote jobs.</p>
 requires being authenticated to those repositories via <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">login</span></code>.</p>
 <p>If there is a <code class="docutils literal notranslate"><span class="pre">Dockerfile.torchx</span></code> file present in the workspace that will
 be used instead to build the container.</p>
+<p>The docker build is provided with some extra build arguments that can be
+used in the Dockerfile.torchx:</p>
+<ul class="simple">
+<li><p>IMAGE: the image string from the first Role in the AppDef</p></li>
+<li><p>WORKSPACE: the full workspace path</p></li>
+</ul>
 <p>To exclude files from the build context you can use the standard
 <cite>.dockerignore</cite> file.</p>
 <p>See more:</p>

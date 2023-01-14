@@ -419,6 +419,13 @@
 
 <span class="n">TORCHX_DOCKERFILE</span> <span class="o">=</span> <span class="s2">&quot;Dockerfile.torchx&quot;</span>
 
+<span class="n">DEFAULT_DOCKERFILE</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">ARG IMAGE</span>
+<span class="s2">FROM $IMAGE</span>
+
+<span class="s2">COPY . .</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
 
 <div class="viewcode-block" id="DockerWorkspaceMixin"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.docker_workspace.DockerWorkspaceMixin">[docs]</a><span class="k">class</span> <span class="nc">DockerWorkspaceMixin</span><span class="p">(</span><span class="n">WorkspaceMixin</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -432,6 +439,12 @@
 
 <span class="sd">    If there is a ``Dockerfile.torchx`` file present in the workspace that will</span>
 <span class="sd">    be used instead to build the container.</span>
+
+<span class="sd">    The docker build is provided with some extra build arguments that can be</span>
+<span class="sd">    used in the Dockerfile.torchx:</span>
+
+<span class="sd">    * IMAGE: the image string from the first Role in the AppDef</span>
+<span class="sd">    * WORKSPACE: the full workspace path</span>
 
 <span class="sd">    To exclude files from the build context you can use the standard</span>
 <span class="sd">    `.dockerignore` file.</span>
@@ -498,6 +511,10 @@
                 <span class="n">fileobj</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
                 <span class="n">custom_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">dockerfile</span><span class="o">=</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">,</span>
+                <span class="n">buildargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;IMAGE&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                    <span class="s2">&quot;WORKSPACE&quot;</span><span class="p">:</span> <span class="n">workspace</span><span class="p">,</span>
+                <span class="p">},</span>
                 <span class="n">pull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">rm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
@@ -614,15 +631,13 @@
         <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;torchx-context&quot;</span><span class="p">,</span>
         <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.tar&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">dockerfile</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FROM </span><span class="si">{</span><span class="n">img</span><span class="si">}</span><span class="se">\n</span><span class="s2">COPY . .</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tf</span><span class="p">:</span>
         <span class="n">_copy_to_tarfile</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">tf</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">TORCHX_DOCKERFILE</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">getnames</span><span class="p">():</span>
-
             <span class="n">info</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarInfo</span><span class="p">(</span><span class="n">TORCHX_DOCKERFILE</span><span class="p">)</span>
-            <span class="n">info</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">)</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">dockerfile</span><span class="p">))</span>
+            <span class="n">info</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">DEFAULT_DOCKERFILE</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">DEFAULT_DOCKERFILE</span><span class="p">))</span>
     <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">f</span>
 
