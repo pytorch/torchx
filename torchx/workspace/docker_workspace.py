@@ -27,6 +27,13 @@ log: logging.Logger = logging.getLogger(__name__)
 
 TORCHX_DOCKERFILE = "Dockerfile.torchx"
 
+DEFAULT_DOCKERFILE = b"""
+ARG IMAGE
+FROM $IMAGE
+
+COPY . .
+"""
+
 
 class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
     """
@@ -40,6 +47,12 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
 
     If there is a ``Dockerfile.torchx`` file present in the workspace that will
     be used instead to build the container.
+
+    The docker build is provided with some extra build arguments that can be
+    used in the Dockerfile.torchx:
+
+    * IMAGE: the image string from the first Role in the AppDef
+    * WORKSPACE: the full workspace path
 
     To exclude files from the build context you can use the standard
     `.dockerignore` file.
@@ -106,6 +119,10 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 fileobj=context,
                 custom_context=True,
                 dockerfile=TORCHX_DOCKERFILE,
+                buildargs={
+                    "IMAGE": role.image,
+                    "WORKSPACE": workspace,
+                },
                 pull=False,
                 rm=True,
                 labels={
@@ -222,15 +239,13 @@ def _build_context(img: str, workspace: str) -> IO[bytes]:
         prefix="torchx-context",
         suffix=".tar",
     )
-    dockerfile = bytes(f"FROM {img}\nCOPY . .\n", encoding="utf-8")
 
     with tarfile.open(fileobj=f, mode="w") as tf:
         _copy_to_tarfile(workspace, tf)
         if TORCHX_DOCKERFILE not in tf.getnames():
-
             info = tarfile.TarInfo(TORCHX_DOCKERFILE)
-            info.size = len(dockerfile)
-            tf.addfile(info, io.BytesIO(dockerfile))
+            info.size = len(DEFAULT_DOCKERFILE)
+            tf.addfile(info, io.BytesIO(DEFAULT_DOCKERFILE))
     f.seek(0)
     return f
 
