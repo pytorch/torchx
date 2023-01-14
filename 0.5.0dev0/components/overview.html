@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -502,7 +502,7 @@ the <a class="reference internal" href="distributed.html#torchx.components.dist.
 </div>
 <p>Assuming the component above is saved in <code class="docutils literal notranslate"><span class="pre">example.py</span></code>, we can run <code class="docutils literal notranslate"><span class="pre">--help</span></code>
 on it as:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx ./example.py:ddp --help
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>./example.py:ddp<span class="w"> </span>--help
 <span class="go">usage: torchx run ...torchx_params... ddp  [-h] --image IMAGE --script SCRIPT [--host HOST]</span>
 <span class="go">                                          [--nnodes NNODES] [--nproc_per_node NPROC_PER_NODE]</span>
 <span class="go">                                          ...</span>
@@ -524,7 +524,7 @@ on it as:</p>
 </div>
 <p>If we include a docstring as such:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ddp</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
-  <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  DDP Simplified.</span>
 
 <span class="sd">  Args:</span>
@@ -597,7 +597,7 @@ For builtin components this  is of the form <code class="docutils literal notran
 the <code class="docutils literal notranslate"><span class="pre">{component_module}</span></code> is the module path of the component relative to <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code>
 and the <code class="docutils literal notranslate"><span class="pre">{component_fn}</span></code> is the component function within that module. So for
 <code class="docutils literal notranslate"><span class="pre">torchx.components.utils.echo</span></code>, we’d drop the <code class="docutils literal notranslate"><span class="pre">torchx.components</span></code> prefix and run it as</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run utils.echo --msg <span class="s2">&quot;hello world&quot;</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>utils.echo<span class="w"> </span>--msg<span class="w"> </span><span class="s2">&quot;hello world&quot;</span>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="../cli.html#module-torchx.cli"><span class="std std-ref">CLI docs</span></a> for more information.</p>
@@ -609,19 +609,19 @@ the form <code class="docutils literal notranslate"><span class="pre">{component
 file path of your component’s python file, and <code class="docutils literal notranslate"><span class="pre">{component_fn}</span></code> is the name of the
 component function within that file. Assume your component is in <code class="docutils literal notranslate"><span class="pre">/home/bob/component.py</span></code>
 and the component function is called <code class="docutils literal notranslate"><span class="pre">train()</span></code>, you would run this as</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>option <span class="m">1</span>. use absolute path
-<span class="gp">$ </span>torchx run /home/bob/component.py:train --help
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>option<span class="w"> </span><span class="m">1</span>.<span class="w"> </span>use<span class="w"> </span>absolute<span class="w"> </span>path
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>/home/bob/component.py:train<span class="w"> </span>--help
 
-<span class="gp"># </span>option <span class="m">2</span>. <span class="nb">let</span> the shell <span class="k">do</span> the expansion
-<span class="gp">$ </span>torchx run ~/component.py:train --help
+<span class="gp"># </span>option<span class="w"> </span><span class="m">2</span>.<span class="w"> </span><span class="nb">let</span><span class="w"> </span>the<span class="w"> </span>shell<span class="w"> </span><span class="k">do</span><span class="w"> </span>the<span class="w"> </span>expansion
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>~/component.py:train<span class="w"> </span>--help
 
-<span class="gp"># </span>option <span class="m">3</span>. same but after CWD to <span class="nv">$HOME</span>
-<span class="gp">$ </span><span class="nb">cd</span> ~/
-<span class="gp">$ </span>torchx run ./component.py:train --help
+<span class="gp"># </span>option<span class="w"> </span><span class="m">3</span>.<span class="w"> </span>same<span class="w"> </span>but<span class="w"> </span>after<span class="w"> </span>CWD<span class="w"> </span>to<span class="w"> </span><span class="nv">$HOME</span>
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>./component.py:train<span class="w"> </span>--help
 
-<span class="gp"># </span>option <span class="m">4</span>. files can be relative to CWD
-<span class="gp">$ </span><span class="nb">cd</span> ~/
-<span class="gp">$ </span>torchx run component.py:train --help
+<span class="gp"># </span>option<span class="w"> </span><span class="m">4</span>.<span class="w"> </span>files<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>relative<span class="w"> </span>to<span class="w"> </span>CWD
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>component.py:train<span class="w"> </span>--help
 </pre></div>
 </div>
 <div class="admonition note">

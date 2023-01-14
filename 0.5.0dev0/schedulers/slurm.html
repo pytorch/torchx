@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -424,10 +424,10 @@ in the current working directory. This matches the behavior of the
 <li><p><a class="reference external" href="https://slurm.schedmd.com/sbatch.html">https://slurm.schedmd.com/sbatch.html</a></p></li>
 <li><p><a class="reference external" href="https://slurm.schedmd.com/heterogeneous_jobs.html">https://slurm.schedmd.com/heterogeneous_jobs.html</a></p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchx run --scheduler slurm utils.echo --msg hello
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>slurm<span class="w"> </span>utils.echo<span class="w"> </span>--msg<span class="w"> </span>hello
 slurm://torchx_user/1234
-$ torchx status slurm://torchx_user/1234
-$ less slurm-1234.out
+$<span class="w"> </span>torchx<span class="w"> </span>status<span class="w"> </span>slurm://torchx_user/1234
+$<span class="w"> </span>less<span class="w"> </span>slurm-1234.out
 ...
 </pre></div>
 </div>

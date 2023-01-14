@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -451,7 +451,7 @@
 
 
 <div class="viewcode-block" id="SignalException"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.SignalException">[docs]</a><span class="k">class</span> <span class="nc">SignalException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised during the runtime when the torchx local scheduler process</span>
 <span class="sd">    got termination signal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -462,7 +462,7 @@
 
 
 <span class="k">def</span> <span class="nf">_terminate_process_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">FrameType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Termination handler that raises exceptions on the main process.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Termination handler that raises exceptions on the main process.</span>
 
 <span class="sd">    When the process receives death signal(SIGTERM, SIGINT), this termination handler will</span>
 <span class="sd">    be invoked. It raises the ``SignalException`` exception that should be processed by the</span>
@@ -476,7 +476,7 @@
 
 <div class="viewcode-block" id="ReplicaParam"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ReplicaParam">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ReplicaParam</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds ``LocalScheduler._popen()`` parameters for each replica of the role.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -492,14 +492,14 @@
 
 
 <div class="viewcode-block" id="ImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider">[docs]</a><span class="k">class</span> <span class="nc">ImageProvider</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages downloading and setting up an on localhost. This is only needed for</span>
 <span class="sd">    ``LocalhostScheduler`` since typically real schedulers will do this</span>
 <span class="sd">    on-behalf of the user.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ImageProvider.fetch_role"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch_role">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identical to ``fetch(image)`` in that it fetches the role&#39;s</span>
 <span class="sd">        image and returns the path to the image root, except that</span>
 <span class="sd">        it allows the role to be updated by this provider. Useful</span>
@@ -512,7 +512,7 @@
 
 <div class="viewcode-block" id="ImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.fetch">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pulls the given image and returns a path to the pulled image on</span>
 <span class="sd">        the local host or empty string if no op</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -526,7 +526,7 @@
         <span class="n">stderr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">combined</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReplicaParam</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given the role replica&#39;s specs returns ``ReplicaParam`` holder</span>
 <span class="sd">        which hold the arguments to eventually pass to ``subprocess.Popen``</span>
 <span class="sd">        to actually invoke and run each role&#39;s replica. The ``img_root``</span>
@@ -545,14 +545,14 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute path of the mounted img directory. Used as a working</span>
 <span class="sd">        directory for starting child processes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="ImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the location of the entrypoint.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_root</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">)</span></div></div>
@@ -565,7 +565,7 @@
 
 
 <div class="viewcode-block" id="LocalDirectoryImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider">[docs]</a><span class="k">class</span> <span class="nc">LocalDirectoryImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interprets the image name as the path to a directory on</span>
 <span class="sd">    local host. Does not &quot;fetch&quot; (e.g. download) anything. Used in conjunction</span>
 <span class="sd">    with ``LocalScheduler`` to run local binaries.</span>
@@ -584,7 +584,7 @@
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="LocalDirectoryImageProvider.fetch"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if the image name is not an absolute dir and if it</span>
 <span class="sd">                        does not exist or is not a directory</span>
@@ -598,14 +598,14 @@
         <span class="k">return</span> <span class="n">image</span></div>
 
 <div class="viewcode-block" id="LocalDirectoryImageProvider.get_cwd"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">[docs]</a>    <span class="k">def</span> <span class="nf">get_cwd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the absolute working directory. Used as a working</span>
 <span class="sd">        directory for the child process.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">image</span></div>
 
 <div class="viewcode-block" id="LocalDirectoryImageProvider.get_entrypoint"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_entrypoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_entrypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the role entrypoint. When local scheduler is executed with</span>
 <span class="sd">        image_type=dir, the childprocess working directory will be set to the</span>
 <span class="sd">        img_root. If `role.entrypoint` is relative path, it would be resolved</span>
@@ -616,7 +616,7 @@
 
 
 <div class="viewcode-block" id="CWDImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider">[docs]</a><span class="k">class</span> <span class="nc">CWDImageProvider</span><span class="p">(</span><span class="n">ImageProvider</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Similar to LocalDirectoryImageProvider however it ignores the image name and</span>
 <span class="sd">    uses the current working directory as the image path.</span>
 
@@ -648,7 +648,7 @@
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">_LocalReplica</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Contains information about a locally running role replica.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -666,7 +666,7 @@
     <span class="n">error_file</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        terminates the underlying process for this replica</span>
 <span class="sd">        closes stdout and stderr file handles</span>
 <span class="sd">        safe to call multiple times</span>
@@ -696,7 +696,7 @@
 
 
 <span class="k">class</span> <span class="nc">_LocalAppDef</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Container object used by ``LocalhostScheduler`` to group the pids that</span>
 <span class="sd">    form an application. Each replica of a role in the application is a</span>
 <span class="sd">    process and has a pid.</span>
@@ -721,7 +721,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
     <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        terminates all procs associated with this app,</span>
 <span class="sd">        and closes any resources (e.g. log file handles)</span>
 <span class="sd">        safe to call multiple times</span>
@@ -783,7 +783,7 @@
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        terminates all procs associated with this app,</span>
 <span class="sd">        and closes any resources (e.g. log file handles)</span>
 <span class="sd">        and if log_dir has been specified,</span>
@@ -841,7 +841,7 @@
 
 
 <span class="k">def</span> <span class="nf">_join_PATH</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Joins strings that go in the PATH env var.</span>
 <span class="sd">    Deals with empty strings and None-types, making sure no leading</span>
 <span class="sd">    or trailing path-sep (`:`) in the resulting string</span>
@@ -865,7 +865,7 @@
 
 <div class="viewcode-block" id="PopenRequest"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.PopenRequest">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">PopenRequest</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds parameters to create a subprocess for each replica of each role</span>
 <span class="sd">    of an application.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -881,7 +881,7 @@
 
 
 <span class="k">def</span> <span class="nf">_register_termination_signals</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Register SIGTERM and SIGINT handlers only for the main thread.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span> <span class="ow">is</span> <span class="n">threading</span><span class="o">.</span><span class="n">main_thread</span><span class="p">():</span>
@@ -892,7 +892,7 @@
 
 
 <div class="viewcode-block" id="LocalScheduler"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler">[docs]</a><span class="k">class</span> <span class="nc">LocalScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">LocalOpts</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Schedules on localhost. Containers are modeled as processes and</span>
 <span class="sd">    certain properties of the container that are either not relevant</span>
 <span class="sd">    or that cannot be enforced for localhost</span>
@@ -996,7 +996,7 @@
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_evict_lru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evicts one least recently used element from the apps cache. LRU is defined as</span>
 <span class="sd">        the oldest app in a terminal state (e.g. oldest finished app).</span>
 
@@ -1022,7 +1022,7 @@
             <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">_get_file_io</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a file name, opens the file for write and returns the IO.</span>
 <span class="sd">        If no file name is given, then returns ``None``</span>
 <span class="sd">        Raises a ``FileExistsError`` if the file is already present.</span>
@@ -1046,7 +1046,7 @@
         <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LocalReplica</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as ``subprocess.Popen(**popen_kwargs)`` but is able to take ``stdout`` and ``stderr``</span>
 <span class="sd">        as file name ``str`` rather than a file-like obj.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1094,7 +1094,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the log dir. We redirect stdout/err</span>
 <span class="sd">        to a log file ONLY if the log_dir is user-provided in the cfg</span>
 
@@ -1222,7 +1222,7 @@
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PopenRequest</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts the application and cfg into a ``PopenRequest``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 

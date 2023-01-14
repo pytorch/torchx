@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -403,7 +403,7 @@ components on a Kubernetes cluster.</p>
 <p>The TorchX Kubernetes scheduler depends on Volcano. If you’re trying to do an
 upgrade you’ll need to completely remove all non-Job Volcano resources and recreate.</p>
 <p>Install Volcano:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
 </pre></div>
 </div>
 <p>See the
@@ -428,10 +428,10 @@ tracking Volcano support for Kubernetes v1.22.</p>
 This occurs due to known bug in Volcano(as per 1.4.0 release):
 <a class="reference external" href="https://github.com/volcano-sh/volcano/issues/1651">https://github.com/volcano-sh/volcano/issues/1651</a></p>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install torchx<span class="o">[</span>kubernetes<span class="o">]</span>
-$ torchx run --scheduler kubernetes --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span><span class="nb">test</span> utils.echo --image alpine:latest --msg hello
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>torchx<span class="o">[</span>kubernetes<span class="o">]</span>
+$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>kubernetes<span class="w"> </span>--scheduler_args<span class="w"> </span><span class="nv">namespace</span><span class="o">=</span>default,queue<span class="o">=</span><span class="nb">test</span><span class="w"> </span>utils.echo<span class="w"> </span>--image<span class="w"> </span>alpine:latest<span class="w"> </span>--msg<span class="w"> </span>hello
 kubernetes://torchx_user/1234
-$ torchx status kubernetes://torchx_user/1234
+$<span class="w"> </span>torchx<span class="w"> </span>status<span class="w"> </span>kubernetes://torchx_user/1234
 ...
 </pre></div>
 </div>

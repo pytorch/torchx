@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -442,8 +442,8 @@ in that it initializes the <code class="docutils literal notranslate"><span clas
 performs a single collective operation (all_reduce) which is enough to
 validate the infrastructure and scheduler setup.</p>
 <p>This example is compatible with the <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code>. To run from CLI:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> <span class="nv">$torchx</span>-git-repo-root/torchx/examples/apps
-<span class="gp">$ </span>torchx run dist.ddp --script compute_world_size/main.py -j 1x2
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$torchx</span>-git-repo-root/torchx/examples/apps
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>dist.ddp<span class="w"> </span>--script<span class="w"> </span>compute_world_size/main.py<span class="w"> </span>-j<span class="w"> </span>1x2
 </pre></div>
 </div>
 <div class="sphx-glr-thumbcontainer" tooltip="This is a minimal &quot;hello world&quot; style  example application that uses PyTorch Distributed to com..."><figure class="align-default" id="id1">

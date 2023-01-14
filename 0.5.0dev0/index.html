@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -407,15 +407,15 @@ for E2E production ML pipelines when you’re ready.</p>
 <section id="in-1-2-3">
 <h2>In 1-2-3<a class="headerlink" href="#in-1-2-3" title="Permalink to this heading">¶</a></h2>
 <p>Step 1. Install</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install torchx<span class="o">[</span>dev<span class="o">]</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>torchx<span class="o">[</span>dev<span class="o">]</span>
 </pre></div>
 </div>
 <p>Step 2. Run Locally</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2">&quot;Hello, localhost!&quot;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_cwd<span class="w"> </span>utils.python<span class="w"> </span>--script<span class="w"> </span>my_app.py<span class="w"> </span><span class="s2">&quot;Hello, localhost!&quot;</span>
 </pre></div>
 </div>
 <p>Step 3. Run Remotely</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchx run --scheduler kubernetes utils.python --script my_app.py <span class="s2">&quot;Hello, Kubernetes!&quot;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>kubernetes<span class="w"> </span>utils.python<span class="w"> </span>--script<span class="w"> </span>my_app.py<span class="w"> </span><span class="s2">&quot;Hello, Kubernetes!&quot;</span>
 </pre></div>
 </div>
 </section>

@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
@@ -433,12 +433,12 @@ local runs you can run it as a regular python program: <code class="docutils lit
 TorchX lets you run this app on a remote cluster.</p>
 </div>
 <p>To launch with TorchX locally (see note above) run:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd utils.python       --script ./datapreproc/datapreproc.py       --       --input_path<span class="o">=</span><span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span>       --output_path<span class="o">=</span>/tmp/torchx/datapreproc
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>utils.python<span class="w">       </span>--script<span class="w"> </span>./datapreproc/datapreproc.py<span class="w">       </span>--<span class="w">       </span>--input_path<span class="o">=</span><span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="w">       </span>--output_path<span class="o">=</span>/tmp/torchx/datapreproc
 </pre></div>
 </div>
 <p>To launch this app onto a remote cluster, simply specify a different scheduler
 in the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s kubernetes -cfg <span class="nv">queue</span><span class="o">=</span>foo,namespace<span class="o">=</span>bar utils.python       --script ./datapreproc/datapreproc.py       --       --input_path<span class="o">=</span><span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span>       --output_path<span class="o">=</span>/tmp/torchx/datapreproc
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>kubernetes<span class="w"> </span>-cfg<span class="w"> </span><span class="nv">queue</span><span class="o">=</span>foo,namespace<span class="o">=</span>bar<span class="w"> </span>utils.python<span class="w">       </span>--script<span class="w"> </span>./datapreproc/datapreproc.py<span class="w">       </span>--<span class="w">       </span>--input_path<span class="o">=</span><span class="s2">&quot;http://cs231n.stanford.edu/tiny-imagenet-200.zip&quot;</span><span class="w">       </span>--output_path<span class="o">=</span>/tmp/torchx/datapreproc
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>

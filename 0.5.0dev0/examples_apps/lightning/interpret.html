@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
@@ -434,7 +434,7 @@ using captum.</p>
 <p>Runs this main module as a python process locally. The run below assumes
 that the model has been trained using the usage instructions in
 <code class="docutils literal notranslate"><span class="pre">torchx/examples/apps/lightning/train.py</span></code>.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd utils.python
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>utils.python
 <span class="go">    --script ./lightning/interpret.py</span>
 <span class="go">    --</span>
 <span class="go">    --load_path /tmp/torchx/train/last.ckpt</span>
@@ -501,7 +501,7 @@ a remote scheduler like kubernetes by specifying <code class="docutils literal n
 
 
 <span class="k">def</span> <span class="nf">convert_to_rgb</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <a href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></a><span class="p">:</span>  <span class="c1"># pyre-ignore[24]</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This converts the image from a torch tensor with size (1, 1, 64, 64) to</span>
 <span class="sd">    numpy array with size (64, 64, 3).</span>
 <span class="sd">    &quot;&quot;&quot;</span>

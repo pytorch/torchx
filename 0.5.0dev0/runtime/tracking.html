@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -418,8 +418,8 @@ other apps in the workflow.</p>
 feeding as input of App2. Since these are binaries the typical way to
 chain input/outputs between apps is by passing the output file path
 of App1 as the input file path of App2:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>app1 --output-file s3://foo/out/app1.out
-<span class="gp">$ </span>app2 --input-file s3://foo/out/app1.out
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>app1<span class="w"> </span>--output-file<span class="w"> </span>s3://foo/out/app1.out
+<span class="gp">$ </span>app2<span class="w"> </span>--input-file<span class="w"> </span>s3://foo/out/app1.out
 </pre></div>
 </div>
 <p>As easy as this may seem, there are a few things one needs to worry about:</p>

@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -509,7 +509,7 @@ resource can then be used in the following manner:</p>
 a set of components most relevant to your team or organization and support
 it as a CLI <code class="docutils literal notranslate"><span class="pre">builtin</span></code>. This way users will see your custom components
 when they run</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
 </pre></div>
 </div>
 <p>Custom components can be registered via the following modification of the <code class="docutils literal notranslate"><span class="pre">entry_points</span></code>:</p>
@@ -531,7 +531,7 @@ all defined components.</p>
 there will be two sets of overlapping components with different aliases.</p>
 </div>
 <p>After registration, torchx cli will display registered components via:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
 </pre></div>
 </div>
 <p>If <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> had the following directory structure:</p>
@@ -540,7 +540,7 @@ there will be two sets of overlapping components with different aliases.</p>
 </pre></div>
 </div>
 <p>And <code class="docutils literal notranslate"><span class="pre">baz.py</span></code> defines a component (function) called <code class="docutils literal notranslate"><span class="pre">trainer</span></code>. Then the component can be run as a job in the following manner:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run foo.baz.trainer -- --name <span class="s2">&quot;test app&quot;</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>foo.baz.trainer<span class="w"> </span>--<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;test app&quot;</span>
 </pre></div>
 </div>
 </section>

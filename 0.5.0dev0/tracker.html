@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -467,22 +467,22 @@ implementation.</p>
 </ul>
 </dd>
 </dl>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx:tracker]</span><span class="w"></span>
-<span class="na">tracker_name</span><span class="o">=</span><span class="s">&lt;entry_point&gt;</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx:tracker]</span>
+<span class="na">tracker_name</span><span class="o">=</span><span class="s">&lt;entry_point&gt;</span>
 </pre></div>
 </div>
 <p>Each tracker can be additionally configured (currently limited to <cite>config</cite> parameter) under <cite>[tracker:&lt;TRACKER NAME&gt;]</cite> section:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[tracker:&lt;TRACKER NAME&gt;]</span><span class="w"></span>
-<span class="na">config</span><span class="o">=</span><span class="s">configvalue</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[tracker:&lt;TRACKER NAME&gt;]</span>
+<span class="na">config</span><span class="o">=</span><span class="s">configvalue</span>
 </pre></div>
 </div>
 <p>For example, ~/.torchxconfig may be setup as:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx:tracker]</span><span class="w"></span>
-<span class="na">tracker1</span><span class="o">=</span><span class="s">tracker1</span><span class="w"></span>
-<span class="na">tracker12</span><span class="o">=</span><span class="s">backend_2_entry_point</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx:tracker]</span>
+<span class="na">tracker1</span><span class="o">=</span><span class="s">tracker1</span>
+<span class="na">tracker12</span><span class="o">=</span><span class="s">backend_2_entry_point</span>
 
-<span class="k">[tracker:tracker1]</span><span class="w"></span>
-<span class="na">config</span><span class="o">=</span><span class="s">s3://my_bucket/config.json</span><span class="w"></span>
+<span class="k">[tracker:tracker1]</span>
+<span class="na">config</span><span class="o">=</span><span class="s">s3://my_bucket/config.json</span>
 </pre></div>
 </div>
 </section>
@@ -491,8 +491,8 @@ implementation.</p>
 <p>Entrypoint value defined in the previous step must be discoverable under <cite>[torchx.tracker]</cite> group and callable within user job
 (depending on packaging/distribution mechanism) to create an instance of the <a class="reference internal" href="#torchx.tracker.api.TrackerBase" title="torchx.tracker.api.TrackerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrackerBase</span></code></a>.</p>
 <p>To accomplish that define entrypoint in the distribution in <cite>entry_points.txt</cite> as:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx.tracker]</span><span class="w"></span>
-<span class="na">entry_point_name</span><span class="o">=</span><span class="s">my_module:create_tracker_fn</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx.tracker]</span>
+<span class="na">entry_point_name</span><span class="o">=</span><span class="s">my_module:create_tracker_fn</span>
 </pre></div>
 </div>
 </section>

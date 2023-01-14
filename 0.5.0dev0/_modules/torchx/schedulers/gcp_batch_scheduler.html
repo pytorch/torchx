@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -497,7 +497,7 @@
 
 
 <div class="viewcode-block" id="GCPBatchScheduler"><a class="viewcode-back" href="../../../schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">GCPBatchScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">[</span><span class="n">GCPBatchOpts</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    GCPBatchScheduler is a TorchX scheduling interface to GCP Batch.</span>
 
 <span class="sd">    .. code-block:: bash</span>
@@ -725,7 +725,7 @@
         <span class="k">return</span> <span class="n">opts</span></div>
 
     <span class="k">def</span> <span class="nf">_app_id_to_job_full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        app_id format: f&quot;{project}:{location}:{name}&quot;</span>
 <span class="sd">        job_full_name format: f&quot;projects/{project}/locations/{location}/jobs/{name}&quot;</span>
 <span class="sd">        where &#39;name&#39; was created uniquely for the job from the app name</span>
@@ -828,7 +828,7 @@
             <span class="k">yield</span> <span class="n">entry</span><span class="o">.</span><span class="n">payload</span>
 
     <span class="k">def</span> <span class="nf">_job_full_name_to_app_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_full_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        job_full_name format: f&quot;projects/{project}/locations/{location}/jobs/{name}&quot;</span>
 <span class="sd">        app_id format: f&quot;{project}:{location}:{name}&quot;</span>
 <span class="sd">        where &#39;name&#39; was created uniquely for the job from the app name</span>
