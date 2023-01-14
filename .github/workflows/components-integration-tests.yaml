@@ -8,19 +8,26 @@ on:
 
 jobs:
   components-launch:
-    runs-on: ubuntu-20.04
     strategy:
       matrix:
-       include:
-         - scheduler: "aws_batch"
-         - scheduler: "aws_batch"
-           container_repo: localhost
-           extra_args: "--mock"
-         - scheduler: "kubernetes"
-         - scheduler: "local_cwd"
-         - scheduler: "local_docker"
-         - scheduler: "ray"
+        include:
+          - scheduler: "aws_batch"
+            platform: ubuntu-20.04
+          - scheduler: "aws_batch"
+            container_repo: localhost
+            extra_args: "--mock"
+            platform: ubuntu-20.04
+          - scheduler: "kubernetes"
+            container_repo: localhost:5000/torchx
+            platform: "linux.20_04.16x"
+          - scheduler: "local_cwd"
+            platform: ubuntu-20.04
+          - scheduler: "local_docker"
+            platform: ubuntu-20.04
+          - scheduler: "ray"
+            platform: ubuntu-20.04
       fail-fast: false
+    runs-on: ${{ matrix.platform }}
     permissions:
       id-token: write
       contents: read
@@ -69,9 +76,13 @@ jobs:
           sleep 5 # wait till the node joins so that `status` command displays the head node info
           ray status
 
+      - name: Start Kubernetes
+        if: ${{ matrix.scheduler == 'kubernetes' }}
+        run: |
+          scripts/setup_minikube.sh
+
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
-          CONTAINER_REPO: ${{ matrix.container_repo || secrets.CONTAINER_REPO }}
         run: |
-          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} ${{ matrix.extra_args }}
+          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.CONTAINER_REPO }}"  ${{ matrix.extra_args }}

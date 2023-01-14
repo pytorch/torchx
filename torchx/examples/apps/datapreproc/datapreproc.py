@@ -75,6 +75,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help="remote path to save the .tar.gz data to",
         required=True,
     )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="limit number of processed examples",
+    )
     return parser.parse_args(argv)
 
 
@@ -112,6 +117,9 @@ def main(argv: List[str]) -> None:
                 if not is_image_file(path):
                     continue
                 image_files.append(path)
+
+                if args.limit and len(image_files) > args.limit:
+                    break
         for path in tqdm(image_files, miniters=int(len(image_files) / 2000)):
             f = Image.open(path)
             f = transform(f)

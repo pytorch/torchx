@@ -31,17 +31,18 @@ logging.basicConfig(
 # pyre-ignore-all-errors[11]
 
 
-def build_and_push_image() -> BuildInfo:
+def build_and_push_image(container_repo: str) -> BuildInfo:
     build = build_images()
-    push_images(build)
+    push_images(build, container_repo=container_repo)
     return build
 
 
 def argparser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser = argparse.ArgumentParser(description="Run TorchX integration tests.")
     choices = list(get_scheduler_factories().keys())
     parser.add_argument("--scheduler", required=True, choices=choices)
     parser.add_argument("--mock", action="store_true")
+    parser.add_argument("--container_repo", type=str)
     return parser
 
 
@@ -68,7 +69,7 @@ def main() -> None:
         "gcp_batch",
     ):
         try:
-            build = build_and_push_image()
+            build = build_and_push_image(args.container_repo)
             torchx_image = build.torchx_image
         except MissingEnvError:
             dryrun = True
