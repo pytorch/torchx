@@ -11,7 +11,7 @@ import os
 import time
 from base64 import b32decode, b32encode
 from dataclasses import dataclass
-from typing import Iterable, Mapping, Optional
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 import fsspec
 
@@ -236,19 +236,33 @@ class FsspecTracker(TrackerBase):
         return f"<FsspecTracker: root_path={self._path_builder.path()}>"
 
 
-def _read_config(config_file: str) -> Mapping[str, str]:
+def _put_config(key: str, value: str, config: Dict[str, Any]) -> None:
+    idx = key.find(".")
+    if idx < 0:  # not a nested key -> set key = val
+        config[key] = value
+    elif idx == len(key) - 1:  # key ends with "." -> illegal
+        raise ValueError(
+            f"Illegal config key `{key}`. Key should not have a `.` suffix"
+        )
+    else:
+        first_key = key[:idx]
+        rest_keys = key[idx + 1 :]
+        nested_config = config.setdefault(first_key, {})
+        _put_config(rest_keys, value, nested_config)
+
+
+def _read_config(config_file: str) -> Mapping[str, Any]:
     # TODO add support for resource based config
-    data = {}
-    with fsspec.open(config_file) as f:
-        line = f.readline().decode()
-        while line:
+    data: Dict[str, Any] = {}
+    with fsspec.open(config_file, "rt") as f:
+        for line in f:
+            if line.startswith("#"):  # skip comments
+                continue
+
             k, sep, v = line.partition("=")
             if k and sep and v:
-                # skip comments comment
-                if k.strip().startswith("#"):
-                    continue
-                data[k.strip()] = v.strip()
-            line = f.readline().decode()
+                _put_config(k.strip(), v.strip(), data)
+
     return data
 
 
