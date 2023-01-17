@@ -7,27 +7,20 @@
 
 """
 
-This contains the TorchX Kubernetes scheduler which can be used to run TorchX
-components on a Kubernetes cluster.
+This contains the TorchX Kubernetes_MCAD scheduler which can be used to run TorchX
+components on a Kubernetes cluster via the Multi-Cluster-Application-Dispatcher (MCAD).
 
 Prerequisites
 ==============
 
-TorchX kubernetes scheduler depends on AppWrapper + MCAD and requires etcd intalled for distributed job execution.
+TorchX kubernetes scheduler depends on AppWrapper + MCAD..
 
 Install MCAD 
 
-.. Deploying Multi-Cluster-Application-Dispatcher
-
-    https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
+See deploying Multi-Cluster-Application-Dispatcher guide 
+https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
 TorchX uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
-This requires the installation of etcd service on your kubernetes cluster:
-
-.. code:: bash
-
-    kubectl apply -f https://github.com/pytorch/torchx/blob/main/resources/etcd.yaml
-
 
 Learn more about running distributed trainers :py:mod:`torchx.components.dist`
 
@@ -82,7 +75,6 @@ from torchx.specs.api import (
     VolumeMount,
 )
 
-# from torchx.workspace.docker_workspace import DockerWorkspace
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
@@ -1047,13 +1039,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
         namespace, name = app_id.split(":")
 
-        print("\033[100m" + "\n ks - log_iter \n" + "\033[0m")
-        print(f"{name}")
-
         pod_name = cleanup_str(f"{name}-{k}")
-
-        print("\033[100m" + "\n ks - log_iter \n" + "\033[0m")
-        print(f"{pod_name}")
 
         args: Dict[str, object] = {
             "name": pod_name,
