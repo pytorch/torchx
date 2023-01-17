@@ -742,7 +742,9 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             return iterator
 
     def list(self) -> List[ListAppResponse]:
-        namespace = "default"
+        from kubernetes import config
+        contexts, active_context = config.list_kube_config_contexts()
+        namespace = active_context["context"]["namespace"]
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
             version="v1alpha1",

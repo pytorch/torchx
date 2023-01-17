@@ -7,6 +7,7 @@
 import importlib
 import sys
 import unittest
+import subprocess
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
@@ -690,9 +691,21 @@ spec:
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
         scheduler = create_scheduler("test")
+
+        #Save test environment namespace
+        p1 = subprocess.run(["kubectl", "config", "view", "--minify"], stdout=subprocess.PIPE, check=True)
+        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
+        true_namespace = p1.stdout.decode("utf-8").split()[namespace_id+1]
+
+        p2 = subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=default"], stdout=subprocess.PIPE, check=True)
         scheduler.list()
         call = list_namespaced_custom_object.call_args
         args, kwargs = call
+
+        #reset test environment namespace
+        namespace_arg = "--namespace=" + true_namespace
+        p3 = subprocess.run(["kubectl", "config", "set-context", "--current", namespace_arg], stdout=subprocess.PIPE, check=True)
+
         self.assertEqual(
             kwargs,
             {
@@ -751,9 +764,21 @@ spec:
             ],
         }
         scheduler = create_scheduler("test")
+        #Save test environment namespace
+        p1 = subprocess.run(["kubectl", "config", "view", "--minify"], stdout=subprocess.PIPE, check=True)
+        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
+        true_namespace = p1.stdout.decode("utf-8").split()[namespace_id+1]
+
+        p2 = subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=default"], stdout=subprocess.PIPE, check=True)
+
         apps = scheduler.list()
         call = list_namespaced_custom_object.call_args
         args, kwargs = call
+
+        #restore test environment namespace
+        namespace_arg = "--namespace=" + true_namespace
+        p3 = subprocess.run(["kubectl", "config", "set-context", "--current", namespace_arg], stdout=subprocess.PIPE, check=True)
+
         self.assertEqual(
             kwargs,
             {
@@ -895,3 +920,4 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler.submit_dryrun(app, cfg)
+

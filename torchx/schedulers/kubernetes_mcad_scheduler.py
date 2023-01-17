@@ -29,7 +29,6 @@ Learn more about running distributed trainers :py:mod:`torchx.components.dist`
 import json
 import logging
 import re
-import subprocess
 
 import warnings
 from dataclasses import dataclass
@@ -301,12 +300,11 @@ def role_to_pod(
 
     my_env_var = [
         V1EnvVar(
-            name=f"MCAD_{cleanup_str(role.name)}_{replica_id}_HOSTS".upper().replace(
+            name=f"TORCHX_MCAD_{cleanup_str(role.name)}_0_HOSTS".upper().replace(
                 "-", ""
             ),
-            value=f"{unique_app_id}-{replica_id}.{unique_app_id}",
+            value=f"{unique_app_id}-0.{unique_app_id}",
         )
-        for replica_id in range(role.num_replicas)
     ]
 
     container = V1Container(
@@ -458,7 +456,7 @@ def app_to_resource(
                 img_root="",
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
-                rank0_env=f"MCAD_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper().replace(
+                rank0_env=f"TORCHX_MCAD_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper().replace(
                     "-", ""
                 ),
             )
@@ -484,12 +482,12 @@ def app_to_resource(
                 "replicas": 1,
                 "generictemplate": pod,
             }
-            # TODO: retry support here
+            # TODO: retry support here. For more information, see MCAD GitHub issue #207
             if role.max_retries > 0:
                 genericitem["maxRetry"] = role.max_retries
                 genericitem["policies"] = RETRY_POLICIES[role.retry_policy]
                 msg = f"""
-Role {role.name} configured with restarts: {role.max_retries}.
+MCAD currently does not support retries. Role {role.name} configured with restarts: {role.max_retries}.
                 """
                 warnings.warn(msg)
 
@@ -1051,13 +1049,10 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             return iterator
 
     def list(self) -> List[ListAppResponse]:
-        p1 = subprocess.run(
-            ["kubectl", "config", "view", "--minify"],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
-        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
-        namespace = p1.stdout.decode("utf-8").split()[namespace_id + 1]
+
+        from kubernetes import config
+        contexts, active_context = config.list_kube_config_contexts()
+        namespace = active_context["context"]["namespace"]
 
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="mcad.ibm.com",
