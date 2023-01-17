@@ -533,125 +533,112 @@ Role {role.name} configured with restarts: {role.max_retries}.
     }
     return resource
 
-
-# Helper functions for MCAD generic items information -> TorchX Role
-def get_role_information(genericItems: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+# Helper function for MCAD generic items information -> TorchX Role
+def get_role_information(generic_items: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
     # Store unique role information
     roles = {}
 
     # nested dictionary keys
     # meta data information
-    gt_key = "generictemplate"
-    metadata_key = "metadata"
-    label_key = "labels"
-    role_key = "torchx.pytorch.org/role-name"
+    GT_KEY = "generictemplate"
+    METADATA_KEY = "metadata"
+    LABEL_KEY = "labels"
+    ROLE_KEY = "torchx.pytorch.org/role-name"
 
     # containers information
-    spec_key = "spec"
-    container_key = "containers"
-    image_key = "image"
-    args_key = "command"
-    env_key = "env"
-    resource_key = "resources"
-    ports_key = "ports"
-    mounts_key = "volumeMounts"
+    SPEC_KEY = "spec"
+    CONTAINER_KEY = "containers"
+    IMAGE_KEY = "image"
+    ARGS_KEY = "command"
+    ENV_KEY = "env"
+    RESOURCE_KEY = "resources"
+    PORTS_KEY = "ports"
+    MOUNTS_KEY = "volumeMounts"
 
     # resource keys
-    cpu_key = "cpu"
-    gpu_key = "gpu"
-    request_key = "requests"
-    mem_key = "memory"
+    CPU_KEY = "cpu"
+    GPU_KEY = "gpu"
+    REQUEST_KEY = "requests"
+    MEM_KEY = "memory"
 
-    for genericItem in genericItems:
-        if gt_key in genericItem.keys():
-            gt_result = genericItem[gt_key]
+    for generic_item in generic_items:
+        if GT_KEY not in generic_item.keys():
+            continue
+        gt_result = generic_item[GT_KEY]
 
-            if metadata_key in gt_result.keys():
-                # Note: options in meta data : annotations, labels, name, namespace
-                metadata_result = gt_result[metadata_key]
+        if METADATA_KEY not in gt_result.keys():
+            continue
+        # Note: options in meta data : annotations, labels, name, namespace
+        metadata_result = gt_result[METADATA_KEY]
 
-                if label_key in metadata_result.keys():
-                    label_result = metadata_result[label_key]
-                    if role_key in label_result.keys():
-                        role_name: str = label_result[role_key]
-                        # save role
-                        if role_name not in roles:
-                            roles[role_name] = Role(
-                                name=role_name, num_replicas=0, image=""
-                            )
-                            roles[role_name].num_replicas += 1
+        if LABEL_KEY not in metadata_result.keys():
+            continue
+        label_result = metadata_result[LABEL_KEY]
+        if ROLE_KEY not in label_result.keys():
+            continue
+        role_name: str = label_result[ROLE_KEY]
+        # save role
+        if role_name not in roles:
+            roles[role_name] = Role(
+                name=role_name, num_replicas=0, image=""
+            )
+            roles[role_name].num_replicas += 1
 
-                            # Only get specs for first instance of TorchX role
-                            if spec_key in gt_result.keys():
-                                # Note: options in spec data: containers, hostname, imagePullSecrets, nodeSelector
-                                #      restartPolicy, subdomain, volumes
-                                spec_result = gt_result[spec_key]
-                                if container_key in spec_result.keys():
-                                    container_result = spec_result[container_key]
-                                    if image_key in container_result[0].keys():
-                                        roles[role_name].image = container_result[0][
-                                            image_key
-                                        ]
-                                    if args_key in container_result[0].keys():
-                                        roles[role_name].args = container_result[0][
-                                            args_key
-                                        ]
-                                    if env_key in container_result[0].keys():
-                                        roles[role_name].env = container_result[0][
-                                            env_key
-                                        ]
-                                    if resource_key in container_result[0].keys():
-                                        roles[role_name].resources = container_result[
-                                            0
-                                        ][resource_key]
-                                        resource_req = Resource(
-                                            cpu=-1, gpu=-1, memMB=-1
-                                        )
-                                        if (
-                                            cpu_key
-                                            in container_result[0][resource_key][
-                                                request_key
-                                            ]
-                                        ):
-                                            resource_req.cpu = container_result[0][
-                                                resource_key
-                                            ][request_key][cpu_key]
-                                        # Substring matching to accomodate different gpu types
-                                        gpu_key_values = dict(
-                                            filter(
-                                                lambda item: gpu_key in item[0],
-                                                container_result[0][resource_key][
-                                                    request_key
-                                                ].items(),
-                                            )
-                                        )
-                                        if len(gpu_key_values) != 0:
-                                            for key, value in gpu_key_values.items():
-                                                resource_req.gpu = value
-                                        if (
-                                            mem_key
-                                            in container_result[0][resource_key][
-                                                request_key
-                                            ]
-                                        ):
-                                            resource_req.memMB = container_result[0][
-                                                resource_key
-                                            ][request_key][mem_key]
-                                        roles[role_name].resource = resource_req
+            # Only get specs for first instance of TorchX role
+            if SPEC_KEY not in gt_result.keys():
+                continue
+            # Note: options in spec data: containers, hostname, imagePullSecrets, nodeSelector
+            #      restartPolicy, subdomain, volumes
+            spec_result = gt_result[SPEC_KEY]
+            if CONTAINER_KEY not in spec_result.keys():
+                continue
+            container_result = spec_result[CONTAINER_KEY]
+            if IMAGE_KEY not in container_result[0].keys():
+                continue
+            roles[role_name].image = container_result[0][IMAGE_KEY]
+            
+            if ARGS_KEY not in container_result[0].keys():
+                continue
+            roles[role_name].args = container_result[0][ARGS_KEY]
+            if ENV_KEY not in container_result[0].keys():
+                continue
+            roles[role_name].env = container_result[0][ENV_KEY]
+            if RESOURCE_KEY not in container_result[0].keys():
+                continue
+            roles[role_name].resources = container_result[0][RESOURCE_KEY]
+            resource_req = Resource(
+                cpu=-1, gpu=-1, memMB=-1
+            )
+            if (CPU_KEY not in container_result[0][RESOURCE_KEY][REQUEST_KEY] ):
+                continue
+            resource_req.cpu = container_result[0][RESOURCE_KEY][REQUEST_KEY][CPU_KEY]
+            # Substring matching to accomodate different gpu types
+            gpu_key_values = dict(
+                filter(
+                    lambda item: GPU_KEY in item[0],
+                    container_result[0][RESOURCE_KEY][
+                        REQUEST_KEY
+                    ].items(),
+                )
+            )
+            if len(gpu_key_values) != 0:
+                for key, value in gpu_key_values.items():
+                    resource_req.gpu = value
+            if (MEM_KEY not in container_result[0][RESOURCE_KEY][REQUEST_KEY] ):
+                continue
+            resource_req.memMB = container_result[0][RESOURCE_KEY][REQUEST_KEY][MEM_KEY]
+            roles[role_name].resource = resource_req
 
-                                    if ports_key in container_result[0].keys():
-                                        roles[role_name].port_map = container_result[0][
-                                            ports_key
-                                        ]
-                                    if mounts_key in container_result[0].keys():
-                                        roles[role_name].mounts = container_result[0][
-                                            mounts_key
-                                        ]
-                        else:
-                            roles[role_name].num_replicas += 1
+            if PORTS_KEY not in container_result[0].keys():
+                continue
+            roles[role_name].port_map = container_result[0][PORTS_KEY]
+            if MOUNTS_KEY not in container_result[0].keys():
+                continue  
+            roles[role_name].mounts = container_result[0][MOUNTS_KEY]
+        else:
+            roles[role_name].num_replicas += 1
 
     return roles
-
 
 def get_appwrapper_status(app: Dict[str, str]) -> AppState:
     if "status" in app.keys():
@@ -668,19 +655,19 @@ def get_tasks_status_description(status: Dict[str, str]) -> Dict[str, int]:
     results = {}
 
     # Keys related to tasks and status
-    key_run = "running"
-    key_pend = "pending"
-    key_fail = "failed"
-    key_success = "Succeeded"
+    KEY_RUN = "running"
+    KEY_PEND = "pending"
+    KEY_FAIL = "failed"
+    KEY_SUCCESS = "Succeeded"
 
-    if key_run in status.keys():
-        results[key_run] = status[key_run]
-    if key_pend in status.keys():
-        results[key_pend] = status[key_pend]
-    if key_fail in status.keys():
-        results[key_fail] = status[key_fail]
-    if key_success in status.keys():
-        results[key_success] = status[key_success]
+    if KEY_RUN in status.keys():
+        results[KEY_RUN] = status[KEY_RUN]
+    if KEY_PEND in status.keys():
+        results[KEY_PEND] = status[KEY_PEND]
+    if KEY_FAIL in status.keys():
+        results[KEY_FAIL] = status[KEY_FAIL]
+    if KEY_SUCCESS in status.keys():
+        results[KEY_SUCCESS] = status[KEY_SUCCESS]
 
     return results
 
@@ -990,10 +977,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             # Roles
             spec = api_resp["spec"]
             resources = spec["resources"]
-            genericItems = resources["GenericItems"]
+            generic_items = resources["GenericItems"]
 
             # Note MCAD service is not considered a TorchX role
-            roles = get_role_information(genericItems)
+            roles = get_role_information(generic_items)
+
             task_count = 0
             for role in roles:
                 msg = "Warning - MCAD does not report individual replica statuses, but overall task status. Replica id  may not match status"
