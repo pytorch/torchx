@@ -179,7 +179,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             name="app-name-0",
             env=[
                 V1EnvVar(name="FOO", value="bar"),
-                V1EnvVar(name="MCAD_TRAINERFOO_0_HOSTS", value="app-name-0.app-name"),
+                V1EnvVar(name="TORCHX_MCAD_TRAINERFOO_0_HOSTS", value="app-name-0.app-name"),
             ],
             resources=resources,
             ports=[V1ContainerPort(name="foo", container_port=1234)],
@@ -361,7 +361,7 @@ spec:
               value: bar
             - name: TORCHX_RANK0_HOST
               value: localhost
-            - name: MCAD_TRAINERFOO_0_HOSTS
+            - name: TORCHX_MCAD_TRAINERFOO_0_HOSTS
               value: app-name-0.app-name
             image: pytorch/torchx:latest
             name: app-name-0
@@ -453,7 +453,7 @@ spec:
                                             "command": [
                                                 "bash",
                                                 "-c",
-                                                "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                                                "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
                                             ],
                                             "env": {
                                                 "name": "TORCH_DISTRIBUTED_DEBUG",
@@ -503,7 +503,7 @@ spec:
                 args=[
                     "bash",
                     "-c",
-                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
                 ],
                 env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
                 num_replicas=1,
@@ -717,7 +717,7 @@ spec:
             V1EnvVar(name="TORCHX_RANK0_HOST", value="localhost"), container0.env
         )
         container1 = tasks[1]["generictemplate"].spec.containers[0]
-        self.assertIn("MCAD_TRAINERFOO_0_HOSTS", container1.command)
+        self.assertIn("TORCHX_MCAD_TRAINERFOO_0_HOSTS", container1.command)
 
     def test_submit_dryrun_patch(self) -> None:
         scheduler = create_scheduler("test")
