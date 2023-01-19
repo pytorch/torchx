@@ -417,21 +417,13 @@ def get_port_for_service(app: AppDef) -> str:
     # Initialize port to default
     port = "29500"
 
-    # look for rdzv_endpoint
-    rdzv = "--rdzv_endpoint"
-    separator = ":"
-    space = " "
     for role_idx, role in enumerate(app.roles):
-        if rdzv in role.args[1]:
-            start_index = role.args[1].find(rdzv)
-
-            # find first instance of : after rdzv endpoint
-            port_index = role.args[1].find(separator, start_index) + 1
-            end_index = role.args[1].find(space, port_index)
-            port = role.args[1][port_index:end_index]
+        if role.port_map == None:
+            continue
+        for value in role.port_map.values():
+            port = value
 
     return port
-
 
 def app_to_resource(
     app: AppDef,
