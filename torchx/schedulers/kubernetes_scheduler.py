@@ -560,7 +560,7 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             logger.exception("Unable to retrieve job name, got exception", e)
             return None
 
-    def _get_active_context(self) -> "Dict":
+    def _get_active_context(self) -> Dict[str, Any]:
         from kubernetes import config
 
         contexts, active_context = config.list_kube_config_contexts()
