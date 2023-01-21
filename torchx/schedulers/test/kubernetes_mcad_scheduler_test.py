@@ -4,11 +4,12 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import base64
 import importlib
-import subprocess
 import sys
 import unittest
 from datetime import datetime
+from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 import torchx
@@ -34,6 +35,33 @@ from torchx.schedulers.kubernetes_mcad_scheduler import (
 from torchx.specs import AppState, Resource, Role
 
 SKIP_DOCKER: bool = not has_docker()
+
+TEST_KUBE_CONFIG: Dict[str, Any] = {
+    "current-context": "default",
+    "contexts": [
+        {
+            "name": "default",
+            "context": {
+                "cluster": "default",
+                "user": "torchx_fake_token",
+                "namespace": "default",
+            },
+        }
+    ],
+    "clusters": [{"name": "default", "cluster": {"server": "torchx_test_host"}}],
+    "users": [
+        {
+            "name": "torchx_fake_token",
+            "user": {
+                "token": base64.standard_b64encode(
+                    "torchx-test-token".encode()
+                ).decode(),
+                "username": "me",
+                "password": "password1234",
+            },
+        }
+    ],
+}
 
 
 def _test_app(num_replicas: int = 1) -> specs.AppDef:
@@ -179,7 +207,9 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             name="app-name-0",
             env=[
                 V1EnvVar(name="FOO", value="bar"),
-                V1EnvVar(name="TORCHX_MCAD_TRAINERFOO_0_HOSTS", value="app-name-0.app-name"),
+                V1EnvVar(
+                    name="TORCHX_MCAD_TRAINERFOO_0_HOSTS", value="app-name-0.app-name"
+                ),
             ],
             resources=resources,
             ports=[V1ContainerPort(name="foo", container_port=1234)],
@@ -308,7 +338,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         scheduler = create_scheduler("test")
         app = _test_app()
         test_port = get_port_for_service(app)
-        self.assertEqual(test_port, "29500")
+        self.assertEqual(test_port, 1234)
 
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
@@ -413,9 +443,9 @@ spec:
         spec:
           clusterIP: None
           ports:
-          - port: 29500
+          - port: 1234
             protocol: TCP
-            targetPort: 29500
+            targetPort: 1234
           publishNotReadyAddresses: true
           selector:
             appwrapper.mcad.ibm.com: app-name
@@ -963,43 +993,25 @@ spec:
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
-        scheduler = create_scheduler("test")
-        # Save test environment namespace
-        p1 = subprocess.run(
-            ["kubectl", "config", "view", "--minify"],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
-        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
-        true_namespace = p1.stdout.decode("utf-8").split()[namespace_id + 1]
+        with patch(
+            "torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler._get_active_context"
+        ) as test_context:
+            test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
+            scheduler = create_scheduler("test")
+            scheduler.list()
+            call = list_namespaced_custom_object.call_args
+            args, kwargs = call
 
-        p2 = subprocess.run(
-            ["kubectl", "config", "set-context", "--current", "--namespace=default"],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
-        scheduler.list()
-        call = list_namespaced_custom_object.call_args
-        args, kwargs = call
-
-        # reset test environment namespace
-        namespace_arg = "--namespace=" + true_namespace
-        p3 = subprocess.run(
-            ["kubectl", "config", "set-context", "--current", namespace_arg],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
-
-        self.assertEqual(
-            kwargs,
-            {
-                "group": "mcad.ibm.com",
-                "version": "v1beta1",
-                "namespace": "default",
-                "plural": "appwrappers",
-                "timeout_seconds": 30,
-            },
-        )
+            self.assertEqual(
+                kwargs,
+                {
+                    "group": "mcad.ibm.com",
+                    "version": "v1beta1",
+                    "namespace": "default",
+                    "plural": "appwrappers",
+                    "timeout_seconds": 30,
+                },
+            )
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list_values(self, list_namespaced_custom_object: MagicMock) -> None:
@@ -1101,42 +1113,28 @@ spec:
                 },
             ],
         }
-        scheduler = create_scheduler("test")
 
-        # Save test environment namespace
-        p1 = subprocess.run(
-            ["kubectl", "config", "view", "--minify"],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
-        namespace_id = p1.stdout.decode("utf-8").split().index("namespace:")
-        true_namespace = p1.stdout.decode("utf-8").split()[namespace_id + 1]
+        with patch(
+            "torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler._get_active_context"
+        ) as test_context:
+            test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
+            scheduler = create_scheduler("test")
 
-        p2 = subprocess.run(
-            ["kubectl", "config", "set-context", "--current", "--namespace=default"],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
+            apps = scheduler.list()
+            call = list_namespaced_custom_object.call_args
+            args, kwargs = call
 
-        apps = scheduler.list()
-        call = list_namespaced_custom_object.call_args
-        args, kwargs = call
-
-        # restore test environment namespace
-        namespace_arg = "--namespace=" + true_namespace
-        p3 = subprocess.run(
-            ["kubectl", "config", "set-context", "--current", namespace_arg],
-            stdout=subprocess.PIPE,
-            check=True,
-        )
-
-        self.assertEqual(
-            apps,
-            [
-                ListAppResponse(app_id="default:test-training", state=AppState.RUNNING),
-                ListAppResponse(app_id="default:test-training", state=AppState.PENDING),
-            ],
-        )
+            self.assertEqual(
+                apps,
+                [
+                    ListAppResponse(
+                        app_id="default:test-training", state=AppState.RUNNING
+                    ),
+                    ListAppResponse(
+                        app_id="default:test-training", state=AppState.PENDING
+                    ),
+                ],
+            )
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list_failure(self, list_namespaced_custom_object: MagicMock) -> None:

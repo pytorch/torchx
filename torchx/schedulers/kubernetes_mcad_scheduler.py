@@ -13,7 +13,7 @@ components on a Kubernetes cluster via the Multi-Cluster-Application-Dispatcher 
 Prerequisites
 ==============
 
-TorchX kubernetes scheduler depends on AppWrapper + MCAD..
+TorchX kubernetes scheduler depends on AppWrapper + MCAD.
 
 Install MCAD 
 
@@ -418,12 +418,13 @@ def get_port_for_service(app: AppDef) -> str:
     port = "29500"
 
     for role_idx, role in enumerate(app.roles):
-        if role.port_map == None:
+        if role.port_map is None:
             continue
         for value in role.port_map.values():
             port = value
 
     return port
+
 
 def app_to_resource(
     app: AppDef,
@@ -523,6 +524,7 @@ MCAD currently does not support retries. Role {role.name} configured with restar
     }
     return resource
 
+
 # Helper function for MCAD generic items information -> TorchX Role
 def get_role_information(generic_items: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
     # Store unique role information
@@ -569,9 +571,7 @@ def get_role_information(generic_items: Iterable[Dict[str, Any]]) -> Dict[str, A
         role_name: str = label_result[ROLE_KEY]
         # save role
         if role_name not in roles:
-            roles[role_name] = Role(
-                name=role_name, num_replicas=0, image=""
-            )
+            roles[role_name] = Role(name=role_name, num_replicas=0, image="")
             roles[role_name].num_replicas += 1
 
             # Only get specs for first instance of TorchX role
@@ -586,7 +586,7 @@ def get_role_information(generic_items: Iterable[Dict[str, Any]]) -> Dict[str, A
             if IMAGE_KEY not in container_result[0].keys():
                 continue
             roles[role_name].image = container_result[0][IMAGE_KEY]
-            
+
             if ARGS_KEY not in container_result[0].keys():
                 continue
             roles[role_name].args = container_result[0][ARGS_KEY]
@@ -596,25 +596,21 @@ def get_role_information(generic_items: Iterable[Dict[str, Any]]) -> Dict[str, A
             if RESOURCE_KEY not in container_result[0].keys():
                 continue
             roles[role_name].resources = container_result[0][RESOURCE_KEY]
-            resource_req = Resource(
-                cpu=-1, gpu=-1, memMB=-1
-            )
-            if (CPU_KEY not in container_result[0][RESOURCE_KEY][REQUEST_KEY] ):
+            resource_req = Resource(cpu=-1, gpu=-1, memMB=-1)
+            if CPU_KEY not in container_result[0][RESOURCE_KEY][REQUEST_KEY]:
                 continue
             resource_req.cpu = container_result[0][RESOURCE_KEY][REQUEST_KEY][CPU_KEY]
             # Substring matching to accomodate different gpu types
             gpu_key_values = dict(
                 filter(
                     lambda item: GPU_KEY in item[0],
-                    container_result[0][RESOURCE_KEY][
-                        REQUEST_KEY
-                    ].items(),
+                    container_result[0][RESOURCE_KEY][REQUEST_KEY].items(),
                 )
             )
             if len(gpu_key_values) != 0:
                 for key, value in gpu_key_values.items():
                     resource_req.gpu = value
-            if (MEM_KEY not in container_result[0][RESOURCE_KEY][REQUEST_KEY] ):
+            if MEM_KEY not in container_result[0][RESOURCE_KEY][REQUEST_KEY]:
                 continue
             resource_req.memMB = container_result[0][RESOURCE_KEY][REQUEST_KEY][MEM_KEY]
             roles[role_name].resource = resource_req
@@ -623,12 +619,13 @@ def get_role_information(generic_items: Iterable[Dict[str, Any]]) -> Dict[str, A
                 continue
             roles[role_name].port_map = container_result[0][PORTS_KEY]
             if MOUNTS_KEY not in container_result[0].keys():
-                continue  
+                continue
             roles[role_name].mounts = container_result[0][MOUNTS_KEY]
         else:
             roles[role_name].num_replicas += 1
 
     return roles
+
 
 def get_appwrapper_status(app: Dict[str, str]) -> AppState:
     if "status" in app.keys():
@@ -766,8 +763,6 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        # Scheduler.__init__(self, "kubernetes_mcad", session_name)
-        # DockerWorkspace.__init__(self, docker_client)
         super().__init__("kubernetes_mcad", session_name, docker_client=docker_client)
 
         self._client = client
@@ -799,6 +794,12 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         except Exception as e:
             logger.exception("Unable to retrieve job name, got exception", e)
             return None
+
+    def _get_active_context(self) -> "Dict":
+        from kubernetes import config
+
+        contexts, active_context = config.list_kube_config_contexts()
+        return active_context
 
     def schedule(self, dryrun_info: AppDryRunInfo[KubernetesMCADJob]) -> str:
         from kubernetes.client.rest import ApiException
@@ -1042,8 +1043,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
     def list(self) -> List[ListAppResponse]:
 
-        from kubernetes import config
-        contexts, active_context = config.list_kube_config_contexts()
+        active_context = self._get_active_context()
         namespace = active_context["context"]["namespace"]
 
         resp = self._custom_objects_api().list_namespaced_custom_object(
