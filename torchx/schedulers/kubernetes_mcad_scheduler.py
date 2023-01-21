@@ -421,7 +421,7 @@ def get_port_for_service(app: AppDef) -> str:
         if role.port_map is None:
             continue
         for value in role.port_map.values():
-            port = value
+            port = str(value)
 
     return port
 
