@@ -823,7 +823,7 @@ spec:
     def test_list_failure(self, list_namespaced_custom_object: MagicMock) -> None:
         from kubernetes.client.rest import ApiException
 
-        api_exc = ApiException(status=404, reason="Invalid kube config")
+        api_exc = ApiException(status=404, reason="Invalid kube-config file. No configuration found.")
         list_namespaced_custom_object.side_effect = api_exc
         scheduler = create_scheduler("test")
         with self.assertRaises(ApiException):
