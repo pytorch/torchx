@@ -742,11 +742,20 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             return iterator
 
     def list(self) -> List[ListAppResponse]:
+        namespace = "default"
+
+        # try to find default namespace from config
         from kubernetes import config
 
-        # check default namespace from config
-        _, current_context = config.kube_config.list_kube_config_contexts()
-        namespace = current_context['context']['namespace'] if 'context' in current_context and 'namespace' in current_context['context'] else "default"
+        try:
+            _, current_context = config.kube_config.list_kube_config_contexts()
+            if (
+                "context" in current_context
+                and "namespace" in current_context["context"]
+            ):
+                namespace = current_context["context"]["namespace"]
+        except config.ConfigException as e:
+            pass
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
             version="v1alpha1",
