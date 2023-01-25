@@ -825,9 +825,13 @@ spec:
 
         api_exc = ApiException(status=404, reason="Invalid kube-config file. No configuration found.")
         list_namespaced_custom_object.side_effect = api_exc
-        scheduler = create_scheduler("test")
-        with self.assertRaises(ApiException):
-            scheduler.list()
+        with patch (
+            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+        ) as test_context:
+            test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
+            scheduler = create_scheduler("test")
+            with self.assertRaises(ApiException):
+                scheduler.list()
 
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
     def test_log_iter(self, read_namespaced_pod_log: MagicMock) -> None:
@@ -940,4 +944,3 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler.submit_dryrun(app, cfg)
-
