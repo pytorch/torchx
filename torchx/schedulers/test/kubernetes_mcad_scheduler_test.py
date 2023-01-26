@@ -23,8 +23,10 @@ from torchx.schedulers.kubernetes_mcad_scheduler import (
     app_to_resource,
     cleanup_str,
     create_scheduler,
+    get_appwrapper_status,
     get_port_for_service,
     get_role_information,
+    get_tasks_status_description,
     KubernetesMCADJob,
     KubernetesMCADOpts,
     KubernetesMCADScheduler,
@@ -62,6 +64,65 @@ TEST_KUBE_CONFIG: Dict[str, Any] = {
         }
     ],
 }
+
+
+def _test_mcad_generic_item() -> Dict[str, Any]:
+    generic_item = {
+        "status": {
+            "state": "Running",
+            "Succeeded": 1,
+        },
+        "spec": {
+            "resources": {
+                "GenericItems": [
+                    {
+                        "generictemplate": {
+                            "metadata": {
+                                "labels": {
+                                    "torchx.pytorch.org/role-name": "echo",
+                                },
+                            },
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "command": [
+                                            "bash",
+                                            "-c",
+                                            "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                                        ],
+                                        "env": {
+                                            "name": "TORCH_DISTRIBUTED_DEBUG",
+                                            "value": "DETAIL",
+                                        },
+                                        "image": "echoImage",
+                                        "resources": {
+                                            "limits": {
+                                                "cpu": "1000m",
+                                                "memory": "514000M",
+                                                "gpu": "2",
+                                            },
+                                            "requests": {
+                                                "cpu": 900,
+                                                "memory": 512976,
+                                                "gpu": 2,
+                                            },
+                                        },
+                                        "ports": {"c10d": 29500},
+                                        "volumeMounts": [
+                                            specs.VolumeMount(
+                                                src="dshm", dst_path="/dev/shm"
+                                            )
+                                        ],
+                                    }
+                                ],
+                            },
+                        },
+                    }
+                ],
+            },
+        },
+    }
+    return generic_item
 
 
 def _test_app(num_replicas: int = 1) -> specs.AppDef:
@@ -340,6 +401,37 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         test_port = get_port_for_service(app)
         self.assertEqual(test_port, "1234")
 
+    def test_no_port(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        app.roles[0].port_map = {}
+        test_port = get_port_for_service(app)
+        self.assertEqual(test_port, "29500")
+
+    def test_invalid_port(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        app.roles[0].port_map = {"foo": 65536}
+        test_port = get_port_for_service(app)
+        self.assertEqual(test_port, "29500")
+
+    def test_get_pending_appwrapper_status(self) -> None:
+        test_item = {}
+        aw_status = get_appwrapper_status(test_item)
+        self.assertEqual(aw_status, AppState.PENDING)
+
+    def test_get_tasks_status_description(self) -> None:
+        test_status = {
+            "state": "Running",
+            "running": "1",
+            "pending": "2",
+            "failed": "3",
+            "Succeeded": "4",
+        }
+        results = get_tasks_status_description(test_status)
+        expect = {"running": "1", "pending": "2", "failed": "3", "Succeeded": "4"}
+        self.assertEqual(results, expect)
+
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
@@ -462,61 +554,7 @@ spec:
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
 
-        get_namespaced_custom_object.return_value = {
-            "status": {
-                "state": "Running",
-                "Succeeded": 1,
-            },
-            "spec": {
-                "resources": {
-                    "GenericItems": [
-                        {
-                            "generictemplate": {
-                                "metadata": {
-                                    "labels": {
-                                        "torchx.pytorch.org/role-name": "echo",
-                                    },
-                                },
-                                "spec": {
-                                    "containers": [
-                                        {
-                                            "command": [
-                                                "bash",
-                                                "-c",
-                                                "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
-                                            ],
-                                            "env": {
-                                                "name": "TORCH_DISTRIBUTED_DEBUG",
-                                                "value": "DETAIL",
-                                            },
-                                            "image": "echoImage",
-                                            "resources": {
-                                                "limits": {
-                                                    "cpu": "1000m",
-                                                    "memory": "514000M",
-                                                    "gpu": "2",
-                                                },
-                                                "requests": {
-                                                    "cpu": 900,
-                                                    "memory": 512976,
-                                                    "gpu": 2,
-                                                },
-                                            },
-                                            "ports": {"c10d": 29500},
-                                            "volumeMounts": [
-                                                specs.VolumeMount(
-                                                    src="dshm", dst_path="/dev/shm"
-                                                )
-                                            ],
-                                        }
-                                    ],
-                                },
-                            },
-                        }
-                    ],
-                },
-            },
-        }
+        get_namespaced_custom_object.return_value = _test_mcad_generic_item()
 
         spec = get_namespaced_custom_object.return_value["spec"]
         resources = spec["resources"]
@@ -547,6 +585,556 @@ spec:
             )
         }
 
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_generic_items(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0] = {}
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {}
+
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_metadata(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"] = {
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "bash",
+                            "-c",
+                            "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                        ],
+                        "env": {
+                            "name": "TORCH_DISTRIBUTED_DEBUG",
+                            "value": "DETAIL",
+                        },
+                        "image": "echoImage",
+                        "resources": {
+                            "limits": {
+                                "cpu": "1000m",
+                                "memory": "514000M",
+                                "gpu": "2",
+                            },
+                            "requests": {
+                                "cpu": 900,
+                                "memory": 512976,
+                                "gpu": 2,
+                            },
+                        },
+                        "ports": {"c10d": 29500},
+                        "volumeMounts": [
+                            specs.VolumeMount(src="dshm", dst_path="/dev/shm")
+                        ],
+                    }
+                ],
+            },
+        }
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {}
+
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_label(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "metadata"
+        ] = {}
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+        expect = {}
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_role_name(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "metadata"
+        ]["labels"] = {}
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+        expect = {}
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_specs(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0] = {
+            "generictemplate": {
+                "metadata": {
+                    "labels": {
+                        "torchx.pytorch.org/role-name": "echo",
+                    },
+                },
+            }
+        }
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="",
+                min_replicas=None,
+                base_image=None,
+                args=[],
+                env={},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=-1, gpu=-1, memMB=-1, capabilities={}, devices={}
+                ),
+                port_map={},
+                metadata={},
+                mounts=[],
+            )
+        }
+
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_image_name(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "spec"
+        ]["containers"] = [
+            {
+                "command": [
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                "env": {
+                    "name": "TORCH_DISTRIBUTED_DEBUG",
+                    "value": "DETAIL",
+                },
+                "resources": {
+                    "limits": {
+                        "cpu": "1000m",
+                        "memory": "514000M",
+                        "gpu": "2",
+                    },
+                    "requests": {
+                        "cpu": 900,
+                        "memory": 512976,
+                        "gpu": 2,
+                    },
+                },
+                "ports": {"c10d": 29500},
+                "volumeMounts": [specs.VolumeMount(src="dshm", dst_path="/dev/shm")],
+            }
+        ]
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="",
+                min_replicas=None,
+                base_image=None,
+                args=[],
+                env={},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=-1, gpu=-1, memMB=-1, capabilities={}, devices={}
+                ),
+                port_map={},
+                metadata={},
+                mounts=[],
+            )
+        }
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_resources(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "spec"
+        ]["containers"] = [
+            {
+                "command": [
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                "env": {
+                    "name": "TORCH_DISTRIBUTED_DEBUG",
+                    "value": "DETAIL",
+                },
+                "image": "echoImage",
+                "ports": {"c10d": 29500},
+                "volumeMounts": [specs.VolumeMount(src="dshm", dst_path="/dev/shm")],
+            }
+        ]
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="echoImage",
+                min_replicas=None,
+                base_image=None,
+                args=[
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=-1, gpu=-1, memMB=-1, capabilities={}, devices={}
+                ),
+                port_map={},
+                metadata={},
+                mounts=[],
+            )
+        }
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_cpu(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "spec"
+        ]["containers"] = [
+            {
+                "command": [
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                "env": {
+                    "name": "TORCH_DISTRIBUTED_DEBUG",
+                    "value": "DETAIL",
+                },
+                "image": "echoImage",
+                "resources": {
+                    "limits": {
+                        "cpu": "1000m",
+                        "memory": "514000M",
+                        "gpu": "2",
+                    },
+                    "requests": {
+                        "memory": 512976,
+                        "gpu": 2,
+                    },
+                },
+                "ports": {"c10d": 29500},
+                "volumeMounts": [specs.VolumeMount(src="dshm", dst_path="/dev/shm")],
+            }
+        ]
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="echoImage",
+                min_replicas=None,
+                base_image=None,
+                args=[
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=-1, gpu=-1, memMB=-1, capabilities={}, devices={}
+                ),
+                port_map={},
+                metadata={},
+                mounts=[],
+            )
+        }
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_memory(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "spec"
+        ]["containers"] = [
+            {
+                "command": [
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                "env": {
+                    "name": "TORCH_DISTRIBUTED_DEBUG",
+                    "value": "DETAIL",
+                },
+                "image": "echoImage",
+                "resources": {
+                    "limits": {
+                        "cpu": "1000m",
+                        "memory": "514000M",
+                        "gpu": "2",
+                    },
+                    "requests": {
+                        "cpu": 900,
+                        "gpu": 2,
+                    },
+                },
+                "ports": {"c10d": 29500},
+                "volumeMounts": [specs.VolumeMount(src="dshm", dst_path="/dev/shm")],
+            }
+        ]
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="echoImage",
+                min_replicas=None,
+                base_image=None,
+                args=[
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=-1, gpu=-1, memMB=-1, capabilities={}, devices={}
+                ),
+                port_map={},
+                metadata={},
+                mounts=[],
+            )
+        }
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_ports(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "spec"
+        ]["containers"] = [
+            {
+                "command": [
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                "env": {
+                    "name": "TORCH_DISTRIBUTED_DEBUG",
+                    "value": "DETAIL",
+                },
+                "image": "echoImage",
+                "resources": {
+                    "limits": {
+                        "cpu": "1000m",
+                        "memory": "514000M",
+                        "gpu": "2",
+                    },
+                    "requests": {
+                        "cpu": 900,
+                        "memory": 512976,
+                        "gpu": 2,
+                    },
+                },
+                "volumeMounts": [specs.VolumeMount(src="dshm", dst_path="/dev/shm")],
+            }
+        ]
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="echoImage",
+                min_replicas=None,
+                base_image=None,
+                args=[
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=900, gpu=2, memMB=512976, capabilities={}, devices={}
+                ),
+                port_map={},
+                metadata={},
+                mounts=[],
+            )
+        }
+        self.assertEqual(roles, expect)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_get_role_information_no_volume_mounts(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        test_generic_item = _test_mcad_generic_item()
+        test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
+            "spec"
+        ]["containers"] = [
+            {
+                "command": [
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                "env": {
+                    "name": "TORCH_DISTRIBUTED_DEBUG",
+                    "value": "DETAIL",
+                },
+                "image": "echoImage",
+                "resources": {
+                    "limits": {
+                        "cpu": "1000m",
+                        "memory": "514000M",
+                        "gpu": "2",
+                    },
+                    "requests": {
+                        "cpu": 900,
+                        "memory": 512976,
+                        "gpu": 2,
+                    },
+                },
+                "ports": {"c10d": 29500},
+            }
+        ]
+
+        get_namespaced_custom_object.return_value = test_generic_item
+
+        spec = get_namespaced_custom_object.return_value["spec"]
+        resources = spec["resources"]
+        genericItems = resources["GenericItems"]
+
+        roles = get_role_information(genericItems)
+
+        expect = {
+            "echo": Role(
+                name="echo",
+                image="echoImage",
+                min_replicas=None,
+                base_image=None,
+                args=[
+                    "bash",
+                    "-c",
+                    "python -m torch.distributed.run --rdzv_backend c10d --rdzv_endpoint $TORCHX_MCAD_ECHO_0_HOSTS:29500 --rdzv_id 'echo-nr36fcswzdb63c' --nnodes 1 --nproc_per_node 2 --tee 3 --role '' echo.py",
+                ],
+                env={"name": "TORCH_DISTRIBUTED_DEBUG", "value": "DETAIL"},
+                num_replicas=1,
+                max_retries=0,
+                resource=Resource(
+                    cpu=900, gpu=2, memMB=512976, capabilities={}, devices={}
+                ),
+                port_map={"c10d": 29500},
+                metadata={},
+                mounts=[],
+            )
+        }
         self.assertEqual(roles, expect)
 
     def test_volume_mounts(self) -> None:
@@ -938,6 +1526,70 @@ spec:
         )
 
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_describe_pending_dispatch(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+
+        get_namespaced_custom_object.return_value = {
+            "status": {
+                "state": "Pending",
+            },
+            "spec": {
+                "resources": {
+                    "GenericItems": [
+                        {
+                            "generictemplate": {
+                                "metadata": {
+                                    "labels": {
+                                        "torchx.pytorch.org/role-name": "echo",
+                                    },
+                                },
+                                "spec": {},
+                            },
+                        },
+                        {
+                            "generictemplate": {
+                                "kind": "Service",
+                                "metadata": {
+                                    "name": "echo-service",
+                                },
+                                "spec": {},
+                            },
+                        },
+                    ],
+                },
+            },
+        }
+
+        app_id = "foo:bar"
+        scheduler = create_scheduler("foo")
+        info = scheduler.describe(app_id)
+
+        self.assertEqual(
+            info,
+            DescribeAppResponse(
+                app_id=app_id,
+                state=specs.AppState.PENDING,
+                roles_statuses=[
+                    specs.RoleStatus(
+                        "echo",
+                        [
+                            specs.ReplicaStatus(
+                                id=0,
+                                role="echo",
+                                state=specs.ReplicaState.PENDING,
+                                hostname="",
+                            )
+                        ],
+                    ),
+                ],
+                roles=[
+                    specs.Role(name="echo", image="", num_replicas=1),
+                ],
+            ),
+        )
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
     def test_describe_unknown(self, get_namespaced_custom_object: MagicMock) -> None:
         get_namespaced_custom_object.return_value = {}
         app_id = "foo:bar"
@@ -959,6 +1611,43 @@ spec:
                 state=specs.AppState.UNKNOWN,
             ),
         )
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_describe_failure(self, get_namespaced_custom_object: MagicMock) -> None:
+        from kubernetes.client.rest import ApiException
+
+        api_exc = ApiException(status=404, reason="Not Found")
+        get_namespaced_custom_object.side_effect = api_exc
+        app_id = "foo:bar"
+        scheduler = create_scheduler("foo")
+        with self.assertRaises(ValueError):
+            scheduler.describe(app_id)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_describe_unauthorized(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+        from kubernetes.client.rest import ApiException
+
+        api_exc = ApiException(status=401, reason="Unauthorized")
+        get_namespaced_custom_object.side_effect = api_exc
+        app_id = "foo:bar"
+        scheduler = create_scheduler("foo")
+        with self.assertRaises(ValueError):
+            scheduler.describe(app_id)
+
+    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
+    def test_describe_unknown_failure(
+        self, get_namespaced_custom_object: MagicMock
+    ) -> None:
+        from kubernetes.client.rest import ApiException
+
+        api_exc = ApiException(status=400, reason="Bad Request")
+        get_namespaced_custom_object.side_effect = api_exc
+        app_id = "foo:bar"
+        scheduler = create_scheduler("foo")
+        with self.assertRaises(ApiException):
+            scheduler.describe(app_id)
 
     def test_runopts(self) -> None:
         scheduler = kubernetes_mcad_scheduler.create_scheduler("foo")

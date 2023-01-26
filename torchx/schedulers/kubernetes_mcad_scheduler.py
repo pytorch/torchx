@@ -423,6 +423,11 @@ def get_port_for_service(app: AppDef) -> str:
         for value in role.port_map.values():
             port = str(value)
 
+    if not (0 < int(port) <= 65535):
+        msg = """Warning: port_map set to invalid port number. Value must be between 1-65535, with torchx default = 29500. Setting port to default = 29500"""
+        port = "29500"
+        warnings.warn(msg)
+
     return port
 
 
@@ -493,11 +498,6 @@ MCAD currently does not support retries. Role {role.name} configured with restar
     """
 
     service_port = get_port_for_service(app)
-
-    if not (0 < int(service_port) <= 65535):
-        msg = """Warning: rdzv_endpoint set to invalid port number. Value must be between 1-65535, with torchx default = 29500. Try updating --rdzv_port argument to dist.ddp. Setting port to default = 29500"""
-        service_port = "29500"
-        warnings.warn(msg)
 
     svc_obj = mcad_svc(unique_app_id, namespace, service_port)
 
