@@ -823,9 +823,11 @@ spec:
     def test_list_failure(self, list_namespaced_custom_object: MagicMock) -> None:
         from kubernetes.client.rest import ApiException
 
-        api_exc = ApiException(status=404, reason="Invalid kube-config file. No configuration found.")
+        api_exc = ApiException(
+            status=404, reason="Invalid kube-config file. No configuration found."
+        )
         list_namespaced_custom_object.side_effect = api_exc
-        with patch (
+        with patch(
             "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
