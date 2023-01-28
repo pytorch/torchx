@@ -51,7 +51,14 @@ def main() -> None:
     torchx_image = "dummy_image"
     dryrun = False
 
-    if scheduler in ("kubernetes", "local_docker", "aws_batch", "lsf", "gcp_batch"):
+    if scheduler in (
+        "kubernetes",
+        "kubernetes_mcad",
+        "local_docker",
+        "aws_batch",
+        "lsf",
+        "gcp_batch",
+    ):
         try:
             build = build_and_push_image()
             torchx_image = build.torchx_image
@@ -69,6 +76,16 @@ def main() -> None:
             "cfg": {
                 "namespace": "torchx-dev",
                 "queue": "default",
+            },
+        },
+        "kubernetes_mcad": {
+            "providers": [
+                component_provider,
+                examples_app_defs_providers,
+            ],
+            "image": torchx_image,
+            "cfg": {
+                "namespace": "torchx-dev",
             },
         },
         "local_cwd": {

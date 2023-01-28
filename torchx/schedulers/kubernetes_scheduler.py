@@ -560,6 +560,12 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             logger.exception("Unable to retrieve job name, got exception", e)
             return None
 
+    def _get_active_context(self) -> Dict[str, Any]:
+        from kubernetes import config
+
+        contexts, active_context = config.list_kube_config_contexts()
+        return active_context
+
     def schedule(self, dryrun_info: AppDryRunInfo[KubernetesJob]) -> str:
         from kubernetes.client.rest import ApiException
 
@@ -742,7 +748,8 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             return iterator
 
     def list(self) -> List[ListAppResponse]:
-        namespace = "default"
+        active_context = self._get_active_context()
+        namespace = active_context["context"]["namespace"]
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
             version="v1alpha1",
