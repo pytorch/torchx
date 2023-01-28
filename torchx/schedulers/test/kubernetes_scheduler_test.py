@@ -687,8 +687,57 @@ spec:
             },
         )
 
+    def _prepare_kube_config(self) -> None:
+        from kubernetes import config
+        import base64
+        import yaml
+        import os
+
+        TEST_DATA = "test-data"
+        TEST_DATA_BASE64 = base64.standard_b64encode(TEST_DATA.encode()).decode()
+        TEST_CLUSTER = "test-cluster"
+        TEST_USERNAME = "me"
+        TEST_NAMESPACE = "test_namespace"
+        TEST_CONTEXT = "test_context"
+
+        TEST_SSL_HOST = "https://test-host"
+        TEST_KUBE_CONFIG = {
+            "current-context": TEST_CONTEXT,
+            "contexts": [
+                {
+                    "name": TEST_CONTEXT,
+                    "context": {
+                        "cluster": TEST_CLUSTER,
+                        "namespace": TEST_NAMESPACE,
+                        "user": TEST_USERNAME
+                    }
+                }
+            ],
+            "clusters": [
+                {
+                    "name": TEST_CLUSTER,
+                    "cluster": {
+                        "server": TEST_SSL_HOST
+                    }
+                }
+            ],
+            "users": [
+                {
+                    "name": TEST_USERNAME,
+                    "user": {
+                        "token": TEST_DATA_BASE64
+                    }
+                }
+            ]
+        }
+        with open(os.path.expanduser(config.kube_config.KUBE_CONFIG_DEFAULT_LOCATION), 'w') as f:
+            yaml.safe_dump(TEST_KUBE_CONFIG, f, default_flow_style=False)
+
+        return TEST_NAMESPACE
+
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
+        namespace = self._prepare_kube_config()
         scheduler = create_scheduler("test")
         scheduler.list()
         call = list_namespaced_custom_object.call_args
@@ -698,7 +747,7 @@ spec:
             {
                 "group": "batch.volcano.sh",
                 "version": "v1alpha1",
-                "namespace": "default",
+                "namespace": namespace,
                 "plural": "jobs",
                 "timeout_seconds": 30,
             },
@@ -750,6 +799,7 @@ spec:
                 },
             ],
         }
+        namespace = self._prepare_kube_config()
         scheduler = create_scheduler("test")
         apps = scheduler.list()
         call = list_namespaced_custom_object.call_args
@@ -759,7 +809,7 @@ spec:
             {
                 "group": "batch.volcano.sh",
                 "version": "v1alpha1",
-                "namespace": "default",
+                "namespace": namespace,
                 "plural": "jobs",
                 "timeout_seconds": 30,
             },
@@ -768,9 +818,9 @@ spec:
             apps,
             [
                 ListAppResponse(
-                    app_id="default:cifar-trainer-something", state=AppState.SUCCEEDED
+                    app_id=namespace+":cifar-trainer-something", state=AppState.SUCCEEDED
                 ),
-                ListAppResponse(app_id="default:test-trainer", state=AppState.FAILED),
+                ListAppResponse(app_id=namespace+":test-trainer", state=AppState.FAILED),
             ],
         )
 
