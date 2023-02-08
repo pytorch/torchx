@@ -10,6 +10,7 @@ import logging
 import sys
 from typing import List, Optional
 
+from torchx.cli.argparse_util import scheduler_params
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
 from torchx.specs.api import parse_app_handle
@@ -48,7 +49,8 @@ class CmdStatus(SubCommand):
     def run(self, args: argparse.Namespace) -> None:
         app_handle = args.app_handle
         scheduler, _, app_id = parse_app_handle(app_handle)
-        runner = get_runner()
+        params = scheduler_params(scheduler)
+        runner = get_runner(name=None, component_defaults=None, **params)
         app_status = runner.status(app_handle)
         filter_roles = parse_list_arg(args.roles)
         if app_status:

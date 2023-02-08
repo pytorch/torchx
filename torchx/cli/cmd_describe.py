@@ -11,6 +11,8 @@ import logging
 import pprint
 import sys
 
+
+from torchx.cli.argparse_util import scheduler_params
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner import get_runner
 from torchx.specs.api import parse_app_handle
@@ -27,11 +29,12 @@ class CmdDescribe(SubCommand):
         )
 
     def run(self, args: argparse.Namespace) -> None:
+        
         app_handle = args.app_handle
         scheduler, _, app_id = parse_app_handle(app_handle)
-        runner = get_runner()
+        params = scheduler_params(scheduler)
+        runner = get_runner(name=None, component_defaults=None, **params)
         app = runner.describe(app_handle)
-
         if app:
             pprint.pprint(dataclasses.asdict(app), indent=2, width=80)
         else:

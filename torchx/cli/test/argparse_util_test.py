@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest import mock
 
 from torchx.cli import argparse_util
-from torchx.cli.argparse_util import torchxconfig_run
+from torchx.cli.argparse_util import scheduler_params, torchxconfig_run
 
 
 CONFIG_DIRS = "torchx.cli.argparse_util.CONFIG_DIRS"
@@ -144,3 +144,18 @@ workspace = baz
 
             args = parser.parse_args(["run"])
             self.assertEqual("baz", args.workspace)
+
+
+    def test_scheduler_params(self) -> None:
+        with mock.patch(CONFIG_DIRS, [self.test_dir]):
+            self._write(
+                ".torchxconfig",
+                """
+[scheduler:test_scheduler]
+param1 = val1
+param2 = val2
+                """,
+            )
+            params = scheduler_params("test_scheduler")
+            self.assertEqual("val1", params["param1"])
+            self.assertEqual("val2", params["param2"])

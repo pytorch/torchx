@@ -15,6 +15,7 @@ from queue import Queue
 from typing import List, Optional, TextIO, Tuple
 
 from torchx import specs
+from torchx.cli.argparse_util import scheduler_params
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.colors import ENDC, GREEN
 from torchx.runner import get_runner, Runner
@@ -95,7 +96,8 @@ def get_logs(
     role_name = path[2] if len(path) > 2 else None
 
     if not runner:
-        runner = get_runner()
+        params = scheduler_params(scheduler_backend)
+        runner = get_runner(name=None, component_defaults=None, **params)
     app_handle = make_app_handle(scheduler_backend, session_name, app_id)
 
     if len(path) == 4:

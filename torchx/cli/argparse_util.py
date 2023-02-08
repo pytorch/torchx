@@ -97,3 +97,6 @@ class torchxconfig_run(_torchxconfig):
             option_strings=option_strings,
             **kwargs,
         )
+
+def scheduler_params(scheduler:str) -> Dict[str, str]:
+    return config.get_configs("scheduler", scheduler, CONFIG_DIRS)
