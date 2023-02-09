@@ -22,6 +22,7 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
     "gcp_batch": "torchx.schedulers.gcp_batch_scheduler",
     "ray": "torchx.schedulers.ray_scheduler",
     "lsf": "torchx.schedulers.lsf_scheduler",
+    "azure_batch": "torchx.schedulers.azure_batch_scheduler",
 }
 
 
