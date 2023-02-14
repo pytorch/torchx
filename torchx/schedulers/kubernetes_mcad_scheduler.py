@@ -638,7 +638,6 @@ def get_appwrapper_status(app: Dict[str, str]) -> AppState:
 
 # Does not handle not ready to dispatch case
 def get_tasks_status_description(status: Dict[str, str]) -> Dict[str, int]:
-
     results = {}
 
     # Keys related to tasks and status
@@ -1043,7 +1042,6 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             return iterator
 
     def list(self) -> List[ListAppResponse]:
-
         active_context = self._get_active_context()
         namespace = active_context["context"]["namespace"]
 
