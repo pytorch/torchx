@@ -755,6 +755,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             describe: true
             workspaces: true
             mounts: true
+            elasticity: false
     """
 
     def __init__(
