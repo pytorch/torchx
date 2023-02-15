@@ -355,7 +355,7 @@ if _has_ray:
 
         def _parse_app_id(self, app_id: str) -> Tuple[str, str]:
             # find index of '-' in the first :\d+-
-            m = re.search(r":\d+-", app_id)
+            m = re.search(r":\d+-|.com-", app_id)
             if m:
                 sep = m.span()[1]
                 addr = app_id[: sep - 1]
