@@ -54,7 +54,7 @@ CLI Usage
    by the scheduler. Replace these with the values that apply to you.
 
 #. **IMPORTANT:** If you are happy with the scheduler provided defaults for a particular
-   run config, you **should not** redundantly specity them in ``.torchxconfig`` with the
+   run config, you **should not** redundantly specify them in ``.torchxconfig`` with the
    same default value. This is because the scheduler may decide to change the default
    value at a later date which would leave you with a stale default.
 
