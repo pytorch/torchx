@@ -45,7 +45,7 @@ except ModuleNotFoundError:
     from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 
 _logger: logging.Logger = logging.getLogger(__name__)
-_logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "INFO")))
+_logger.setLevel(logging.getLevelName(os.environ.get("LOGLEVEL", "DEBUG")))
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -81,6 +81,9 @@ class CommandActor:  # pragma: no cover
         worker_evn.update(os.environ)
         worker_evn.update(self.env)
         worker_evn[TORCHX_RANK0_HOST] = master_addr
+        _logger.info(self.cmd)
+        _logger.info("worker env:", worker_evn)
+
         popen = subprocess.Popen(self.cmd, env=worker_evn)
 
         returncode = popen.wait()
@@ -96,12 +99,13 @@ class CommandActor:  # pragma: no cover
         return CommandActorScheduled(actor_id)
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
-        addr = ray.util.get_node_ip_address()
+        # addr = ray.util.get_node_ip_address()
+        addr = os.getenv("MY_POD_IP")
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
             s.bind(("", 0))
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             port = s.getsockname()[1]
-        return addr, port
+        return addr, 49782
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
@@ -122,7 +126,10 @@ def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
     for replica in replicas:
         bundles.append({"CPU": replica.num_cpus, "GPU": replica.num_gpus})
 
-    pg = ray.util.placement_group(bundles, strategy="SPREAD")
+    pg = ray.util.placement_group(
+        bundles,
+        strategy="SPREAD",
+    )
     return pg
 
 
@@ -216,6 +223,14 @@ class RayDriver:
             replica=replica,
         )
 
+        if self.master_node_id == None:
+            self.master_node_id = actor_id
+            self.rank_0_address, self.rank_0_port = ray.get(
+                actor.get_actor_address_and_port.remote()
+            )
+
+        _logger.info(f"rdzv_endpoint set to {self.rank_0_address} for actor {actor_id}")
+
     def place_command_actors(self) -> None:
         """Creating all command actors in all placement groups"""
         # find the placement group index for a replica(actor's specification)
@@ -242,23 +257,11 @@ class RayDriver:
             if isinstance(result, CommandActorScheduled):
                 if not self.terminating:
                     actor = self.actor_info_of_id[result.id].actor
-                    if self.master_node_id is None:
-                        # make this actor be the master node
-                        self.master_node_id = result.id
-                        self.rank_0_address, self.rank_0_port = ray.get(
-                            actor.get_actor_address_and_port.remote()  # pyre-ignore
+                    self.active_tasks.append(
+                        actor.exec_module.remote(
+                            self.rank_0_address, self.rank_0_port, result.id
                         )
-                        self.active_tasks.append(
-                            actor.exec_module.remote(  # pyre-ignore
-                                "localhost", 0, result.id
-                            )
-                        )
-                    else:
-                        self.active_tasks.append(
-                            actor.exec_module.remote(
-                                self.rank_0_address, self.rank_0_port, result.id
-                            )
-                        )
+                    )
                     self.command_actors_count += 1
             elif isinstance(result, TaskCompleted):
                 self.terminating = (
@@ -293,6 +296,7 @@ class RayDriver:
 
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
+    _logger.info(actors)
     driver = RayDriver(actors)
     ray.init(address="auto", namespace="torchx-ray")
     driver.init_placement_groups()

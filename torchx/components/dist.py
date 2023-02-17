@@ -223,7 +223,7 @@ def ddp(
         # for single-node jobs since all workers run under a single agent
         # When nnodes is 0 and max_nnodes is 1, it's stil a single node job
         # but pending until the resources become available
-        rdzv_endpoint = "localhost:0"
+        rdzv_endpoint = _noquote(f"$${macros.rank0_env}:49782")
     else:
         # for multi-node, rely on the rank0_env environment variable set by
         # the schedulers (see scheduler implementation for the actual env var this maps to)
@@ -261,6 +261,8 @@ def ddp(
         nnodes_rep,
         "--nproc_per_node",
         str(nproc_per_node),
+        "--node_rank", 
+        macros.replica_id,
         "--tee",
         "3",
         "--role",
