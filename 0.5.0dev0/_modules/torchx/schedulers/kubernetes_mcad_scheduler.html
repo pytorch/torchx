@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>torchx.schedulers.kubernetes_scheduler &mdash; PyTorch/TorchX main documentation</title>
+  <title>torchx.schedulers.kubernetes_mcad_scheduler &mdash; PyTorch/TorchX main documentation</title>
   
 
   
@@ -361,7 +361,7 @@
         
           <li><a href="../schedulers.html">torchx.schedulers</a> &gt;</li>
         
-      <li>torchx.schedulers.kubernetes_scheduler</li>
+      <li>torchx.schedulers.kubernetes_mcad_scheduler</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -392,7 +392,7 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <h1>Source code for torchx.schedulers.kubernetes_scheduler</h1><div class="highlight"><pre>
+  <h1>Source code for torchx.schedulers.kubernetes_mcad_scheduler</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
 <span class="c1"># All rights reserved.</span>
@@ -402,28 +402,29 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">This contains the TorchX Kubernetes scheduler which can be used to run TorchX</span>
-<span class="sd">components on a Kubernetes cluster.</span>
+<span class="sd">This contains the TorchX Kubernetes_MCAD scheduler which can be used to run TorchX</span>
+<span class="sd">components on a Kubernetes cluster via the Multi-Cluster-Application-Dispatcher (MCAD).</span>
 
 <span class="sd">Prerequisites</span>
 <span class="sd">==============</span>
 
-<span class="sd">The TorchX Kubernetes scheduler depends on Volcano. If you&#39;re trying to do an</span>
-<span class="sd">upgrade you&#39;ll need to completely remove all non-Job Volcano resources and recreate.</span>
+<span class="sd">TorchX kubernetes scheduler depends on AppWrapper + MCAD.</span>
 
-<span class="sd">Install Volcano:</span>
+<span class="sd">Install MCAD </span>
 
-<span class="sd">.. code:: bash</span>
+<span class="sd">See deploying Multi-Cluster-Application-Dispatcher guide </span>
+<span class="sd">https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md</span>
 
-<span class="sd">    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml</span>
+<span class="sd">TorchX uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/elastic/run.html&gt;`_ to run distributed training.</span>
 
-<span class="sd">See the</span>
-<span class="sd">`Volcano Quickstart &lt;https://github.com/volcano-sh/volcano#user-content-quick-start-guide&gt;`_</span>
-<span class="sd">for more information.</span>
+<span class="sd">Learn more about running distributed trainers :py:mod:`torchx.components.dist`</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -460,27 +461,33 @@
     <span class="n">macros</span><span class="p">,</span>
     <span class="n">ReplicaState</span><span class="p">,</span>
     <span class="n">ReplicaStatus</span><span class="p">,</span>
+    <span class="n">Resource</span><span class="p">,</span>
     <span class="n">RetryPolicy</span><span class="p">,</span>
     <span class="n">Role</span><span class="p">,</span>
     <span class="n">RoleStatus</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">torchx.util.strings</span> <span class="kn">import</span> <span class="n">normalize_str</span>
+
 <span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
-
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">docker</span> <span class="kn">import</span> <span class="n">DockerClient</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">CustomObjectsApi</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401 imported but unused</span>
         <span class="n">V1Container</span><span class="p">,</span>
+        <span class="n">V1ContainerPort</span><span class="p">,</span>
+        <span class="n">V1EnvVar</span><span class="p">,</span>
         <span class="n">V1Pod</span><span class="p">,</span>
+        <span class="n">V1PodSpec</span><span class="p">,</span>
+        <span class="n">V1ResourceRequirements</span><span class="p">,</span>
+        <span class="n">V1Service</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
 
 <span class="c1"># Kubernetes reserves a small amount of resources per host for the system. For</span>
 <span class="c1"># TorchX we always assume the entire host is being requested so we adjust the</span>
@@ -498,45 +505,26 @@
     <span class="p">],</span>
 <span class="p">}</span>
 
+<span class="c1"># The AppWrapper Status - holistic view of pods/services</span>
 <span class="n">JOB_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># Pending is the phase that job is pending in the queue, waiting for</span>
-    <span class="c1"># scheduling decision</span>
+    <span class="c1"># Pending is the AppWrapper condition waiting for scheduling by MCAD</span>
     <span class="s2">&quot;Pending&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
-    <span class="c1"># Aborting is the phase that job is aborted, waiting for releasing pods</span>
-    <span class="s2">&quot;Aborting&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
-    <span class="c1"># Aborted is the phase that job is aborted by user or error handling</span>
-    <span class="s2">&quot;Aborted&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">CANCELLED</span><span class="p">,</span>
-    <span class="c1"># Running is the phase that minimal available tasks of Job are running</span>
+    <span class="c1"># Running is the AppWrapper condition in Running.</span>
     <span class="s2">&quot;Running&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
-    <span class="c1"># Restarting is the phase that the Job is restarted, waiting for pod</span>
-    <span class="c1"># releasing and recreating</span>
-    <span class="s2">&quot;Restarting&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
-    <span class="c1"># Completed is the phase that all tasks of Job are completed successfully</span>
-    <span class="s2">&quot;Completed&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">,</span>
-    <span class="c1"># Terminating is the phase that the Job is terminated, waiting for releasing</span>
-    <span class="c1"># pods</span>
-    <span class="s2">&quot;Terminating&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
-    <span class="c1"># Teriminated is the phase that the job is finished unexpected, e.g. events</span>
-    <span class="s2">&quot;Terminated&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
-    <span class="s2">&quot;Failed&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+    <span class="c1"># Deleted is the AppWrapper condition where the torchX job is cancelled</span>
+    <span class="c1"># by the user, the AppWrapper is deleted by the user, or error handling</span>
+    <span class="s2">&quot;Deleted&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">CANCELLED</span><span class="p">,</span>
+    <span class="c1"># Failed is the job finishes unexpectedly</span>
+    <span class="s2">&quot;Failed&quot;</span><span class="p">:</span> <span class="n">AppState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">TASK_STATE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ReplicaState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># Pending means the task is pending in the apiserver.</span>
-    <span class="s2">&quot;Pending&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
-    <span class="c1"># Allocated means the scheduler assigns a host to it.</span>
-    <span class="s2">&quot;Allocated&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
-    <span class="c1"># Pipelined means the scheduler assigns a host to wait for releasing</span>
-    <span class="c1"># resource.</span>
-    <span class="s2">&quot;Pipelined&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
-    <span class="c1"># Binding means the scheduler send Bind request to apiserver.</span>
-    <span class="s2">&quot;Binding&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
-    <span class="c1"># Bound means the task/Pod bounds to a host.</span>
-    <span class="s2">&quot;Bound&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
+    <span class="c1"># Pending dispatch means the AppWrapped task is not yet scheduled by MCAD</span>
+    <span class="s2">&quot;Pending dispatch&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
+    <span class="c1"># Pending means the task is scheduled by MCAD</span>
+    <span class="s2">&quot;pending&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span>
     <span class="c1"># Running means a task is running on the host.</span>
-    <span class="s2">&quot;Running&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
-    <span class="c1"># Releasing means a task/pod is deleted.</span>
-    <span class="s2">&quot;Releasing&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
+    <span class="s2">&quot;running&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
     <span class="c1"># Succeeded means that all containers in the pod have voluntarily</span>
     <span class="c1"># terminated with a container exit code of 0, and the system is not</span>
     <span class="c1"># going to restart any of these containers.</span>
@@ -544,11 +532,12 @@
     <span class="c1"># Failed means that all containers in the pod have terminated, and at</span>
     <span class="c1"># least one container has terminated in a failure (exited with a</span>
     <span class="c1"># non-zero exit code or was stopped by the system).</span>
-    <span class="s2">&quot;Failed&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+    <span class="s2">&quot;failed&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
     <span class="c1"># Unknown means the status of task/pod is unknown to the scheduler.</span>
     <span class="s2">&quot;Unknown&quot;</span><span class="p">:</span> <span class="n">ReplicaState</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="c1"># TO DO update to standards</span>
 <span class="n">LABEL_VERSION</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
 <span class="n">LABEL_APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/app-name&quot;</span>
 <span class="n">LABEL_ROLE_INDEX</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/role-index&quot;</span>
@@ -560,20 +549,28 @@
 <span class="n">LABEL_INSTANCE_TYPE</span> <span class="o">=</span> <span class="s2">&quot;node.kubernetes.io/instance-type&quot;</span>
 
 
-<div class="viewcode-block" id="sanitize_for_serialization"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.sanitize_for_serialization">[docs]</a><span class="k">def</span> <span class="nf">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<div class="viewcode-block" id="sanitize_for_serialization"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.sanitize_for_serialization">[docs]</a><span class="k">def</span> <span class="nf">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span>
 
     <span class="n">api</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">ApiClient</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">api</span><span class="o">.</span><span class="n">sanitize_for_serialization</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">[docs]</a><span class="k">def</span> <span class="nf">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Pod&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="role_to_pod"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.role_to_pod">[docs]</a><span class="k">def</span> <span class="nf">role_to_pod</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">unique_app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span>
+    <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">image_secret</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Pod&quot;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F811 redefinition of unused</span>
         <span class="n">V1Container</span><span class="p">,</span>
         <span class="n">V1ContainerPort</span><span class="p">,</span>
         <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
         <span class="n">V1EnvVar</span><span class="p">,</span>
         <span class="n">V1HostPathVolumeSource</span><span class="p">,</span>
+        <span class="n">V1LocalObjectReference</span><span class="p">,</span>
         <span class="n">V1ObjectMeta</span><span class="p">,</span>
         <span class="n">V1PersistentVolumeClaimVolumeSource</span><span class="p">,</span>
         <span class="n">V1Pod</span><span class="p">,</span>
@@ -688,17 +685,28 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown mount type </span><span class="si">{</span><span class="n">mount</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="n">torchx_env_var</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">V1EnvVar</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+
+    <span class="n">my_env_var</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">V1EnvVar</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;TORCHX_MCAD_</span><span class="si">{</span><span class="n">cleanup_str</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">_0_HOSTS&quot;</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unique_app_id</span><span class="si">}</span><span class="s2">-0.</span><span class="si">{</span><span class="n">unique_app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+
     <span class="n">container</span> <span class="o">=</span> <span class="n">V1Container</span><span class="p">(</span>
         <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span> <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">env</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">V1EnvVar</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">],</span>
+        <span class="n">env</span><span class="o">=</span><span class="n">torchx_env_var</span> <span class="o">+</span> <span class="n">my_env_var</span><span class="p">,</span>
         <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
         <span class="n">ports</span><span class="o">=</span><span class="p">[</span>
             <span class="n">V1ContainerPort</span><span class="p">(</span>
@@ -711,107 +719,342 @@
         <span class="n">security_context</span><span class="o">=</span><span class="n">security_context</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># Get correct formatting for image secret</span>
+    <span class="n">imagesecret</span> <span class="o">=</span> <span class="n">V1LocalObjectReference</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">image_secret</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">V1Pod</span><span class="p">(</span>
+        <span class="n">api_version</span><span class="o">=</span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;Pod&quot;</span><span class="p">,</span>
         <span class="n">spec</span><span class="o">=</span><span class="n">V1PodSpec</span><span class="p">(</span>
             <span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">container</span><span class="p">],</span>
+            <span class="n">hostname</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdomain</span><span class="o">=</span><span class="n">unique_app_id</span><span class="p">,</span>
+            <span class="n">image_pull_secrets</span><span class="o">=</span><span class="p">[</span><span class="n">imagesecret</span><span class="p">],</span>
             <span class="n">restart_policy</span><span class="o">=</span><span class="s2">&quot;Never&quot;</span><span class="p">,</span>
             <span class="n">service_account_name</span><span class="o">=</span><span class="n">service_account</span><span class="p">,</span>
             <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
             <span class="n">node_selector</span><span class="o">=</span><span class="n">node_selector</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">metadata</span><span class="o">=</span><span class="n">V1ObjectMeta</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">annotations</span><span class="o">=</span><span class="p">{</span>
                 <span class="c1"># Disable the istio sidecar as it prevents the containers from</span>
                 <span class="c1"># exiting once finished.</span>
                 <span class="n">ANNOTATION_ISTIO_SIDECAR</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">labels</span><span class="o">=</span><span class="p">{},</span>
+            <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span>
-    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
-    <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">priority_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<div class="viewcode-block" id="mcad_svc"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.mcad_svc">[docs]</a><span class="k">def</span> <span class="nf">mcad_svc</span><span class="p">(</span><span class="n">svc_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service_port</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;V1Service&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">kubernetes.client.models</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401, F811</span>
+        <span class="n">V1Container</span><span class="p">,</span>
+        <span class="n">V1ContainerPort</span><span class="p">,</span>
+        <span class="n">V1EmptyDirVolumeSource</span><span class="p">,</span>
+        <span class="n">V1EnvVar</span><span class="p">,</span>
+        <span class="n">V1HostPathVolumeSource</span><span class="p">,</span>
+        <span class="n">V1ObjectMeta</span><span class="p">,</span>
+        <span class="n">V1PersistentVolumeClaimVolumeSource</span><span class="p">,</span>
+        <span class="n">V1Pod</span><span class="p">,</span>
+        <span class="n">V1PodSpec</span><span class="p">,</span>
+        <span class="n">V1ResourceRequirements</span><span class="p">,</span>
+        <span class="n">V1SecurityContext</span><span class="p">,</span>
+        <span class="n">V1Service</span><span class="p">,</span>
+        <span class="n">V1ServicePort</span><span class="p">,</span>
+        <span class="n">V1ServiceSpec</span><span class="p">,</span>
+        <span class="n">V1ServiceStatus</span><span class="p">,</span>
+        <span class="n">V1Volume</span><span class="p">,</span>
+        <span class="n">V1VolumeMount</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">V1Service</span><span class="p">(</span>
+        <span class="n">api_version</span><span class="o">=</span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;Service&quot;</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="n">V1ObjectMeta</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">svc_name</span><span class="p">,</span>
+            <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">spec</span><span class="o">=</span><span class="n">V1ServiceSpec</span><span class="p">(</span>
+            <span class="n">cluster_ip</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span>
+            <span class="n">publish_not_ready_addresses</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ports</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">V1ServicePort</span><span class="p">(</span>
+                    <span class="n">protocol</span><span class="o">=</span><span class="s2">&quot;TCP&quot;</span><span class="p">,</span>
+                    <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">service_port</span><span class="p">),</span>
+                    <span class="n">target_port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">service_port</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">selector</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;appwrapper.mcad.ibm.com&quot;</span><span class="p">:</span> <span class="n">svc_name</span><span class="p">},</span>
+            <span class="n">session_affinity</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;ClusterIP&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">V1ServiceStatus</span><span class="p">(</span>
+            <span class="n">load_balancer</span><span class="o">=</span><span class="p">{},</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">cleanup_str</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    app_to_resource creates a volcano job kubernetes resource definition from</span>
+<span class="sd">    Invokes ``lower`` on thes string and removes all</span>
+<span class="sd">    characters that do not satisfy ``[a-z0-9]`` pattern.</span>
+<span class="sd">    This method is mostly used to make sure kubernetes scheduler gets</span>
+<span class="sd">    the job name that does not violate its validation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;[a-z0-9\-]&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+
+
+<div class="viewcode-block" id="get_port_for_service"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_port_for_service">[docs]</a><span class="k">def</span> <span class="nf">get_port_for_service</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># Initialize port to default</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;29500&quot;</span>
+
+    <span class="k">for</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">port_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">port_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">65535</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Warning: port_map set to invalid port number. Value must be between 1-65535, with torchx default = 29500. Setting port to default = 29500&quot;&quot;&quot;</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;29500&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">port</span></div>
+
+
+<div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">image_secret</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    app_to_resource creates a AppWrapper/MCAD Kubernetes resource definition from</span>
 <span class="sd">    the provided AppDef. The resource definition can be used to launch the</span>
 <span class="sd">    app on Kubernetes.</span>
 
-<span class="sd">    To support macros we generate one task per replica instead of using the</span>
-<span class="sd">    volcano `replicas` field since macros change the arguments on a per</span>
-<span class="sd">    replica basis.</span>
-
-<span class="sd">    Volcano has two levels of retries: one at the task level and one at the</span>
-<span class="sd">    job level. When using the APPLICATION retry policy, the job level retry</span>
-<span class="sd">    count is set to the minimum of the max_retries of the roles.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">unique_app_id</span> <span class="o">=</span> <span class="n">normalize_str</span><span class="p">(</span><span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="n">genericitems</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">unique_app_id</span> <span class="o">=</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
                 <span class="n">img_root</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                 <span class="n">app_id</span><span class="o">=</span><span class="n">unique_app_id</span><span class="p">,</span>
                 <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
-                <span class="n">rank0_env</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;VC_</span><span class="si">{</span><span class="n">normalize_str</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">_0_HOSTS&quot;</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+                <span class="n">rank0_env</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;TORCHX_MCAD_</span><span class="si">{</span><span class="n">cleanup_str</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">_0_HOSTS&quot;</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">),</span>
             <span class="p">)</span>
+
             <span class="k">if</span> <span class="n">role_idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">replica_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">values</span><span class="o">.</span><span class="n">rank0_env</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">normalize_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unique_app_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">role_idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">replica_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
 
-            <span class="n">pod</span> <span class="o">=</span> <span class="n">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">service_account</span><span class="p">)</span>
+            <span class="n">pod</span> <span class="o">=</span> <span class="n">role_to_pod</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">unique_app_id</span><span class="p">,</span>
+                <span class="n">namespace</span><span class="p">,</span>
+                <span class="n">replica_role</span><span class="p">,</span>
+                <span class="n">service_account</span><span class="p">,</span>
+                <span class="n">image_secret</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">pod</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">))</span>
-            <span class="n">task</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+
+            <span class="n">genericitem</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">pod</span><span class="p">,</span>
+                <span class="s2">&quot;generictemplate&quot;</span><span class="p">:</span> <span class="n">pod</span><span class="p">,</span>
             <span class="p">}</span>
+            <span class="c1"># TODO: retry support here. For more information, see MCAD GitHub issue #207</span>
             <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">task</span><span class="p">[</span><span class="s2">&quot;maxRetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span>
-                <span class="n">task</span><span class="p">[</span><span class="s2">&quot;policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RETRY_POLICIES</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">retry_policy</span><span class="p">]</span>
+                <span class="n">genericitem</span><span class="p">[</span><span class="s2">&quot;maxRetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span>
+                <span class="n">genericitem</span><span class="p">[</span><span class="s2">&quot;policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RETRY_POLICIES</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">retry_policy</span><span class="p">]</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">Role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> configured with restarts: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2">. As of 1.4.0 Volcano</span>
-<span class="s2">does NOT support retries correctly. More info: https://github.com/volcano-sh/volcano/issues/1651</span>
+<span class="s2">MCAD currently does not support retries. Role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> configured with restarts: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2">.</span>
 <span class="s2">                &quot;&quot;&quot;</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">min_replicas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># first min_replicas tasks are required, afterward optional</span>
-                <span class="n">task</span><span class="p">[</span><span class="s2">&quot;minAvailable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">replica_id</span> <span class="o">&lt;</span> <span class="n">role</span><span class="o">.</span><span class="n">min_replicas</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
-    <span class="n">job_retries</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
-    <span class="n">job_spec</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;schedulerName&quot;</span><span class="p">:</span> <span class="s2">&quot;volcano&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue</span><span class="p">,</span>
-        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="n">tasks</span><span class="p">,</span>
-        <span class="s2">&quot;maxRetry&quot;</span><span class="p">:</span> <span class="n">job_retries</span><span class="p">,</span>
-        <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="c1"># https://github.com/volcano-sh/volcano/issues/533</span>
-            <span class="s2">&quot;svc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--publish-not-ready-addresses&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="n">genericitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genericitem</span><span class="p">)</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Service:</span>
+<span class="sd">    The selector will have the key &#39;appwrapper.mcad.ibm.com&#39;, and the value will be </span>
+<span class="sd">    the appwrapper name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">service_port</span> <span class="o">=</span> <span class="n">get_port_for_service</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+    <span class="n">svc_obj</span> <span class="o">=</span> <span class="n">mcad_svc</span><span class="p">(</span><span class="n">unique_app_id</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">service_port</span><span class="p">)</span>
+
+    <span class="n">genericitem_svc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;generictemplate&quot;</span><span class="p">:</span> <span class="n">svc_obj</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">genericitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genericitem_svc</span><span class="p">)</span>
+
+    <span class="n">job_spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;GenericItems&quot;</span><span class="p">:</span> <span class="n">genericitems</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">}</span>
-    <span class="k">if</span> <span class="n">priority_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">job_spec</span><span class="p">[</span><span class="s2">&quot;priorityClassName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">priority_class</span>
+
+    <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">job_spec</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">priority</span>
 
     <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;batch.volcano.sh/v1alpha1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;Job&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unique_app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;mcad.ibm.com/v1beta1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;AppWrapper&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">unique_app_id</span><span class="p">},</span>
         <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="n">job_spec</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">resource</span></div>
 
 
-<div class="viewcode-block" id="KubernetesJob"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesJob">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">KubernetesJob</span><span class="p">:</span>
+<span class="c1"># Helper function for MCAD generic items information -&gt; TorchX Role</span>
+<div class="viewcode-block" id="get_role_information"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_role_information">[docs]</a><span class="k">def</span> <span class="nf">get_role_information</span><span class="p">(</span><span class="n">generic_items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="c1"># Store unique role information</span>
+    <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># nested dictionary keys</span>
+    <span class="c1"># meta data information</span>
+    <span class="n">GT_KEY</span> <span class="o">=</span> <span class="s2">&quot;generictemplate&quot;</span>
+    <span class="n">METADATA_KEY</span> <span class="o">=</span> <span class="s2">&quot;metadata&quot;</span>
+    <span class="n">LABEL_KEY</span> <span class="o">=</span> <span class="s2">&quot;labels&quot;</span>
+    <span class="n">ROLE_KEY</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/role-name&quot;</span>
+
+    <span class="c1"># containers information</span>
+    <span class="n">SPEC_KEY</span> <span class="o">=</span> <span class="s2">&quot;spec&quot;</span>
+    <span class="n">CONTAINER_KEY</span> <span class="o">=</span> <span class="s2">&quot;containers&quot;</span>
+    <span class="n">IMAGE_KEY</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span>
+    <span class="n">ARGS_KEY</span> <span class="o">=</span> <span class="s2">&quot;command&quot;</span>
+    <span class="n">ENV_KEY</span> <span class="o">=</span> <span class="s2">&quot;env&quot;</span>
+    <span class="n">RESOURCE_KEY</span> <span class="o">=</span> <span class="s2">&quot;resources&quot;</span>
+    <span class="n">PORTS_KEY</span> <span class="o">=</span> <span class="s2">&quot;ports&quot;</span>
+    <span class="n">MOUNTS_KEY</span> <span class="o">=</span> <span class="s2">&quot;volumeMounts&quot;</span>
+
+    <span class="c1"># resource keys</span>
+    <span class="n">CPU_KEY</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">GPU_KEY</span> <span class="o">=</span> <span class="s2">&quot;gpu&quot;</span>
+    <span class="n">REQUEST_KEY</span> <span class="o">=</span> <span class="s2">&quot;requests&quot;</span>
+    <span class="n">MEM_KEY</span> <span class="o">=</span> <span class="s2">&quot;memory&quot;</span>
+
+    <span class="k">for</span> <span class="n">generic_item</span> <span class="ow">in</span> <span class="n">generic_items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">GT_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">generic_item</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">gt_result</span> <span class="o">=</span> <span class="n">generic_item</span><span class="p">[</span><span class="n">GT_KEY</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">METADATA_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gt_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="c1"># Note: options in meta data : annotations, labels, name, namespace</span>
+        <span class="n">metadata_result</span> <span class="o">=</span> <span class="n">gt_result</span><span class="p">[</span><span class="n">METADATA_KEY</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">LABEL_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">label_result</span> <span class="o">=</span> <span class="n">metadata_result</span><span class="p">[</span><span class="n">LABEL_KEY</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ROLE_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">label_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">label_result</span><span class="p">[</span><span class="n">ROLE_KEY</span><span class="p">]</span>
+        <span class="c1"># save role</span>
+        <span class="k">if</span> <span class="n">role_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">role_name</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Only get specs for first instance of TorchX role</span>
+            <span class="k">if</span> <span class="n">SPEC_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gt_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="c1"># Note: options in spec data: containers, hostname, imagePullSecrets, nodeSelector</span>
+            <span class="c1">#      restartPolicy, subdomain, volumes</span>
+            <span class="n">spec_result</span> <span class="o">=</span> <span class="n">gt_result</span><span class="p">[</span><span class="n">SPEC_KEY</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">CONTAINER_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spec_result</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">container_result</span> <span class="o">=</span> <span class="n">spec_result</span><span class="p">[</span><span class="n">CONTAINER_KEY</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">IMAGE_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">IMAGE_KEY</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">ARGS_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">ARGS_KEY</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ENV_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">ENV_KEY</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">RESOURCE_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">RESOURCE_KEY</span><span class="p">]</span>
+            <span class="n">resource_req</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">CPU_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">RESOURCE_KEY</span><span class="p">][</span><span class="n">REQUEST_KEY</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">resource_req</span><span class="o">.</span><span class="n">cpu</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">RESOURCE_KEY</span><span class="p">][</span><span class="n">REQUEST_KEY</span><span class="p">][</span><span class="n">CPU_KEY</span><span class="p">]</span>
+            <span class="c1"># Substring matching to accomodate different gpu types</span>
+            <span class="n">gpu_key_values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="nb">filter</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">GPU_KEY</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">RESOURCE_KEY</span><span class="p">][</span><span class="n">REQUEST_KEY</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gpu_key_values</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">gpu_key_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">resource_req</span><span class="o">.</span><span class="n">gpu</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">MEM_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">RESOURCE_KEY</span><span class="p">][</span><span class="n">REQUEST_KEY</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">resource_req</span><span class="o">.</span><span class="n">memMB</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">RESOURCE_KEY</span><span class="p">][</span><span class="n">REQUEST_KEY</span><span class="p">][</span><span class="n">MEM_KEY</span><span class="p">]</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">resource</span> <span class="o">=</span> <span class="n">resource_req</span>
+
+            <span class="k">if</span> <span class="n">PORTS_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">port_map</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">PORTS_KEY</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">MOUNTS_KEY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">mounts</span> <span class="o">=</span> <span class="n">container_result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">MOUNTS_KEY</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">roles</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">roles</span></div>
+
+
+<div class="viewcode-block" id="get_appwrapper_status"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_appwrapper_status">[docs]</a><span class="k">def</span> <span class="nf">get_appwrapper_status</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AppState</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;status&quot;</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="c1"># pyre-fixme</span>
+        <span class="k">return</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">app</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">][</span><span class="s2">&quot;state&quot;</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Handle case where appwrapper is created but pending dispatch</span>
+        <span class="k">return</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="s2">&quot;Pending&quot;</span><span class="p">]</span></div>
+
+
+<span class="c1"># Does not handle not ready to dispatch case</span>
+<div class="viewcode-block" id="get_tasks_status_description"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_tasks_status_description">[docs]</a><span class="k">def</span> <span class="nf">get_tasks_status_description</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Keys related to tasks and status</span>
+    <span class="n">KEY_RUN</span> <span class="o">=</span> <span class="s2">&quot;running&quot;</span>
+    <span class="n">KEY_PEND</span> <span class="o">=</span> <span class="s2">&quot;pending&quot;</span>
+    <span class="n">KEY_FAIL</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
+    <span class="n">KEY_SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;Succeeded&quot;</span>
+
+    <span class="k">if</span> <span class="n">KEY_RUN</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">KEY_RUN</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="n">KEY_RUN</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">KEY_PEND</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">KEY_PEND</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="n">KEY_PEND</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">KEY_FAIL</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">KEY_FAIL</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="n">KEY_FAIL</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">KEY_SUCCESS</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">KEY_SUCCESS</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="n">KEY_SUCCESS</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="KubernetesMCADJob"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADJob">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">KubernetesMCADJob</span><span class="p">:</span>
     <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
     <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
 
@@ -822,46 +1065,39 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">KubernetesOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">KubernetesMCADOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">queue</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">service_account</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">priority_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">image_secret</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="KubernetesScheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">[docs]</a><span class="k">class</span> <span class="nc">KubernetesScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">KubernetesOpts</span><span class="p">]):</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler">[docs]</a><span class="k">class</span> <span class="nc">KubernetesMCADScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">KubernetesMCADOpts</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    KubernetesScheduler is a TorchX scheduling interface to Kubernetes.</span>
+<span class="sd">    KubernetesMCADScheduler is a TorchX scheduling interface to Kubernetes.</span>
 
-<span class="sd">    Important: Volcano is required to be installed on the Kubernetes cluster.</span>
-<span class="sd">    TorchX requires gang scheduling for multi-replica/multi-role execution</span>
-<span class="sd">    and Volcano is currently the only supported scheduler with Kubernetes.</span>
-<span class="sd">    For installation instructions see: https://github.com/volcano-sh/volcano</span>
+<span class="sd">    Important: AppWrapper/MCAD is required to be installed on the Kubernetes cluster.</span>
+<span class="sd">    TorchX requires gang scheduling for multi-replica/multi-role execution.</span>
+<span class="sd">    Note that AppWrapper/MCAD supports gang scheduling among any app-wrapped jobs on Kubernetes.</span>
+<span class="sd">    However, for true gang scheduling AppWrapper/MCAD needs to be used with an additional Kubernetes</span>
+<span class="sd">    co-scheduler.</span>
+<span class="sd">    For installation instructions see: https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md</span>
 
-<span class="sd">    This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions</span>
-<span class="sd">    v1.18-1.21. See https://github.com/pytorch/torchx/issues/120 which is</span>
-<span class="sd">    tracking Volcano support for Kubernetes v1.22.</span>
-
-<span class="sd">    .. note::</span>
-
-<span class="sd">        AppDefs that have more than 0 retries may not be displayed as pods if they failed.</span>
-<span class="sd">        This occurs due to known bug in Volcano(as per 1.4.0 release):</span>
-<span class="sd">        https://github.com/volcano-sh/volcano/issues/1651</span>
-
+<span class="sd">    This has been confirmed to work with MCAD main branch and OpenShift Kubernetes</span>
+<span class="sd">    Client Version: 4.10.13</span>
+<span class="sd">    Server Version: 4.9.18</span>
+<span class="sd">    Kubernetes Version: v1.22.3+e790d7f</span>
 
 <span class="sd">    .. code-block:: bash</span>
 
-<span class="sd">        $ pip install torchx[kubernetes]</span>
-<span class="sd">        $ torchx run --scheduler kubernetes --scheduler_args namespace=default,queue=test utils.echo --image alpine:latest --msg hello</span>
-<span class="sd">        kubernetes://torchx_user/1234</span>
-<span class="sd">        $ torchx status kubernetes://torchx_user/1234</span>
+<span class="sd">        $ torchx run --scheduler kubernetes_mcad --scheduler_args namespace=default,image_repo=&lt;your_image_repo&gt; utils.echo --image alpine:latest --msg hello</span>
 <span class="sd">        ...</span>
 
 <span class="sd">    **Config Options**</span>
 
 <span class="sd">    .. runopts::</span>
-<span class="sd">        class: torchx.schedulers.kubernetes_scheduler.create_scheduler</span>
+<span class="sd">        class: torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler</span>
 
 <span class="sd">    **Mounts**</span>
 
@@ -910,12 +1146,10 @@
 <span class="sd">            cancel: true</span>
 <span class="sd">            logs: true</span>
 <span class="sd">            distributed: true</span>
-<span class="sd">            describe: |</span>
-<span class="sd">                Partial support. KubernetesScheduler will return job and replica</span>
-<span class="sd">                status but does not provide the complete original AppSpec.</span>
+<span class="sd">            describe: true</span>
 <span class="sd">            workspaces: true</span>
 <span class="sd">            mounts: true</span>
-<span class="sd">            elasticity: Requires Volcano &gt;1.6</span>
+<span class="sd">            elasticity: false</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -924,7 +1158,7 @@
         <span class="n">client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ApiClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">docker_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DockerClient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;kubernetes&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">,</span> <span class="n">docker_client</span><span class="o">=</span><span class="n">docker_client</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;kubernetes_mcad&quot;</span><span class="p">,</span> <span class="n">session_name</span><span class="p">,</span> <span class="n">docker_client</span><span class="o">=</span><span class="n">docker_client</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
 
@@ -946,7 +1180,8 @@
     <span class="k">def</span> <span class="nf">_custom_objects_api</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CustomObjectsApi&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span>
 
-        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">CustomObjectsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">())</span>
+        <span class="n">api_client</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">CustomObjectsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">api_client</span>
 
     <span class="k">def</span> <span class="nf">_get_job_name_from_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="s2">&quot;ApiException&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -961,7 +1196,7 @@
         <span class="n">contexts</span><span class="p">,</span> <span class="n">active_context</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">list_kube_config_contexts</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">active_context</span>
 
-<div class="viewcode-block" id="KubernetesScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.schedule"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesMCADJob</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
 
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">_cfg</span>
@@ -972,12 +1207,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">push_images</span><span class="p">(</span><span class="n">images_to_push</span><span class="p">)</span>
 
         <span class="n">resource</span> <span class="o">=</span> <span class="n">dryrun_info</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">resource</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_objects_api</span><span class="p">()</span><span class="o">.</span><span class="n">create_namespaced_custom_object</span><span class="p">(</span>
-                <span class="n">group</span><span class="o">=</span><span class="s2">&quot;batch.volcano.sh&quot;</span><span class="p">,</span>
-                <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1alpha1&quot;</span><span class="p">,</span>
+                <span class="n">group</span><span class="o">=</span><span class="s2">&quot;mcad.ibm.com&quot;</span><span class="p">,</span>
+                <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1beta1&quot;</span><span class="p">,</span>
                 <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
-                <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span>
+                <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;appwrappers&quot;</span><span class="p">,</span>
                 <span class="n">body</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">ApiException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -992,13 +1228,10 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">resp</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span></div>
 
     <span class="k">def</span> <span class="nf">_submit_dryrun</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">KubernetesOpts</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesJob</span><span class="p">]:</span>
-        <span class="n">queue</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config value &#39;queue&#39; must be a string, got </span><span class="si">{</span><span class="n">queue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">KubernetesMCADOpts</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">[</span><span class="n">KubernetesMCADJob</span><span class="p">]:</span>
         <span class="c1"># map any local images to the remote image</span>
+        <span class="c1"># images_to_push = self._update_app_images(app, cfg.get(&quot;image_repo&quot;))</span>
         <span class="n">images_to_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun_push_images</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span> <span class="n">cfg</span><span class="p">))</span>
 
         <span class="n">service_account</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;service_account&quot;</span><span class="p">)</span>
@@ -1006,17 +1239,36 @@
             <span class="n">service_account</span><span class="p">,</span> <span class="nb">str</span>
         <span class="p">),</span> <span class="s2">&quot;service_account must be a str&quot;</span>
 
-        <span class="n">priority_class</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority_class&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">priority_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
-            <span class="n">priority_class</span><span class="p">,</span> <span class="nb">str</span>
-        <span class="p">),</span> <span class="s2">&quot;priority_class must be a str&quot;</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">priority</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">priority</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;priority must be a int&quot;</span>
 
-        <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">service_account</span><span class="p">,</span> <span class="n">priority_class</span><span class="p">)</span>
-        <span class="n">req</span> <span class="o">=</span> <span class="n">KubernetesJob</span><span class="p">(</span>
+        <span class="n">image_secret</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_secret&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">image_secret</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">image_secret</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;image_secret must be a str&quot;</span>
+
+        <span class="k">if</span> <span class="n">image_secret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">service_account</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Service Account and Image Secret names are both provided.</span>
+<span class="s2"> Depending on the Service Account configuration, an ImagePullSecret may be defined in your Service Account.</span>
+<span class="s2"> If this is the case, check service account and image secret configurations to understand the expected behavior for </span>
+<span class="s2"> patched image push access.&quot;&quot;&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">namespace</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;namespace&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;namespace must be a str&quot;</span>
+
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">app_to_resource</span><span class="p">(</span>
+            <span class="n">app</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">service_account</span><span class="p">,</span> <span class="n">image_secret</span><span class="p">,</span> <span class="n">priority</span>
+        <span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">KubernetesMCADJob</span><span class="p">(</span>
             <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
             <span class="n">images_to_push</span><span class="o">=</span><span class="n">images_to_push</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
+        <span class="n">info</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="c1"># pyre-fixme</span>
+        <span class="n">info</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="k">return</span> <span class="n">info</span>
 
     <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Skip validation step</span>
@@ -1025,14 +1277,14 @@
     <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_custom_objects_api</span><span class="p">()</span><span class="o">.</span><span class="n">delete_namespaced_custom_object</span><span class="p">(</span>
-            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;batch.volcano.sh&quot;</span><span class="p">,</span>
-            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1alpha1&quot;</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;mcad.ibm.com&quot;</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1beta1&quot;</span><span class="p">,</span>
             <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
-            <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span>
+            <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;appwrappers&quot;</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.run_opts"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">runopts</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;namespace&quot;</span><span class="p">,</span>
@@ -1041,10 +1293,9 @@
             <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="s2">&quot;queue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;image_repo&quot;</span><span class="p">,</span>
             <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Volcano queue to schedule job in&quot;</span><span class="p">,</span>
-            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;service_account&quot;</span><span class="p">,</span>
@@ -1052,46 +1303,87 @@
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The service account name to set on the pod specs&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="s2">&quot;priority_class&quot;</span><span class="p">,</span>
-            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the PriorityClass to set on the job specs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The priority level to set on the job specs. Higher integer value means higher priority&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">opts</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;image_secret&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the Kubernetes/OpenShift secret set up for private images&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">opts</span></div>
 
-<div class="viewcode-block" id="KubernetesScheduler.describe"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.describe"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">kubernetes.client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span>
+
         <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">roles_statuses</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_objects_api</span><span class="p">()</span><span class="o">.</span><span class="n">get_namespaced_custom_object_status</span><span class="p">(</span>
-            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;batch.volcano.sh&quot;</span><span class="p">,</span>
-            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1alpha1&quot;</span><span class="p">,</span>
-            <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
-            <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-            <span class="n">state_str</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span>
-            <span class="n">app_state</span> <span class="o">=</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
 
-            <span class="n">TASK_STATUS_COUNT</span> <span class="o">=</span> <span class="s2">&quot;taskStatusCount&quot;</span>
+        <span class="c1"># Production section</span>
+        <span class="n">api_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_objects_api</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="s2">&quot;mcad.ibm.com&quot;</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;v1beta1&quot;</span>
+        <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;appwrappers&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">api_resp</span> <span class="o">=</span> <span class="n">api_instance</span><span class="p">()</span><span class="o">.</span><span class="n">get_namespaced_custom_object</span><span class="p">(</span>
+                <span class="n">group</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">name</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ApiException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">api_resp</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">404</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;Not Found&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Kubernetes client not found. Check access to Kubernetes cluster.&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">401</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;Unauthorized&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unauthorized Kubernetes access error.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span>
 
-            <span class="k">if</span> <span class="n">TASK_STATUS_COUNT</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">status</span><span class="p">[</span><span class="n">TASK_STATUS_COUNT</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">role</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">task_status</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s2">&quot;status&quot;</span> <span class="ow">in</span> <span class="n">api_resp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">api_resp</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span>
+            <span class="n">tasks_results</span> <span class="o">=</span> <span class="n">get_tasks_status_description</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+            <span class="c1"># Handle case where waiting for dispatch</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks_results</span><span class="p">:</span>
+                <span class="n">tasks_results</span><span class="p">[</span><span class="s2">&quot;Pending dispatch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">api_resp</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">][</span><span class="s2">&quot;resources&quot;</span><span class="p">][</span><span class="s2">&quot;GenericItems&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span>
 
-                    <span class="n">state_str</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-                    <span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE</span><span class="p">[</span><span class="n">state_str</span><span class="p">]</span>
+            <span class="c1"># Convert MCAD status to TorchX replica set status format</span>
+            <span class="c1"># Warning: Status is not necessarily the match for a particular Replica ID</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tasks_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                    <span class="n">task_status</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-                    <span class="k">if</span> <span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
-                        <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-                        <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleStatus</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span>
-                    <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
+            <span class="n">app_state</span> <span class="o">=</span> <span class="n">JOB_STATE</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+
+            <span class="c1"># Roles</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">api_resp</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">]</span>
+            <span class="n">resources</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]</span>
+            <span class="n">generic_items</span> <span class="o">=</span> <span class="n">resources</span><span class="p">[</span><span class="s2">&quot;GenericItems&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Note MCAD service is not considered a TorchX role</span>
+            <span class="n">roles</span> <span class="o">=</span> <span class="n">get_role_information</span><span class="p">(</span><span class="n">generic_items</span><span class="p">)</span>
+
+            <span class="n">task_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Warning - MCAD does not report individual replica statuses, but overall task status. Replica id  may not match status&quot;</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+                <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleStatus</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
+                    <span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE</span><span class="p">[</span><span class="n">task_status</span><span class="p">[</span><span class="n">task_count</span><span class="p">]]</span>
                     <span class="n">roles_statuses</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">replicas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">ReplicaStatus</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
                     <span class="p">)</span>
+                    <span class="n">task_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">app_state</span> <span class="o">=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">UNKNOWN</span>
+
         <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
             <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
             <span class="n">roles</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
@@ -1099,7 +1391,7 @@
             <span class="n">state</span><span class="o">=</span><span class="n">app_state</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KubernetesScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.log_iter"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.log_iter">[docs]</a>    <span class="k">def</span> <span class="nf">log_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">role_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1113,13 +1405,15 @@
         <span class="k">assert</span> <span class="n">until</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;kubernetes API doesn&#39;t support until&quot;</span>
 
         <span class="k">if</span> <span class="n">streams</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Stream</span><span class="o">.</span><span class="n">COMBINED</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;KubernetesScheduler only supports COMBINED log stream&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;KubernetesMCADScheduler only supports COMBINED log stream&quot;</span>
+            <span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">kubernetes</span> <span class="kn">import</span> <span class="n">client</span><span class="p">,</span> <span class="n">watch</span>
 
         <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">app_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
 
-        <span class="n">pod_name</span> <span class="o">=</span> <span class="n">normalize_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">-0&quot;</span><span class="p">)</span>
+        <span class="n">pod_name</span> <span class="o">=</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">pod_name</span><span class="p">,</span>
@@ -1142,32 +1436,35 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">iterator</span></div>
 
-<div class="viewcode-block" id="KubernetesScheduler.list"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
+<div class="viewcode-block" id="KubernetesMCADScheduler.list"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
         <span class="n">active_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_active_context</span><span class="p">()</span>
         <span class="n">namespace</span> <span class="o">=</span> <span class="n">active_context</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">][</span><span class="s2">&quot;namespace&quot;</span><span class="p">]</span>
+
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_objects_api</span><span class="p">()</span><span class="o">.</span><span class="n">list_namespaced_custom_object</span><span class="p">(</span>
-            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;batch.volcano.sh&quot;</span><span class="p">,</span>
-            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1alpha1&quot;</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;mcad.ibm.com&quot;</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v1beta1&quot;</span><span class="p">,</span>
             <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
-            <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span>
+            <span class="n">plural</span><span class="o">=</span><span class="s2">&quot;appwrappers&quot;</span><span class="p">,</span>
             <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
         <span class="p">)</span>
+
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">ListAppResponse</span><span class="p">(</span>
-                <span class="n">app_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">app</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">state</span><span class="o">=</span><span class="n">JOB_STATE</span><span class="p">[</span><span class="n">app</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">][</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;phase&quot;</span><span class="p">]],</span>
+                <span class="n">app_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">state</span><span class="o">=</span><span class="n">get_appwrapper_status</span><span class="p">(</span><span class="n">item</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">app</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KubernetesScheduler</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">KubernetesScheduler</span><span class="p">(</span>
+<div class="viewcode-block" id="create_scheduler"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.create_scheduler">[docs]</a><span class="k">def</span> <span class="nf">create_scheduler</span><span class="p">(</span><span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KubernetesMCADScheduler</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">KubernetesMCADScheduler</span><span class="p">(</span>
         <span class="n">session_name</span><span class="o">=</span><span class="n">session_name</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="pod_labels"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.pod_labels">[docs]</a><span class="k">def</span> <span class="nf">pod_labels</span><span class="p">(</span>
+<span class="c1"># TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)</span>
+<div class="viewcode-block" id="pod_labels"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.pod_labels">[docs]</a><span class="k">def</span> <span class="nf">pod_labels</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="k">return</span> <span class="p">{</span>

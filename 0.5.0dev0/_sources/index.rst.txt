@@ -73,6 +73,7 @@ Works With
    schedulers/local
    schedulers/docker
    schedulers/kubernetes
+   schedulers/kubernetes_mcad
    schedulers/slurm
    schedulers/ray
    schedulers/aws_batch

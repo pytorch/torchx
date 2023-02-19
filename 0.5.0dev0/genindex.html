@@ -273,6 +273,7 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/local.html">Local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/docker.html">Docker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/kubernetes_mcad.html">Kubernetes-MCAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
@@ -427,8 +428,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.runopts.add">add() (torchx.specs.runopts method)</a>
 </li>
-      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.app_to_resource">app_to_resource() (in module torchx.schedulers.kubernetes_scheduler)</a>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.app_to_resource">app_to_resource() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+
+      <ul>
+        <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.app_to_resource">(in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
+      </ul></li>
       <li><a href="specs.html#torchx.specs.AppDef">AppDef (class in torchx.specs)</a>
 </li>
       <li><a href="runner.config.html#torchx.runner.config.apply">apply() (in module torchx.runner.config)</a>
@@ -511,10 +516,10 @@
 </li>
       <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.container_from_app">container_from_app() (in module torchx.pipelines.kfp.adapter)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pipelines/kfp.html#torchx.pipelines.kfp.adapter.ContainerFactory">ContainerFactory (class in torchx.pipelines.kfp.adapter)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/utils.html#torchx.components.utils.copy">copy() (in module torchx.components.utils)</a>
 
       <ul>
@@ -527,6 +532,8 @@
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.create_scheduler">(in module torchx.schedulers.docker_scheduler)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.create_scheduler">(in module torchx.schedulers.gcp_batch_scheduler)</a>
+</li>
+        <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.create_scheduler">(in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.create_scheduler">(in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
@@ -557,6 +564,8 @@
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.describe">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.describe">(torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
+</li>
+        <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.describe">(torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler method)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.describe">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
@@ -651,6 +660,8 @@
 </li>
       <li><a href="specs.html#torchx.specs.runopts.get">get() (torchx.specs.runopts method)</a>
 </li>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_appwrapper_status">get_appwrapper_status() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+</li>
       <li><a href="runner.config.html#torchx.runner.config.get_config">get_config() (in module torchx.runner.config)</a>
 </li>
       <li><a href="runner.config.html#torchx.runner.config.get_configs">get_configs() (in module torchx.runner.config)</a>
@@ -663,10 +674,10 @@
         <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalDirectoryImageProvider.get_cwd">(torchx.schedulers.local_scheduler.LocalDirectoryImageProvider method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers.html#torchx.schedulers.get_default_scheduler_name">get_default_scheduler_name() (in module torchx.schedulers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.CWDImageProvider.get_entrypoint">get_entrypoint() (torchx.schedulers.local_scheduler.CWDImageProvider method)</a>
 
       <ul>
@@ -679,11 +690,17 @@
 </li>
       <li><a href="specs.html#torchx.specs.get_named_resources">get_named_resources() (in module torchx.specs)</a>
 </li>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_port_for_service">get_port_for_service() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+</li>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider.get_replica_param">get_replica_param() (torchx.schedulers.local_scheduler.ImageProvider method)</a>
+</li>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_role_information">get_role_information() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
 </li>
       <li><a href="runner.html#torchx.runner.get_runner">get_runner() (in module torchx.runner)</a>
 </li>
       <li><a href="schedulers.html#torchx.schedulers.get_scheduler_factories">get_scheduler_factories() (in module torchx.schedulers)</a>
+</li>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_tasks_status_description">get_tasks_status_description() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -717,8 +734,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesJob">KubernetesJob (class in torchx.schedulers.kubernetes_scheduler)</a>
 </li>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADJob">KubernetesMCADJob (class in torchx.schedulers.kubernetes_mcad_scheduler)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler">KubernetesMCADScheduler (class in torchx.schedulers.kubernetes_mcad_scheduler)</a>
+</li>
       <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler">KubernetesScheduler (class in torchx.schedulers.kubernetes_scheduler)</a>
 </li>
   </ul></td>
@@ -737,6 +758,8 @@
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.list">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.list">(torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
+</li>
+        <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.list">(torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler method)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.list">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
@@ -769,6 +792,8 @@
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.log_iter">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.log_iter">(torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
+</li>
+        <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.log_iter">(torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler method)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.log_iter">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
@@ -807,6 +832,8 @@
         <li><a href="schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.materialize">(torchx.schedulers.slurm_scheduler.SlurmReplicaRequest method)</a>
 </li>
       </ul></li>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.mcad_svc">mcad_svc() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+</li>
       <li>
     module
 
@@ -849,6 +876,8 @@
 </li>
         <li><a href="schedulers/gcp_batch.html#module-torchx.schedulers.gcp_batch_scheduler">torchx.schedulers.gcp_batch_scheduler</a>
 </li>
+        <li><a href="schedulers/kubernetes_mcad.html#module-torchx.schedulers.kubernetes_mcad_scheduler">torchx.schedulers.kubernetes_mcad_scheduler</a>
+</li>
         <li><a href="schedulers/kubernetes.html#module-torchx.schedulers.kubernetes_scheduler">torchx.schedulers.kubernetes_scheduler</a>
 </li>
         <li><a href="schedulers/local.html#module-torchx.schedulers.local_scheduler">torchx.schedulers.local_scheduler</a>
@@ -882,8 +911,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.parse_mounts">parse_mounts() (in module torchx.specs)</a>
 </li>
-      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.pod_labels">pod_labels() (in module torchx.schedulers.kubernetes_scheduler)</a>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.pod_labels">pod_labels() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+
+      <ul>
+        <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.pod_labels">(in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
+      </ul></li>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.PopenRequest">PopenRequest (class in torchx.schedulers.local_scheduler)</a>
 </li>
   </ul></td>
@@ -924,14 +957,18 @@
 </li>
       <li><a href="runtime/tracking.html#torchx.runtime.tracking.ResultTracker">ResultTracker (class in torchx.runtime.tracking)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.RetryPolicy">RetryPolicy (class in torchx.specs)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.Role">Role (class in torchx.specs)</a>
 </li>
-      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_scheduler)</a>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.role_to_pod">role_to_pod() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+
+      <ul>
+        <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.role_to_pod">(in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
+      </ul></li>
       <li><a href="runner.html#torchx.runner.Runner.run">run() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="component_best_practices.html#torchx.components.component_test_base.ComponentTestCase.run_component">run_component() (torchx.components.component_test_base.ComponentTestCase method)</a>
@@ -943,6 +980,8 @@
       <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.run_opts">run_opts() (torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
 
       <ul>
+        <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.run_opts">(torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler method)</a>
+</li>
         <li><a href="schedulers.html#torchx.schedulers.Scheduler.run_opts">(torchx.schedulers.Scheduler method)</a>
 </li>
       </ul></li>
@@ -956,8 +995,12 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.sanitize_for_serialization">sanitize_for_serialization() (in module torchx.schedulers.kubernetes_scheduler)</a>
+      <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.sanitize_for_serialization">sanitize_for_serialization() (in module torchx.schedulers.kubernetes_mcad_scheduler)</a>
+
+      <ul>
+        <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.sanitize_for_serialization">(in module torchx.schedulers.kubernetes_scheduler)</a>
 </li>
+      </ul></li>
       <li><a href="runner.html#torchx.runner.Runner.schedule">schedule() (torchx.runner.Runner method)</a>
 
       <ul>
@@ -966,6 +1009,8 @@
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.schedule">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.schedule">(torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
+</li>
+        <li><a href="schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler.schedule">(torchx.schedulers.kubernetes_mcad_scheduler.KubernetesMCADScheduler method)</a>
 </li>
         <li><a href="schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.KubernetesScheduler.schedule">(torchx.schedulers.kubernetes_scheduler.KubernetesScheduler method)</a>
 </li>
@@ -982,10 +1027,10 @@
       </ul></li>
       <li><a href="schedulers.html#torchx.schedulers.Scheduler">Scheduler (class in torchx.schedulers)</a>
 </li>
-      <li><a href="runner.html#torchx.runner.Runner.scheduler_backends">scheduler_backends() (torchx.runner.Runner method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="runner.html#torchx.runner.Runner.scheduler_backends">scheduler_backends() (torchx.runner.Runner method)</a>
+</li>
       <li><a href="runner.html#torchx.runner.Runner.scheduler_run_opts">scheduler_run_opts() (torchx.runner.Runner method)</a>
 </li>
       <li><a href="schedulers.html#torchx.schedulers.SchedulerFactory">SchedulerFactory (class in torchx.schedulers)</a>
@@ -1140,8 +1185,6 @@
         <li><a href="schedulers.html#module-torchx.schedulers">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers.aws_batch_scheduler
 
@@ -1149,6 +1192,8 @@
         <li><a href="schedulers/aws_batch.html#module-torchx.schedulers.aws_batch_scheduler">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchx.schedulers.docker_scheduler
 
@@ -1161,6 +1206,13 @@
 
       <ul>
         <li><a href="schedulers/gcp_batch.html#module-torchx.schedulers.gcp_batch_scheduler">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchx.schedulers.kubernetes_mcad_scheduler
+
+      <ul>
+        <li><a href="schedulers/kubernetes_mcad.html#module-torchx.schedulers.kubernetes_mcad_scheduler">module</a>
 </li>
       </ul></li>
       <li>
