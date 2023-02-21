@@ -75,7 +75,8 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
         return default_fn_desc, args_description
     docstring = parse(func_description)
     for param in docstring.params:
-        args_description[param.arg_name] = param.description
+        if param.description is not None:
+            args_description[param.arg_name] = param.description
     short_func_description = docstring.short_description or default_fn_desc
     if docstring.long_description:
         short_func_description += " ..."
