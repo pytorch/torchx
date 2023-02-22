@@ -13,10 +13,9 @@ components on a Kubernetes cluster via the Multi-Cluster-Application-Dispatcher 
 Prerequisites
 ==============
 
-TorchX kubernetes scheduler depends on AppWrapper + MCAD.
+TorchX Kubernetes_MCAD scheduler depends on AppWrapper + MCAD.
 
-Install MCAD 
-
+Install MCAD: 
 See deploying Multi-Cluster-Application-Dispatcher guide 
 https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
@@ -799,6 +798,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             describe: true
             workspaces: true
             mounts: true
+            elasticity: false
     """
 
     def __init__(
