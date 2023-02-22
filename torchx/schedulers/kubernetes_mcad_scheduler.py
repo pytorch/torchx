@@ -168,6 +168,7 @@ def role_to_pod(
     role: Role,
     service_account: Optional[str],
     image_secret: Optional[str],
+    coscheduler_name: Optional[str],
 ) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
@@ -338,6 +339,7 @@ def role_to_pod(
             service_account_name=service_account,
             volumes=volumes,
             node_selector=node_selector,
+            scheduler_name=coscheduler_name,
         ),
         metadata=V1ObjectMeta(
             name=name,
@@ -466,8 +468,8 @@ def app_to_resource(
     namespace: str,
     service_account: Optional[str],
     image_secret: Optional[str],
+    coscheduler_name: Optional[str],
     priority: Optional[int] = None,
-    coscheduler: Optional[bool] = False,
 ) -> Dict[str, Any]:
     """
     app_to_resource creates a AppWrapper/MCAD Kubernetes resource definition from
@@ -480,7 +482,7 @@ def app_to_resource(
 
     unique_app_id = cleanup_str(make_unique(app.name))
 
-    if coscheduler:
+    if coscheduler_name is not None:
         genericitem_pod_group = create_pod_group(app, namespace, unique_app_id)
         genericitems.append(genericitem_pod_group)
 
@@ -509,10 +511,11 @@ def app_to_resource(
                 replica_role,
                 service_account,
                 image_secret,
+                coscheduler_name,
             )
             # pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
             pod.metadata.labels.update(
-                pod_labels(app, role_idx, role, replica_id, coscheduler, unique_app_id)
+                pod_labels(app, role_idx, role, replica_id, coscheduler_name, unique_app_id)
             )
 
             genericitem: Dict[str, Any] = {
@@ -716,7 +719,7 @@ class KubernetesMCADOpts(TypedDict, total=False):
     service_account: Optional[str]
     priority: Optional[int]
     image_secret: Optional[str]
-    coscheduler: Optional[bool]
+    coscheduler_name: Optional[str]
 
 
 class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts]):
@@ -900,14 +903,14 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             warnings.warn(msg)
         namespace = cfg.get("namespace")
         assert isinstance(namespace, str), "namespace must be a str"
-
-        coscheduler = cfg.get("coscheduler")
-        assert coscheduler is None or isinstance(
-            coscheduler, bool
-        ), "coscheduler must be a bool"
+ 
+        coscheduler_name = cfg.get("coscheduler_name")
+        assert coscheduler_name is None or isinstance(
+            coscheduler_name, str
+        ), "coscheduler_name must be a string"
 
         resource = app_to_resource(
-            app, namespace, service_account, image_secret, priority, coscheduler
+            app, namespace, service_account, image_secret, coscheduler_name, priority
         )
 
         req = KubernetesMCADJob(
@@ -964,10 +967,9 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             help="The name of the Kubernetes/OpenShift secret set up for private images",
         )
         opts.add(
-            "coscheduler",
-            type_=bool,
-            help="Option to run TorchX-MCAD with a co-scheduler",
-            default=False,
+            "coscheduler_name",
+            type_=str,
+            help="Option to run TorchX-MCAD with a co-scheduler. User must provide the co-scheduler name.",
         )
         return opts
 
@@ -1127,7 +1129,7 @@ def pod_labels(
     role_idx: int,
     role: Role,
     replica_id: int,
-    coscheduler: Optional[bool],
+    coscheduler_name: Optional[str],
     app_id: str,
 ) -> Dict[str, str]:
     labels = {
@@ -1137,7 +1139,7 @@ def pod_labels(
         LABEL_ROLE_NAME: role.name,
         LABEL_REPLICA_ID: str(replica_id),
     }
-    if coscheduler:
+    if coscheduler_name is not None:
         pod_group = app_id + "-pg"
         labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
     return labels

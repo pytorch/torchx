@@ -171,7 +171,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
             resource = app_to_resource(
-                app, "default", service_account=None, image_secret=None, priority=0
+                app, "default", service_account=None, image_secret=None, coscheduler_name=None, priority=0
             )
             actual_cmd = (
                 resource["spec"]["resources"]["GenericItems"][0]["generictemplate"]
@@ -192,7 +192,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_retry_policy_not_set(self) -> None:
         app = _test_app()
         resource = app_to_resource(
-            app, "default", service_account=None, image_secret=None, priority=0
+            app, "default", service_account=None, image_secret=None, coscheduler_name=None, priority=0
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertListEqual(
@@ -205,7 +205,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         for role in app.roles:
             role.max_retries = 0
         resource = app_to_resource(
-            app, "default", service_account=None, image_secret=None, priority=0
+            app, "default", service_account=None, image_secret=None, coscheduler_name=None, priority=0
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertFalse("policies" in item0)
@@ -231,6 +231,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name"
         image_secret = "secret-name"
+        coscheduler_name = "test-co-scheduler-name"
         pod = role_to_pod(
             "app-name-0",
             unique_app_name,
@@ -238,6 +239,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             app.roles[0],
             service_account="srvacc",
             image_secret=image_secret,
+            coscheduler_name=coscheduler_name,
         )
         imagesecret = V1LocalObjectReference(name=image_secret)
 
@@ -312,6 +314,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                         ),
                     ),
                 ],
+                scheduler_name=coscheduler_name,
                 node_selector={},
             ),
             metadata=V1ObjectMeta(
@@ -470,7 +473,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             {
                 "priority": 0,
                 "namespace": "test_namespace",
-                "coscheduler": True,
+                "coscheduler_name": "test_coscheduler",
             }
         )
         with patch(
@@ -560,6 +563,7 @@ spec:
           - {{}}
           nodeSelector: {{}}
           restartPolicy: Never
+          schedulerName: test_coscheduler
           subdomain: app-name
           volumes:
           - emptyDir:
@@ -1209,6 +1213,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.volumes,
@@ -1265,6 +1270,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.volumes[1:],
@@ -1322,6 +1328,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.containers[0].resources.limits,
@@ -1356,6 +1363,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.node_selector,
@@ -1709,7 +1717,7 @@ spec:
                 "service_account",
                 "priority",
                 "image_secret",
-                "coscheduler",
+                "coscheduler_name",
             },
         )
 
