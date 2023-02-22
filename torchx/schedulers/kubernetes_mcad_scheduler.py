@@ -352,6 +352,36 @@ def role_to_pod(
     )
 
 
+def create_pod_group(app: AppDef, namespace: str, app_id: str) -> "Dict[str, Any]":
+    pod_group_name = app_id + "-pg"
+
+    num_pods = 0
+    for role_idx, role in enumerate(app.roles):
+        for replica_id in range(role.num_replicas):
+            num_pods += 1
+
+    pod_group: Dict[str, Any] = {
+        "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
+        "kind": "PodGroup",
+        "metadata": {
+            "name": pod_group_name,
+            "namespace": namespace,
+            "labels": {
+                "appwrapper.mcad.ibm.com": app_id,
+            },
+        },
+        "spec": {
+            "minMember": num_pods,
+        },
+    }
+
+    genericitem_pod_group: Dict[str, Any] = {
+        "replicas": 1,
+        "generictemplate": pod_group,
+    }
+    return genericitem_pod_group
+
+
 def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
     from kubernetes.client.models import (  # noqa: F401, F811
         V1Container,
@@ -437,6 +467,7 @@ def app_to_resource(
     service_account: Optional[str],
     image_secret: Optional[str],
     priority: Optional[int] = None,
+    coscheduler: Optional[bool] = False,
 ) -> Dict[str, Any]:
     """
     app_to_resource creates a AppWrapper/MCAD Kubernetes resource definition from
@@ -448,6 +479,11 @@ def app_to_resource(
     genericitems = []
 
     unique_app_id = cleanup_str(make_unique(app.name))
+
+    if coscheduler:
+        genericitem_pod_group = create_pod_group(app, namespace, unique_app_id)
+        genericitems.append(genericitem_pod_group)
+
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
@@ -474,7 +510,10 @@ def app_to_resource(
                 service_account,
                 image_secret,
             )
-            pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
+            # pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
+            pod.metadata.labels.update(
+                pod_labels(app, role_idx, role, replica_id, coscheduler, unique_app_id)
+            )
 
             genericitem: Dict[str, Any] = {
                 "replicas": 1,
@@ -638,6 +677,7 @@ def get_appwrapper_status(app: Dict[str, str]) -> AppState:
 
 # Does not handle not ready to dispatch case
 def get_tasks_status_description(status: Dict[str, str]) -> Dict[str, int]:
+
     results = {}
 
     # Keys related to tasks and status
@@ -676,6 +716,7 @@ class KubernetesMCADOpts(TypedDict, total=False):
     service_account: Optional[str]
     priority: Optional[int]
     image_secret: Optional[str]
+    coscheduler: Optional[bool]
 
 
 class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts]):
@@ -754,7 +795,6 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             describe: true
             workspaces: true
             mounts: true
-            elasticity: false
     """
 
     def __init__(
@@ -861,9 +901,15 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         namespace = cfg.get("namespace")
         assert isinstance(namespace, str), "namespace must be a str"
 
+        coscheduler = cfg.get("coscheduler")
+        assert coscheduler is None or isinstance(
+            coscheduler, bool
+        ), "coscheduler must be a bool"
+
         resource = app_to_resource(
-            app, namespace, service_account, image_secret, priority
+            app, namespace, service_account, image_secret, priority, coscheduler
         )
+
         req = KubernetesMCADJob(
             resource=resource,
             images_to_push=images_to_push,
@@ -916,6 +962,12 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             "image_secret",
             type_=str,
             help="The name of the Kubernetes/OpenShift secret set up for private images",
+        )
+        opts.add(
+            "coscheduler",
+            type_=bool,
+            help="Option to run TorchX-MCAD with a co-scheduler",
+            default=False,
         )
         return opts
 
@@ -1042,6 +1094,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             return iterator
 
     def list(self) -> List[ListAppResponse]:
+
         active_context = self._get_active_context()
         namespace = active_context["context"]["namespace"]
 
@@ -1070,12 +1123,21 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
 
 # TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int
+    app: AppDef,
+    role_idx: int,
+    role: Role,
+    replica_id: int,
+    coscheduler: Optional[bool],
+    app_id: str,
 ) -> Dict[str, str]:
-    return {
+    labels = {
         LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
         LABEL_ROLE_INDEX: str(role_idx),
         LABEL_ROLE_NAME: role.name,
         LABEL_REPLICA_ID: str(replica_id),
     }
+    if coscheduler:
+        pod_group = app_id + "-pg"
+        labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
+    return labels

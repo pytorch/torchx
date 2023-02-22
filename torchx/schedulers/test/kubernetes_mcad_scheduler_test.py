@@ -22,6 +22,7 @@ from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_mcad_scheduler import (
     app_to_resource,
     cleanup_str,
+    create_pod_group,
     create_scheduler,
     get_appwrapper_status,
     get_port_for_service,
@@ -328,6 +329,36 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             want,
         )
 
+    def test_create_pod_group(self) -> None:
+        app = _test_app()
+        unique_app_name = "app-name"
+        namespace = "default"
+        podgroup = create_pod_group(app, namespace, unique_app_name)
+
+        pod_group_name = unique_app_name + "-pg"
+        expected_pod_group: Dict[str, Any] = {
+            "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
+            "kind": "PodGroup",
+            "metadata": {
+                "name": pod_group_name,
+                "namespace": namespace,
+                "labels": {
+                    "appwrapper.mcad.ibm.com": unique_app_name,
+                },
+            },
+            "spec": {
+                "minMember": 1,
+            },
+        }
+        want: Dict[str, Any] = {
+            "replicas": 1,
+            "generictemplate": expected_pod_group,
+        }
+        self.assertEqual(
+            podgroup,
+            want,
+        )
+
     def test_create_mcad_service(self) -> None:
         from kubernetes.client.models import (  # noqa: F401 imported but unused
             V1Container,
@@ -435,7 +466,13 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KubernetesMCADOpts({"priority": 0, "namespace": "test_namespace"})
+        cfg = KubernetesMCADOpts(
+            {
+                "priority": 0,
+                "namespace": "test_namespace",
+                "coscheduler": True,
+            }
+        )
         with patch(
             "torchx.schedulers.kubernetes_mcad_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -455,12 +492,24 @@ spec:
   resources:
     GenericItems:
     - generictemplate:
+        apiVersion: scheduling.sigs.k8s.io/v1alpha1
+        kind: PodGroup
+        metadata:
+          labels:
+            appwrapper.mcad.ibm.com: app-name
+          name: app-name-pg
+          namespace: test_namespace
+        spec:
+          minMember: 1
+      replicas: 1
+    - generictemplate:
         apiVersion: v1
         kind: Pod
         metadata:
           annotations:
             sidecar.istio.io/inject: 'false'
           labels:
+            pod-group.scheduling.sigs.k8s.io: app-name-pg
             torchx.pytorch.org/app-name: test
             torchx.pytorch.org/replica-id: '0'
             torchx.pytorch.org/role-index: '0'
@@ -1660,6 +1709,7 @@ spec:
                 "service_account",
                 "priority",
                 "image_secret",
+                "coscheduler",
             },
         )
 
