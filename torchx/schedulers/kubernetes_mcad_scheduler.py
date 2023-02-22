@@ -512,7 +512,6 @@ def app_to_resource(
                 image_secret,
                 coscheduler_name,
             )
-            # pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
             pod.metadata.labels.update(
                 pod_labels(
                     app, role_idx, role, replica_id, coscheduler_name, unique_app_id
