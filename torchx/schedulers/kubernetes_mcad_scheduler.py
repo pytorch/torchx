@@ -515,7 +515,9 @@ def app_to_resource(
             )
             # pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
             pod.metadata.labels.update(
-                pod_labels(app, role_idx, role, replica_id, coscheduler_name, unique_app_id)
+                pod_labels(
+                    app, role_idx, role, replica_id, coscheduler_name, unique_app_id
+                )
             )
 
             genericitem: Dict[str, Any] = {
@@ -680,7 +682,6 @@ def get_appwrapper_status(app: Dict[str, str]) -> AppState:
 
 # Does not handle not ready to dispatch case
 def get_tasks_status_description(status: Dict[str, str]) -> Dict[str, int]:
-
     results = {}
 
     # Keys related to tasks and status
@@ -903,7 +904,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             warnings.warn(msg)
         namespace = cfg.get("namespace")
         assert isinstance(namespace, str), "namespace must be a str"
- 
+
         coscheduler_name = cfg.get("coscheduler_name")
         assert coscheduler_name is None or isinstance(
             coscheduler_name, str
@@ -1096,7 +1097,6 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             return iterator
 
     def list(self) -> List[ListAppResponse]:
-
         active_context = self._get_active_context()
         namespace = active_context["context"]["namespace"]
 

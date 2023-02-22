@@ -171,7 +171,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
             resource = app_to_resource(
-                app, "default", service_account=None, image_secret=None, coscheduler_name=None, priority=0
+                app,
+                "default",
+                service_account=None,
+                image_secret=None,
+                coscheduler_name=None,
+                priority=0,
             )
             actual_cmd = (
                 resource["spec"]["resources"]["GenericItems"][0]["generictemplate"]
@@ -192,7 +197,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_retry_policy_not_set(self) -> None:
         app = _test_app()
         resource = app_to_resource(
-            app, "default", service_account=None, image_secret=None, coscheduler_name=None, priority=0
+            app,
+            "default",
+            service_account=None,
+            image_secret=None,
+            coscheduler_name=None,
+            priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertListEqual(
@@ -205,7 +215,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         for role in app.roles:
             role.max_retries = 0
         resource = app_to_resource(
-            app, "default", service_account=None, image_secret=None, coscheduler_name=None, priority=0
+            app,
+            "default",
+            service_account=None,
+            image_secret=None,
+            coscheduler_name=None,
+            priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertFalse("policies" in item0)
@@ -606,7 +621,6 @@ spec:
     def test_get_role_information(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         get_namespaced_custom_object.return_value = _test_mcad_generic_item()
 
         spec = get_namespaced_custom_object.return_value["spec"]
@@ -644,7 +658,6 @@ spec:
     def test_get_role_information_no_generic_items(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0] = {}
         get_namespaced_custom_object.return_value = test_generic_item
@@ -663,7 +676,6 @@ spec:
     def test_get_role_information_no_metadata(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"] = {
             "spec": {
@@ -716,7 +728,6 @@ spec:
     def test_get_role_information_no_label(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "metadata"
@@ -736,7 +747,6 @@ spec:
     def test_get_role_information_no_role_name(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "metadata"
@@ -756,7 +766,6 @@ spec:
     def test_get_role_information_no_specs(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0] = {
             "generictemplate": {
@@ -801,7 +810,6 @@ spec:
     def test_get_role_information_no_image_name(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -865,7 +873,6 @@ spec:
     def test_get_role_information_no_resources(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -922,7 +929,6 @@ spec:
     def test_get_role_information_no_cpu(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -990,7 +996,6 @@ spec:
     def test_get_role_information_no_memory(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -1058,7 +1063,6 @@ spec:
     def test_get_role_information_no_ports(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -1126,7 +1130,6 @@ spec:
     def test_get_role_information_no_volume_mounts(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -1522,7 +1525,6 @@ spec:
 
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
     def test_describe(self, get_namespaced_custom_object: MagicMock) -> None:
-
         get_namespaced_custom_object.return_value = {
             "status": {
                 "state": "Running",
@@ -1586,7 +1588,6 @@ spec:
     def test_describe_pending_dispatch(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         get_namespaced_custom_object.return_value = {
             "status": {
                 "state": "Pending",
