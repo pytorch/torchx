@@ -353,13 +353,8 @@ def role_to_pod(
     )
 
 
-def create_pod_group(app: AppDef, namespace: str, app_id: str) -> "Dict[str, Any]":
-    pod_group_name = app_id + "-pg"
-
-    num_pods = 0
-    for role_idx, role in enumerate(app.roles):
-        for replica_id in range(role.num_replicas):
-            num_pods += 1
+def create_pod_group(role: Role, namespace: str, app_id: str) -> "Dict[str, Any]":
+    pod_group_name = app_id + "-" + cleanup_str(role.name) + "-pg"
 
     pod_group: Dict[str, Any] = {
         "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
@@ -372,7 +367,7 @@ def create_pod_group(app: AppDef, namespace: str, app_id: str) -> "Dict[str, Any
             },
         },
         "spec": {
-            "minMember": num_pods,
+            "minMember": role.num_replicas,
         },
     }
 
@@ -482,8 +477,9 @@ def app_to_resource(
     unique_app_id = cleanup_str(make_unique(app.name))
 
     if coscheduler_name is not None:
-        genericitem_pod_group = create_pod_group(app, namespace, unique_app_id)
-        genericitems.append(genericitem_pod_group)
+        for role_idx, role in enumerate(app.roles):
+            genericitem_pod_group = create_pod_group(role, namespace, unique_app_id)
+            genericitems.append(genericitem_pod_group)
 
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
@@ -1139,6 +1135,6 @@ def pod_labels(
         LABEL_REPLICA_ID: str(replica_id),
     }
     if coscheduler_name is not None:
-        pod_group = app_id + "-pg"
+        pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
         labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
     return labels

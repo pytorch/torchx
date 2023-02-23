@@ -351,9 +351,9 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name"
         namespace = "default"
-        podgroup = create_pod_group(app, namespace, unique_app_name)
+        podgroup = create_pod_group(app.roles[0], namespace, unique_app_name)
 
-        pod_group_name = unique_app_name + "-pg"
+        pod_group_name = unique_app_name + "-" + cleanup_str(app.roles[0].name) + "-pg"
         expected_pod_group: Dict[str, Any] = {
             "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
             "kind": "PodGroup",
@@ -515,7 +515,7 @@ spec:
         metadata:
           labels:
             appwrapper.mcad.ibm.com: app-name
-          name: app-name-pg
+          name: app-name-trainerfoo-pg
           namespace: test_namespace
         spec:
           minMember: 1
@@ -527,7 +527,7 @@ spec:
           annotations:
             sidecar.istio.io/inject: 'false'
           labels:
-            pod-group.scheduling.sigs.k8s.io: app-name-pg
+            pod-group.scheduling.sigs.k8s.io: app-name-trainerfoo-pg
             torchx.pytorch.org/app-name: test
             torchx.pytorch.org/replica-id: '0'
             torchx.pytorch.org/role-index: '0'
