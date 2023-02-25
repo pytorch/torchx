@@ -13,6 +13,9 @@ jobs:
       matrix:
        include:
          - scheduler: "aws_batch"
+         - scheduler: "aws_batch"
+           container_repo: localhost
+           extra_args: "--mock"
          - scheduler: "kubernetes"
          - scheduler: "local_cwd"
          - scheduler: "local_docker"
@@ -69,6 +72,6 @@ jobs:
       - name: Run Components Integration Tests
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
-          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
+          CONTAINER_REPO: ${{ matrix.container_repo || secrets.CONTAINER_REPO }}
         run: |
-          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }}
+          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} ${{ matrix.extra_args }}
