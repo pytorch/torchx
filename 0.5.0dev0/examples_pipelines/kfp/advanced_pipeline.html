@@ -526,7 +526,12 @@ the previous operator and runs some transforms on it for use with the trainer.</
 specified ahead of time so we have a fully static pipeline.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">processed_data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;processed&quot;</span><span class="p">)</span>
 <span class="n">datapreproc_app</span><span class="p">:</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span> <span class="o">=</span> <span class="n">utils_python</span><span class="p">(</span>
-    <span class="o">*</span><span class="p">(</span><span class="s2">&quot;--output_path&quot;</span><span class="p">,</span> <span class="n">processed_data_path</span><span class="p">,</span> <span class="s2">&quot;--input_path&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">),</span>
+    <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>
+    <span class="n">processed_data_path</span><span class="p">,</span>
+    <span class="s2">&quot;--input_path&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="p">,</span>
+    <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;100&quot;</span><span class="p">,</span>
     <span class="n">image</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
     <span class="n">m</span><span class="o">=</span><span class="s2">&quot;torchx.examples.apps.datapreproc.datapreproc&quot;</span><span class="p">,</span>
     <span class="n">cpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -642,15 +647,17 @@ example purposes.</p>
     <span class="n">trainer</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
     <span class="n">trainer</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">datapreproc</span><span class="p">)</span>
 
-    <span class="n">serve</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">serve_app</span><span class="p">)</span>
-    <span class="n">serve</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
-    <span class="n">serve</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
+    <span class="k">if</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">serve</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">serve_app</span><span class="p">)</span>
+        <span class="n">serve</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
+        <span class="n">serve</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 
-    <span class="c1"># Serve and interpret only require the trained model so we can run them</span>
-    <span class="c1"># in parallel to each other.</span>
-    <span class="n">interpret</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">interpret_app</span><span class="p">)</span>
-    <span class="n">interpret</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
-    <span class="n">interpret</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
+    <span class="k">if</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># Serve and interpret only require the trained model so we can run them</span>
+        <span class="c1"># in parallel to each other.</span>
+        <span class="n">interpret</span> <span class="o">=</span> <span class="n">container_from_app</span><span class="p">(</span><span class="n">interpret_app</span><span class="p">)</span>
+        <span class="n">interpret</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">set_tty</span><span class="p">()</span>
+        <span class="n">interpret</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 
 
 <span class="n">kfp</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">Compiler</span><span class="p">()</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>

@@ -449,7 +449,7 @@ in Kubernetes KFP clusters with <a class="reference external" href="https://volc
     <span class="c1"># To convert the TorchX AppDef into a KFP container we use</span>
     <span class="c1"># the resource_from_app adapter. This takes generates a KFP Kubernetes</span>
     <span class="c1"># resource operator definition from the TorchX app def and instantiates it.</span>
-    <span class="n">echo_container</span><span class="p">:</span> <span class="n">kfp</span><span class="o">.</span><span class="n">dsl</span><span class="o">.</span><span class="n">BaseOp</span> <span class="o">=</span> <span class="n">resource_from_app</span><span class="p">(</span><span class="n">echo_app</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+    <span class="n">echo_container</span><span class="p">:</span> <span class="n">kfp</span><span class="o">.</span><span class="n">dsl</span><span class="o">.</span><span class="n">BaseOp</span> <span class="o">=</span> <span class="n">resource_from_app</span><span class="p">(</span><span class="n">echo_app</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To generate the pipeline definition file we need to call into the KFP compiler
