@@ -473,6 +473,11 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;remote path to save the .tar.gz data to&quot;</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;limit number of processed examples&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
 
@@ -510,6 +515,9 @@ in the <code class="docutils literal notranslate"><span class="pre">-s</span></c
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">is_image_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
                     <span class="k">continue</span>
                 <span class="n">image_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+                    <span class="k">break</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">image_files</span><span class="p">,</span> <span class="n">miniters</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">image_files</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2000</span><span class="p">)):</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
