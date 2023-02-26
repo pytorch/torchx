@@ -8,34 +8,8 @@ on:
 
 jobs:
   kfp-launch:
-    runs-on: ubuntu-20.04
-    permissions:
-      id-token: write
-      contents: read
+    runs-on: linux.20_04.4x
     steps:
-      - name: Install kubectl
-        # More info: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          mkdir -p ~/.local/bin/kubectl
-          mv ./kubectl ~/.local/bin/kubectl
-          export PATH=$PATH:~/.local/bin/kubectl
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1.6.1
-        with:
-          aws-region: us-west-2
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: github-torchx
-        continue-on-error: true
-      - name: Configure Kube Config
-        env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-        run: |
-          set -eux
-          if [ -n "$AWS_ROLE_ARN" ]; then
-            aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
-          fi
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -43,22 +17,18 @@ jobs:
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
-      - name: Configure Docker
-        env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-        run: |
-          set -eux
-          if [ -n "$AWS_ROLE_ARN" ]; then
-            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
-          fi
       - name: Install dependencies
         run: |
           set -eux
           pip install -r dev-requirements.txt
           python setup.py install
+      - name: Start Kubernetes
+        run: |
+          scripts/setup_minikube.sh
+          scripts/setup_kfp.sh
+
       - name: Run KFP Integration Tests
         env:
-          KFP_NAMESPACE: ${{ secrets.KFP_NAMESPACE }}
-          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
-          CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
-        run: scripts/kfpint.py
+          KFP_NAMESPACE: kubeflow
+          INTEGRATION_TEST_STORAGE: torchx_minio://torchx/tests
+        run: scripts/kfpint.py --container_repo localhost:5000/torchx

@@ -14,7 +14,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kfp-volcano
-  namespace: torchx-dev
+  namespace: kubeflow
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -22,4 +22,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: pipeline-runner
-  namespace: torchx-dev
+  namespace: kubeflow
