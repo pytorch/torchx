@@ -505,7 +505,7 @@ resource can then be used in the following manner:</p>
 </section>
 <section id="registering-custom-components">
 <h2>Registering Custom Components<a class="headerlink" href="#registering-custom-components" title="Permalink to this heading">¶</a></h2>
-<p>It is possible to author and register a custom set of components with the
+<p>You can author and register a custom set of components with the
 <code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI as builtins to the CLI. This makes it possible to customize
 a set of components most relevant to your team or organization and support
 it as a CLI <code class="docutils literal notranslate"><span class="pre">builtin</span></code>. This way users will see your custom components
@@ -513,7 +513,20 @@ when they run</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
 </pre></div>
 </div>
-<p>Custom components can be registered via the following modification of the <code class="docutils literal notranslate"><span class="pre">entry_points</span></code>:</p>
+<p>Custom components can be registered via <code class="docutils literal notranslate"><span class="pre">[torchx.components]</span></code> entrypoints.
+If <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> had the following directory structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$PROJECT_ROOT/my_project/bar/
+    |- baz.py
+</pre></div>
+</div>
+<p>And <code class="docutils literal notranslate"><span class="pre">baz.py</span></code> had a single component (function) called <code class="docutils literal notranslate"><span class="pre">trainer</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># baz.py</span>
+<span class="kn">import</span> <span class="nn">torchx.specs</span> <span class="k">as</span> <span class="nn">specs</span>
+
+<span class="k">def</span> <span class="nf">trainer</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>And the entrypoints were added as:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
 <span class="o">...</span>
 <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
@@ -523,25 +536,79 @@ when they run</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The line above registers a group <code class="docutils literal notranslate"><span class="pre">foo</span></code> that is associated with the module <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code>.
-TorchX will recursively traverse lowest level dir associated with the <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> and will find
-all defined components.</p>
+<p>TorchX will search the module <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> for all defined components and group the found
+components under the <code class="docutils literal notranslate"><span class="pre">foo.*</span></code> prefix. In this case, the component <code class="docutils literal notranslate"><span class="pre">my_project.bar.baz.trainer</span></code>
+would be registered with the name <code class="docutils literal notranslate"><span class="pre">foo.baz.trainer</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If there are two registry entries, e.g. <code class="docutils literal notranslate"><span class="pre">foo</span> <span class="pre">=</span> <span class="pre">my_project.bar</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span> <span class="pre">=</span> <span class="pre">my_project</span></code>
-there will be two sets of overlapping components with different aliases.</p>
+<p>Only python packages (those directories with an <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file)
+are searched for and TorchX makes no attempt to recurse into namespace packages
+(directories without a <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file).
+However you may register a top level namespace package.</p>
 </div>
-<p>After registration, torchx cli will display registered components via:</p>
+<p><code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI will display registered components via:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<span class="go">Found 1 builtin components:</span>
+<span class="go">1. foo.baz.trainer</span>
 </pre></div>
 </div>
-<p>If <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> had the following directory structure:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$PROJECT_ROOT/my_project/bar/
-    |- baz.py
-</pre></div>
-</div>
-<p>And <code class="docutils literal notranslate"><span class="pre">baz.py</span></code> defines a component (function) called <code class="docutils literal notranslate"><span class="pre">trainer</span></code>. Then the component can be run as a job in the following manner:</p>
+<p>The custom component can then be used as:</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>foo.baz.trainer<span class="w"> </span>--<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;test app&quot;</span>
+</pre></div>
+</div>
+<p>When you register your own components, TorchX will not include its own builtins. To add TorchX’s
+builtin components you must specify another entry as:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
+<span class="o">...</span>
+<span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;torchx.components&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;foo = my_project.bar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torchx = torchx.components&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This will add back the TorchX builtins but with a <code class="docutils literal notranslate"><span class="pre">torchx.*</span></code> component name prefix (e.g. <code class="docutils literal notranslate"><span class="pre">torchx.dist.ddp</span></code>
+versus the default <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code>).</p>
+<p>If there are two registry entries pointing to the same component, for instance</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
+<span class="o">...</span>
+<span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;torchx.components&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;foo = my_project.bar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;test = my_project&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>There will be two sets of overlapping components for those components in <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> with different
+prefix aliases: <code class="docutils literal notranslate"><span class="pre">foo.*</span></code> and <code class="docutils literal notranslate"><span class="pre">test.bar.*</span></code>. Concretely,</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<span class="go">Found 2 builtin components:</span>
+<span class="go">1. foo.baz.trainer</span>
+<span class="go">2. test.bar.baz.trainer</span>
+</pre></div>
+</div>
+<p>To omit groupings and make the component names shorter, use underscore (e.g <code class="docutils literal notranslate"><span class="pre">_</span></code> or <code class="docutils literal notranslate"><span class="pre">_0</span></code>, <code class="docutils literal notranslate"><span class="pre">_1</span></code>, etc).
+For example:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup.py</span>
+<span class="o">...</span>
+<span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;torchx.components&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;_0 = my_project.bar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_1 = torchx.components&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This has the effect of exposing the trainer component as <code class="docutils literal notranslate"><span class="pre">baz.trainer</span></code> (as opposed to <code class="docutils literal notranslate"><span class="pre">foo.baz.trainer</span></code>)
+and adds back the builtin components as in the vanilla installation of torchx, without the <code class="docutils literal notranslate"><span class="pre">torchx.*</span></code> prefix.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<span class="go">Found 11 builtin components:</span>
+<span class="go">1. baz.trainer</span>
+<span class="go">2. dist.ddp</span>
+<span class="go">3. utils.python</span>
+<span class="go">4. ... &lt;more builtins from torchx.components.* ...&gt;</span>
 </pre></div>
 </div>
 </section>
