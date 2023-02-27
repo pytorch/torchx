@@ -510,7 +510,12 @@ def app_to_resource(
             )
             pod.metadata.labels.update(
                 pod_labels(
-                    app, role_idx, role, replica_id, coscheduler_name, unique_app_id
+                    app=app,
+                    role_idx=role_idx,
+                    role=role,
+                    replica_id=replica_id,
+                    coscheduler_name=coscheduler_name,
+                    app_id=unique_app_id,
                 )
             )
 
@@ -738,6 +743,14 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         $ torchx run --scheduler kubernetes_mcad --scheduler_args namespace=default,image_repo=<your_image_repo> utils.echo --image alpine:latest --msg hello
         ...
 
+    The TorchX-MCAD scheduler can be used with a secondary scheduler on Kubernetes.
+    To enable this, the user must provide the name of the coscheduler.
+    With this feature, a PodGroup is defined for each TorchX role and the coscheduler
+    handles secondary scheduling on the Kubernetes cluster. For additional resources, see:
+    1. PodGroups and Coscheduling: https://github.com/kubernetes-sigs/scheduler-plugins/tree/release-1.24/pkg/coscheduling
+    2. Installing Secondary schedulers: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/doc/install.md
+    3. PodGroup CRD: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/config/crd/bases/scheduling.sigs.k8s.io_podgroups.yaml
+
     **Config Options**
 
     .. runopts::
@@ -906,7 +919,12 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         ), "coscheduler_name must be a string"
 
         resource = app_to_resource(
-            app, namespace, service_account, image_secret, coscheduler_name, priority
+            app=app,
+            namespace=namespace,
+            service_account=service_account,
+            image_secret=image_secret,
+            coscheduler_name=coscheduler_name,
+            priority=priority,
         )
 
         req = KubernetesMCADJob(
