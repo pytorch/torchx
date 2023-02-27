@@ -76,6 +76,9 @@ if __name__ == "__main__":
             "torchx.tracker": [
                 "fsspec=torchx.tracker.backend.fsspec:create",
             ],
+            "fsspec.specs": [
+                "torchx_minio=torchx.test.minio.MinioFS",
+            ],
         },
         extras_require={
             "gcp_batch": [

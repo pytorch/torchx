@@ -126,7 +126,12 @@ copy_app: specs.AppDef = utils_copy(
 
 processed_data_path: str = os.path.join(args.output_path, "processed")
 datapreproc_app: specs.AppDef = utils_python(
-    *("--output_path", processed_data_path, "--input_path", data_path),
+    "--output_path",
+    processed_data_path,
+    "--input_path",
+    data_path,
+    "--limit",
+    "100",
     image=args.image,
     m="torchx.examples.apps.datapreproc.datapreproc",
     cpu=1,
@@ -253,15 +258,17 @@ def pipeline() -> None:
     trainer.container.set_tty()
     trainer.after(datapreproc)
 
-    serve = container_from_app(serve_app)
-    serve.container.set_tty()
-    serve.after(trainer)
+    if False:
+        serve = container_from_app(serve_app)
+        serve.container.set_tty()
+        serve.after(trainer)
 
-    # Serve and interpret only require the trained model so we can run them
-    # in parallel to each other.
-    interpret = container_from_app(interpret_app)
-    interpret.container.set_tty()
-    interpret.after(trainer)
+    if False:
+        # Serve and interpret only require the trained model so we can run them
+        # in parallel to each other.
+        interpret = container_from_app(interpret_app)
+        interpret.container.set_tty()
+        interpret.after(trainer)
 
 
 kfp.compiler.Compiler().compile(
