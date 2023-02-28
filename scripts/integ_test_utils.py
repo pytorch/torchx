@@ -51,9 +51,8 @@ def build_torchx_canary(id: str) -> str:
     return torchx_tag
 
 
-def torchx_container_tag(id: str) -> str:
-    CONTAINER_REPO = getenv_asserts("CONTAINER_REPO")
-    return f"{CONTAINER_REPO}:canary_{id}_torchx"
+def torchx_container_tag(container_repo: str, id: str) -> str:
+    return f"{container_repo}:canary_{id}_torchx"
 
 
 def build_images() -> BuildInfo:
@@ -65,9 +64,10 @@ def build_images() -> BuildInfo:
     )
 
 
-def push_images(build: BuildInfo) -> None:
-    torchx_tag = torchx_container_tag(build.id)
+def push_images(build: BuildInfo, container_repo: str) -> None:
+    torchx_tag = torchx_container_tag(container_repo=container_repo, id=build.id)
     run("docker", "tag", build.torchx_image, torchx_tag)
     build.torchx_image = torchx_tag
 
-    run("docker", "push", torchx_tag)
+    if container_repo and container_repo != "localhost":
+        run("docker", "push", torchx_tag)

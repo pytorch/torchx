@@ -5,24 +5,22 @@
 # LICENSE file in the root directory of this source tree.
 
 import abc
-import glob
 import importlib
 import inspect
 import logging
 import os
-from collections import OrderedDict
+import pkgutil
 from dataclasses import dataclass
 from inspect import getmembers, isfunction
+from pathlib import Path
 from types import ModuleType
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, Generator, List, Optional, Union
 
 from torchx.specs import AppDef
 from torchx.specs.file_linter import get_fn_docstring, validate
 from torchx.util import entrypoints
 from torchx.util.io import read_conf_file
-
 from torchx.util.types import none_throws
-
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -68,98 +66,175 @@ class ComponentsFinder(abc.ABC):
             List of components
         """
 
-    def _get_module_source(self, module: ModuleType) -> str:
-        module_path = os.path.abspath(module.__file__)
-        return read_conf_file(module_path)
+
+def is_namespace_package(module: ModuleType) -> bool:
+    """
+    Returns:
+        Whether the ``module`` is a
+        `namespace package <https://packaging.python.org/en/latest/guides/packaging-namespace-packages/>`_.
+
+    """
+    # namespace package modules have no or empty __file__ attribute
+    return (not hasattr(module, "__file__")) or (module.__file__ is None)
+
+
+def is_package(module: ModuleType) -> bool:
+    """
+    Note that this function returns ``True`` if ``module`` is either a
+    regular (has an ``__init__.py`` file) or namespace package (does not have an ``__init__.py`` file).
+    To disambiguate between a regular and namespace package use :py:func:`is_namespace_package`.
+
+    Returns:
+        Whether the ``module`` is a python module (maps to a python file) or a package
+        (maps to a dir with an ``__init__.py`` file).
+
+    """
+    # packages have the __path__ attribute set
+    # see https://docs.python.org/3/tutorial/modules.html#packages-in-multiple-directories
+    return hasattr(module, "__path__")
+
+
+def module_relname(module: ModuleType, relative_to: ModuleType) -> str:
+    """
+    Example:
+
+        .. doctest::
+
+            >>> from torchx.specs.finder import module_relname
+            >>> import torchx.components as c
+            >>> import torchx.components.dist as d
+
+            >>> module_relname(d, relative_to=c)
+            'dist'
+
+            >>> module_relname(d, relative_to=d)
+            ''
+
+            >>> module_relname(c, relative_to=d)
+            Traceback (most recent call last):
+            ...
+            ValueError: `torchx.components` is not a submodule of `torchx.components.dist`
+
+    Returns:
+        The ``module``'s name relative to the ``relative_to`` module.
+
+    Raises:
+        ValueError: if ``module`` is not a submodule of ``relative_to``
+    """
+
+    # use pathlib.Path's relative_to function by converting the module name to a path, then back
+    modname = module.__name__
+    reltoname = relative_to.__name__
+    if modname == reltoname:
+        return ""
+
+    p = Path(modname.replace(".", os.sep))
+    rp = Path(reltoname.replace(".", os.sep))
+    return str(p.relative_to(rp)).replace(os.sep, ".")
 
 
 class ModuleComponentsFinder(ComponentsFinder):
     """Retrieves components from the directory associated with module.
 
-    Finds all components inside a directory associated with the module path in a recursive
-    manner. Class finds the lowest level directory for the ``module.__file`` and uses it
-    as a base dir. Then it recursively traverses the base dir to find all modules. For each
-    module it tries to find a component, which is a well-defined python function that
-    returns ``torchx.specs.AppDef``.
+    Finds all components in the given module and submodules in a recursive manner.
+    The ``module`` can be specified as a string (e.g. ``foo.bar``) or as a loaded module.
 
-    ``group`` can be supplied, which is used to construct component name and specify
-    the logical grouping of the components.
+    If a non-empty ``group`` is passed, then the module name is replaced with the ``group``.
+    This can be used to either alias the component name different to the component's function name
+    or to group the components into an arbitrary logical namespace.
+
+    For example, for the following directory structure:
 
     ::
-     module = "main.foo.bar" # resolves to main/foo/bar.py
-     # main.foo will be replaced by the "trainer" in component.name
-     components = ModuleComponentsFinder(module, group = "trainer").find()
 
+      foo/
+       |- __init__.py
+       |- bar/
+           |- __init__.py
+           |- baz.py
+
+
+    Where ``baz.py`` defines the component ``echo`` as such:
+
+    ::
+
+      # contents of baz.py
+      def echo(msg: str) -> AppDef:
+        ...
+
+    Then depending on the ``module`` and ``group`` params the component ``echo`` is named as:
+
+    1. ``ModuleComponentsFinder(module="foo.bar", group="")`` -> ``baz.echo``
+    1. ``ModuleComponentsFinder(module="foo.bar", group="abc")`` -> ``abc.echo``
+    1. ``ModuleComponentsFinder(module="foo.bar.baz", group="")`` -> ``echo``
+    1. ``ModuleComponentsFinder(module="foo.bar.baz", group="my_echo")`` -> ``my_echo``
 
     """
 
     def __init__(self, module: Union[str, ModuleType], group: str) -> None:
-        self._module = module
-        self._group = group
+        self.base_module: ModuleType = self._try_import(module)
+        self.group = group
+
+    def _iter_modules_recursive(
+        self, module: Union[str, ModuleType]
+    ) -> Generator[ModuleType, None, None]:
+        """
+        Given a module name (e.g. "a.b") recursively finds and loads the sub-modules and itself
+        as a generator.
+        """
+
+        # load itself first only if it is a package or module but not namespace
+        module = self._try_import(module)
+        if not is_namespace_package(module):
+            yield module
+
+        # module may be a module or a package
+        # only recurse if the module_name is a package
+        if is_package(module):
+            # recurse through the sub-modules
+            for module_info in pkgutil.iter_modules(
+                module.__path__, prefix=f"{module.__name__}."
+            ):
+                if module_info.ispkg:
+                    for submodule in self._iter_modules_recursive(module_info.name):
+                        yield submodule
+                else:
+                    yield self._try_import(module_info.name)
 
     def find(self) -> List[_Component]:
-        module = self._try_load_module(self._module)
-        dir_name = os.path.dirname(module.__file__)
-        return self._get_components_from_dir(
-            dir_name, self._get_base_module_name(module)
-        )
+        components = []
+        for m in self._iter_modules_recursive(self.base_module):
+            components += self._get_components_from_module(m)
+        return components
 
-    def _get_base_module_name(self, module: ModuleType) -> str:
-        filepath = module.__file__
-        # pyre-fixme[16]: `Optional` has no attribute `endswith`.
-        if filepath.endswith("__init__.py"):
-            return module.__name__
-        else:
-            return module.__name__.rsplit(".", 1)[0]
+    def _try_import(self, module: Union[str, ModuleType]) -> ModuleType:
+        """
+        If the module is a module name (e.g. ``"foo.bar"``) as a string, then this function
+        imports the module and returns the loaded module. If it is already a module type then
+        it just returns the module.
+        """
 
-    def _try_load_module(self, module: Union[str, ModuleType]) -> ModuleType:
         if isinstance(module, str):
             return importlib.import_module(module)
         else:
             return module
 
-    def _get_components_from_dir(
-        self, search_dir: str, base_module: str
-    ) -> List[_Component]:
-        search_pattern = os.path.join(search_dir, "**", "*.py")
-        component_defs = []
-        for filepath in glob.glob(search_pattern, recursive=True):
-            module_name = self._get_module_name(filepath, search_dir, base_module)
-            # TODO(aivanou): move `torchx.components.base` to `torchx.specs`, since
-            # there is nothing related to components in `torchx.components.base`
-            # see https://github.com/pytorch/torchx/issues/261
-            if module_name.startswith("torchx.components.base"):
-                continue
-            module = self._try_load_module(module_name)
-            defs = self._get_components_from_module(base_module, module)
-            component_defs += defs
-        return component_defs
-
-    def _is_private_function(self, function_name: str) -> bool:
-        return function_name.startswith("_")
-
-    def _get_component_name(
-        self, base_module: str, module_name: str, fn_name: str
-    ) -> str:
-        if self._group is not None:
-            module_name = module_name.replace(base_module, none_throws(self._group), 1)
-            if module_name.startswith("."):
-                module_name = module_name[1:]
-        return f"{module_name}.{fn_name}"
-
-    def _get_components_from_module(
-        self, base_module: str, module: ModuleType
-    ) -> List[_Component]:
+    def _get_components_from_module(self, module: ModuleType) -> List[_Component]:
         functions = getmembers(module, isfunction)
         component_defs = []
+
         module_path = os.path.abspath(module.__file__)
+        rel_module_name = module_relname(module, relative_to=self.base_module)
         for function_name, function in functions:
             linter_errors = validate(module_path, function_name)
             component_desc, _ = get_fn_docstring(function)
+
+            # remove empty string to deal with group=""
+            component_name = ".".join(
+                [p for p in [self.group, rel_module_name, function_name] if p]
+            )
             component_def = _Component(
-                name=self._get_component_name(
-                    base_module, module.__name__, function_name
-                ),
+                name=component_name,
                 description=component_desc,
                 fn_name=function_name,
                 fn=function,
@@ -169,24 +244,6 @@ class ModuleComponentsFinder(ComponentsFinder):
             )
             component_defs.append(component_def)
         return component_defs
-
-    def _strip_init(self, module_name: str) -> str:
-        if module_name.endswith(".__init__"):
-            return module_name.rsplit(".__init__")[0]
-        elif module_name == "__init__":
-            return ""
-        else:
-            return module_name
-
-    def _get_module_name(self, filepath: str, search_dir: str, base_module: str) -> str:
-        module_path = os.path.relpath(filepath, search_dir)
-        module_path, _ = os.path.splitext(module_path)
-        module_name = module_path.replace(os.path.sep, ".")
-        module_name = self._strip_init(module_name)
-        if not module_name:
-            return base_module
-        else:
-            return f"{base_module}.{module_name}"
 
 
 class CustomComponentsFinder(ComponentsFinder):
@@ -223,20 +280,44 @@ class CustomComponentsFinder(ComponentsFinder):
         ]
 
 
+def _load_custom_components() -> List[_Component]:
+    component_modules = {
+        name: load_fn()
+        for name, load_fn in
+        # load_group() defers the module load so you have to call
+        # the deferred load_fn to actually load the module
+        entrypoints.load_group("torchx.components", default={}).items()
+    }
+
+    components: List[_Component] = []
+    for group, module in component_modules.items():
+        # using "_" prefix for entrypoint name allows users to
+        # specify component names without a prefix
+        # we use "_" since this is consistent with ignored function params in python
+        # e.g.
+        # [torchx.components]
+        # _0 = torchx.components.dist
+        # _1 = torchx.components.utils
+        group = "" if group.startswith("_") else group
+        components += ModuleComponentsFinder(module, group).find()
+    return components
+
+
 def _load_components() -> Dict[str, _Component]:
-    component_modules = entrypoints.load_group("torchx.components", default={})
-    component_defs: OrderedDict[str, _Component] = OrderedDict()
+    """
+    Loads either the custom component defs from the entrypoint ``[torchx.components]``
+    or the default builtins from ``torchx.components`` module.
 
-    finder = ModuleComponentsFinder("torchx.components", "")
-    for component in finder.find():
-        component_defs[component.name] = component
+    .. note::
+        If the custom components exist then, the default builtins are not loaded
+        since the user can add the ones from ``torchx.components`` in their entrypoint
 
-    for component_group, component_module in component_modules.items():
-        finder = ModuleComponentsFinder(component_module, component_group)
-        found_components = finder.find()
-        for component in found_components:
-            component_defs[component.name] = component
-    return component_defs
+    """
+
+    components = _load_custom_components()
+    if not components:
+        components = ModuleComponentsFinder("torchx.components", "").find()
+    return {c.name: c for c in components}
 
 
 _components: Optional[Dict[str, _Component]] = None
@@ -265,18 +346,50 @@ def _find_custom_components(name: str) -> Dict[str, _Component]:
 
 def get_components() -> Dict[str, _Component]:
     """
-    Returns all builtint components and components registered
-    in the ``[torchx.components] entry_points.txt``
-    Each line is a key, value pair in a format:
-    ::
-      foo = test.bar
+    Returns all custom components registered via ``[torchx.components]`` entrypoints
+    OR builtin components that ship with TorchX (but not both).
 
-    Where ``test.bar`` is a valid path to the python module and ``foo`` is alias.
-    Note: the module mast be discoverable by the torchx.
+    When registering custom components via entrypoints, each line is a key-value pair:
+
+    ::
+
+      [torchx.components]
+      foo = test.bar
+      hello = test.world
+
+
+    Where ``test.bar`` is a valid path to the python module and ``foo`` is
+    the prefix alias for all the components found in the module ``test.bar``.
+    TorchX recursively finds all components
+    (functions that return :py:class:`torchx.specs.AppDef`) in the given module.
+
+    In the example above, components found in the ``test.bar`` module (and its
+    sub-modules) will have the name ``foo.<component_fn_name>``, where ``<component_fn_name>``
+    is the path to the component function relative to the registered base module.
+    Similarly, components found in ``test.world`` will have the ``hello.`` prefix in their names.
+
+    .. note::
+        TorchX will NOT recurse through sub-namespace packages!
+        Make sure to drop an ``__init__.py`` to have TorchX discover components
+        recursively, or explicitly map the namespace packages in ``[torchx.components]``
+        section of your entrypoints.
+
+    If no ``[torchx.components]`` have been registered by the user, then this function
+    load the builtin components, which is equivalent to loading:
+
+    ::
+
+      [torchx.components]
+      dist = torchx.components.dist
+      util = torchx.components.util
+      # ... and so on for all modules in torchx.components.* ...
+
 
     Returns:
         Components in a format : {ALIAS: LIST_OF_COMPONENTS}
+
     """
+
     valid_components: Dict[str, _Component] = {}
     for component_name, component in _find_components().items():
         if len(component.validation_errors) == 0:

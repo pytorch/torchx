@@ -42,7 +42,7 @@ def register_gpu_resource() -> None:
 
 def build_and_push_image() -> BuildInfo:
     build = build_images()
-    push_images(build)
+    push_images(build, container_repo=os.getenv("CONTAINER_REPO"))
     return build
 
 

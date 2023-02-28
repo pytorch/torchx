@@ -29,7 +29,7 @@ class CvTrainerComponentProvider(ComponentProvider):
 class DatapreprocComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
         return utils_python(
-            *("--output_path", "/tmp/test"),
+            *("--output_path", "/tmp/test", "--limit", "100"),
             image=self._image,
             m="torchx.examples.apps.datapreproc.datapreproc",
         )
