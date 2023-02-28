@@ -160,6 +160,15 @@ LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
 LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
 LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
 
+
+LABEL_APP_NAME = "app.kubernetes.io/name"
+LABEL_ORGANIZATION = "app.kubernetes.io/part-of"
+LABEL_VERSION = "app.kubernetes.io/version"
+LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
+LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
+LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
+LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
+
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
 LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
@@ -372,7 +381,15 @@ def app_to_resource(
                 replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
             pod = role_to_pod(name, replica_role, service_account)
-            pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
+            pod.metadata.labels.update(
+                pod_labels(
+                    app=app,
+                    role_idx=role_idx,
+                    role=role,
+                    replica_id=replica_id,
+                    app_id=unique_app_id,
+                )
+            )
             task: Dict[str, Any] = {
                 "replicas": 1,
                 "name": name,
@@ -773,12 +790,14 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
 
 
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int
+    app: AppDef, role_idx: int, role: Role, replica_id: int, app_id: str
 ) -> Dict[str, str]:
     return {
-        LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
-        LABEL_ROLE_INDEX: str(role_idx),
+        LABEL_ORGANIZATION: "torchx.pytorch.org",
+        LABEL_VERSION: torchx.__version__,
+        LABEL_UNIQUE_NAME: app_id,
         LABEL_ROLE_NAME: role.name,
+        LABEL_ROLE_INDEX: str(role_idx),
         LABEL_REPLICA_ID: str(replica_id),
     }

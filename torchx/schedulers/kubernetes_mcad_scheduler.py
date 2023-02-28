@@ -141,9 +141,10 @@ TASK_STATE: Dict[str, ReplicaState] = {
     "Unknown": ReplicaState.UNKNOWN,
 }
 
-# TO DO update to standards
-LABEL_VERSION = "torchx.pytorch.org/version"
-LABEL_APP_NAME = "torchx.pytorch.org/app-name"
+LABEL_APP_NAME = "app.kubernetes.io/name"
+LABEL_ORGANIZATION = "app.kubernetes.io/part-of"
+LABEL_VERSION = "app.kubernetes.io/version"
+LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
 LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
 LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
 LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
@@ -1136,7 +1137,6 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
     )
 
 
-# TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
 def pod_labels(
     app: AppDef,
     role_idx: int,
@@ -1146,10 +1146,12 @@ def pod_labels(
     app_id: str,
 ) -> Dict[str, str]:
     labels = {
-        LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
+        LABEL_ORGANIZATION: "torchx.pytorch.org",
+        LABEL_VERSION: torchx.__version__,
+        LABEL_UNIQUE_NAME: app_id,
+        LABEL_ROLE_NAME: role.name, 
         LABEL_ROLE_INDEX: str(role_idx),
-        LABEL_ROLE_NAME: role.name,
         LABEL_REPLICA_ID: str(replica_id),
     }
     if coscheduler_name is not None:

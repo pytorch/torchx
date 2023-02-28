@@ -276,11 +276,13 @@ spec:
         annotations:
           sidecar.istio.io/inject: 'false'
         labels:
-          torchx.pytorch.org/app-name: test
+          app.kubernetes.io/instance: app-name-42
+          app.kubernetes.io/name: test
+          app.kubernetes.io/part-of: torchx.pytorch.org
+          app.kubernetes.io/version: {torchx.__version__}
           torchx.pytorch.org/replica-id: '0'
           torchx.pytorch.org/role-index: '0'
           torchx.pytorch.org/role-name: trainer_foo
-          torchx.pytorch.org/version: {torchx.__version__}
       spec:
         containers:
         - command:
