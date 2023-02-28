@@ -1150,7 +1150,7 @@ def pod_labels(
         LABEL_ORGANIZATION: "torchx.pytorch.org",
         LABEL_VERSION: torchx.__version__,
         LABEL_UNIQUE_NAME: app_id,
-        LABEL_ROLE_NAME: role.name, 
+        LABEL_ROLE_NAME: role.name,
         LABEL_ROLE_INDEX: str(role_idx),
         LABEL_REPLICA_ID: str(replica_id),
     }
