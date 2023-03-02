@@ -633,13 +633,39 @@
     <span class="nd">@staticmethod</span>
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># noqa: B019</span>
     <span class="k">def</span> <span class="nf">run_from_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AppRun</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Factory method do build AppRun that uses environment variabes to build it.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates an :py:class:`AppRun` from environment variables. The environment variables are set by</span>
+<span class="sd">        the torchx runner. Hence if the application is launched via the torchx CLI as:</span>
 
-<span class="sd">        Single instance of AppRun will be available for the duration of the application, thus expect that calling</span>
-<span class="sd">        this method will retorn same AppRun and hence same instances of the backend implementations.</span>
+<span class="sd">        .. code-block:: shell-session</span>
+
+<span class="sd">            $ torchx run utils_python --script main.py</span>
+
+
+<span class="sd">        And the tracker settings are configured in ``.torchxconfig``, then this function returns an</span>
+<span class="sd">        ``AppRun`` with the configured tracker backends. This function returns a singleton ``AppRun``</span>
+<span class="sd">        hence the same instances of the tracker backend objects.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">                When the application is NOT launched via torchx, this function</span>
+<span class="sd">                will return an &quot;empty&quot; ``AppRun`` with the ``job_id`` set to a constant</span>
+<span class="sd">                ``&lt;UNDEFINED&gt;`` since the app was not &quot;launched&quot; (e.g. submitted as a job)</span>
+<span class="sd">                and hence no canonical ``job_id`` exists.</span>
+<span class="sd">                No trackers are hooked up to the ``AppRun`` hence</span>
+<span class="sd">                calling ``add_*()`` (write) methods on the returned apprun will be a no-op.</span>
+
+<span class="sd">        Usage:</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            &gt;&gt;&gt; from torchx.tracker.api import AppRun</span>
+<span class="sd">            &gt;&gt;&gt; apprun = AppRun.run_from_env()</span>
+<span class="sd">            &gt;&gt;&gt; apprun.add_metadata(md_1 = &quot;foo&quot;, md_2 = &quot;bar&quot;)</span>
+
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">torchx_job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TORCHX_JOB_ID&quot;</span><span class="p">]</span>
+        <span class="n">torchx_job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TORCHX_JOB_ID&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&lt;UNDEFINED&gt;&quot;</span><span class="p">)</span>
 
         <span class="n">trackers</span> <span class="o">=</span> <span class="n">trackers_from_environ</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">TRACKER_PARENT_RUN_ENV_VAR_NAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
