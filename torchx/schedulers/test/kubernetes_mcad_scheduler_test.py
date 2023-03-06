@@ -22,6 +22,7 @@ from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_mcad_scheduler import (
     app_to_resource,
     cleanup_str,
+    create_pod_group,
     create_scheduler,
     get_appwrapper_status,
     get_port_for_service,
@@ -170,7 +171,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
             resource = app_to_resource(
-                app, "default", service_account=None, image_secret=None, priority=0
+                app,
+                "default",
+                service_account=None,
+                image_secret=None,
+                coscheduler_name=None,
+                priority=0,
             )
             actual_cmd = (
                 resource["spec"]["resources"]["GenericItems"][0]["generictemplate"]
@@ -191,7 +197,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_retry_policy_not_set(self) -> None:
         app = _test_app()
         resource = app_to_resource(
-            app, "default", service_account=None, image_secret=None, priority=0
+            app,
+            "default",
+            service_account=None,
+            image_secret=None,
+            coscheduler_name=None,
+            priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertListEqual(
@@ -204,7 +215,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         for role in app.roles:
             role.max_retries = 0
         resource = app_to_resource(
-            app, "default", service_account=None, image_secret=None, priority=0
+            app,
+            "default",
+            service_account=None,
+            image_secret=None,
+            coscheduler_name=None,
+            priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
         self.assertFalse("policies" in item0)
@@ -230,6 +246,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name"
         image_secret = "secret-name"
+        coscheduler_name = "test-co-scheduler-name"
         pod = role_to_pod(
             "app-name-0",
             unique_app_name,
@@ -237,6 +254,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             app.roles[0],
             service_account="srvacc",
             image_secret=image_secret,
+            coscheduler_name=coscheduler_name,
         )
         imagesecret = V1LocalObjectReference(name=image_secret)
 
@@ -311,6 +329,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                         ),
                     ),
                 ],
+                scheduler_name=coscheduler_name,
                 node_selector={},
             ),
             metadata=V1ObjectMeta(
@@ -325,6 +344,36 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
 
         self.assertEqual(
             pod,
+            want,
+        )
+
+    def test_create_pod_group(self) -> None:
+        app = _test_app()
+        unique_app_name = "app-name"
+        namespace = "default"
+        podgroup = create_pod_group(app.roles[0], namespace, unique_app_name)
+
+        pod_group_name = unique_app_name + "-" + cleanup_str(app.roles[0].name) + "-pg"
+        expected_pod_group: Dict[str, Any] = {
+            "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
+            "kind": "PodGroup",
+            "metadata": {
+                "name": pod_group_name,
+                "namespace": namespace,
+                "labels": {
+                    "appwrapper.mcad.ibm.com": unique_app_name,
+                },
+            },
+            "spec": {
+                "minMember": 1,
+            },
+        }
+        want: Dict[str, Any] = {
+            "replicas": 1,
+            "generictemplate": expected_pod_group,
+        }
+        self.assertEqual(
+            podgroup,
             want,
         )
 
@@ -435,7 +484,13 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KubernetesMCADOpts({"priority": 0, "namespace": "test_namespace"})
+        cfg = KubernetesMCADOpts(
+            {
+                "priority": 0,
+                "namespace": "test_namespace",
+                "coscheduler_name": "test_coscheduler",
+            }
+        )
         with patch(
             "torchx.schedulers.kubernetes_mcad_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -455,12 +510,24 @@ spec:
   resources:
     GenericItems:
     - generictemplate:
+        apiVersion: scheduling.sigs.k8s.io/v1alpha1
+        kind: PodGroup
+        metadata:
+          labels:
+            appwrapper.mcad.ibm.com: app-name
+          name: app-name-trainerfoo-pg
+          namespace: test_namespace
+        spec:
+          minMember: 1
+      replicas: 1
+    - generictemplate:
         apiVersion: v1
         kind: Pod
         metadata:
           annotations:
             sidecar.istio.io/inject: 'false'
           labels:
+            pod-group.scheduling.sigs.k8s.io: app-name-trainerfoo-pg
             torchx.pytorch.org/app-name: test
             torchx.pytorch.org/replica-id: '0'
             torchx.pytorch.org/role-index: '0'
@@ -511,6 +578,7 @@ spec:
           - {{}}
           nodeSelector: {{}}
           restartPolicy: Never
+          schedulerName: test_coscheduler
           subdomain: app-name
           volumes:
           - emptyDir:
@@ -553,7 +621,6 @@ spec:
     def test_get_role_information(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         get_namespaced_custom_object.return_value = _test_mcad_generic_item()
 
         spec = get_namespaced_custom_object.return_value["spec"]
@@ -591,7 +658,6 @@ spec:
     def test_get_role_information_no_generic_items(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0] = {}
         get_namespaced_custom_object.return_value = test_generic_item
@@ -610,7 +676,6 @@ spec:
     def test_get_role_information_no_metadata(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"] = {
             "spec": {
@@ -663,7 +728,6 @@ spec:
     def test_get_role_information_no_label(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "metadata"
@@ -683,7 +747,6 @@ spec:
     def test_get_role_information_no_role_name(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "metadata"
@@ -703,7 +766,6 @@ spec:
     def test_get_role_information_no_specs(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0] = {
             "generictemplate": {
@@ -748,7 +810,6 @@ spec:
     def test_get_role_information_no_image_name(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -812,7 +873,6 @@ spec:
     def test_get_role_information_no_resources(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -869,7 +929,6 @@ spec:
     def test_get_role_information_no_cpu(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -937,7 +996,6 @@ spec:
     def test_get_role_information_no_memory(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -1005,7 +1063,6 @@ spec:
     def test_get_role_information_no_ports(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -1073,7 +1130,6 @@ spec:
     def test_get_role_information_no_volume_mounts(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         test_generic_item = _test_mcad_generic_item()
         test_generic_item["spec"]["resources"]["GenericItems"][0]["generictemplate"][
             "spec"
@@ -1160,6 +1216,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.volumes,
@@ -1216,6 +1273,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.volumes[1:],
@@ -1273,6 +1331,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.containers[0].resources.limits,
@@ -1307,6 +1366,7 @@ spec:
             role,
             service_account="",
             image_secret="",
+            coscheduler_name="",
         )
         self.assertEqual(
             pod.spec.node_selector,
@@ -1465,7 +1525,6 @@ spec:
 
     @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object")
     def test_describe(self, get_namespaced_custom_object: MagicMock) -> None:
-
         get_namespaced_custom_object.return_value = {
             "status": {
                 "state": "Running",
@@ -1529,7 +1588,6 @@ spec:
     def test_describe_pending_dispatch(
         self, get_namespaced_custom_object: MagicMock
     ) -> None:
-
         get_namespaced_custom_object.return_value = {
             "status": {
                 "state": "Pending",
@@ -1660,6 +1718,7 @@ spec:
                 "service_account",
                 "priority",
                 "image_secret",
+                "coscheduler_name",
             },
         )
 

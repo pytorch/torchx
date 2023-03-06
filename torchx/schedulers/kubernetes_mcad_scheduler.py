@@ -13,10 +13,9 @@ components on a Kubernetes cluster via the Multi-Cluster-Application-Dispatcher 
 Prerequisites
 ==============
 
-TorchX kubernetes scheduler depends on AppWrapper + MCAD.
+TorchX Kubernetes_MCAD scheduler depends on AppWrapper + MCAD.
 
-Install MCAD 
-
+Install MCAD: 
 See deploying Multi-Cluster-Application-Dispatcher guide 
 https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
@@ -168,6 +167,7 @@ def role_to_pod(
     role: Role,
     service_account: Optional[str],
     image_secret: Optional[str],
+    coscheduler_name: Optional[str],
 ) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
@@ -338,6 +338,7 @@ def role_to_pod(
             service_account_name=service_account,
             volumes=volumes,
             node_selector=node_selector,
+            scheduler_name=coscheduler_name,
         ),
         metadata=V1ObjectMeta(
             name=name,
@@ -350,6 +351,31 @@ def role_to_pod(
             namespace=namespace,
         ),
     )
+
+
+def create_pod_group(role: Role, namespace: str, app_id: str) -> "Dict[str, Any]":
+    pod_group_name = app_id + "-" + cleanup_str(role.name) + "-pg"
+
+    pod_group: Dict[str, Any] = {
+        "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
+        "kind": "PodGroup",
+        "metadata": {
+            "name": pod_group_name,
+            "namespace": namespace,
+            "labels": {
+                "appwrapper.mcad.ibm.com": app_id,
+            },
+        },
+        "spec": {
+            "minMember": role.num_replicas,
+        },
+    }
+
+    genericitem_pod_group: Dict[str, Any] = {
+        "replicas": 1,
+        "generictemplate": pod_group,
+    }
+    return genericitem_pod_group
 
 
 def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
@@ -436,6 +462,7 @@ def app_to_resource(
     namespace: str,
     service_account: Optional[str],
     image_secret: Optional[str],
+    coscheduler_name: Optional[str],
     priority: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
@@ -448,6 +475,12 @@ def app_to_resource(
     genericitems = []
 
     unique_app_id = cleanup_str(make_unique(app.name))
+
+    if coscheduler_name is not None:
+        for role_idx, role in enumerate(app.roles):
+            genericitem_pod_group = create_pod_group(role, namespace, unique_app_id)
+            genericitems.append(genericitem_pod_group)
+
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
@@ -473,8 +506,18 @@ def app_to_resource(
                 replica_role,
                 service_account,
                 image_secret,
+                coscheduler_name,
             )
-            pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
+            pod.metadata.labels.update(
+                pod_labels(
+                    app=app,
+                    role_idx=role_idx,
+                    role=role,
+                    replica_id=replica_id,
+                    coscheduler_name=coscheduler_name,
+                    app_id=unique_app_id,
+                )
+            )
 
             genericitem: Dict[str, Any] = {
                 "replicas": 1,
@@ -676,6 +719,7 @@ class KubernetesMCADOpts(TypedDict, total=False):
     service_account: Optional[str]
     priority: Optional[int]
     image_secret: Optional[str]
+    coscheduler_name: Optional[str]
 
 
 class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts]):
@@ -698,6 +742,14 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
         $ torchx run --scheduler kubernetes_mcad --scheduler_args namespace=default,image_repo=<your_image_repo> utils.echo --image alpine:latest --msg hello
         ...
+
+    The TorchX-MCAD scheduler can be used with a secondary scheduler on Kubernetes.
+    To enable this, the user must provide the name of the coscheduler.
+    With this feature, a PodGroup is defined for each TorchX role and the coscheduler
+    handles secondary scheduling on the Kubernetes cluster. For additional resources, see:
+    1. PodGroups and Coscheduling: https://github.com/kubernetes-sigs/scheduler-plugins/tree/release-1.24/pkg/coscheduling
+    2. Installing Secondary schedulers: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/doc/install.md
+    3. PodGroup CRD: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/config/crd/bases/scheduling.sigs.k8s.io_podgroups.yaml
 
     **Config Options**
 
@@ -861,9 +913,20 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         namespace = cfg.get("namespace")
         assert isinstance(namespace, str), "namespace must be a str"
 
+        coscheduler_name = cfg.get("coscheduler_name")
+        assert coscheduler_name is None or isinstance(
+            coscheduler_name, str
+        ), "coscheduler_name must be a string"
+
         resource = app_to_resource(
-            app, namespace, service_account, image_secret, priority
+            app=app,
+            namespace=namespace,
+            service_account=service_account,
+            image_secret=image_secret,
+            coscheduler_name=coscheduler_name,
+            priority=priority,
         )
+
         req = KubernetesMCADJob(
             resource=resource,
             images_to_push=images_to_push,
@@ -916,6 +979,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             "image_secret",
             type_=str,
             help="The name of the Kubernetes/OpenShift secret set up for private images",
+        )
+        opts.add(
+            "coscheduler_name",
+            type_=str,
+            help="Option to run TorchX-MCAD with a co-scheduler. User must provide the co-scheduler name.",
         )
         return opts
 
@@ -1070,12 +1138,21 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
 
 # TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int
+    app: AppDef,
+    role_idx: int,
+    role: Role,
+    replica_id: int,
+    coscheduler_name: Optional[str],
+    app_id: str,
 ) -> Dict[str, str]:
-    return {
+    labels = {
         LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
         LABEL_ROLE_INDEX: str(role_idx),
         LABEL_ROLE_NAME: role.name,
         LABEL_REPLICA_ID: str(replica_id),
     }
+    if coscheduler_name is not None:
+        pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
+        labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
+    return labels
