@@ -2021,7 +2021,3 @@ class KubernetesMCADSchedulerNoImportTest(unittest.TestCase):
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler._submit_dryrun(app, cfg)
-
-
-if __name__ == "__main__":
-    unittest.main()
