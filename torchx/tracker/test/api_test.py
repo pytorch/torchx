@@ -98,10 +98,13 @@ class TestTrackerBackend(api.TrackerBase):
 
 class AppRunApiTest(TestCase):
     def setUp(self) -> None:
-        os.environ["TORCHX_JOB_ID"] = "scheduler://sesison/app_id"
+        os.environ["TORCHX_JOB_ID"] = "scheduler://session/app_id"
         self.tracker = TestTrackerBackend()
         self.run_id = "run_id"
         self.model_run = AppRun(self.run_id, [self.tracker])
+
+    def tearDown(self) -> None:
+        del os.environ["TORCHX_JOB_ID"]
 
     @mock.patch.dict(
         os.environ,
@@ -266,3 +269,16 @@ class TrackerFactoryMethodsTest(TestCase):
             self.assertEqual(1, len(trackers))
             tracker = trackers[0]
             self.assertEqual(tracker.config_path, "myconfig.txt")  # pyre-ignore[16]
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_run_from_env_not_launched_with_torchx(self) -> None:
+        # asserts that an empty AppRun (with no trackers and job_id defaulted to program name)
+        # is created if not launched from torchx
+        # makes it possible to use `torchx.tracker.app_run_from_env()` without being tightly coupled with
+        # the torchx launcher
+
+        AppRun.run_from_env.cache_clear()
+        apprun = AppRun.run_from_env()
+        self.assertEqual("<UNDEFINED>", apprun.job_id())
+        # no backends configured if not launched via torchx
+        self.assertEqual([], list(apprun.backends))

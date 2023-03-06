@@ -240,13 +240,39 @@ class AppRun:
     @staticmethod
     @lru_cache(maxsize=1)  # noqa: B019
     def run_from_env() -> AppRun:
-        """Factory method do build AppRun that uses environment variabes to build it.
+        """
+        Creates an :py:class:`AppRun` from environment variables. The environment variables are set by
+        the torchx runner. Hence if the application is launched via the torchx CLI as:
 
-        Single instance of AppRun will be available for the duration of the application, thus expect that calling
-        this method will retorn same AppRun and hence same instances of the backend implementations.
+        .. code-block:: shell-session
+
+            $ torchx run utils_python --script main.py
+
+
+        And the tracker settings are configured in ``.torchxconfig``, then this function returns an
+        ``AppRun`` with the configured tracker backends. This function returns a singleton ``AppRun``
+        hence the same instances of the tracker backend objects.
+
+        .. note::
+                When the application is NOT launched via torchx, this function
+                will return an "empty" ``AppRun`` with the ``job_id`` set to a constant
+                ``<UNDEFINED>`` since the app was not "launched" (e.g. submitted as a job)
+                and hence no canonical ``job_id`` exists.
+                No trackers are hooked up to the ``AppRun`` hence
+                calling ``add_*()`` (write) methods on the returned apprun will be a no-op.
+
+        Usage:
+
+        .. doctest::
+
+            >>> from torchx.tracker.api import AppRun
+            >>> apprun = AppRun.run_from_env()
+            >>> apprun.add_metadata(md_1 = "foo", md_2 = "bar")
+
+
         """
 
-        torchx_job_id = os.environ["TORCHX_JOB_ID"]
+        torchx_job_id = os.getenv("TORCHX_JOB_ID", default="<UNDEFINED>")
 
         trackers = trackers_from_environ()
         if TRACKER_PARENT_RUN_ENV_VAR_NAME in os.environ:
