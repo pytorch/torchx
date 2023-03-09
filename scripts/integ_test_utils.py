@@ -65,6 +65,8 @@ def build_images() -> BuildInfo:
 
 
 def push_images(build: BuildInfo, container_repo: str) -> None:
+    if container_repo == "":
+        return
     torchx_tag = torchx_container_tag(container_repo=container_repo, id=build.id)
     run("docker", "tag", build.torchx_image, torchx_tag)
     build.torchx_image = torchx_tag
