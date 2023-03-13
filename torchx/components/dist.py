@@ -154,7 +154,14 @@ def ddp(
         # but pending until the resources become available
         rdzv_endpoint = "localhost:0"
     else:
-        rdzv_endpoint = _noquote(f"$${macros.rank0_env}:{rdzv_port}")
+        # for multi-node, rely on the rank0_env environment variable set by
+        # the schedulers (see scheduler implementation for the actual env var this maps to)
+        # some schedulers (e.g. aws batch) make the rank0's ip-addr available on all BUT on rank0
+        # so default to "localhost" if the env var is not set or is empty
+        # rdzv_endpoint bash resolves to something to the effect of
+        # ${TORCHX_RANK0_HOST:=localhost}:29500
+        # use $$ in the prefix to escape the '$' literal (rather than a string Template substitution argument)
+        rdzv_endpoint = _noquote(f"$${{{macros.rank0_env}:=localhost}}:{rdzv_port}")
 
     if env is None:
         env = {}
@@ -164,9 +171,7 @@ def ddp(
         env.update(_TORCH_DEBUG_FLAGS)
 
     cmd = [
-        "python",
-        "-m",
-        "torch.distributed.run",
+        "torchrun",
         "--rdzv_backend",
         rdzv_backend,
         "--rdzv_endpoint",

@@ -49,8 +49,6 @@ from typing import Any, Callable, Iterator, Optional, TypeVar
 
 import kfp
 
-# pyre-ignore-all-errors[21] # Cannot find module utils
-# pyre-ignore-all-errors[11]
 from integ_test_utils import (
     build_images,
     BuildInfo,

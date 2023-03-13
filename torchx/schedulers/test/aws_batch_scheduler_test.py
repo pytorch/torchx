@@ -6,6 +6,7 @@
 import threading
 import unittest
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Any, Dict, Generator, Iterable, Optional
 from unittest.mock import MagicMock, patch
 
@@ -14,26 +15,29 @@ from torchx import specs
 from torchx.schedulers.api import ListAppResponse
 from torchx.schedulers.aws_batch_scheduler import (
     _local_session,
+    _parse_num_replicas,
     _role_to_node_properties,
     AWSBatchOpts,
     AWSBatchScheduler,
     create_scheduler,
+    resource_from_resource_requirements,
+    resource_requirements_from_resource,
+    to_millis_since_epoch,
 )
-from torchx.specs import AppState
+from torchx.specs import AppState, Resource
 
 
 def _test_app() -> specs.AppDef:
     trainer_role = specs.Role(
         name="trainer",
         image="pytorch/torchx:latest",
-        entrypoint="main",
+        entrypoint="bash",
         args=[
-            "--output-path",
-            specs.macros.img_root,
-            "--app-id",
-            specs.macros.app_id,
-            "--rank0_env",
-            specs.macros.rank0_env,
+            "-c",
+            f"--output-path {specs.macros.img_root}"
+            f" --app-id {specs.macros.app_id}"
+            f" --replica_id {specs.macros.replica_id}"
+            f" --rank0_host $${{{specs.macros.rank0_env}:=localhost}}",
         ],
         env={"FOO": "bar"},
         resource=specs.Resource(
@@ -105,9 +109,10 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         self.assertEqual(job_def["schedulingPriority"], 0)
 
     def test_submit_dryrun_with_priority_but_not_share_id(self) -> None:
-        with self.assertRaisesRegex(ValueError, "config value.*priority.*share_id"):
-            cfg = AWSBatchOpts({"queue": "testqueue", "priority": 42})
-            create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        cfg = AWSBatchOpts({"queue": "testqueue", "priority": 42})
+        dryrun_info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        self.assertFalse("schedulingPriority" in dryrun_info.request.job_def)
+        self.assertIsNone(dryrun_info.request.share_id)
 
     def test_submit_dryrun_with_priority(self) -> None:
         cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "foo", "priority": 42})
@@ -156,70 +161,21 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                     "mainNode": 0,
                     "nodeRangeProperties": [
                         {
-                            "targetNodes": "0",
+                            "targetNodes": "0:1",
                             "container": {
                                 "command": [
-                                    "main",
-                                    "--output-path",
-                                    "",
-                                    "--app-id",
-                                    "app-name-42",
-                                    "--rank0_env",
-                                    "TORCHX_RANK0_HOST",
+                                    "bash",
+                                    "-c",
+                                    "--output-path "
+                                    " --app-id app-name-42"
+                                    " --replica_id $AWS_BATCH_JOB_NODE_INDEX"
+                                    " --rank0_host ${AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS:=localhost}",
                                 ],
                                 "image": "pytorch/torchx:latest",
                                 "environment": [
                                     {"name": "FOO", "value": "bar"},
                                     {"name": "TORCHX_ROLE_IDX", "value": "0"},
                                     {"name": "TORCHX_ROLE_NAME", "value": "trainer"},
-                                    {"name": "TORCHX_REPLICA_IDX", "value": "0"},
-                                    {"name": "TORCHX_RANK0_HOST", "value": "localhost"},
-                                ],
-                                "resourceRequirements": [
-                                    {"type": "VCPU", "value": "2"},
-                                    {"type": "MEMORY", "value": "3000"},
-                                    {"type": "GPU", "value": "4"},
-                                ],
-                                "linuxParameters": {
-                                    "sharedMemorySize": 3000,
-                                    "devices": [],
-                                },
-                                "logConfiguration": {"logDriver": "awslogs"},
-                                "mountPoints": [
-                                    {
-                                        "containerPath": "/dst",
-                                        "readOnly": True,
-                                        "sourceVolume": "mount_0",
-                                    }
-                                ],
-                                "volumes": [
-                                    {
-                                        "name": "mount_0",
-                                        "host": {
-                                            "sourcePath": "/src",
-                                        },
-                                    }
-                                ],
-                            },
-                        },
-                        {
-                            "targetNodes": "1",
-                            "container": {
-                                "command": [
-                                    "main",
-                                    "--output-path",
-                                    "",
-                                    "--app-id",
-                                    "app-name-42",
-                                    "--rank0_env",
-                                    "AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS",
-                                ],
-                                "image": "pytorch/torchx:latest",
-                                "environment": [
-                                    {"name": "FOO", "value": "bar"},
-                                    {"name": "TORCHX_ROLE_IDX", "value": "0"},
-                                    {"name": "TORCHX_ROLE_NAME", "value": "trainer"},
-                                    {"name": "TORCHX_REPLICA_IDX", "value": "1"},
                                 ],
                                 "resourceRequirements": [
                                     {"type": "VCPU", "value": "2"},
@@ -275,7 +231,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 gpu=0,
             ),
         )
-        props = _role_to_node_properties(0, role)
+        props = _role_to_node_properties(role, 0)
         self.assertEqual(
             # pyre-fixme[16]: `object` has no attribute `__getitem__`.
             props["container"]["volumes"],
@@ -314,7 +270,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 gpu=0,
             ),
         )
-        props = _role_to_node_properties(0, role)
+        props = _role_to_node_properties(role, 0)
         self.assertEqual(
             # pyre-fixme[16]: `object` has no attribute `__getitem__`.
             props["container"]["linuxParameters"]["devices"],
@@ -336,7 +292,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 cpu=1, memMB=1000, gpu=0, devices={"vpc.amazonaws.com/efa": 2}
             ),
         )
-        props = _role_to_node_properties(0, role)
+        props = _role_to_node_properties(role, 0)
         self.assertEqual(
             # pyre-fixme[16]: `object` has no attribute `__getitem__`.
             props["container"]["linuxParameters"]["devices"],
@@ -416,9 +372,24 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler._log_client.get_log_events.return_value = {
             "nextForwardToken": "some_token",
             "events": [
-                {"message": "foo"},
-                {"message": "foobar"},
-                {"message": "bar"},
+                {
+                    "message": "foo",
+                    "timestamp": to_millis_since_epoch(
+                        datetime(2023, 3, 14, 16, 00, 1)
+                    ),
+                },
+                {
+                    "message": "foobar",
+                    "timestamp": to_millis_since_epoch(
+                        datetime(2023, 3, 14, 16, 00, 2)
+                    ),
+                },
+                {
+                    "message": "bar",
+                    "timestamp": to_millis_since_epoch(
+                        datetime(2023, 3, 14, 16, 00, 3)
+                    ),
+                },
             ],
         }
 
@@ -499,44 +470,18 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                         "mainNode": 0,
                         "nodeRangeProperties": [
                             {
-                                "targetNodes": "0",
+                                "targetNodes": "0:1",
                                 "container": {
                                     "image": "ghcr.io/pytorch/torchx:0.1.2dev0",
                                     "command": ["echo", "your name"],
                                     "volumes": [],
                                     "environment": [
                                         {"name": "TORCHX_ROLE_IDX", "value": "0"},
-                                        {"name": "TORCHX_REPLICA_IDX", "value": "0"},
                                         {"name": "TORCHX_ROLE_NAME", "value": "echo"},
                                         {
                                             "name": "TORCHX_RANK0_HOST",
                                             "value": "localhost",
                                         },
-                                    ],
-                                    "mountPoints": [],
-                                    "ulimits": [],
-                                    "resourceRequirements": [
-                                        {"value": "1", "type": "VCPU"},
-                                        {"value": "1000", "type": "MEMORY"},
-                                    ],
-                                    "logConfiguration": {
-                                        "logDriver": "awslogs",
-                                        "options": {},
-                                        "secretOptions": [],
-                                    },
-                                    "secrets": [],
-                                },
-                            },
-                            {
-                                "targetNodes": "1",
-                                "container": {
-                                    "image": "ghcr.io/pytorch/torchx:0.1.2dev0",
-                                    "command": ["echo", "your name"],
-                                    "volumes": [],
-                                    "environment": [
-                                        {"name": "TORCHX_ROLE_IDX", "value": "1"},
-                                        {"name": "TORCHX_REPLICA_IDX", "value": "0"},
-                                        {"name": "TORCHX_ROLE_NAME", "value": "echo2"},
                                     ],
                                     "mountPoints": [],
                                     "ulimits": [],
@@ -566,9 +511,24 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler._log_client.get_log_events.return_value = {
             "nextForwardToken": "some_token",
             "events": [
-                {"message": "foo"},
-                {"message": "foobar"},
-                {"message": "bar"},
+                {
+                    "message": "foo",
+                    "timestamp": to_millis_since_epoch(
+                        datetime(2023, 3, 14, 16, 00, 1)
+                    ),
+                },
+                {
+                    "message": "foobar",
+                    "timestamp": to_millis_since_epoch(
+                        datetime(2023, 3, 14, 16, 00, 2)
+                    ),
+                },
+                {
+                    "message": "bar",
+                    "timestamp": to_millis_since_epoch(
+                        datetime(2023, 3, 14, 16, 00, 3)
+                    ),
+                },
             ],
         }
 
@@ -600,16 +560,20 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             status.roles[0],
             specs.Role(
                 name="echo",
-                num_replicas=1,
+                num_replicas=2,
                 image="ghcr.io/pytorch/torchx:0.1.2dev0",
                 entrypoint="echo",
                 args=["your name"],
                 env={
                     "TORCHX_ROLE_IDX": "0",
-                    "TORCHX_REPLICA_IDX": "0",
                     "TORCHX_ROLE_NAME": "echo",
                     "TORCHX_RANK0_HOST": "localhost",
                 },
+                resource=Resource(
+                    cpu=1,
+                    gpu=0,
+                    memMB=1000,
+                ),
             ),
         )
 
@@ -658,3 +622,65 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         t = threading.Thread(target=worker)
         t.start()
         t.join()
+
+    def test_resource_requirement_from_resource(self) -> None:
+        cpu_resource = Resource(cpu=2, memMB=1024, gpu=0)
+        self.assertEquals(
+            [
+                {"type": "VCPU", "value": "2"},
+                {"type": "MEMORY", "value": "1024"},
+            ],
+            resource_requirements_from_resource(cpu_resource),
+        )
+
+        zero_cpu_resource = Resource(cpu=0, memMB=1024, gpu=0)
+        self.assertEquals(
+            [
+                {"type": "VCPU", "value": "1"},
+                {"type": "MEMORY", "value": "1024"},
+            ],
+            resource_requirements_from_resource(zero_cpu_resource),
+        )
+
+        gpu_resource = Resource(cpu=1, memMB=1024, gpu=2)
+        self.assertEquals(
+            [
+                {"type": "VCPU", "value": "1"},
+                {"type": "MEMORY", "value": "1024"},
+                {"type": "GPU", "value": "2"},
+            ],
+            resource_requirements_from_resource(gpu_resource),
+        )
+
+        zero_mem_resource = Resource(cpu=1, memMB=0, gpu=0)
+        with self.assertRaises(AssertionError):
+            resource_requirements_from_resource(zero_mem_resource)
+
+    def test_resource_from_resource_requirements(self) -> None:
+        gpu_resource_requirements = [
+            {"type": "VCPU", "value": "2"},
+            {"type": "GPU", "value": "3"},
+            {"type": "MEMORY", "value": "1024"},
+        ]
+
+        self.assertEqual(
+            Resource(cpu=2, gpu=3, memMB=1024),
+            resource_from_resource_requirements(gpu_resource_requirements),
+        )
+
+        cpu_resource_requirements = [
+            {"type": "VCPU", "value": "2"},
+            {"type": "MEMORY", "value": "1024"},
+        ]
+        self.assertEqual(
+            Resource(cpu=2, gpu=0, memMB=1024),
+            resource_from_resource_requirements(cpu_resource_requirements),
+        )
+
+    def test_parse_num_replicas(self) -> None:
+        self.assertEqual(4, _parse_num_replicas("2:5", num_nodes=6))
+        self.assertEqual(6, _parse_num_replicas("0:5", num_nodes=6))
+        self.assertEqual(2, _parse_num_replicas("2:3", num_nodes=6))
+        self.assertEqual(3, _parse_num_replicas(":2", num_nodes=6))
+        self.assertEqual(1, _parse_num_replicas("5:", num_nodes=6))
+        self.assertEqual(1, _parse_num_replicas("0", num_nodes=1))

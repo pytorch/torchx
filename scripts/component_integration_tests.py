@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import example_app_defs as examples_app_defs_providers
 import torchx.components.integration_tests.component_provider as component_provider
-from integ_test_utils import build_images, BuildInfo, MissingEnvError, push_images
+from integ_test_utils import build_images, BuildInfo, push_images
 from torchx.cli.colors import BLUE, ENDC, GRAY
 from torchx.components.integration_tests.integ_tests import IntegComponentTest
 from torchx.schedulers import get_scheduler_factories
@@ -26,9 +26,6 @@ logging.basicConfig(
     format=f"{GRAY}%(asctime)s{ENDC} {BLUE}%(name)-12s{ENDC} %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-
-# pyre-ignore-all-errors[21] # Cannot find module utils
-# pyre-ignore-all-errors[11]
 
 
 def build_and_push_image(container_repo: str) -> BuildInfo:
@@ -68,12 +65,12 @@ def main() -> None:
         "lsf",
         "gcp_batch",
     ):
-        try:
-            build = build_and_push_image(args.container_repo)
-            torchx_image = build.torchx_image
-        except MissingEnvError:
-            dryrun = True
-            print("Skip running tests, executed only docker build step")
+        build = build_and_push_image(args.container_repo)
+        torchx_image = build.torchx_image
+
+    if args.container_repo == "" and scheduler == "aws_batch" and not args.mock:
+        dryrun = True
+        print("Skip running tests, executed only docker build step")
 
     run_parameters = {
         "kubernetes": {
