@@ -37,8 +37,9 @@ for how to create a image repository.
 import getpass
 import re
 import threading
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from enum import auto, Enum
 from typing import (
     Any,
     Callable,
@@ -71,13 +72,23 @@ from torchx.specs.api import (
     BindMount,
     CfgVal,
     DeviceMount,
+    is_terminal,
     macros,
+    MISSING,
+    Resource,
     Role,
     runopts,
     VolumeMount,
 )
+from torchx.util.types import none_throws
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
+
+ENV_TORCHX_ROLE_IDX = "TORCHX_ROLE_IDX"
+
+ENV_TORCHX_ROLE_NAME = "TORCHX_ROLE_NAME"
+
+DEFAULT_ROLE_NAME = "node"
 
 TAG_TORCHX_VER = "torchx.pytorch.org/version"
 TAG_TORCHX_APPNAME = "torchx.pytorch.org/app-name"
@@ -98,25 +109,66 @@ JOB_STATE: Dict[str, AppState] = {
 }
 
 
-def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
-    resource = role.resource
-    reqs = []
-    cpu = resource.cpu
-    if cpu <= 0:
-        cpu = 1
-    reqs.append({"type": "VCPU", "value": str(cpu)})
+def to_millis_since_epoch(ts: datetime) -> int:
+    # datetime's timestamp returns seconds since epoch
+    return int(round(ts.timestamp() * 1000))
 
-    memMB = resource.memMB
-    if memMB < 0:
+
+def to_datetime(ms_since_epoch: int) -> datetime:
+    return datetime.fromtimestamp(ms_since_epoch / 1000)
+
+
+class ResourceType(Enum):
+    VCPU = auto()
+    GPU = auto()
+    MEMORY = auto()
+
+    @staticmethod
+    def from_str(resource_type: str) -> "ResourceType":
+        for rt in ResourceType:
+            if rt.name == resource_type.upper():
+                return rt
         raise ValueError(
-            f"AWSBatchScheduler requires memMB to be set to a positive value, got {memMB}"
+            f"No ResourceType found for `{resource_type}`. Valid types: {[r.name for r in ResourceType]}"
         )
-    reqs.append({"type": "MEMORY", "value": str(memMB)})
 
-    if resource.gpu > 0:
-        reqs.append({"type": "GPU", "value": str(resource.gpu)})
 
-    role.mounts += get_device_mounts(resource.devices)
+def resource_requirements_from_resource(resource: Resource) -> List[Dict[str, str]]:
+    cpu = resource.cpu if resource.cpu > 0 else 1
+    gpu = resource.gpu
+    memMB = resource.memMB
+    assert (
+        memMB > 0
+    ), f"AWSBatchScheduler requires memMB to be set to a positive value, got {memMB}"
+
+    resource_requirements = [
+        {"type": ResourceType.VCPU.name, "value": str(cpu)},
+        {"type": ResourceType.MEMORY.name, "value": str(memMB)},
+    ]
+    if gpu > 0:
+        resource_requirements.append({"type": ResourceType.GPU.name, "value": str(gpu)})
+    return resource_requirements
+
+
+def resource_from_resource_requirements(
+    resource_requirements: List[Dict[str, str]]
+) -> Resource:
+    resrc_req = {
+        ResourceType.from_str(r["type"]): int(r["value"]) for r in resource_requirements
+    }
+    return Resource(
+        cpu=resrc_req[ResourceType.VCPU],
+        gpu=resrc_req.get(ResourceType.GPU, 0),
+        memMB=resrc_req[ResourceType.MEMORY],
+        # TODO kiukchung@ map back capabilities and devices
+        # might be better to tag the named resource and finding the resource
+        # this requires the named resource to be part of the AppDef spec
+        # but today we lose the named resource str at the component level
+    )
+
+
+def _role_to_node_properties(role: Role, start_idx: int) -> Dict[str, object]:
+    role.mounts += get_device_mounts(role.resource.devices)
 
     mount_points = []
     volumes = []
@@ -175,11 +227,11 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
         "command": [role.entrypoint] + role.args,
         "image": role.image,
         "environment": [{"name": k, "value": v} for k, v in role.env.items()],
-        "resourceRequirements": reqs,
+        "resourceRequirements": resource_requirements_from_resource(role.resource),
         "linuxParameters": {
             # To support PyTorch dataloaders we need to set /dev/shm to larger
             # than the 64M default.
-            "sharedMemorySize": memMB,
+            "sharedMemorySize": role.resource.memMB,
             "devices": devices,
         },
         "logConfiguration": {
@@ -190,7 +242,7 @@ def _role_to_node_properties(idx: int, role: Role) -> Dict[str, object]:
     }
 
     return {
-        "targetNodes": str(idx),
+        "targetNodes": f"{start_idx}:{start_idx + role.num_replicas - 1}",
         "container": container,
     }
 
@@ -207,6 +259,40 @@ def _job_ui_url(job_arn: str) -> Optional[str]:
     return f"https://{region}.console.aws.amazon.com/batch/home?region={region}#jobs/mnp-job/{job_id}"
 
 
+def _parse_num_replicas(target_nodes: str, num_nodes: int) -> int:
+    """
+    Parses the number of replicas for a role given the target_nodes string
+    and total num_nodes. See docstring for ``_parse_start_and_end_idx()``
+    for details on the format of ``target_nodes`` string.
+    """
+
+    start_idx, end_idx = _parse_start_and_end_idx(target_nodes, num_nodes)
+    return end_idx - start_idx + 1
+
+
+def _parse_start_and_end_idx(target_nodes: str, num_nodes: int) -> Tuple[int, int]:
+    """
+    Takes the ``target_nodes`` str (as required by AWS Batch NodeRangeProperties)
+    and parses out the start and end indices (aka global rank) of the replicas in the node group.
+    The ``target_nodes`` string is of the form:
+
+    #. ``[start_node_index]:[end_node_index]`` (e.g. ``0:5``)
+    #. --or-- ``:[end_node_index]`` (e.g. ``:5``)
+    #. --or-- ``[start_node_index]:`` (e.g. ``0:``)
+    #. --or-- ``[node_index]`` (e.g. ``0`` - single node multi-node-parallel job)
+
+    See: https://docs.aws.amazon.com/batch/latest/userguide/job_definition_parameters.html
+    """
+
+    indices = target_nodes.split(":")
+    if len(indices) == 1:
+        return int(indices[0]), int(indices[0])
+    else:
+        start_idx = indices[0]
+        end_idx = indices[1]
+        return int(start_idx or "0"), int(end_idx or str(num_nodes - 1))
+
+
 @dataclass
 class BatchJob:
     name: str
@@ -216,7 +302,7 @@ class BatchJob:
     images_to_push: Dict[str, Tuple[str, str]]
 
     def __str__(self) -> str:
-        return yaml.dump(self.job_def)
+        return yaml.dump(asdict(self))
 
     def __repr__(self) -> str:
         return str(self)
@@ -252,7 +338,7 @@ class AWSBatchOpts(TypedDict, total=False):
     user: str
     image_repo: Optional[str]
     share_id: Optional[str]
-    priority: Optional[int]
+    priority: int
 
 
 class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
@@ -368,51 +454,43 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
 
         share_id = cfg.get("share_id")
         priority = cfg.get("priority")
-        if share_id is None and priority is not None:
-            raise ValueError(
-                "config value 'priority' takes no effect for job queues without a scheduling policy "
-                "(implied by 'share_id' not being set)"
-            )
 
         name_suffix = f"-{share_id}" if share_id is not None else ""
         name = make_unique(f"{app.name}{name_suffix}")
+
+        assert len(app.roles) <= 5, (
+            "AWS Batch only supports <= 5 roles (NodeGroups)."
+            " See: https://docs.aws.amazon.com/batch/latest/userguide/multi-node-parallel-jobs.html#mnp-node-groups"
+        )
 
         # map any local images to the remote image
         images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
         nodes = []
-
+        node_idx = 0
         for role_idx, role in enumerate(app.roles):
-            for replica_id in range(role.num_replicas):
-                rank = len(nodes)
-                values = macros.Values(
-                    img_root="",
-                    app_id=name,
-                    replica_id=str(replica_id),
-                    rank0_env=(
-                        "TORCHX_RANK0_HOST"
-                        if rank == 0
-                        else "AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS"
-                    ),
-                )
-                replica_role = values.apply(role)
-                replica_role.env["TORCHX_ROLE_IDX"] = str(role_idx)
-                replica_role.env["TORCHX_ROLE_NAME"] = str(role.name)
-                replica_role.env["TORCHX_REPLICA_IDX"] = str(replica_id)
-                if rank == 0:
-                    # AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS is only
-                    # available on the child workers so we set the address to
-                    # localhost for rank0.
-                    # See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html
-                    replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
-                nodes.append(_role_to_node_properties(rank, replica_role))
+            values = macros.Values(
+                img_root="",
+                app_id=name,
+                # this only resolves for role.args
+                # if the entrypoint is run with sh or bash
+                # but won't actually work for macros in env vars
+                replica_id="$AWS_BATCH_JOB_NODE_INDEX",
+                rank0_env="AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS",
+            )
+            role = values.apply(role)
+            role.env[ENV_TORCHX_ROLE_IDX] = str(role_idx)
+            role.env[ENV_TORCHX_ROLE_NAME] = str(role.name)
+
+            nodes.append(_role_to_node_properties(role, start_idx=node_idx))
+            node_idx += role.num_replicas
 
         job_def = {
             **{
                 "jobDefinitionName": name,
                 "type": "multinode",
                 "nodeProperties": {
-                    "numNodes": len(nodes),
+                    "numNodes": node_idx,
                     "mainNode": 0,
                     "nodeRangeProperties": nodes,
                 },
@@ -428,11 +506,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     TAG_TORCHX_USER: cfg.get("user"),
                 },
             },
-            **(
-                {"schedulingPriority": priority if priority is not None else 0}
-                if share_id is not None
-                else {}
-            ),
+            **({"schedulingPriority": priority} if share_id is not None else {}),
         }
 
         req = BatchJob(
@@ -443,10 +517,6 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             images_to_push=images_to_push,
         )
         return AppDryRunInfo(req, repr)
-
-    def _validate(self, app: AppDef, scheduler: str) -> None:
-        # Skip validation step
-        pass
 
     def _cancel_existing(self, app_id: str) -> None:
         job_id = self._get_job_id(app_id)
@@ -473,6 +543,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         opts.add(
             "priority",
             type_=int,
+            default=0,
             help="The scheduling priority for the job within the context of share_id. "
             "Higher number (between 0 and 9999) means higher priority. "
             "This will only take effect if the job queue has a scheduling policy.",
@@ -509,31 +580,36 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         if job is None:
             return None
 
-        # TODO: role statuses
-
-        roles = {}
-        nodes = job["nodeProperties"]["nodeRangeProperties"]
-        for node in nodes:
-            container = node["container"]
+        # each AppDef.role maps to a batch NodeGroup
+        roles = []
+        node_properties = job["nodeProperties"]
+        num_nodes = node_properties["numNodes"]
+        for node_group in node_properties["nodeRangeProperties"]:
+            container = node_group["container"]
             env = {opt["name"]: opt["value"] for opt in container["environment"]}
-            role = env["TORCHX_ROLE_NAME"]
-            replica_id = int(env["TORCHX_REPLICA_IDX"])
 
-            if role not in roles:
-                roles[role] = Role(
-                    name=role,
-                    num_replicas=0,
+            command = container["command"]
+            roles.append(
+                Role(
+                    name=env.get(ENV_TORCHX_ROLE_NAME, DEFAULT_ROLE_NAME),
+                    num_replicas=_parse_num_replicas(
+                        node_group["targetNodes"], num_nodes
+                    ),
                     image=container["image"],
-                    entrypoint=container["command"][0],
-                    args=container["command"][1:],
+                    entrypoint=command[0] if command else MISSING,
+                    args=command[1:],
                     env=env,
+                    resource=resource_from_resource_requirements(
+                        container["resourceRequirements"]
+                    ),
                 )
-            roles[role].num_replicas += 1
+            )
 
         return DescribeAppResponse(
             app_id=app_id,
             state=JOB_STATE[job["status"]],
-            roles=list(roles.values()),
+            roles=roles,
+            # TODO: role statuses
             ui_url=_job_ui_url(job["jobArn"]),
         )
 
@@ -554,13 +630,21 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         job = self._get_job(app_id)
         if job is None:
             return []
-        nodes = job["nodeProperties"]["nodeRangeProperties"]
+        node_properties = job["nodeProperties"]
+        nodes = node_properties["nodeRangeProperties"]
+
         i = 0
+        # finds the global idx of the node that matches the role's k'th replica
         for i, node in enumerate(nodes):
             container = node["container"]
             env = {opt["name"]: opt["value"] for opt in container["environment"]}
-            node_role = env["TORCHX_ROLE_NAME"]
-            replica_id = int(env["TORCHX_REPLICA_IDX"])
+            node_role = env.get(ENV_TORCHX_ROLE_NAME, DEFAULT_ROLE_NAME)
+            start_idx, _ = _parse_start_and_end_idx(
+                node["targetNodes"],
+                node_properties["numNodes"],
+            )
+            replica_id = start_idx + k
+
             if role_name == node_role and k == replica_id:
                 break
 
@@ -579,7 +663,13 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             container = attempt["container"]
             stream_name = container["logStreamName"]
 
-        iterator = self._stream_events(stream_name, since=since, until=until)
+        iterator = self._stream_events(
+            app_id,
+            stream_name,
+            since=since,
+            until=until,
+            should_tail=should_tail,
+        )
         if regex:
             return filter_regex(regex, iterator)
         else:
@@ -609,7 +699,6 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             # describe-jobs API can take up to 100 jobIds
             PaginationConfig={"MaxItems": 100},
         ):
-
             # torchx.pytorch.org/version tag is used to filter torchx jobs
             # list_jobs() API only returns a job summary which does not include the job's tag
             # so we need to call the describe_jobs API.
@@ -638,21 +727,23 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
 
     def _stream_events(
         self,
+        app_id: str,
         stream_name: str,
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
+        should_tail: bool = False,
     ) -> Iterable[str]:
-
         next_token = None
+        last_event_timestamp: int = 0  # in millis since epoch
 
         while True:
             args = {}
             if next_token is not None:
                 args["nextToken"] = next_token
             if until is not None:
-                args["endTime"] = until.timestamp()
+                args["endTime"] = to_millis_since_epoch(until)
             if since is not None:
-                args["startTime"] = since.timestamp()
+                args["startTime"] = to_millis_since_epoch(since)
             try:
                 response = self._log_client.get_log_events(
                     logGroupName="/aws/batch/job",
@@ -664,10 +755,18 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             except self._log_client.exceptions.ResourceNotFoundException:
                 return []  # noqa: B901
             if response["nextForwardToken"] == next_token:
+                if (
+                    not until or last_event_timestamp < to_millis_since_epoch(until)
+                ) and should_tail:
+                    if not is_terminal(none_throws(self.describe(app_id)).state):
+                        since = to_datetime(last_event_timestamp)
+                        continue
                 break
+
             next_token = response["nextForwardToken"]
 
             for event in response["events"]:
+                last_event_timestamp = event["timestamp"]
                 yield event["message"] + "\n"
 
 
