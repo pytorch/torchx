@@ -1150,6 +1150,7 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
         session_name=session_name,
     )
 
+
 def object_labels(
     app: AppDef,
     app_id: str,
@@ -1159,6 +1160,7 @@ def object_labels(
         LABEL_ORGANIZATION: "torchx.pytorch.org",
         LABEL_UNIQUE_NAME: app_id,
     }
+
 
 def pod_labels(
     app: AppDef,
