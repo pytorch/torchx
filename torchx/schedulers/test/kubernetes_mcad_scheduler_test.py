@@ -362,8 +362,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 "namespace": namespace,
                 "labels": {
                     "app.kubernetes.io/name": "test",
-                    "app.kubernetes.io/part-of": "torchx.pytorch.org",
-                    "app.kubernetes.io/version": torchx.__version__,
+                    "app.kubernetes.io/managed-by": "torchx.pytorch.org",
                     "app.kubernetes.io/instance": "app-name",
                     "appwrapper.mcad.ibm.com": unique_app_name,
                 },
@@ -416,8 +415,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 namespace=namespace,
                 labels={
                     "app.kubernetes.io/name": "test",
-                    "app.kubernetes.io/part-of": "torchx.pytorch.org",
-                    "app.kubernetes.io/version": torchx.__version__,
+                    "app.kubernetes.io/managed-by": "torchx.pytorch.org",
                     "app.kubernetes.io/instance": "test_service",
                 },
             ),
@@ -526,9 +524,8 @@ spec:
         metadata:
           labels:
             app.kubernetes.io/instance: app-name
+            app.kubernetes.io/managed-by: torchx.pytorch.org
             app.kubernetes.io/name: test
-            app.kubernetes.io/part-of: torchx.pytorch.org
-            app.kubernetes.io/version: {torchx.__version__}
             appwrapper.mcad.ibm.com: app-name
           name: app-name-trainerfoo-pg
           namespace: test_namespace
@@ -543,13 +540,14 @@ spec:
             sidecar.istio.io/inject: 'false'
           labels:
             app.kubernetes.io/instance: app-name
+            app.kubernetes.io/managed-by: torchx.pytorch.org
             app.kubernetes.io/name: test
-            app.kubernetes.io/part-of: torchx.pytorch.org
-            app.kubernetes.io/version: {torchx.__version__}
             pod-group.scheduling.sigs.k8s.io: app-name-trainerfoo-pg
+            torchx.pytorch.org/app-name: test
             torchx.pytorch.org/replica-id: '0'
             torchx.pytorch.org/role-index: '0'
             torchx.pytorch.org/role-name: trainer_foo
+            torchx.pytorch.org/version: {torchx.__version__}
           name: app-name-0
           namespace: test_namespace
         spec:
@@ -617,9 +615,8 @@ spec:
         metadata:
           labels:
             app.kubernetes.io/instance: app-name
+            app.kubernetes.io/managed-by: torchx.pytorch.org
             app.kubernetes.io/name: test
-            app.kubernetes.io/part-of: torchx.pytorch.org
-            app.kubernetes.io/version: {torchx.__version__}
           name: app-name
           namespace: test_namespace
         spec:

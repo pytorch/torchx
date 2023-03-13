@@ -141,13 +141,15 @@ TASK_STATE: Dict[str, ReplicaState] = {
     "Unknown": ReplicaState.UNKNOWN,
 }
 
-LABEL_APP_NAME = "app.kubernetes.io/name"
-LABEL_ORGANIZATION = "app.kubernetes.io/part-of"
-LABEL_VERSION = "app.kubernetes.io/version"
-LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
+LABEL_VERSION = "torchx.pytorch.org/version"
+LABEL_APP_NAME = "torchx.pytorch.org/app-name"
 LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
 LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
 LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
+
+LABEL_KUBE_APP_NAME = "app.kubernetes.io/name"
+LABEL_ORGANIZATION = "app.kubernetes.io/managed-by"
+LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
 
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
@@ -1148,18 +1150,15 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
         session_name=session_name,
     )
 
-
 def object_labels(
     app: AppDef,
     app_id: str,
 ) -> Dict[str, str]:
     return {
-        LABEL_APP_NAME: app.name,
+        LABEL_KUBE_APP_NAME: app.name,
         LABEL_ORGANIZATION: "torchx.pytorch.org",
-        LABEL_VERSION: torchx.__version__,
         LABEL_UNIQUE_NAME: app_id,
     }
-
 
 def pod_labels(
     app: AppDef,
@@ -1171,8 +1170,10 @@ def pod_labels(
 ) -> Dict[str, str]:
     labels = object_labels(app, app_id)
     pod_labels = {
-        LABEL_ROLE_NAME: role.name,
+        LABEL_VERSION: torchx.__version__,
+        LABEL_APP_NAME: app.name,
         LABEL_ROLE_INDEX: str(role_idx),
+        LABEL_ROLE_NAME: role.name,
         LABEL_REPLICA_ID: str(replica_id),
     }
     if coscheduler_name is not None:
