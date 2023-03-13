@@ -547,7 +547,14 @@
         <span class="c1"># but pending until the resources become available</span>
         <span class="n">rdzv_endpoint</span> <span class="o">=</span> <span class="s2">&quot;localhost:0&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">rdzv_endpoint</span> <span class="o">=</span> <span class="n">_noquote</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$$</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">rank0_env</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">rdzv_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># for multi-node, rely on the rank0_env environment variable set by</span>
+        <span class="c1"># the schedulers (see scheduler implementation for the actual env var this maps to)</span>
+        <span class="c1"># some schedulers (e.g. aws batch) make the rank0&#39;s ip-addr available on all BUT on rank0</span>
+        <span class="c1"># so default to &quot;localhost&quot; if the env var is not set or is empty</span>
+        <span class="c1"># rdzv_endpoint bash resolves to something to the effect of</span>
+        <span class="c1"># ${TORCHX_RANK0_HOST:=localhost}:29500</span>
+        <span class="c1"># use $$ in the prefix to escape the &#39;$&#39; literal (rather than a string Template substitution argument)</span>
+        <span class="n">rdzv_endpoint</span> <span class="o">=</span> <span class="n">_noquote</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$$</span><span class="se">{{</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">rank0_env</span><span class="si">}</span><span class="s2">:=localhost</span><span class="se">}}</span><span class="s2">:</span><span class="si">{</span><span class="n">rdzv_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
@@ -557,9 +564,7 @@
         <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_TORCH_DEBUG_FLAGS</span><span class="p">)</span>
 
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torchrun&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--rdzv_backend&quot;</span><span class="p">,</span>
         <span class="n">rdzv_backend</span><span class="p">,</span>
         <span class="s2">&quot;--rdzv_endpoint&quot;</span><span class="p">,</span>

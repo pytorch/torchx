@@ -432,8 +432,9 @@
 <span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">auto</span><span class="p">,</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -466,13 +467,23 @@
     <span class="n">BindMount</span><span class="p">,</span>
     <span class="n">CfgVal</span><span class="p">,</span>
     <span class="n">DeviceMount</span><span class="p">,</span>
+    <span class="n">is_terminal</span><span class="p">,</span>
     <span class="n">macros</span><span class="p">,</span>
+    <span class="n">MISSING</span><span class="p">,</span>
+    <span class="n">Resource</span><span class="p">,</span>
     <span class="n">Role</span><span class="p">,</span>
     <span class="n">runopts</span><span class="p">,</span>
     <span class="n">VolumeMount</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">torchx.workspace.docker_workspace</span> <span class="kn">import</span> <span class="n">DockerWorkspaceMixin</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+
+<span class="n">ENV_TORCHX_ROLE_IDX</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_ROLE_IDX&quot;</span>
+
+<span class="n">ENV_TORCHX_ROLE_NAME</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_ROLE_NAME&quot;</span>
+
+<span class="n">DEFAULT_ROLE_NAME</span> <span class="o">=</span> <span class="s2">&quot;node&quot;</span>
 
 <span class="n">TAG_TORCHX_VER</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/version&quot;</span>
 <span class="n">TAG_TORCHX_APPNAME</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/app-name&quot;</span>
@@ -493,25 +504,66 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">_role_to_node_properties</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
-    <span class="n">resource</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span>
-    <span class="n">reqs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">cpu</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span>
-    <span class="k">if</span> <span class="n">cpu</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">cpu</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;VCPU&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">cpu</span><span class="p">)})</span>
+<span class="k">def</span> <span class="nf">to_millis_since_epoch</span><span class="p">(</span><span class="n">ts</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># datetime&#39;s timestamp returns seconds since epoch</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
 
-    <span class="n">memMB</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span>
-    <span class="k">if</span> <span class="n">memMB</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+
+<span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">ms_since_epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">ms_since_epoch</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ResourceType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">VCPU</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">GPU</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">MEMORY</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="n">resource_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResourceType&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">rt</span> <span class="ow">in</span> <span class="n">ResourceType</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rt</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">resource_type</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">rt</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;AWSBatchScheduler requires memMB to be set to a positive value, got </span><span class="si">{</span><span class="n">memMB</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;No ResourceType found for `</span><span class="si">{</span><span class="n">resource_type</span><span class="si">}</span><span class="s2">`. Valid types: </span><span class="si">{</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ResourceType</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-    <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;MEMORY&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">memMB</span><span class="p">)})</span>
 
-    <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">reqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">)})</span>
 
-    <span class="n">role</span><span class="o">.</span><span class="n">mounts</span> <span class="o">+=</span> <span class="n">get_device_mounts</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">devices</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">resource_requirements_from_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="n">cpu</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">gpu</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span>
+    <span class="n">memMB</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">memMB</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;AWSBatchScheduler requires memMB to be set to a positive value, got </span><span class="si">{</span><span class="n">memMB</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">resource_requirements</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">ResourceType</span><span class="o">.</span><span class="n">VCPU</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">cpu</span><span class="p">)},</span>
+        <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">ResourceType</span><span class="o">.</span><span class="n">MEMORY</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">memMB</span><span class="p">)},</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">resource_requirements</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">ResourceType</span><span class="o">.</span><span class="n">GPU</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">gpu</span><span class="p">)})</span>
+    <span class="k">return</span> <span class="n">resource_requirements</span>
+
+
+<span class="k">def</span> <span class="nf">resource_from_resource_requirements</span><span class="p">(</span>
+    <span class="n">resource_requirements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="n">resrc_req</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">ResourceType</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]):</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resource_requirements</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="n">resrc_req</span><span class="p">[</span><span class="n">ResourceType</span><span class="o">.</span><span class="n">VCPU</span><span class="p">],</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="n">resrc_req</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ResourceType</span><span class="o">.</span><span class="n">GPU</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="n">resrc_req</span><span class="p">[</span><span class="n">ResourceType</span><span class="o">.</span><span class="n">MEMORY</span><span class="p">],</span>
+        <span class="c1"># TODO kiukchung@ map back capabilities and devices</span>
+        <span class="c1"># might be better to tag the named resource and finding the resource</span>
+        <span class="c1"># this requires the named resource to be part of the AppDef spec</span>
+        <span class="c1"># but today we lose the named resource str at the component level</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_role_to_node_properties</span><span class="p">(</span><span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">start_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+    <span class="n">role</span><span class="o">.</span><span class="n">mounts</span> <span class="o">+=</span> <span class="n">get_device_mounts</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">devices</span><span class="p">)</span>
 
     <span class="n">mount_points</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">volumes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -570,11 +622,11 @@
         <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">entrypoint</span><span class="p">]</span> <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
         <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
         <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
-        <span class="s2">&quot;resourceRequirements&quot;</span><span class="p">:</span> <span class="n">reqs</span><span class="p">,</span>
+        <span class="s2">&quot;resourceRequirements&quot;</span><span class="p">:</span> <span class="n">resource_requirements_from_resource</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="p">),</span>
         <span class="s2">&quot;linuxParameters&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="c1"># To support PyTorch dataloaders we need to set /dev/shm to larger</span>
             <span class="c1"># than the 64M default.</span>
-            <span class="s2">&quot;sharedMemorySize&quot;</span><span class="p">:</span> <span class="n">memMB</span><span class="p">,</span>
+            <span class="s2">&quot;sharedMemorySize&quot;</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">,</span>
             <span class="s2">&quot;devices&quot;</span><span class="p">:</span> <span class="n">devices</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="s2">&quot;logConfiguration&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -585,7 +637,7 @@
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;targetNodes&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span>
+        <span class="s2">&quot;targetNodes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start_idx</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">start_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -602,6 +654,40 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;https://</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">.console.aws.amazon.com/batch/home?region=</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">#jobs/mnp-job/</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
+<span class="k">def</span> <span class="nf">_parse_num_replicas</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the number of replicas for a role given the target_nodes string</span>
+<span class="sd">    and total num_nodes. See docstring for ``_parse_start_and_end_idx()``</span>
+<span class="sd">    for details on the format of ``target_nodes`` string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span> <span class="o">=</span> <span class="n">_parse_start_and_end_idx</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">end_idx</span> <span class="o">-</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_start_and_end_idx</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes the ``target_nodes`` str (as required by AWS Batch NodeRangeProperties)</span>
+<span class="sd">    and parses out the start and end indices (aka global rank) of the replicas in the node group.</span>
+<span class="sd">    The ``target_nodes`` string is of the form:</span>
+
+<span class="sd">    #. ``[start_node_index]:[end_node_index]`` (e.g. ``0:5``)</span>
+<span class="sd">    #. --or-- ``:[end_node_index]`` (e.g. ``:5``)</span>
+<span class="sd">    #. --or-- ``[start_node_index]:`` (e.g. ``0:``)</span>
+<span class="sd">    #. --or-- ``[node_index]`` (e.g. ``0`` - single node multi-node-parallel job)</span>
+
+<span class="sd">    See: https://docs.aws.amazon.com/batch/latest/userguide/job_definition_parameters.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">target_nodes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_idx</span> <span class="ow">or</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_idx</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_nodes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+
 <div class="viewcode-block" id="BatchJob"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.BatchJob">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BatchJob</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -611,7 +697,7 @@
     <span class="n">images_to_push</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_def</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -647,7 +733,7 @@
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">image_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">share_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">priority</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span>
 
 
 <div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSBatchOpts</span><span class="p">]):</span>
@@ -763,51 +849,43 @@
 
         <span class="n">share_id</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;share_id&quot;</span><span class="p">)</span>
         <span class="n">priority</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;config value &#39;priority&#39; takes no effect for job queues without a scheduling policy &quot;</span>
-                <span class="s2">&quot;(implied by &#39;share_id&#39; not being set)&quot;</span>
-            <span class="p">)</span>
 
         <span class="n">name_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">share_id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">name_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;AWS Batch only supports &lt;= 5 roles (NodeGroups).&quot;</span>
+            <span class="s2">&quot; See: https://docs.aws.amazon.com/batch/latest/userguide/multi-node-parallel-jobs.html#mnp-node-groups&quot;</span>
+        <span class="p">)</span>
 
         <span class="c1"># map any local images to the remote image</span>
         <span class="n">images_to_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun_push_images</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span> <span class="n">cfg</span><span class="p">))</span>
 
         <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
-
+        <span class="n">node_idx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">replica_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="p">):</span>
-                <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
-                <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
-                    <span class="n">img_root</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-                    <span class="n">app_id</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                    <span class="n">replica_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
-                    <span class="n">rank0_env</span><span class="o">=</span><span class="p">(</span>
-                        <span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span>
-                        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span>
-                        <span class="k">else</span> <span class="s2">&quot;AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS&quot;</span>
-                    <span class="p">),</span>
-                <span class="p">)</span>
-                <span class="n">replica_role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
-                <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_ROLE_IDX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">)</span>
-                <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_ROLE_NAME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_REPLICA_IDX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="c1"># AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS is only</span>
-                    <span class="c1"># available on the child workers so we set the address to</span>
-                    <span class="c1"># localhost for rank0.</span>
-                    <span class="c1"># See: https://docs.aws.amazon.com/batch/latest/userguide/job_env_vars.html</span>
-                    <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
-                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_role_to_node_properties</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">))</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">macros</span><span class="o">.</span><span class="n">Values</span><span class="p">(</span>
+                <span class="n">img_root</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">app_id</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="c1"># this only resolves for role.args</span>
+                <span class="c1"># if the entrypoint is run with sh or bash</span>
+                <span class="c1"># but won&#39;t actually work for macros in env vars</span>
+                <span class="n">replica_id</span><span class="o">=</span><span class="s2">&quot;$AWS_BATCH_JOB_NODE_INDEX&quot;</span><span class="p">,</span>
+                <span class="n">rank0_env</span><span class="o">=</span><span class="s2">&quot;AWS_BATCH_JOB_MAIN_NODE_PRIVATE_IPV4_ADDRESS&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">ENV_TORCHX_ROLE_IDX</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">)</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">ENV_TORCHX_ROLE_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_role_to_node_properties</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">start_idx</span><span class="o">=</span><span class="n">node_idx</span><span class="p">))</span>
+            <span class="n">node_idx</span> <span class="o">+=</span> <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span>
 
         <span class="n">job_def</span> <span class="o">=</span> <span class="p">{</span>
             <span class="o">**</span><span class="p">{</span>
                 <span class="s2">&quot;jobDefinitionName&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
                 <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;multinode&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;nodeProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;numNodes&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
+                    <span class="s2">&quot;numNodes&quot;</span><span class="p">:</span> <span class="n">node_idx</span><span class="p">,</span>
                     <span class="s2">&quot;mainNode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                     <span class="s2">&quot;nodeRangeProperties&quot;</span><span class="p">:</span> <span class="n">nodes</span><span class="p">,</span>
                 <span class="p">},</span>
@@ -823,11 +901,7 @@
                     <span class="n">TAG_TORCHX_USER</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">},</span>
-            <span class="o">**</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;schedulingPriority&quot;</span><span class="p">:</span> <span class="n">priority</span> <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">}</span>
-                <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="p">{}</span>
-            <span class="p">),</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">&quot;schedulingPriority&quot;</span><span class="p">:</span> <span class="n">priority</span><span class="p">}</span> <span class="k">if</span> <span class="n">share_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
         <span class="p">}</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="n">BatchJob</span><span class="p">(</span>
@@ -838,10 +912,6 @@
             <span class="n">images_to_push</span><span class="o">=</span><span class="n">images_to_push</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">AppDryRunInfo</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Skip validation step</span>
-        <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_cancel_existing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_id</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
@@ -868,6 +938,7 @@
         <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
             <span class="s2">&quot;priority&quot;</span><span class="p">,</span>
             <span class="n">type_</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The scheduling priority for the job within the context of share_id. &quot;</span>
             <span class="s2">&quot;Higher number (between 0 and 9999) means higher priority. &quot;</span>
             <span class="s2">&quot;This will only take effect if the job queue has a scheduling policy.&quot;</span><span class="p">,</span>
@@ -904,31 +975,36 @@
         <span class="k">if</span> <span class="n">job</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="c1"># TODO: role statuses</span>
-
-        <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;nodeProperties&quot;</span><span class="p">][</span><span class="s2">&quot;nodeRangeProperties&quot;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
-            <span class="n">container</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span>
+        <span class="c1"># each AppDef.role maps to a batch NodeGroup</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">node_properties</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;nodeProperties&quot;</span><span class="p">]</span>
+        <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">node_properties</span><span class="p">[</span><span class="s2">&quot;numNodes&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">node_group</span> <span class="ow">in</span> <span class="n">node_properties</span><span class="p">[</span><span class="s2">&quot;nodeRangeProperties&quot;</span><span class="p">]:</span>
+            <span class="n">container</span> <span class="o">=</span> <span class="n">node_group</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span>
             <span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">container</span><span class="p">[</span><span class="s2">&quot;environment&quot;</span><span class="p">]}</span>
-            <span class="n">role</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_ROLE_NAME&quot;</span><span class="p">]</span>
-            <span class="n">replica_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_REPLICA_IDX&quot;</span><span class="p">])</span>
 
-            <span class="k">if</span> <span class="n">role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
-                <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
-                    <span class="n">num_replicas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">container</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span>
+            <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Role</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ENV_TORCHX_ROLE_NAME</span><span class="p">,</span> <span class="n">DEFAULT_ROLE_NAME</span><span class="p">),</span>
+                    <span class="n">num_replicas</span><span class="o">=</span><span class="n">_parse_num_replicas</span><span class="p">(</span>
+                        <span class="n">node_group</span><span class="p">[</span><span class="s2">&quot;targetNodes&quot;</span><span class="p">],</span> <span class="n">num_nodes</span>
+                    <span class="p">),</span>
                     <span class="n">image</span><span class="o">=</span><span class="n">container</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
-                    <span class="n">entrypoint</span><span class="o">=</span><span class="n">container</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="n">args</span><span class="o">=</span><span class="n">container</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span>
+                    <span class="n">entrypoint</span><span class="o">=</span><span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">command</span> <span class="k">else</span> <span class="n">MISSING</span><span class="p">,</span>
+                    <span class="n">args</span><span class="o">=</span><span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
                     <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+                    <span class="n">resource</span><span class="o">=</span><span class="n">resource_from_resource_requirements</span><span class="p">(</span>
+                        <span class="n">container</span><span class="p">[</span><span class="s2">&quot;resourceRequirements&quot;</span><span class="p">]</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
-            <span class="n">roles</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">DescribeAppResponse</span><span class="p">(</span>
             <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
             <span class="n">state</span><span class="o">=</span><span class="n">JOB_STATE</span><span class="p">[</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]],</span>
-            <span class="n">roles</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="n">roles</span><span class="o">=</span><span class="n">roles</span><span class="p">,</span>
+            <span class="c1"># TODO: role statuses</span>
             <span class="n">ui_url</span><span class="o">=</span><span class="n">_job_ui_url</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="s2">&quot;jobArn&quot;</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
@@ -949,13 +1025,21 @@
         <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">job</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
-        <span class="n">nodes</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;nodeProperties&quot;</span><span class="p">][</span><span class="s2">&quot;nodeRangeProperties&quot;</span><span class="p">]</span>
+        <span class="n">node_properties</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="s2">&quot;nodeProperties&quot;</span><span class="p">]</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">node_properties</span><span class="p">[</span><span class="s2">&quot;nodeRangeProperties&quot;</span><span class="p">]</span>
+
         <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># finds the global idx of the node that matches the role&#39;s k&#39;th replica</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
             <span class="n">container</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span>
             <span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">container</span><span class="p">[</span><span class="s2">&quot;environment&quot;</span><span class="p">]}</span>
-            <span class="n">node_role</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_ROLE_NAME&quot;</span><span class="p">]</span>
-            <span class="n">replica_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_REPLICA_IDX&quot;</span><span class="p">])</span>
+            <span class="n">node_role</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ENV_TORCHX_ROLE_NAME</span><span class="p">,</span> <span class="n">DEFAULT_ROLE_NAME</span><span class="p">)</span>
+            <span class="n">start_idx</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_parse_start_and_end_idx</span><span class="p">(</span>
+                <span class="n">node</span><span class="p">[</span><span class="s2">&quot;targetNodes&quot;</span><span class="p">],</span>
+                <span class="n">node_properties</span><span class="p">[</span><span class="s2">&quot;numNodes&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">replica_id</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">k</span>
+
             <span class="k">if</span> <span class="n">role_name</span> <span class="o">==</span> <span class="n">node_role</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="n">replica_id</span><span class="p">:</span>
                 <span class="k">break</span>
 
@@ -974,7 +1058,13 @@
             <span class="n">container</span> <span class="o">=</span> <span class="n">attempt</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span>
             <span class="n">stream_name</span> <span class="o">=</span> <span class="n">container</span><span class="p">[</span><span class="s2">&quot;logStreamName&quot;</span><span class="p">]</span>
 
-        <span class="n">iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_events</span><span class="p">(</span><span class="n">stream_name</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="n">since</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">)</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_events</span><span class="p">(</span>
+            <span class="n">app_id</span><span class="p">,</span>
+            <span class="n">stream_name</span><span class="p">,</span>
+            <span class="n">since</span><span class="o">=</span><span class="n">since</span><span class="p">,</span>
+            <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span>
+            <span class="n">should_tail</span><span class="o">=</span><span class="n">should_tail</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">regex</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filter_regex</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">iterator</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1004,7 +1094,6 @@
             <span class="c1"># describe-jobs API can take up to 100 jobIds</span>
             <span class="n">PaginationConfig</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;MaxItems&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
         <span class="p">):</span>
-
             <span class="c1"># torchx.pytorch.org/version tag is used to filter torchx jobs</span>
             <span class="c1"># list_jobs() API only returns a job summary which does not include the job&#39;s tag</span>
             <span class="c1"># so we need to call the describe_jobs API.</span>
@@ -1033,21 +1122,23 @@
 
     <span class="k">def</span> <span class="nf">_stream_events</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">stream_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">since</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">until</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">should_tail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-
         <span class="n">next_token</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">last_event_timestamp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># in millis since epoch</span>
 
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="n">next_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">args</span><span class="p">[</span><span class="s2">&quot;nextToken&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_token</span>
             <span class="k">if</span> <span class="n">until</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;endTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">until</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;endTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_millis_since_epoch</span><span class="p">(</span><span class="n">until</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">since</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;startTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">since</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;startTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_millis_since_epoch</span><span class="p">(</span><span class="n">since</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_client</span><span class="o">.</span><span class="n">get_log_events</span><span class="p">(</span>
                     <span class="n">logGroupName</span><span class="o">=</span><span class="s2">&quot;/aws/batch/job&quot;</span><span class="p">,</span>
@@ -1059,10 +1150,18 @@
             <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_client</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ResourceNotFoundException</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># noqa: B901</span>
             <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;nextForwardToken&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">next_token</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">until</span> <span class="ow">or</span> <span class="n">last_event_timestamp</span> <span class="o">&lt;</span> <span class="n">to_millis_since_epoch</span><span class="p">(</span><span class="n">until</span><span class="p">)</span>
+                <span class="p">)</span> <span class="ow">and</span> <span class="n">should_tail</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_terminal</span><span class="p">(</span><span class="n">none_throws</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">app_id</span><span class="p">))</span><span class="o">.</span><span class="n">state</span><span class="p">):</span>
+                        <span class="n">since</span> <span class="o">=</span> <span class="n">to_datetime</span><span class="p">(</span><span class="n">last_event_timestamp</span><span class="p">)</span>
+                        <span class="k">continue</span>
                 <span class="k">break</span>
+
             <span class="n">next_token</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;nextForwardToken&quot;</span><span class="p">]</span>
 
             <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">]:</span>
+                <span class="n">last_event_timestamp</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span>
                 <span class="k">yield</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
 
 

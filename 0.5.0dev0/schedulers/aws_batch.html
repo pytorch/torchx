@@ -444,7 +444,7 @@ handling.</p>
             The username to tag the job with. `getpass.getuser()` if not specified.
         share_id=SHARE_ID (str, None)
             The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
-        priority=PRIORITY (int, None)
+        priority=PRIORITY (int, 0)
             The scheduling priority for the job within the context of share_id. Higher number (between 0 and 9999) means higher priority. This will only take effect if the job queue has a scheduling policy.
         image_repo=IMAGE_REPO (str, None)
             (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
