@@ -351,7 +351,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name"
         namespace = "default"
-        podgroup = create_pod_group(app.roles[0], namespace, unique_app_name)
+        podgroup = create_pod_group(app, app.roles[0], namespace, unique_app_name)
 
         pod_group_name = unique_app_name + "-" + cleanup_str(app.roles[0].name) + "-pg"
         expected_pod_group: Dict[str, Any] = {
@@ -361,6 +361,9 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 "name": pod_group_name,
                 "namespace": namespace,
                 "labels": {
+                    "app.kubernetes.io/name": "test",
+                    "app.kubernetes.io/managed-by": "torchx.pytorch.org",
+                    "app.kubernetes.io/instance": "app-name",
                     "appwrapper.mcad.ibm.com": unique_app_name,
                 },
             },
@@ -398,10 +401,11 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             V1VolumeMount,
         )
 
+        app = _test_app()
         service_name = "test_service"
         service_port = "1234"
         namespace = "default"
-        test_service = mcad_svc(service_name, namespace, service_port)
+        test_service = mcad_svc(app, service_name, namespace, service_port)
 
         want = V1Service(
             api_version="v1",
@@ -409,6 +413,11 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             metadata=V1ObjectMeta(
                 name=service_name,
                 namespace=namespace,
+                labels={
+                    "app.kubernetes.io/name": "test",
+                    "app.kubernetes.io/managed-by": "torchx.pytorch.org",
+                    "app.kubernetes.io/instance": "test_service",
+                },
             ),
             spec=V1ServiceSpec(
                 cluster_ip="None",
@@ -514,6 +523,9 @@ spec:
         kind: PodGroup
         metadata:
           labels:
+            app.kubernetes.io/instance: app-name
+            app.kubernetes.io/managed-by: torchx.pytorch.org
+            app.kubernetes.io/name: test
             appwrapper.mcad.ibm.com: app-name
           name: app-name-trainerfoo-pg
           namespace: test_namespace
@@ -527,6 +539,9 @@ spec:
           annotations:
             sidecar.istio.io/inject: 'false'
           labels:
+            app.kubernetes.io/instance: app-name
+            app.kubernetes.io/managed-by: torchx.pytorch.org
+            app.kubernetes.io/name: test
             pod-group.scheduling.sigs.k8s.io: app-name-trainerfoo-pg
             torchx.pytorch.org/app-name: test
             torchx.pytorch.org/replica-id: '0'
@@ -598,6 +613,10 @@ spec:
         apiVersion: v1
         kind: Service
         metadata:
+          labels:
+            app.kubernetes.io/instance: app-name
+            app.kubernetes.io/managed-by: torchx.pytorch.org
+            app.kubernetes.io/name: test
           name: app-name
           namespace: test_namespace
         spec:

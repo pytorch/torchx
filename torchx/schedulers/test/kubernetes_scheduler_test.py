@@ -276,6 +276,9 @@ spec:
         annotations:
           sidecar.istio.io/inject: 'false'
         labels:
+          app.kubernetes.io/instance: app-name-42
+          app.kubernetes.io/managed-by: torchx.pytorch.org
+          app.kubernetes.io/name: test
           torchx.pytorch.org/app-name: test
           torchx.pytorch.org/replica-id: '0'
           torchx.pytorch.org/role-index: '0'

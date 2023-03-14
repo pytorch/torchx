@@ -141,12 +141,15 @@ TASK_STATE: Dict[str, ReplicaState] = {
     "Unknown": ReplicaState.UNKNOWN,
 }
 
-# TO DO update to standards
 LABEL_VERSION = "torchx.pytorch.org/version"
 LABEL_APP_NAME = "torchx.pytorch.org/app-name"
 LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
 LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
 LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
+
+LABEL_KUBE_APP_NAME = "app.kubernetes.io/name"
+LABEL_ORGANIZATION = "app.kubernetes.io/managed-by"
+LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
 
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
@@ -353,8 +356,13 @@ def role_to_pod(
     )
 
 
-def create_pod_group(role: Role, namespace: str, app_id: str) -> "Dict[str, Any]":
+def create_pod_group(
+    app: AppDef, role: Role, namespace: str, app_id: str
+) -> "Dict[str, Any]":
     pod_group_name = app_id + "-" + cleanup_str(role.name) + "-pg"
+
+    labels = object_labels(app, app_id)
+    labels.update({"appwrapper.mcad.ibm.com": app_id})
 
     pod_group: Dict[str, Any] = {
         "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
@@ -362,9 +370,7 @@ def create_pod_group(role: Role, namespace: str, app_id: str) -> "Dict[str, Any]
         "metadata": {
             "name": pod_group_name,
             "namespace": namespace,
-            "labels": {
-                "appwrapper.mcad.ibm.com": app_id,
-            },
+            "labels": labels,
         },
         "spec": {
             "minMember": role.num_replicas,
@@ -378,7 +384,9 @@ def create_pod_group(role: Role, namespace: str, app_id: str) -> "Dict[str, Any]
     return genericitem_pod_group
 
 
-def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
+def mcad_svc(
+    app: AppDef, svc_name: str, namespace: str, service_port: str
+) -> "V1Service":
     from kubernetes.client.models import (  # noqa: F401, F811
         V1Container,
         V1ContainerPort,
@@ -399,12 +407,15 @@ def mcad_svc(svc_name: str, namespace: str, service_port: str) -> "V1Service":
         V1VolumeMount,
     )
 
+    labels = object_labels(app, svc_name)
+
     return V1Service(
         api_version="v1",
         kind="Service",
         metadata=V1ObjectMeta(
             name=svc_name,
             namespace=namespace,
+            labels=labels,
         ),
         spec=V1ServiceSpec(
             cluster_ip="None",
@@ -478,7 +489,9 @@ def app_to_resource(
 
     if coscheduler_name is not None:
         for role_idx, role in enumerate(app.roles):
-            genericitem_pod_group = create_pod_group(role, namespace, unique_app_id)
+            genericitem_pod_group = create_pod_group(
+                app, role, namespace, unique_app_id
+            )
             genericitems.append(genericitem_pod_group)
 
     for role_idx, role in enumerate(app.roles):
@@ -542,7 +555,9 @@ MCAD currently does not support retries. Role {role.name} configured with restar
 
     service_port = get_port_for_service(app)
 
-    svc_obj = mcad_svc(unique_app_id, namespace, service_port)
+    svc_obj = mcad_svc(
+        app=app, svc_name=unique_app_id, namespace=namespace, service_port=service_port
+    )
 
     genericitem_svc: Dict[str, Any] = {
         "replicas": 1,
@@ -1136,7 +1151,17 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADSchedule
     )
 
 
-# TODO update to Kubernetes standard labels (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/)
+def object_labels(
+    app: AppDef,
+    app_id: str,
+) -> Dict[str, str]:
+    return {
+        LABEL_KUBE_APP_NAME: app.name,
+        LABEL_ORGANIZATION: "torchx.pytorch.org",
+        LABEL_UNIQUE_NAME: app_id,
+    }
+
+
 def pod_labels(
     app: AppDef,
     role_idx: int,
@@ -1145,7 +1170,8 @@ def pod_labels(
     coscheduler_name: Optional[str],
     app_id: str,
 ) -> Dict[str, str]:
-    labels = {
+    labels = object_labels(app, app_id)
+    pod_labels = {
         LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
         LABEL_ROLE_INDEX: str(role_idx),
@@ -1154,5 +1180,7 @@ def pod_labels(
     }
     if coscheduler_name is not None:
         pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
-        labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
+        pod_labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
+
+    labels.update(pod_labels)
     return labels
