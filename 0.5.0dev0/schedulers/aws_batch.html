@@ -433,7 +433,7 @@ $<span class="w"> </span>torchx<span class="w"> </span>status<span class="w"> </
 handling.</p>
 <p><strong>Config Options</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
-        queue=QUEUE,[user=USER],[share_id=SHARE_ID],[priority=PRIORITY],[image_repo=IMAGE_REPO]
+        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[image_repo=IMAGE_REPO]
 
     required arguments:
         queue=QUEUE (str)
@@ -442,6 +442,8 @@ handling.</p>
     optional arguments:
         user=USER (str, runner)
             The username to tag the job with. `getpass.getuser()` if not specified.
+        privileged=PRIVILEGED (bool, False)
+            If true runs the container with elevated permissions. Equivalent to running with `docker run --privileged`.
         share_id=SHARE_ID (str, None)
             The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
         priority=PRIORITY (int, 0)
