@@ -11,8 +11,9 @@ from typing import cast, DefaultDict, Dict, Iterable, Mapping, Optional, Tuple
 from unittest import mock, TestCase
 from unittest.mock import patch
 
-import torchx.tracker as tracker
 import torchx.tracker.api as api
+
+from torchx.tracker import app_run_from_env
 from torchx.tracker.api import (
     AppRun,
     Lineage,
@@ -119,9 +120,19 @@ class AppRunApiTest(TestCase):
             "torchx.tracker.api.load_group",
             return_value={"tracker1": tracker_factory},
         ):
-            app_run = tracker.app_run_from_env()
+            app_run = app_run_from_env()
             self.assertEqual(app_run.id, self.run_id)
-            self.assertEqual(TestTrackerBackend, type(app_run.backends[0]))
+            trackers = list(app_run.backends)
+            self.assertEqual(1, len(trackers))
+
+            tracker = trackers[0]
+            self.assertEqual(TestTrackerBackend, type(tracker))
+
+            sources = list(tracker.sources("run_id"))
+            self.assertEqual(1, len(sources))
+
+            tracker_source = sources[0]
+            self.assertEqual("parent_run_id", tracker_source.source_run_id)
 
     def test_get_exierment_run_id(self) -> None:
         self.assertEqual(self.run_id, self.model_run.job_id())
@@ -206,7 +217,7 @@ class TrackerFactoryMethodsTest(TestCase):
             tracker = cast(TestTrackerBackend, list(trackers)[0])
             self.assertEqual("myconfig.txt", tracker.config_path)
 
-    def test_trackerfrom_environ_that_wasnt_setup(self) -> None:
+    def test_tracker_from_environ_that_wasnt_setup(self) -> None:
         trackers = api.trackers_from_environ()
         self.assertEqual(len(list(trackers)), 0)
 

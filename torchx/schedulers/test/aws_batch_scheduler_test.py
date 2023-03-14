@@ -139,6 +139,13 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             info.request.job_def["tags"],
         )
 
+    def test_submit_dryrun_privileged(self) -> None:
+        cfg = AWSBatchOpts({"queue": "ignored_in_test", "privileged": True})
+        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
+        self.assertEqual(1, len(node_groups))
+        self.assertTrue(node_groups[0]["container"]["privileged"])
+
     @mock_rand()
     def test_submit_dryrun(self) -> None:
         cfg = AWSBatchOpts({"queue": "testqueue", "user": "testuser"})
@@ -177,6 +184,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                                     {"name": "TORCHX_ROLE_IDX", "value": "0"},
                                     {"name": "TORCHX_ROLE_NAME", "value": "trainer"},
                                 ],
+                                "privileged": False,
                                 "resourceRequirements": [
                                     {"type": "VCPU", "value": "2"},
                                     {"type": "MEMORY", "value": "3000"},
@@ -540,7 +548,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         app = _test_app()
         cfg = AWSBatchOpts({"queue": "testqueue"})
 
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "testqueue:app-name-42")
         self.assertEqual(scheduler._client.register_job_definition.call_count, 1)

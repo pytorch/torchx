@@ -281,7 +281,7 @@ class AppRun:
             for tracker in trackers:
                 tracker.add_source(torchx_job_id, parent_run_id, artifact_name=None)
 
-        return AppRun(id=torchx_job_id, backends=trackers_from_environ())
+        return AppRun(id=torchx_job_id, backends=trackers)
 
     def add_metadata(self, **kwargs: object) -> None:
         """Stores metadata for the current run"""

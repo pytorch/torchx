@@ -64,6 +64,7 @@ from torchx.schedulers.api import (
     Scheduler,
     Stream,
 )
+
 from torchx.schedulers.devices import get_device_mounts
 from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
@@ -167,7 +168,9 @@ def resource_from_resource_requirements(
     )
 
 
-def _role_to_node_properties(role: Role, start_idx: int) -> Dict[str, object]:
+def _role_to_node_properties(
+    role: Role, start_idx: int, privileged: bool = False
+) -> Dict[str, object]:
     role.mounts += get_device_mounts(role.resource.devices)
 
     mount_points = []
@@ -227,6 +230,7 @@ def _role_to_node_properties(role: Role, start_idx: int) -> Dict[str, object]:
         "command": [role.entrypoint] + role.args,
         "image": role.image,
         "environment": [{"name": k, "value": v} for k, v in role.env.items()],
+        "privileged": privileged,
         "resourceRequirements": resource_requirements_from_resource(role.resource),
         "linuxParameters": {
             # To support PyTorch dataloaders we need to set /dev/shm to larger
@@ -337,6 +341,7 @@ class AWSBatchOpts(TypedDict, total=False):
     queue: str
     user: str
     image_repo: Optional[str]
+    privileged: bool
     share_id: Optional[str]
     priority: int
 
@@ -453,7 +458,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
 
         share_id = cfg.get("share_id")
-        priority = cfg.get("priority")
+        priority = cfg["priority"]
 
         name_suffix = f"-{share_id}" if share_id is not None else ""
         name = make_unique(f"{app.name}{name_suffix}")
@@ -482,7 +487,13 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             role.env[ENV_TORCHX_ROLE_IDX] = str(role_idx)
             role.env[ENV_TORCHX_ROLE_NAME] = str(role.name)
 
-            nodes.append(_role_to_node_properties(role, start_idx=node_idx))
+            nodes.append(
+                _role_to_node_properties(
+                    role,
+                    start_idx=node_idx,
+                    privileged=cfg["privileged"],
+                )
+            )
             node_idx += role.num_replicas
 
         job_def = {
@@ -533,6 +544,13 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             type_=str,
             default=getpass.getuser(),
             help="The username to tag the job with. `getpass.getuser()` if not specified.",
+        )
+        opts.add(
+            "privileged",
+            type_=bool,
+            default=False,
+            help="If true runs the container with elevated permissions."
+            " Equivalent to running with `docker run --privileged`.",
         )
         opts.add(
             "share_id",
