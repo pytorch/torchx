@@ -554,6 +554,9 @@
 <span class="n">LABEL_ROLE_INDEX</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/role-index&quot;</span>
 <span class="n">LABEL_ROLE_NAME</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/role-name&quot;</span>
 <span class="n">LABEL_REPLICA_ID</span> <span class="o">=</span> <span class="s2">&quot;torchx.pytorch.org/replica-id&quot;</span>
+<span class="n">LABEL_KUBE_APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;app.kubernetes.io/name&quot;</span>
+<span class="n">LABEL_ORGANIZATION</span> <span class="o">=</span> <span class="s2">&quot;app.kubernetes.io/managed-by&quot;</span>
+<span class="n">LABEL_UNIQUE_NAME</span> <span class="o">=</span> <span class="s2">&quot;app.kubernetes.io/instance&quot;</span>
 
 <span class="n">ANNOTATION_ISTIO_SIDECAR</span> <span class="o">=</span> <span class="s2">&quot;sidecar.istio.io/inject&quot;</span>
 
@@ -767,7 +770,15 @@
                 <span class="n">replica_role</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;TORCHX_RANK0_HOST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
 
             <span class="n">pod</span> <span class="o">=</span> <span class="n">role_to_pod</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">replica_role</span><span class="p">,</span> <span class="n">service_account</span><span class="p">)</span>
-            <span class="n">pod</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">))</span>
+            <span class="n">pod</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">pod_labels</span><span class="p">(</span>
+                    <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span>
+                    <span class="n">role_idx</span><span class="o">=</span><span class="n">role_idx</span><span class="p">,</span>
+                    <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
+                    <span class="n">replica_id</span><span class="o">=</span><span class="n">replica_id</span><span class="p">,</span>
+                    <span class="n">app_id</span><span class="o">=</span><span class="n">unique_app_id</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">task</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
@@ -1168,7 +1179,7 @@
 
 
 <div class="viewcode-block" id="pod_labels"><a class="viewcode-back" href="../../../schedulers/kubernetes.html#torchx.schedulers.kubernetes_scheduler.pod_labels">[docs]</a><span class="k">def</span> <span class="nf">pod_labels</span><span class="p">(</span>
-    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">LABEL_VERSION</span><span class="p">:</span> <span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
@@ -1176,6 +1187,9 @@
         <span class="n">LABEL_ROLE_INDEX</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">),</span>
         <span class="n">LABEL_ROLE_NAME</span><span class="p">:</span> <span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="n">LABEL_REPLICA_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
+        <span class="n">LABEL_KUBE_APP_NAME</span><span class="p">:</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">LABEL_ORGANIZATION</span><span class="p">:</span> <span class="s2">&quot;torchx.pytorch.org&quot;</span><span class="p">,</span>
+        <span class="n">LABEL_UNIQUE_NAME</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span>
     <span class="p">}</span></div>
 </pre></div>
 
