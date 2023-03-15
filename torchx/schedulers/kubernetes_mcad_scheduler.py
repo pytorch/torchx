@@ -171,6 +171,7 @@ def role_to_pod(
     image_secret: Optional[str],
     coscheduler_name: Optional[str],
     priority_class_name: Optional[str],
+    network: Optional[str],
 ) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
@@ -329,6 +330,20 @@ def role_to_pod(
 
     # Get correct formatting for image secret
     imagesecret = V1LocalObjectReference(name=image_secret)
+    metadata=V1ObjectMeta(
+        name=name,
+        annotations={
+            # Disable the istio sidecar as it prevents the containers from
+            # exiting once finished.
+            ANNOTATION_ISTIO_SIDECAR: "false",
+            #"k8s.v1.cni.cncf.io/networks": network,
+        },
+        labels={},
+        namespace=namespace,
+    )
+    if network is not None:
+        metadata.annotations.update({"k8s.v1.cni.cncf.io/networks": network})
+
     return V1Pod(
         api_version="v1",
         kind="Pod",
@@ -344,16 +359,7 @@ def role_to_pod(
             scheduler_name=coscheduler_name,
             priority_class_name=priority_class_name,
         ),
-        metadata=V1ObjectMeta(
-            name=name,
-            annotations={
-                # Disable the istio sidecar as it prevents the containers from
-                # exiting once finished.
-                ANNOTATION_ISTIO_SIDECAR: "false",
-            },
-            labels={},
-            namespace=namespace,
-        ),
+        metadata=metadata,
     )
 
 
@@ -476,6 +482,7 @@ def app_to_resource(
     image_secret: Optional[str],
     coscheduler_name: Optional[str],
     priority_class_name: Optional[str],
+    network: Optional[str],
     priority: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
@@ -523,6 +530,7 @@ def app_to_resource(
                 image_secret,
                 coscheduler_name,
                 priority_class_name,
+                network,
             )
             pod.metadata.labels.update(
                 pod_labels(
@@ -739,6 +747,7 @@ class KubernetesMCADOpts(TypedDict, total=False):
     priority_class_name: Optional[str]
     image_secret: Optional[str]
     coscheduler_name: Optional[str]
+    network: Optional[str]
 
 
 class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts]):
@@ -769,6 +778,10 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
     1. PodGroups and Coscheduling: https://github.com/kubernetes-sigs/scheduler-plugins/tree/release-1.24/pkg/coscheduling
     2. Installing Secondary schedulers: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/doc/install.md
     3. PodGroup CRD: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/config/crd/bases/scheduling.sigs.k8s.io_podgroups.yaml
+
+    In order to use the network option, the Kubernetes cluster must have multus installed.
+    For multus installation instructions and how to set up a network custom network attachment definition, see:
+    https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md
 
     **Config Options**
 
@@ -942,6 +955,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
            priority_class_name, str 
         ), "priority_class_name must be a string"
 
+        network = cfg.get("network")
+        assert network is None or isinstance(
+           network, str
+        ), "network must be a string" 
+
         resource = app_to_resource(
             app=app,
             namespace=namespace,
@@ -949,6 +967,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             image_secret=image_secret,
             coscheduler_name=coscheduler_name,
             priority_class_name=priority_class_name,
+            network=network,
             priority=priority,
         )
 
@@ -1014,6 +1033,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             "coscheduler_name",
             type_=str,
             help="Option to run TorchX-MCAD with a co-scheduler. User must provide the co-scheduler name.",
+        )
+        opts.add(
+            "network",
+            type_=str,
+            help="Name of additional pod-to-pod network beyond default Kubernetes network" 
         )
         return opts
 
