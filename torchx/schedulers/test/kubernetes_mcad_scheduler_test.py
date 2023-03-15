@@ -254,7 +254,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         image_secret = "secret-name"
         coscheduler_name = "test-co-scheduler-name"
         priority_class_name = "default-priority"
-        network = "test-network-conf" 
+        network = "test-network-conf"
         pod = role_to_pod(
             "app-name-0",
             unique_app_name,
@@ -346,7 +346,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             metadata=V1ObjectMeta(
                 annotations={
                     "sidecar.istio.io/inject": "false",
-                    "k8s.v1.cni.cncf.io/networks": "test-network-conf",  
+                    "k8s.v1.cni.cncf.io/networks": "test-network-conf",
                 },
                 labels={},
                 name="app-name-0",
@@ -1408,7 +1408,7 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
-            priority_class_name="", 
+            priority_class_name="",
             network="",
         )
         self.assertEqual(
@@ -1533,7 +1533,9 @@ spec:
         )
 
         info = scheduler._submit_dryrun(app, cfg)
-        self.assertIn("'priority_class_name': 'test-priority'", str(info.request.resource))
+        self.assertIn(
+            "'priority_class_name': 'test-priority'", str(info.request.resource)
+        )
 
         del cfg["priority_class_name"]
         info = scheduler._submit_dryrun(app, cfg)
@@ -1551,7 +1553,10 @@ spec:
         )
 
         info = scheduler._submit_dryrun(app, cfg)
-        self.assertIn("'k8s.v1.cni.cncf.io/networks': 'test-network-conf'", str(info.request.resource))
+        self.assertIn(
+            "'k8s.v1.cni.cncf.io/networks': 'test-network-conf'",
+            str(info.request.resource),
+        )
 
         del cfg["network"]
         info = scheduler._submit_dryrun(app, cfg)
