@@ -162,7 +162,6 @@ def sanitize_for_serialization(obj: object) -> object:
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
 
-
 def role_to_pod(
     name: str,
     unique_app_id: str,
@@ -171,6 +170,7 @@ def role_to_pod(
     service_account: Optional[str],
     image_secret: Optional[str],
     coscheduler_name: Optional[str],
+    priority_class_name: Optional[str],
 ) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
@@ -342,6 +342,7 @@ def role_to_pod(
             volumes=volumes,
             node_selector=node_selector,
             scheduler_name=coscheduler_name,
+            priority_class_name=priority_class_name,
         ),
         metadata=V1ObjectMeta(
             name=name,
@@ -474,6 +475,7 @@ def app_to_resource(
     service_account: Optional[str],
     image_secret: Optional[str],
     coscheduler_name: Optional[str],
+    priority_class_name: Optional[str],
     priority: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
@@ -520,6 +522,7 @@ def app_to_resource(
                 service_account,
                 image_secret,
                 coscheduler_name,
+                priority_class_name,
             )
             pod.metadata.labels.update(
                 pod_labels(
@@ -733,6 +736,7 @@ class KubernetesMCADOpts(TypedDict, total=False):
     image_repo: Optional[str]
     service_account: Optional[str]
     priority: Optional[int]
+    priority_class_name: Optional[str]
     image_secret: Optional[str]
     coscheduler_name: Optional[str]
 
@@ -933,12 +937,18 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             coscheduler_name, str
         ), "coscheduler_name must be a string"
 
+        priority_class_name = cfg.get("priority_class_name")
+        assert priority_class_name is None or isinstance(
+           priority_class_name, str 
+        ), "priority_class_name must be a string"
+
         resource = app_to_resource(
             app=app,
             namespace=namespace,
             service_account=service_account,
             image_secret=image_secret,
             coscheduler_name=coscheduler_name,
+            priority_class_name=priority_class_name,
             priority=priority,
         )
 
@@ -989,6 +999,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             "priority",
             type_=int,
             help="The priority level to set on the job specs. Higher integer value means higher priority",
+        )
+        opts.add(
+            "priority_class_name",
+            type_=str,
+            help="Pod specific priority level. Check with your Kubernetes cluster admin if Priority classes are defined on your system",
         )
         opts.add(
             "image_secret",

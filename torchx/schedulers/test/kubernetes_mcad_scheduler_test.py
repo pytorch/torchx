@@ -176,6 +176,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 service_account=None,
                 image_secret=None,
                 coscheduler_name=None,
+                priority_class_name=None,
                 priority=0,
             )
             actual_cmd = (
@@ -202,6 +203,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             service_account=None,
             image_secret=None,
             coscheduler_name=None,
+            priority_class_name=None,
             priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
@@ -220,6 +222,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             service_account=None,
             image_secret=None,
             coscheduler_name=None,
+            priority_class_name=None,
             priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
@@ -247,6 +250,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         unique_app_name = "app-name"
         image_secret = "secret-name"
         coscheduler_name = "test-co-scheduler-name"
+        priority_class_name = "default-priority"
         pod = role_to_pod(
             "app-name-0",
             unique_app_name,
@@ -255,6 +259,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             service_account="srvacc",
             image_secret=image_secret,
             coscheduler_name=coscheduler_name,
+            priority_class_name=priority_class_name,
         )
         imagesecret = V1LocalObjectReference(name=image_secret)
 
@@ -331,6 +336,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 ],
                 scheduler_name=coscheduler_name,
                 node_selector={},
+                priority_class_name=priority_class_name,
             ),
             metadata=V1ObjectMeta(
                 annotations={
@@ -1238,6 +1244,7 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
         )
         self.assertEqual(
             pod.spec.volumes,
@@ -1295,6 +1302,7 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
         )
         self.assertEqual(
             pod.spec.volumes[1:],
@@ -1353,6 +1361,7 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
         )
         self.assertEqual(
             pod.spec.containers[0].resources.limits,
@@ -1388,6 +1397,7 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="", 
         )
         self.assertEqual(
             pod.spec.node_selector,
@@ -1498,6 +1508,24 @@ spec:
         del cfg["priority"]
         info = scheduler._submit_dryrun(app, cfg)
         self.assertIn("'priority': None", str(info.request.resource))
+
+    def test_submit_dryrun_priority_class_name(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("priority_class_name", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = KubernetesMCADOpts(
+            {
+                "namespace": "testnamespace",
+                "priority_class_name": "test-priority",
+            }
+        )
+
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn("'priority_class_name': 'test-priority'", str(info.request.resource))
+
+        del cfg["priority_class_name"]
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn("'priority_class_name': None", str(info.request.resource))
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
     def test_submit(self, create_namespaced_custom_object: MagicMock) -> None:
@@ -1738,6 +1766,7 @@ spec:
                 "image_repo",
                 "service_account",
                 "priority",
+                "priority_class_name",
                 "image_secret",
                 "coscheduler_name",
             },
