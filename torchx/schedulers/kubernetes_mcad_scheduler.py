@@ -162,6 +162,7 @@ def sanitize_for_serialization(obj: object) -> object:
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
 
+
 def role_to_pod(
     name: str,
     unique_app_id: str,
@@ -330,13 +331,12 @@ def role_to_pod(
 
     # Get correct formatting for image secret
     imagesecret = V1LocalObjectReference(name=image_secret)
-    metadata=V1ObjectMeta(
+    metadata = V1ObjectMeta(
         name=name,
         annotations={
             # Disable the istio sidecar as it prevents the containers from
             # exiting once finished.
             ANNOTATION_ISTIO_SIDECAR: "false",
-            #"k8s.v1.cni.cncf.io/networks": network,
         },
         labels={},
         namespace=namespace,
@@ -781,7 +781,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
     The MCAD scheduler supports priorities at the AppWrapper level and optionally at the pod level on clusters with PriorityClass definitions.
     At the AppWrapper level, higher integer values means higher priorities. Kubernetes clusters may have additional priorityClass
-    definitions that can be applied at the pod level. While these different levels of priorities can be set independently, 
+    definitions that can be applied at the pod level. While these different levels of priorities can be set independently,
     it is recommended to check with your Kubernetes cluster admin to see if additional guidance is in place. For more on Kubernetes
     PriorityClass, see: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ .
 
@@ -958,13 +958,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
         priority_class_name = cfg.get("priority_class_name")
         assert priority_class_name is None or isinstance(
-           priority_class_name, str 
+            priority_class_name, str
         ), "priority_class_name must be a string"
 
         network = cfg.get("network")
-        assert network is None or isinstance(
-           network, str
-        ), "network must be a string" 
+        assert network is None or isinstance(network, str), "network must be a string"
 
         resource = app_to_resource(
             app=app,
@@ -1043,7 +1041,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         opts.add(
             "network",
             type_=str,
-            help="Name of additional pod-to-pod network beyond default Kubernetes network" 
+            help="Name of additional pod-to-pod network beyond default Kubernetes network",
         )
         return opts
 
