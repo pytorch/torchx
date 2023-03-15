@@ -452,6 +452,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual("abcd123", cleanup_str("-/_a/b/CD!123!"))
         self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
         self.assertEqual("", cleanup_str("!!!"))
+        self.assertEqual("abcd1234", cleanup_str("1234abcd1234"))
 
     def test_get_port_for_service(self) -> None:
         scheduler = create_scheduler("test")
@@ -514,6 +515,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
 kind: AppWrapper
 metadata:
   name: app-name
+  namespace: test_namespace
 spec:
   priority: 0
   resources:

@@ -447,7 +447,7 @@ def cleanup_str(data: str) -> str:
     if data.startswith("-"):
         data = data[1:]
     pattern = r"[a-z0-9\-]"
-    return "".join(re.findall(pattern, data.lower()))
+    return "".join(re.findall(pattern, data.lower())).lstrip("0123456789")
 
 
 def get_port_for_service(app: AppDef) -> str:
@@ -577,7 +577,7 @@ MCAD currently does not support retries. Role {role.name} configured with restar
     resource: Dict[str, object] = {
         "apiVersion": "mcad.ibm.com/v1beta1",
         "kind": "AppWrapper",
-        "metadata": {"name": unique_app_id},
+        "metadata": {"name": unique_app_id, "namespace": namespace},
         "spec": job_spec,
     }
     return resource
