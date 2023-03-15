@@ -779,6 +779,12 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
     2. Installing Secondary schedulers: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/doc/install.md
     3. PodGroup CRD: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/config/crd/bases/scheduling.sigs.k8s.io_podgroups.yaml
 
+    The MCAD scheduler supports priorities at the AppWrapper level and optionally at the pod level on clusters with PriorityClass definitions.
+    At the AppWrapper level, higher integer values means higher priorities. Kubernetes clusters may have additional priorityClass
+    definitions that can be applied at the pod level. While these different levels of priorities can be set independently, 
+    it is recommended to check with your Kubernetes cluster admin to see if additional guidance is in place. For more on Kubernetes
+    PriorityClass, see: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ .
+
     In order to use the network option, the Kubernetes cluster must have multus installed.
     For multus installation instructions and how to set up a network custom network attachment definition, see:
     https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md
