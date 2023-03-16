@@ -176,6 +176,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 service_account=None,
                 image_secret=None,
                 coscheduler_name=None,
+                priority_class_name=None,
+                network=None,
                 priority=0,
             )
             actual_cmd = (
@@ -202,6 +204,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             service_account=None,
             image_secret=None,
             coscheduler_name=None,
+            priority_class_name=None,
+            network=None,
             priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
@@ -220,6 +224,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             service_account=None,
             image_secret=None,
             coscheduler_name=None,
+            priority_class_name=None,
+            network=None,
             priority=0,
         )
         item0 = resource["spec"]["resources"]["GenericItems"][0]
@@ -247,6 +253,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         unique_app_name = "app-name"
         image_secret = "secret-name"
         coscheduler_name = "test-co-scheduler-name"
+        priority_class_name = "default-priority"
+        network = "test-network-conf"
         pod = role_to_pod(
             "app-name-0",
             unique_app_name,
@@ -255,6 +263,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             service_account="srvacc",
             image_secret=image_secret,
             coscheduler_name=coscheduler_name,
+            priority_class_name=priority_class_name,
+            network=network,
         )
         imagesecret = V1LocalObjectReference(name=image_secret)
 
@@ -331,10 +341,12 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 ],
                 scheduler_name=coscheduler_name,
                 node_selector={},
+                priority_class_name=priority_class_name,
             ),
             metadata=V1ObjectMeta(
                 annotations={
                     "sidecar.istio.io/inject": "false",
+                    "k8s.v1.cni.cncf.io/networks": "test-network-conf",
                 },
                 labels={},
                 name="app-name-0",
@@ -452,6 +464,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual("abcd123", cleanup_str("-/_a/b/CD!123!"))
         self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
         self.assertEqual("", cleanup_str("!!!"))
+        self.assertEqual("abcd1234", cleanup_str("1234abcd1234"))
 
     def test_get_port_for_service(self) -> None:
         scheduler = create_scheduler("test")
@@ -498,6 +511,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 "priority": 0,
                 "namespace": "test_namespace",
                 "coscheduler_name": "test_coscheduler",
+                "network": "test-network-conf",
             }
         )
         with patch(
@@ -514,6 +528,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
 kind: AppWrapper
 metadata:
   name: app-name
+  namespace: test_namespace
 spec:
   priority: 0
   resources:
@@ -537,6 +552,7 @@ spec:
         kind: Pod
         metadata:
           annotations:
+            k8s.v1.cni.cncf.io/networks: test-network-conf
             sidecar.istio.io/inject: 'false'
           labels:
             app.kubernetes.io/instance: app-name
@@ -1236,6 +1252,8 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
+            network="",
         )
         self.assertEqual(
             pod.spec.volumes,
@@ -1293,6 +1311,8 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
+            network="",
         )
         self.assertEqual(
             pod.spec.volumes[1:],
@@ -1351,6 +1371,8 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
+            network="",
         )
         self.assertEqual(
             pod.spec.containers[0].resources.limits,
@@ -1386,6 +1408,8 @@ spec:
             service_account="",
             image_secret="",
             coscheduler_name="",
+            priority_class_name="",
+            network="",
         )
         self.assertEqual(
             pod.spec.node_selector,
@@ -1496,6 +1520,47 @@ spec:
         del cfg["priority"]
         info = scheduler._submit_dryrun(app, cfg)
         self.assertIn("'priority': None", str(info.request.resource))
+
+    def test_submit_dryrun_priority_class_name(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("priority_class_name", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = KubernetesMCADOpts(
+            {
+                "namespace": "testnamespace",
+                "priority_class_name": "test-priority",
+            }
+        )
+
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn(
+            "'priority_class_name': 'test-priority'", str(info.request.resource)
+        )
+
+        del cfg["priority_class_name"]
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn("'priority_class_name': None", str(info.request.resource))
+
+    def test_submit_dryrun_network(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("network", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = KubernetesMCADOpts(
+            {
+                "namespace": "testnamespace",
+                "network": "test-network-conf",
+            }
+        )
+
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertIn(
+            "'k8s.v1.cni.cncf.io/networks': 'test-network-conf'",
+            str(info.request.resource),
+        )
+
+        del cfg["network"]
+        info = scheduler._submit_dryrun(app, cfg)
+        self.assertNotIn("'k8s.v1.cni.cncf.io/networks'", str(info.request.resource))
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
     def test_submit(self, create_namespaced_custom_object: MagicMock) -> None:
@@ -1736,8 +1801,10 @@ spec:
                 "image_repo",
                 "service_account",
                 "priority",
+                "priority_class_name",
                 "image_secret",
                 "coscheduler_name",
+                "network",
             },
         )
 

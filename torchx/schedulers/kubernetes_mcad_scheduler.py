@@ -171,6 +171,8 @@ def role_to_pod(
     service_account: Optional[str],
     image_secret: Optional[str],
     coscheduler_name: Optional[str],
+    priority_class_name: Optional[str],
+    network: Optional[str],
 ) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,
@@ -329,6 +331,19 @@ def role_to_pod(
 
     # Get correct formatting for image secret
     imagesecret = V1LocalObjectReference(name=image_secret)
+    metadata = V1ObjectMeta(
+        name=name,
+        annotations={
+            # Disable the istio sidecar as it prevents the containers from
+            # exiting once finished.
+            ANNOTATION_ISTIO_SIDECAR: "false",
+        },
+        labels={},
+        namespace=namespace,
+    )
+    if network is not None:
+        metadata.annotations.update({"k8s.v1.cni.cncf.io/networks": network})
+
     return V1Pod(
         api_version="v1",
         kind="Pod",
@@ -342,17 +357,9 @@ def role_to_pod(
             volumes=volumes,
             node_selector=node_selector,
             scheduler_name=coscheduler_name,
+            priority_class_name=priority_class_name,
         ),
-        metadata=V1ObjectMeta(
-            name=name,
-            annotations={
-                # Disable the istio sidecar as it prevents the containers from
-                # exiting once finished.
-                ANNOTATION_ISTIO_SIDECAR: "false",
-            },
-            labels={},
-            namespace=namespace,
-        ),
+        metadata=metadata,
     )
 
 
@@ -447,7 +454,7 @@ def cleanup_str(data: str) -> str:
     if data.startswith("-"):
         data = data[1:]
     pattern = r"[a-z0-9\-]"
-    return "".join(re.findall(pattern, data.lower()))
+    return "".join(re.findall(pattern, data.lower())).lstrip("0123456789")
 
 
 def get_port_for_service(app: AppDef) -> str:
@@ -474,6 +481,8 @@ def app_to_resource(
     service_account: Optional[str],
     image_secret: Optional[str],
     coscheduler_name: Optional[str],
+    priority_class_name: Optional[str],
+    network: Optional[str],
     priority: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
@@ -520,6 +529,8 @@ def app_to_resource(
                 service_account,
                 image_secret,
                 coscheduler_name,
+                priority_class_name,
+                network,
             )
             pod.metadata.labels.update(
                 pod_labels(
@@ -577,7 +588,7 @@ MCAD currently does not support retries. Role {role.name} configured with restar
     resource: Dict[str, object] = {
         "apiVersion": "mcad.ibm.com/v1beta1",
         "kind": "AppWrapper",
-        "metadata": {"name": unique_app_id},
+        "metadata": {"name": unique_app_id, "namespace": namespace},
         "spec": job_spec,
     }
     return resource
@@ -733,8 +744,10 @@ class KubernetesMCADOpts(TypedDict, total=False):
     image_repo: Optional[str]
     service_account: Optional[str]
     priority: Optional[int]
+    priority_class_name: Optional[str]
     image_secret: Optional[str]
     coscheduler_name: Optional[str]
+    network: Optional[str]
 
 
 class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts]):
@@ -765,6 +778,16 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
     1. PodGroups and Coscheduling: https://github.com/kubernetes-sigs/scheduler-plugins/tree/release-1.24/pkg/coscheduling
     2. Installing Secondary schedulers: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/doc/install.md
     3. PodGroup CRD: https://github.com/kubernetes-sigs/scheduler-plugins/blob/release-1.24/config/crd/bases/scheduling.sigs.k8s.io_podgroups.yaml
+
+    The MCAD scheduler supports priorities at the AppWrapper level and optionally at the pod level on clusters with PriorityClass definitions.
+    At the AppWrapper level, higher integer values means higher priorities. Kubernetes clusters may have additional priorityClass
+    definitions that can be applied at the pod level. While these different levels of priorities can be set independently,
+    it is recommended to check with your Kubernetes cluster admin to see if additional guidance is in place. For more on Kubernetes
+    PriorityClass, see: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ .
+
+    In order to use the network option, the Kubernetes cluster must have multus installed.
+    For multus installation instructions and how to set up a network custom network attachment definition, see:
+    https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md
 
     **Config Options**
 
@@ -933,12 +956,22 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             coscheduler_name, str
         ), "coscheduler_name must be a string"
 
+        priority_class_name = cfg.get("priority_class_name")
+        assert priority_class_name is None or isinstance(
+            priority_class_name, str
+        ), "priority_class_name must be a string"
+
+        network = cfg.get("network")
+        assert network is None or isinstance(network, str), "network must be a string"
+
         resource = app_to_resource(
             app=app,
             namespace=namespace,
             service_account=service_account,
             image_secret=image_secret,
             coscheduler_name=coscheduler_name,
+            priority_class_name=priority_class_name,
+            network=network,
             priority=priority,
         )
 
@@ -991,6 +1024,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             help="The priority level to set on the job specs. Higher integer value means higher priority",
         )
         opts.add(
+            "priority_class_name",
+            type_=str,
+            help="Pod specific priority level. Check with your Kubernetes cluster admin if Priority classes are defined on your system",
+        )
+        opts.add(
             "image_secret",
             type_=str,
             help="The name of the Kubernetes/OpenShift secret set up for private images",
@@ -999,6 +1037,11 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             "coscheduler_name",
             type_=str,
             help="Option to run TorchX-MCAD with a co-scheduler. User must provide the co-scheduler name.",
+        )
+        opts.add(
+            "network",
+            type_=str,
+            help="Name of additional pod-to-pod network beyond default Kubernetes network",
         )
         return opts
 
