@@ -17,6 +17,5 @@
   "search_path": [
     "stubs"
   ],
-  "strict": true,
-  "version": "0.0.101662549039"
+  "strict": true
 }

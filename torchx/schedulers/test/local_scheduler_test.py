@@ -244,7 +244,6 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         expected_app_id = make_unique(app.name)
         cfg = {"log_dir": self.test_dir}
         with patch(LOCAL_SCHEDULER_MAKE_UNIQUE, return_value=expected_app_id):
-
             app_id = self.scheduler.submit(app, cfg)
 
         self.assertEqual(f"{expected_app_id}", app_id)
@@ -282,7 +281,9 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app = AppDef(name="test_app", roles=[role])
         self.scheduler.submit(app, cfg={})
         self.scheduler.close()
-        self.assertFalse(os.path.exists(self.scheduler._base_log_dir))
+        base_log_dir = self.scheduler._base_log_dir
+        self.assertIsNotNone(base_log_dir)
+        self.assertFalse(os.path.exists(base_log_dir))
         self.assertTrue(self.scheduler._created_tmp_log_dir)
 
     def test_macros_env(self) -> None:

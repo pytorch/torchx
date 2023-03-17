@@ -223,7 +223,9 @@ class ModuleComponentsFinder(ComponentsFinder):
         functions = getmembers(module, isfunction)
         component_defs = []
 
-        module_path = os.path.abspath(module.__file__)
+        module_path = module.__file__
+        assert module_path, f"module must have __file__: {module_path}"
+        module_path = os.path.abspath(module_path)
         rel_module_name = module_relname(module, relative_to=self.base_module)
         for function_name, function in functions:
             linter_errors = validate(module_path, function_name)

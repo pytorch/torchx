@@ -13,7 +13,8 @@ hydra-core
 ipython
 kfp==1.8.9
 moto==4.1.3
-pyre-extensions==0.0.29
+pyre-extensions
+pyre-check
 pytest
 pytorch-lightning==1.5.10
 torch-model-archiver>=0.4.2
