@@ -14,6 +14,9 @@ import difflib
 from typing import Callable, Dict, Optional
 
 from torchx.specs.named_resources_aws import NAMED_RESOURCES as AWS_NAMED_RESOURCES
+from torchx.specs.named_resources_generic import (
+    NAMED_RESOURCES as GENERIC_NAMED_RESOURCES,
+)
 from torchx.util.entrypoints import load_group
 
 from .api import (  # noqa: F401 F403
@@ -55,12 +58,16 @@ GiB: int = 1024
 def _load_named_resources() -> Dict[str, Callable[[], Resource]]:
     resource_methods = load_group("torchx.named_resources", default={})
     materialized_resources: Dict[str, Callable[[], Resource]] = {}
-    default = AWS_NAMED_RESOURCES
-    for name, resource in default.items():
+
+    for name, resource in {
+        **GENERIC_NAMED_RESOURCES,
+        **AWS_NAMED_RESOURCES,
+        **resource_methods,
+    }.items():
         materialized_resources[name] = resource
-    for resource_name, resource_method in resource_methods.items():
-        materialized_resources[resource_name] = resource_method
+
     materialized_resources["NULL"] = lambda: NULL_RESOURCE
+    materialized_resources["MISSING"] = lambda: NULL_RESOURCE
     return materialized_resources
 
 
