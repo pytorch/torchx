@@ -73,15 +73,23 @@ if __name__ == "__main__":
             "console_scripts": [
                 "torchx=torchx.cli.main:main",
             ],
+            "torchx.tracker": [
+                "fsspec=torchx.tracker.backend.fsspec:create",
+            ],
+            "fsspec.specs": [
+                "torchx_minio=torchx.test.minio.MinioFS",
+            ],
         },
         extras_require={
+            "gcp_batch": [
+                "google-cloud-batch>=0.5.0",
+                "google-cloud-logging>=3.0.0",
+                "google-cloud-runtimeconfig>=0.33.2",
+            ],
             "kfp": ["kfp==1.6.2"],
             "kubernetes": ["kubernetes>=11"],
             "ray": ["ray>=1.12.1"],
             "dev": dev_reqs,
-            ':python_version < "3.8"': [
-                "importlib-metadata",
-            ],
         },
         # PyPI package information.
         classifiers=[

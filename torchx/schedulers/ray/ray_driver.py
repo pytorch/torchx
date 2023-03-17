@@ -18,17 +18,18 @@ will be executed. Command actors are state machines their behavior is defined by
 _step function, this give more flexibility to us if we want to bette handle the
 node failures.
 """
-
 import json
 import logging
 import os
+import socket
 import subprocess
 import sys
+
+from contextlib import closing
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import ray
-from ray.train.utils import get_address_and_port
 from ray.util.placement_group import PlacementGroup
 
 if TYPE_CHECKING:
@@ -95,7 +96,12 @@ class CommandActor:  # pragma: no cover
         return CommandActorScheduled(actor_id)
 
     def get_actor_address_and_port(self) -> Tuple[str, int]:
-        return get_address_and_port()
+        addr = ray.util.get_node_ip_address()
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(("", 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            port = s.getsockname()[1]
+        return addr, port
 
 
 def load_actor_json(filename: str) -> List[RayActor]:
@@ -228,12 +234,11 @@ class RayDriver:
         result: RayResult  # execution result
         _logger.info(f"running ray.wait on {self.active_tasks}")
         # ray.wait is partial waiting
-        # pyre-fixme[16]: Module `worker` has no attribute `wait`.
         completed_tasks, self.active_tasks = ray.wait(self.active_tasks)
         # If a failure occurs the ObjectRef will be marked as completed.
         # Calling ray.get will expose the failure as a RayActorError.
         for object_ref in completed_tasks:
-            result = ray.get(object_ref)  # pyre-ignore
+            result = ray.get(object_ref)
             if isinstance(result, CommandActorScheduled):
                 if not self.terminating:
                     actor = self.actor_info_of_id[result.id].actor
@@ -289,7 +294,6 @@ class RayDriver:
 def main() -> None:  # pragma: no cover
     actors: List[RayActor] = load_actor_json("actors.json")
     driver = RayDriver(actors)
-    # pyre-fixme[16]: Module `worker` has no attribute `init`.
     ray.init(address="auto", namespace="torchx-ray")
     driver.init_placement_groups()
     _logger.info("Successfully created placement groups")

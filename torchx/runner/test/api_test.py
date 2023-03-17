@@ -14,7 +14,6 @@ from contextlib import contextmanager
 from typing import Generator, List, Mapping, Optional
 from unittest.mock import MagicMock, patch
 
-from pyre_extensions import none_throws
 from torchx.runner import get_runner, Runner
 from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
@@ -25,7 +24,9 @@ from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs import AppDryRunInfo, CfgVal
 from torchx.specs.api import AppDef, AppState, Resource, Role, UnknownAppException
 from torchx.specs.finder import ComponentNotFoundException
-from torchx.workspace import Workspace
+
+from torchx.util.types import none_throws
+from torchx.workspace import WorkspaceMixin
 
 
 GET_SCHEDULER_FACTORIES = "torchx.runner.api.get_scheduler_factories"
@@ -167,10 +168,134 @@ class RunnerTest(unittest.TestCase):
                     "local_dir://" + SESSION_NAME + "/${app_id}",
                 )
 
+    def test_dryrun_trackers_parent_run_id_as_paramenter(self, _) -> None:
+        scheduler_mock = MagicMock()
+        expected_parent_run_id = "123"
+        with Runner(
+            name=SESSION_NAME,
+            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+        ) as runner:
+            role1 = Role(
+                name="echo1",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            role2 = Role(
+                name="echo2",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            app = AppDef("name", roles=[role1, role2])
+            runner.dryrun(
+                app, "local_dir", cfg=self.cfg, parent_run_id=expected_parent_run_id
+            )
+            for role in app.roles:
+                self.assertEqual(
+                    role.env["TORCHX_PARENT_RUN_ID"],
+                    expected_parent_run_id,
+                )
+
+    @patch("torchx.runner.api.get_configured_trackers")
+    def test_dryrun_setup_trackers(self, config_trackers_mock: MagicMock, _) -> None:
+        config_trackers_mock.return_value = {
+            "my_tracker1": "manifold://config1.txt",
+            "my_tracker2": "manifold://config2.txt",
+        }
+        scheduler_mock = MagicMock()
+        expected_trackers = "my_tracker1,my_tracker2"
+        expected_tracker1_config = "manifold://config1.txt"
+        expected_tracker2_config = "manifold://config2.txt"
+
+        with Runner(
+            name=SESSION_NAME,
+            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+        ) as runner:
+            role1 = Role(
+                name="echo1",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            role2 = Role(
+                name="echo2",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            app = AppDef("name", roles=[role1, role2])
+            runner.dryrun(app, "local_dir", cfg=self.cfg, parent_run_id="999")
+            for role in app.roles:
+                self.assertEqual(
+                    role.env["TORCHX_TRACKERS"],
+                    expected_trackers,
+                )
+                self.assertEqual(
+                    role.env["TORCHX_TRACKER_MY_TRACKER1_CONFIG"],
+                    expected_tracker1_config,
+                )
+                self.assertEqual(
+                    role.env["TORCHX_TRACKER_MY_TRACKER2_CONFIG"],
+                    expected_tracker2_config,
+                )
+
+    @patch.dict(
+        os.environ,
+        {
+            "TORCHX_TRACKERS": "my_tracker1,my_tracker2",
+            "TORCHX_TRACKER_MY_TRACKER1_CONFIG": "manifold://config1.txt",
+            "TORCHX_TRACKER_MY_TRACKER2_CONFIG": "manifold://config2.txt",
+        },
+    )
+    def test_dryrun_setup_trackers_as_env_variable(self, _) -> None:
+        scheduler_mock = MagicMock()
+        expected_trackers = "my_tracker1,my_tracker2"
+        expected_tracker1_config = "manifold://config1.txt"
+        expected_tracker2_config = "manifold://config2.txt"
+
+        with Runner(
+            name=SESSION_NAME,
+            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+        ) as runner:
+            role1 = Role(
+                name="echo1",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            role2 = Role(
+                name="echo2",
+                image=self.test_dir,
+                resource=resource.SMALL,
+                entrypoint="echo",
+                args=["hello world"],
+            )
+            app = AppDef("name", roles=[role1, role2])
+            runner.dryrun(app, "local_dir", cfg=self.cfg, parent_run_id="999")
+            for role in app.roles:
+                self.assertEqual(
+                    role.env["TORCHX_TRACKERS"],
+                    expected_trackers,
+                )
+                self.assertEqual(
+                    role.env["TORCHX_TRACKER_MY_TRACKER1_CONFIG"],
+                    expected_tracker1_config,
+                )
+                self.assertEqual(
+                    role.env["TORCHX_TRACKER_MY_TRACKER2_CONFIG"],
+                    expected_tracker2_config,
+                )
+
     def test_dryrun_with_workspace(self, _) -> None:
-        class TestScheduler(Scheduler, Workspace):
+        class TestScheduler(WorkspaceMixin[None], Scheduler):
             def __init__(self, build_new_img: bool):
-                Scheduler.__init__(self, backend="ignored", session_name="ignored")
+                super().__init__(backend="ignored", session_name="ignored")
                 self.build_new_img = build_new_img
 
             def schedule(self, dryrun_info: AppDryRunInfo) -> str:

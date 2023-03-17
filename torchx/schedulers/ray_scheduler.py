@@ -29,7 +29,7 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.ray.ray_common import RayActor, TORCHX_RANK0_HOST
 from torchx.specs import AppDef, macros, NONE, ReplicaStatus, Role, RoleStatus, runopts
-from torchx.workspace.dir_workspace import TmpDirWorkspace
+from torchx.workspace.dir_workspace import TmpDirWorkspaceMixin
 from typing_extensions import TypedDict
 
 
@@ -113,7 +113,7 @@ if _has_ray:
         requirements: Optional[str] = None
         actors: List[RayActor] = field(default_factory=list)
 
-    class RayScheduler(Scheduler[RayOpts], TmpDirWorkspace):
+    class RayScheduler(TmpDirWorkspaceMixin, Scheduler[RayOpts]):
         """
         RayScheduler is a TorchX scheduling interface to Ray. The job def
         workers will be launched as Ray actors
@@ -145,6 +145,7 @@ if _has_ray:
                     does not provide the complete original AppSpec.
                 workspaces: true
                 mounts: false
+                elasticity: Partial support. Multi role jobs are not supported.
 
         """
 
@@ -152,7 +153,7 @@ if _has_ray:
             super().__init__("ray", session_name)
 
         # TODO: Add address as a potential CLI argument after writing ray.status() or passing in config file
-        def run_opts(self) -> runopts:
+        def _run_opts(self) -> runopts:
             opts = runopts()
             opts.add(
                 "cluster_config_file",
@@ -204,7 +205,6 @@ if _has_ray:
             current_directory = os.path.dirname(os.path.abspath(__file__))
             copy2(os.path.join(current_directory, "ray", "ray_driver.py"), dirpath)
             copy2(os.path.join(current_directory, "ray", "ray_common.py"), dirpath)
-
             runtime_env = {"working_dir": dirpath}
             if cfg.requirements:
                 runtime_env["pip"] = cfg.requirements
@@ -212,7 +212,7 @@ if _has_ray:
             # 1. Submit Job via the Ray Job Submission API
             try:
                 job_id: str = client.submit_job(
-                    job_id=cfg.app_id,
+                    submission_id=cfg.app_id,
                     # we will pack, hash, zip, upload, register working_dir in GCS of ray cluster
                     # and use it to configure your job execution.
                     entrypoint="python3 ray_driver.py",
@@ -286,6 +286,9 @@ if _has_ray:
                     )
 
                     job.actors.append(actor)
+
+            if len(app.roles) > 1 and app.roles[0].min_replicas is not None:
+                raise ValueError("min_replicas is only supported with single role jobs")
 
             return AppDryRunInfo(job, repr)
 
@@ -406,14 +409,14 @@ if _has_ray:
                     " See https://docs.ray.io/en/latest/cluster/jobs-package-ref.html#job-submission-sdk for more info"
                 )
             client = JobSubmissionClient(address)
-            jobs_dict = client.list_jobs()
+            jobs = client.list_jobs()
             ip = address.split("http://", 1)[-1]
             return [
                 ListAppResponse(
-                    app_id=f"{ip}-{job_id}",
+                    app_id=f"{ip}-{details.submission_id}",
                     state=_ray_status_to_torchx_appstate[details.status],
                 )
-                for job_id, details in jobs_dict.items()
+                for details in jobs
             ]
 
 

@@ -12,12 +12,16 @@ import unittest
 
 import fsspec
 from torchx.specs import Role
-from torchx.workspace.dir_workspace import _copy_to_dir, DirWorkspace, TmpDirWorkspace
+from torchx.workspace.dir_workspace import (
+    _copy_to_dir,
+    DirWorkspaceMixin,
+    TmpDirWorkspaceMixin,
+)
 
 
 class DirWorkspaceTest(unittest.TestCase):
     def test_build_workspace_no_job_dir(self) -> None:
-        w = DirWorkspace()
+        w = DirWorkspaceMixin()
         role = Role(
             name="role",
             image="blah",
@@ -27,7 +31,7 @@ class DirWorkspaceTest(unittest.TestCase):
         self.assertEqual(role.image, "blah")
 
     def test_build_workspace(self) -> None:
-        w = DirWorkspace()
+        w = DirWorkspaceMixin()
         role = Role(
             name="role",
             image="blah",
@@ -108,7 +112,7 @@ class DirWorkspaceTest(unittest.TestCase):
 
 class TmpDirWorkspaceTest(unittest.TestCase):
     def test_build_workspace(self) -> None:
-        w = TmpDirWorkspace()
+        w = TmpDirWorkspaceMixin()
         role = Role(
             name="role",
             image="blah",

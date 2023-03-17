@@ -12,15 +12,17 @@ Kubernetes integration tests.
 import argparse
 import os
 
-from integ_test_utils import build_images, BuildInfo, MissingEnvError, push_images
-from pyre_extensions import none_throws
+from integ_test_utils import (
+    build_images,
+    BuildInfo,
+    getenv_asserts,
+    MissingEnvError,
+    push_images,
+)
 from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
-from torchx.specs import AppState, named_resources, Resource
-
-
-# pyre-ignore-all-errors[21] # Cannot find module utils
-# pyre-ignore-all-errors[11]
+from torchx.specs import _named_resource_factories, AppState, Resource
+from torchx.util.types import none_throws
 
 
 GiB: int = 1024
@@ -37,12 +39,12 @@ def register_gpu_resource() -> None:
         },
     )
     print(f"Registering resource: {res}")
-    named_resources["GPU_X1"] = res
+    _named_resource_factories["GPU_X1"] = lambda: res
 
 
 def build_and_push_image() -> BuildInfo:
     build = build_images()
-    push_images(build)
+    push_images(build, container_repo=getenv_asserts("CONTAINER_REPO"))
     return build
 
 
@@ -60,7 +62,7 @@ def run_job(dryrun: bool = False) -> None:
     train_app = dist_ddp(
         *("--output_path", output_path),
         image=image,
-        m="torchx.examples.apps.lightning_classy_vision.train",
+        m="torchx.examples.apps.lightning.train",
         h="GPU_X1",
         j="2x1",
     )

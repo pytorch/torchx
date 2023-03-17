@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import inspect
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import typing_inspect
 
@@ -15,7 +15,7 @@ def to_list(arg: str) -> List[str]:
     if len(arg.strip()) == 0:
         return []
     for el in arg.split(","):
-        conf.append(el)
+        conf.append(el.strip())
     return conf
 
 
@@ -66,7 +66,7 @@ def to_dict(arg: str) -> Dict[str, str]:
                 f"`{vk}` cannot be split into `val<delim>key` with delims={delims}"
             )
         else:
-            return vk[0:idx], vk[idx + 1 :]
+            return vk[0:idx].strip(), vk[idx + 1 :].strip()
 
     arg_map: Dict[str, str] = {}
 
@@ -77,7 +77,9 @@ def to_dict(arg: str) -> Dict[str, str]:
     cfg_kv_delim = "="
 
     # ["FOO", "v1;v2,BAR", v3, "BAZ", "v4,v5"]
-    split_arg = [s for s in arg.split(cfg_kv_delim) if s]  # remove empty
+    split_arg = [
+        s.strip() for s in arg.split(cfg_kv_delim) if s.strip()
+    ]  # remove empty
     split_arg_len = len(split_arg)
 
     if split_arg_len < 2:  # no kv -> malformed str
@@ -198,3 +200,15 @@ def get_argparse_param_type(parameter: inspect.Parameter) -> Callable[[str], obj
         return parameter.annotation
     else:
         return str
+
+
+_T = TypeVar("_T")
+
+
+def none_throws(optional: Optional[_T], message: str = "Unexpected `None`") -> _T:
+    """Convert an optional to its value. Raises an `AssertionError` if the value is `None`
+    Copied from https://github.com/facebook/pyre-check/blob/main/pyre_extensions/refinement.py for performance reasons.
+    """
+    if optional is None:
+        raise AssertionError(message)
+    return optional

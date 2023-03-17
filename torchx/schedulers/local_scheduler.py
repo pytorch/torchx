@@ -29,7 +29,6 @@ from datetime import datetime
 from types import FrameType
 from typing import Any, BinaryIO, Callable, Dict, Iterable, List, Optional, TextIO
 
-from pyre_extensions import none_throws
 from torchx.schedulers.api import (
     AppDryRunInfo,
     DescribeAppResponse,
@@ -42,6 +41,8 @@ from torchx.schedulers.api import (
 from torchx.schedulers.ids import make_unique
 from torchx.schedulers.streams import Tee
 from torchx.specs.api import AppDef, AppState, is_terminal, macros, NONE, Role, runopts
+
+from torchx.util.types import none_throws
 from typing_extensions import TypedDict
 
 
@@ -545,6 +546,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
                 Partial support. LocalScheduler runs the app from a local
                 directory but does not support programmatic workspaces.
             mounts: false
+            elasticity: false
     """
 
     def __init__(
@@ -571,7 +573,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         self._base_log_dir: Optional[str] = None
         self._created_tmp_log_dir: bool = False
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "log_dir",

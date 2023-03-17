@@ -17,8 +17,13 @@ cd "$DIR"
 
 JOB_DIR="$BASE_DIR/job"
 
-# shellcheck disable=SC1091
-source /opt/slurm/etc/slurm.sh
+SLURM_SH=/opt/slurm/etc/slurm.sh
+if [ -e $SLURM_SH ]
+then
+    # shellcheck disable=SC1091
+    source $SLURM_SH
+fi
+
 sbatch --version
 # shellcheck disable=SC1090
 source "$VENV"/bin/activate
@@ -29,9 +34,11 @@ pip install numpy
 pip install tabulate
 pip install torch==1.10.2+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
 
+PARTITION="$(sinfo --format=%R --noheader | head -n 1)"
+
 cat <<EOT > .torchxconfig
 [slurm]
-partition=queue1
+partition=$PARTITION
 time=10
 comment=hello
 job_dir=$JOB_DIR
@@ -42,7 +49,7 @@ import sys
 print("hello world!", file=sys.stderr)
 EOT
 
-APP_ID="$(torchx run --wait --log --scheduler slurm dist.ddp -j 2x1 --max_retries 1 --script main.py)"
+APP_ID="$(torchx run --wait --log --scheduler slurm dist.ddp -j 2x1 --cpu 1 --max_retries 1 --script main.py)"
 torchx status "$APP_ID"
 torchx describe "$APP_ID"
 sacct -j "$(basename "$APP_ID")"

@@ -28,7 +28,6 @@ from typing import (
     Union,
 )
 
-import yaml
 from torchx.util.types import to_dict
 
 _APP_STATUS_FORMAT_TEMPLATE = """AppStatus:
@@ -306,7 +305,12 @@ class Role:
             entrypoint: command (within the container) to invoke the role
             args: commandline arguments to the entrypoint cmd
             env: environment variable mappings
-            replicas: number of container replicas to run
+            num_replicas: number of container replicas to run
+            min_replicas: minimum number of replicas for the job to start. When
+                set the job size can automatically adjust between min_replicas
+                and num_replicas depending on the cluster resources and
+                policies. If the scheduler doesn't support auto scaling this
+                field is ignored and the job size will be num_replicas.
             max_retries: max number of retries before giving up
             retry_policy: retry behavior upon replica failures
             resource: Resource requirement for the role. The role should be scheduled
@@ -504,6 +508,9 @@ class AppStatus:
             structured_error_msg_parsed = NONE
         app_status_dict["structured_error_msg"] = structured_error_msg_parsed
         app_status_dict["state"] = repr(app_status_dict["state"])
+
+        import yaml
+
         return yaml.dump({"AppStatus": app_status_dict})
 
     def raise_for_status(self) -> None:
@@ -650,7 +657,7 @@ class AppDryRunInfo(Generic[T]):
         # Scheduler or Session implementations
         # and are back references to the parameters
         # to dryrun() that returned this AppDryRunInfo object
-        # thus they are set in Session.dryrun() and Scheduler.submit_dryrun()
+        # thus they are set in Runner.dryrun() and Scheduler.submit_dryrun()
         # manually rather than through constructor arguments
         # DO NOT create getters or make these public
         # unless there is a good reason to
@@ -787,7 +794,7 @@ class runopts:
 
     def cfg_from_str(self, cfg_str: str) -> Dict[str, CfgVal]:
         """
-        Parses scheduler ``runcfg`` from a string literal and returns
+        Parses scheduler ``cfg`` from a string literal and returns
         a cfg map where the cfg values have been cast into the appropriate
         types as specified by this runopts object. Unknown keys are ignored
         and not returned in the resulting map.
@@ -884,6 +891,9 @@ class runopts:
                 )
 
         self._opts[cfg_key] = runopt(default, type_, required, help)
+
+    def update(self, other: "runopts") -> None:
+        self._opts.update(other._opts)
 
     def __repr__(self) -> str:
         required = [(key, opt) for key, opt in self._opts.items() if opt.is_required]

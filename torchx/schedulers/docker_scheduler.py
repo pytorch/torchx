@@ -38,7 +38,7 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
-from torchx.workspace.docker_workspace import DockerWorkspace
+from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
 
@@ -76,7 +76,7 @@ class DockerJob:
         return str(self)
 
 
-LABEL_VERSION: str = DockerWorkspace.LABEL_VERSION
+LABEL_VERSION: str = DockerWorkspaceMixin.LABEL_VERSION
 LABEL_APP_ID: str = "torchx.pytorch.org/app-id"
 LABEL_ROLE_NAME: str = "torchx.pytorch.org/role-name"
 LABEL_REPLICA_ID: str = "torchx.pytorch.org/replica-id"
@@ -98,7 +98,7 @@ class DockerOpts(TypedDict, total=False):
     copy_env: Optional[List[str]]
 
 
-class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
+class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
     """
     DockerScheduler is a TorchX scheduling interface to Docker.
 
@@ -139,11 +139,11 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
                 status but does not provide the complete original AppSpec.
             workspaces: true
             mounts: true
+            elasticity: false
     """
 
     def __init__(self, session_name: str) -> None:
-        Scheduler.__init__(self, "docker", session_name)
-        DockerWorkspace.__init__(self)
+        super().__init__("docker", session_name)
 
     def _ensure_network(self) -> None:
         import filelock
@@ -302,11 +302,7 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
                     ]
                 req.containers.append(c)
 
-        info = AppDryRunInfo(req, repr)
-        info._app = app
-        # pyre-fixme: AppDryRunInfo
-        info._cfg = cfg
-        return info
+        return AppDryRunInfo(req, repr)
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
@@ -345,7 +341,7 @@ class DockerScheduler(Scheduler[DockerOpts], DockerWorkspace):
         for container in containers:
             container.stop()
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "copy_env",

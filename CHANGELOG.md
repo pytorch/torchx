@@ -1,5 +1,78 @@
 # CHANGELOG
 
+## torchx-0.4.0
+
+* Milestone: https://github.com/pytorch/torchx/milestone/6
+
+* `torchx.schedulers`
+  * GCP Batch (Prototype)
+    * Newly added integration for easily scheduling jobs on GCP Batch.
+    * Features include:
+      * scheduling different types of components including DDP components
+      * scheduling on different compute resources (CPU, GPU)
+      * describing jobs including getting job status
+      * getting logs for jobs
+      * listing jobs
+      * cancelling jobs
+  * AWS Batch
+    * Listing jobs now returns just jobs launched on AWS Batch by TorchX and uses pagination to enable listing all jobs in all queues.
+    * Named resources now account for ECS and EC2 memtax, and suggests closest match when resource is not found.
+    * Named resources expanded to include all instance types for g4d, g5, p4d, p3 and trn1.
+
+* `torchx.workspace`
+  * Improve docker push logging to prevent log spamming when pushing for the first time
+
+* Additional Changes
+  * Remove classyvision from examples since it's no longer supported in OSS. Uses torchvision/torch dataset APIs instead of ClassyDataset.
+
+
+## torchx-0.3.0
+
+* Milestone: https://github.com/pytorch/torchx/milestone/5
+
+* `torchx.schedulers`
+  * List API (Prototype)
+    * New list API to list jobs and their statuses for all schedulers which removes the need to use secondary tools to list jobs
+  * AWS Batch (promoted to Beta)
+    * Get logs for running jobs
+    * Added configs for job priorities and queue policies
+    * Easily access job UI via ui_url
+  * Ray
+    * Add elasticity to jobs launched on ray cluster to automatically scale jobs up as resources become available
+  * Kubernetes
+    * Add elasticity to jobs launched on Kubernetes
+  * LSF Scheduler (Prototype)
+    * Newly added support for scheduling on IBM Spectrum LSF scheduler
+  * Local Scheduler
+    * Better formatting when using pdb
+
+* `torchx.tracker` (Prototype)
+    * TorchX Tracker is a new lightweight experiment and artifact tracking tool
+    * Add tracker API that can track any inputs and outputs to your model in any infrastructure
+    * FSSpec based Torchx tracking implementation and sample app
+
+* `torchx.runner`
+    * Allow overriding TORCHX_IMAGE via entrypoints
+    * Capture the image used when logging schedule calls
+
+* `torchx.components`
+    * Add debug flag to dist component
+
+* `torchx.cli`
+    * New list feature also available as a subcommand to list jobs and their statuses on a given scheduler
+    * New tracker feature also available as a subcommand to track experiments and artifacts
+    * Defer loading schedulers until used
+
+* `torchx.workspace`
+    * Preserve Unix file mode when patching files into docker image.
+
+* Docs
+    * Add airflow example
+
+* Additional changes
+    * Bug fixes for Python 3.10 support
+
+
 ## torchx-0.2.0
 
 * Milestone: https://github.com/pytorch/torchx/milestone/4
@@ -77,7 +150,7 @@ Milestone: https://github.com/pytorch/torchx/milestones/3
     * Slurm jobs will by default launch in the current working directory to match `local_cwd` and workspace behavior. #372
     * Replicas now have their own log files and can be accessed programmatically. #373
     * Support for `comment`, `mail-user` and `constraint` fields. #391
-    * Workspace support (prototype) - Slurm jobs can now be launched in isolated experiment directories. #416
+    * WorkspaceMixin support (prototype) - Slurm jobs can now be launched in isolated experiment directories. #416
   * Kubernetes
     * Support for running jobs under service accounts. #408
     * Support for specifying instance types. #433

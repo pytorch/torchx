@@ -7,14 +7,14 @@
 
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import torchx.specs.finder as finder
-from pyre_extensions import none_throws
+
+from importlib_metadata import EntryPoints
 from torchx.runner import get_runner
 from torchx.runtime.tracking import FsspecResultTracker
 from torchx.specs.api import AppDef, AppState, Role
@@ -27,6 +27,10 @@ from torchx.specs.finder import (
     get_components,
     ModuleComponentsFinder,
 )
+from torchx.util.test.entrypoints_test import EntryPoint_from_text
+from torchx.util.types import none_throws
+
+_METADATA_EPS: str = "torchx.util.entrypoints.metadata.entry_points"
 
 
 def _test_component(name: str, role_name: str = "worker") -> AppDef:
@@ -58,8 +62,117 @@ def invalid_component(name, role_name: str = "worker") -> AppDef:
     )
 
 
-class DirComponentsFinderTest(unittest.TestCase):
-    def test_get_components(self) -> None:
+class FinderTest(unittest.TestCase):
+    _ENTRY_POINTS: EntryPoints = EntryPoints(
+        EntryPoint_from_text(
+            """
+[torchx.components]
+_ = torchx.specs.test.finder_test
+        """
+        )
+    )
+
+    def tearDown(self) -> None:
+        # clear the globals since find_component() has side-effects
+        # and we load a bunch of mocks for components in the tests below
+        finder._components = None
+
+    def test_module_relname(self) -> None:
+        import torchx.specs.test.components as c
+        import torchx.specs.test.components.a as ca
+
+        self.assertEqual("", finder.module_relname(c, relative_to=c))
+        self.assertEqual("a", finder.module_relname(ca, relative_to=c))
+        with self.assertRaises(ValueError):
+            finder.module_relname(c, relative_to=ca)
+
+    def test_get_component_by_name(self) -> None:
+        component = none_throws(get_component("utils.echo"))
+        self.assertEqual("utils.echo", component.name)
+        self.assertEqual("echo", component.fn_name)
+        self.assertIsNotNone(component.fn)
+
+    @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
+    def test_get_invalid_component_by_name(self, _: MagicMock) -> None:
+        with self.assertRaises(ComponentValidationException):
+            get_component("invalid_component")
+
+    @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
+    def test_get_unknown_component_by_name(self, _: MagicMock) -> None:
+        with self.assertRaises(ComponentNotFoundException):
+            get_component("unknown_component")
+
+    @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
+    def test_get_invalid_component(self, _: MagicMock) -> None:
+        components = _load_components()
+        foobar_component = components["invalid_component"]
+        self.assertEqual(1, len(foobar_component.validation_errors))
+
+    @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
+    def test_get_entrypoints_components(self, _: MagicMock) -> None:
+        components = _load_components()
+        foobar_component = components["_test_component"]
+        self.assertEqual(_test_component, foobar_component.fn)
+        self.assertEqual("_test_component", foobar_component.fn_name)
+        self.assertEqual("_test_component", foobar_component.name)
+        self.assertEqual("Test component", foobar_component.description)
+
+    @patch(
+        _METADATA_EPS,
+        return_value=EntryPoints(
+            EntryPoint_from_text(
+                """
+[torchx.components]
+foo = torchx.specs.test.components.a
+bar = torchx.specs.test.components.c.d
+"""
+            )
+        ),
+    )
+    def test_load_custom_components(self, _: MagicMock) -> None:
+        components = _load_components()
+
+        # the name of the appdefs returned by each component
+        # is the expected component name
+        for actual_name, comp in components.items():
+            expected_name = comp.fn().name
+            self.assertEqual(expected_name, actual_name)
+
+        self.assertEqual(3, len(components))
+
+    @patch(
+        _METADATA_EPS,
+        return_value=EntryPoints(
+            EntryPoint_from_text(
+                """
+[torchx.components]
+_0 = torchx.specs.test.components.a
+_1 = torchx.specs.test.components.c.d
+"""
+            )
+        ),
+    )
+    def test_load_custom_components_nogroup(self, _: MagicMock) -> None:
+        components = _load_components()
+
+        # test component names are hardcoded expecting
+        # test.components.* to be grouped under foo.*
+        # and components.a_namepace.* to be grouped under bar.*
+        # since we are testing _* (no group prefix) remove the first prefix
+        for actual_name, comp in components.items():
+            expected_name = comp.fn().name.split(".", maxsplit=1)[1]
+            self.assertEqual(expected_name, actual_name)
+
+    def test_load_builtins(self) -> None:
+        components = _load_components()
+
+        # if nothing registered in entrypoints, then builtins should be loaded
+        expected = {
+            c.name for c in ModuleComponentsFinder("torchx.components", group="").find()
+        }
+        self.assertEqual(components.keys(), expected)
+
+    def test_load_builtin_echo(self) -> None:
         components = _load_components()
         self.assertTrue(len(components) > 1)
         component = components["utils.echo"]
@@ -69,81 +182,6 @@ class DirComponentsFinderTest(unittest.TestCase):
         )
         self.assertEqual("echo", component.fn_name)
         self.assertIsNotNone(component.fn)
-
-    def test_get_component_by_name(self) -> None:
-        component = none_throws(get_component("utils.echo"))
-        self.assertEqual("utils.echo", component.name)
-        self.assertEqual("echo", component.fn_name)
-        self.assertIsNotNone(component.fn)
-
-    def test_get_invalid_component_by_name(self) -> None:
-        test_torchx_group = {"foobar": sys.modules[__name__]}
-        finder._components = None
-        with patch("torchx.specs.finder.entrypoints") as entrypoints_mock:
-            entrypoints_mock.load_group.return_value = test_torchx_group
-            with self.assertRaises(ComponentValidationException):
-                get_component("foobar.finder_test.invalid_component")
-
-    def test_get_unknown_component_by_name(self) -> None:
-        test_torchx_group = {"foobar": sys.modules[__name__]}
-        finder._components = None
-        with patch("torchx.specs.finder.entrypoints") as entrypoints_mock:
-            entrypoints_mock.load_group.return_value = test_torchx_group
-            with self.assertRaises(ComponentNotFoundException):
-                get_component("foobar.finder_test.unknown_component")
-
-    def test_get_invalid_component(self) -> None:
-        test_torchx_group = {"foobar": sys.modules[__name__]}
-        with patch("torchx.specs.finder.entrypoints") as entrypoints_mock:
-            entrypoints_mock.load_group.return_value = test_torchx_group
-            components = _load_components()
-        foobar_component = components["foobar.finder_test.invalid_component"]
-        self.assertEqual(1, len(foobar_component.validation_errors))
-
-    def test_get_entrypoints_components(self) -> None:
-        test_torchx_group = {"foobar": sys.modules[__name__]}
-        with patch("torchx.specs.finder.entrypoints") as entrypoints_mock:
-            entrypoints_mock.load_group.return_value = test_torchx_group
-            components = _load_components()
-        foobar_component = components["foobar.finder_test._test_component"]
-        self.assertEqual(_test_component, foobar_component.fn)
-        self.assertEqual("_test_component", foobar_component.fn_name)
-        self.assertEqual("foobar.finder_test._test_component", foobar_component.name)
-        self.assertEqual("Test component", foobar_component.description)
-
-    def test_get_base_module_name(self) -> None:
-        finder = ModuleComponentsFinder(sys.modules[__name__], "")
-        expected_name = "torchx.specs.test"
-        actual_name = finder._get_base_module_name(sys.modules[__name__])
-        self.assertEqual(expected_name, actual_name)
-
-    def test_get_base_module_name_for_init_module(self) -> None:
-        finder = ModuleComponentsFinder("", "")
-        expected_name = "torchx.specs"
-        actual_name = finder._get_base_module_name(sys.modules["torchx.specs"])
-        self.assertEqual(expected_name, actual_name)
-
-    def test_get_component_name(self) -> None:
-        finder = ModuleComponentsFinder("", group="foobar")
-        actual_name = finder._get_component_name(
-            "test.main_module", "test.main_module.sub_module.bar", "get_component"
-        )
-        expected_name = "foobar.sub_module.bar.get_component"
-        self.assertEqual(expected_name, actual_name)
-
-    def test_strip_init(self) -> None:
-        finder = ModuleComponentsFinder("", "")
-        self.assertEqual("foobar", finder._strip_init("foobar.__init__"))
-        self.assertEqual("", finder._strip_init("__init__"))
-        self.assertEqual("foobar", finder._strip_init("foobar"))
-
-    def test_get_module_name(self) -> None:
-        finder = ModuleComponentsFinder("", "")
-        actual_name = finder._get_module_name(
-            "/test/path/main_module/foobar.py", "/test/path", "main"
-        )
-        expected_name = "main.main_module.foobar"
-        self.assertEqual(expected_name, actual_name)
 
 
 def current_file_path() -> str:

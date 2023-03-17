@@ -204,6 +204,10 @@ class ResourceTest(unittest.TestCase):
             named_resources_aws.aws_p3_8xlarge(), named_resources["aws_p3.8xlarge"]
         )
 
+    def test_named_resources_contains(self) -> None:
+        self.assertTrue("aws_p3.8xlarge" in named_resources)
+        self.assertFalse("nonexistant" in named_resources)
+
     def test_resource_util_fn(self) -> None:
         self.assertEqual(Resource(cpu=2, gpu=0, memMB=1024), resource())
         self.assertEqual(Resource(cpu=1, gpu=0, memMB=1024), resource(cpu=1))

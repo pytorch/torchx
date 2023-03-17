@@ -9,8 +9,7 @@
 Trainer Example
 =============================================
 
-This is an example TorchX app that uses PyTorch Lightning and ClassyVision to
-train a model.
+This is an example TorchX app that uses PyTorch Lightning to train a model.
 
 This app only uses standard OSS libraries and has no runtime torchx
 dependencies. For saving and loading data and models it uses fsspec which makes
@@ -25,7 +24,7 @@ To run the trainer locally as a ddp application with 1 node and 2 workers-per-no
 
   $ torchx run -s local_cwd dist.ddp
      -j 1x2
-     --script ./lightning_classy_vision/train.py
+     --script ./lightning/train.py
      --
      --epochs=1
      --output_path=/tmp/torchx/train
@@ -39,7 +38,7 @@ Use the ``--help`` option to see the full list of application options:
 
 .. code:: shell-session
 
-  $ torchx run -s local_cwd dist.ddp -j 1x1 --script ./lightning_classy_vision/train.py -- --help
+  $ torchx run -s local_cwd dist.ddp -j 1x1 --script ./lightning/train.py -- --help
 
 Which is effectively the same as ``./train.py --help``. To run on a remote scheduler,
 specify the scheduler with the ``-s`` option. Depending on the type of remote scheduler
@@ -59,16 +58,16 @@ import pytorch_lightning as pl
 import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
-from torchx.examples.apps.lightning_classy_vision.data import (
+from torchx.examples.apps.lightning.data import (
     create_random_data,
     download_data,
     TinyImageNetDataModule,
 )
-from torchx.examples.apps.lightning_classy_vision.model import (
+from torchx.examples.apps.lightning.model import (
     export_inference_model,
     TinyImageNetModel,
 )
-from torchx.examples.apps.lightning_classy_vision.profiler import SimpleLoggingProfiler
+from torchx.examples.apps.lightning.profiler import SimpleLoggingProfiler
 
 
 # ensure data and module are on the path
@@ -76,9 +75,7 @@ sys.path.append(".")
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="pytorch lightning + classy vision TorchX example app"
-    )
+    parser = argparse.ArgumentParser(description="pytorch lightning TorchX example app")
     parser.add_argument(
         "--epochs", type=int, default=3, help="number of epochs to train"
     )

@@ -4,10 +4,12 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import base64
 import importlib
 import sys
 import unittest
 from datetime import datetime
+from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 import torchx
@@ -19,7 +21,6 @@ from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppRes
 from torchx.schedulers.docker_scheduler import has_docker
 from torchx.schedulers.kubernetes_scheduler import (
     app_to_resource,
-    cleanup_str,
     create_scheduler,
     KubernetesJob,
     KubernetesOpts,
@@ -30,6 +31,33 @@ from torchx.schedulers.kubernetes_scheduler import (
 from torchx.specs import AppState
 
 SKIP_DOCKER: bool = not has_docker()
+
+TEST_KUBE_CONFIG: Dict[str, Any] = {
+    "current-context": "default",
+    "contexts": [
+        {
+            "name": "default",
+            "context": {
+                "cluster": "default",
+                "user": "torchx_fake_token",
+                "namespace": "default",
+            },
+        }
+    ],
+    "clusters": [{"name": "default", "cluster": {"server": "torchx_test_host"}}],
+    "users": [
+        {
+            "name": "torchx_fake_token",
+            "user": {
+                "token": base64.standard_b64encode(
+                    "torchx-test-token".encode()
+                ).decode(),
+                "username": "me",
+                "password": "password1234",
+            },
+        }
+    ],
+}
 
 
 def _test_app(num_replicas: int = 1) -> specs.AppDef:
@@ -206,17 +234,6 @@ class KubernetesSchedulerTest(unittest.TestCase):
             want,
         )
 
-    def test_validate(self) -> None:
-        scheduler = create_scheduler("test")
-        app = _test_app()
-        scheduler._validate(app, "kubernetes")
-
-    def test_cleanup_str(self) -> None:
-        self.assertEqual("abcd123", cleanup_str("abcd123"))
-        self.assertEqual("abcd123", cleanup_str("-/_a/b/CD!123!"))
-        self.assertEqual("a-bcd123", cleanup_str("-a-bcd123"))
-        self.assertEqual("", cleanup_str("!!!"))
-
     def test_submit_dryrun(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
@@ -225,7 +242,7 @@ class KubernetesSchedulerTest(unittest.TestCase):
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
-            info = scheduler._submit_dryrun(app, cfg)
+            info = scheduler.submit_dryrun(app, cfg)
 
         resource = str(info.request)
 
@@ -259,6 +276,9 @@ spec:
         annotations:
           sidecar.istio.io/inject: 'false'
         labels:
+          app.kubernetes.io/instance: app-name-42
+          app.kubernetes.io/managed-by: torchx.pytorch.org
+          app.kubernetes.io/name: test
           torchx.pytorch.org/app-name: test
           torchx.pytorch.org/replica-id: '0'
           torchx.pytorch.org/role-index: '0'
@@ -472,9 +492,8 @@ spec:
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
-            info = scheduler._submit_dryrun(app, cfg)
+            info = scheduler.submit_dryrun(app, cfg)
 
-        # pyre-fixme[16]; `object` has no attribute `__getitem__`.
         tasks = info.request.resource["spec"]["tasks"]
         container0 = tasks[0]["template"].spec.containers[0]
         self.assertIn("TORCHX_RANK0_HOST", container0.command)
@@ -498,7 +517,7 @@ spec:
             "torchx.schedulers.kubernetes_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
-            info = scheduler._submit_dryrun(app, cfg)
+            info = scheduler.submit_dryrun(app, cfg)
 
         self.assertIn("example.com/some/repo:testhash", str(info.request.resource))
         self.assertEqual(
@@ -521,11 +540,11 @@ spec:
                 "service_account": "srvacc",
             }
         )
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("'service_account_name': 'srvacc'", str(info.request.resource))
 
         del cfg["service_account"]
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("service_account_name': None", str(info.request.resource))
 
     def test_submit_dryrun_priority_class(self) -> None:
@@ -539,11 +558,11 @@ spec:
             }
         )
 
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("'priorityClassName': 'high'", str(info.request.resource))
 
         del cfg["priority_class"]
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         self.assertNotIn("'priorityClassName'", str(info.request.resource))
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
@@ -560,7 +579,7 @@ spec:
             }
         )
 
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "testnamespace:testid")
         call = create_namespaced_custom_object.call_args
@@ -589,7 +608,7 @@ spec:
                 "queue": "testqueue",
             }
         )
-        info = scheduler._submit_dryrun(app, cfg)
+        info = scheduler.submit_dryrun(app, cfg)
         with self.assertRaises(ValueError):
             scheduler.schedule(info)
 
@@ -702,20 +721,26 @@ spec:
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
-        scheduler = create_scheduler("test")
-        scheduler.list()
-        call = list_namespaced_custom_object.call_args
-        args, kwargs = call
-        self.assertEqual(
-            kwargs,
-            {
-                "group": "batch.volcano.sh",
-                "version": "v1alpha1",
-                "namespace": "default",
-                "plural": "jobs",
-                "timeout_seconds": 30,
-            },
-        )
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+        ) as test_context:
+            test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
+            scheduler = create_scheduler("test")
+
+            scheduler.list()
+            call = list_namespaced_custom_object.call_args
+            args, kwargs = call
+
+            self.assertEqual(
+                kwargs,
+                {
+                    "group": "batch.volcano.sh",
+                    "version": "v1alpha1",
+                    "namespace": "default",
+                    "plural": "jobs",
+                    "timeout_seconds": 30,
+                },
+            )
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list_values(self, list_namespaced_custom_object: MagicMock) -> None:
@@ -763,39 +788,55 @@ spec:
                 },
             ],
         }
-        scheduler = create_scheduler("test")
-        apps = scheduler.list()
-        call = list_namespaced_custom_object.call_args
-        args, kwargs = call
-        self.assertEqual(
-            kwargs,
-            {
-                "group": "batch.volcano.sh",
-                "version": "v1alpha1",
-                "namespace": "default",
-                "plural": "jobs",
-                "timeout_seconds": 30,
-            },
-        )
-        self.assertEqual(
-            apps,
-            [
-                ListAppResponse(
-                    app_id="default:cifar-trainer-something", state=AppState.SUCCEEDED
-                ),
-                ListAppResponse(app_id="default:test-trainer", state=AppState.FAILED),
-            ],
-        )
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+        ) as test_context:
+            test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
+
+            scheduler = create_scheduler("test")
+
+            apps = scheduler.list()
+            call = list_namespaced_custom_object.call_args
+            args, kwargs = call
+
+            self.assertEqual(
+                kwargs,
+                {
+                    "group": "batch.volcano.sh",
+                    "version": "v1alpha1",
+                    "namespace": "default",
+                    "plural": "jobs",
+                    "timeout_seconds": 30,
+                },
+            )
+            self.assertEqual(
+                apps,
+                [
+                    ListAppResponse(
+                        app_id="default:cifar-trainer-something",
+                        state=AppState.SUCCEEDED,
+                    ),
+                    ListAppResponse(
+                        app_id="default:test-trainer", state=AppState.FAILED
+                    ),
+                ],
+            )
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list_failure(self, list_namespaced_custom_object: MagicMock) -> None:
         from kubernetes.client.rest import ApiException
 
-        api_exc = ApiException(status=404, reason="Invalid kube config")
+        api_exc = ApiException(
+            status=404, reason="Invalid kube-config file. No configuration found."
+        )
         list_namespaced_custom_object.side_effect = api_exc
-        scheduler = create_scheduler("test")
-        with self.assertRaises(ApiException):
-            scheduler.list()
+        with patch(
+            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+        ) as test_context:
+            test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
+            scheduler = create_scheduler("test")
+            with self.assertRaises(ApiException):
+                scheduler.list()
 
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
     def test_log_iter(self, read_namespaced_pod_log: MagicMock) -> None:
@@ -850,6 +891,17 @@ spec:
         self.assertEqual(client.images.get().tag.call_count, 1)
         self.assertEqual(client.images.push.call_count, 1)
 
+    def test_min_replicas(self) -> None:
+        app = _test_app(num_replicas=3)
+        app.roles[0].min_replicas = 2
+
+        resource = app_to_resource(app, "test_queue", service_account=None)
+        min_available = [
+            task["minAvailable"]
+            for task in resource["spec"]["tasks"]  # pyre-ignore[16]
+        ]
+        self.assertEqual(min_available, [1, 1, 0])
+
 
 class KubernetesSchedulerNoImportTest(unittest.TestCase):
     """
@@ -896,4 +948,4 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
         )
 
         with self.assertRaises(ModuleNotFoundError):
-            scheduler._submit_dryrun(app, cfg)
+            scheduler.submit_dryrun(app, cfg)

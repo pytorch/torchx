@@ -15,7 +15,6 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple
 
 import torchx.specs as specs
-from pyre_extensions import none_throws
 from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
@@ -29,6 +28,7 @@ from torchx.specs.finder import (
     get_builtin_source,
     get_components,
 )
+from torchx.util.types import none_throws
 
 
 MISSING_COMPONENT_ERROR_MSG = (
@@ -161,6 +161,12 @@ class CmdRun(SubCommand):
             help="local workspace to build/patch (buck-target of main binary if using buck)",
         )
         subparser.add_argument(
+            "--parent_run_id",
+            type=str,
+            help="optional parent run ID that this run belongs to."
+            " It can be used to group runs for experiment tracking purposes",
+        )
+        subparser.add_argument(
             "component_name_and_args",
             nargs=argparse.REMAINDER,
         )
@@ -191,6 +197,7 @@ class CmdRun(SubCommand):
                     args.scheduler,
                     workspace=args.workspace,
                     cfg=cfg,
+                    parent_run_id=args.parent_run_id,
                 )
                 logger.info(
                     "\n=== APPLICATION ===\n"
@@ -205,6 +212,7 @@ class CmdRun(SubCommand):
                     args.scheduler,
                     workspace=args.workspace,
                     cfg=cfg,
+                    parent_run_id=args.parent_run_id,
                 )
                 # DO NOT delete this line. It is used by slurm tests to retrieve the app id
                 print(app_handle)

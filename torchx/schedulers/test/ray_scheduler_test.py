@@ -8,6 +8,7 @@ import os
 import tempfile
 from contextlib import contextmanager
 from dataclasses import dataclass
+from shutil import copy2
 from typing import Any, cast, Iterable, Iterator, List, Optional, Type
 from unittest import TestCase
 from unittest.mock import patch
@@ -17,7 +18,6 @@ from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppRes
 from torchx.schedulers.ray.ray_common import RayActor
 from torchx.schedulers.ray_scheduler import has_ray
 from torchx.specs import AppDef, Resource, Role, runopts
-
 
 if has_ray():
     import ray
@@ -318,10 +318,45 @@ if has_ray():
                 self.assertEqual(parsed_appid, app_id)
 
         def test_list_throws_without_address(self) -> None:
+            if "RAY_ADDRESS" in os.environ:
+                del os.environ["RAY_ADDRESS"]
             with self.assertRaisesRegex(
                 Exception, "RAY_ADDRESS env variable is expected"
             ):
                 self._scheduler.list()
+
+        def test_min_replicas(self) -> None:
+            app = AppDef(
+                name="app",
+                roles=[
+                    Role(
+                        name="role",
+                        image="/tmp/",
+                        num_replicas=2,
+                    ),
+                ],
+            )
+            req = self._scheduler._submit_dryrun(app, cfg={})
+            job = req.request
+            self.assertEqual(job.actors[0].min_replicas, None)
+
+            app.roles[0].min_replicas = 1
+            req = self._scheduler._submit_dryrun(app, cfg={})
+            job = req.request
+            self.assertEqual(job.actors[0].min_replicas, 1)
+
+            app.roles.append(
+                Role(
+                    name="role",
+                    image="/tmp/",
+                    num_replicas=2,
+                    min_replicas=1,
+                )
+            )
+            with self.assertRaisesRegex(
+                ValueError, "min_replicas is only supported with single role jobs"
+            ):
+                self._scheduler._submit_dryrun(app, cfg={})
 
     class RayClusterSetup:
         _instance = None  # pyre-ignore
@@ -330,7 +365,7 @@ if has_ray():
         def __new__(cls):  # pyre-ignore
             if cls._instance is None:
                 cls._instance = super(RayClusterSetup, cls).__new__(cls)
-                ray.shutdown()  # pyre-ignore
+                ray.shutdown()
                 cls._cluster = Cluster(
                     initialize_head=True,
                     head_node_args={
@@ -343,7 +378,7 @@ if has_ray():
             return cls._instance
 
         @property
-        def workers(self) -> List[ray.node.Node]:
+        def workers(self) -> List[object]:
             return list(self._cluster.worker_nodes)
 
         def add_node(self, num_cpus: int = 1) -> None:
@@ -360,7 +395,6 @@ if has_ray():
                 self.teardown_ray_cluster()
 
         def teardown_ray_cluster(self) -> None:
-            # pyre-fixme[16]: Module `worker` has no attribute `shutdown`.
             ray.shutdown()
             self._cluster.shutdown()
             del os.environ["RAY_ADDRESS"]
@@ -497,7 +531,6 @@ if has_ray():
                 len(driver.placement_groups), 2
             )  # 2 placement groups created
             self.assertEqual(len(driver.active_tasks), 0)
-            # pyre-ignore
             created, pending = ray.wait(
                 [driver.placement_groups[0].ready(), driver.placement_groups[1].ready()]
             )
@@ -546,7 +579,6 @@ if has_ray():
         def test_ray_cluster(self) -> None:
             ray_cluster_setup = RayClusterSetup()
             ray_scheduler = self.setup_ray_cluster()
-            # pyre-fixme[16]: Module `worker` has no attribute `is_initialized`.
             self.assertTrue(ray.is_initialized())
 
             job_id = self.schedule_ray_job(ray_scheduler)
@@ -562,7 +594,7 @@ if has_ray():
             self.assertIsNotNone(status)
 
             apps = self.list(ray_scheduler)
-            self.assertEquals(len(apps), 1)
+            self.assertEqual(len(apps), 2)
             self.assertEqual(apps[0].app_id, job_id)
 
             ray_cluster_setup.decrement_reference()
@@ -575,17 +607,23 @@ if has_ray():
             self, ray_scheduler: RayScheduler, app_id: str = "123"
         ) -> str:
             current_dir = os.path.dirname(os.path.realpath(__file__))
+            # Ray packaging honours .gitignore file -> create staging directory just for packaging:
+            #  - job will use it as a cwd and copy ray_driver.py
+            #  - test will copy training script to the same destination
+            staging_dir = os.path.join(current_dir, "staging")
+            os.makedirs(staging_dir, exist_ok=True)
+            copy2(os.path.join(current_dir, "train.py"), staging_dir)
             actors = [
                 RayActor(
                     name="ddp",
                     num_cpus=1,
-                    command=[os.path.join(current_dir, "train.py")],
+                    command=[os.path.join(staging_dir, "train.py")],
                     min_replicas=2,
                 ),
                 RayActor(
                     name="ddp",
                     num_cpus=1,
-                    command=[os.path.join(current_dir, "train.py")],
+                    command=[os.path.join(staging_dir, "train.py")],
                     min_replicas=2,
                 ),
             ]
@@ -594,7 +632,7 @@ if has_ray():
                 app_id=app_id,
                 dashboard_address="127.0.0.1:8265",
                 actors=actors,
-                working_dir=current_dir,
+                working_dir=staging_dir,
             )
             app_info = AppDryRunInfo(ray_job, repr)
             job_id = ray_scheduler.schedule(app_info)

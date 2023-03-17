@@ -8,8 +8,8 @@
 Trainer Datasets Example
 ========================
 
-This is the datasets used for the training example. It's using stock Pytorch
-Lightning + Classy Vision libraries.
+This is the datasets used for the training example. It's using PyTorch Lightning
+libraries.
 """
 
 import os.path
@@ -19,7 +19,6 @@ from typing import Callable, Optional
 import fsspec
 import numpy
 import pytorch_lightning as pl
-from classy_vision.dataset.classy_dataset import ClassyDataset
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -28,32 +27,34 @@ from tqdm import tqdm
 
 
 # %%
-# This uses classy vision to define a dataset that we will then later use in our
+# This uses torchvision to define a dataset that we will then later use in our
 # Pytorch Lightning data module.
 
 
-class TinyImageNetDataset(ClassyDataset):
+class ImageFolderSamplesDataset(datasets.ImageFolder):
     """
-    TinyImageNetDataset is a ClassyDataset for the tiny imagenet dataset.
+    ImageFolderSamplesDataset is a wrapper around ImageFolder that allows you to
+    limit the number of samples.
     """
 
     def __init__(
         self,
-        data_path: str,
-        transform: Callable[[object], object],
+        root: str,
+        transform: Optional[Callable[..., object]] = None,
         num_samples: Optional[int] = None,
+        **kwargs: object,
     ) -> None:
-        batchsize_per_replica = 16
-        shuffle = False
-        dataset = datasets.ImageFolder(data_path)
-        super().__init__(
-            # pyre-fixme[6]
-            dataset,
-            batchsize_per_replica,
-            shuffle,
-            transform,
-            num_samples,
-        )
+        """
+        Args:
+            num_samples: optional. limits the size of the dataset
+        """
+        super().__init__(root, transform=transform)
+        self.num_samples = num_samples
+
+    def __len__(self) -> int:
+        if self.num_samples is not None:
+            return self.num_samples
+        return super().__len__()
 
 
 # %%
@@ -69,9 +70,9 @@ class TinyImageNetDataModule(pl.LightningDataModule):
     imagenet dataset.
     """
 
-    train_ds: TinyImageNetDataset
-    val_ds: TinyImageNetDataset
-    test_ds: TinyImageNetDataset
+    train_ds: ImageFolderSamplesDataset
+    val_ds: ImageFolderSamplesDataset
+    test_ds: ImageFolderSamplesDataset
 
     def __init__(
         self, data_dir: str, batch_size: int = 16, num_samples: Optional[int] = None
@@ -88,32 +89,29 @@ class TinyImageNetDataModule(pl.LightningDataModule):
                 transforms.ToTensor(),
             ]
         )
-        self.train_ds = TinyImageNetDataset(
-            data_path=os.path.join(self.data_dir, "train"),
-            transform=lambda x: (img_transform(x[0]), x[1]),
+        self.train_ds = ImageFolderSamplesDataset(
+            root=os.path.join(self.data_dir, "train"),
+            transform=img_transform,
             num_samples=self.num_samples,
         )
-        self.val_ds = TinyImageNetDataset(
-            data_path=os.path.join(self.data_dir, "val"),
-            transform=lambda x: (img_transform(x[0]), x[1]),
+        self.val_ds = ImageFolderSamplesDataset(
+            root=os.path.join(self.data_dir, "val"),
+            transform=img_transform,
             num_samples=self.num_samples,
         )
-        self.test_ds = TinyImageNetDataset(
-            data_path=os.path.join(self.data_dir, "test"),
-            transform=lambda x: (img_transform(x[0]), x[1]),
+        self.test_ds = ImageFolderSamplesDataset(
+            root=os.path.join(self.data_dir, "test"),
+            transform=img_transform,
             num_samples=self.num_samples,
         )
 
     def train_dataloader(self) -> DataLoader:
-        # pyre-fixme[6]
         return DataLoader(self.train_ds, batch_size=self.batch_size)
 
     def val_dataloader(self) -> DataLoader:
-        # pyre-fixme[6]:
         return DataLoader(self.val_ds, batch_size=self.batch_size)
 
     def test_dataloader(self) -> DataLoader:
-        # pyre-fixme[6]
         return DataLoader(self.test_ds, batch_size=self.batch_size)
 
     def teardown(self, stage: Optional[str] = None) -> None:

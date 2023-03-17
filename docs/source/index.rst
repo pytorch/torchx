@@ -45,6 +45,7 @@ Documentation
    runner.config
    advanced
    custom_components.md
+   tracker
 
 .. fbcode::
 
@@ -53,8 +54,12 @@ Documentation
       :caption: Usage (Meta)
 
       fb/quickstart.md
+      fb/setup.md
+      fb/images.md
+      fb/workspace.md
       fb/cogwheel.rst
       fb/named_resources.rst
+      fb/tracker.md
 
 
 Works With
@@ -68,9 +73,12 @@ Works With
    schedulers/local
    schedulers/docker
    schedulers/kubernetes
+   schedulers/kubernetes_mcad
    schedulers/slurm
    schedulers/ray
    schedulers/aws_batch
+   schedulers/lsf
+   schedulers/gcp_batch
 
 .. fbcode::
 
@@ -126,6 +134,15 @@ Components Library
    components/metrics
    components/serve
    components/utils
+
+.. fbcode::
+
+   .. toctree::
+      :maxdepth: 1
+      :caption: Components (Meta)
+      :glob:
+
+      components/fb/*
 
 Runtime Library
 ----------------

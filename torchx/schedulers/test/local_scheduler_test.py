@@ -23,7 +23,6 @@ from typing import Callable, Generator, Optional
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-from pyre_extensions import none_throws
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     _join_PATH,
@@ -36,6 +35,8 @@ from torchx.schedulers.local_scheduler import (
     ReplicaParam,
 )
 from torchx.specs.api import AppDef, AppState, is_terminal, macros, Resource, Role
+
+from torchx.util.types import none_throws
 
 from .test_util import write_shell_script
 
@@ -990,16 +991,13 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         self._test_orphan_workflow()
 
     def _test_orphan_workflow(self) -> None:
-        mp_queue = mp.get_context("spawn").Queue()
+        mp_queue = mp.Queue()
         child_nproc = 2
 
-        proc = mp.get_context("spawn").Process(
+        proc = mp.Process(
             target=start_sleep_processes, args=(self.test_dir, mp_queue, child_nproc)
         )
         proc.start()
-        # Before querying the queue we need to wait
-        # Otherwise we will get `FileNotFoundError: [Errno 2] No such file or directory` error
-        time.sleep(10)
         total_processes = child_nproc + 1
         pids = []
         for _ in range(total_processes):

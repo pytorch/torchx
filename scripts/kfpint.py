@@ -49,8 +49,6 @@ from typing import Any, Callable, Iterator, Optional, TypeVar
 
 import kfp
 
-# pyre-ignore-all-errors[21] # Cannot find module utils
-# pyre-ignore-all-errors[11]
 from integ_test_utils import (
     build_images,
     BuildInfo,
@@ -60,7 +58,7 @@ from integ_test_utils import (
     run,
     run_in_bg,
 )
-from pyre_extensions import none_throws
+from torchx.util.types import none_throws
 from urllib3.exceptions import MaxRetryError
 
 T = TypeVar("T")
@@ -237,6 +235,7 @@ async def exec_job() -> None:
         help="if specified save the build to path and exit",
         action="store_true",
     )
+    parser.add_argument("--container_repo", type=str)
     args = parser.parse_args()
 
     with path_or_tmp(args.path) as path:
@@ -245,7 +244,7 @@ async def exec_job() -> None:
         dist_pipeline_file = os.path.join(path, "dist_pipeline.yaml")
         build = build_images()
         try:
-            push_images(build)
+            push_images(build, container_repo=args.container_repo)
         except MissingEnvError as e:
             print(f"Missing environments, only building: {e}")
             return

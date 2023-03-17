@@ -33,61 +33,158 @@ from typing import Callable, Mapping
 
 from torchx.specs.api import Resource
 
-GiB: int = 1024
+# ecs and ec2 have memtax and currently AWS Batch uses hard memory limits
+# so we have to account for mem tax when registering these resources for AWS
+# otherwise the job will be stuck in the jobqueue forever
+# 97% is based on empirical observation that works well for most instance types
+# see: https://docs.aws.amazon.com/batch/latest/userguide/memory-management.html
+MEM_TAX = 0.97
+K8S_ITYPE = "node.kubernetes.io/instance-type"
+GiB: int = int(1024 * MEM_TAX)
 
 
 def aws_p3_2xlarge() -> Resource:
     return Resource(
-        cpu=8,
-        gpu=1,
-        memMB=61 * GiB,
-        capabilities={
-            "node.kubernetes.io/instance-type": "p3.2xlarge",
-        },
+        cpu=8, gpu=1, memMB=61 * GiB, capabilities={K8S_ITYPE: "p3.2xlarge"}
     )
 
 
 def aws_p3_8xlarge() -> Resource:
     return Resource(
-        cpu=32,
-        gpu=4,
-        memMB=244 * GiB,
-        capabilities={
-            "node.kubernetes.io/instance-type": "p3.8xlarge",
-        },
+        cpu=32, gpu=4, memMB=244 * GiB, capabilities={K8S_ITYPE: "p3.8xlarge"}
+    )
+
+
+def aws_p3_16xlarge() -> Resource:
+    return Resource(
+        cpu=64, gpu=8, memMB=488 * GiB, capabilities={K8S_ITYPE: "p3.16xlarge"}
+    )
+
+
+def aws_p3dn_24xlarge() -> Resource:
+    return Resource(
+        cpu=96, gpu=8, memMB=768 * GiB, capabilities={K8S_ITYPE: "p3dn.24xlarge"}
+    )
+
+
+def aws_p4d_24xlarge() -> Resource:
+    return Resource(
+        cpu=96, gpu=8, memMB=1152 * GiB, capabilities={K8S_ITYPE: "p4d.24xlarge"}
+    )
+
+
+def aws_p4de_24xlarge() -> Resource:
+    # p4de has same cpu, gpu, memMB as p4d but gpu memory is 2x (32GB vs 64GB per GPU)
+    return Resource(
+        cpu=96, gpu=8, memMB=1152 * GiB, capabilities={K8S_ITYPE: "p4de.24xlarge"}
     )
 
 
 def aws_t3_medium() -> Resource:
-    return Resource(
-        cpu=2,
-        gpu=0,
-        memMB=4 * GiB,
-        capabilities={
-            "node.kubernetes.io/instance-type": "t3.medium",
-        },
-    )
+    return Resource(cpu=2, gpu=0, memMB=4 * GiB, capabilities={K8S_ITYPE: "t3.medium"})
 
 
 def aws_m5_2xlarge() -> Resource:
     return Resource(
-        cpu=8,
-        gpu=0,
-        memMB=32 * GiB,
-        capabilities={
-            "node.kubernetes.io/instance-type": "m5.2xlarge",
-        },
+        cpu=8, gpu=0, memMB=32 * GiB, capabilities={K8S_ITYPE: "m5.2xlarge"}
     )
 
 
 def aws_g4dn_xlarge() -> Resource:
     return Resource(
-        cpu=4,
-        gpu=1,
-        memMB=16 * GiB,
-        capabilities={
-            "node.kubernetes.io/instance-type": "g4dn.xlarge",
-        },
+        cpu=4, gpu=1, memMB=16 * GiB, capabilities={K8S_ITYPE: "g4dn.xlarge"}
+    )
+
+
+def aws_g4dn_2xlarge() -> Resource:
+    return Resource(
+        cpu=8, gpu=1, memMB=32 * GiB, capabilities={K8S_ITYPE: "g4dn.2xlarge"}
+    )
+
+
+def aws_g4dn_4xlarge() -> Resource:
+    return Resource(
+        cpu=16, gpu=1, memMB=64 * GiB, capabilities={K8S_ITYPE: "g4dn.4xlarge"}
+    )
+
+
+def aws_g4dn_8xlarge() -> Resource:
+    return Resource(
+        cpu=32, gpu=1, memMB=128 * GiB, capabilities={K8S_ITYPE: "g4dn.8xlarge"}
+    )
+
+
+def aws_g4dn_16xlarge() -> Resource:
+    return Resource(
+        cpu=64, gpu=1, memMB=256 * GiB, capabilities={K8S_ITYPE: "g4dn.16xlarge"}
+    )
+
+
+def aws_g4dn_12xlarge() -> Resource:
+    return Resource(
+        cpu=48, gpu=4, memMB=192 * GiB, capabilities={K8S_ITYPE: "g4dn.12xlarge"}
+    )
+
+
+def aws_g4dn_metal() -> Resource:
+    return Resource(
+        cpu=96, gpu=8, memMB=384 * GiB, capabilities={K8S_ITYPE: "g4dn.metal"}
+    )
+
+
+def aws_g5_xlarge() -> Resource:
+    return Resource(cpu=4, gpu=1, memMB=16 * GiB, capabilities={K8S_ITYPE: "g5.xlarge"})
+
+
+def aws_g5_2xlarge() -> Resource:
+    return Resource(
+        cpu=8, gpu=1, memMB=32 * GiB, capabilities={K8S_ITYPE: "g5.2xlarge"}
+    )
+
+
+def aws_g5_4xlarge() -> Resource:
+    return Resource(
+        cpu=16, gpu=1, memMB=64 * GiB, capabilities={K8S_ITYPE: "g5.4xlarge"}
+    )
+
+
+def aws_g5_8xlarge() -> Resource:
+    return Resource(
+        cpu=32, gpu=1, memMB=128 * GiB, capabilities={K8S_ITYPE: "g5.8xlarge"}
+    )
+
+
+def aws_g5_16xlarge() -> Resource:
+    return Resource(
+        cpu=64, gpu=1, memMB=256 * GiB, capabilities={K8S_ITYPE: "g5.16xlarge"}
+    )
+
+
+def aws_g5_12xlarge() -> Resource:
+    return Resource(
+        cpu=48, gpu=4, memMB=192 * GiB, capabilities={K8S_ITYPE: "g5.12xlarge"}
+    )
+
+
+def aws_g5_24xlarge() -> Resource:
+    return Resource(
+        cpu=96, gpu=4, memMB=384 * GiB, capabilities={K8S_ITYPE: "g5.24xlarge"}
+    )
+
+
+def aws_g5_48xlarge() -> Resource:
+    return Resource(
+        cpu=192, gpu=8, memMB=768 * GiB, capabilities={K8S_ITYPE: "g5.48xlarge"}
+    )
+
+
+def aws_trn1_2xl() -> Resource:
+    return Resource(cpu=8, gpu=0, memMB=32 * GiB, capabilities={K8S_ITYPE: "trn1.2xl"})
+
+
+def aws_trn1_32xl() -> Resource:
+    return Resource(
+        cpu=128, gpu=0, memMB=512 * GiB, capabilities={K8S_ITYPE: "trn1.32xl"}
     )
 
 
@@ -96,5 +193,25 @@ NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_m5.2xlarge": aws_m5_2xlarge,
     "aws_p3.2xlarge": aws_p3_2xlarge,
     "aws_p3.8xlarge": aws_p3_8xlarge,
+    "aws_p3.16xlarge": aws_p3_16xlarge,
+    "aws_p3dn.24xlarge": aws_p3dn_24xlarge,
+    "aws_p4d.24xlarge": aws_p4d_24xlarge,
+    "aws_p4de.24xlarge": aws_p4de_24xlarge,
     "aws_g4dn.xlarge": aws_g4dn_xlarge,
+    "aws_g4dn.2xlarge": aws_g4dn_2xlarge,
+    "aws_g4dn.4xlarge": aws_g4dn_4xlarge,
+    "aws_g4dn.8xlarge": aws_g4dn_8xlarge,
+    "aws_g4dn.16xlarge": aws_g4dn_16xlarge,
+    "aws_g4dn.12xlarge": aws_g4dn_12xlarge,
+    "aws_g4dn.metal": aws_g4dn_metal,
+    "aws_g5.xlarge": aws_g5_xlarge,
+    "aws_g5.2xlarge": aws_g5_2xlarge,
+    "aws_g5.4xlarge": aws_g5_4xlarge,
+    "aws_g5.8xlarge": aws_g5_8xlarge,
+    "aws_g5.16xlarge": aws_g5_16xlarge,
+    "aws_g5.12xlarge": aws_g5_12xlarge,
+    "aws_g5.24xlarge": aws_g5_24xlarge,
+    "aws_g5.48xlarge": aws_g5_48xlarge,
+    "aws_trn1.2xl": aws_trn1_2xl,
+    "aws_trn1.32xl": aws_trn1_32xl,
 }

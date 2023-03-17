@@ -40,7 +40,11 @@ training script is called ``main.py``, launch it as:
     # remote (optionally pass --rdzv_port to use a different master port than the default 29500)
     $ torchx run -s kubernetes -cfg queue=default dist.ddp \\
         -j 2x4 \\
-        --script main.py \\
+        --script main.py
+
+    # remote -- elastic/autoscaling with 2 minimum and max 5 nodes with 8
+    # workers each
+    $ torchx run -s kubernetes dist.ddp -j 2:5x8 --script main.py
 
 
 Note that the only difference compared to the local launch is the scheduler (``-s``).
@@ -115,7 +119,7 @@ def ddp(
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
         h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
-        j: {nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
+        j: [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
         env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
         max_retries: the number of scheduler retries allowed
         rdzv_port: the port on rank0's host to use for hosting the c10d store used for rendezvous.
@@ -150,7 +154,14 @@ def ddp(
         # but pending until the resources become available
         rdzv_endpoint = "localhost:0"
     else:
-        rdzv_endpoint = _noquote(f"$${macros.rank0_env}:{rdzv_port}")
+        # for multi-node, rely on the rank0_env environment variable set by
+        # the schedulers (see scheduler implementation for the actual env var this maps to)
+        # some schedulers (e.g. aws batch) make the rank0's ip-addr available on all BUT on rank0
+        # so default to "localhost" if the env var is not set or is empty
+        # rdzv_endpoint bash resolves to something to the effect of
+        # ${TORCHX_RANK0_HOST:=localhost}:29500
+        # use $$ in the prefix to escape the '$' literal (rather than a string Template substitution argument)
+        rdzv_endpoint = _noquote(f"$${{{macros.rank0_env}:=localhost}}:{rdzv_port}")
 
     if env is None:
         env = {}
@@ -160,9 +171,7 @@ def ddp(
         env.update(_TORCH_DEBUG_FLAGS)
 
     cmd = [
-        "python",
-        "-m",
-        "torch.distributed.run",
+        "torchrun",
         "--rdzv_backend",
         rdzv_backend,
         "--rdzv_endpoint",
@@ -224,6 +233,10 @@ class _noquote(str):
 
 
 def parse_nnodes(j: str) -> Tuple[int, int, int, str]:
+    """
+    parse_nnodes converts a node and process string into the individual
+    components. Format is ``[[<min_replicas>:]<replicas>x]<num processes>``.
+    """
     if re.match("^\\d+:\\d+x\\d+$", j):  # match 2:4x1
         nnodes_rep, nproc_per_node = j.split("x")
         min_nnodes, max_nnodes = nnodes_rep.split(":")

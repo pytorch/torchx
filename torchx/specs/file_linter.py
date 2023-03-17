@@ -13,8 +13,8 @@ from dataclasses import dataclass
 from typing import Callable, cast, Dict, List, Optional, Tuple
 
 from docstring_parser import parse
-from pyre_extensions import none_throws
 from torchx.util.io import read_conf_file
+from torchx.util.types import none_throws
 
 
 # pyre-ignore-all-errors[16]
@@ -75,7 +75,8 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
         return default_fn_desc, args_description
     docstring = parse(func_description)
     for param in docstring.params:
-        args_description[param.arg_name] = param.description
+        if param.description is not None:
+            args_description[param.arg_name] = param.description
     short_func_description = docstring.short_description or default_fn_desc
     if docstring.long_description:
         short_func_description += " ..."

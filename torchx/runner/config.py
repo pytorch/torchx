@@ -54,7 +54,7 @@ CLI Usage
    by the scheduler. Replace these with the values that apply to you.
 
 #. **IMPORTANT:** If you are happy with the scheduler provided defaults for a particular
-   run config, you **should not** redundantly specity them in ``.torchxconfig`` with the
+   run config, you **should not** redundantly specify them in ``.torchxconfig`` with the
    same default value. This is because the scheduler may decide to change the default
    value at a later date which would leave you with a stale default.
 
@@ -73,6 +73,21 @@ CLI Usage
    load at runtime. Requirements are that the config path is specified by enviornment
    variable TORCHX_CONFIG. It also disables hierarchy loading configs from multiple
    directories as the cases otherwise.
+
+#. User level .torchxconfig
+   In addition to the project-level .torchxconfig at the root of the project directory,
+   you can create one in ``$HOME/.torchxconfig`` to override or specify additional default configs.
+   This config file will get overlaid on top of the one defined at the project root.
+
+#. Config options take the following precedence (high to low):
+    1. Options specified directly from the CLI
+    2. If TORCHXCONFIG env variable is set, the options specified in that file
+    3. If TORCHXCONFIG env variable is not set,
+        a. Options specified in user level .torchxconfig (``$HOME/.torchxconfig``)
+        b. Options specified in .torchxconfig
+    4. Any default values in the code
+
+   Note that malformed or unrecognized options are simply skipped and not applied
 
 **Component Config**
 
@@ -383,7 +398,7 @@ def load_sections(
 def get_configs(
     prefix: str,
     name: str,
-    dirs: Optional[List[str]],
+    dirs: Optional[List[str]] = None,
 ) -> Dict[str, str]:
     """
     Gets all the config values in the section ``["{prefix}:{name}"]``.

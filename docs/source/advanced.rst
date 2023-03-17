@@ -125,9 +125,9 @@ resource can then be used in the following manner:
 
 .. testsetup:: role
 
-   from torchx.specs import named_resources, Resource
+   from torchx.specs import _named_resource_factories, Resource
 
-   named_resources["gpu_x2"] = Resource(cpu=16, gpu=2, memMB=122_000)
+   _named_resource_factories["gpu_x2"] = lambda: Resource(cpu=16, gpu=2, memMB=122_000)
 
 
 .. doctest:: role
@@ -156,7 +156,7 @@ resource can then be used in the following manner:
 
 Registering Custom Components
 -------------------------------
-It is possible to author and register a custom set of components with the
+You can author and register a custom set of components with the
 ``torchx`` CLI as builtins to the CLI. This makes it possible to customize
 a set of components most relevant to your team or organization and support
 it as a CLI ``builtin``. This way users will see your custom components
@@ -166,8 +166,25 @@ when they run
 
  $ torchx builtins
 
-Custom components can be registered via the following modification of the ``entry_points``:
+Custom components can be registered via ``[torchx.components]`` entrypoints.
+If ``my_project.bar`` had the following directory structure:
 
+::
+
+ $PROJECT_ROOT/my_project/bar/
+     |- baz.py
+
+And ``baz.py`` had a single component (function) called ``trainer``:
+
+::
+
+ # baz.py
+ import torchx.specs as specs
+
+ def trainer(...) -> specs.AppDef: ...
+
+
+And the entrypoints were added as:
 
 .. testcode::
 
@@ -179,29 +196,96 @@ Custom components can be registered via the following modification of the ``entr
        ],
    }
 
-The line above registers a group ``foo`` that is associated with the module ``my_project.bar``.
-TorchX will recursively traverse lowest level dir associated with the ``my_project.bar`` and will find
-all defined components.
+TorchX will search the module ``my_project.bar`` for all defined components and group the found
+components under the ``foo.*`` prefix. In this case, the component ``my_project.bar.baz.trainer``
+would be registered with the name ``foo.baz.trainer``.
 
-.. note:: If there are two registry entries, e.g. ``foo = my_project.bar`` and ``test = my_project``
-          there will be two sets of overlapping components with different aliases.
+.. note::
+    Only python packages (those directories with an ``__init__.py`` file)
+    are searched for and TorchX makes no attempt to recurse into namespace packages
+    (directories without a ``__init__.py`` file).
+    However you may register a top level namespace package.
 
-
-After registration, torchx cli will display registered components via:
+``torchx`` CLI will display registered components via:
 
 .. code-block:: shell-session
 
  $ torchx builtins
+ Found 1 builtin components:
+ 1. foo.baz.trainer
 
-If ``my_project.bar`` had the following directory structure:
-
-::
-
- $PROJECT_ROOT/my_project/bar/
-     |- baz.py
-
-And ``baz.py`` defines a component (function) called ``trainer``. Then the component can be run as a job in the following manner:
+The custom component can then be used as:
 
 .. code-block:: shell-session
 
  $ torchx run foo.baz.trainer -- --name "test app"
+
+
+When you register your own components, TorchX will not include its own builtins. To add TorchX's
+builtin components you must specify another entry as:
+
+
+.. testcode::
+
+   # setup.py
+   ...
+   entry_points={
+       "torchx.components": [
+           "foo = my_project.bar",
+           "torchx = torchx.components",
+       ],
+   }
+
+This will add back the TorchX builtins but with a ``torchx.*`` component name prefix (e.g. ``torchx.dist.ddp``
+versus the default ``dist.ddp``).
+
+If there are two registry entries pointing to the same component, for instance
+
+.. testcode::
+
+   # setup.py
+   ...
+   entry_points={
+       "torchx.components": [
+           "foo = my_project.bar",
+           "test = my_project",
+       ],
+   }
+
+
+There will be two sets of overlapping components for those components in ``my_project.bar`` with different
+prefix aliases: ``foo.*`` and ``test.bar.*``. Concretely,
+
+.. code-block:: shell-session
+
+ $ torchx builtins
+ Found 2 builtin components:
+ 1. foo.baz.trainer
+ 2. test.bar.baz.trainer
+
+To omit groupings and make the component names shorter, use underscore (e.g ``_`` or ``_0``, ``_1``, etc).
+For example:
+
+.. testcode::
+
+   # setup.py
+   ...
+   entry_points={
+       "torchx.components": [
+           "_0 = my_project.bar",
+           "_1 = torchx.components",
+       ],
+   }
+
+This has the effect of exposing the trainer component as ``baz.trainer`` (as opposed to ``foo.baz.trainer``)
+and adds back the builtin components as in the vanilla installation of torchx, without the ``torchx.*`` prefix.
+
+.. code-block:: shell-session
+
+ $ torchx builtins
+ Found 11 builtin components:
+ 1. baz.trainer
+ 2. dist.ddp
+ 3. utils.python
+ 4. ... <more builtins from torchx.components.* ...>
+

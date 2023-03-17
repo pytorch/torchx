@@ -175,7 +175,7 @@ def component_from_app(
                 ),
             )
 
-        c.pod_labels.update(pod_labels(app, 0, role_spec, 0))
+        c.pod_labels.update(pod_labels(app, 0, role_spec, 0, app.name))
 
         return c
 

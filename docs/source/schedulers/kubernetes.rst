@@ -17,7 +17,6 @@ Reference
 
 .. autofunction:: create_scheduler
 .. autofunction:: app_to_resource
-.. autofunction:: cleanup_str
 .. autofunction:: pod_labels
 .. autofunction:: role_to_pod
 .. autofunction:: sanitize_for_serialization

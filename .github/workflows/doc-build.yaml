@@ -8,7 +8,7 @@ on:
 
 jobs:
   docbuild:
-    runs-on: ubuntu-18.04
+    runs-on: linux.20_04.4x
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -20,6 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -eux
+          sudo apt-get update
           sudo apt-get install -y pandoc
           pip install -e .[dev]
           pip install -r docs/requirements.txt
@@ -61,7 +62,7 @@ jobs:
           fi
 
   docpush:
-    runs-on: ubuntu-18.04
+    runs-on: linux.20_04.4x
     needs: docbuild
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:

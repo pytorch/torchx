@@ -41,7 +41,7 @@ from torchx.specs import (
     RoleStatus,
     runopts,
 )
-from torchx.workspace.dir_workspace import DirWorkspace
+from torchx.workspace.dir_workspace import DirWorkspaceMixin
 from typing_extensions import TypedDict
 
 SLURM_JOB_DIRS = ".torchxslurmjobdirs"
@@ -257,7 +257,7 @@ fi
 {self.materialize()}"""
 
 
-class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
+class SlurmScheduler(DirWorkspaceMixin, Scheduler[SlurmOpts]):
     """
     SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects
     that slurm CLI tools are locally installed and job accounting is enabled.
@@ -311,9 +311,10 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
                 Partial support. SlurmScheduler will return job and replica
                 status but does not provide the complete original AppSpec.
             workspaces: |
-                If ``job_dir`` is specified the DirWorkspace will create a new
+                If ``job_dir`` is specified the DirWorkspaceMixin will create a new
                 isolated directory with a snapshot of the workspace.
             mounts: false
+            elasticity: false
 
     If a partition has less than 1GB of RealMemory configured we disable memory
     requests to workaround https://github.com/aws/aws-parallelcluster/issues/2198.
@@ -322,7 +323,7 @@ class SlurmScheduler(Scheduler[SlurmOpts], DirWorkspace):
     def __init__(self, session_name: str) -> None:
         super().__init__("slurm", session_name)
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "partition",

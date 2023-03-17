@@ -37,7 +37,7 @@ def pipeline() -> None:
     # To convert the TorchX AppDef into a KFP container we use
     # the resource_from_app adapter. This takes generates a KFP Kubernetes
     # resource operator definition from the TorchX app def and instantiates it.
-    echo_container: kfp.dsl.BaseOp = resource_from_app(echo_app, queue="test")
+    echo_container: kfp.dsl.BaseOp = resource_from_app(echo_app, queue="default")
 
 
 # %%

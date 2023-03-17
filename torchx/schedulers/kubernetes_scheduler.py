@@ -29,11 +29,20 @@ for more information.
 
 import json
 import logging
-import re
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, TYPE_CHECKING
+from typing import (
+    Any,
+    cast,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    TYPE_CHECKING,
+)
 
 import torchx
 import yaml
@@ -51,6 +60,7 @@ from torchx.specs.api import (
     AppDef,
     AppState,
     BindMount,
+    CfgVal,
     DeviceMount,
     macros,
     ReplicaState,
@@ -61,7 +71,8 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
-from torchx.workspace.docker_workspace import DockerWorkspace
+from torchx.util.strings import normalize_str
+from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 
 
@@ -70,11 +81,7 @@ if TYPE_CHECKING:
     from kubernetes.client import ApiClient, CustomObjectsApi
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Container,
-        V1ContainerPort,
-        V1EnvVar,
         V1Pod,
-        V1PodSpec,
-        V1ResourceRequirements,
     )
     from kubernetes.client.rest import ApiException
 
@@ -152,6 +159,9 @@ LABEL_APP_NAME = "torchx.pytorch.org/app-name"
 LABEL_ROLE_INDEX = "torchx.pytorch.org/role-index"
 LABEL_ROLE_NAME = "torchx.pytorch.org/role-name"
 LABEL_REPLICA_ID = "torchx.pytorch.org/replica-id"
+LABEL_KUBE_APP_NAME = "app.kubernetes.io/name"
+LABEL_ORGANIZATION = "app.kubernetes.io/managed-by"
+LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
 
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
@@ -328,19 +338,6 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
     )
 
 
-def cleanup_str(data: str) -> str:
-    """
-    Invokes ``lower`` on thes string and removes all
-    characters that do not satisfy ``[a-z0-9]`` pattern.
-    This method is mostly used to make sure kubernetes scheduler gets
-    the job name that does not violate its validation.
-    """
-    if data.startswith("-"):
-        data = data[1:]
-    pattern = r"[a-z0-9\-]"
-    return "".join(re.findall(pattern, data.lower()))
-
-
 def app_to_resource(
     app: AppDef,
     queue: str,
@@ -361,24 +358,32 @@ def app_to_resource(
     count is set to the minimum of the max_retries of the roles.
     """
     tasks = []
-    unique_app_id = cleanup_str(make_unique(app.name))
+    unique_app_id = normalize_str(make_unique(app.name))
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
                 img_root="",
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
-                rank0_env=f"VC_{cleanup_str(app.roles[0].name)}_0_HOSTS".upper(),
+                rank0_env=f"VC_{normalize_str(app.roles[0].name)}_0_HOSTS".upper(),
             )
             if role_idx == 0 and replica_id == 0:
                 values.rank0_env = "TORCHX_RANK0_HOST"
-            name = cleanup_str(f"{role.name}-{replica_id}")
+            name = normalize_str(f"{role.name}-{replica_id}")
             replica_role = values.apply(role)
             if role_idx == 0 and replica_id == 0:
                 replica_role.env["TORCHX_RANK0_HOST"] = "localhost"
 
             pod = role_to_pod(name, replica_role, service_account)
-            pod.metadata.labels.update(pod_labels(app, role_idx, role, replica_id))
+            pod.metadata.labels.update(
+                pod_labels(
+                    app=app,
+                    role_idx=role_idx,
+                    role=role,
+                    replica_id=replica_id,
+                    app_id=unique_app_id,
+                )
+            )
             task: Dict[str, Any] = {
                 "replicas": 1,
                 "name": name,
@@ -392,6 +397,9 @@ Role {role.name} configured with restarts: {role.max_retries}. As of 1.4.0 Volca
 does NOT support retries correctly. More info: https://github.com/volcano-sh/volcano/issues/1651
                 """
                 warnings.warn(msg)
+            if role.min_replicas is not None:
+                # first min_replicas tasks are required, afterward optional
+                task["minAvailable"] = 1 if replica_id < role.min_replicas else 0
             tasks.append(task)
 
     job_retries = min(role.max_retries for role in app.roles)
@@ -408,6 +416,7 @@ does NOT support retries correctly. More info: https://github.com/volcano-sh/vol
     }
     if priority_class is not None:
         job_spec["priorityClassName"] = priority_class
+
     resource: Dict[str, object] = {
         "apiVersion": "batch.volcano.sh/v1alpha1",
         "kind": "Job",
@@ -437,7 +446,7 @@ class KubernetesOpts(TypedDict, total=False):
     priority_class: Optional[str]
 
 
-class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
+class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
     """
     KubernetesScheduler is a TorchX scheduling interface to Kubernetes.
 
@@ -522,6 +531,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
                 status but does not provide the complete original AppSpec.
             workspaces: true
             mounts: true
+            elasticity: Requires Volcano >1.6
     """
 
     def __init__(
@@ -530,8 +540,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
-        Scheduler.__init__(self, "kubernetes", session_name)
-        DockerWorkspace.__init__(self, docker_client)
+        super().__init__("kubernetes", session_name, docker_client=docker_client)
 
         self._client = client
 
@@ -562,6 +571,12 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             logger.exception("Unable to retrieve job name, got exception", e)
             return None
 
+    def _get_active_context(self) -> Dict[str, Any]:
+        from kubernetes import config
+
+        contexts, active_context = config.list_kube_config_contexts()
+        return active_context
+
     def schedule(self, dryrun_info: AppDryRunInfo[KubernetesJob]) -> str:
         from kubernetes.client.rest import ApiException
 
@@ -570,7 +585,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
         namespace = cfg.get("namespace") or "default"
 
         images_to_push = dryrun_info.request.images_to_push
-        self._push_images(images_to_push)
+        self.push_images(images_to_push)
 
         resource = dryrun_info.request.resource
         try:
@@ -600,7 +615,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             raise TypeError(f"config value 'queue' must be a string, got {queue}")
 
         # map any local images to the remote image
-        images_to_push = self._update_app_images(app, cfg.get("image_repo"))
+        images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
         service_account = cfg.get("service_account")
         assert service_account is None or isinstance(
@@ -617,11 +632,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             resource=resource,
             images_to_push=images_to_push,
         )
-        info = AppDryRunInfo(req, repr)
-        info._app = app
-        # pyre-fixme: AppDryRunInfo
-        info._cfg = cfg
-        return info
+        return AppDryRunInfo(req, repr)
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
         # Skip validation step
@@ -637,7 +648,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             name=name,
         )
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "namespace",
@@ -650,11 +661,6 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             type_=str,
             help="Volcano queue to schedule job in",
             required=True,
-        )
-        opts.add(
-            "image_repo",
-            type_=str,
-            help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
         )
         opts.add(
             "service_account",
@@ -729,7 +735,7 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
 
         namespace, name = app_id.split(":")
 
-        pod_name = cleanup_str(f"{name}-{role_name}-{k}-0")
+        pod_name = normalize_str(f"{name}-{role_name}-{k}-0")
 
         args: Dict[str, object] = {
             "name": pod_name,
@@ -753,7 +759,8 @@ class KubernetesScheduler(Scheduler[KubernetesOpts], DockerWorkspace):
             return iterator
 
     def list(self) -> List[ListAppResponse]:
-        namespace = "default"
+        active_context = self._get_active_context()
+        namespace = active_context["context"]["namespace"]
         resp = self._custom_objects_api().list_namespaced_custom_object(
             group="batch.volcano.sh",
             version="v1alpha1",
@@ -777,7 +784,7 @@ def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
 
 
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int
+    app: AppDef, role_idx: int, role: Role, replica_id: int, app_id: str
 ) -> Dict[str, str]:
     return {
         LABEL_VERSION: torchx.__version__,
@@ -785,4 +792,7 @@ def pod_labels(
         LABEL_ROLE_INDEX: str(role_idx),
         LABEL_ROLE_NAME: role.name,
         LABEL_REPLICA_ID: str(replica_id),
+        LABEL_KUBE_APP_NAME: app.name,
+        LABEL_ORGANIZATION: "torchx.pytorch.org",
+        LABEL_UNIQUE_NAME: app_id,
     }

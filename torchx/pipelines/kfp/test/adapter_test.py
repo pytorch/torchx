@@ -129,6 +129,9 @@ outputs: []
             self.assertEqual(
                 a.pod_labels,
                 {
+                    "app.kubernetes.io/instance": "test",
+                    "app.kubernetes.io/managed-by": "torchx.pytorch.org",
+                    "app.kubernetes.io/name": "test",
                     "torchx.pytorch.org/version": torchx.__version__,
                     "torchx.pytorch.org/app-name": "test",
                     "torchx.pytorch.org/role-index": "0",

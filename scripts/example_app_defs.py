@@ -21,14 +21,15 @@ class CvTrainerComponentProvider(ComponentProvider):
             *("--output_path", "/tmp", "--skip_export", "--log_path", "/tmp"),
             image=self._image,
             j="1x1",
-            m="torchx.examples.apps.lightning_classy_vision.train",
+            m="torchx.examples.apps.lightning.train",
+            memMB=2048,
         )
 
 
 class DatapreprocComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
         return utils_python(
-            *("--output_path", "/tmp/test"),
+            *("--output_path", "/tmp/test", "--limit", "100"),
             image=self._image,
             m="torchx.examples.apps.datapreproc.datapreproc",
         )
