@@ -461,7 +461,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># make it the same as a custom component (e.g. /abs/path/to/component.py:train)</span>
-        <span class="n">component_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">module_path</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__file__</span>
+        <span class="k">assert</span> <span class="n">module_path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;module must have __file__: </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+        <span class="n">component_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">component_def</span> <span class="o">=</span> <span class="n">get_component</span><span class="p">(</span><span class="n">component_id</span><span class="p">)</span>
 
         <span class="c1"># on `--help` argparse will print the help message and exit 0</span>
