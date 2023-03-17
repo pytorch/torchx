@@ -8,6 +8,7 @@
 import argparse
 import logging
 
+from torchx.cli.argparse_util import scheduler_params
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.colors import ENDC, GREEN
 from torchx.runner.api import get_runner
@@ -26,7 +27,8 @@ class CmdRunopts(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         filter = args.scheduler
-        with get_runner() as runner:
+        params = scheduler_params(args.scheduler)
+        with get_runner(name=None, component_defaults=None, **params) as runner:
             for scheduler in runner.scheduler_backends():
                 if filter and scheduler != filter:
                     continue

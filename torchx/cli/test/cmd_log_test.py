@@ -9,7 +9,7 @@ import io
 import sys
 import unittest
 from datetime import datetime
-from typing import Iterator, Optional
+from typing import Any, Dict, Iterator, Optional
 from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_log import _prefix_line, ENDC, get_logs, GREEN, validate
@@ -33,7 +33,10 @@ class MockRunner(Runner):
     def __init__(self) -> None:
         pass
 
-    def __call__(self, name: Optional[str] = None) -> "MockRunner":
+    def __call__(self, 
+        name: Optional[str] = None, 
+        component_defaults: Optional[Dict[str, Dict[str, str]]] = None,
+        **scheduler_params: Any) -> "MockRunner":
         return self
 
     def describe(self, app_handle: str) -> AppDef:

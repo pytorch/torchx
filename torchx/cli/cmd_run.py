@@ -15,7 +15,7 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple
 
 import torchx.specs as specs
-from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
+from torchx.cli.argparse_util import CONFIG_DIRS, scheduler_params, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
 from torchx.runner import config, get_runner, Runner
@@ -244,7 +244,8 @@ class CmdRun(SubCommand):
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
         component_defaults = load_sections(prefix="component", dirs=CONFIG_DIRS)
-        with get_runner(component_defaults=component_defaults) as runner:
+        sched_params = scheduler_params(args.scheduler)
+        with get_runner(component_defaults=component_defaults, **sched_params) as runner:
             self._run(runner, args)
 
     def _wait_and_exit(self, runner: Runner, app_handle: str, log: bool) -> None:
