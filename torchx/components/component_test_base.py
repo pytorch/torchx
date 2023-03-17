@@ -68,7 +68,10 @@ class ComponentTestCase(unittest.TestCase):
         """
 
         # make it the same as a custom component (e.g. /abs/path/to/component.py:train)
-        component_id = f"{os.path.abspath(module.__file__)}:{function_name}"
+        module_path = module.__file__
+        assert module_path, f"module must have __file__: {module_path}"
+        module_path = os.path.abspath(module_path)
+        component_id = f"{module_path}:{function_name}"
         component_def = get_component(component_id)
 
         # on `--help` argparse will print the help message and exit 0
