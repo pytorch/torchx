@@ -15,8 +15,8 @@ Prerequisites
 
 TorchX Kubernetes_MCAD scheduler depends on AppWrapper + MCAD.
 
-Install MCAD: 
-See deploying Multi-Cluster-Application-Dispatcher guide 
+Install MCAD:
+See deploying Multi-Cluster-Application-Dispatcher guide
 https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
 TorchX uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
@@ -560,7 +560,7 @@ MCAD currently does not support retries. Role {role.name} configured with restar
 
     """
     Create Service:
-    The selector will have the key 'appwrapper.mcad.ibm.com', and the value will be 
+    The selector will have the key 'appwrapper.mcad.ibm.com', and the value will be
     the appwrapper name
     """
 
@@ -945,7 +945,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         if image_secret is not None and service_account is not None:
             msg = """Service Account and Image Secret names are both provided.
  Depending on the Service Account configuration, an ImagePullSecret may be defined in your Service Account.
- If this is the case, check service account and image secret configurations to understand the expected behavior for 
+ If this is the case, check service account and image secret configurations to understand the expected behavior for
  patched image push access."""
             warnings.warn(msg)
         namespace = cfg.get("namespace")
@@ -1000,18 +1000,13 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             name=name,
         )
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "namespace",
             type_=str,
             help="Kubernetes namespace to schedule job in",
             default="default",
-        )
-        opts.add(
-            "image_repo",
-            type_=str,
-            help="The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
         )
         opts.add(
             "service_account",

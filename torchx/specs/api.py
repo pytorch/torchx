@@ -6,9 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import copy
+import dataclasses
 import json
 import re
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, Field
 from datetime import datetime
 from enum import Enum
 from string import Template
@@ -28,7 +29,12 @@ from typing import (
     Union,
 )
 
-from torchx.util.types import to_dict
+import docstring_parser
+
+import typing_inspect
+
+from torchx.util.types import decode_optional, to_dict
+from typing_extensions import TypedDict
 
 _APP_STATUS_FORMAT_TEMPLATE = """AppStatus:
     State: ${state}
@@ -736,6 +742,11 @@ class runopts:
     def __len__(self) -> int:
         return len(self._opts)
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return self._opts == other._opts
+        return False
+
     @staticmethod
     def is_type(obj: CfgVal, tp: Type[CfgVal]) -> bool:
         """
@@ -922,6 +933,34 @@ class runopts:
                 out += f"\n            {opt.help}"
 
         return out
+
+    @classmethod
+    # pyre-fixme[11]: TypedDict is not defined as a type
+    def from_typed_dict(cls, typed_dict: Type[TypedDict]) -> "runopts":
+        opts = cls()
+        doc = docstring_parser.parse(typed_dict.__doc__)
+        field_docs = {field.arg_name: field.description for field in doc.params}
+        for name, field_type in typed_dict.__annotations__.items():
+            default = getattr(typed_dict, name, None)
+            if isinstance(default, Field):
+                default_factory = default.default_factory
+                if default_factory is dataclasses.MISSING:
+                    default = None
+                else:
+                    # pyre-fixme[29]: not a function
+                    default = default_factory()
+            required = not (
+                hasattr(typed_dict, name) or typing_inspect.is_optional_type(field_type)
+            )
+            assert name in field_docs, f"missing docstring for attribute: {name}"
+            opts.add(
+                cfg_key=name,
+                type_=decode_optional(field_type),
+                required=required,
+                default=default,
+                help=field_docs[name],
+            )
+        return opts
 
 
 class InvalidRunConfigException(Exception):

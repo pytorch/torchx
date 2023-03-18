@@ -12,6 +12,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Generic, Iterable, List, Optional, TypeVar
 
+import typing_inspect
+
 from torchx.specs import (
     AppDef,
     AppDryRunInfo,
@@ -23,6 +25,7 @@ from torchx.specs import (
     runopts,
 )
 from torchx.workspace.api import WorkspaceMixin
+from typing_extensions import final
 
 
 DAYS_IN_2_WEEKS = 14
@@ -184,6 +187,7 @@ class Scheduler(abc.ABC, Generic[T]):
     def _submit_dryrun(self, app: AppDef, cfg: T) -> AppDryRunInfo:
         raise NotImplementedError()
 
+    @final
     def run_opts(self) -> runopts:
         """
         Returns the run configuration options expected by the scheduler.
@@ -195,6 +199,11 @@ class Scheduler(abc.ABC, Generic[T]):
         return opts
 
     def _run_opts(self) -> runopts:
+        # pyre-fixme[16]: no attribute __orig_bases__
+        for base in self.__class__.__orig_bases__:
+            if typing_inspect.get_origin(base) == Scheduler:
+                return runopts.from_typed_dict(typing_inspect.get_args(base)[0])
+
         return runopts()
 
     @abc.abstractmethod

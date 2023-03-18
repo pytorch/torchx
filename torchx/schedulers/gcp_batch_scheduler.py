@@ -315,7 +315,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
         return AppDryRunInfo(req, repr)
 
-    def run_opts(self) -> runopts:
+    def _run_opts(self) -> runopts:
         opts = runopts()
         opts.add(
             "project",

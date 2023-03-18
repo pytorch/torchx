@@ -8,8 +8,8 @@
 import os
 import time
 import unittest
-from dataclasses import asdict
-from typing import Dict, List, Mapping, Union
+from dataclasses import asdict, field
+from typing import Dict, List, Mapping, Optional, Union
 from unittest.mock import MagicMock
 
 import torchx.specs.named_resources_aws as named_resources_aws
@@ -36,6 +36,7 @@ from torchx.specs.api import (
     RoleStatus,
     runopts,
 )
+from typing_extensions import TypedDict
 
 
 class AppDryRunInfoTest(unittest.TestCase):
@@ -492,6 +493,43 @@ class RunConfigTest(unittest.TestCase):
         runopts = self.get_runopts()
         for name, opt in runopts:
             self.assertEqual(opt, runopts.get(name))
+
+    def test_runopts_typed_dict(self) -> None:
+        class TestOpts(TypedDict, total=False):
+            """
+            Attributes
+            ----------
+            required:
+                a required field
+            optional:
+                an optional field
+            default:
+                a default field
+            list_opt:
+                a list field with default factory
+            """
+
+            required: str
+            optional: Optional[int]
+            default: int = 100
+            list_opt: List[int] = field(default_factory=list)
+
+        opts = runopts()
+        opts.add("required", type_=str, required=True, help="a required field")
+        opts.add("optional", type_=int, required=False, help="an optional field")
+        opts.add(
+            "default", type_=int, required=False, default=100, help="a default field"
+        )
+        opts.add(
+            "list_opt",
+            type_=List[int],
+            required=False,
+            default=[],
+            help="a list field with default factory",
+        )
+
+        dict_opts = runopts.from_typed_dict(TestOpts)
+        self.assertEqual(opts, dict_opts)
 
 
 class GetTypeNameTest(unittest.TestCase):
