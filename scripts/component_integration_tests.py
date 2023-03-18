@@ -166,6 +166,12 @@ def _mock_aws_batch() -> None:
     This sets up a mock AWS batch backend that uses Docker to execute the jobs
     locally.
     """
+    # setup the docker network so DNS works correctly
+    from torchx.schedulers.docker_scheduler import ensure_network, NETWORK
+
+    ensure_network()
+    os.environ.setdefault("MOTO_DOCKER_NETWORK_NAME", NETWORK)
+
     from moto import mock_batch, mock_ec2, mock_ecs, mock_iam, mock_logs
 
     mock_batch().__enter__()
