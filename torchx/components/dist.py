@@ -62,6 +62,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 import torchx
 import torchx.specs as specs
+from torchx.components.structured_arg import StructuredJArgument, StructuredNameArgument
 from torchx.specs import macros
 
 _TORCH_DEBUG_FLAGS: Dict[str, str] = {
@@ -80,12 +81,88 @@ These are commonly set environment variables to debug PyTorch execution.
 """
 
 
+def spmd(
+    *args: str,
+    script: Optional[str] = None,
+    m: Optional[str] = None,
+    image: str = torchx.IMAGE,
+    name: str = "/",
+    h: str = "gpu.small",
+    j: str = "1x1",
+    env: Optional[Dict[str, str]] = None,
+    max_retries: int = 0,
+    mounts: Optional[List[str]] = None,
+    debug: bool = False,
+) -> specs.AppDef:
+    """
+    Usage (by script): torchx run spmd -j 2x8 -h aws_p4d.24xlarge --name my_experiment/trial_1 --script path/to/my/trainer.py -foo bar
+
+    Usage (by module): torchx run spmd -j 2x8 -h aws_p4d.24xlarge --name my_experiment/trial_1 -m path.to.my.trainer -foo bar
+
+    Usage (infer GPU count): torchx run spmd -j 2 -h p4d.24xlarge ... (same as -j 2x8)
+
+    Creates a torchx.specs.AppDef (Job Definition) for a Single-Process-Multiple-Data (SPMD)
+    style application. See: https://en.wikipedia.org/wiki/Single_program,_multiple_data.
+
+    SPMD launches `n x m` (set via the `-j nxm` option) copies of the same program,
+    where `n` is the number of nodes (hosts) and `m` is the number of processes on each node.
+
+    If you have a distributed PyTorch script (DDP, FSDP, RPC) use this component to launch
+    the distributed application. You can also use `-j 1x1` to launch a single process application
+    which would be equivalent to launching with regular `python` except that your application
+    can safely call `torch.distributed.init_process_group(backend)`.
+
+    Note: For multi-node distributed runs, the hosts MUST have a network route to each other
+          AND port 29500 should be open on all hosts. Please check your security group settings.
+
+
+    Args:
+        args: the arguments to the main module or script (e.g. my/trainer.py -foo bar)
+            (for docker based runs) the script path must be relative to the WORKDIR of the image
+        script:
+        m: the main module name (e.g. my.module.trainer). When this option is used, the `script_args` are passed
+           as the arguments to the main module). Invoking my module is useful when the relative/absolute path
+           of the main script is unknown w.r.t the WORKDIR of the image. Use this option when it makes sense to
+           invoke the main script via `python -m <MAIN.MODULE>`.
+        image: the base docker image of the workspace, if workspace is disabled, then the image of the job
+        name: ``{experimentname}/{runname}`` or ``{experimentname}/`` or ``/{runname}`` or ``{runname}``
+        h: the type of host to run on (e.g. aws_p4d.24xlarge). Must be one of the registered named resources
+        j: {nnodes}x{nproc_per_node}. For GPU hosts omitting nproc_per_node will infer it from the GPU count on the host
+        env: environment variables to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
+        max_retries: the number of scheduler retries allowed
+        rdzv_port: the port on rank0's host to use for hosting the c10d store used for rendezvous.
+                   Only takes effect when running multi-node. When running single node, this parameter
+                   is ignored and a random free port is chosen.
+        mounts: (for docker based runs only) mounts to mount into the worker environment/container
+                (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
+        debug: whether to run with preset debug flags enabled
+
+    """
+
+    if env is None:
+        env = {}
+
+    return ddp(
+        *args,
+        script=script,
+        m=m,
+        image=image,
+        name=name,
+        h=h,
+        j=str(StructuredJArgument.parse_from(h, j)),
+        env=env,
+        max_retries=max_retries,
+        mounts=mounts,
+        debug=debug,
+    )
+
+
 def ddp(
     *script_args: str,
     script: Optional[str] = None,
     m: Optional[str] = None,
     image: str = torchx.IMAGE,
-    name: Optional[str] = None,
+    name: str = "/",
     h: Optional[str] = None,
     cpu: int = 2,
     gpu: int = 0,
@@ -114,7 +191,8 @@ def ddp(
         script: script or binary to run within the image
         m: the python module path to run
         image: image (e.g. docker)
-        name: job name override (uses the script name if not specified)
+        name: job name override in the following format: ``{experimentname}/{runname}`` or ``{experimentname}/`` or ``/{runname}`` or ``{runname}``.
+            Uses the script or module name if ``{runname}`` not specified.
         cpu: number of cpus per replica
         gpu: number of gpus per replica
         memMB: cpu memory in MB per replica
@@ -138,14 +216,6 @@ def ddp(
     # nproc_per_node: number of processes on each node
     min_nnodes, max_nnodes, nproc_per_node, nnodes_rep = parse_nnodes(j)
 
-    if script:
-        # script name/module no extension
-        role_name = Path(script).stem
-    elif m:
-        role_name = m.rpartition(".")[2]
-    else:
-        raise ValueError("failed to compute role_name")
-
     rdzv_backend = "c10d"
     if max_nnodes == 1:
         # using port 0 makes elastic chose a free random port which is ok
@@ -165,8 +235,16 @@ def ddp(
 
     if env is None:
         env = {}
-    env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
 
+    argname = StructuredNameArgument.parse_from(
+        name=name,
+        m=m,
+        script=script,
+    )
+
+    env["TORCHX_TRACKING_EXPERIMENT_NAME"] = argname.experiment_name
+
+    env.setdefault("LOGLEVEL", os.getenv("LOGLEVEL", "WARNING"))
     if debug:
         env.update(_TORCH_DEBUG_FLAGS)
 
@@ -193,10 +271,10 @@ def ddp(
         cmd += ["-m", m]
     cmd += script_args
     return specs.AppDef(
-        name=name or role_name,
+        name=argname.run_name,
         roles=[
             specs.Role(
-                name=role_name,
+                name=get_role_name(script, m),
                 image=image,
                 min_replicas=min_nnodes,
                 entrypoint="bash",
@@ -212,6 +290,17 @@ def ddp(
             )
         ],
     )
+
+
+def get_role_name(script: Optional[str], m: Optional[str]) -> str:
+    if script:
+        # script name/module no extension
+        role_name = Path(script).stem
+    elif m:
+        role_name = m.rpartition(".")[2]
+    else:
+        raise ValueError("failed to compute role_name")
+    return role_name
 
 
 def _args_join(args: Iterable[str]) -> str:
