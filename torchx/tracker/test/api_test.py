@@ -11,17 +11,19 @@ from typing import cast, DefaultDict, Dict, Iterable, Mapping, Optional, Tuple
 from unittest import mock, TestCase
 from unittest.mock import patch
 
-import torchx.tracker.api as api
-
 from torchx.tracker import app_run_from_env
 from torchx.tracker.api import (
+    _extract_tracker_name_and_config_from_environ,
     AppRun,
+    build_trackers,
+    ENV_TORCHX_JOB_ID,
+    ENV_TORCHX_PARENT_RUN_ID,
+    ENV_TORCHX_TRACKERS,
     Lineage,
     tracker_config_env_var_name,
-    TRACKER_ENV_VAR_NAME,
-    TRACKER_PARENT_RUN_ENV_VAR_NAME,
     TrackerArtifact,
     TrackerBase,
+    trackers_from_environ,
     TrackerSource,
 )
 
@@ -30,7 +32,7 @@ RunId = str
 DEFAULT_SOURCE: str = "__parent__"
 
 
-class TestTrackerBackend(api.TrackerBase):
+class TestTrackerBackend(TrackerBase):
     def __init__(self, config_path: Optional[str] = None) -> None:
         self._artifacts: DefaultDict[
             RunId,
@@ -99,20 +101,20 @@ class TestTrackerBackend(api.TrackerBase):
 
 class AppRunApiTest(TestCase):
     def setUp(self) -> None:
-        os.environ["TORCHX_JOB_ID"] = "scheduler://session/app_id"
+        os.environ[ENV_TORCHX_JOB_ID] = "scheduler://session/app_id"
         self.tracker = TestTrackerBackend()
         self.run_id = "run_id"
         self.model_run = AppRun(self.run_id, [self.tracker])
 
     def tearDown(self) -> None:
-        del os.environ["TORCHX_JOB_ID"]
+        del os.environ[ENV_TORCHX_JOB_ID]
 
     @mock.patch.dict(
         os.environ,
         {
-            TRACKER_ENV_VAR_NAME: "tracker1",
-            TRACKER_PARENT_RUN_ENV_VAR_NAME: "parent_run_id",
-            "TORCHX_JOB_ID": "run_id",
+            ENV_TORCHX_TRACKERS: "tracker1",
+            ENV_TORCHX_PARENT_RUN_ID: "parent_run_id",
+            ENV_TORCHX_JOB_ID: "run_id",
         },
     )
     def test_env_factory_test(self) -> None:
@@ -189,22 +191,22 @@ class TrackerFactoryMethodsTest(TestCase):
         self.assertEqual(value, "TORCHX_TRACKER_TRACKER1_CONFIG")
 
     def test_trackers_from_environ_with_no_trackers_specified(self) -> None:
-        self.assertEqual(len(list(api.trackers_from_environ())), 0)
+        self.assertEqual(len(list(trackers_from_environ())), 0)
 
-    @mock.patch.dict(os.environ, {TRACKER_ENV_VAR_NAME: "tracker1"})
+    @mock.patch.dict(os.environ, {ENV_TORCHX_TRACKERS: "tracker1"})
     def test_tracker_from_environ(self) -> None:
         with patch(
             "torchx.tracker.api.load_group",
             return_value={"tracker1": tracker_factory},
         ):
-            trackers = api.trackers_from_environ()
+            trackers = trackers_from_environ()
             self.assertEqual(1, len(list(trackers)))
             self.assertEqual(TestTrackerBackend, type(trackers[0]))
 
     @mock.patch.dict(
         os.environ,
         {
-            TRACKER_ENV_VAR_NAME: "tracker1",
+            ENV_TORCHX_TRACKERS: "tracker1",
             tracker_config_env_var_name("tracker1"): "myconfig.txt",
         },
     )
@@ -213,42 +215,42 @@ class TrackerFactoryMethodsTest(TestCase):
             "torchx.tracker.api.load_group",
             return_value={"tracker1": tracker_factory},
         ):
-            trackers = api.trackers_from_environ()
+            trackers = trackers_from_environ()
             tracker = cast(TestTrackerBackend, list(trackers)[0])
             self.assertEqual("myconfig.txt", tracker.config_path)
 
     def test_tracker_from_environ_that_wasnt_setup(self) -> None:
-        trackers = api.trackers_from_environ()
+        trackers = trackers_from_environ()
         self.assertEqual(len(list(trackers)), 0)
 
-    @mock.patch.dict(os.environ, {TRACKER_ENV_VAR_NAME: "tracker1"})
+    @mock.patch.dict(os.environ, {ENV_TORCHX_TRACKERS: "tracker1"})
     def test_tracker_from_environ_with_missing_entrypoint(self) -> None:
         with patch(
             "torchx.tracker.api.load_group",
             return_value={},
         ):
-            trackers = api.trackers_from_environ()
+            trackers = trackers_from_environ()
             self.assertEqual(0, len(list(trackers)))
 
     def test_extract_tracker_name_and_config_from_environ_undefined(self) -> None:
-        self.assertTrue(len(api._extract_tracker_name_and_config_from_environ()) == 0)
+        self.assertTrue(len(_extract_tracker_name_and_config_from_environ()) == 0)
 
-    @mock.patch.dict(os.environ, {TRACKER_ENV_VAR_NAME: "tracker1"})
+    @mock.patch.dict(os.environ, {ENV_TORCHX_TRACKERS: "tracker1"})
     def test_extract_tracker_name_and_config_from_environ_with_just_name(self) -> None:
-        entries = api._extract_tracker_name_and_config_from_environ()
+        entries = _extract_tracker_name_and_config_from_environ()
         self.assertEqual(entries, {"tracker1": None})
 
     @mock.patch.dict(
         os.environ,
         {
-            TRACKER_ENV_VAR_NAME: "tracker1",
+            ENV_TORCHX_TRACKERS: "tracker1",
             "TORCHX_TRACKER_TRACKER1_CONFIG": "myconfig.txt",
         },
     )
     def test_extract_tracker_name_and_config_from_environ_with_name_and_config(
         self,
     ) -> None:
-        entries = api._extract_tracker_name_and_config_from_environ()
+        entries = _extract_tracker_name_and_config_from_environ()
         self.assertEqual(entries, {"tracker1": "myconfig.txt"})
 
     def test_build_trackers_with_no_trackers_defined(self) -> None:
@@ -257,7 +259,7 @@ class TrackerFactoryMethodsTest(TestCase):
             return_value={"tracker1": tracker_factory},
         ):
             no_tracker_names = {}
-            trackers = api.build_trackers(no_tracker_names)
+            trackers = build_trackers(no_tracker_names)
             self.assertEqual(0, len(list(trackers)))
 
     def test_build_trackers_with_no_entrypoints_group_defined(self) -> None:
@@ -266,7 +268,7 @@ class TrackerFactoryMethodsTest(TestCase):
             return_value=None,
         ):
             tracker_names = {"tracker1": "myconfig.txt"}
-            trackers = api.build_trackers(tracker_names)
+            trackers = build_trackers(tracker_names)
             self.assertEqual(0, len(list(trackers)))
 
     def test_build_trackers(self) -> None:
@@ -275,7 +277,7 @@ class TrackerFactoryMethodsTest(TestCase):
             return_value={"tracker1": tracker_factory},
         ):
             tracker_names = {"tracker1": "myconfig.txt"}
-            trackers = api.build_trackers(tracker_names)
+            trackers = build_trackers(tracker_names)
             trackers = list(trackers)
             self.assertEqual(1, len(trackers))
             tracker = trackers[0]

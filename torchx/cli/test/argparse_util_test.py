@@ -4,38 +4,24 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import shutil
-import tempfile
-import unittest
 from argparse import ArgumentParser
-from pathlib import Path
 from unittest import mock
 
 from torchx.cli import argparse_util
 from torchx.cli.argparse_util import torchxconfig_run
+from torchx.test.fixtures import TestWithTmpDir
+
+DEFAULT_CONFIG_DIRS = "torchx.runner.config.DEFAULT_CONFIG_DIRS"
 
 
-CONFIG_DIRS = "torchx.cli.argparse_util.CONFIG_DIRS"
-
-
-class ArgparseUtilTest(unittest.TestCase):
-    def _write(self, filename: str, content: str) -> Path:
-        f = Path(self.test_dir) / filename
-        f.parent.mkdir(parents=True, exist_ok=True)
-        with open(f, "w") as fp:
-            fp.write(content)
-        return f
-
+class ArgparseUtilTest(TestWithTmpDir):
     def setUp(self) -> None:
-        self.test_dir = tempfile.mkdtemp(prefix="torchx_argparse_util_test")
+        super().setUp()
         argparse_util._torchxconfig._subcmd_configs.clear()
 
-    def tearDown(self) -> None:
-        shutil.rmtree(self.test_dir)
-
     def test_torchxconfig_action(self) -> None:
-        with mock.patch(CONFIG_DIRS, [self.test_dir]):
-            self._write(
+        with mock.patch(DEFAULT_CONFIG_DIRS, [str(self.tmpdir)]):
+            self.write(
                 ".torchxconfig",
                 """
 [cli:run]
@@ -64,8 +50,8 @@ workspace = baz
             self.assertEqual("baz", args.workspace)
 
     def test_torchxconfig_action_argparse_default(self) -> None:
-        with mock.patch(CONFIG_DIRS, [self.test_dir]):
-            self._write(
+        with mock.patch(DEFAULT_CONFIG_DIRS, [str(self.tmpdir)]):
+            self.write(
                 ".torchxconfig",
                 """
 [cli:run]
@@ -89,8 +75,8 @@ workspace = baz
             self.assertEqual("foo", args.workspace)
 
     def test_torchxconfig_action_required(self) -> None:
-        with mock.patch(CONFIG_DIRS, [self.test_dir]):
-            self._write(
+        with mock.patch(DEFAULT_CONFIG_DIRS, [str(self.tmpdir)]):
+            self.write(
                 ".torchxconfig",
                 """
 [cli:run]
@@ -120,8 +106,8 @@ workspace = bazz
 
     def test_torchxconfig_action_aliases(self) -> None:
         # for aliases, the config file needs to declare the original arg
-        with mock.patch(CONFIG_DIRS, [self.test_dir]):
-            self._write(
+        with mock.patch(DEFAULT_CONFIG_DIRS, [str(self.tmpdir)]):
+            self.write(
                 ".torchxconfig",
                 """
 [cli:run]

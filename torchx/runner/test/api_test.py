@@ -7,9 +7,6 @@
 
 import datetime
 import os
-import shutil
-import tempfile
-import unittest
 from contextlib import contextmanager
 from typing import Generator, List, Mapping, Optional
 from unittest.mock import MagicMock, patch
@@ -20,14 +17,13 @@ from torchx.schedulers.local_scheduler import (
     LocalDirectoryImageProvider,
     LocalScheduler,
 )
-from torchx.schedulers.test.test_util import write_shell_script
 from torchx.specs import AppDryRunInfo, CfgVal
 from torchx.specs.api import AppDef, AppState, Resource, Role, UnknownAppException
 from torchx.specs.finder import ComponentNotFoundException
-
+from torchx.test.fixtures import TestWithTmpDir
+from torchx.tracker.api import ENV_TORCHX_JOB_ID, ENV_TORCHX_PARENT_RUN_ID
 from torchx.util.types import none_throws
 from torchx.workspace import WorkspaceMixin
-
 
 GET_SCHEDULER_FACTORIES = "torchx.runner.api.get_scheduler_factories"
 
@@ -46,20 +42,14 @@ def get_full_path(name: str) -> str:
 
 
 @patch("torchx.runner.api.log_event")
-class RunnerTest(unittest.TestCase):
+class RunnerTest(TestWithTmpDir):
     def setUp(self) -> None:
-        self.test_dir = tempfile.mkdtemp("RunnerTest")
-
-        write_shell_script(self.test_dir, "touch.sh", ["touch $1"])
-        write_shell_script(self.test_dir, "fail.sh", ["exit 1"])
-        write_shell_script(self.test_dir, "sleep.sh", ["sleep $1"])
+        super().setUp()
+        self.write_shell_script("touch.sh", ["touch $1"])
+        self.write_shell_script("fail.sh", ["exit 1"])
+        self.write_shell_script("sleep.sh", ["sleep $1"])
 
         self.cfg = {}
-
-        # resource ignored for local scheduler; adding as an example
-
-    def tearDown(self) -> None:
-        shutil.rmtree(self.test_dir)
 
     @contextmanager
     def get_runner(self) -> Generator[Runner, None, None]:
@@ -105,16 +95,16 @@ class RunnerTest(unittest.TestCase):
                 runner.run(app, scheduler="local_dir")
 
     def test_run(self, _) -> None:
-        test_file = os.path.join(self.test_dir, "test_file")
+        test_file = self.tmpdir / "test_file"
 
         with self.get_runner() as runner:
             self.assertEqual(1, len(runner.scheduler_backends()))
             role = Role(
                 name="touch",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="touch.sh",
-                args=[test_file],
+                args=[str(test_file)],
             )
             app = AppDef("name", roles=[role])
 
@@ -130,7 +120,7 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role = Role(
                 name="touch",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
@@ -148,14 +138,14 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role1 = Role(
                 name="echo1",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
             )
             role2 = Role(
                 name="echo2",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
@@ -164,7 +154,7 @@ class RunnerTest(unittest.TestCase):
             runner.dryrun(app, "local_dir", cfg=self.cfg)
             for role in app.roles:
                 self.assertEqual(
-                    role.env["TORCHX_JOB_ID"],
+                    role.env[ENV_TORCHX_JOB_ID],
                     "local_dir://" + SESSION_NAME + "/${app_id}",
                 )
 
@@ -177,14 +167,14 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role1 = Role(
                 name="echo1",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
             )
             role2 = Role(
                 name="echo2",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
@@ -195,7 +185,7 @@ class RunnerTest(unittest.TestCase):
             )
             for role in app.roles:
                 self.assertEqual(
-                    role.env["TORCHX_PARENT_RUN_ID"],
+                    role.env[ENV_TORCHX_PARENT_RUN_ID],
                     expected_parent_run_id,
                 )
 
@@ -216,14 +206,14 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role1 = Role(
                 name="echo1",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
             )
             role2 = Role(
                 name="echo2",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
@@ -264,14 +254,14 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role1 = Role(
                 name="echo1",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
             )
             role2 = Role(
                 name="echo2",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="echo",
                 args=["hello world"],
@@ -364,7 +354,7 @@ class RunnerTest(unittest.TestCase):
         with self.get_runner() as runner:
             role = Role(
                 name="sleep",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="sleep.sh",
                 args=["60"],
@@ -380,7 +370,7 @@ class RunnerTest(unittest.TestCase):
         with self.get_runner() as runner:
             role = Role(
                 name="sleep",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="sleep.sh",
                 args=["60"],
@@ -413,7 +403,7 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role = Role(
                 "ignored",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="/bin/echo",
             )
@@ -437,7 +427,7 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role = Role(
                 "ignored",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="/bin/echo",
             )
@@ -544,7 +534,7 @@ class RunnerTest(unittest.TestCase):
         ) as runner:
             role = Role(
                 name="sleep",
-                image=self.test_dir,
+                image=str(self.tmpdir),
                 resource=resource.SMALL,
                 entrypoint="sleep.sh",
                 args=["60"],

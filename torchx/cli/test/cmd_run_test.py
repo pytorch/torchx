@@ -134,7 +134,9 @@ class CmdRunTest(unittest.TestCase):
     def test_conf_file_missing(self) -> None:
         # guards against existing .torchxconfig files
         # in user's $HOME or the CWD where the test is launched from
-        with patch("torchx.cli.cmd_run.CONFIG_DIRS", return_value=[self.tmpdir]):
+        with patch(
+            "torchx.runner.config.DEFAULT_CONFIG_DIRS", return_value=[self.tmpdir]
+        ):
             with self.assertRaises(SystemExit):
                 args = self.parser.parse_args(
                     [

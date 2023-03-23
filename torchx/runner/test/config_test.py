@@ -6,12 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-import shutil
-import tempfile
-import unittest
 from datetime import datetime
 from io import StringIO
-from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional
 from unittest.mock import patch
 
@@ -28,6 +24,7 @@ from torchx.runner.config import (
 from torchx.schedulers import get_scheduler_factories, Scheduler
 from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Stream
 from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
+from torchx.test.fixtures import TestWithTmpDir
 
 
 class TestScheduler(Scheduler):
@@ -175,43 +172,24 @@ env = A=B,C=D
 file = tmp.txt
 """
 
-PATH_CWD = "torchx.runner.config.Path.cwd"
+TORCHX_DEFAULT_CONFIG_DIRS = "torchx.runner.config.DEFAULT_CONFIG_DIRS"
 TORCHX_GET_SCHEDULER_FACTORIES = "torchx.runner.config.get_scheduler_factories"
 
 
-class ConfigTest(unittest.TestCase):
+class ConfigTest(TestWithTmpDir):
     def setUp(self) -> None:
-        self.test_dir = tempfile.mkdtemp(prefix="torchx_runner_config_test")
-        self._write(
-            ".torchxconfig",
-            _TEAM_CONFIG,
-        )
-        self._write(
-            os.path.join("home", "bob", ".torchxconfig"),
-            _MY_CONFIG,
-        )
-        self._write(
-            f"{self.test_dir}/another_torchx_config",
-            _MY_CONFIG2,
-        )
-
-    def tearDown(self) -> None:
-        shutil.rmtree(self.test_dir)
-
-    def _write(self, filename: str, content: str) -> Path:
-        f = Path(self.test_dir) / filename
-        f.parent.mkdir(parents=True, exist_ok=True)
-        with open(f, "w") as fp:
-            fp.write(content)
-        return f
+        super().setUp()
+        self.write(".torchxconfig", _TEAM_CONFIG)
+        self.write(os.path.join("home", "bob", ".torchxconfig"), _MY_CONFIG)
+        self.write("another_torchx_config", _MY_CONFIG2)
 
     def test_load_component_defaults(self) -> None:
-        configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
-        configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
+        configdir0 = self.tmpdir / "test_load_component_defaults" / "0"
+        configdir1 = self.tmpdir / "test_load_component_defaults" / "1"
         configdir0.mkdir(parents=True, exist_ok=True)
         configdir1.mkdir(parents=True, exist_ok=True)
-        self._write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
-        self._write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
+        self.write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
+        self.write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
 
         defaults = load_sections(
             prefix="component", dirs=[str(configdir0), str(configdir1)]
@@ -234,12 +212,12 @@ class ConfigTest(unittest.TestCase):
         )
 
     def test_get_configs(self) -> None:
-        configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
-        configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
+        configdir0 = self.tmpdir / "test_load_component_defaults" / "0"
+        configdir1 = self.tmpdir / "test_load_component_defaults" / "1"
         configdir0.mkdir(parents=True, exist_ok=True)
         configdir1.mkdir(parents=True, exist_ok=True)
-        self._write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
-        self._write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
+        self.write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
+        self.write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
         dirs = [str(configdir0), str(configdir1)]
 
         self.assertDictEqual(
@@ -265,27 +243,31 @@ class ConfigTest(unittest.TestCase):
         )
 
     def test_find_configs(self) -> None:
-        config_dir = Path(self.test_dir)
+        config_dir = self.tmpdir
         cwd_dir = config_dir / "cwd"
+        home_dir = config_dir / "home"
+        empty_home_dir = config_dir / "home_empty"
         custom_dir = config_dir / "custom"
 
         cwd_dir.mkdir()
         custom_dir.mkdir()
 
-        base_config = config_dir / ".torchxconfig"
-        cwd_config = cwd_dir / ".torchxconfig"
-        override_config = custom_dir / ".torchxconfig"
-
-        base_config.touch()
-        cwd_config.touch()
-        override_config.touch()
+        base_config = self.touch(str(config_dir / ".torchxconfig"))
+        cwd_config = self.touch(str(cwd_dir / ".torchxconfig"))
+        home_config = self.touch(str(home_dir / ".torchxconfig"))
+        override_config = self.touch(str(custom_dir / ".torchxconfig"))
 
         # should find configs in the specified dirs
         configs = find_configs(dirs=[str(config_dir)])
         self.assertEqual([str(base_config)], configs)
 
-        # should find config in cwd if no dirs is specified
-        with patch(PATH_CWD, return_value=str(cwd_dir)):
+        # should find config in HOME and cwd if no dirs is specified
+        with patch(TORCHX_DEFAULT_CONFIG_DIRS, [str(home_dir), str(cwd_dir)]):
+            configs = find_configs()
+            self.assertEqual([str(home_config), str(cwd_config)], configs)
+
+        # should find config in cwd only if no $HOME/ .torchxconfig
+        with patch(TORCHX_DEFAULT_CONFIG_DIRS, [str(empty_home_dir), str(cwd_dir)]):
             configs = find_configs()
             self.assertEqual([str(cwd_config)], configs)
 
@@ -303,12 +285,12 @@ class ConfigTest(unittest.TestCase):
                 find_configs(dirs=[str(config_dir)])
 
     def test_get_config(self) -> None:
-        configdir0 = Path(self.test_dir) / "test_load_component_defaults" / "0"
-        configdir1 = Path(self.test_dir) / "test_load_component_defaults" / "1"
+        configdir0 = self.tmpdir / "test_load_component_defaults" / "0"
+        configdir1 = self.tmpdir / "test_load_component_defaults" / "1"
         configdir0.mkdir(parents=True, exist_ok=True)
         configdir1.mkdir(parents=True, exist_ok=True)
-        self._write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
-        self._write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
+        self.write(str(configdir0 / ".torchxconfig"), _COMPONENT_CONFIG_0)
+        self.write(str(configdir1 / ".torchxconfig"), _COMPONENT_CONFIG_1)
         dirs = [str(configdir0), str(configdir1)]
 
         self.assertEqual(
@@ -330,12 +312,12 @@ class ConfigTest(unittest.TestCase):
         )
 
         # check that if TORCHXCONFIG is set then only that config is loaded
-        override_config = Path(self.test_dir) / ".torchxconfig_custom"
+        override_config = self.tmpdir / ".torchxconfig_custom"
         override_config_contents = """
 [component:dist.ddp]
 image = foobar_custom
         """
-        self._write(str(override_config), override_config_contents)
+        self.write(str(override_config), override_config_contents)
 
         with patch.dict(os.environ, {ENV_TORCHXCONFIG: str(override_config)}):
             self.assertDictEqual(
@@ -362,7 +344,10 @@ image = foobar_custom
         return_value={"test": TestScheduler},
     )
     def test_apply_default(self, _) -> None:
-        with patch(PATH_CWD, return_value=Path(self.test_dir)):
+        with patch(
+            TORCHX_DEFAULT_CONFIG_DIRS,
+            [str(self.tmpdir / "home"), str(self.tmpdir)],
+        ):
             cfg: Dict[str, CfgVal] = {"s": "runtime_value"}
             apply(scheduler="test", cfg=cfg)
 
@@ -379,7 +364,7 @@ image = foobar_custom
         apply(
             scheduler="test",
             cfg=cfg,
-            dirs=[str(Path(self.test_dir) / "home" / "bob"), self.test_dir],
+            dirs=[str(self.tmpdir / "home" / "bob"), str(self.tmpdir)],
         )
         self.assertEqual("runtime_value", cfg.get("s"))
         self.assertEqual(100, cfg.get("i"))

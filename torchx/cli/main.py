@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+import os
 import sys
 from argparse import ArgumentParser
 from typing import Dict, List
@@ -75,9 +76,9 @@ def create_parser(subcmds: Dict[str, SubCommand]) -> ArgumentParser:
     parser = ArgumentParser(description="torchx CLI")
     parser.add_argument(
         "--log_level",
-        type=int,
+        type=str,
         help="Python logging log level",
-        default=logging.INFO,
+        default=os.getenv("LOGLEVEL", "WARNING"),
     )
     parser.add_argument(
         "--version",
