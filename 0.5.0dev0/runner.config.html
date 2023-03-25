@@ -599,8 +599,8 @@ is returned in a single-element list and the directories specified through
 the <code class="docutils literal notranslate"><span class="pre">dirs</span></code> parameter is NOT searched.</p></li>
 <li><p>Otherwise, a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file is looked for in <code class="docutils literal notranslate"><span class="pre">dirs</span></code> and
 the filepaths to existing config files are returned. If <code class="docutils literal notranslate"><span class="pre">dirs</span></code> is
-not specified or is empty then, this method looks for a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file
-in CWD (current working dir) and returns the filepath to it if one exists.</p></li>
+not specified or is empty then <code class="docutils literal notranslate"><span class="pre">dirs</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">[$HOME,</span> <span class="pre">$CWD]</span></code>
+where CWD is current working dir.</p></li>
 </ol>
 </dd></dl>
 

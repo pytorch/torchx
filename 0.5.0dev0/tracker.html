@@ -498,8 +498,8 @@ implementation.</p>
 </div>
 </section>
 </section>
-<section id="aquiring-apprun-instance">
-<h3>Aquiring <a class="reference internal" href="#torchx.tracker.AppRun" title="torchx.tracker.api.AppRun"><code class="xref py py-class docutils literal notranslate"><span class="pre">AppRun</span></code></a> instance<a class="headerlink" href="#aquiring-apprun-instance" title="Permalink to this heading">¶</a></h3>
+<section id="acquiring-apprun-instance">
+<h3>Acquiring <a class="reference internal" href="#torchx.tracker.AppRun" title="torchx.tracker.api.AppRun"><code class="xref py py-class docutils literal notranslate"><span class="pre">AppRun</span></code></a> instance<a class="headerlink" href="#acquiring-apprun-instance" title="Permalink to this heading">¶</a></h3>
 <p>Use <code class="xref py py-meth docutils literal notranslate"><span class="pre">app_run_from_env()</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span><span class="p">;</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TORCHX_JOB_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;scheduler://session/job_id&quot;</span> <span class="c1"># Simulate running job first</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torchx.tracker</span> <span class="kn">import</span> <span class="n">app_run_from_env</span>
@@ -630,7 +630,7 @@ interacting with tracker implementation.</p>
 <li><a class="reference internal" href="#user-job-configuration-advanced">2. User job configuration (Advanced)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#aquiring-apprun-instance">Aquiring <code class="xref py py-class docutils literal notranslate"><span class="pre">AppRun</span></code> instance</a></li>
+<li><a class="reference internal" href="#acquiring-apprun-instance">Acquiring <code class="xref py py-class docutils literal notranslate"><span class="pre">AppRun</span></code> instance</a></li>
 <li><a class="reference internal" href="#reference-trackerbase-implementation">Reference <code class="xref py py-class docutils literal notranslate"><span class="pre">TrackerBase</span></code> implementation</a></li>
 <li><a class="reference internal" href="#querying-data">Querying data</a></li>
 </ul>

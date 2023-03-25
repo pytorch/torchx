@@ -410,8 +410,9 @@
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">TRACKER_ENV_VAR_NAME</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_TRACKERS&quot;</span>
-<span class="n">TRACKER_PARENT_RUN_ENV_VAR_NAME</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_PARENT_RUN_ID&quot;</span>
+<span class="n">ENV_TORCHX_TRACKERS</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_TRACKERS&quot;</span>
+<span class="n">ENV_TORCHX_PARENT_RUN_ID</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_PARENT_RUN_ID&quot;</span>
+<span class="n">ENV_TORCHX_JOB_ID</span> <span class="o">=</span> <span class="s2">&quot;TORCHX_JOB_ID&quot;</span>
 
 
 <span class="nd">@dataclass</span>
@@ -550,12 +551,12 @@
 
 
 <span class="k">def</span> <span class="nf">_extract_tracker_name_and_config_from_environ</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-    <span class="k">if</span> <span class="n">TRACKER_ENV_VAR_NAME</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ENV_TORCHX_TRACKERS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No trackers were configured, skipping setup.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{}</span>
 
-    <span class="n">tracker_backend_entrypoints</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_ENV_VAR_NAME</span><span class="p">]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trackers specified </span><span class="si">{</span><span class="n">tracker_backend_entrypoints</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">tracker_backend_entrypoints</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">ENV_TORCHX_TRACKERS</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trackers: </span><span class="si">{</span><span class="n">ENV_TORCHX_TRACKERS</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">tracker_backend_entrypoints</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">entries</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">entrypoint_key</span> <span class="ow">in</span> <span class="n">tracker_backend_entrypoints</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
@@ -575,24 +576,23 @@
 
     <span class="n">entrypoint_factories</span> <span class="o">=</span> <span class="n">load_group</span><span class="p">(</span><span class="s2">&quot;torchx.tracker&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">entrypoint_factories</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;No &#39;torchx.tracker&#39; entry_points are defined. Tracking will not capture any data.&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">trackers</span>
 
     <span class="k">for</span> <span class="n">entrypoint_key</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">entrypoint_and_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuring tracker </span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">entrypoint_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entrypoint_factories</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Coult not find &#39;</span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2">&#39; tracker entrypoint, skipping.&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not find `</span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2">` tracker entrypoint. Skipping...&quot;</span>
             <span class="p">)</span>
             <span class="k">continue</span>
         <span class="n">factory</span> <span class="o">=</span> <span class="n">entrypoint_factories</span><span class="p">[</span><span class="n">entrypoint_key</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trackers config specified for </span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2"> as </span><span class="si">{</span><span class="n">config</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tracker config found for `</span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2">` as `</span><span class="si">{</span><span class="n">config</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
             <span class="n">tracker</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No trackers config specified for </span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No tracker config specified for `</span><span class="si">{</span><span class="n">entrypoint_key</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
             <span class="n">tracker</span> <span class="o">=</span> <span class="n">factory</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">trackers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">trackers</span>
@@ -658,18 +658,18 @@
 
 <span class="sd">        .. doctest::</span>
 
-<span class="sd">            &gt;&gt;&gt; from torchx.tracker.api import AppRun</span>
+<span class="sd">            &gt;&gt;&gt; from torchx.mock_tracker.api import AppRun</span>
 <span class="sd">            &gt;&gt;&gt; apprun = AppRun.run_from_env()</span>
 <span class="sd">            &gt;&gt;&gt; apprun.add_metadata(md_1 = &quot;foo&quot;, md_2 = &quot;bar&quot;)</span>
 
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">torchx_job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TORCHX_JOB_ID&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&lt;UNDEFINED&gt;&quot;</span><span class="p">)</span>
+        <span class="n">torchx_job_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENV_TORCHX_JOB_ID</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&lt;UNDEFINED&gt;&quot;</span><span class="p">)</span>
 
         <span class="n">trackers</span> <span class="o">=</span> <span class="n">trackers_from_environ</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">TRACKER_PARENT_RUN_ENV_VAR_NAME</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">parent_run_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">TRACKER_PARENT_RUN_ENV_VAR_NAME</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ENV_TORCHX_PARENT_RUN_ID</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">parent_run_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">ENV_TORCHX_PARENT_RUN_ID</span><span class="p">]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tracker parent run ID: &#39;</span><span class="si">{</span><span class="n">parent_run_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">tracker</span> <span class="ow">in</span> <span class="n">trackers</span><span class="p">:</span>
                 <span class="n">tracker</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="n">torchx_job_id</span><span class="p">,</span> <span class="n">parent_run_id</span><span class="p">,</span> <span class="n">artifact_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
