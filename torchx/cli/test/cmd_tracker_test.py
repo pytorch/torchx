@@ -7,73 +7,86 @@
 
 import argparse
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, patch
 
 from torchx.cli.cmd_tracker import CmdTracker
 from torchx.tracker.api import TrackerArtifact
+
+CMD_BUILD_TRACKERS = "torchx.cli.cmd_tracker.build_trackers"
+CMD_TRACKER = "torchx.cli.cmd_tracker.CmdTracker.tracker"
 
 
 class CmdTrackerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.tracker_name = "my_tracker"
         self.tracker_config = "myconfig.txt"
-        self.tracker = Mock()
         self.test_run_id = "scheduler://session/app_id"
-        with patch("torchx.cli.cmd_tracker.get_configured_trackers") as config_fn:
-            config_fn.return_value = {self.tracker_name: self.tracker_config}
-            with patch("torchx.cli.cmd_tracker.build_trackers") as tracker_fn:
-                tracker_fn.return_value = [self.tracker]
-                self.cmd = CmdTracker()
-        self.parser = argparse.ArgumentParser()
-        self.cmd.add_arguments(self.parser)
 
-    def test_initalize_using_config(self) -> None:
-        self.assertEqual(self.cmd.tracker, self.tracker)
+    @patch(CMD_BUILD_TRACKERS, return_value=[])
+    def test_initalize_on_missing_tracker(self, _: MagicMock) -> None:
+        # should be able to create the object even if no tracker configured
+        cmd = CmdTracker()
 
-    def test_initalize_on_missing_tracker(self) -> None:
-        with patch("torchx.cli.cmd_tracker.build_trackers") as tracker_fn:
-            tracker_fn.return_value = []
-            CmdTracker()
+        with self.assertRaises(RuntimeError):
+            # the command actions won't work without a configured
+            # tracker so when we ask for a tracker it should raise
+            cmd.tracker
 
-    def test_list_jobs_cmd(self) -> None:
-        self.tracker.run_ids.return_value = ["id1", "id2"]
-        args = self.parser.parse_args(["list", "jobs"])
+    @patch(CMD_TRACKER)
+    def test_list_jobs_cmd(self, mock_tracker: MagicMock) -> None:
+        mock_tracker.run_ids.return_value = ["id1", "id2"]
+
+        parser = argparse.ArgumentParser()
+        CmdTracker().add_arguments(parser)
+        args = parser.parse_args(["list", "jobs"])
         args.func(args)
-        self.tracker.run_ids.assert_called_once()
+        mock_tracker.run_ids.assert_called_once()
 
-    def test_list_jobs_cmd_with_missing_tracker(self) -> None:
-        with patch("torchx.cli.cmd_tracker.get_configured_trackers") as config_fn:
-            config_fn.return_value = {}
-            cmd = CmdTracker()
-            parser = argparse.ArgumentParser()
-            cmd.add_arguments(parser)
-            args = parser.parse_args(["list", "jobs"])
-            with self.assertRaises(SystemExit):
-                args.func(args)
+    @patch(CMD_BUILD_TRACKERS, return_value=[])
+    def test_list_jobs_cmd_with_missing_tracker(self, _: MagicMock) -> None:
+        cmd = CmdTracker()
+        parser = argparse.ArgumentParser()
+        cmd.add_arguments(parser)
+        args = parser.parse_args(["list", "jobs"])
+        with self.assertRaises(RuntimeError):
+            args.func(args)
 
-    def test_list_jobs_cmd_with_parent_id(self) -> None:
+    @patch(CMD_TRACKER)
+    def test_list_jobs_cmd_with_parent_id(self, mock_tracker: MagicMock) -> None:
         expected_parent_run_id = "my_experiment"
-        self.tracker.run_ids.return_value = ["id1", "id2"]
-        args = self.parser.parse_args(
+        mock_tracker.run_ids.return_value = ["id1", "id2"]
+
+        parser = argparse.ArgumentParser()
+        CmdTracker().add_arguments(parser)
+        args = parser.parse_args(
             ["list", "jobs", "--parent-run-id", expected_parent_run_id]
         )
         args.func(args)
-        self.tracker.run_ids.assert_called_once_with(
+
+        mock_tracker.run_ids.assert_called_once_with(
             parent_run_id=expected_parent_run_id
         )
 
-    def test_list_metadata_cmd(self) -> None:
-        self.tracker.metadata.return_value = {"v1": 1, "v2": "2"}
+    @patch(CMD_TRACKER)
+    def test_list_metadata_cmd(self, mock_tracker: MagicMock) -> None:
+        mock_tracker.metadata.return_value = {"v1": 1, "v2": "2"}
 
-        args = self.parser.parse_args(["list", "metadata", self.test_run_id])
+        parser = argparse.ArgumentParser()
+        CmdTracker().add_arguments(parser)
+
+        args = parser.parse_args(["list", "metadata", self.test_run_id])
         args.func(args)
-        self.tracker.metadata.assert_called_once()
+        mock_tracker.metadata.assert_called_once()
 
-    def test_list_artifacts_cmd(self) -> None:
-        self.tracker.artifacts.return_value = {
+    @patch(CMD_TRACKER)
+    def test_list_artifacts_cmd(self, mock_tracker: MagicMock) -> None:
+        mock_tracker.artifacts.return_value = {
             "test_artifact": TrackerArtifact("test_artifact", "/path", None)
         }
 
-        args = self.parser.parse_args(["list", "artifacts", self.test_run_id])
+        parser = argparse.ArgumentParser()
+        CmdTracker().add_arguments(parser)
+
+        args = parser.parse_args(["list", "artifacts", self.test_run_id])
         args.func(args)
-        self.tracker.artifacts.assert_called_once_with(self.test_run_id)
+        mock_tracker.artifacts.assert_called_once_with(self.test_run_id)

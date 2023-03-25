@@ -17,8 +17,9 @@ from torchx.util.entrypoints import load_group
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-TRACKER_ENV_VAR_NAME = "TORCHX_TRACKERS"
-TRACKER_PARENT_RUN_ENV_VAR_NAME = "TORCHX_PARENT_RUN_ID"
+ENV_TORCHX_TRACKERS = "TORCHX_TRACKERS"
+ENV_TORCHX_PARENT_RUN_ID = "TORCHX_PARENT_RUN_ID"
+ENV_TORCHX_JOB_ID = "TORCHX_JOB_ID"
 
 
 @dataclass
@@ -157,12 +158,12 @@ def tracker_config_env_var_name(entrypoint_key: str) -> str:
 
 
 def _extract_tracker_name_and_config_from_environ() -> Mapping[str, Optional[str]]:
-    if TRACKER_ENV_VAR_NAME not in os.environ:
+    if ENV_TORCHX_TRACKERS not in os.environ:
         logger.info("No trackers were configured, skipping setup.")
         return {}
 
-    tracker_backend_entrypoints = os.environ[TRACKER_ENV_VAR_NAME]
-    logger.info(f"Trackers specified {tracker_backend_entrypoints}")
+    tracker_backend_entrypoints = os.environ[ENV_TORCHX_TRACKERS]
+    logger.info(f"Trackers: {ENV_TORCHX_TRACKERS}={tracker_backend_entrypoints}")
 
     entries = {}
     for entrypoint_key in tracker_backend_entrypoints.split(","):
@@ -182,24 +183,23 @@ def build_trackers(
 
     entrypoint_factories = load_group("torchx.tracker")
     if not entrypoint_factories:
-        logger.warn(
+        logger.warning(
             "No 'torchx.tracker' entry_points are defined. Tracking will not capture any data."
         )
         return trackers
 
     for entrypoint_key, config in entrypoint_and_config.items():
-        logger.info(f"Configuring tracker {entrypoint_key}")
         if entrypoint_key not in entrypoint_factories:
-            logger.warn(
-                f"Coult not find '{entrypoint_key}' tracker entrypoint, skipping."
+            logger.warning(
+                f"Could not find `{entrypoint_key}` tracker entrypoint. Skipping..."
             )
             continue
         factory = entrypoint_factories[entrypoint_key]
         if config:
-            logger.info(f"Trackers config specified for {entrypoint_key} as {config}")
+            logger.info(f"Tracker config found for `{entrypoint_key}` as `{config}`")
             tracker = factory(config)
         else:
-            logger.info(f"No trackers config specified for {entrypoint_key}")
+            logger.info(f"No tracker config specified for `{entrypoint_key}`")
             tracker = factory(None)
         trackers.append(tracker)
     return trackers
@@ -265,18 +265,18 @@ class AppRun:
 
         .. doctest::
 
-            >>> from torchx.tracker.api import AppRun
+            >>> from torchx.mock_tracker.api import AppRun
             >>> apprun = AppRun.run_from_env()
             >>> apprun.add_metadata(md_1 = "foo", md_2 = "bar")
 
 
         """
 
-        torchx_job_id = os.getenv("TORCHX_JOB_ID", default="<UNDEFINED>")
+        torchx_job_id = os.getenv(ENV_TORCHX_JOB_ID, default="<UNDEFINED>")
 
         trackers = trackers_from_environ()
-        if TRACKER_PARENT_RUN_ENV_VAR_NAME in os.environ:
-            parent_run_id = os.environ[TRACKER_PARENT_RUN_ENV_VAR_NAME]
+        if ENV_TORCHX_PARENT_RUN_ID in os.environ:
+            parent_run_id = os.environ[ENV_TORCHX_PARENT_RUN_ID]
             logger.info(f"Tracker parent run ID: '{parent_run_id}'")
             for tracker in trackers:
                 tracker.add_source(torchx_job_id, parent_run_id, artifact_name=None)

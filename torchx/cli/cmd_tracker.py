@@ -6,31 +6,14 @@
 
 import argparse
 import logging
-import sys
-from typing import Callable, Optional
 
 from tabulate import tabulate
 
 from torchx.cli.cmd_base import SubCommand
 from torchx.runner.api import get_configured_trackers
 from torchx.tracker.api import build_trackers, TrackerBase
-from torchx.util.types import none_throws
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-
-def _requires_tracker(
-    command: Callable[["CmdTracker", argparse.Namespace], None]
-) -> Callable[["CmdTracker", argparse.Namespace], None]:
-    """Checks that command has valid tracker setup"""
-
-    def wrapper(self: "CmdTracker", args: argparse.Namespace) -> None:
-        if not self.tracker:
-            logger.error("Exiting since no trackers were configured.")
-            sys.exit(1)
-        command(self, args)
-
-    return wrapper
 
 
 class CmdTracker(SubCommand):
@@ -49,30 +32,28 @@ class CmdTracker(SubCommand):
     def __init__(self) -> None:
         """
         Queries available tracker implementations and uses the first available one.
-
-        Since the instance needs to be available to setup torchx arguments, subcommands
-        utilize `_requires_tracker()` annotation to check that tracker is available
-        when invoked.
         """
-        self.tracker: Optional[TrackerBase] = None
-        configured_trackers = get_configured_trackers()
-        if configured_trackers:
-            trackers = build_trackers(configured_trackers)
-            if trackers:
-                self.tracker = next(iter(trackers))
-                logger.info(f"Using {self.tracker} to query data")
-            else:
-                logger.error("No trackers were configured!")
+
+    @property
+    def tracker(self) -> TrackerBase:
+        trackers = list(build_trackers(get_configured_trackers()))
+        if trackers:
+            logger.info(f"Using `{trackers[0]}` tracker to query data")
+            return trackers[0]
+        else:
+            raise RuntimeError(
+                "No trackers configured."
+                " See: https://pytorch.org/torchx/latest/runtime/tracking.html"
+            )
 
     def add_list_job_arguments(self, subparser: argparse.ArgumentParser) -> None:
         subparser.add_argument(
             "--parent-run-id", type=str, help="Optional job parent run ID"
         )
 
-    @_requires_tracker
     def list_jobs_command(self, args: argparse.Namespace) -> None:
         parent_run_id = args.parent_run_id
-        job_ids = none_throws(self.tracker).run_ids(parent_run_id=parent_run_id)
+        job_ids = self.tracker.run_ids(parent_run_id=parent_run_id)
 
         tabulated_job_ids = [[job_id] for job_id in job_ids]
         print(tabulate(tabulated_job_ids, headers=["JOB ID"]))
@@ -91,17 +72,15 @@ class CmdTracker(SubCommand):
         )
         subparser.add_argument("RUN_ID", type=str, help="Job run ID")
 
-    @_requires_tracker
     def job_lineage_command(self, args: argparse.Namespace) -> None:
         raise NotImplementedError("")
 
     def add_metadata_arguments(self, subparser: argparse.ArgumentParser) -> None:
         subparser.add_argument("RUN_ID", type=str, help="Job run ID")
 
-    @_requires_tracker
     def list_metadata_command(self, args: argparse.Namespace) -> None:
         run_id = args.RUN_ID
-        metadata = none_throws(self.tracker).metadata(run_id)
+        metadata = self.tracker.metadata(run_id)
         print_data = [[k, v] for k, v in metadata.items()]
 
         print(tabulate(print_data, headers=["ID", "VALUE"]))
@@ -113,21 +92,16 @@ class CmdTracker(SubCommand):
 
         subparser.add_argument("RUN_ID", type=str, help="Job run ID")
 
-    @_requires_tracker
     def list_artifacts_command(self, args: argparse.Namespace) -> None:
         run_id = args.RUN_ID
         artifact_filter = args.artifact
 
-        artifacts = none_throws(self.tracker).artifacts(run_id)
-        artifacts = artifacts.values()
+        artifacts = list(self.tracker.artifacts(run_id).values())
 
         if artifact_filter:
-            artifacts = [
-                artifact for artifact in artifacts if artifact.name == artifact_filter
-            ]
-        print_data = [
-            [artifact.name, artifact.path, artifact.metadata] for artifact in artifacts
-        ]
+            artifacts = [a for a in artifacts if a.name == artifact_filter]
+
+        print_data = [[a.name, a.path, a.metadata] for a in artifacts]
 
         print(tabulate(print_data, headers=["ARTIFACT", "PATH", "METADATA"]))
 

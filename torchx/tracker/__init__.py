@@ -91,8 +91,8 @@ To accomplish that define entrypoint in the distribution in `entry_points.txt` a
     entry_point_name=my_module:create_tracker_fn
 
 
-Aquiring :py:class:`~torchx.tracker.api.AppRun` instance
---------------------------------------------------------
+Acquiring :py:class:`~torchx.tracker.api.AppRun` instance
+-------------------------------------------------------------
 
 Use :py:meth:`~torchx.tracker.app_run_from_env`:
 

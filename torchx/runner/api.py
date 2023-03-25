@@ -31,7 +31,12 @@ from torchx.specs import (
     UnknownAppException,
 )
 from torchx.specs.finder import get_component
-from torchx.tracker.api import tracker_config_env_var_name, TRACKER_ENV_VAR_NAME
+from torchx.tracker.api import (
+    ENV_TORCHX_JOB_ID,
+    ENV_TORCHX_PARENT_RUN_ID,
+    ENV_TORCHX_TRACKERS,
+    tracker_config_env_var_name,
+)
 
 from torchx.util.types import none_throws
 from torchx.workspace.api import WorkspaceMixin
@@ -45,33 +50,24 @@ NONE: str = "<NONE>"
 
 
 def get_configured_trackers() -> Dict[str, Optional[str]]:
-    tracker_names = []
-    if TRACKER_ENV_VAR_NAME in os.environ and os.environ[TRACKER_ENV_VAR_NAME]:
-        trackers = os.environ[TRACKER_ENV_VAR_NAME]
-        tracker_names = os.environ[TRACKER_ENV_VAR_NAME].split(",")
-        logger.info(
-            f"Using 'TORCHX_TRACKERS'='{trackers}' env variable to setup trackers"
-        )
-    else:
-        tracker_names = get_configs(prefix="torchx", name="tracker")
-        if tracker_names:
-            names = (",").join(tracker_names.keys())
-            logger.info(f"Using #torchx.tracker=['{names}'] config to setup trackers")
+    tracker_names = list(get_configs(prefix="torchx", name="tracker").keys())
+    if ENV_TORCHX_TRACKERS in os.environ:
+        logger.info(f"Using TORCHX_TRACKERS={tracker_names} as tracker names")
+        tracker_names = os.environ[ENV_TORCHX_TRACKERS].split(",")
 
     tracker_names_with_config = {}
     for tracker_name in tracker_names:
-        config_env_name = tracker_config_env_var_name(tracker_name)
-        config_value = None
+        config_value = get_config(prefix="tracker", name=tracker_name, key="config")
 
+        config_env_name = tracker_config_env_var_name(tracker_name)
         if config_env_name in os.environ:
             config_value = os.environ[config_env_name]
             logger.info(
-                f"Using {config_env_name}=['{config_value}'] config to setup {tracker_name} tracker"
+                f"Using {config_env_name}={config_value} for `{tracker_name}` tracker"
             )
-        else:
-            config_value = get_config(prefix="tracker", name=tracker_name, key="config")
 
         tracker_names_with_config[tracker_name] = config_value
+    logger.info(f"Tracker configurations: {tracker_names_with_config}")
     return tracker_names_with_config
 
 
@@ -318,10 +314,10 @@ class Runner:
                 f"No roles for app: {app.name}. Did you forget to add roles to AppDef?"
             )
 
-        if "TORCHX_PARENT_RUN_ID" in os.environ:
-            parent_run_id = os.environ["TORCHX_PARENT_RUN_ID"]
+        if ENV_TORCHX_PARENT_RUN_ID in os.environ:
+            parent_run_id = os.environ[ENV_TORCHX_PARENT_RUN_ID]
             logger.info(
-                f"Using 'TORCHX_PARENT_RUN_ID'='{parent_run_id}' env variable as tracker parent run ID"
+                f"Using {ENV_TORCHX_PARENT_RUN_ID}={parent_run_id} env variable as tracker parent run id"
             )
 
         configured_trackers = get_configured_trackers()
@@ -344,16 +340,15 @@ class Runner:
             #    - inject it as TORCHX_TRACKERS=names (it is expected that entrypoints are defined)
             #    - for each backend check configuration file, if exists:
             #        - inject it as TORCHX_TRACKER_<name>_CONFIGFILE=filename
-            role.env["TORCHX_JOB_ID"] = make_app_handle(
+            role.env[ENV_TORCHX_JOB_ID] = make_app_handle(
                 scheduler, self._name, macros.app_id
             )
 
-            # TODO extract constants into tracker API module
             if parent_run_id:
-                role.env["TORCHX_PARENT_RUN_ID"] = parent_run_id
+                role.env[ENV_TORCHX_PARENT_RUN_ID] = parent_run_id
 
             if configured_trackers:
-                role.env[TRACKER_ENV_VAR_NAME] = ",".join(configured_trackers.keys())
+                role.env[ENV_TORCHX_TRACKERS] = ",".join(configured_trackers.keys())
 
             for name, config in configured_trackers.items():
                 if config:

@@ -169,6 +169,7 @@ from torchx.specs.api import runopt
 CONFIG_FILE = ".torchxconfig"
 CONFIG_PREFIX_DELIM = ":"
 ENV_TORCHXCONFIG = "TORCHXCONFIG"
+DEFAULT_CONFIG_DIRS = [str(Path.home()), str(Path.cwd())]
 
 _NONE = "None"
 
@@ -390,6 +391,9 @@ def load_sections(
                 section = sections.setdefault(name, {})
                 for key, value in config.items(section_name):
                     if key not in section:
+                        log.debug(
+                            f"Loaded config: {prefix}.{key}={value} from {configfile}"
+                        )
                         section[key] = value
 
     return sections
@@ -457,8 +461,8 @@ def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
        the ``dirs`` parameter is NOT searched.
     2. Otherwise, a ``.torchxconfig`` file is looked for in ``dirs`` and
        the filepaths to existing config files are returned. If ``dirs`` is
-       not specified or is empty then, this method looks for a ``.torchxconfig`` file
-       in CWD (current working dir) and returns the filepath to it if one exists.
+       not specified or is empty then ``dirs`` defaults to ``[$HOME, $CWD]``
+       where CWD is current working dir.
 
     """
 
@@ -473,7 +477,7 @@ def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
     else:
         config_files = []
         if not dirs:
-            dirs = [str(Path.cwd())]
+            dirs = DEFAULT_CONFIG_DIRS
         for d in dirs:
             configfile = Path(d) / CONFIG_FILE
             if configfile.exists():

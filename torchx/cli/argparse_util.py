@@ -5,13 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 
 from argparse import Action, ArgumentParser, Namespace
-from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Text
 
 from torchx.runner import config
-
-
-CONFIG_DIRS = [str(Path.home()), str(Path.cwd())]
 
 
 class _torchxconfig(Action):
@@ -40,7 +36,6 @@ class _torchxconfig(Action):
             config.get_configs(
                 prefix="cli",
                 name=subcmd,
-                dirs=CONFIG_DIRS,
             ),
         )
 

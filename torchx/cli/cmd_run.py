@@ -15,7 +15,7 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple
 
 import torchx.specs as specs
-from torchx.cli.argparse_util import CONFIG_DIRS, torchxconfig_run
+from torchx.cli.argparse_util import torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
 from torchx.runner import config, get_runner, Runner
@@ -182,12 +182,11 @@ class CmdRun(SubCommand):
 
         scheduler_opts = runner.scheduler_run_opts(args.scheduler)
         cfg = scheduler_opts.cfg_from_str(args.scheduler_args)
-        config.apply(scheduler=args.scheduler, cfg=cfg, dirs=CONFIG_DIRS)
+        config.apply(scheduler=args.scheduler, cfg=cfg)
 
         component, component_args = _parse_component_name_and_args(
             args.component_name_and_args,
             none_throws(self._subparser),
-            dirs=CONFIG_DIRS,
         )
         try:
             if args.dryrun:
@@ -243,7 +242,8 @@ class CmdRun(SubCommand):
 
     def run(self, args: argparse.Namespace) -> None:
         os.environ["TORCHX_CONTEXT_NAME"] = os.getenv("TORCHX_CONTEXT_NAME", "cli_run")
-        component_defaults = load_sections(prefix="component", dirs=CONFIG_DIRS)
+        component_defaults = load_sections(prefix="component")
+
         with get_runner(component_defaults=component_defaults) as runner:
             self._run(runner, args)
 

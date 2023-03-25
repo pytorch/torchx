@@ -18,6 +18,8 @@ from typing import Callable, Dict, Iterable, List, TypeVar, Union
 from torch.distributed.elastic.multiprocessing import Std
 from torch.distributed.launcher import elastic_launch, LaunchConfig
 
+from torchx.schedulers.test import test_util
+
 IS_CI: bool = os.getenv("CI", "false").lower() == "true"
 IS_MACOS: bool = sys.platform == "darwin"
 
@@ -90,6 +92,29 @@ class TestWithTmpDir(unittest.TestCase):
         with open(f, "w") as fout:
             fout.writelines(content)
         return f
+
+    def write_shell_script(self, script_path: str, content: List[str]) -> Path:
+        """
+        Writes a bash script with the body as provided by ``content`` in the test's tmp directory.
+        The content should not include the shebang (``#!/bin/bash``) header as one is added automatically.
+        The shell script is also made executable (``chmod 755``) so that it can be run from test methods.
+
+        Usage:
+
+        .. code-block:: python
+
+         p = self.write_shell_script("echo.sh", ["echo hello", "echo world"])
+         assert p == self.tmpdir / "echo.sh"
+
+         p = self.write_shell_script("bin/echo.sh", ["echo hello", "echo world"])
+         assert p == self.tmpdir / "bin" / "echo.sh")
+
+        Returns: The path to the written shell script.
+
+        """
+        return Path(
+            test_util.write_shell_script(str(self.tmpdir), script_path, content)
+        )
 
     def read(self, filepath: Union[str, Path]) -> List[str]:
         """
