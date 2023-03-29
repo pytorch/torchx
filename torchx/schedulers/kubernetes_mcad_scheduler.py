@@ -474,18 +474,18 @@ def get_port_for_service(app: AppDef) -> str:
 
     return port
 
-def enable_retry(resource: Dict[str, Any], appwrapper_retries: int, total_pods: int):
+def enable_retry(job_spec: Dict[str, Any], appwrapper_retries: int, total_pods: int):
     requeue_dict = {
         "timeInSeconds" : 300,
         "maxTimeInSeconds" : 0,
-        "growthType": "None",
+        "growthType": "exponential",
         "maxNumRequeuings": appwrapper_retries
     }
     nested_specs = {
         "minAvailable": total_pods,
         "requeuing": requeue_dict
     }
-    resource["spec"]["schedulingSpec"] = nested_specs
+    job_spec["schedulingSpec"] = nested_specs
 
 def app_to_resource(
     app: AppDef,
@@ -588,17 +588,17 @@ def app_to_resource(
     if priority is not None:
         job_spec["priority"] = priority
 
+    appwrapper_retries = min(role.max_retries for role in app.roles)
+    if appwrapper_retries > 0:
+        total_pods = sum(role.num_replicas for role in app.roles)
+        enable_retry(job_spec, appwrapper_retries, total_pods)
+
     resource: Dict[str, object] = {
         "apiVersion": "mcad.ibm.com/v1beta1",
         "kind": "AppWrapper",
         "metadata": {"name": unique_app_id, "namespace": namespace},
         "spec": job_spec,
     }
-
-    appwrapper_retries = min(role.max_retries for role in app.roles)
-    if appwrapper_retries > 0:
-        total_pods = sum(role.num_replicas for role in app.roles)
-        enable_retry(resource, appwrapper_retries, total_pods)
 
     return resource
 
