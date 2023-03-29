@@ -474,6 +474,18 @@ def get_port_for_service(app: AppDef) -> str:
 
     return port
 
+def enable_retry(resource: Dict[str, Any], appwrapper_retries: int, total_pods: int):
+    requeue_dict = {
+        "timeInSeconds" : 300,
+        "maxTimeInSeconds" : 0,
+        "growthType": "None",
+        "maxNumRequeuings": appwrapper_retries
+    }
+    nested_specs = {
+        "minAvailable": total_pods,
+        "requeuing": requeue_dict
+    }
+    resource["spec"]["schedulingSpec"] = nested_specs
 
 def app_to_resource(
     app: AppDef,
@@ -547,15 +559,6 @@ def app_to_resource(
                 "replicas": 1,
                 "generictemplate": pod,
             }
-            # TODO: retry support here. For more information, see MCAD GitHub issue #207
-            if role.max_retries > 0:
-                genericitem["maxRetry"] = role.max_retries
-                genericitem["policies"] = RETRY_POLICIES[role.retry_policy]
-                msg = f"""
-MCAD currently does not support retries. Role {role.name} configured with restarts: {role.max_retries}.
-                """
-                warnings.warn(msg)
-
             genericitems.append(genericitem)
 
     """
@@ -591,6 +594,12 @@ MCAD currently does not support retries. Role {role.name} configured with restar
         "metadata": {"name": unique_app_id, "namespace": namespace},
         "spec": job_spec,
     }
+
+    appwrapper_retries = min(role.max_retries for role in app.roles)
+    if appwrapper_retries > 0:
+        total_pods = sum(role.num_replicas for role in app.roles)
+        enable_retry(resource, appwrapper_retries, total_pods)
+
     return resource
 
 
