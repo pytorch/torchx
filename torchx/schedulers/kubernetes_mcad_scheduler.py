@@ -502,6 +502,9 @@ def app_to_resource(
     the provided AppDef. The resource definition can be used to launch the
     app on Kubernetes.
 
+    MCAD supports retries at the APPLICATION level. In the case of multiple TorchX Roles,
+    the AppWrapper maximum number of retries 
+    count is set to the minimum of the max_retries of the roles.
     """
 
     genericitems = []
