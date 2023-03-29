@@ -196,7 +196,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             ]
             self.assertEqual(expected_cmd, actual_cmd)
 
-    def test_retry_policy_not_set(self) -> None:
+    def test_retry_not_set(self) -> None:
         app = _test_app()
         resource = app_to_resource(
             app,
@@ -208,14 +208,19 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             network=None,
             priority=0,
         )
-        item0 = resource["spec"]["resources"]["GenericItems"][0]
-        self.assertListEqual(
-            [
-                {"event": "PodEvicted", "action": "RestartJob"},
-                {"event": "PodFailed", "action": "RestartJob"},
-            ],
-            item0["policies"],
-        )
+
+        item0 = resource["spec"]
+        expected = {
+            "minAvailable": 1,
+            "requeuing": {
+                "growthType": "exponential",
+                "maxNumRequeuings": 3,
+                "maxTimeInSeconds": 0,
+                "timeInSeconds": 300 
+            }
+        }
+        self.assertEqual(item0["schedulingSpec"], expected) 
+
         for role in app.roles:
             role.max_retries = 0
         resource = app_to_resource(
@@ -228,9 +233,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             network=None,
             priority=0,
         )
-        item0 = resource["spec"]["resources"]["GenericItems"][0]
-        self.assertFalse("policies" in item0)
-        self.assertFalse("maxRetry" in item0)
+        item0 = resource["spec"]
+        self.assertFalse("schedulingSpec" in item0)
 
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
@@ -618,12 +622,6 @@ spec:
           - hostPath:
               path: /src
             name: mount-0
-      maxRetry: 3
-      policies:
-      - action: RestartJob
-        event: PodEvicted
-      - action: RestartJob
-        event: PodFailed
       replicas: 1
     - generictemplate:
         apiVersion: v1
@@ -649,6 +647,13 @@ spec:
         status:
           loadBalancer: {{}}
       replicas: 1
+  schedulingSpec:
+    minAvailable: 1
+    requeuing:
+      growthType: exponential
+      maxNumRequeuings: 3
+      maxTimeInSeconds: 0
+      timeInSeconds: 300
 """,
         )
 
