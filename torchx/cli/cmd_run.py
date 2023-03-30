@@ -198,12 +198,12 @@ class CmdRun(SubCommand):
                     cfg=cfg,
                     parent_run_id=args.parent_run_id,
                 )
-                logger.info(
+                print(
                     "\n=== APPLICATION ===\n"
                     f"{pformat(asdict(dryrun_info._app), indent=2, width=80)}"
                 )
 
-                logger.info("\n=== SCHEDULER REQUEST ===\n" f"{dryrun_info}")
+                print("\n=== SCHEDULER REQUEST ===\n" f"{dryrun_info}")
             else:
                 app_handle = runner.run_component(
                     component,
