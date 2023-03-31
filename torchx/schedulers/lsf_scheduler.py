@@ -19,7 +19,7 @@ You'll need either an existing LSF cluster to run your jobs or for individuals
 you can install LSF Community Edition.
 
 See the LSF documentation for more details:
-https://www.ibm.com/support/pages/where-do-i-download-lsf-community-edition
+https://www.ibm.com/docs/en/cloud-private/3.2.x?topic=paks-spectrum-lsf-community-edition
 """
 import os.path
 import re
