@@ -540,7 +540,7 @@ python/0 Hello, your name!
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-w4lh5w05gpxxn
+local_cwd://torchx/torchx_utils_python-h5wshzhrprttmc
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -568,7 +568,7 @@ python/0 Hello, your name!
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-vxbpbzqs242ntc
+local_docker://torchx/torchx_utils_python-njsvvnvrpqv9d
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -693,9 +693,9 @@ dist_app/1 *****************************************
 dist_app/1 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 dist_app/1 *****************************************
 dist_app/0 [1]:I am worker 1 of 4!
-dist_app/0 [1]:all_reduce output = tensor([6])
 dist_app/0 [0]:I am worker 0 of 4!
 dist_app/0 [0]:all_reduce output = tensor([6])
+dist_app/0 [1]:all_reduce output = tensor([6])
 dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
 dist_app/1 [1]:I am worker 3 of 4!
@@ -707,7 +707,7 @@ dist_app/1 [1]:all_reduce output = tensor([6])
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-hpwzvt21pkpnwc
+local_docker://torchx/dist_app-kr3sn4d4q33bjd
 </pre></div></div>
 </div>
 </section>
@@ -1096,7 +1096,7 @@ python/0 )
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-j0111x1g6cgd5c
+local_docker://torchx/torchx_utils_python-dfkprh62nlbnrc
 </pre></div></div>
 </div>
 </section>

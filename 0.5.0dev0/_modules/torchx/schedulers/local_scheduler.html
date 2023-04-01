@@ -833,7 +833,7 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">role_to_pid</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">role_name</span><span class="p">,</span> <span class="n">replicas</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">role_name</span><span class="p">,</span> <span class="n">replicas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">role_replicas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">pids</span> <span class="o">=</span> <span class="n">role_to_pid</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">role_name</span><span class="p">,</span> <span class="p">[])</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replicas</span><span class="p">:</span>
                 <span class="n">pids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
@@ -1007,7 +1007,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lru_time</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
         <span class="n">lru_app_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">is_terminal</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">last_updated</span> <span class="o">&lt;=</span> <span class="n">lru_time</span><span class="p">:</span>
                     <span class="n">lru_app_id</span> <span class="o">=</span> <span class="n">app_id</span>
@@ -1383,7 +1383,7 @@
 
 <div class="viewcode-block" id="LocalScheduler.close"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># terminate all apps</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Terminating app: </span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">app</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
         <span class="c1"># delete logdir if torchx created a log dir</span>
@@ -1432,7 +1432,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_finished</span><span class="p">()</span>  <span class="c1"># check to see if app has finished running</span>
 
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_file</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_log_fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># noqa: P201</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_log_file</span><span class="p">,</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rt&quot;</span><span class="p">,</span>
+                    <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">,</span>  <span class="c1"># replace bad utf-8 with \uFFFD</span>
+                <span class="p">)</span>  <span class="c1"># noqa: P201</span>
                 <span class="k">break</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_finished</span><span class="p">:</span>
