@@ -58,7 +58,6 @@ class RayOpts(TypedDict, total=False):
 
 
 if _has_ray:
-
     _logger: logging.Logger = logging.getLogger(__name__)
 
     _ray_status_to_torchx_appstate: Dict[JobStatus, AppState] = {
