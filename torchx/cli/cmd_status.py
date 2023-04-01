@@ -52,7 +52,7 @@ class CmdStatus(SubCommand):
         app_status = runner.status(app_handle)
         filter_roles = parse_list_arg(args.roles)
         if app_status:
-            logger.info(app_status.format(filter_roles))
+            print(app_status.format(filter_roles))
         else:
             logger.error(
                 f"AppDef: {app_id},"
