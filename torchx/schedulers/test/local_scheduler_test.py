@@ -223,6 +223,9 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             session_name="test_session",
             image_provider_class=LocalDirectoryImageProvider,
         )
+        write_shell_script(
+            self.test_dir, "print_invalid_utf8.sh", ["printf '\\x02\\xc5\\xd8'"]
+        )
 
     def tearDown(self) -> None:
         self.scheduler.close()
@@ -671,6 +674,20 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         app_id = self.scheduler.submit(app, cfg={})
         logs = list(self.scheduler.log_iter(app_id, "role1", k=0))
         self.assertEqual(len(logs), 11)
+
+    def test_log_iterator_invalid_utf8(self) -> None:
+        role = Role(
+            "role1",
+            image=self.test_dir,
+            entrypoint="print_invalid_utf8.sh",
+            num_replicas=1,
+        )
+
+        app = AppDef(name="test_app", roles=[role])
+
+        app_id = self.scheduler.submit(app, cfg={})
+        logs = list(self.scheduler.log_iter(app_id, "role1", k=0))
+        self.assertEqual(logs, ["\x02\ufffd\ufffd"])
 
     def test_submit_multiple_roles(self) -> None:
         test_file1 = join(self.test_dir, "test_file_1")
