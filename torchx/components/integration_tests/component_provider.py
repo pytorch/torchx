@@ -37,12 +37,15 @@ class ComponentProvider(ABC):
 class DDPComponentProvider(ComponentProvider):
     def get_app_def(self) -> AppDef:
         return dist_components.ddp(
-            script="torchx/components/integration_tests/test/dummy_app.py",
+            m="torchx.examples.apps.compute_world_size.main",
             name="ddp-trainer",
             image=self._image,
             cpu=1,
             j="2x2",
             max_retries=3,
+            env={
+                "LOGLEVEL": "INFO",
+            },
         )
 
 

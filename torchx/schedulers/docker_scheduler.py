@@ -43,6 +43,7 @@ from typing_extensions import TypedDict
 
 
 if TYPE_CHECKING:
+    from docker import DockerClient
     from docker.models.containers import Container
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -92,6 +93,30 @@ def has_docker() -> bool:
         return True
     except (ImportError, docker.errors.DockerException):
         return False
+
+
+def ensure_network(client: Optional["DockerClient"] = None) -> None:
+    """
+    This creates the torchx docker network. Multi-process safe.
+    """
+    import filelock
+    from docker.errors import APIError
+
+    if client is None:
+        import docker
+
+        client = docker.from_env()
+
+    lock_path = os.path.join(tempfile.gettempdir(), "torchx_docker_network_lock")
+
+    # Docker networks.create check_duplicate has a race condition so we need
+    # to do client side locking to ensure only one network is created.
+    with filelock.FileLock(lock_path, timeout=10):
+        try:
+            client.networks.create(name=NETWORK, driver="bridge", check_duplicate=True)
+        except APIError as e:
+            if "already exists" not in str(e):
+                raise
 
 
 class DockerOpts(TypedDict, total=False):
@@ -145,24 +170,6 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
     def __init__(self, session_name: str) -> None:
         super().__init__("docker", session_name)
 
-    def _ensure_network(self) -> None:
-        import filelock
-        from docker.errors import APIError
-
-        client = self._docker_client
-        lock_path = os.path.join(tempfile.gettempdir(), "torchx_docker_network_lock")
-
-        # Docker networks.create check_duplicate has a race condition so we need
-        # to do client side locking to ensure only one network is created.
-        with filelock.FileLock(lock_path, timeout=10):
-            try:
-                client.networks.create(
-                    name=NETWORK, driver="bridge", check_duplicate=True
-                )
-            except APIError as e:
-                if "already exists" not in str(e):
-                    raise
-
     def schedule(self, dryrun_info: AppDryRunInfo[DockerJob]) -> str:
         client = self._docker_client
 
@@ -180,7 +187,7 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
             except Exception as e:
                 log.warning(f"failed to pull image {image}, falling back to local: {e}")
 
-        self._ensure_network()
+        ensure_network(self._docker_client)
 
         for container in req.containers:
             client.containers.run(
