@@ -500,7 +500,7 @@ greeter/0 Hello, your name!
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-s0n5chl617dz4c
+local_cwd://torchx/hello_world-mf6zqgzpj39d2
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -558,21 +558,20 @@ c0ad16d9fa05: Pulling fs layer
 909695be1d50: Pulling fs layer
 f119a6d0a466: Pulling fs layer
 88d87059c913: Pulling fs layer
+6009a622672a: Waiting
 143f80195431: Waiting
 eccbe17c44e1: Waiting
-d4c7af0d4fa7: Waiting
-06b5edd6bf52: Waiting
 f18d016c4ccc: Waiting
+d4c7af0d4fa7: Waiting
 c0ad16d9fa05: Waiting
-6009a622672a: Waiting
+06b5edd6bf52: Waiting
 30587ba7fd6b: Waiting
 909695be1d50: Waiting
 f119a6d0a466: Waiting
-88d87059c913: Waiting
-d2e110be24e1: Verifying Checksum
-d2e110be24e1: Download complete
 889a7173dcfe: Verifying Checksum
 889a7173dcfe: Download complete
+d2e110be24e1: Verifying Checksum
+d2e110be24e1: Download complete
 4bbfd2c87b75: Verifying Checksum
 4bbfd2c87b75: Download complete
 6009a622672a: Verifying Checksum
@@ -581,6 +580,7 @@ eccbe17c44e1: Verifying Checksum
 eccbe17c44e1: Download complete
 06b5edd6bf52: Verifying Checksum
 06b5edd6bf52: Download complete
+d4c7af0d4fa7: Verifying Checksum
 d4c7af0d4fa7: Download complete
 c0ad16d9fa05: Verifying Checksum
 c0ad16d9fa05: Download complete
@@ -614,8 +614,8 @@ Digest: sha256:a738949601d82e7f100fa1efeb8dde0c35ce44c66726cf38596f96d78dcd7ad3
 Status: Downloaded newer image for ghcr.io/pytorch/torchx:0.1.0rc1
  ---&gt; 3dbec59e8049
 Step 2/2 : ADD my_app.py .
- ---&gt; c0357ab6039e
-Successfully built c0357ab6039e
+ ---&gt; 5efe5abd494a
+Successfully built 5efe5abd494a
 Successfully tagged my_app:latest
 </pre></div></div>
 </div>
@@ -634,7 +634,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2023-04-01 02:31:29 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2023-04-01 04:34:30 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.41/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
 greeter/0 Hello, your name!
 </pre></div></div>
 </div>
@@ -643,7 +643,7 @@ greeter/0 Hello, your name!
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-bcjt2jx21zlxrc
+local_docker://torchx/hello_world-cl5jvkrfbsnmfc
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -706,7 +706,7 @@ echo/0 Hello :)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-chjk454fgdmkr
+local_docker://torchx/echo-wvm9dw2qn3th4c
 </pre></div></div>
 </div>
 </section>
