@@ -1,5 +1,46 @@
 # CHANGELOG
 
+## torchx-0.5.0
+
+* Milestone: https://github.com/pytorch/torchx/milestone/7
+
+* `torchx.schedulers`
+  * Kubernetes MCAD Scheduler (Prototype)
+    * Newly added integration for easily scheduling jobs on Multi-Cluster-Application-Dispatcher (MCAD).
+    * Features include:
+      * scheduling different types of components including DDP components
+      * scheduling on different compute resources (CPU, GPU)
+      * support for docker workspace
+      * support for bind, volume and device mounts
+      * getting logs for jobs
+      * describing, listing and cancelling jobs
+      * can be used with a secondary scheduler on Kubernetes
+  * AWS Batch
+    * Add privileged option to enable running containers on EFA enabled instances with elevated networking permissions
+
+* `torchx.tracker`
+  * MLflow backend (Prototype)
+    * New support for MLFlow backend for torchx tracker
+  * Add ability for fsspec tracker to read nested kwargs
+  * Support for tracking apps not launched by torchx
+  * Load tracker config from .torchxconfig
+
+* `torchx.components`
+    * Add dist.spmd component to support Single-Process-Multiple-Data style applications
+
+* `torchx.workspace`
+  * Add ability to access image and workspace path from Dockerfile while building docker workspace
+
+* Usability imporvements
+  *  Fix entrypoint loading to deal with deferred loading of modules to enable component registration to work properly
+
+* Changes to ease maintenance
+  * Add ability to run integration tests for AWS Batch, Slurm, and Kubernetes, instead of running in a remote dedicated clusters. This makes the environment reproducible, reduces maintenance, and makes it easier for more users to contribute.
+
+* Additional changes
+  * Bug fixes: Make it possible to launch jobs with more than 5 nodes on AWS Batch
+
+
 ## torchx-0.4.0
 
 * Milestone: https://github.com/pytorch/torchx/milestone/6
