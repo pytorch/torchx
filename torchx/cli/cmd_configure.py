@@ -38,7 +38,6 @@ class CmdConfigure(SubCommand):
         )
 
     def run(self, args: argparse.Namespace) -> None:
-
         if args.schedulers:
             schedulers = args.schedulers.split(",")
         else:

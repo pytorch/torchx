@@ -13,7 +13,6 @@ from torch.distributed import all_reduce, get_rank, get_world_size, init_process
 
 
 def compute_world_size() -> int:
-
     rank = int(os.getenv("RANK"))  # pyre-ignore[6]
     world_size = int(os.getenv("WORLD_SIZE"))  # pyre-ignore[6]
     master_port = int(os.getenv("MASTER_PORT"))  # pyre-ignore[6]
