@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -413,7 +413,7 @@ dealing with pipelines.</p>
 considers “built-in” apps. Before you write your own component you should
 browse through the builtins to see if there is one that fits your needs already.
 If so, no need to even author an app spec!</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 <span class="go">Found &lt;n&gt; builtin configs:</span>
 <span class="go"> 1. metrics.tensorboard</span>
 <span class="go"> 2. serve.torchserve</span>
@@ -425,7 +425,7 @@ If so, no need to even author an app spec!</p>
 <section id="listing-the-supported-schedulers-and-arguments">
 <h2>Listing the supported schedulers and arguments<a class="headerlink" href="#listing-the-supported-schedulers-and-arguments" title="Permalink to this heading">¶</a></h2>
 <p>To get a list of supported schedulers that you can launch your job into run:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>runopts
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts
 <span class="go">local_docker:</span>
 <span class="go">{ &#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
 <span class="go">               &#39;help&#39;: &#39;dir to write stdout/stderr log files of replicas&#39;,</span>
@@ -444,24 +444,24 @@ If so, no need to even author an app spec!</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">run</span></code>  subcommand takes either one of:</p>
 <ol class="arabic">
 <li><p>name of the builtin</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>&lt;sched_name&gt;<span class="w"> </span>utils.echo
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; utils.echo
 </pre></div>
 </div>
 </li>
 <li><p>full python module path of the component function</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>&lt;sched_name&gt;<span class="w"> </span>torchx.components.utils.echo
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; torchx.components.utils.echo
 </pre></div>
 </div>
 </li>
 <li><p>file path of the <code class="docutils literal notranslate"><span class="pre">*.py</span></code> file the defines the component
 along with the component function name in that file.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat<span class="w"> </span>~/my_trainer_spec.py
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat ~/my_trainer_spec.py
 <span class="go">import torchx.specs as specs</span>
 
 <span class="go">def my_trainer(foo: int, bar: str) -&gt; specs.AppDef:</span>
 <span class="go">  &lt;...spec file details omitted for brevity...&gt;</span>
 
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>&lt;sched_name&gt;<span class="w"> </span>~/my_trainer_spec.py:my_trainer
+<span class="gp">$ </span>torchx run --scheduler &lt;sched_name&gt; ~/my_trainer_spec.py:my_trainer
 </pre></div>
 </div>
 </li>
@@ -471,26 +471,26 @@ to see what parameters need to be passed. There are three sets of
 parameters:</p>
 <ol class="arabic">
 <li><p>arguments to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand, see a list of them by running:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--help
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --help
 </pre></div>
 </div>
 </li>
 <li><p>arguments to the scheduler (<code class="docutils literal notranslate"><span class="pre">--scheduler_args</span></code>, also known as <code class="docutils literal notranslate"><span class="pre">run_options</span></code> or <code class="docutils literal notranslate"><span class="pre">run_configs</span></code>),
 each scheduler takes different args, to find out the args for a specific scheduler run (command for
 <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler shown below:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>runopts<span class="w"> </span>local_cwd
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx runopts local_cwd
 <span class="go">{ &#39;log_dir&#39;: { &#39;default&#39;: &#39;None&#39;,</span>
 <span class="go">           &#39;help&#39;: &#39;dir to write stdout/stderr log files of replicas&#39;,</span>
 <span class="go">           &#39;type&#39;: &#39;str&#39;}}</span>
 
-<span class="gp"># </span>pass<span class="w"> </span>run<span class="w"> </span>options<span class="w"> </span>as<span class="w"> </span>comma-delimited<span class="w"> </span><span class="nv">k</span><span class="o">=</span>v<span class="w"> </span>pairs
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_cwd<span class="w"> </span>--scheduler_args<span class="w"> </span><span class="nv">log_dir</span><span class="o">=</span>/tmp<span class="w"> </span>...
+<span class="gp"># </span>pass run options as comma-delimited <span class="nv">k</span><span class="o">=</span>v pairs
+<span class="gp">$ </span>torchx run --scheduler local_cwd --scheduler_args <span class="nv">log_dir</span><span class="o">=</span>/tmp ...
 </pre></div>
 </div>
 </li>
 <li><p>arguments to the component (the app args are included here), this also depends on the
 component and can be seen with the <code class="docutils literal notranslate"><span class="pre">--help</span></code> string on the component</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_cwd<span class="w"> </span>utils.echo<span class="w"> </span>--help
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler local_cwd utils.echo --help
 <span class="go">usage: torchx run echo.torchx [-h] [--msg MSG]</span>
 
 <span class="go">Echos a message</span>
@@ -503,7 +503,7 @@ component and can be seen with the <code class="docutils literal notranslate"><s
 </li>
 </ol>
 <p>Putting everything together, running <code class="docutils literal notranslate"><span class="pre">echo</span></code> with the <code class="docutils literal notranslate"><span class="pre">local_cwd</span></code> scheduler:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_cwd<span class="w"> </span>--scheduler_args<span class="w"> </span><span class="nv">log_dir</span><span class="o">=</span>/tmp<span class="w"> </span>utils.echo<span class="w"> </span>--msg<span class="w"> </span><span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --scheduler local_cwd --scheduler_args <span class="nv">log_dir</span><span class="o">=</span>/tmp utils.echo --msg <span class="s2">&quot;hello </span><span class="nv">$USER</span><span class="s2">&quot;</span>
 <span class="go">=== RUN RESULT ===</span>
 <span class="go">torchx 2022-06-15 16:08:57 INFO     Log files located in: /tmp/torchx/echo-crls3hcpwjmhc/echo/0</span>
 <span class="go">local_cwd://torchx/echo-crls3hcpwjmhc</span>
@@ -527,7 +527,7 @@ the default scheduler, see: <a class="reference internal" href="advanced.html#re
 inspect both the scheduler request object that the runner submits as well as
 the <code class="docutils literal notranslate"><span class="pre">AppDef</span></code> object that is created by the component function. To do this,
 use the <code class="docutils literal notranslate"><span class="pre">--dryrun</span></code> option to the <code class="docutils literal notranslate"><span class="pre">run</span></code> subcommand:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>--dryrun<span class="w"> </span>utils.echo<span class="w"> </span>--msg<span class="w"> </span>hello_world
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run --dryrun utils.echo --msg hello_world
 <span class="go">=== APPLICATION ===</span>
 <span class="go">{ &#39;metadata&#39;: {},</span>
 <span class="go">  &#39;name&#39;: &#39;echo&#39;,</span>
@@ -573,7 +573,7 @@ translates the <code class="docutils literal notranslate"><span class="pre">AppD
 <h2>Describing and querying the status of a job<a class="headerlink" href="#describing-and-querying-the-status-of-a-job" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">describe</span></code> subcommand is essentially the inverse of the <code class="docutils literal notranslate"><span class="pre">run</span></code> command.
 That is, it prints the app spec given an <code class="docutils literal notranslate"><span class="pre">app_handle</span></code>.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>describe<span class="w"> </span>&lt;app<span class="w"> </span>handle&gt;
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx describe &lt;app handle&gt;
 </pre></div>
 </div>
 <div class="admonition important">
@@ -591,8 +591,8 @@ NEVER rely on the <code class="docutils literal notranslate"><span class="pre">d
 your app spec. It is simply there to help you spot check things.</p>
 </div>
 <p>To get the status of a running job:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>status<span class="w"> </span>&lt;app_handle&gt;<span class="w"> </span><span class="c1"># prints status for all replicas and roles</span>
-<span class="gp">$ </span>torchx<span class="w"> </span>status<span class="w"> </span>--role<span class="w"> </span>trainer<span class="w"> </span>&lt;app_handle&gt;<span class="w"> </span><span class="c1"># filters it down to the trainer role</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx status &lt;app_handle&gt; <span class="c1"># prints status for all replicas and roles</span>
+<span class="gp">$ </span>torchx status --role trainer &lt;app_handle&gt; <span class="c1"># filters it down to the trainer role</span>
 </pre></div>
 </div>
 <p>Filtering by <code class="docutils literal notranslate"><span class="pre">--role</span></code> is useful for large jobs that have multiple roles.</p>
@@ -610,21 +610,21 @@ to setup log retention properly.</p>
 to let you pull/print the logs for all replicas and roles from one place.
 It also lets you pull replica or role specific logs. Below are a few log access
 patterns that are useful and self explanatory</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>&lt;app_handle&gt;
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx log &lt;app_handle&gt;
 <span class="go">Prints all logs from all replicas and roles (each log line is prefixed with role name and replica id)</span>
 
-<span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>--tail<span class="w"> </span>&lt;app_handle&gt;
+<span class="gp">$ </span>torchx log --tail &lt;app_handle&gt;
 <span class="go">If the job is still running tail the logs</span>
 
-<span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>--regex<span class="w"> </span><span class="s2">&quot;.*Exception.*&quot;</span><span class="w"> </span>&lt;app_handle&gt;
+<span class="gp">$ </span>torchx log --regex <span class="s2">&quot;.*Exception.*&quot;</span> &lt;app_handle&gt;
 <span class="go">regex filter to exceptions</span>
 
-<span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>&lt;app_handle&gt;/&lt;role&gt;
-<span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>&lt;app_handle&gt;/trainer
+<span class="gp">$ </span>torchx log &lt;app_handle&gt;/&lt;role&gt;
+<span class="gp">$ </span>torchx log &lt;app_handle&gt;/trainer
 <span class="go">pulls all logs for the role trainer</span>
 
-<span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>&lt;app_handle&gt;/&lt;role_name&gt;/&lt;replica_id&gt;
-<span class="gp">$ </span>torchx<span class="w"> </span>log<span class="w"> </span>&lt;app_handle&gt;/trainer/0,1
+<span class="gp">$ </span>torchx log &lt;app_handle&gt;/&lt;role_name&gt;/&lt;replica_id&gt;
+<span class="gp">$ </span>torchx log &lt;app_handle&gt;/trainer/0,1
 <span class="go">only pulls trainer 0 and trainer 1 (node not rank) logs</span>
 </pre></div>
 </div>
@@ -640,9 +640,9 @@ the local host. Please use your best judgment when using the logs API.</p>
 <h2>Listing Jobs<a class="headerlink" href="#listing-jobs" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">list</span></code> subcommand lets you list app handles and statuses of apps launched on a scheduler.
 You can then use the app handles to further describe the app, view the logs, etc.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>list<span class="w"> </span>-s<span class="w"> </span>&lt;scheduler_name&gt;
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx list -s &lt;scheduler_name&gt;
 
-<span class="gp">$ </span>torchx<span class="w"> </span>list<span class="w"> </span>-s<span class="w"> </span>kubernetes
+<span class="gp">$ </span>torchx list -s kubernetes
 <span class="go">APP HANDLE                                          APP STATUS</span>
 <span class="go">--------------------------------------------------  ------------</span>
 <span class="go">kubernetes://torchx/default:trainer-a5qvfhe1hyq2w   SUCCEEDED</span>

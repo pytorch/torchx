@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -423,7 +423,7 @@ For installation instructions see: <a class="reference external" href="https://g
 Client Version: 4.10.13
 Server Version: 4.9.18
 Kubernetes Version: v1.22.3+e790d7f</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>kubernetes_mcad<span class="w"> </span>--scheduler_args<span class="w"> </span><span class="nv">namespace</span><span class="o">=</span>default,image_repo<span class="o">=</span>&lt;your_image_repo&gt;<span class="w"> </span>utils.echo<span class="w"> </span>--image<span class="w"> </span>alpine:latest<span class="w"> </span>--msg<span class="w"> </span>hello
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchx run --scheduler kubernetes_mcad --scheduler_args <span class="nv">namespace</span><span class="o">=</span>default,image_repo<span class="o">=</span>&lt;your_image_repo&gt; utils.echo --image alpine:latest --msg hello
 ...
 </pre></div>
 </div>

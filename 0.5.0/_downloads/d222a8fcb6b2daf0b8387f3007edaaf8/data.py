@@ -61,7 +61,6 @@ class ImageFolderSamplesDataset(datasets.ImageFolder):
 # For easy of use, we define a lightning data module so we can reuse it across
 # our trainer and other components that need to load data.
 
-
 # pyre-fixme[13]: Attribute `test_ds` is never initialized.
 # pyre-fixme[13]: Attribute `train_ds` is never initialized.
 # pyre-fixme[13]: Attribute `val_ds` is never initialized.

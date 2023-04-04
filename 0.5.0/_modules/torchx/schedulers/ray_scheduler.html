@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -440,7 +440,7 @@
 
 
 <div class="viewcode-block" id="has_ray"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.has_ray">[docs]</a><span class="k">def</span> <span class="nf">has_ray</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates whether Ray is installed in the current Python environment.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates whether Ray is installed in the current Python environment.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_has_ray</span></div>
 
 
@@ -453,6 +453,7 @@
 
 
 <span class="k">if</span> <span class="n">_has_ray</span><span class="p">:</span>
+
     <span class="n">_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
     <span class="n">_ray_status_to_torchx_appstate</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">JobStatus</span><span class="p">,</span> <span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -478,7 +479,7 @@
 
 <div class="viewcode-block" id="RayJob"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayJob">[docs]</a>    <span class="nd">@dataclass</span>
     <span class="k">class</span> <span class="nc">RayJob</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Represents a job that should be run on a Ray cluster.</span>
+        <span class="sd">&quot;&quot;&quot;Represents a job that should be run on a Ray cluster.</span>
 
 <span class="sd">        Attributes:</span>
 <span class="sd">            app_id:</span>
@@ -508,7 +509,7 @@
         <span class="n">actors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RayActor</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RayScheduler"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler">[docs]</a>    <span class="k">class</span> <span class="nc">RayScheduler</span><span class="p">(</span><span class="n">TmpDirWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">RayOpts</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        RayScheduler is a TorchX scheduling interface to Ray. The job def</span>
 <span class="sd">        workers will be launched as Ray actors</span>
 
@@ -708,7 +709,7 @@
                     <span class="k">break</span>
 
 <div class="viewcode-block" id="RayScheduler.wait_until_finish"><a class="viewcode-back" href="../../../schedulers/ray.html#torchx.schedulers.ray_scheduler.RayScheduler.wait_until_finish">[docs]</a>        <span class="k">def</span> <span class="nf">wait_until_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+            <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            ``wait_until_finish`` waits until the specified job has finished</span>
 <span class="sd">            with a given timeout. This is intended for testing. Programmatic</span>
 <span class="sd">            usage should use the runner wait method instead.</span>

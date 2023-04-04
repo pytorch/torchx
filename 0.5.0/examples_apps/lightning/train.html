@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
@@ -430,7 +430,7 @@ the app agnostic to the environment it’s running in.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>To run the trainer locally as a ddp application with 1 node and 2 workers-per-node (world size = 2):</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>dist.ddp
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd dist.ddp
 <span class="go">   -j 1x2</span>
 <span class="go">   --script ./lightning/train.py</span>
 <span class="go">   --</span>
@@ -446,7 +446,7 @@ the app agnostic to the environment it’s running in.</p>
 application arguments.</p>
 </div>
 <p>Use the <code class="docutils literal notranslate"><span class="pre">--help</span></code> option to see the full list of application options:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>1x1<span class="w"> </span>--script<span class="w"> </span>./lightning/train.py<span class="w"> </span>--<span class="w"> </span>--help
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd dist.ddp -j 1x1 --script ./lightning/train.py -- --help
 </pre></div>
 </div>
 <p>Which is effectively the same as <code class="docutils literal notranslate"><span class="pre">./train.py</span> <span class="pre">--help</span></code>. To run on a remote scheduler,

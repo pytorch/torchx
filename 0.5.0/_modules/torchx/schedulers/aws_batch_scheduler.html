@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -525,7 +525,7 @@
             <span class="k">if</span> <span class="n">rt</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">resource_type</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
                 <span class="k">return</span> <span class="n">rt</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No ResourceType found for `</span><span class="si">{</span><span class="n">resource_type</span><span class="si">}</span><span class="s2">`. Valid types: </span><span class="si">{</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ResourceType</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;No ResourceType found for `</span><span class="si">{</span><span class="n">resource_type</span><span class="si">}</span><span class="s2">`. Valid types: </span><span class="si">{</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ResourceType</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
 
@@ -641,7 +641,7 @@
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;targetNodes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start_idx</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">start_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;targetNodes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start_idx</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">start_idx</span> <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -659,7 +659,7 @@
 
 
 <span class="k">def</span> <span class="nf">_parse_num_replicas</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses the number of replicas for a role given the target_nodes string</span>
 <span class="sd">    and total num_nodes. See docstring for ``_parse_start_and_end_idx()``</span>
 <span class="sd">    for details on the format of ``target_nodes`` string.</span>
@@ -670,7 +670,7 @@
 
 
 <span class="k">def</span> <span class="nf">_parse_start_and_end_idx</span><span class="p">(</span><span class="n">target_nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes the ``target_nodes`` str (as required by AWS Batch NodeRangeProperties)</span>
 <span class="sd">    and parses out the start and end indices (aka global rank) of the replicas in the node group.</span>
 <span class="sd">    The ``target_nodes`` string is of the form:</span>
@@ -742,7 +742,7 @@
 
 
 <div class="viewcode-block" id="AWSBatchScheduler"><a class="viewcode-back" href="../../../schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">[docs]</a><span class="k">class</span> <span class="nc">AWSBatchScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">AWSBatchOpts</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.</span>
 
 <span class="sd">    .. code-block:: bash</span>

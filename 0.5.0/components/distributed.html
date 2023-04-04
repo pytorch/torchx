@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -415,20 +415,20 @@ and more for each role.</p>
 <p>DDP-style trainers are common and easy to templetize since they are homogeneous
 single role AppDefs, so there is a builtin: <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code>. Assuming your DDP
 training script is called <code class="docutils literal notranslate"><span class="pre">main.py</span></code>, launch it as:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>locally,<span class="w"> </span><span class="m">1</span><span class="w"> </span>node<span class="w"> </span>x<span class="w"> </span><span class="m">4</span><span class="w"> </span>workers
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>1x4<span class="w"> </span>--script<span class="w"> </span>main.py
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>locally, <span class="m">1</span> node x <span class="m">4</span> workers
+<span class="gp">$ </span>torchx run -s local_cwd dist.ddp -j 1x4 --script main.py
 
-<span class="gp"># </span>locally,<span class="w"> </span><span class="m">2</span><span class="w"> </span>node<span class="w"> </span>x<span class="w"> </span><span class="m">4</span><span class="w"> </span>workers<span class="w"> </span><span class="o">(</span><span class="m">8</span><span class="w"> </span>total<span class="o">)</span>
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>2x4<span class="w"> </span>--script<span class="w"> </span>main.py
+<span class="gp"># </span>locally, <span class="m">2</span> node x <span class="m">4</span> workers <span class="o">(</span><span class="m">8</span> total<span class="o">)</span>
+<span class="gp">$ </span>torchx run -s local_cwd dist.ddp -j 2x4 --script main.py
 
-<span class="gp"># </span>remote<span class="w"> </span><span class="o">(</span>optionally<span class="w"> </span>pass<span class="w"> </span>--rdzv_port<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>a<span class="w"> </span>different<span class="w"> </span>master<span class="w"> </span>port<span class="w"> </span>than<span class="w"> </span>the<span class="w"> </span>default<span class="w"> </span><span class="m">29500</span><span class="o">)</span>
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>kubernetes<span class="w"> </span>-cfg<span class="w"> </span><span class="nv">queue</span><span class="o">=</span>default<span class="w"> </span>dist.ddp<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-j<span class="w"> </span>2x4<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--script<span class="w"> </span>main.py
+<span class="gp"># </span>remote <span class="o">(</span>optionally pass --rdzv_port to use a different master port than the default <span class="m">29500</span><span class="o">)</span>
+<span class="gp">$ </span>torchx run -s kubernetes -cfg <span class="nv">queue</span><span class="o">=</span>default dist.ddp <span class="se">\</span>
+    -j 2x4 <span class="se">\</span>
+    --script main.py
 
-<span class="gp"># </span>remote<span class="w"> </span>--<span class="w"> </span>elastic/autoscaling<span class="w"> </span>with<span class="w"> </span><span class="m">2</span><span class="w"> </span>minimum<span class="w"> </span>and<span class="w"> </span>max<span class="w"> </span><span class="m">5</span><span class="w"> </span>nodes<span class="w"> </span>with<span class="w"> </span><span class="m">8</span>
-<span class="gp"># </span>workers<span class="w"> </span>each
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>kubernetes<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span><span class="m">2</span>:5x8<span class="w"> </span>--script<span class="w"> </span>main.py
+<span class="gp"># </span>remote -- elastic/autoscaling with <span class="m">2</span> minimum and max <span class="m">5</span> nodes with <span class="m">8</span>
+<span class="gp"># </span>workers each
+<span class="gp">$ </span>torchx run -s kubernetes dist.ddp -j <span class="m">2</span>:5x8 --script main.py
 </pre></div>
 </div>
 <p>Note that the only difference compared to the local launch is the scheduler (<code class="docutils literal notranslate"><span class="pre">-s</span></code>).

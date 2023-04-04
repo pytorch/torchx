@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -510,7 +510,7 @@ resource can then be used in the following manner:</p>
 a set of components most relevant to your team or organization and support
 it as a CLI <code class="docutils literal notranslate"><span class="pre">builtin</span></code>. This way users will see your custom components
 when they run</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 </pre></div>
 </div>
 <p>Custom components can be registered via <code class="docutils literal notranslate"><span class="pre">[torchx.components]</span></code> entrypoints.
@@ -547,13 +547,13 @@ are searched for and TorchX makes no attempt to recurse into namespace packages
 However you may register a top level namespace package.</p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">torchx</span></code> CLI will display registered components via:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 <span class="go">Found 1 builtin components:</span>
 <span class="go">1. foo.baz.trainer</span>
 </pre></div>
 </div>
 <p>The custom component can then be used as:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>foo.baz.trainer<span class="w"> </span>--<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;test app&quot;</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run foo.baz.trainer -- --name <span class="s2">&quot;test app&quot;</span>
 </pre></div>
 </div>
 <p>When you register your own components, TorchX will not include its own builtins. To add TorchX’s
@@ -583,7 +583,7 @@ versus the default <code class="docutils literal notranslate"><span class="pre">
 </div>
 <p>There will be two sets of overlapping components for those components in <code class="docutils literal notranslate"><span class="pre">my_project.bar</span></code> with different
 prefix aliases: <code class="docutils literal notranslate"><span class="pre">foo.*</span></code> and <code class="docutils literal notranslate"><span class="pre">test.bar.*</span></code>. Concretely,</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 <span class="go">Found 2 builtin components:</span>
 <span class="go">1. foo.baz.trainer</span>
 <span class="go">2. test.bar.baz.trainer</span>
@@ -603,7 +603,7 @@ For example:</p>
 </div>
 <p>This has the effect of exposing the trainer component as <code class="docutils literal notranslate"><span class="pre">baz.trainer</span></code> (as opposed to <code class="docutils literal notranslate"><span class="pre">foo.baz.trainer</span></code>)
 and adds back the builtin components as in the vanilla installation of torchx, without the <code class="docutils literal notranslate"><span class="pre">torchx.*</span></code> prefix.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>builtins
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx builtins
 <span class="go">Found 11 builtin components:</span>
 <span class="go">1. baz.trainer</span>
 <span class="go">2. dist.ddp</span>

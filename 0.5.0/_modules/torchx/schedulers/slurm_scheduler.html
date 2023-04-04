@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -474,7 +474,7 @@
 
 
 <span class="k">def</span> <span class="nf">_apply_app_id_env</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    _apply_app_id_env escapes the argument and substitutes in the macros.app_id with</span>
 <span class="sd">    a shell expression that fills in SLURM_JOB_ID from env.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -500,7 +500,7 @@
 
 <div class="viewcode-block" id="SlurmReplicaRequest"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SlurmReplicaRequest</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds parameters for a single replica running on slurm and can be materialized down to a bash script.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -515,7 +515,7 @@
     <span class="k">def</span> <span class="nf">from_role</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SlurmOpts</span><span class="p">,</span> <span class="n">nomem</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SlurmReplicaRequest&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ``from_role`` creates a SlurmReplicaRequest for the specific role and</span>
 <span class="sd">        name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -566,7 +566,7 @@
         <span class="k">return</span> <span class="n">out</span>
 
 <div class="viewcode-block" id="SlurmReplicaRequest.materialize"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmReplicaRequest.materialize">[docs]</a>    <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        materialize returns the sbatch and srun groups for this role. They</span>
 <span class="sd">        should be combined using `:` per slurm heterogenous groups.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -587,7 +587,7 @@
 
 <div class="viewcode-block" id="SlurmBatchRequest"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmBatchRequest">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SlurmBatchRequest</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds parameters used to launch a slurm job via sbatch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -597,7 +597,7 @@
     <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span>
 
 <div class="viewcode-block" id="SlurmBatchRequest.materialize"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmBatchRequest.materialize">[docs]</a>    <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        materialize returns the contents of the script that can be passed to</span>
 <span class="sd">        sbatch to run the job.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -618,18 +618,18 @@
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">])</span>
         <span class="n">script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;#!/bin/bash</span>
 <span class="s2">#</span>
-<span class="s2"># Generated by TorchX </span><span class="si">{</span><span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span>
-<span class="s2"># Run with: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span>
+<span class="s2"># Generated by TorchX </span><span class="si">{</span><span class="n">torchx</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2"></span>
+<span class="s2"># Run with: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">#</span>
-<span class="si">{</span><span class="n">sbatch_opts</span><span class="si">}</span>
+<span class="si">{</span><span class="n">sbatch_opts</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">set -evx</span>
 
 <span class="s2">export PYTHONUNBUFFERED=1</span>
 <span class="s2">export SLURM_UNBUFFEREDIO=1</span>
-<span class="s2">export TORCHX_MAX_RETRIES=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span>
+<span class="s2">export TORCHX_MAX_RETRIES=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2"></span>
 
 <span class="s2">set +e</span>
-<span class="s2">srun </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srun_groups</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">srun </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srun_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">exitcode=$?</span>
 <span class="s2">set -e</span>
 
@@ -644,7 +644,7 @@
         <span class="k">return</span> <span class="n">script</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;$SBATCH_SCRIPT&#39;</span><span class="p">])</span><span class="si">}</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;$SBATCH_SCRIPT&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"></span>
 
 <span class="s2">#----------------</span>
 <span class="s2"># SBATCH_SCRIPT</span>
@@ -653,7 +653,7 @@
 
 
 <div class="viewcode-block" id="SlurmScheduler"><a class="viewcode-back" href="../../../schedulers/slurm.html#torchx.schedulers.slurm_scheduler.SlurmScheduler">[docs]</a><span class="k">class</span> <span class="nc">SlurmScheduler</span><span class="p">(</span><span class="n">DirWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">SlurmOpts</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SlurmScheduler is a TorchX scheduling interface to slurm. TorchX expects</span>
 <span class="sd">    that slurm CLI tools are locally installed and job accounting is enabled.</span>
 
@@ -786,7 +786,7 @@
             <span class="k">return</span> <span class="n">job_id</span></div>
 
     <span class="k">def</span> <span class="nf">_partition_memmb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        _partition_memmb returns the memory allocation for the given partition</span>
 <span class="sd">        or the default partition if none is specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>

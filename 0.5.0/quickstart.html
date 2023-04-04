@@ -32,12 +32,11 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -396,14 +395,270 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="Quickstart">
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Quickstart">
 <h1>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this heading">¶</a></h1>
 <p>This is a self contained guide on how to write a simple app and start launching distributed jobs on local and remote clusters.</p>
 <section id="Installation">
 <h2>Installation<a class="headerlink" href="#Installation" title="Permalink to this heading">¶</a></h2>
 <p>First thing we need to do is to install the TorchX python package which includes the CLI and the library.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># install torchx with all dependencies</span>
-$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>torchx<span class="o">[</span>dev<span class="o">]</span>
+$ pip install torchx<span class="o">[</span>dev<span class="o">]</span>
 </pre></div>
 </div>
 <p>See the <a class="reference external" href="https://github.com/pytorch/torchx">README</a> for more information on installation.</p>
@@ -412,7 +667,7 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>--help
+torchx --help
 </pre></div>
 </div>
 </div>
@@ -475,9 +730,17 @@ Overwriting my_app.py
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_cwd<span class="w"> </span>utils.python<span class="w"> </span>--help
+torchx run --scheduler local_cwd utils.python --help
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2023-04-04 01:08:24 INFO     loaded configs from /home/ubuntu/rsync/torchx/docs/source/.torchxconfig
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -523,7 +786,7 @@ optional arguments:
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_cwd<span class="w"> </span>utils.python<span class="w"> </span>--script<span class="w"> </span>my_app.py<span class="w"> </span><span class="s2">&quot;your name&quot;</span>
+torchx run --scheduler local_cwd utils.python --script my_app.py <span class="s2">&quot;your name&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -532,12 +795,13 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2023-04-03 21:34:13 INFO     Tracker configurations: {}
-torchx 2023-04-03 21:34:13 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2023-04-03 21:34:13 INFO     Log directory is: /tmp/torchx_bed81aii
-torchx 2023-04-03 21:34:13 INFO     Waiting for the app to finish...
+torchx 2023-04-04 01:08:25 INFO     loaded configs from /home/ubuntu/rsync/torchx/docs/source/.torchxconfig
+torchx 2023-04-04 01:08:26 INFO     Tracker configurations: {}
+torchx 2023-04-04 01:08:26 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2023-04-04 01:08:26 INFO     Log directory is: /tmp/torchx_xxecpvzs
+torchx 2023-04-04 01:08:26 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2023-04-03 21:34:14 INFO     Job finished: SUCCEEDED
+torchx 2023-04-04 01:08:27 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -545,7 +809,7 @@ torchx 2023-04-03 21:34:14 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-sm2z5d16c4kncd
+local_cwd://torchx/torchx_utils_python-kk4jgsgxbc620c
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -556,7 +820,7 @@ local_cwd://torchx/torchx_utils_python-sm2z5d16c4kncd
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_docker<span class="w"> </span>utils.python<span class="w"> </span>--script<span class="w"> </span>my_app.py<span class="w"> </span><span class="s2">&quot;your name&quot;</span>
+torchx run --scheduler local_docker utils.python --script my_app.py <span class="s2">&quot;your name&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -565,15 +829,16 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2023-04-03 21:34:15 INFO     Tracker configurations: {}
-torchx 2023-04-03 21:34:15 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2023-04-03 21:34:15 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2023-04-03 21:34:15 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2023-04-03 21:34:16 INFO     Building workspace docker image (this may take a while)...
-torchx 2023-04-03 21:34:25 INFO     Built new image `sha256:5453fb508ab5aa8b0fba9044fd409e8222919cb02a645a5643c9080231c71456` based on original image `ghcr.io/pytorch/torchx:0.5.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2023-04-03 21:34:26 INFO     Waiting for the app to finish...
+torchx 2023-04-04 01:08:28 INFO     loaded configs from /home/ubuntu/rsync/torchx/docs/source/.torchxconfig
+torchx 2023-04-04 01:08:28 INFO     Tracker configurations: {}
+torchx 2023-04-04 01:08:28 INFO     Checking for changes in workspace `file:///home/ubuntu/rsync/torchx/docs/source`...
+torchx 2023-04-04 01:08:28 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2023-04-04 01:08:28 INFO     Workspace `file:///home/ubuntu/rsync/torchx/docs/source` resolved to filesystem path `/home/ubuntu/rsync/torchx/docs/source`
+torchx 2023-04-04 01:08:29 INFO     Building workspace docker image (this may take a while)...
+torchx 2023-04-04 01:08:30 INFO     Built new image `sha256:2a70341afd1335b2cde032ec9668b2985c6309e1fd766b1088113ebc2c69f76b` based on original image `ghcr.io/pytorch/torchx:0.5.0` and changes in workspace `file:///home/ubuntu/rsync/torchx/docs/source` for role[0]=python.
+torchx 2023-04-04 01:08:30 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2023-04-03 21:34:27 INFO     Job finished: SUCCEEDED
+torchx 2023-04-04 01:08:31 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -581,7 +846,7 @@ torchx 2023-04-03 21:34:27 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-f6nqsqnllql5pc
+local_docker://torchx/torchx_utils_python-dr9dcc67fglnlc
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -594,9 +859,17 @@ local_docker://torchx/torchx_utils_python-f6nqsqnllql5pc
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_docker<span class="w"> </span>dist.ddp<span class="w"> </span>--help
+torchx run --scheduler local_docker dist.ddp --help
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2023-04-04 01:08:31 INFO     loaded configs from /home/ubuntu/rsync/torchx/docs/source/.torchxconfig
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -679,7 +952,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing dist_app.py
+Overwriting dist_app.py
 </pre></div></div>
 </div>
 <p>Let launch a small job with 2 nodes and 2 worker processes per node:</p>
@@ -688,7 +961,7 @@ Writing dist_app.py
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_docker<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>2x2<span class="w"> </span>--script<span class="w"> </span>dist_app.py
+torchx run --scheduler local_docker dist.ddp -j 2x2 --script dist_app.py
 </pre></div>
 </div>
 </div>
@@ -697,13 +970,14 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2023-04-03 21:34:28 INFO     Tracker configurations: {}
-torchx 2023-04-03 21:34:28 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2023-04-03 21:34:28 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2023-04-03 21:34:28 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2023-04-03 21:34:29 INFO     Building workspace docker image (this may take a while)...
-torchx 2023-04-03 21:34:39 INFO     Built new image `sha256:c364105550044ae407e4ccb1dbda8b2a79aed0055be9e004013105babf05f116` based on original image `ghcr.io/pytorch/torchx:0.5.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
-torchx 2023-04-03 21:34:39 INFO     Waiting for the app to finish...
+torchx 2023-04-04 01:08:33 INFO     loaded configs from /home/ubuntu/rsync/torchx/docs/source/.torchxconfig
+torchx 2023-04-04 01:08:33 INFO     Tracker configurations: {}
+torchx 2023-04-04 01:08:33 INFO     Checking for changes in workspace `file:///home/ubuntu/rsync/torchx/docs/source`...
+torchx 2023-04-04 01:08:33 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2023-04-04 01:08:33 INFO     Workspace `file:///home/ubuntu/rsync/torchx/docs/source` resolved to filesystem path `/home/ubuntu/rsync/torchx/docs/source`
+torchx 2023-04-04 01:08:34 INFO     Building workspace docker image (this may take a while)...
+torchx 2023-04-04 01:08:34 INFO     Built new image `sha256:2a70341afd1335b2cde032ec9668b2985c6309e1fd766b1088113ebc2c69f76b` based on original image `ghcr.io/pytorch/torchx:0.5.0` and changes in workspace `file:///home/ubuntu/rsync/torchx/docs/source` for role[0]=dist_app.
+torchx 2023-04-04 01:08:35 INFO     Waiting for the app to finish...
 dist_app/0 WARNING:torch.distributed.run:
 dist_app/0 *****************************************
 dist_app/0 Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
@@ -715,12 +989,12 @@ dist_app/1 *****************************************
 dist_app/0 [1]:I am worker 1 of 4!
 dist_app/0 [1]:all_reduce output = tensor([6])
 dist_app/0 [0]:I am worker 0 of 4!
-dist_app/0 [0]:all_reduce output = tensor([6])
 dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
 dist_app/1 [1]:I am worker 3 of 4!
+dist_app/0 [0]:all_reduce output = tensor([6])
 dist_app/1 [1]:all_reduce output = tensor([6])
-torchx 2023-04-03 21:34:47 INFO     Job finished: SUCCEEDED
+torchx 2023-04-04 01:08:43 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -728,7 +1002,7 @@ torchx 2023-04-03 21:34:47 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-xtknw5q719kwc
+local_docker://torchx/dist_app-qc31wpgq7xdqd
 </pre></div></div>
 </div>
 </section>
@@ -762,7 +1036,7 @@ local_docker://torchx/dist_app-xtknw5q719kwc
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing .torchxconfig
+Overwriting .torchxconfig
 </pre></div></div>
 </div>
 </section>
@@ -770,10 +1044,10 @@ Writing .torchxconfig
 <h2>Remote Schedulers<a class="headerlink" href="#Remote-Schedulers" title="Permalink to this heading">¶</a></h2>
 <p>TorchX supports a large number of schedulers. Don’t see yours? <a class="reference external" href="https://github.com/pytorch/torchx/issues/new?assignees=&amp;labels=&amp;template=feature-request.md">Request it!</a></p>
 <p>Remote schedulers operate the exact same way the local schedulers do. The same run command for local works out of the box on remote.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>slurm<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>2x2<span class="w"> </span>--script<span class="w"> </span>dist_app.py
-$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>kubernetes<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>2x2<span class="w"> </span>--script<span class="w"> </span>dist_app.py
-$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>aws_batch<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>2x2<span class="w"> </span>--script<span class="w"> </span>dist_app.py
-$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>ray<span class="w"> </span>dist.ddp<span class="w"> </span>-j<span class="w"> </span>2x2<span class="w"> </span>--script<span class="w"> </span>dist_app.py
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ torchx run --scheduler slurm dist.ddp -j 2x2 --script dist_app.py
+$ torchx run --scheduler kubernetes dist.ddp -j 2x2 --script dist_app.py
+$ torchx run --scheduler aws_batch dist.ddp -j 2x2 --script dist_app.py
+$ torchx run --scheduler ray dist.ddp -j 2x2 --script dist_app.py
 </pre></div>
 </div>
 <p>Depending on the scheduler there may be a few extra configuration parameters so TorchX knows where to run the job and upload built images. These can either be set via <code class="docutils literal notranslate"><span class="pre">-c</span></code> or in the <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code> file.</p>
@@ -783,7 +1057,7 @@ $<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </spa
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>runopts
+torchx runopts
 </pre></div>
 </div>
 </div>
@@ -886,7 +1160,7 @@ aws_batch:
             queue to schedule job in
 
     optional arguments:
-        user=USER (str, runner)
+        user=USER (str, ubuntu)
             The username to tag the job with. `getpass.getuser()` if not specified.
         privileged=PRIVILEGED (bool, False)
             If true runs the container with elevated permissions. Equivalent to running with `docker run --privileged`.
@@ -962,7 +1236,7 @@ lsf:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing timm_app.py
+Overwriting timm_app.py
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -984,7 +1258,7 @@ Writing timm_app.py
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Writing Dockerfile.torchx
+Overwriting Dockerfile.torchx
 </pre></div></div>
 </div>
 <p>Once we have the Dockerfile created we can launch as normal and TorchX will automatically build the image with the newly provided Dockerfile instead of the default one.</p>
@@ -993,7 +1267,7 @@ Writing Dockerfile.torchx
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class="w"> </span>local_docker<span class="w"> </span>utils.python<span class="w"> </span>--script<span class="w"> </span>timm_app.py
+torchx run --scheduler local_docker utils.python --script timm_app.py
 </pre></div>
 </div>
 </div>
@@ -1002,14 +1276,14 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2023-04-03 21:34:49 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2023-04-03 21:34:49 INFO     Tracker configurations: {}
-torchx 2023-04-03 21:34:49 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2023-04-03 21:34:49 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2023-04-03 21:34:49 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2023-04-03 21:34:50 INFO     Building workspace docker image (this may take a while)...
-torchx 2023-04-03 21:36:05 INFO     Built new image `sha256:b7eb937d1f4dfdf420af826b3e6e4ee2fe9c8661bc49ac8edc7ba1e90ebcea66` based on original image `ghcr.io/pytorch/torchx:0.5.0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2023-04-03 21:36:06 INFO     Waiting for the app to finish...
+torchx 2023-04-04 01:08:45 INFO     loaded configs from /home/ubuntu/rsync/torchx/docs/source/.torchxconfig
+torchx 2023-04-04 01:08:45 INFO     Tracker configurations: {}
+torchx 2023-04-04 01:08:45 INFO     Checking for changes in workspace `file:///home/ubuntu/rsync/torchx/docs/source`...
+torchx 2023-04-04 01:08:45 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2023-04-04 01:08:45 INFO     Workspace `file:///home/ubuntu/rsync/torchx/docs/source` resolved to filesystem path `/home/ubuntu/rsync/torchx/docs/source`
+torchx 2023-04-04 01:08:46 INFO     Building workspace docker image (this may take a while)...
+torchx 2023-04-04 01:08:46 INFO     Built new image `sha256:2a70341afd1335b2cde032ec9668b2985c6309e1fd766b1088113ebc2c69f76b` based on original image `ghcr.io/pytorch/torchx:0.5.0` and changes in workspace `file:///home/ubuntu/rsync/torchx/docs/source` for role[0]=python.
+torchx 2023-04-04 01:08:46 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1118,7 +1392,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d (pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2023-04-03 21:36:08 INFO     Job finished: SUCCEEDED
+torchx 2023-04-04 01:08:48 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1126,7 +1400,7 @@ torchx 2023-04-03 21:36:08 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-j42tf6hmmj45vd
+local_docker://torchx/torchx_utils_python-l7s0kwn37thdv
 </pre></div></div>
 </div>
 </section>

@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -425,7 +425,7 @@
 
 
 <div class="viewcode-block" id="TorchXArgumentHelpFormatter"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchXArgumentHelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">TorchXArgumentHelpFormatter</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">HelpFormatter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Help message formatter which adds default values and required to argument help.</span>
+    <span class="sd">&quot;&quot;&quot;Help message formatter which adds default values and required to argument help.</span>
 
 <span class="sd">    If the argument is required, the class appends `(required)` at the end of the help message.</span>
 <span class="sd">    If the argument has default value, the class appends `(default: $DEFAULT)` at the end.</span>
@@ -446,7 +446,7 @@
 
 
 <div class="viewcode-block" id="get_fn_docstring"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.get_fn_docstring">[docs]</a><span class="k">def</span> <span class="nf">get_fn_docstring</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses the function and arguments description from the provided function. Docstring should be in</span>
 <span class="sd">    `google-style format &lt;https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html&gt;`_</span>
 
@@ -490,7 +490,7 @@
 <div class="viewcode-block" id="TorchxFunctionValidator"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchxFunctionValidator">[docs]</a><span class="k">class</span> <span class="nc">TorchxFunctionValidator</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 <div class="viewcode-block" id="TorchxFunctionValidator.validate"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchxFunctionValidator.validate">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_specs_func_def</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LinterMessage</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to call to validate the provided function def.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
@@ -587,7 +587,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="TorchxReturnValidator.validate"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchxReturnValidator.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_specs_func_def</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LinterMessage</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates return annotation of the torchx function. Current allowed annotations:</span>
 <span class="sd">            * AppDef</span>
 <span class="sd">            * specs.AppDef</span>
@@ -616,7 +616,7 @@
 
 
 <div class="viewcode-block" id="TorchFunctionVisitor"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchFunctionVisitor">[docs]</a><span class="k">class</span> <span class="nc">TorchFunctionVisitor</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">NodeVisitor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visitor that finds the component_function and runs registered validators on it.</span>
 <span class="sd">    Current registered validators:</span>
 
@@ -643,7 +643,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">visited_function</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="TorchFunctionVisitor.visit_FunctionDef"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchFunctionVisitor.visit_FunctionDef">[docs]</a>    <span class="k">def</span> <span class="nf">visit_FunctionDef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates the function def with the child validators.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_function_name</span><span class="p">:</span>
@@ -654,7 +654,7 @@
 
 
 <div class="viewcode-block" id="validate"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.validate">[docs]</a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">component_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LinterMessage</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates the function to make sure it complies the component standard.</span>
 
 <span class="sd">    ``validate`` finds the ``component_function`` and vaidates it for according to the following rules:</span>

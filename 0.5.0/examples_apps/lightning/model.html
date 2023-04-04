@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
@@ -439,7 +439,7 @@ by the apps in the same folder.</p>
 
 
 <span class="k">class</span> <span class="nc">TinyImageNetModel</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An very simple linear model for the tiny image net dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -502,7 +502,7 @@ by the apps in the same folder.</p>
 <span class="k">def</span> <span class="nf">export_inference_model</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">TinyImageNetModel</span><span class="p">,</span> <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    export_inference_model uses TorchScript JIT to serialize the</span>
 <span class="sd">    TinyImageNetModel into a standalone file that can be used during inference.</span>
 <span class="sd">    TorchServe can also handle interpreted models with just the model.py file if</span>

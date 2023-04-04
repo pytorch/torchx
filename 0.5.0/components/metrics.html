@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -400,7 +400,7 @@
 <p>For metrics we recommend using Tensorboard to log metrics directly to cloud
 storage along side your model. As the model trains you can launch a
 tensorboard instance locally to monitor your model progress:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tensorboard<span class="w"> </span>--log-dir<span class="w"> </span>provider://path/to/logs
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tensorboard --log-dir provider://path/to/logs
 </pre></div>
 </div>
 <p>Or you can use the <a class="reference internal" href="#torchx.components.metrics.tensorboard" title="torchx.components.metrics.tensorboard"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torchx.components.metrics.tensorboard()</span></code></a> component as

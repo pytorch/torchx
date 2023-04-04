@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -465,7 +465,7 @@
 
 
 <div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    TorchX individual component runner. Has the methods for the user to</span>
 <span class="sd">    act upon ``AppDefs``. The ``Runner`` will cache information about the</span>
 <span class="sd">    launched apps if they were launched locally otherwise it&#39;s up to the</span>
@@ -479,7 +479,7 @@
         <span class="n">component_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a new runner instance.</span>
 
 <span class="sd">        Args:</span>
@@ -515,7 +515,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="Runner.close"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Closes this runner and frees/cleans up any allocated resources.</span>
 <span class="sd">        Transitively calls the ``close()`` method on all the schedulers.</span>
 <span class="sd">        Once this method is called on the runner, the runner object is deemed</span>
@@ -536,7 +536,7 @@
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parent_run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs a component.</span>
 
 <span class="sd">        ``component`` has the following resolution order(high to low):</span>
@@ -587,7 +587,7 @@
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parent_run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dryrun version of :py:func:`run_component`. Will not actually run the</span>
 <span class="sd">        component, but just returns what &quot;would&quot; have run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -613,7 +613,7 @@
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parent_run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs the given application in the specified mode.</span>
 
 <span class="sd">        .. note:: sub-classes of ``Runner`` should implement ``schedule`` method</span>
@@ -629,7 +629,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.schedule"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Actually runs the application from the given dryrun info.</span>
 <span class="sd">        Useful when one needs to overwrite a parameter in the scheduler</span>
 <span class="sd">        request that is not configurable from one of the object APIs.</span>
@@ -687,7 +687,7 @@
         <span class="n">workspace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parent_run_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppDryRunInfo</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dry runs an app on the given scheduler with the provided run configs.</span>
 <span class="sd">        Does not actually submit the app but rather returns what would have been</span>
 <span class="sd">        submitted. The returned ``AppDryRunInfo`` is pretty formatted and can</span>
@@ -778,7 +778,7 @@
             <span class="k">return</span> <span class="n">dryrun_info</span></div>
 
 <div class="viewcode-block" id="Runner.scheduler_run_opts"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_run_opts">[docs]</a>    <span class="k">def</span> <span class="nf">scheduler_run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">runopts</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the ``runopts`` for the supported scheduler backends.</span>
 
 <span class="sd">        Usage:</span>
@@ -794,13 +794,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Runner.scheduler_backends"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.scheduler_backends">[docs]</a>    <span class="k">def</span> <span class="nf">scheduler_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of all supported scheduler backends.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="Runner.status"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.status">[docs]</a>    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppStatus</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            The status of the application, or ``None`` if the app does not exist anymore</span>
 <span class="sd">            (e.g. was stopped in the past and removed from the scheduler&#39;s backend).</span>
@@ -831,7 +831,7 @@
 <div class="viewcode-block" id="Runner.wait"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">,</span> <span class="n">wait_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppStatus</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Block waits (indefinitely) for the application to complete.</span>
 <span class="sd">        Possible implementation:</span>
 
@@ -865,7 +865,7 @@
                     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_interval</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.cancel"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stops the application, effectively directing the scheduler to cancel</span>
 <span class="sd">        the job. Does nothing if the app does not exist.</span>
 
@@ -884,7 +884,7 @@
                 <span class="n">scheduler</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">app_id</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.stop"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        See method ``cancel``.</span>
 
 <span class="sd">        .. warning:: This method will be deprecated in the future. It has been</span>
@@ -898,7 +898,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.describe"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppDef</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstructs the application (to the best extent) given the app handle.</span>
 <span class="sd">        Note that the reconstructed application may not be the complete app as</span>
 <span class="sd">        it was submitted via the run API. How much of the app can be reconstructed</span>
@@ -932,7 +932,7 @@
         <span class="n">should_tail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">streams</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stream</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an iterator over the log lines of the specified job container.</span>
 
 <span class="sd">        .. note:: #. ``k`` is the node (host) id NOT the ``rank``.</span>
@@ -1018,7 +1018,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ListAppResponse</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For apps launched on the scheduler, this API returns a list of ListAppResponse</span>
 <span class="sd">        objects each of which have app id, app handle and its status.</span>
 <span class="sd">        Note: This API is in prototype phase and is subject to change.</span>
@@ -1050,7 +1050,7 @@
         <span class="n">check_session</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># pyre-fixme: Scheduler opts</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Scheduler</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the scheduler and app_id from the app_handle.</span>
 <span class="sd">        Set ``check_session`` to validate that the session name in the app handle</span>
 <span class="sd">        is the same as this session.</span>
@@ -1074,7 +1074,7 @@
     <span class="n">component_defaults</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">scheduler_params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Runner</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience method to construct and get a Runner object. Usage:</span>
 
 <span class="sd">    .. code-block:: python</span>

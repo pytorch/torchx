@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -570,7 +570,7 @@
 
 
 <span class="k">def</span> <span class="nf">_configparser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets up the configparser and returns it. The same config parser</span>
 <span class="sd">    should be used between dumps() and loads() methods for ser/de compatibility</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -605,7 +605,7 @@
 <div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.dump">[docs]</a><span class="k">def</span> <span class="nf">dump</span><span class="p">(</span>
     <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">schedulers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dumps a default INI-style config template containing the :py:class:torchx.specs.runopts for the</span>
 <span class="sd">    given scheduler names into the file-like object specified by ``f``.</span>
 <span class="sd">    If no ``schedulers`` are specified dumps all known registered schedulers.</span>
@@ -671,7 +671,7 @@
     <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a ``.torchxconfig`` INI file from the specified directories in</span>
 <span class="sd">    preceding order and applies the run configs for the scheduler onto</span>
 <span class="sd">    the given ``cfg``.</span>
@@ -711,7 +711,7 @@
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the content of the sections in the given ``.torchxconfig`` file</span>
 <span class="sd">    that start with the specified prefix. Returns a map of maps of the</span>
 <span class="sd">    section name WITHOUT the prefix with the contents of the section loaded</span>
@@ -797,7 +797,7 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gets all the config values in the section ``[&quot;{prefix}:{name}&quot;]``.</span>
 <span class="sd">    Or an empty map if the section does not exist.</span>
 
@@ -823,7 +823,7 @@
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gets the config value for the ``key`` in the section ``[&quot;{prefix}:{name}&quot;]``.</span>
 <span class="sd">    Or ``None`` if no section or key exists</span>
 
@@ -845,7 +845,7 @@
 
 
 <div class="viewcode-block" id="find_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.find_configs">[docs]</a><span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Finds and returns the filepath to ``.torchxconfig`` files based</span>
 <span class="sd">    on the following logic:</span>
 
@@ -879,7 +879,7 @@
 
 
 <div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    loads the section ``[{scheduler}]`` from the given</span>
 <span class="sd">    configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding</span>
 <span class="sd">    configs that are NOT currently in the given ``runcfg`` (e.g. does not</span>

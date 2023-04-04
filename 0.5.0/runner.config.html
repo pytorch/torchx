@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
@@ -410,16 +410,16 @@ The CLI only picks up <code class="docutils literal notranslate"><span class="pr
 so chose a directory where you typically run <code class="docutils literal notranslate"><span class="pre">torchx</span></code> from. Typically this
 is the root of your project directory.</p></li>
 <li><p>Generate the config file by running</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>configure<span class="w"> </span>-s<span class="w"> </span>&lt;comma,delimited,scheduler,names&gt;
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx configure -s &lt;comma,delimited,scheduler,names&gt;
 
-<span class="gp"># </span>--<span class="w"> </span>or<span class="w"> </span><span class="k">for</span><span class="w"> </span>all<span class="w"> </span>registered<span class="w"> </span>schedulers<span class="w"> </span>--
-<span class="gp">$ </span>torchx<span class="w"> </span>configure
+<span class="gp"># </span>-- or <span class="k">for</span> all registered schedulers --
+<span class="gp">$ </span>torchx configure
 </pre></div>
 </div>
 </li>
 <li><p>If you specified <code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">local_cwd,kubernetes</span></code>, you should see a <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code>
 file as shown below:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat<span class="w"> </span>.torchxconfig
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cat .torchxconfig
 <span class="go">[local_cwd]</span>
 
 <span class="go">[kubernetes]</span>
@@ -442,10 +442,10 @@ value at a later date which would leave you with a stale default.</p></li>
 <li><p>Now you can run your component without having to specify the scheduler run configs
 each time. Just make sure the directory you are running <code class="docutils literal notranslate"><span class="pre">torchx</span></code> cli from actually
 has <code class="docutils literal notranslate"><span class="pre">.torchxconfig</span></code>!</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls<span class="w"> </span>.torchxconfig
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls .torchxconfig
 <span class="go">.torchxconfig</span>
 
-<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>./my_component.py:train
+<span class="gp">$ </span>torchx run -s local_cwd ./my_component.py:train
 </pre></div>
 </div>
 </li>
@@ -479,14 +479,14 @@ This config file will get overlaid on top of the one defined at the project root
 <p><strong>Component Config</strong></p>
 <p>You can specify component defaults by adding a section prefixed with
 <code class="docutils literal notranslate"><span class="pre">component:</span></code>.</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[component:dist.ddp]</span>
-<span class="na">j</span><span class="o">=</span><span class="s">2x8</span>
-<span class="na">cpu</span><span class="o">=</span><span class="s">4</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[component:dist.ddp]</span><span class="w"></span>
+<span class="na">j</span><span class="o">=</span><span class="s">2x8</span><span class="w"></span>
+<span class="na">cpu</span><span class="o">=</span><span class="s">4</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Now when you run the <code class="docutils literal notranslate"><span class="pre">dist.ddp</span></code> component those configs are automatically
 picked up.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>local_cwd<span class="w"> </span>dist.ddp
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>torchx run -s local_cwd dist.ddp
 <span class="go">... runs with -j 2x8 --cpu 4</span>
 </pre></div>
 </div>
@@ -496,10 +496,10 @@ picked up.</p>
 block.</p>
 <p>For the <code class="docutils literal notranslate"><span class="pre">run</span></code> command you can additionally set <code class="docutils literal notranslate"><span class="pre">component</span></code> to set the
 default component to run.</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[cli:run]</span>
-<span class="na">component</span><span class="o">=</span><span class="s">dist.ddp</span>
-<span class="na">scheduler</span><span class="o">=</span><span class="s">local_docker</span>
-<span class="na">workspace</span><span class="o">=</span><span class="s">file://some_workspace</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[cli:run]</span><span class="w"></span>
+<span class="na">component</span><span class="o">=</span><span class="s">dist.ddp</span><span class="w"></span>
+<span class="na">scheduler</span><span class="o">=</span><span class="s">local_docker</span><span class="w"></span>
+<span class="na">workspace</span><span class="o">=</span><span class="s">file://some_workspace</span><span class="w"></span>
 </pre></div>
 </div>
 </section>

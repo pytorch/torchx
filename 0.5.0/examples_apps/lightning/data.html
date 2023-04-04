@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
@@ -442,7 +442,7 @@ libraries.</p>
 <p>This uses torchvision to define a dataset that we will then later use in our
 Pytorch Lightning data module.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ImageFolderSamplesDataset</span><span class="p">(</span><span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ImageFolderSamplesDataset is a wrapper around ImageFolder that allows you to</span>
 <span class="sd">    limit the number of samples.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -454,7 +454,7 @@ Pytorch Lightning data module.</p>
         <span class="n">num_samples</span><span class="p">:</span> <a href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional" class="sphx-glr-backref-module-typing sphx-glr-backref-type-py-data"><span class="n">Optional</span></a><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            num_samples: optional. limits the size of the dataset</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -473,7 +473,7 @@ our trainer and other components that need to load data.</p>
 <span class="c1"># pyre-fixme[13]: Attribute `train_ds` is never initialized.</span>
 <span class="c1"># pyre-fixme[13]: Attribute `val_ds` is never initialized.</span>
 <span class="k">class</span> <span class="nc">TinyImageNetDataModule</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    TinyImageNetDataModule is a pytorch LightningDataModule for the tiny</span>
 <span class="sd">    imagenet dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -529,7 +529,7 @@ our trainer and other components that need to load data.</p>
 <p>To pass data between the different components we use fsspec which allows us to
 read/write to cloud or local file storage.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">download_data</span><span class="p">(</span><span class="n">remote_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    download_data downloads the training data from the specified remote path via</span>
 <span class="sd">    fsspec and places it in the tmpdir unextracted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -552,7 +552,7 @@ read/write to cloud or local file storage.</p>
 
 
 <span class="k">def</span> <span class="nf">create_random_data</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_images</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">250</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fills the given path with randomly generated 64x64 images.</span>
 <span class="sd">    This can be used for quick testing of the workflow of the model.</span>
 <span class="sd">    Does NOT pack the files into a tar, but does preprocess them.</span>

@@ -32,12 +32,11 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
@@ -396,11 +395,267 @@
     <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
      <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
       
-  <section id="Airflow">
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Airflow">
 <h1>Airflow<a class="headerlink" href="#Airflow" title="Permalink to this heading">¶</a></h1>
 <p>For pipelines that support Python based execution you can directly use the TorchX API. TorchX is designed to be easily integrated in to other applications via the programmatic API. No special Airflow integrations are needed.</p>
-<p>With TorchX, you can use Airflow for the pipeline orchestration and run your PyTorch application (i.e. distributed training) on a remote GPU cluster.</p>
-<div class="nbinput docutils container">
+<p>With TorchX, you can use Airflow for the pipeline orchestration and run your PyTorch application (i.e. distributed training) on a remote GPU cluster.</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -418,13 +673,6 @@
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/airflow/models/base.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">49</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> MovedIn20Warning</span><span style="color: #808000; text-decoration-color: #808000">: Deprecated API features detected! These </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">feature(</span><span style="color: #808000; text-decoration-color: #808000">s</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">)</span><span style="color: #808000; text-decoration-color: #808000"> are not compatible with SQLAlchemy </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">2.0</span><span style="color: #808000; text-decoration-color: #808000">. To prevent incompatible upgrades prior to updating applications, ensure requirements files are pinned to </span><span style="color: #808000; text-decoration-color: #808000">"sqlalchemy&lt;2.0"</span><span style="color: #808000; text-decoration-color: #808000">. Set environment variable </span><span style="color: #808000; text-decoration-color: #808000">SQLALCHEMY_WARN_20</span><span style="color: #808000; text-decoration-color: #808000">=</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">1</span><span style="color: #808000; text-decoration-color: #808000"> to show all deprecation warnings.  Set environment variable </span><span style="color: #808000; text-decoration-color: #808000">SQLALCHEMY_SILENCE_UBER_WARNING</span><span style="color: #808000; text-decoration-color: #808000">=</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">1</span><span style="color: #808000; text-decoration-color: #808000"> to silence this message. </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">(</span><span style="color: #808000; text-decoration-color: #808000">Background on SQLAlchemy </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">2.0</span><span style="color: #808000; text-decoration-color: #808000"> at: </span><span style="color: #808000; text-decoration-color: #808000; text-decoration: underline">https://sqlalche.me/e/b8d9)</span>
-</pre></div>
-</div>
 <p>To launch a TorchX job from Airflow you can create a Airflow Python task to import the runner, launch the job and wait for it to complete. If you’re running on a remote cluster you may need to use the virtualenv task to install the <code class="docutils literal notranslate"><span class="pre">torchx</span></code> package.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -432,7 +680,7 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@task</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;hello_torchx&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">run_torchx</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This is a function that will run within the DAG execution&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;This is a function that will run within the DAG execution&quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">torchx.runner</span> <span class="kn">import</span> <span class="n">get_runner</span>
     <span class="k">with</span> <span class="n">get_runner</span><span class="p">()</span> <span class="k">as</span> <span class="n">runner</span><span class="p">:</span>
         <span class="c1"># Run the utils.sh component on the local_cwd scheduler.</span>
@@ -490,7 +738,7 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_3979/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_277834/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
 </pre></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -498,27 +746,27 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-blue-fg">2023-04-03 21:34:08,839</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1090} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-c417z41qj4p76c.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2023-04-03 21:34:08,846</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1090} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-c417z41qj4p76c.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2023-04-03 21:34:08,847</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1288} INFO -
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,081</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1165} INFO - Dependencies all met for &lt;TaskInstance: example_python_operator-xzg1ld7lds2m9.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,087</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1165} INFO - Dependencies all met for &lt;TaskInstance: example_python_operator-xzg1ld7lds2m9.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,088</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1362} INFO -
 --------------------------------------------------------------------------------
-[<span class="ansi-blue-fg">2023-04-03 21:34:08,848</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1289} INFO - Starting attempt 1 of 1
-[<span class="ansi-blue-fg">2023-04-03 21:34:08,849</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1290} INFO -
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,089</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1363} INFO - Starting attempt 1 of 1
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,089</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1364} INFO -
 --------------------------------------------------------------------------------
-[<span class="ansi-blue-fg">2023-04-03 21:34:08,859</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1309} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
-[<span class="ansi-blue-fg">2023-04-03 21:34:09,173</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1516} INFO - Exporting the following env vars:
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,104</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1383} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
+[<span class="ansi-blue-fg">2023-04-04 01:08:21,302</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1590} INFO - Exporting the following env vars:
 AIRFLOW_CTX_DAG_OWNER=airflow
-AIRFLOW_CTX_DAG_ID=example_python_operator-c417z41qj4p76c
+AIRFLOW_CTX_DAG_ID=example_python_operator-xzg1ld7lds2m9
 AIRFLOW_CTX_TASK_ID=hello_torchx
 AIRFLOW_CTX_EXECUTION_DATE=2021-09-13T00:00:00+00:00
 AIRFLOW_CTX_TRY_NUMBER=1
 AIRFLOW_CTX_DAG_RUN_ID=manual__2021-09-13T00:00:00+00:00
-[<span class="ansi-blue-fg">2023-04-03 21:34:09,664</span>] {<span class="ansi-blue-fg">api.py:</span>70} INFO - Tracker configurations: {}
-[<span class="ansi-blue-fg">2023-04-03 21:34:09,668</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>715} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-[<span class="ansi-blue-fg">2023-04-03 21:34:09,669</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>721} INFO - Log directory is: /tmp/torchx_lqc4x9h2
+[<span class="ansi-blue-fg">2023-04-04 01:08:22,027</span>] {<span class="ansi-blue-fg">api.py:</span>70} INFO - Tracker configurations: {}
+[<span class="ansi-blue-fg">2023-04-04 01:08:22,031</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>715} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+[<span class="ansi-blue-fg">2023-04-04 01:08:22,032</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>721} INFO - Log directory is: /tmp/torchx_bag8ie9r
 Hello, TorchX!
-[<span class="ansi-blue-fg">2023-04-03 21:34:09,779</span>] {<span class="ansi-blue-fg">python.py:</span>177} INFO - Done. Returned value was: None
-[<span class="ansi-blue-fg">2023-04-03 21:34:09,785</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1327} INFO - Marking task as SUCCESS. dag_id=example_python_operator-c417z41qj4p76c, task_id=hello_torchx, execution_date=20210913T000000, start_date=20230403T213408, end_date=20230403T213409
+[<span class="ansi-blue-fg">2023-04-04 01:08:22,140</span>] {<span class="ansi-blue-fg">python.py:</span>177} INFO - Done. Returned value was: None
+[<span class="ansi-blue-fg">2023-04-04 01:08:22,146</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1401} INFO - Marking task as SUCCESS. dag_id=example_python_operator-xzg1ld7lds2m9, task_id=hello_torchx, execution_date=20210913T000000, start_date=20230404T010821, end_date=20230404T010822
 </pre></div></div>
 </div>
 <p>If all goes well you should see <code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">TorchX!</span></code> printed above.</p>
