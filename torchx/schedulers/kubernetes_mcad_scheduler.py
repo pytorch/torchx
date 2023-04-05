@@ -475,7 +475,9 @@ def get_port_for_service(app: AppDef) -> str:
     return port
 
 
-def enable_retry(job_spec: Dict[str, Any], appwrapper_retries: int, total_pods: int) -> None:
+def enable_retry(
+    job_spec: Dict[str, Any], appwrapper_retries: int, total_pods: int
+) -> None:
     requeue_dict = {
         "timeInSeconds": 300,
         "maxTimeInSeconds": 0,
