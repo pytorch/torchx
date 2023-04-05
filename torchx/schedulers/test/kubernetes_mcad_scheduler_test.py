@@ -216,10 +216,10 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 "growthType": "exponential",
                 "maxNumRequeuings": 3,
                 "maxTimeInSeconds": 0,
-                "timeInSeconds": 300 
-            }
+                "timeInSeconds": 300,
+            },
         }
-        self.assertEqual(item0["schedulingSpec"], expected) 
+        self.assertEqual(item0["schedulingSpec"], expected)
 
         for role in app.roles:
             role.max_retries = 0

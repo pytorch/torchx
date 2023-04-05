@@ -474,18 +474,17 @@ def get_port_for_service(app: AppDef) -> str:
 
     return port
 
+
 def enable_retry(job_spec: Dict[str, Any], appwrapper_retries: int, total_pods: int):
     requeue_dict = {
-        "timeInSeconds" : 300,
-        "maxTimeInSeconds" : 0,
+        "timeInSeconds": 300,
+        "maxTimeInSeconds": 0,
         "growthType": "exponential",
-        "maxNumRequeuings": appwrapper_retries
+        "maxNumRequeuings": appwrapper_retries,
     }
-    nested_specs = {
-        "minAvailable": total_pods,
-        "requeuing": requeue_dict
-    }
+    nested_specs = {"minAvailable": total_pods, "requeuing": requeue_dict}
     job_spec["schedulingSpec"] = nested_specs
+
 
 def app_to_resource(
     app: AppDef,
@@ -503,7 +502,7 @@ def app_to_resource(
     app on Kubernetes.
 
     MCAD supports retries at the APPLICATION level. In the case of multiple TorchX Roles,
-    the AppWrapper maximum number of retries 
+    the AppWrapper maximum number of retries
     count is set to the minimum of the max_retries of the roles.
     """
 

@@ -19,7 +19,6 @@ from torchx.util.entrypoints import load
 __version__ = "0.5.0"
 
 
-
 # Use the github container registry images corresponding to the current package
 # version.
 def _get_torchx_image(torchx_version: str) -> str:
