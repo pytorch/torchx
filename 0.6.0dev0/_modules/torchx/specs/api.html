@@ -1,0 +1,1714 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torchx.specs.api &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <!-- Google Analytics -->
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-117752657-2');
+    </script>
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchx/">
+                  <span class="dropdown-title">TorchX</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  
+    <div id="redirect-banner" style="display: none">
+      <p>
+        This is the public documentation. There's an internal wiki with extra
+        information for Meta employees at
+        <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+      </p>
+    </div>
+  
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.6.0dev0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.config.html">.torchxconfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom_components.html">Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tracker.html">torchx.tracker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes_mcad.html">Kubernetes-MCAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/lsf.html">IBM Spectrum LSF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/gcp_batch.html">GCP Batch</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/airflow.html">Airflow</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workspace.html">torchx.workspace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+          <li><a href="../specs.html">torchx.specs</a> &gt;</li>
+        
+      <li>torchx.specs.api</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <h1>Source code for torchx.specs.api</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the BSD-style license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Generic</span><span class="p">,</span>
+    <span class="n">Iterator</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Pattern</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">Type</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">to_dict</span>
+
+<span class="n">_APP_STATUS_FORMAT_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;AppStatus:</span>
+<span class="s2">    State: $</span><span class="si">{state}</span>
+<span class="s2">    Num Restarts: $</span><span class="si">{num_restarts}</span>
+<span class="s2">    Roles: $</span><span class="si">{roles}</span>
+<span class="s2">    Msg: $</span><span class="si">{msg}</span>
+<span class="s2">    Structured Error Msg: $</span><span class="si">{structured_error_msg}</span>
+<span class="s2">    UI URL: $</span><span class="si">{url}</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+<span class="c1"># RPC Error message. Example:</span>
+<span class="c1"># RuntimeError(&#39;On WorkerInfo(id=1, name=trainer:0:0):</span>
+<span class="c1"># &lt;message with the Traceback&gt;</span>
+<span class="c1"># &#39;)</span>
+<span class="n">_RPC_ERROR_MESSAGE_RE</span><span class="p">:</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;exception_type&gt;\w*)\(&#39;On WorkerInfo\(.+\):\n&quot;</span> <span class="sa">r</span><span class="s2">&quot;(.*\n)*&quot;</span> <span class="sa">r</span><span class="s2">&quot;&#39;\)&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Sometimes another exception is nested as a message of the outer exception</span>
+<span class="c1"># rather than proper exception chaining. Example:</span>
+<span class="c1">#  c10::Error: CUDA error: an illegal memory access was encountered</span>
+<span class="c1"># Exception</span>
+<span class="c1">#   raised from create_event_internal at caffe2/c10/cuda/CUDACachingAllocator.cpp:733</span>
+<span class="c1">#     (most recent call first):</span>
+<span class="n">_EMBEDDED_ERROR_MESSAGE_RE</span><span class="p">:</span> <span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;msg&gt;.+)\nException.*&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># ========================================</span>
+<span class="c1"># ==== Distributed AppDef API =======</span>
+<span class="c1"># ========================================</span>
+<div class="viewcode-block" id="Resource"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Resource">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Resource</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents resource requirements for a ``Role``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cpu: number of logical cpu cores. The definition of a CPU core depends</span>
+<span class="sd">            on the scheduler. See your scheduler documentation for how a logical</span>
+<span class="sd">            CPU core maps to physical cores and threads.</span>
+<span class="sd">        gpu: number of gpus</span>
+<span class="sd">        memMB: MB of ram</span>
+<span class="sd">        capabilities: additional hardware specs (interpreted by scheduler)</span>
+<span class="sd">        devices: a list of named devices with their quantities</span>
+
+<span class="sd">    Note: you should prefer to use named_resources instead of specifying the raw</span>
+<span class="sd">    resource requirement directly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cpu</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">gpu</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">memMB</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">capabilities</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Resource.copy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Resource.copy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="s2">&quot;Resource&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">capabilities</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Resource&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Copies a resource and applies new capabilities. If the same capabilities</span>
+<span class="sd">        are present in the original resource and as parameter, the one from parameter</span>
+<span class="sd">        will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res_capabilities</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">capabilities</span><span class="p">)</span>
+        <span class="n">res_capabilities</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">capabilities</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
+            <span class="n">cpu</span><span class="o">=</span><span class="n">original</span><span class="o">.</span><span class="n">cpu</span><span class="p">,</span>
+            <span class="n">gpu</span><span class="o">=</span><span class="n">original</span><span class="o">.</span><span class="n">gpu</span><span class="p">,</span>
+            <span class="n">memMB</span><span class="o">=</span><span class="n">original</span><span class="o">.</span><span class="n">memMB</span><span class="p">,</span>
+            <span class="n">capabilities</span><span class="o">=</span><span class="n">res_capabilities</span><span class="p">,</span>
+            <span class="n">devices</span><span class="o">=</span><span class="n">original</span><span class="o">.</span><span class="n">devices</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1"># sentinel value used for cases when resource does not matter (e.g. ignored)</span>
+<span class="n">NULL_RESOURCE</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># used as &quot;*&quot; scheduler backend</span>
+<span class="n">ALL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
+
+<span class="c1"># sentinel value used to represent missing string attributes, such as image or entrypoint</span>
+<span class="n">MISSING</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;MISSING&gt;&quot;</span>
+
+<span class="c1"># sentinel value used to represent &quot;unset&quot; optional string attributes</span>
+<span class="n">NONE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;NONE&gt;&quot;</span>
+
+
+<div class="viewcode-block" id="macros"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros">[docs]</a><span class="k">class</span> <span class="nc">macros</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines macros that can be used in the elements of ``Role.args``</span>
+<span class="sd">    values of ``Role.env``. The macros will be substituted at runtime</span>
+<span class="sd">    to their actual values.</span>
+
+<span class="sd">    .. warning:: Macros used fields of :py:class:`Role` other than the ones</span>
+<span class="sd">                 mentioned above, are NOT substituted.</span>
+
+<span class="sd">    Available macros:</span>
+
+<span class="sd">    1. ``img_root`` - root directory of the pulled container.image</span>
+<span class="sd">    2. ``app_id`` - application id as assigned by the scheduler</span>
+<span class="sd">    3. ``replica_id`` - unique id for each instance of a replica of a Role,</span>
+<span class="sd">                        for instance a role with 3 replicas could have the 0, 1, 2</span>
+<span class="sd">                        as replica ids. Note that when the container fails and is</span>
+<span class="sd">                        replaced, the new container will have the same ``replica_id``</span>
+<span class="sd">                        as the one it is replacing. For instance if node 1 failed and</span>
+<span class="sd">                        was replaced by the scheduler the replacing node will also</span>
+<span class="sd">                        have ``replica_id=1``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # runs: hello_world.py --app_id ${app_id}</span>
+<span class="sd">     trainer = Role(</span>
+<span class="sd">                name=&quot;trainer&quot;,</span>
+<span class="sd">                entrypoint=&quot;hello_world.py&quot;,</span>
+<span class="sd">                args=[&quot;--app_id&quot;, macros.app_id],</span>
+<span class="sd">                env={&quot;IMAGE_ROOT_DIR&quot;: macros.img_root})</span>
+<span class="sd">     app = AppDef(&quot;train_app&quot;, roles=[trainer])</span>
+<span class="sd">     app_handle = session.run(app, scheduler=&quot;local_docker&quot;, cfg={})</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">img_root</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{img_root}</span><span class="s2">&quot;</span>
+    <span class="n">base_img_root</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{base_img_root}</span><span class="s2">&quot;</span>
+    <span class="n">app_id</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{app_id}</span><span class="s2">&quot;</span>
+    <span class="n">replica_id</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{replica_id}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># rank0_env will be filled with the name of the environment variable that</span>
+    <span class="c1"># provides the master host address. To get the actual hostname the</span>
+    <span class="c1"># environment variable must be resolved by the app via either shell</span>
+    <span class="c1"># expansion (wrap sh/bash) or via the application.</span>
+    <span class="c1"># This may not be available on all schedulers.</span>
+    <span class="n">rank0_env</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{rank0_env}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="macros.Values"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values">[docs]</a>    <span class="nd">@dataclass</span>
+    <span class="k">class</span> <span class="nc">Values</span><span class="p">:</span>
+        <span class="n">img_root</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">replica_id</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">rank0_env</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">base_img_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DEPRECATED&quot;</span>
+
+<div class="viewcode-block" id="macros.Values.apply"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.apply">[docs]</a>        <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="s2">&quot;Role&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Role&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            apply applies the values to a copy the specified role and returns it.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">role</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">return</span> <span class="n">role</span></div>
+
+<div class="viewcode-block" id="macros.Values.substitute"><a class="viewcode-back" href="../../../specs.html#torchx.specs.macros.Values.substitute">[docs]</a>        <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            substitute applies the values to the template arg.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">Template</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="o">**</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div></div></div>
+
+
+<div class="viewcode-block" id="RetryPolicy"><a class="viewcode-back" href="../../../specs.html#torchx.specs.RetryPolicy">[docs]</a><span class="k">class</span> <span class="nc">RetryPolicy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines the retry policy for the ``Roles`` in the ``AppDef``.</span>
+<span class="sd">    The policy defines the behavior when the role replica encounters a failure:</span>
+
+<span class="sd">    1. unsuccessful (non zero) exit code</span>
+<span class="sd">    2. hardware/host crashes</span>
+<span class="sd">    3. preemption</span>
+<span class="sd">    4. eviction</span>
+
+<span class="sd">    .. note:: Not all retry policies are supported by all schedulers.</span>
+<span class="sd">              However all schedulers must support ``RetryPolicy.APPLICATION``.</span>
+<span class="sd">              Please refer to the scheduler&#39;s documentation for more information</span>
+<span class="sd">              on the retry policies they support and behavior caveats (if any).</span>
+
+<span class="sd">    1. REPLICA: Replaces the replica instance. Surviving replicas are untouched.</span>
+<span class="sd">                Use with ``dist.ddp`` component to have torchelastic coordinate</span>
+<span class="sd">                restarts and membership changes. Otherwise, it is up to the</span>
+<span class="sd">                application to deal with failed replica departures and</span>
+<span class="sd">                replacement replica admittance.</span>
+<span class="sd">    2. APPLICATION: Restarts the entire application.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">REPLICA</span> <span class="o">=</span> <span class="s2">&quot;REPLICA&quot;</span>
+    <span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION&quot;</span></div>
+
+
+<span class="k">class</span> <span class="nc">MountType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">BIND</span> <span class="o">=</span> <span class="s2">&quot;bind&quot;</span>
+    <span class="n">VOLUME</span> <span class="o">=</span> <span class="s2">&quot;volume&quot;</span>
+    <span class="n">DEVICE</span> <span class="o">=</span> <span class="s2">&quot;device&quot;</span>
+
+
+<div class="viewcode-block" id="BindMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.BindMount">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">BindMount</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a bind mount to `mount --bind` a host path into the worker</span>
+<span class="sd">    environment. See scheduler documentation on how bind mounts operate for each</span>
+<span class="sd">    scheduler.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        src_path: the path on the host</span>
+<span class="sd">        dst_path: the path in the worker environment/container</span>
+<span class="sd">        read_only: whether the mount should be read only</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">src_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="VolumeMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.VolumeMount">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">VolumeMount</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a persistent volume mount to mount into the worker environment.</span>
+<span class="sd">    Args:</span>
+<span class="sd">       src: the name or ID of the volume to mount</span>
+<span class="sd">       dst_path: the path in the worker environment/container</span>
+<span class="sd">       read_only: whether the mount should be read only</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">src</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="DeviceMount"><a class="viewcode-back" href="../../../specs.html#torchx.specs.DeviceMount">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">DeviceMount</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a host device to mount into the container.</span>
+<span class="sd">    Args:</span>
+<span class="sd">       src_path: the path on the host</span>
+<span class="sd">       dst_path: the path in the worker environment/container</span>
+<span class="sd">       permissions: the permissions to set on the device. Default: read, write, mknode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">src_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">permissions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rwm&quot;</span></div>
+
+
+<div class="viewcode-block" id="Role"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Role</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A set of nodes that perform a specific duty within the ``AppDef``.</span>
+<span class="sd">    Examples:</span>
+
+<span class="sd">    1. Distributed data parallel app - made up of a single role (trainer).</span>
+
+<span class="sd">    2. App with parameter server - made up of multiple roles (trainer, ps).</span>
+
+<span class="sd">    .. note:: An ``image`` is a software bundle that is installed on the container</span>
+<span class="sd">              scheduled by the scheduler. The container on the scheduler dictates</span>
+<span class="sd">              what an image actually is. An image could be as simple as a tar-ball</span>
+<span class="sd">              or map to a docker image. The scheduler typically knows how to &quot;pull&quot;</span>
+<span class="sd">              the image given an image name (str), which could be a simple name</span>
+<span class="sd">              (e.g. docker image) or a url e.g. ``s3://path/my_image.tar``).</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     trainer = Role(name=&quot;trainer&quot;,</span>
+<span class="sd">                    image = &quot;pytorch/torch:1&quot;,</span>
+<span class="sd">                    entrypoint = &quot;my_trainer.py&quot;</span>
+<span class="sd">                    args = [&quot;--arg&quot;, &quot;foo&quot;, ENV_VAR=&quot;FOOBAR&quot;],</span>
+<span class="sd">                    num_replicas = 4,</span>
+<span class="sd">                    resource = Resource(cpu=1, gpu=1, memMB=500),</span>
+<span class="sd">                    port_map={&quot;tcp_store&quot;:8080, &quot;tensorboard&quot;: 8081},</span>
+<span class="sd">                    metadata={&quot;local_cwd.property&quot;, value})</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">            name: name of the role</span>
+<span class="sd">            image: a software bundle that is installed on a container.</span>
+<span class="sd">            entrypoint: command (within the container) to invoke the role</span>
+<span class="sd">            args: commandline arguments to the entrypoint cmd</span>
+<span class="sd">            env: environment variable mappings</span>
+<span class="sd">            num_replicas: number of container replicas to run</span>
+<span class="sd">            min_replicas: minimum number of replicas for the job to start. When</span>
+<span class="sd">                set the job size can automatically adjust between min_replicas</span>
+<span class="sd">                and num_replicas depending on the cluster resources and</span>
+<span class="sd">                policies. If the scheduler doesn&#39;t support auto scaling this</span>
+<span class="sd">                field is ignored and the job size will be num_replicas.</span>
+<span class="sd">            max_retries: max number of retries before giving up</span>
+<span class="sd">            retry_policy: retry behavior upon replica failures</span>
+<span class="sd">            resource: Resource requirement for the role. The role should be scheduled</span>
+<span class="sd">                by the scheduler on ``num_replicas`` container, each of them should have at</span>
+<span class="sd">                least ``resource`` guarantees.</span>
+<span class="sd">            port_map: Port mapping for the role. The key is the unique identifier of the port</span>
+<span class="sd">                e.g. &quot;tensorboard&quot;: 9090</span>
+<span class="sd">            metadata: Free form information that is associated with the role, for example</span>
+<span class="sd">                scheduler specific data. The key should follow the pattern: ``$scheduler.$key``</span>
+<span class="sd">            mounts: a list of mounts on the machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">image</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">min_replicas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">base_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># DEPRECATED DO NOT SET, WILL BE REMOVED SOON</span>
+    <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">num_replicas</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">retry_policy</span><span class="p">:</span> <span class="n">RetryPolicy</span> <span class="o">=</span> <span class="n">RetryPolicy</span><span class="o">.</span><span class="n">APPLICATION</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span> <span class="o">=</span> <span class="n">NULL_RESOURCE</span>
+    <span class="n">port_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">mounts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BindMount</span><span class="p">,</span> <span class="n">VolumeMount</span><span class="p">,</span> <span class="n">DeviceMount</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="Role.pre_proc"><a class="viewcode-back" href="../../../specs.html#torchx.specs.Role.pre_proc">[docs]</a>    <span class="k">def</span> <span class="nf">pre_proc</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="c1"># pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object</span>
+        <span class="n">dryrun_info</span><span class="p">:</span> <span class="s2">&quot;AppDryRunInfo&quot;</span><span class="p">,</span>
+        <span class="c1"># pyre-fixme[24]: AppDryRunInfo was designed to work with Any request object</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AppDryRunInfo&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modifies the scheduler request based on the role specific configuration.</span>
+<span class="sd">        The method is invoked for each role during scheduler ``submit_dryrun``.</span>
+<span class="sd">        If there are multiple roles, the method is invoked for each role in</span>
+<span class="sd">        order that is defined by the ``AppDef.roles`` list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dryrun_info</span></div></div>
+
+
+<div class="viewcode-block" id="AppDef"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppDef">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AppDef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a distributed application made up of multiple ``Roles``</span>
+<span class="sd">    and metadata. Contains the necessary information for the driver</span>
+<span class="sd">    to submit this app to the scheduler.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Name of application</span>
+<span class="sd">        roles: List of roles</span>
+<span class="sd">        metadata: metadata to the app (treament of metadata is scheduler dependent)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Role</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AppState"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppState">[docs]</a><span class="k">class</span> <span class="nc">AppState</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    State of the application. An application starts from an initial</span>
+<span class="sd">    ``UNSUBMITTED`` state and moves through ``SUBMITTED``, ``PENDING``,</span>
+<span class="sd">    ``RUNNING`` states finally reaching a terminal state:</span>
+<span class="sd">    ``SUCCEEDED``,``FAILED``, ``CANCELLED``.</span>
+
+<span class="sd">    If the scheduler supports preemption, the app moves from a ``RUNNING``</span>
+<span class="sd">    state to ``PENDING`` upon preemption.</span>
+
+<span class="sd">    If the user stops the application, then the application state moves</span>
+<span class="sd">    to ``STOPPED``, then to ``CANCELLED`` when the job is actually cancelled</span>
+<span class="sd">    by the scheduler.</span>
+
+<span class="sd">    1. UNSUBMITTED - app has not been submitted to the scheduler yet</span>
+<span class="sd">    2. SUBMITTED - app has been successfully submitted to the scheduler</span>
+<span class="sd">    3. PENDING - app has been submitted to the scheduler pending allocation</span>
+<span class="sd">    4. RUNNING - app is running</span>
+<span class="sd">    5. SUCCEEDED - app has successfully completed</span>
+<span class="sd">    6. FAILED - app has unsuccessfully completed</span>
+<span class="sd">    7. CANCELLED - app was cancelled before completing</span>
+<span class="sd">    8. UNKNOWN - app state is unknown</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">UNSUBMITTED</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">SUBMITTED</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">RUNNING</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">SUCCEEDED</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">FAILED</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">CANCELLED</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mi">7</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+
+<span class="n">_TERMINAL_STATES</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">,</span>
+    <span class="n">AppState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+    <span class="n">AppState</span><span class="o">.</span><span class="n">CANCELLED</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_STARTED_STATES</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AppState</span><span class="p">]</span> <span class="o">=</span> <span class="n">_TERMINAL_STATES</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="n">AppState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">is_terminal</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">_TERMINAL_STATES</span>
+
+
+<span class="k">def</span> <span class="nf">is_started</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AppState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">_STARTED_STATES</span>
+
+
+<span class="c1"># =======================</span>
+<span class="c1"># ==== Status API =======</span>
+<span class="c1"># =======================</span>
+
+<span class="c1"># replica and app share the same states, simply alias it for now</span>
+<span class="n">ReplicaState</span> <span class="o">=</span> <span class="n">AppState</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ReplicaStatus</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The status of the replica during the job execution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        id: The node rank, note: this is not a worker rank.</span>
+<span class="sd">        state: The current state of the node.</span>
+<span class="sd">        role: The role name</span>
+<span class="sd">        hostname: The hostname where the replica is running</span>
+<span class="sd">        structured_error_msg: Error message if any, None if job succeeded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">ReplicaState</span>
+    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">structured_error_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">NONE</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">RoleStatus</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The status of the role during the job execution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        role: Role name</span>
+<span class="sd">        replicas: List of replica statuses</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">replicas</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ReplicaStatus</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="AppStatus"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AppStatus</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The runtime status of the ``AppDef``. The scheduler can</span>
+<span class="sd">    return an arbitrary text message (msg field).</span>
+<span class="sd">    If any error occurs, scheduler can populate ``structured_error_msg``</span>
+<span class="sd">    with json response.</span>
+
+<span class="sd">    ``replicas`` represent the statuses of the replicas in the job. If the job</span>
+<span class="sd">    runs with multiple retries, the parameter will contain the statuses of the</span>
+<span class="sd">    most recent retry. Note: if the previous retries failed, but the most recent</span>
+<span class="sd">    retry succeeded or in progress, ``replicas`` will not contain occurred errors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">state</span><span class="p">:</span> <span class="n">AppState</span>
+    <span class="n">num_restarts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">structured_error_msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">NONE</span>
+    <span class="n">ui_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">is_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">is_terminal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">app_status_dict</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">structured_error_msg</span> <span class="o">=</span> <span class="n">app_status_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;structured_error_msg&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">structured_error_msg</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
+            <span class="n">structured_error_msg_parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">structured_error_msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">structured_error_msg_parsed</span> <span class="o">=</span> <span class="n">NONE</span>
+        <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;structured_error_msg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">structured_error_msg_parsed</span>
+        <span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">app_status_dict</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">])</span>
+
+        <span class="kn">import</span> <span class="nn">yaml</span>
+
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;AppStatus&quot;</span><span class="p">:</span> <span class="n">app_status_dict</span><span class="p">})</span>
+
+<div class="viewcode-block" id="AppStatus.raise_for_status"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.raise_for_status">[docs]</a>    <span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        raise_for_status will raise an AppStatusError if the state is not SUCCEEDED.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">AppState</span><span class="o">.</span><span class="n">SUCCEEDED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AppStatusError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job did not succeed: </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_format_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">width</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_RPC_ERROR_MESSAGE_RE</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">start_pos</span><span class="p">,</span> <span class="n">end_pos</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">()</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="n">start_pos</span><span class="p">:</span><span class="n">end_pos</span><span class="p">]</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">_EMBEDDED_ERROR_MESSAGE_RE</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;msg&quot;</span><span class="p">)</span>
+
+        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">msg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="n">width</span><span class="p">):</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">header</span><span class="si">}{</span><span class="n">msg</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">length</span><span class="p">:</span><span class="w"> </span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_replica_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_status</span><span class="p">:</span> <span class="n">ReplicaStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
+            <span class="n">error_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">)</span>
+            <span class="n">error_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_error_message</span><span class="p">(</span>
+                <span class="n">msg</span><span class="o">=</span><span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;    error_msg: &quot;</span>
+            <span class="p">)</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;extraInfo&quot;</span><span class="p">][</span><span class="s2">&quot;timestamp&quot;</span><span class="p">])</span>
+            <span class="n">exitcode</span> <span class="o">=</span> <span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;errorCode&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exitcode</span><span class="p">:</span>
+                <span class="n">exitcode</span> <span class="o">=</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">state</span><span class="p">)</span><span class="si">}</span><span class="s2"> (exitcode: </span><span class="si">{</span><span class="n">exitcode</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">        timestamp: </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">        hostname: </span><span class="si">{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span>
+<span class="s2">    </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">state</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">ReplicaState</span><span class="o">.</span><span class="n">CANCELLED</span><span class="p">,</span>
+                <span class="n">ReplicaState</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="n">data</span> <span class="o">+=</span> <span class="s2">&quot; (no reply file)&quot;</span>
+
+        <span class="c1"># mark index 0 for each role with a &quot;*&quot; for a visual queue on role boundaries</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+        <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">header</span><span class="si">}{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">role</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">replica_status</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_role_statuses</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">],</span> <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RoleStatus</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filter_roles</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">roles</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">role_status</span> <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span> <span class="k">if</span> <span class="n">role_status</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="n">filter_roles</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_format_role_status</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">role_status</span><span class="p">:</span> <span class="n">RoleStatus</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">replica_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">role_status</span><span class="o">.</span><span class="n">replicas</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+            <span class="n">replica_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_replica_status</span><span class="p">(</span><span class="n">replica</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">replica_data</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="AppStatus.format"><a class="viewcode-back" href="../../../specs.html#torchx.specs.AppStatus.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filter_roles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Format logs for app status. The app status include:</span>
+<span class="sd">            1. State: State of the application.</span>
+<span class="sd">            2. Num Restarts: The number of application restarts.</span>
+<span class="sd">            3. Roles: List of roles.</span>
+<span class="sd">            4. Msg: Arbitrary text message the scheduler returned.</span>
+<span class="sd">            5. Structured Error Msg: Json response error msg.</span>
+<span class="sd">            6. UI URL: Application URL</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">roles_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_role_statuses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="n">filter_roles</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">role_status</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+            <span class="n">roles_data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_role_status</span><span class="p">(</span><span class="n">role_status</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Template</span><span class="p">(</span><span class="n">_APP_STATUS_FORMAT_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
+            <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">num_restarts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_restarts</span><span class="p">,</span>
+            <span class="n">roles</span><span class="o">=</span><span class="n">roles_data</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span>
+            <span class="n">structured_error_msg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ui_url</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">AppStatusError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AppStatusError is raised when the job status is in an exceptional state i.e.</span>
+<span class="sd">    not SUCCEEDED.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">AppStatus</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+
+
+<span class="c1"># valid run cfg values; only support primitives (str, int, float, bool, List[str])</span>
+<span class="c1"># TODO(wilsonhong): python 3.9+ supports list[T] in typing, which can be used directly</span>
+<span class="c1"># in isinstance(). Should replace with that.</span>
+<span class="c1"># see: https://docs.python.org/3/library/stdtypes.html#generic-alias-type</span>
+<span class="n">CfgVal</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">AppDryRunInfo</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returned by ``Scheduler.submit_dryrun``. Represents the</span>
+<span class="sd">    request that would have been made to the scheduler.</span>
+<span class="sd">    The ``fmt_str()`` method of this object should return a</span>
+<span class="sd">    pretty formatted string representation of the underlying</span>
+<span class="sd">    request object such that ``print(info)`` yields a human</span>
+<span class="sd">    readable representation of the underlying request.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span> <span class="o">=</span> <span class="n">fmt</span>
+
+        <span class="c1"># fields below are only meant to be used by</span>
+        <span class="c1"># Scheduler or Session implementations</span>
+        <span class="c1"># and are back references to the parameters</span>
+        <span class="c1"># to dryrun() that returned this AppDryRunInfo object</span>
+        <span class="c1"># thus they are set in Runner.dryrun() and Scheduler.submit_dryrun()</span>
+        <span class="c1"># manually rather than through constructor arguments</span>
+        <span class="c1"># DO NOT create getters or make these public</span>
+        <span class="c1"># unless there is a good reason to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_type_name</span><span class="p">(</span><span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the type&#39;s name as a string. If ``tp` is a primitive class like int, str, etc, then</span>
+<span class="sd">    uses its attribute ``__name__``. Otherwise, use ``str(tp)``.</span>
+
+<span class="sd">    Note: we use this method to print out generic typing like List[str].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tp</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">!=</span> <span class="s2">&quot;typing&quot;</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tp</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">runopt</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the metadata about the specific run option</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default</span><span class="p">:</span> <span class="n">CfgVal</span>
+    <span class="n">opt_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">]</span>
+    <span class="n">is_required</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">help</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="runopts"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts">[docs]</a><span class="k">class</span> <span class="nc">runopts</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Holds the accepted scheduler run configuration</span>
+<span class="sd">    keys, default value (if any), and help message string.</span>
+<span class="sd">    These options are provided by the ``Scheduler`` and validated</span>
+<span class="sd">    in ``Session.run`` against user provided run cfg.</span>
+<span class="sd">    Allows ``None`` default values. Required opts must NOT have a</span>
+<span class="sd">    non-None default.</span>
+
+<span class="sd">    .. important:: This class has no accessors because it is intended to</span>
+<span class="sd">                   be constructed and returned by ``Scheduler.run_config_options``</span>
+<span class="sd">                   and printed out as a &quot;help&quot; tool or as part of an exception msg.</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">     opts = runopts()</span>
+
+<span class="sd">     opts.add(&quot;run_as_user&quot;, type_=str, help=&quot;user to run the job as&quot;)</span>
+<span class="sd">     opts.add(&quot;cluster_id&quot;, type_=int, help=&quot;cluster to submit the job&quot;, required=True)</span>
+<span class="sd">     opts.add(&quot;priority&quot;, type_=float, default=0.5, help=&quot;job priority&quot;)</span>
+<span class="sd">     opts.add(&quot;preemptible&quot;, type_=bool, default=False, help=&quot;is the job preemptible&quot;)</span>
+
+<span class="sd">     # invalid</span>
+<span class="sd">     opts.add(&quot;illegal&quot;, default=10, required=True)</span>
+<span class="sd">     opts.add(&quot;bad_type&quot;, type=str, default=10)</span>
+
+<span class="sd">     opts.check(cfg)</span>
+<span class="sd">     print(opts)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">runopt</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">)</span>
+
+<div class="viewcode-block" id="runopts.is_type"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.is_type">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_type</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">tp</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if ``obj`` is type of ``tp``. Similar to isinstance() but supports</span>
+<span class="sd">        tp = List[str], thus can be used to validate ConfigValue.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">tp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="runopts.get"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">runopt</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns option if any was registered, or None otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="runopts.resolve"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks the given config against this ``runopts`` and sets default configs</span>
+<span class="sd">        if not set.</span>
+
+<span class="sd">        .. note:: Extra configs unknown to this run option are ignored.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">resolved_cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">cfg</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">cfg_key</span><span class="p">,</span> <span class="n">runopt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">resolved_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cfg_key</span><span class="p">)</span>
+
+            <span class="c1"># check required opt</span>
+            <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">is_required</span> <span class="ow">and</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidRunConfigException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Required run option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">, must be provided and not `None`&quot;</span><span class="p">,</span>
+                    <span class="n">cfg_key</span><span class="p">,</span>
+                    <span class="n">cfg</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># check type (None matches all types)</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">runopts</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidRunConfigException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Run option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">, must be of type: </span><span class="si">{</span><span class="n">get_type_name</span><span class="p">(</span><span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span><span class="si">}</span><span class="s2">,&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; but was: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                    <span class="n">cfg_key</span><span class="p">,</span>
+                    <span class="n">cfg</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># not required and not set, set to default</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">resolved_cfg</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">return</span> <span class="n">resolved_cfg</span></div>
+
+<div class="viewcode-block" id="runopts.cfg_from_str"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.cfg_from_str">[docs]</a>    <span class="k">def</span> <span class="nf">cfg_from_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses scheduler ``cfg`` from a string literal and returns</span>
+<span class="sd">        a cfg map where the cfg values have been cast into the appropriate</span>
+<span class="sd">        types as specified by this runopts object. Unknown keys are ignored</span>
+<span class="sd">        and not returned in the resulting map.</span>
+
+<span class="sd">        .. note:: Unlike the method ``resolve``, this method does NOT resolve</span>
+<span class="sd">                  default options or check that the required options are actually</span>
+<span class="sd">                  present in the given ``cfg_str``. This method is intended to be</span>
+<span class="sd">                  called before calling ``resolve()`` when the input is a string</span>
+<span class="sd">                  encoded run cfg. That is to fully resolve the cfg, call</span>
+<span class="sd">                  ``opt.resolve(opt.cfg_from_str(cfg_literal))``.</span>
+
+<span class="sd">        If the ``cfg_str`` is an empty string, then an empty</span>
+<span class="sd">        ``cfg`` is returned. Otherwise, at least one kv-pair delimited by</span>
+<span class="sd">        ``&quot;=&quot;`` (equal) is expected.</span>
+
+<span class="sd">        Either ``&quot;,&quot;`` (comma) or ``&quot;;&quot;`` (semi-colon)</span>
+<span class="sd">        can be used to delimit multiple kv-pairs.</span>
+
+<span class="sd">        ``CfgVal`` allows ``List`` of primitives, which can be passed as</span>
+<span class="sd">        either ``&quot;,&quot;`` or ``&quot;;&quot;`` (semi-colon) delimited. Since the same</span>
+<span class="sd">        delimiters are used to delimit between cfg kv pairs, this method</span>
+<span class="sd">        interprets the last (trailing) ``&quot;,&quot;`` or ``&quot;;&quot;`` as the delimiter between</span>
+<span class="sd">        kv pairs. See example below.</span>
+
+
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">         opts = runopts()</span>
+<span class="sd">         opts.add(&quot;FOO&quot;, type_=List[str], default=[&quot;a&quot;], help=&quot;an optional list option&quot;)</span>
+<span class="sd">         opts.add(&quot;BAR&quot;, type_=str, required=True, help=&quot;a required str option&quot;)</span>
+
+<span class="sd">         # required and default options not checked</span>
+<span class="sd">         # method returns strictly parsed cfg from the cfg literal string</span>
+<span class="sd">         opts.cfg_from_str(&quot;&quot;) == {}</span>
+
+<span class="sd">         # however, unknown options are ignored</span>
+<span class="sd">         # since the value type is unknown hence cannot cast to the correct type</span>
+<span class="sd">         opts.cfg_from_str(&quot;UNKNOWN=VALUE&quot;) == {}</span>
+
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1&quot;) == {&quot;FOO&quot;: &quot;v1&quot;}</span>
+
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1,v2&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;]}</span>
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1;v2&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;]}</span>
+
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1,v2,BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1;v2,BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+<span class="sd">         opts.cfg_from_str(&quot;FOO=v1;v2;BAR=v3&quot;) == {&quot;FOO&quot;: [&quot;v1&quot;, &quot;v2&quot;], &quot;BAR&quot;: &quot;v3&quot;}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_cast_to_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CfgVal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+            <span class="k">elif</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                <span class="c1"># lists may be ; or , delimited</span>
+                <span class="c1"># also deal with trailing &quot;,&quot; by removing empty strings</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># pyre-ignore[19]</span>
+                <span class="k">return</span> <span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">to_dict</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">runopt_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">runopt_</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cast_to_type</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">runopt_</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cfg</span></div>
+
+<div class="viewcode-block" id="runopts.add"><a class="viewcode-back" href="../../../specs.html#torchx.specs.runopts.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cfg_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">type_</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CfgVal</span><span class="p">],</span>
+        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">CfgVal</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds the ``config`` option with the given help string and ``default``</span>
+<span class="sd">        value (if any). If the ``default`` is not specified then this option</span>
+<span class="sd">        is a required option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">required</span> <span class="ow">and</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Required option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2"> must not specify default value. Given: </span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">runopts</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Option: </span><span class="si">{</span><span class="n">cfg_key</span><span class="si">}</span><span class="s2">, must be of type: </span><span class="si">{</span><span class="n">type_</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; Given: </span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">default</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="p">[</span><span class="n">cfg_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">type_</span><span class="p">,</span> <span class="n">required</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;runopts&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_opts</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span><span class="p">]</span>
+        <span class="n">optional</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span>
+        <span class="p">]</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;    usage:</span><span class="se">\n</span><span class="s2">        &quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">required</span> <span class="o">+</span> <span class="n">optional</span><span class="p">):</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span><span class="p">:</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">contents</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">contents</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="n">contents</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">contents</span>
+
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;required&quot;</span><span class="p">,</span> <span class="n">required</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;optional&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">opts</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">    </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2"> arguments:&quot;</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">        </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">get_type_name</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span><span class="si">}{</span><span class="n">default</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">            </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">help</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+<span class="k">class</span> <span class="nc">InvalidRunConfigException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when the supplied run cfg does not satisfy the</span>
+<span class="sd">    ``runopts``, either due to missing required configs or value</span>
+<span class="sd">    type mismatch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">invalid_reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="s2">&quot;&lt;EMPTY&gt;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">invalid_reason</span><span class="si">}</span><span class="s2">. Given: </span><span class="si">{</span><span class="n">given</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg_key</span> <span class="o">=</span> <span class="n">cfg_key</span>
+
+
+<span class="k">class</span> <span class="nc">MalformedAppHandleException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when APIs are given a bad app handle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app_handle</span><span class="si">}</span><span class="s2"> is not of the form: &lt;scheduler_backend&gt;://&lt;session_name&gt;/&lt;app_id&gt;&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">UnknownSchedulerException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheduler_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Scheduler backend: </span><span class="si">{</span><span class="n">scheduler_backend</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Use session.scheduler_backends() to see all supported schedulers&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># encodes information about a running app in url format</span>
+<span class="c1"># {scheduler_backend}://{session_name}/{app_id}</span>
+<span class="n">AppHandle</span> <span class="o">=</span> <span class="nb">str</span>
+
+
+<span class="k">class</span> <span class="nc">UnknownAppException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised by ``Session`` APIs when either the application does not</span>
+<span class="sd">    exist or the application is not owned by the session.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">:</span> <span class="s2">&quot;AppHandle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown app = </span><span class="si">{</span><span class="n">app_handle</span><span class="si">}</span><span class="s2">. Did you forget to call session.run()?&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; Otherwise, the app may have already finished and purged by the scheduler&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    parses the app handle into ```(scheduler_backend, session_name, and app_id)```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># parse it manually b/c currently torchx does not</span>
+    <span class="c1"># define allowed characters nor length for session name and app_id</span>
+    <span class="kn">import</span> <span class="nn">re</span>
+
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?P&lt;scheduler_backend&gt;.+)://(?P&lt;session_name&gt;.+)/(?P&lt;app_id&gt;.+)&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">app_handle</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MalformedAppHandleException</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
+    <span class="n">gd</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;scheduler_backend&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;session_name&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;app_id&quot;</span><span class="p">]</span>
+</pre></div>
+
+     </article>
+     
+    </div>
+    <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../_static/doctools.js"></script>
+         <script src="../../../_static/katex.min.js"></script>
+         <script src="../../../_static/auto-render.min.js"></script>
+         <script src="../../../_static/katex_autorenderer.js"></script>
+         <script src="../../../_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Stay up to date</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">LinkedIn</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch Podcasts</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">Apple</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">Google</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">Amazon</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">Terms</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">Privacy</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© Copyright The Linux Foundation. The PyTorch Foundation is a project of The Linux Foundation.
+          For web site terms of use, trademark policy and other policies applicable to The PyTorch Foundation please see
+          <a href="www.linuxfoundation.org/policies/">www.linuxfoundation.org/policies/</a>. The PyTorch Foundation supports the PyTorch open source
+          project, which has been established as PyTorch Project a Series of LF Projects, LLC. For policies applicable to the PyTorch Project a Series of LF Projects, LLC,
+          please see <a href="www.lfprojects.org/policies/">www.lfprojects.org/policies/</a>.</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+            
+          <li>
+            <a href="https://pytorch.org/mobile">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchx/">TorchX</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
