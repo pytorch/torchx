@@ -14,7 +14,6 @@ from omegaconf import DictConfig
 
 
 def compute_world_size(cfg: DictConfig) -> int:
-
     rank = int(os.getenv("RANK", cfg.main.rank))
     world_size = int(os.getenv("WORLD_SIZE", cfg.main.world_size))
     master_addr = os.getenv("MASTER_ADDR", cfg.main.master_addr)

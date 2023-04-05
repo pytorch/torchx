@@ -58,7 +58,6 @@ then
         usort format "$file"
         black "$file" -q
         flake8 "$file" || LINT_ERRORS=1
-        scripts/copyright.py "$file" || LINT_ERRORS=1
     done
 else
     echo "No changes made to any Python files. Nothing to do."

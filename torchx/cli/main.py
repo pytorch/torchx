@@ -78,7 +78,7 @@ def create_parser(subcmds: Dict[str, SubCommand]) -> ArgumentParser:
         "--log_level",
         type=str,
         help="Python logging log level",
-        default=os.getenv("LOGLEVEL", "WARNING"),
+        default=os.getenv("LOGLEVEL", "INFO"),
     )
     parser.add_argument(
         "--version",

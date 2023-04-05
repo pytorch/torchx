@@ -438,7 +438,7 @@ class _LocalAppDef:
 
     def __repr__(self) -> str:
         role_to_pid = {}
-        for (role_name, replicas) in self.role_replicas.items():
+        for role_name, replicas in self.role_replicas.items():
             pids = role_to_pid.setdefault(role_name, [])
             for r in replicas:
                 pids.append(r.proc.pid)
@@ -612,7 +612,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         """
         lru_time = sys.maxsize
         lru_app_id = None
-        for (app_id, app) in self._apps.items():
+        for app_id, app in self._apps.items():
             if is_terminal(app.state):
                 if app.last_updated <= lru_time:
                     lru_app_id = app_id
@@ -988,7 +988,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
 
     def close(self) -> None:
         # terminate all apps
-        for (app_id, app) in self._apps.items():
+        for app_id, app in self._apps.items():
             log.debug(f"Terminating app: {app_id}")
             app.kill()
         # delete logdir if torchx created a log dir
@@ -1037,7 +1037,12 @@ class LogIterator:
             self._check_finished()  # check to see if app has finished running
 
             if os.path.isfile(self._log_file):
-                self._log_fp = open(self._log_file, "rt", newline="\n")  # noqa: P201
+                self._log_fp = open(
+                    self._log_file,
+                    mode="rt",
+                    newline="\n",
+                    errors="replace",  # replace bad utf-8 with \uFFFD
+                )  # noqa: P201
                 break
 
             if self._app_finished:
