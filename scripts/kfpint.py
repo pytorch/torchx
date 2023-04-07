@@ -66,6 +66,7 @@ T = TypeVar("T")
 
 def get_fn_name(fn: Callable[..., T]) -> str:
     if hasattr(fn, "__qualname__"):
+        # pyre-ignore
         return fn.__qualname__
     elif hasattr(fn, "__name__"):
         return fn.__name__
