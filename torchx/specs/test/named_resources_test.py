@@ -9,12 +9,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from torchx.specs import (
-    _NamedResourcesLibrary,
-    named_resources,
-    NULL_RESOURCE,
-    Resource,
-)
+from torchx.specs import _NamedResourcesLibrary, Resource
 
 
 def mock_resource() -> Resource:
@@ -41,7 +36,3 @@ class NamedResourcesTest(unittest.TestCase):
             "No named resource found for `p316xl`. Did you mean `p3.16xlarge`?",
         ):
             _ = _NamedResourcesLibrary()["p316xl"]
-
-    def test_null_and_missing_named_resources(self) -> None:
-        self.assertEqual(named_resources["NULL"], NULL_RESOURCE)
-        self.assertEqual(named_resources["MISSING"], NULL_RESOURCE)

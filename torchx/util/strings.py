@@ -10,7 +10,7 @@ import re
 def normalize_str(data: str) -> str:
     """
     Invokes ``lower`` on thes string and removes all
-    characters that do not satisfy ``[a-z0-9\\-]`` pattern.
+    characters that do not satisfy ``[a-z0-9]`` pattern.
     This method is mostly used to make sure kubernetes and gcp_batch scheduler gets
     the job name that does not violate its restrictions.
     """

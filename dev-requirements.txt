@@ -12,7 +12,6 @@ google-cloud-runtimeconfig>=0.33.2
 hydra-core
 ipython
 kfp==1.8.9
-mlflow-skinny
 moto==4.1.6
 pyre-extensions
 pyre-check
