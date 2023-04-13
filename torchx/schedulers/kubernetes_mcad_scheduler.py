@@ -1257,7 +1257,6 @@ def pod_labels(
         LABEL_REPLICA_ID: str(replica_id),
     }
     if coscheduler_name is not None:
-        # pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
         pod_group = app_id + "-pg" + str(role_idx)
         pod_labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
 
