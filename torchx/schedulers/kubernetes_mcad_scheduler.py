@@ -364,9 +364,9 @@ def role_to_pod(
 
 
 def create_pod_group(
-    app: AppDef, role: Role, namespace: str, app_id: str
+    app: AppDef, role: Role, role_idx: int, namespace: str, app_id: str
 ) -> "Dict[str, Any]":
-    pod_group_name = app_id + "-" + cleanup_str(role.name) + "-pg"
+    pod_group_name = app_id + "-pg" + str(role_idx)
 
     labels = object_labels(app, app_id)
     labels.update({"appwrapper.mcad.ibm.com": app_id})
@@ -457,6 +457,22 @@ def cleanup_str(data: str) -> str:
     return "".join(re.findall(pattern, data.lower())).lstrip("0123456789")
 
 
+def get_unique_id_size(name: str, num_roles: int) -> int:
+    """
+    Some Kubernetes objects need to have names that are
+    63 characters or less. When creating the unique app_id,
+    this function calculates the max size to pass to
+    make_unique. The PodGroup name includes 3 characters plus
+    the role_id characters. This amount is taken into account.
+    """
+    default_size = 14
+    size = 63 - (len(name) + 3 + num_roles)
+
+    id_size = 0 if size <= 0 else (default_size if size > default_size else size)
+
+    return id_size
+
+
 def get_port_for_service(app: AppDef) -> str:
     # Initialize port to default
     port = "29500"
@@ -510,12 +526,18 @@ def app_to_resource(
 
     genericitems = []
 
-    unique_app_id = cleanup_str(make_unique(app.name))
+    unique_id_size = get_unique_id_size(app.name, len(app.roles))
+    if unique_id_size == 0:
+        raise ValueError(
+            "Name size has too many characters for some Kubernetes objects. Refer to your \
+TorchX component documentation for options to change the job name."
+        )
+    unique_app_id = cleanup_str(make_unique(app.name, unique_id_size))
 
     if coscheduler_name is not None:
         for role_idx, role in enumerate(app.roles):
             genericitem_pod_group = create_pod_group(
-                app, role, namespace, unique_app_id
+                app, role, role_idx, namespace, unique_app_id
             )
             genericitems.append(genericitem_pod_group)
 
@@ -1235,7 +1257,8 @@ def pod_labels(
         LABEL_REPLICA_ID: str(replica_id),
     }
     if coscheduler_name is not None:
-        pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
+        # pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
+        pod_group = app_id + "-pg" + str(role_idx)
         pod_labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
 
     labels.update(pod_labels)
