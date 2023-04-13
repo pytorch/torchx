@@ -18,7 +18,7 @@ Prerequisites
 You'll need to create an AWS Batch queue configured for multi-node parallel jobs.
 
 See
-https://docs.aws.amazon.com/batch/latest/userguide/Batch_GetStarted.html#first-run-step-2
+https://docs.aws.amazon.com/batch/latest/userguide/getting-started-ec2.html
 for how to setup a job queue and compute environment. It needs to be backed by
 EC2 for multi-node parallel jobs.
 
