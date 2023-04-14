@@ -16,7 +16,10 @@ from typing import Any, Iterator
 
 import torch
 import torch.distributed as dist
+from torch.distributed.distributed_c10d import _get_default_group
 from typing_extensions import Literal
+
+from torchx.util.cuda import has_cuda_devices
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -57,9 +60,36 @@ def local_cuda_device() -> torch.device:
     """
     Returns the CUDA device (as a ``torch.device``) based on the local rank.
 
-    See Also: :py:func:`get_local_rank`.
+    .. note::
+        For hardware agnostic code, prefer to use :py:func:`local_device`, which will
+        return the correct device based on the backend the process group has been initialized with
+
+    See Also: :py:func:`local_rank`.
     """
     return torch.device(f"cuda:{local_rank()}")
+
+
+def local_device() -> torch.device:
+    """
+    Returns the device that the current process should be using for models and tensors
+    based on the default process group.
+
+    .. note:: If the process group has not been initialized
+        then this method returns ``cuda`` if GPU is available on the machine, and ``cpu`` otherwise.
+
+    Returns ``cuda:$LOCAL_RANK`` if the default process group's backend is ``nccl`` otherwise ``cpu``
+
+    """
+
+    if dist.is_initialized():
+        default_pg = _get_default_group()
+        return (
+            local_cuda_device()
+            if default_pg.options.backend == "nccl"
+            else torch.device("cpu")
+        )
+    else:
+        return torch.device("cuda") if has_cuda_devices() else torch.device("cpu")
 
 
 def rank() -> int:
@@ -71,25 +101,32 @@ def rank() -> int:
 
     Returns:
         If a process group has been initialized returns the value returned by ``torch.distributed.get_rank()``.
-        Otherwise, returns 0 (trivial rank)
+        Otherwise, returns the rank specified by the env var ``RANK`` or 0 (trivial rank) if no such env var exists.
 
     """
-    return dist.get_rank() if dist.is_initialized() else 0
+    if dist.is_initialized():
+        return dist.get_rank()
+    else:
+        return int(os.getenv("RANK", "0"))
 
 
 def world_size() -> int:
     """
     A non-distributed-safe get_world_size call. Unlike ``torch.distributed.get_world_size()``,
     this method will not fail if being invoked from a non-distributed (e.g. process group not initialized)
-    context. Threefore, this method is safe to use in internal mthods that may be used
+    context. Therefore, this method is safe to use in internal mthods that may be used
     in non-distributed contexts as well.
 
     Returns:
         If a process group has been initialized returns the value returns by ``torch.distributed.get_world_size()``.
-        Otherwise, returns 1 (trivial world_size)
+        Otherwise, returns the world size specified by the env var ``WORLD_SIZE`` or 1 (trivial world_size)
+        if no such env var exists.
 
     """
-    return dist.get_world_size() if dist.is_initialized() else 1
+    if dist.is_initialized():
+        return dist.get_world_size()
+    else:
+        return int(os.getenv("WORLD_SIZE", "1"))
 
 
 def is_rank0() -> bool:

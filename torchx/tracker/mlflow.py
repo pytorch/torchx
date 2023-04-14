@@ -19,7 +19,13 @@ from mlflow.entities import Experiment, Run
 
 from torchx.distributed import on_rank0_first
 from torchx.runner.config import get_configs
-from torchx.tracker.api import Lineage, TrackerArtifact, TrackerBase, TrackerSource
+from torchx.tracker.api import (
+    Lineage,
+    TrackerArtifact,
+    TrackerBase,
+    TrackerSource,
+    ENV_TORCHX_JOB_ID,
+)
 
 log: Logger = getLogger(__name__)
 TAG_ARTIFACT_MD_PREFIX = "torchx.artifact.metadata"
@@ -63,6 +69,14 @@ class MLflowTracker(TrackerBase):
         log.info(
             f"MLflow tracking_uri={tracking_uri}, artifact_location={artifact_location}"
         )
+
+        # mlflow uses ids (experiment_id and run_id) rather than names
+        # to uniquely identify experiment runs. But in torchx tracker
+        # we use the job name (TORCHX_JOB_ID which is unique in torchx)
+        # to uniquely identify experiment runs. So always look up experiments and runs
+        # by their names, then use the mlflow returned ids.
+        # Since this tracker may be used in a distributed setting (SPMD),
+        # guard against races when querying mlflow by running on rank 0 first
         with on_rank0_first():
             existing_experiment = mlflow.get_experiment_by_name(experiment_name)
             if existing_experiment:
@@ -79,6 +93,15 @@ class MLflowTracker(TrackerBase):
                 log.info(
                     f"Created new experiment `{experiment_name}` (id={experiment_id})"
                 )
+
+            # torchx gets the run name from TORCHX_JOB_ID env var
+            # so this env var will exist if the job is launched with torchx
+            # if so, then prime the run here so that rank0 creates the run first
+            # and the rest of the ranks can point to the existing run
+            run_name = os.getenv(ENV_TORCHX_JOB_ID)
+            if run_name:
+                run = self.get_run(run_name)
+                log.info(f"Primed run `{run.info.run_name}` ({run.info.run_id})")
 
     @staticmethod
     def default_experiment_name() -> str:
@@ -129,10 +152,14 @@ class MLflowTracker(TrackerBase):
             )
             if not search_result:
                 return mlflow.start_run(
-                    experiment_id=self.experiment_id, run_name=run_name
+                    experiment_id=self.experiment_id,
+                    run_name=run_name,
                 )
             elif len(search_result) == 1:
-                return search_result[0]
+                return mlflow.start_run(
+                    experiment_id=self.experiment_id,
+                    run_id=search_result[0].info.run_id,
+                )
             else:  # len(search_result) > 1
                 raise RuntimeError(
                     f"More than 1 run found for run_name `{run_name}` in experiment `{self.experiment_name}`."
@@ -163,6 +190,7 @@ class MLflowTracker(TrackerBase):
     ) -> None:
         self.get_run(run_id)
         # stores the artifact in {artifact_location}/{name} (e.g. s3://bucket/prefix/{name})
+        log.info(f"Writing artifact: {name}, path: {path}")
         mlflow.log_artifact(local_path=path, artifact_path=name)
 
         # add artifact metadata with torchx.artifact_metadata.{name}.* tag prefix

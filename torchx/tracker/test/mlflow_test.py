@@ -3,14 +3,17 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List
+from unittest import mock
 
 import mlflow
 from mlflow.utils.name_utils import _generate_random_name
 
-from torchx.test.fixtures import TestWithTmpDir
+from torchx.distributed import on_rank0_first, init_pg, rank
+from torchx.test.fixtures import TestWithTmpDir, DistributedTestCase
 from torchx.tracker.mlflow import create_tracker, MLflowTracker
 
 
@@ -133,12 +136,12 @@ class MLflowTrackerTest(TestWithTmpDir):
         self.tracker.add_artifact(run_id=run_name, name="manifest", path=str(manifest))
 
         for epoch in range(num_epochs):
-            for rank in range(world_size):
+            for rnk in range(world_size):
                 self.tracker.add_artifact(
                     run_id=run_name,
-                    name=f"checkpoint_{epoch}/{rank}",
+                    name=f"checkpoint_{epoch}/{rnk}",
                     path=str(model_shard),
-                    metadata={"epoch": epoch, "rank": rank, "world_size": world_size},
+                    metadata={"epoch": epoch, "rank": rnk, "world_size": world_size},
                 )
 
         artifacts = self.tracker.artifacts(run_id=run_name)
@@ -152,8 +155,8 @@ class MLflowTrackerTest(TestWithTmpDir):
         self.assertEqual({"mlflow.file_size": 18}, manifest_artifact.metadata)
 
         for epoch in range(num_epochs):
-            for rank in range(world_size):
-                name = f"checkpoint_{epoch}/{rank}"
+            for rnk in range(world_size):
+                name = f"checkpoint_{epoch}/{rnk}"
                 artifact = artifacts[name]
                 self.assertEqual(name, artifact.name)
                 self.assertEqual(
@@ -162,7 +165,7 @@ class MLflowTrackerTest(TestWithTmpDir):
                 self.assertEqual(
                     {
                         "epoch": f"{epoch}",
-                        "rank": f"{rank}",
+                        "rank": f"{rnk}",
                         "world_size": f"{world_size}",
                         "mlflow.file_size": 11,
                     },
@@ -240,3 +243,48 @@ experiment_name = foobar
             },
             run.data.params,
         )
+
+
+def save_artifact(run_name: str, tmpdir: Path, mlflow_conf: Path) -> None:
+    init_pg()
+    rankdir = Path(tmpdir) / f"rank_{rank()}"
+    rankdir.mkdir()
+    rank_artifact = rankdir / "output.txt"
+    with open(rank_artifact, "w") as f:
+        f.write(f"Hello from rank {rank()}")
+    mlflow_tracker = create_tracker(str(mlflow_conf))
+    with on_rank0_first():
+        try:
+            mlflow_tracker.add_artifact(run_name, f"rank_{rank()}", str(rank_artifact))
+        except RuntimeError as e:
+            print(f"Failed on rank {rank()}\n {e}")
+    mlflow_tracker.close()
+
+
+class MlflowTrackerMultiRankTest(DistributedTestCase):
+    def test_multi_artifact(self) -> None:
+        mlflow_conf = self.write(
+            "mlflow_test.conf",
+            content=[
+                "[tracker:mlflow]",
+                f"tracking_uri = {self.tmpdir / 'mlruns'}",
+            ],
+        )
+        run_name = "test-run"
+        with mock.patch.dict(
+            os.environ,
+            {
+                "TORCHX_TRACKING_EXPERIMENT_NAME": "test-experiment",
+            },
+        ):
+            self.run_ddp(world_size=4, fn=save_artifact)(
+                run_name, self.tmpdir, mlflow_conf
+            )
+
+            mlflow_tracker = create_tracker(str(mlflow_conf))
+            artifacts = mlflow_tracker.artifacts(run_name)
+            mlflow_tracker.close()
+            self.assertEqual(4, len(artifacts))
+            self.assertSetEqual(
+                {f"rank_{rank}" for rank in range(4)}, set(artifacts.keys())
+            )
