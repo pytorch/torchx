@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 import os
+import unittest
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
@@ -12,8 +13,8 @@ from unittest import mock
 import mlflow
 from mlflow.utils.name_utils import _generate_random_name
 
-from torchx.distributed import on_rank0_first, init_pg, rank
-from torchx.test.fixtures import TestWithTmpDir, DistributedTestCase
+from torchx.distributed import init_pg, on_rank0_first, rank
+from torchx.test.fixtures import DistributedTestCase, IS_CI, IS_MACOS, TestWithTmpDir
 from torchx.tracker.mlflow import create_tracker, MLflowTracker
 
 
@@ -258,10 +259,12 @@ def save_artifact(run_name: str, tmpdir: Path, mlflow_conf: Path) -> None:
             mlflow_tracker.add_artifact(run_name, f"rank_{rank()}", str(rank_artifact))
         except RuntimeError as e:
             print(f"Failed on rank {rank()}\n {e}")
-    mlflow_tracker.close()
+        finally:
+            mlflow_tracker.close()
 
 
 class MlflowTrackerMultiRankTest(DistributedTestCase):
+    @unittest.skipIf(IS_CI and IS_MACOS, "no localhost on osx CI")  # pyre-ignore[56]
     def test_multi_artifact(self) -> None:
         mlflow_conf = self.write(
             "mlflow_test.conf",

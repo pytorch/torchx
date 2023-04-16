@@ -13,10 +13,10 @@ from torchx.examples.apps.compute_world_size.module.util import compute_world_si
 
 
 class UtilTest(unittest.TestCase):
-
     # clears env vars like MASTER_PORT, MASTER_ADDR that may be lingering from other tests
     # when running as a part of a test suite
     mock.patch.dict(os.environ, clear=True)
+
     def test_compute_world_size(self) -> None:
         cfg = DictConfig(
             content={

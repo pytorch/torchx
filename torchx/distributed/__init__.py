@@ -17,9 +17,9 @@ from typing import Any, Iterator
 import torch
 import torch.distributed as dist
 from torch.distributed.distributed_c10d import _get_default_group
-from typing_extensions import Literal
 
 from torchx.util.cuda import has_cuda_devices
+from typing_extensions import Literal
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ log: logging.Logger = logging.getLogger(__name__)
 def local_rank() -> int:
     """
     Returns the local rank (aka rank within the node) of this process.
-    Typically the local rank is used to set the CUDA device on the node.
+    Typically, the local rank is used to set the CUDA device on the node.
 
     .. warning::
         This function only works correctly if the invoker of the program sets ``LOCAL_RANK`` env var
@@ -37,23 +37,22 @@ def local_rank() -> int:
 
     """
 
-    if not dist.is_initialized():
-        return 0
-
-    if "LOCAL_RANK" not in os.environ:
-        warnings.warn(
-            "\n"
-            "==============================================================================================\n"
-            "`LOCAL_RANK` environment variable is not set. Will trivially return 0 for local_rank.\n"
-            " It is recommended to use torchrun/torchx to run your script or set the `LOCAL_RANK` manually.\n"
-            " For additional details see:\n"
-            "  1) https://pytorch.org/torchx/latest/components/distributed.html\n"
-            "  2) https://pytorch.org/docs/stable/elastic/run.html\n"
-            "=============================================================================================="
-        )
-        return 0
-    else:
+    if "LOCAL_RANK" in os.environ:
         return int(os.environ["LOCAL_RANK"])
+    else:  # "LOCAL_RANK" not in os.environ
+        if dist.is_initialized():
+            warnings.warn(
+                "\n"
+                "==============================================================================================\n"
+                " The default torch.distributed process group is initialized\n"
+                " but the `LOCAL_RANK` environment variable is not set. Will trivially return 0 for local_rank.\n"
+                " It is recommended to use torchrun/torchx to run your script or set the `LOCAL_RANK` manually.\n"
+                " For additional details see:\n"
+                "  1) https://pytorch.org/torchx/latest/components/distributed.html\n"
+                "  2) https://pytorch.org/docs/stable/elastic/run.html\n"
+                "=============================================================================================="
+            )
+        return 0
 
 
 def local_cuda_device() -> torch.device:

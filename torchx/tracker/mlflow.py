@@ -20,11 +20,11 @@ from mlflow.entities import Experiment, Run
 from torchx.distributed import on_rank0_first
 from torchx.runner.config import get_configs
 from torchx.tracker.api import (
+    ENV_TORCHX_JOB_ID,
     Lineage,
     TrackerArtifact,
     TrackerBase,
     TrackerSource,
-    ENV_TORCHX_JOB_ID,
 )
 
 log: Logger = getLogger(__name__)
