@@ -2,6 +2,7 @@ aiobotocore==2.4.2
 ax-platform[mysql]==0.2.3
 black==23.3.0
 boto3==1.24.59
+boto3-stubs[batch]
 captum>=0.4.0
 flake8==3.9.0
 fsspec[s3]==2023.1.0

@@ -29,8 +29,8 @@ def get_nightly_version():
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 7):
-        sys.exit("python >= 3.7 required for torchx-sdk")
+    if sys.version_info < (3, 8):
+        sys.exit("python >= 3.8 required for torchx-sdk")
 
     name = "torchx"
     NAME_ARG = "--override-name"
