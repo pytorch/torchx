@@ -474,7 +474,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_get_unique_id_size(self) -> None:
         self.assertEqual(14, get_unique_id_size("abcde", 1))
         self.assertEqual(
-            0,
+            3,
             get_unique_id_size(
                 "abcdefghijklmnopqrstuvwxyz012345678910111213141516171819202122232425",
                 1,

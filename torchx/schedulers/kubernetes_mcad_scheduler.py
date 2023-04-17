@@ -468,7 +468,7 @@ def get_unique_id_size(name: str, num_roles: int) -> int:
     default_size = 14
     size = 63 - (len(name) + 3 + num_roles)
 
-    id_size = 0 if size <= 0 else (default_size if size > default_size else size)
+    id_size = 3 if size <= 3 else (default_size if size > default_size else size)
 
     return id_size
 
@@ -527,11 +527,12 @@ def app_to_resource(
     genericitems = []
 
     unique_id_size = get_unique_id_size(app.name, len(app.roles))
-    if unique_id_size == 0:
-        raise ValueError(
-            "Name size has too many characters for some Kubernetes objects. Refer to your \
-TorchX component documentation for options to change the job name."
-        )
+    if unique_id_size == 3:
+        substring = app.name[0:58]
+        app.name=substring
+        msg="Name size has too many characters for some Kubernetes objects. Truncating \
+application name."
+        warnings.warn(msg) 
     unique_app_id = cleanup_str(make_unique(app.name, unique_id_size))
 
     if coscheduler_name is not None:
