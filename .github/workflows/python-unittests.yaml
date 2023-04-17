@@ -10,12 +10,15 @@ jobs:
   unittest:
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, '3.10']
+        python-version: [3.8, 3.9, '3.10']
         platform: [ubuntu-20.04]
         include:
           - python-version: 3.9
             platform: macos-12-xl
       fail-fast: false
+    env:
+      OS: ${{ matrix.platform }}
+      PYTHON: ${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Setup Python ${{ matrix.python-version }}
@@ -28,16 +31,16 @@ jobs:
       - name: Install dependencies
         run: |
           set -eux
-          pip install coverage codecov
+          pip install pytest pytest-cov
           pip install -e .[dev]
       - name: Run tests
-        run: coverage run -m unittest discover --verbose --start-directory . --pattern "*_test.py"
-      - name: Coverage
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: |
-          set -eux
-          coverage report -m
-          coverage xml
-
-          codecov
+        run: pytest --cov=./ --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          files: ./coverage.xml,!./cache
+          flags: unittests
+          verbose: true

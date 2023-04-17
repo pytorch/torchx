@@ -14,19 +14,16 @@ from omegaconf import DictConfig
 
 
 def compute_world_size(cfg: DictConfig) -> int:
-    rank = int(os.getenv("RANK", cfg.main.rank))
-    world_size = int(os.getenv("WORLD_SIZE", cfg.main.world_size))
-    master_addr = os.getenv("MASTER_ADDR", cfg.main.master_addr)
-    master_port = int(os.getenv("MASTER_PORT", cfg.main.master_port))
+    # required env vars for initializing pg with the default init_method (env://)
+    os.environ["RANK"] = str(cfg.main.rank)
+    os.environ["WORLD_SIZE"] = str(cfg.main.world_size)
+    os.environ["MASTER_ADDR"] = cfg.main.master_addr
+    os.environ["MASTER_PORT"] = str(cfg.main.master_port)
+
     backend = cfg.main.backend
 
     print(f"initializing `{backend}` process group")
-    dist.init_process_group(
-        backend=backend,
-        init_method=f"tcp://{master_addr}:{master_port}",
-        rank=rank,
-        world_size=world_size,
-    )
+    dist.init_process_group(backend=backend)
     print("successfully initialized process group")
 
     rank = dist.get_rank()

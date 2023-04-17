@@ -38,6 +38,8 @@ DIST_INIT_PROCESS_GROUP = "torchx.distributed.dist.init_process_group"
 DIST_IS_NCCL_AVAILABLE = "torchx.distributed.dist.is_nccl_available"
 DIST_GET_LOCAL_CUDA_DEVICE = "torchx.distributed.local_cuda_device"
 
+WARNINGS_WARN = "warnings.warn"
+
 
 def check_touch_file_rank0_first(filepath: Path) -> None:
     init_pg("gloo")
@@ -91,23 +93,44 @@ class DistributedTest(DistributedTestCase):
         with mock.patch(TORCHX_DIST_LOCAL_RANK, return_value=2):
             self.assertFalse(is_local_rank0())
 
-    @mock.patch.dict(os.environ, {"LOCAL_RANK": "2"})
     def test_get_local_cuda_device(self) -> None:
-        with mock.patch(DIST_IS_INITIALIZED, return_value=True):
+        with mock.patch.dict(os.environ, {"LOCAL_RANK": "2"}):
             self.assertEqual(local_cuda_device(), torch.device("cuda:2"))
-        with mock.patch(DIST_IS_INITIALIZED, return_value=False):
+
+        with mock.patch.dict(os.environ, {}, clear=True):
             self.assertEqual(local_cuda_device(), torch.device("cuda:0"))
 
     @mock.patch.dict(os.environ, {"LOCAL_RANK": "2"})
     def test_get_local_rank(self) -> None:
+        # as long as the LOCAL_RANK env var is set
+        # local_rank() should always read from it and should not
+        # matter whether dist.is_initialized()
+
         with mock.patch(DIST_IS_INITIALIZED, return_value=True):
             self.assertEqual(2, local_rank())
+
         with mock.patch(DIST_IS_INITIALIZED, return_value=False):
-            self.assertEqual(0, local_rank())
+            self.assertEqual(2, local_rank())
 
     @mock.patch.dict(os.environ, {}, clear=True)
     def test_get_local_rank_trivial(self) -> None:
-        self.assertEqual(0, local_rank())
+        # if LOCAL_RANK is not in env var
+        # then make sure we display a warning if dist.is_initialized()
+        # since this most likely means that the user's intention is to
+        # use pytorch distributed but did not run the script with torchrun
+        # in either case the return value is still trivially 0
+
+        with mock.patch(DIST_IS_INITIALIZED, return_value=True), mock.patch(
+            WARNINGS_WARN
+        ) as mock_warn:
+            self.assertEqual(0, local_rank())
+            mock_warn.assert_called_once()
+
+        with mock.patch(DIST_IS_INITIALIZED, return_value=False), mock.patch(
+            WARNINGS_WARN
+        ) as mock_warn:
+            self.assertEqual(0, local_rank())
+            mock_warn.assert_not_called()
 
     def test_init_process_group_trivial(self) -> None:
         self.assertFalse(dist.is_initialized())
