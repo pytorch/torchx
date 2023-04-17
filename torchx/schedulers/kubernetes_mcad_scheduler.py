@@ -529,10 +529,10 @@ def app_to_resource(
     unique_id_size = get_unique_id_size(app.name, len(app.roles))
     if unique_id_size == 3:
         substring = app.name[0:58]
-        app.name=substring
-        msg="Name size has too many characters for some Kubernetes objects. Truncating \
+        app.name = substring
+        msg = "Name size has too many characters for some Kubernetes objects. Truncating \
 application name."
-        warnings.warn(msg) 
+        warnings.warn(msg)
     unique_app_id = cleanup_str(make_unique(app.name, unique_id_size))
 
     if coscheduler_name is not None:
