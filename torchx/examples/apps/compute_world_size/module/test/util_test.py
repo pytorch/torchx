@@ -3,15 +3,20 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+import os
 import random
 import unittest
+from unittest import mock
 
 from omegaconf import DictConfig
 from torchx.examples.apps.compute_world_size.module.util import compute_world_size
 
 
 class UtilTest(unittest.TestCase):
+    # clears env vars like MASTER_PORT, MASTER_ADDR that may be lingering from other tests
+    # when running as a part of a test suite
+    mock.patch.dict(os.environ, clear=True)
+
     def test_compute_world_size(self) -> None:
         cfg = DictConfig(
             content={
