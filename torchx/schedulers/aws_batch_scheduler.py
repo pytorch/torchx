@@ -651,7 +651,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         node_properties = job["nodeProperties"]
         nodes = node_properties["nodeRangeProperties"]
 
-        i = 0
+        global_idx = -1
         # finds the global idx of the node that matches the role's k'th replica
         for i, node in enumerate(nodes):
             container = node["container"]
@@ -661,12 +661,20 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                 node["targetNodes"],
                 node_properties["numNodes"],
             )
-            replica_id = start_idx + k
 
-            if role_name == node_role and k == replica_id:
+            # k with the replica idx within the role
+            # so add k to the start index of the node group to get the global idx
+            global_idx = start_idx + k
+
+            if role_name == node_role:
                 break
 
-        job = self._get_job(app_id, rank=i)
+        assert global_idx != -1, (
+            f"Role `{role_name}`'s replica `{k}` not found in job `{job['jobName']}.\n"
+            f"Inspect the job by running `aws batch describe-jobs --jobs {job['jobId']}`"
+        )
+
+        job = self._get_job(app_id, rank=global_idx)
         if not job:
             return []
 
