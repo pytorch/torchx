@@ -456,6 +456,7 @@ def cleanup_str(data: str) -> str:
     pattern = r"[a-z0-9\-]"
     return "".join(re.findall(pattern, data.lower())).lstrip("0123456789")
 
+
 def get_unique_truncated_appid(app: AppDef) -> str:
     """
     Some Kubernetes objects need to have names that are
@@ -476,13 +477,14 @@ def get_unique_truncated_appid(app: AppDef) -> str:
         msg = "Name size has too many characters for some Kubernetes objects. Truncating \
 application name."
         warnings.warn(msg)
-        end = 63 - uid_chars - pg_chars 
+        end = 63 - uid_chars - pg_chars
         substring = app.name[0:end]
         app.name = substring
-        unique_id_size=3
+        unique_id_size = 3
 
     unique_app_id = cleanup_str(make_unique(app.name, unique_id_size))
     return unique_app_id
+
 
 def get_port_for_service(app: AppDef) -> str:
     # Initialize port to default
@@ -537,7 +539,7 @@ def app_to_resource(
 
     genericitems = []
 
-    unique_app_id=get_unique_truncated_appid(app) 
+    unique_app_id = get_unique_truncated_appid(app)
 
     if coscheduler_name is not None:
         for role_idx, role in enumerate(app.roles):
