@@ -28,6 +28,7 @@ from torchx.schedulers.kubernetes_mcad_scheduler import (
     get_port_for_service,
     get_role_information,
     get_tasks_status_description,
+    get_unique_truncated_appid,
     KubernetesMCADJob,
     KubernetesMCADOpts,
     KubernetesMCADScheduler,
@@ -196,7 +197,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             ]
             self.assertEqual(expected_cmd, actual_cmd)
 
-    def test_retry_policy_not_set(self) -> None:
+    def test_retry_not_set(self) -> None:
         app = _test_app()
         resource = app_to_resource(
             app,
@@ -208,14 +209,19 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             network=None,
             priority=0,
         )
-        item0 = resource["spec"]["resources"]["GenericItems"][0]
-        self.assertListEqual(
-            [
-                {"event": "PodEvicted", "action": "RestartJob"},
-                {"event": "PodFailed", "action": "RestartJob"},
-            ],
-            item0["policies"],
-        )
+
+        item0 = resource["spec"]
+        expected = {
+            "minAvailable": 1,
+            "requeuing": {
+                "growthType": "exponential",
+                "maxNumRequeuings": 3,
+                "maxTimeInSeconds": 0,
+                "timeInSeconds": 300,
+            },
+        }
+        self.assertEqual(item0["schedulingSpec"], expected)
+
         for role in app.roles:
             role.max_retries = 0
         resource = app_to_resource(
@@ -228,9 +234,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             network=None,
             priority=0,
         )
-        item0 = resource["spec"]["resources"]["GenericItems"][0]
-        self.assertFalse("policies" in item0)
-        self.assertFalse("maxRetry" in item0)
+        item0 = resource["spec"]
+        self.assertFalse("schedulingSpec" in item0)
 
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
@@ -363,9 +368,9 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name"
         namespace = "default"
-        podgroup = create_pod_group(app, app.roles[0], namespace, unique_app_name)
+        podgroup = create_pod_group(app, app.roles[0], 0, namespace, unique_app_name)
 
-        pod_group_name = unique_app_name + "-" + cleanup_str(app.roles[0].name) + "-pg"
+        pod_group_name = unique_app_name + "-pg0"
         expected_pod_group: Dict[str, Any] = {
             "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
             "kind": "PodGroup",
@@ -466,6 +471,27 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual("", cleanup_str("!!!"))
         self.assertEqual("abcd1234", cleanup_str("1234abcd1234"))
 
+    def test_get_unique_truncated_appid(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        app.name = "abcde"
+        self.assertEqual(20, len(get_unique_truncated_appid(app)))
+        self.assertIn(app.name, get_unique_truncated_appid(app))
+
+        app.name = "abcdefghijklmnopqrstuvwxyz012345678910111213141516"
+        self.assertEqual(56, len(get_unique_truncated_appid(app)))
+        self.assertIn(app.name, get_unique_truncated_appid(app))
+
+        app.name = (
+            "abcdefghijklmnopqrstuvwxyz012345678910111213141516171819202122232425"
+        )
+        self.assertEqual(59, len(get_unique_truncated_appid(app)))
+        self.assertIn(
+            "abcdefghijklmnopqrstuvwxyz01234567891011121314151617181",
+            get_unique_truncated_appid(app),
+        )
+        self.assertNotIn("9202122232425", get_unique_truncated_appid(app))
+
     def test_get_port_for_service(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
@@ -542,7 +568,7 @@ spec:
             app.kubernetes.io/managed-by: torchx.pytorch.org
             app.kubernetes.io/name: test
             appwrapper.mcad.ibm.com: app-name
-          name: app-name-trainerfoo-pg
+          name: app-name-pg0
           namespace: test_namespace
         spec:
           minMember: 1
@@ -558,7 +584,7 @@ spec:
             app.kubernetes.io/instance: app-name
             app.kubernetes.io/managed-by: torchx.pytorch.org
             app.kubernetes.io/name: test
-            pod-group.scheduling.sigs.k8s.io: app-name-trainerfoo-pg
+            pod-group.scheduling.sigs.k8s.io: app-name-pg0
             torchx.pytorch.org/app-name: test
             torchx.pytorch.org/replica-id: '0'
             torchx.pytorch.org/role-index: '0'
@@ -618,12 +644,6 @@ spec:
           - hostPath:
               path: /src
             name: mount-0
-      maxRetry: 3
-      policies:
-      - action: RestartJob
-        event: PodEvicted
-      - action: RestartJob
-        event: PodFailed
       replicas: 1
     - generictemplate:
         apiVersion: v1
@@ -649,6 +669,13 @@ spec:
         status:
           loadBalancer: {{}}
       replicas: 1
+  schedulingSpec:
+    minAvailable: 1
+    requeuing:
+      growthType: exponential
+      maxNumRequeuings: 3
+      maxTimeInSeconds: 0
+      timeInSeconds: 300
 """,
         )
 

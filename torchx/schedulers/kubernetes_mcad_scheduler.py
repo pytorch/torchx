@@ -364,9 +364,9 @@ def role_to_pod(
 
 
 def create_pod_group(
-    app: AppDef, role: Role, namespace: str, app_id: str
+    app: AppDef, role: Role, role_idx: int, namespace: str, app_id: str
 ) -> "Dict[str, Any]":
-    pod_group_name = app_id + "-" + cleanup_str(role.name) + "-pg"
+    pod_group_name = app_id + "-pg" + str(role_idx)
 
     labels = object_labels(app, app_id)
     labels.update({"appwrapper.mcad.ibm.com": app_id})
@@ -457,6 +457,35 @@ def cleanup_str(data: str) -> str:
     return "".join(re.findall(pattern, data.lower())).lstrip("0123456789")
 
 
+def get_unique_truncated_appid(app: AppDef) -> str:
+    """
+    Some Kubernetes objects need to have names that are
+    63 characters or less. When creating the unique app_id,
+    this function calculates the max size to pass to
+    make_unique. The PodGroup name includes 3 characters plus
+    the role_id characters. The minimum number of characters
+    for the unique identifier is 4.  These amounts are taken into account.
+    """
+    default_size = 14
+    uid_chars = 4
+    pg_chars = 3 + len(app.roles)
+    size = 63 - (len(app.name) + uid_chars + pg_chars)
+
+    unique_id_size = default_size if size > default_size else size
+
+    if unique_id_size <= 3:
+        msg = "Name size has too many characters for some Kubernetes objects. Truncating \
+application name."
+        warnings.warn(msg)
+        end = 63 - uid_chars - pg_chars
+        substring = app.name[0:end]
+        app.name = substring
+        unique_id_size = 3
+
+    unique_app_id = cleanup_str(make_unique(app.name, unique_id_size))
+    return unique_app_id
+
+
 def get_port_for_service(app: AppDef) -> str:
     # Initialize port to default
     port = "29500"
@@ -475,6 +504,19 @@ def get_port_for_service(app: AppDef) -> str:
     return port
 
 
+def enable_retry(
+    job_spec: Dict[str, Any], appwrapper_retries: int, total_pods: int
+) -> None:
+    requeue_dict = {
+        "timeInSeconds": 300,
+        "maxTimeInSeconds": 0,
+        "growthType": "exponential",
+        "maxNumRequeuings": appwrapper_retries,
+    }
+    nested_specs = {"minAvailable": total_pods, "requeuing": requeue_dict}
+    job_spec["schedulingSpec"] = nested_specs
+
+
 def app_to_resource(
     app: AppDef,
     namespace: str,
@@ -490,16 +532,19 @@ def app_to_resource(
     the provided AppDef. The resource definition can be used to launch the
     app on Kubernetes.
 
+    MCAD supports retries at the APPLICATION level. In the case of multiple TorchX Roles,
+    the AppWrapper maximum number of retries
+    count is set to the minimum of the max_retries of the roles.
     """
 
     genericitems = []
 
-    unique_app_id = cleanup_str(make_unique(app.name))
+    unique_app_id = get_unique_truncated_appid(app)
 
     if coscheduler_name is not None:
         for role_idx, role in enumerate(app.roles):
             genericitem_pod_group = create_pod_group(
-                app, role, namespace, unique_app_id
+                app, role, role_idx, namespace, unique_app_id
             )
             genericitems.append(genericitem_pod_group)
 
@@ -547,15 +592,6 @@ def app_to_resource(
                 "replicas": 1,
                 "generictemplate": pod,
             }
-            # TODO: retry support here. For more information, see MCAD GitHub issue #207
-            if role.max_retries > 0:
-                genericitem["maxRetry"] = role.max_retries
-                genericitem["policies"] = RETRY_POLICIES[role.retry_policy]
-                msg = f"""
-MCAD currently does not support retries. Role {role.name} configured with restarts: {role.max_retries}.
-                """
-                warnings.warn(msg)
-
             genericitems.append(genericitem)
 
     """
@@ -585,12 +621,18 @@ MCAD currently does not support retries. Role {role.name} configured with restar
     if priority is not None:
         job_spec["priority"] = priority
 
+    appwrapper_retries = min(role.max_retries for role in app.roles)
+    if appwrapper_retries > 0:
+        total_pods = sum(role.num_replicas for role in app.roles)
+        enable_retry(job_spec, appwrapper_retries, total_pods)
+
     resource: Dict[str, object] = {
         "apiVersion": "mcad.ibm.com/v1beta1",
         "kind": "AppWrapper",
         "metadata": {"name": unique_app_id, "namespace": namespace},
         "spec": job_spec,
     }
+
     return resource
 
 
@@ -1222,7 +1264,7 @@ def pod_labels(
         LABEL_REPLICA_ID: str(replica_id),
     }
     if coscheduler_name is not None:
-        pod_group = app_id + "-" + cleanup_str(role.name) + "-pg"
+        pod_group = app_id + "-pg" + str(role_idx)
         pod_labels.update({"pod-group.scheduling.sigs.k8s.io": pod_group})
 
     labels.update(pod_labels)
