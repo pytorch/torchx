@@ -28,7 +28,7 @@ from torchx.schedulers.kubernetes_mcad_scheduler import (
     get_port_for_service,
     get_role_information,
     get_tasks_status_description,
-    get_unique_id_size,
+    get_unique_truncated_appid,
     KubernetesMCADJob,
     KubernetesMCADOpts,
     KubernetesMCADScheduler,
@@ -471,21 +471,21 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertEqual("", cleanup_str("!!!"))
         self.assertEqual("abcd1234", cleanup_str("1234abcd1234"))
 
-    def test_get_unique_id_size(self) -> None:
-        self.assertEqual(14, get_unique_id_size("abcde", 1))
-        self.assertEqual(
-            3,
-            get_unique_id_size(
-                "abcdefghijklmnopqrstuvwxyz012345678910111213141516171819202122232425",
-                1,
-            ),
-        )
-        self.assertEqual(
-            7,
-            get_unique_id_size(
-                "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz", 1
-            ),
-        )
+    def test_get_unique_truncated_appid(self) -> None:
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        app.name = "abcde" 
+        self.assertEqual(20, len(get_unique_truncated_appid(app)))
+        self.assertIn(app.name, get_unique_truncated_appid(app))
+
+        app.name = "abcdefghijklmnopqrstuvwxyz012345678910111213141516"
+        self.assertEqual(56, len(get_unique_truncated_appid(app)))
+        self.assertIn(app.name, get_unique_truncated_appid(app))
+
+        app.name = "abcdefghijklmnopqrstuvwxyz012345678910111213141516171819202122232425"
+        self.assertEqual(59, len(get_unique_truncated_appid(app)))
+        self.assertIn("abcdefghijklmnopqrstuvwxyz01234567891011121314151617181", get_unique_truncated_appid(app))        
+        self.assertNotIn("9202122232425", get_unique_truncated_appid(app))
 
     def test_get_port_for_service(self) -> None:
         scheduler = create_scheduler("test")
