@@ -759,9 +759,9 @@
 
 
 <span class="k">def</span> <span class="nf">create_pod_group</span><span class="p">(</span>
-    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="n">Role</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Dict[str, Any]&quot;</span><span class="p">:</span>
-    <span class="n">pod_group_name</span> <span class="o">=</span> <span class="n">app_id</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-pg&quot;</span>
+    <span class="n">pod_group_name</span> <span class="o">=</span> <span class="n">app_id</span> <span class="o">+</span> <span class="s2">&quot;-pg&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">)</span>
 
     <span class="n">labels</span> <span class="o">=</span> <span class="n">object_labels</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
     <span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;appwrapper.mcad.ibm.com&quot;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">})</span>
@@ -852,6 +852,35 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0123456789&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">get_unique_truncated_appid</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Some Kubernetes objects need to have names that are</span>
+<span class="sd">    63 characters or less. When creating the unique app_id,</span>
+<span class="sd">    this function calculates the max size to pass to</span>
+<span class="sd">    make_unique. The PodGroup name includes 3 characters plus</span>
+<span class="sd">    the role_id characters. The minimum number of characters</span>
+<span class="sd">    for the unique identifier is 4.  These amounts are taken into account.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">default_size</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">uid_chars</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">pg_chars</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="mi">63</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="n">uid_chars</span> <span class="o">+</span> <span class="n">pg_chars</span><span class="p">)</span>
+
+    <span class="n">unique_id_size</span> <span class="o">=</span> <span class="n">default_size</span> <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">default_size</span> <span class="k">else</span> <span class="n">size</span>
+
+    <span class="k">if</span> <span class="n">unique_id_size</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Name size has too many characters for some Kubernetes objects. Truncating </span><span class="se">\</span>
+<span class="s2">application name.&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="mi">63</span> <span class="o">-</span> <span class="n">uid_chars</span> <span class="o">-</span> <span class="n">pg_chars</span>
+        <span class="n">substring</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">substring</span>
+        <span class="n">unique_id_size</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">unique_app_id</span> <span class="o">=</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">unique_id_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">unique_app_id</span>
+
+
 <div class="viewcode-block" id="get_port_for_service"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.get_port_for_service">[docs]</a><span class="k">def</span> <span class="nf">get_port_for_service</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="c1"># Initialize port to default</span>
     <span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;29500&quot;</span>
@@ -870,6 +899,19 @@
     <span class="k">return</span> <span class="n">port</span></div>
 
 
+<span class="k">def</span> <span class="nf">enable_retry</span><span class="p">(</span>
+    <span class="n">job_spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">appwrapper_retries</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total_pods</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">requeue_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;timeInSeconds&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+        <span class="s2">&quot;maxTimeInSeconds&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;growthType&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;maxNumRequeuings&quot;</span><span class="p">:</span> <span class="n">appwrapper_retries</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">nested_specs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;minAvailable&quot;</span><span class="p">:</span> <span class="n">total_pods</span><span class="p">,</span> <span class="s2">&quot;requeuing&quot;</span><span class="p">:</span> <span class="n">requeue_dict</span><span class="p">}</span>
+    <span class="n">job_spec</span><span class="p">[</span><span class="s2">&quot;schedulingSpec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nested_specs</span>
+
+
 <div class="viewcode-block" id="app_to_resource"><a class="viewcode-back" href="../../../schedulers/kubernetes_mcad.html#torchx.schedulers.kubernetes_mcad_scheduler.app_to_resource">[docs]</a><span class="k">def</span> <span class="nf">app_to_resource</span><span class="p">(</span>
     <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
     <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -885,16 +927,19 @@
 <span class="sd">    the provided AppDef. The resource definition can be used to launch the</span>
 <span class="sd">    app on Kubernetes.</span>
 
+<span class="sd">    MCAD supports retries at the APPLICATION level. In the case of multiple TorchX Roles,</span>
+<span class="sd">    the AppWrapper maximum number of retries</span>
+<span class="sd">    count is set to the minimum of the max_retries of the roles.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">genericitems</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="n">unique_app_id</span> <span class="o">=</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">unique_app_id</span> <span class="o">=</span> <span class="n">get_unique_truncated_appid</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">coscheduler_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">role</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">):</span>
             <span class="n">genericitem_pod_group</span> <span class="o">=</span> <span class="n">create_pod_group</span><span class="p">(</span>
-                <span class="n">app</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">unique_app_id</span>
+                <span class="n">app</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">role_idx</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">unique_app_id</span>
             <span class="p">)</span>
             <span class="n">genericitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genericitem_pod_group</span><span class="p">)</span>
 
@@ -942,15 +987,6 @@
                 <span class="s2">&quot;replicas&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="s2">&quot;generictemplate&quot;</span><span class="p">:</span> <span class="n">pod</span><span class="p">,</span>
             <span class="p">}</span>
-            <span class="c1"># TODO: retry support here. For more information, see MCAD GitHub issue #207</span>
-            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">genericitem</span><span class="p">[</span><span class="s2">&quot;maxRetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">max_retries</span>
-                <span class="n">genericitem</span><span class="p">[</span><span class="s2">&quot;policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RETRY_POLICIES</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">retry_policy</span><span class="p">]</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">MCAD currently does not support retries. Role </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> configured with restarts: </span><span class="si">{</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2">.</span>
-<span class="s2">                &quot;&quot;&quot;</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
             <span class="n">genericitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genericitem</span><span class="p">)</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -980,12 +1016,18 @@
     <span class="k">if</span> <span class="n">priority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">job_spec</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">priority</span>
 
+    <span class="n">appwrapper_retries</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">max_retries</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">appwrapper_retries</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">total_pods</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+        <span class="n">enable_retry</span><span class="p">(</span><span class="n">job_spec</span><span class="p">,</span> <span class="n">appwrapper_retries</span><span class="p">,</span> <span class="n">total_pods</span><span class="p">)</span>
+
     <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;mcad.ibm.com/v1beta1&quot;</span><span class="p">,</span>
         <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;AppWrapper&quot;</span><span class="p">,</span>
         <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">unique_app_id</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="n">namespace</span><span class="p">},</span>
         <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="n">job_spec</span><span class="p">,</span>
     <span class="p">}</span>
+
     <span class="k">return</span> <span class="n">resource</span></div>
 
 
@@ -1617,7 +1659,7 @@
         <span class="n">LABEL_REPLICA_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">replica_id</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">coscheduler_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pod_group</span> <span class="o">=</span> <span class="n">app_id</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">cleanup_str</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-pg&quot;</span>
+        <span class="n">pod_group</span> <span class="o">=</span> <span class="n">app_id</span> <span class="o">+</span> <span class="s2">&quot;-pg&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">role_idx</span><span class="p">)</span>
         <span class="n">pod_labels</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;pod-group.scheduling.sigs.k8s.io&quot;</span><span class="p">:</span> <span class="n">pod_group</span><span class="p">})</span>
 
     <span class="n">labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pod_labels</span><span class="p">)</span>

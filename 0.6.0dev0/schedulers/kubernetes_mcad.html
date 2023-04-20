@@ -658,6 +658,9 @@ implemented by:</p>
 <dd><p>app_to_resource creates a AppWrapper/MCAD Kubernetes resource definition from
 the provided AppDef. The resource definition can be used to launch the
 app on Kubernetes.</p>
+<p>MCAD supports retries at the APPLICATION level. In the case of multiple TorchX Roles,
+the AppWrapper maximum number of retries
+count is set to the minimum of the max_retries of the roles.</p>
 </dd></dl>
 
 <dl class="py function">
