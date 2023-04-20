@@ -20,6 +20,7 @@ from torchx.schedulers.aws_batch_scheduler import (
     AWSBatchOpts,
     AWSBatchScheduler,
     create_scheduler,
+    ENV_TORCHX_ROLE_NAME,
     resource_from_resource_requirements,
     resource_requirements_from_resource,
     to_millis_since_epoch,
@@ -342,40 +343,91 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             ]
         )
 
-        scheduler._client.describe_jobs.return_value = {
-            "jobs": [
-                {
-                    "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
-                    "jobName": "fairseq-train-wzt5p7p5j3tbqd",
-                    "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
-                    "jobQueue": "arn:aws:batch:us-east-1:761163492645:job-queue/torchx-proto-queue",
-                    "status": "RUNNING",
-                    "attempts": [],  # This is empty on running jobs (unlike completed jobs)
-                    "createdAt": 1656651215531,
-                    "retryStrategy": {
-                        "attempts": 1,
-                        "evaluateOnExit": [{"onExitCode": "0", "action": "exit"}],
-                    },
-                    "startedAt": 1656651662589,
-                    "dependsOn": [],
-                    "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
-                    "parameters": {},
-                    "container": {
-                        "logStreamName": "running_log_stream",
-                    },
-                    "nodeProperties": {
-                        "numNodes": 2,
-                        "mainNode": 0,
-                        "nodeRangeProperties": [],
-                    },
-                    "tags": {
-                        "torchx.pytorch.org/version": "0.3.0dev0",
-                        "torchx.pytorch.org/app-name": "fairseq-train",
-                    },
-                    "platformCapabilities": [],
-                }
-            ]
-        }
+        scheduler._client.describe_jobs.side_effect = [
+            {
+                "jobs": [
+                    {
+                        "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb",
+                        "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                        "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                        "jobQueue": "arn:aws:batch:us-east-1:761163492645:job-queue/torchx-proto-queue",
+                        "status": "RUNNING",
+                        "attempts": [],  # This is empty on running jobs (unlike completed jobs)
+                        "createdAt": 1656651215531,
+                        "retryStrategy": {
+                            "attempts": 1,
+                            "evaluateOnExit": [{"onExitCode": "0", "action": "exit"}],
+                        },
+                        "startedAt": 1656651662589,
+                        "dependsOn": [],
+                        "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                        "parameters": {},
+                        "nodeProperties": {
+                            "numNodes": 2,
+                            "mainNode": 0,
+                            "nodeRangeProperties": [
+                                {
+                                    "targetNodes": "0:2",
+                                    "container": {
+                                        "image": "1234567890.dkr.ecr.us-west-2.amazonaws.com/foo/bar",
+                                        "command": [
+                                            "bash",
+                                            "-c",
+                                            "torchrun ...<omitted for test>...",
+                                        ],
+                                        "environment": [
+                                            {
+                                                "name": ENV_TORCHX_ROLE_NAME,
+                                                "value": "echo",
+                                            }
+                                        ],
+                                    },
+                                }
+                            ],
+                        },
+                        "tags": {
+                            "torchx.pytorch.org/version": "0.3.0dev0",
+                            "torchx.pytorch.org/app-name": "fairseq-train",
+                        },
+                        "platformCapabilities": [],
+                    }
+                ]
+            },
+            {
+                "jobs": [
+                    {
+                        "jobArn": "arn:aws:batch:us-east-1:761163492645:job/7b78f42f-fab7-4746-abb8-be761b858ddb#1",
+                        "jobName": "fairseq-train-wzt5p7p5j3tbqd",
+                        "jobId": "7b78f42f-fab7-4746-abb8-be761b858ddb",
+                        "jobQueue": "arn:aws:batch:us-east-1:761163492645:job-queue/torchx-proto-queue",
+                        "status": "RUNNING",
+                        "attempts": [],  # This is empty on running jobs (unlike completed jobs)
+                        "createdAt": 1656651215531,
+                        "retryStrategy": {
+                            "attempts": 1,
+                            "evaluateOnExit": [{"onExitCode": "0", "action": "exit"}],
+                        },
+                        "startedAt": 1656651662589,
+                        "dependsOn": [],
+                        "jobDefinition": "arn:aws:batch:us-east-1:761163492645:job-definition/fairseq-train-foo:1",
+                        "parameters": {},
+                        "container": {
+                            "logStreamName": "running_log_stream",
+                        },
+                        "nodeProperties": {
+                            "numNodes": 2,
+                            "mainNode": 0,
+                            "nodeRangeProperties": [],
+                        },
+                        "tags": {
+                            "torchx.pytorch.org/version": "0.3.0dev0",
+                            "torchx.pytorch.org/app-name": "fairseq-train",
+                        },
+                        "platformCapabilities": [],
+                    }
+                ]
+            },
+        ]
 
         scheduler._log_client.get_log_events.return_value = {
             "nextForwardToken": "some_token",
