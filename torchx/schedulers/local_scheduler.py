@@ -45,15 +45,15 @@ from torchx.specs.api import AppDef, AppState, is_terminal, macros, NONE, Role, 
 from torchx.util.types import none_throws
 from typing_extensions import TypedDict
 
-
 log: logging.Logger = logging.getLogger(__name__)
 
 STDOUT_LOG = "stdout.log"
 STDERR_LOG = "stderr.log"
 COMBINED_LOG = "combined.log"
 
-
 NA: str = "<N/A>"
+
+ENV_CUDA_VISIBLE_DEVICES = "CUDA_VISIBLE_DEVICES"
 
 
 class SignalException(Exception):
@@ -763,7 +763,11 @@ class LocalScheduler(Scheduler[LocalOpts]):
             request, lambda p: pprint.pformat(asdict(p), indent=2, width=80)
         )
 
-    def _get_gpu_device_count(self) -> int:
+    def _device_count(self) -> int:
+        # this method deliberately does not use ``torch.cuda.device_count()``
+        # to avoid taking a dependency on pytorch
+        # this make sit possible to avoid a BUCK dependency (internally at Meta)
+        # on //caffe2:torch which slows down builds of //torchx:* rules
         gpu_cmd = "nvidia-smi -L"
         try:
             log.debug(f"Running {gpu_cmd}")
@@ -777,51 +781,97 @@ class LocalScheduler(Scheduler[LocalOpts]):
             log.exception(f"Got exception while listing GPUs: {e.stderr}")
             return 0
 
-    def _set_cuda_visible_devices_for_role_replica(
-        self,
-        replica: ReplicaParam,
-        replica_id: int,
-        requested_gpus: int,
-        role_gpu_start_idx: int,
-    ) -> None:
-        if requested_gpus <= 0:
-            return
-        start_device = role_gpu_start_idx + requested_gpus * replica_id
-        end_device = role_gpu_start_idx + requested_gpus * (replica_id + 1)
-        devices = list(range(start_device, end_device))
-        visible_devices = ",".join([str(device) for device in devices])
-        replica.env["CUDA_VISIBLE_DEVICES"] = visible_devices
-
-    def _update_env_cuda_visible_devices(
+    def auto_set_CUDA_VISIBLE_DEVICES(
         self,
         role_params: Dict[str, List[ReplicaParam]],
         app: AppDef,
         cfg: LocalOpts,
     ) -> None:
-        autoset = cfg.get("auto_set_cuda_visible_devices")
-        if not autoset:
-            return
+        """
+        If the run option ``auto_set_cuda_visible_devices = True``, then
+        sets the ``CUDA_VISIBLE_DEVICES`` env var to each replica's (node) env var
+        according to the number of gpus specified in each role's resource specifications,
+        overwriting any existing ``CUDA_VISIBLE_DEVICES`` in the role's ``env`` field.
+        To manually set ``CUDA_VISIBLE_DEVICES``, run with ``auto_set_cuda_visible_devices = False``
+        in the scheduler runcfg.
 
-        requested_gpus_total = sum(
-            [role.resource.gpu * role.num_replicas for role in app.roles]
-        )
-        if requested_gpus_total <= 0:
-            return
+        .. note::
+            If the host's device count is less than the total number of requested GPUs,
+            then ``CUDA_VISIBLE_DEVICES`` is NOT set (even if ``auto_set_cuda_visible_devices=True``).
 
-        device_count = self._get_gpu_device_count()
-        if requested_gpus_total > device_count:
-            log.warning(
-                "Cannot set `CUDA_VISIBLE_DEVICES` due to "
-                f"Available GPUs {device_count} less than requested {requested_gpus_total}"
-            )
-        role_gpu_start_idx = 0
+        .. note::
+            This method either sets ``CUDA_VISIBLE_DEVICES`` on all gpu roles or doesn't
+
+
+        Examples (all examples assume running on a host with 8 GPUs):
+
+        #. ``Role(num_replicas=2, resource=Resource(gpus=2))``
+              #. replica_0's ``CUDA_VISIBLE_DEVICES=0,1``
+              #. replica_1's ``CUDA_VISIBLE_DEVICES=2,3``
+
+        #. ``Role(num_replicas=3, resource=Resource(gpus=4))``
+              #. Error - `` 3 * 4 = 12 >= 8``
+
+        #. ``[Role(num_replicas=1, resource=Resource(gpus=2)), Role(num_replicas=3, resource=Resource(gpus=1))]``
+              #. role_0, replica_0's ``CUDA_VISIBLE_DEVICES=0,1``
+              #. role_1, replica_0's ``CUDA_VISIBLE_DEVICES=2``
+              #. role_1, replica_1's ``CUDA_VISIBLE_DEVICES=3``
+              #. role_1, replica_2's ``CUDA_VISIBLE_DEVICES=4``
+
+        """
+
+        total_requested_gpus = 0  # total number of gpus for the app
+
         for role in app.roles:
+            gpus = role.num_replicas * role.resource.gpu
+            total_requested_gpus += gpus
+
+        if not cfg.get("auto_set_cuda_visible_devices") or total_requested_gpus <= 0:
+            if total_requested_gpus > 0:
+                log.warning(
+                    """\n
+======================================================================
+Running multiple role replicas that require GPUs without
+setting `CUDA_VISIBLE_DEVICES` may result in multiple 
+processes using the same GPU device with undesired consequences
+such as CUDA OutOfMemory errors.
+
+To have TorchX set `CUDA_VISIBLE_DEVICES` to divide the
+available GPUs on this host equally among the role replicas
+set the `auto_set_cuda_visible_devices = True` scheduler runopt
+======================================================================
+                            """
+                )
+            return
+
+        device_count = self._device_count()
+        if total_requested_gpus > device_count:
+            log.warning(
+                f"""\n
+======================================================================
+Cannot auto-set `CUDA_VISIBLE_DEVICES`
+Available GPUs: {device_count} is less than the
+number of requested GPUs: {total_requested_gpus}."
+
+Reduce requested GPU resources or use a host with more GPUs
+======================================================================
+                """
+            )
+            return
+
+        start_idx = 0
+        for role in app.roles:
+            # skip roles that have not requested gpus
+            if role.resource.gpu <= 0:
+                continue
+
             role_replicas = role_params[role.name]
             for replica_id, replica in enumerate(role_replicas):
-                self._set_cuda_visible_devices_for_role_replica(
-                    replica, replica_id, role.resource.gpu, role_gpu_start_idx
+                end_idx = start_idx + role.resource.gpu
+                replica.env[ENV_CUDA_VISIBLE_DEVICES] = ",".join(
+                    list(str(idx) for idx in range(start_idx, end_idx))
                 )
-            role_gpu_start_idx += role.resource.gpu * role.num_replicas
+                start_idx = end_idx
 
     def _to_popen_request(
         self,
@@ -897,7 +947,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
                     )
                 )
                 replica_log_dirs.append(replica_log_dir)
-        self._update_env_cuda_visible_devices(role_params, app, cfg)
+        self.auto_set_CUDA_VISIBLE_DEVICES(role_params, app, cfg)
         return PopenRequest(app_id, app_log_dir, role_params, role_log_dirs)
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:

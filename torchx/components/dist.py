@@ -283,7 +283,7 @@ def ddp(
                 args=["-c", _args_join(cmd)],
                 env=env,
                 port_map={
-                    "c10d": 29500,
+                    "c10d": rdzv_port,
                 },
                 max_retries=max_retries,
                 mounts=specs.parse_mounts(mounts) if mounts else [],
