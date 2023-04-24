@@ -49,7 +49,7 @@ from torchx.util.types import none_throws
 from .test_util import write_shell_script
 
 LOCAL_SCHED_DEVICE_COUNT = (
-    "torchx.schedulers.local_scheduler.LocalScheduler._device_count"
+    "torchx.schedulers.local_scheduler.LocalScheduler._cuda_device_count"
 )
 
 LOCAL_DIR_IMAGE_PROVIDER_FETCH = (
@@ -923,7 +923,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         stdout = nvidia_smi_out
         result = ProcResult(stdout)
         with patch("subprocess.run", return_value=result):
-            gpu_count = self.scheduler._device_count()
+            gpu_count = self.scheduler._cuda_device_count()
             self.assertEqual(4, gpu_count)
 
     def test_get_gpu_device_count_error(self) -> None:
@@ -934,7 +934,7 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             stderr="",
         )
         with patch("subprocess.run", side_effect=error):
-            gpu_count = self.scheduler._device_count()
+            gpu_count = self.scheduler._cuda_device_count()
             self.assertEqual(0, gpu_count)
 
     def role(self, name: str, replicas: int, gpu: int = 0) -> Role:
@@ -1052,61 +1052,61 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             },
         )
 
-    def test_get_cuda_devices_is_set(self) -> None:
-        with patch.object(self.scheduler, "_device_count", return_value=16):
-            appdef = AppDef(
-                name="role1",
-                roles=[
-                    Role(
-                        name="role1",
-                        image=self.test_dir,
-                        entrypoint="train",
-                        resource=Resource(gpu=2, cpu=0, memMB=0),
-                        num_replicas=2,
-                    ),
-                    Role(
-                        name="role2",
-                        image=self.test_dir,
-                        entrypoint="train",
-                        resource=Resource(gpu=3, cpu=0, memMB=0),
-                        num_replicas=2,
-                    ),
-                ],
-            )
-            popen_req = self.scheduler._to_popen_request(
-                appdef, {"auto_set_cuda_visible_devices": True}
-            )
-            role1_params = popen_req.role_params["role1"]
-            self.assertEqual(2, len(role1_params))
-            self.assertEqual("0,1", role1_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
-            self.assertEqual("2,3", role1_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
-            role2_params = popen_req.role_params["role2"]
-            self.assertEqual(2, len(role2_params))
-            self.assertEqual("4,5,6", role2_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
-            self.assertEqual("7,8,9", role2_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=16)
+    def test_get_cuda_devices_is_set(self, _: MagicMock) -> None:
+        appdef = AppDef(
+            name="role1",
+            roles=[
+                Role(
+                    name="role1",
+                    image=self.test_dir,
+                    entrypoint="train",
+                    resource=Resource(gpu=2, cpu=0, memMB=0),
+                    num_replicas=2,
+                ),
+                Role(
+                    name="role2",
+                    image=self.test_dir,
+                    entrypoint="train",
+                    resource=Resource(gpu=3, cpu=0, memMB=0),
+                    num_replicas=2,
+                ),
+            ],
+        )
+        popen_req = self.scheduler._to_popen_request(
+            appdef, {"auto_set_cuda_visible_devices": True}
+        )
+        role1_params = popen_req.role_params["role1"]
+        self.assertEqual(2, len(role1_params))
+        self.assertEqual("0,1", role1_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
+        self.assertEqual("2,3", role1_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
+        role2_params = popen_req.role_params["role2"]
+        self.assertEqual(2, len(role2_params))
+        self.assertEqual("4,5,6", role2_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
+        self.assertEqual("7,8,9", role2_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
 
-    def test_get_cuda_devices_not_set(self) -> None:
-        with patch.object(self.scheduler, "_device_count", return_value=8):
-            trainer1 = AppDef(
-                name="trainer1",
-                roles=[
-                    Role(
-                        name="trainer1",
-                        image=self.test_dir,
-                        entrypoint="trainer1.sh",
-                        resource=Resource(gpu=4, cpu=0, memMB=0),
-                        num_replicas=4,
-                    )
-                ],
-            )
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=8)
+    def test_get_cuda_devices_not_set(self, _: MagicMock) -> None:
+        trainer1 = AppDef(
+            name="trainer1",
+            roles=[
+                Role(
+                    name="trainer1",
+                    image=self.test_dir,
+                    entrypoint="trainer1.sh",
+                    resource=Resource(gpu=4, cpu=0, memMB=0),
+                    num_replicas=4,
+                )
+            ],
+        )
 
-            popen_req = self.scheduler._to_popen_request(trainer1, {})
-            role_params = popen_req.role_params["trainer1"]
-            self.assertEqual(4, len(role_params))
-            self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[0].env)
-            self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[1].env)
-            self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[2].env)
-            self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[3].env)
+        popen_req = self.scheduler._to_popen_request(trainer1, {})
+        role_params = popen_req.role_params["trainer1"]
+        self.assertEqual(4, len(role_params))
+        self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[0].env)
+        self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[1].env)
+        self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[2].env)
+        self.assertFalse(ENV_CUDA_VISIBLE_DEVICES in role_params[3].env)
 
     def test_no_orphan_process_function(self) -> None:
         self._test_orphan_workflow()

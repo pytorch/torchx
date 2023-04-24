@@ -763,7 +763,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
             request, lambda p: pprint.pformat(asdict(p), indent=2, width=80)
         )
 
-    def _device_count(self) -> int:
+    def _cuda_device_count(self) -> int:
         # this method deliberately does not use ``torch.cuda.device_count()``
         # to avoid taking a dependency on pytorch
         # this make sit possible to avoid a BUCK dependency (internally at Meta)
@@ -844,7 +844,7 @@ set the `auto_set_cuda_visible_devices = True` scheduler runopt
                 )
             return
 
-        device_count = self._device_count()
+        device_count = self._cuda_device_count()
         if total_requested_gpus > device_count:
             log.warning(
                 f"""\n
