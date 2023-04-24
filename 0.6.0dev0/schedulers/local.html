@@ -480,6 +480,54 @@ directory but does not support programmatic workspaces.
 </tbody>
 </table>
 <dl class="py method">
+<dt class="sig sig-object py" id="torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES">
+<span class="sig-name descname"><span class="pre">auto_set_CUDA_VISIBLE_DEVICES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.local_scheduler.ReplicaParam" title="torchx.schedulers.local_scheduler.ReplicaParam"><span class="pre">ReplicaParam</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LocalOpts</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/local_scheduler.html#LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the run option <code class="docutils literal notranslate"><span class="pre">auto_set_cuda_visible_devices</span> <span class="pre">=</span> <span class="pre">True</span></code>, then
+sets the <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> env var to each replica’s (node) env var
+according to the number of gpus specified in each role’s resource specifications,
+overwriting any existing <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> in the role’s <code class="docutils literal notranslate"><span class="pre">env</span></code> field.
+To manually set <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code>, run with <code class="docutils literal notranslate"><span class="pre">auto_set_cuda_visible_devices</span> <span class="pre">=</span> <span class="pre">False</span></code>
+in the scheduler runcfg.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the host’s device count is less than the total number of requested GPUs,
+then <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> is NOT set (even if <code class="docutils literal notranslate"><span class="pre">auto_set_cuda_visible_devices=True</span></code>).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method either sets <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> on all gpu roles or doesn’t</p>
+</div>
+<p>Examples (all examples assume running on a host with 8 GPUs):</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Role(num_replicas=2,</span> <span class="pre">resource=Resource(gpus=2))</span></code></dt><dd><ol class="arabic simple">
+<li><p>replica_0’s <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=0,1</span></code></p></li>
+<li><p>replica_1’s <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,3</span></code></p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Role(num_replicas=3,</span> <span class="pre">resource=Resource(gpus=4))</span></code></dt><dd><ol class="arabic simple">
+<li><p>Error - `` 3 * 4 = 12 &gt;= 8``</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">[Role(num_replicas=1,</span> <span class="pre">resource=Resource(gpus=2)),</span> <span class="pre">Role(num_replicas=3,</span> <span class="pre">resource=Resource(gpus=1))]</span></code></dt><dd><ol class="arabic simple">
+<li><p>role_0, replica_0’s <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=0,1</span></code></p></li>
+<li><p>role_1, replica_0’s <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2</span></code></p></li>
+<li><p>role_1, replica_1’s <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=3</span></code></p></li>
+<li><p>role_1, replica_2’s <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=4</span></code></p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="torchx.schedulers.local_scheduler.LocalScheduler.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/local_scheduler.html#LocalScheduler.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.local_scheduler.LocalScheduler.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only for schedulers that have local state! Closes the scheduler

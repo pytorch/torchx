@@ -440,15 +440,15 @@
 <span class="kn">from</span> <span class="nn">torchx.util.types</span> <span class="kn">import</span> <span class="n">none_throws</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
 
-
 <span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">STDOUT_LOG</span> <span class="o">=</span> <span class="s2">&quot;stdout.log&quot;</span>
 <span class="n">STDERR_LOG</span> <span class="o">=</span> <span class="s2">&quot;stderr.log&quot;</span>
 <span class="n">COMBINED_LOG</span> <span class="o">=</span> <span class="s2">&quot;combined.log&quot;</span>
 
-
 <span class="n">NA</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span>
+
+<span class="n">ENV_CUDA_VISIBLE_DEVICES</span> <span class="o">=</span> <span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span>
 
 
 <div class="viewcode-block" id="SignalException"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.SignalException">[docs]</a><span class="k">class</span> <span class="nc">SignalException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1158,7 +1158,11 @@
             <span class="n">request</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_gpu_device_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_cuda_device_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># this method deliberately does not use ``torch.cuda.device_count()``</span>
+        <span class="c1"># to avoid taking a dependency on pytorch</span>
+        <span class="c1"># this make sit possible to avoid a BUCK dependency (internally at Meta)</span>
+        <span class="c1"># on //caffe2:torch which slows down builds of //torchx:* rules</span>
         <span class="n">gpu_cmd</span> <span class="o">=</span> <span class="s2">&quot;nvidia-smi -L&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">gpu_cmd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1172,51 +1176,97 @@
             <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got exception while listing GPUs: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">_set_cuda_visible_devices_for_role_replica</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">replica</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
-        <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">requested_gpus</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">role_gpu_start_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">requested_gpus</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">start_device</span> <span class="o">=</span> <span class="n">role_gpu_start_idx</span> <span class="o">+</span> <span class="n">requested_gpus</span> <span class="o">*</span> <span class="n">replica_id</span>
-        <span class="n">end_device</span> <span class="o">=</span> <span class="n">role_gpu_start_idx</span> <span class="o">+</span> <span class="n">requested_gpus</span> <span class="o">*</span> <span class="p">(</span><span class="n">replica_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">devices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_device</span><span class="p">,</span> <span class="n">end_device</span><span class="p">))</span>
-        <span class="n">visible_devices</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">])</span>
-        <span class="n">replica</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">visible_devices</span>
-
-    <span class="k">def</span> <span class="nf">_update_env_cuda_visible_devices</span><span class="p">(</span>
+<div class="viewcode-block" id="LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES">[docs]</a>    <span class="k">def</span> <span class="nf">auto_set_CUDA_VISIBLE_DEVICES</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">role_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ReplicaParam</span><span class="p">]],</span>
         <span class="n">app</span><span class="p">:</span> <span class="n">AppDef</span><span class="p">,</span>
         <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">autoset</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;auto_set_cuda_visible_devices&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">autoset</span><span class="p">:</span>
-            <span class="k">return</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the run option ``auto_set_cuda_visible_devices = True``, then</span>
+<span class="sd">        sets the ``CUDA_VISIBLE_DEVICES`` env var to each replica&#39;s (node) env var</span>
+<span class="sd">        according to the number of gpus specified in each role&#39;s resource specifications,</span>
+<span class="sd">        overwriting any existing ``CUDA_VISIBLE_DEVICES`` in the role&#39;s ``env`` field.</span>
+<span class="sd">        To manually set ``CUDA_VISIBLE_DEVICES``, run with ``auto_set_cuda_visible_devices = False``</span>
+<span class="sd">        in the scheduler runcfg.</span>
 
-        <span class="n">requested_gpus_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">*</span> <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">requested_gpus_total</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            If the host&#39;s device count is less than the total number of requested GPUs,</span>
+<span class="sd">            then ``CUDA_VISIBLE_DEVICES`` is NOT set (even if ``auto_set_cuda_visible_devices=True``).</span>
 
-        <span class="n">device_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_gpu_device_count</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">requested_gpus_total</span> <span class="o">&gt;</span> <span class="n">device_count</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot set `CUDA_VISIBLE_DEVICES` due to &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Available GPUs </span><span class="si">{</span><span class="n">device_count</span><span class="si">}</span><span class="s2"> less than requested </span><span class="si">{</span><span class="n">requested_gpus_total</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-        <span class="n">role_gpu_start_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This method either sets ``CUDA_VISIBLE_DEVICES`` on all gpu roles or doesn&#39;t</span>
+
+
+<span class="sd">        Examples (all examples assume running on a host with 8 GPUs):</span>
+
+<span class="sd">        #. ``Role(num_replicas=2, resource=Resource(gpus=2))``</span>
+<span class="sd">              #. replica_0&#39;s ``CUDA_VISIBLE_DEVICES=0,1``</span>
+<span class="sd">              #. replica_1&#39;s ``CUDA_VISIBLE_DEVICES=2,3``</span>
+
+<span class="sd">        #. ``Role(num_replicas=3, resource=Resource(gpus=4))``</span>
+<span class="sd">              #. Error - `` 3 * 4 = 12 &gt;= 8``</span>
+
+<span class="sd">        #. ``[Role(num_replicas=1, resource=Resource(gpus=2)), Role(num_replicas=3, resource=Resource(gpus=1))]``</span>
+<span class="sd">              #. role_0, replica_0&#39;s ``CUDA_VISIBLE_DEVICES=0,1``</span>
+<span class="sd">              #. role_1, replica_0&#39;s ``CUDA_VISIBLE_DEVICES=2``</span>
+<span class="sd">              #. role_1, replica_1&#39;s ``CUDA_VISIBLE_DEVICES=3``</span>
+<span class="sd">              #. role_1, replica_2&#39;s ``CUDA_VISIBLE_DEVICES=4``</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_requested_gpus</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># total number of gpus for the app</span>
+
         <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+            <span class="n">gpus</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span> <span class="o">*</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span>
+            <span class="n">total_requested_gpus</span> <span class="o">+=</span> <span class="n">gpus</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;auto_set_cuda_visible_devices&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">total_requested_gpus</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">total_requested_gpus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;\n</span>
+<span class="sd">======================================================================</span>
+<span class="sd">Running multiple role replicas that require GPUs without</span>
+<span class="sd">setting `CUDA_VISIBLE_DEVICES` may result in multiple </span>
+<span class="sd">processes using the same GPU device with undesired consequences</span>
+<span class="sd">such as CUDA OutOfMemory errors.</span>
+
+<span class="sd">To have TorchX set `CUDA_VISIBLE_DEVICES` to divide the</span>
+<span class="sd">available GPUs on this host equally among the role replicas</span>
+<span class="sd">set the `auto_set_cuda_visible_devices = True` scheduler runopt</span>
+<span class="sd">======================================================================</span>
+<span class="sd">                            &quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">device_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cuda_device_count</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">total_requested_gpus</span> <span class="o">&gt;</span> <span class="n">device_count</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\n</span>
+<span class="s2">======================================================================</span>
+<span class="s2">Cannot auto-set `CUDA_VISIBLE_DEVICES`</span>
+<span class="s2">Available GPUs: </span><span class="si">{</span><span class="n">device_count</span><span class="si">}</span><span class="s2"> is less than the</span>
+<span class="s2">number of requested GPUs: </span><span class="si">{</span><span class="n">total_requested_gpus</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+<span class="s2">Reduce requested GPU resources or use a host with more GPUs</span>
+<span class="s2">======================================================================</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+            <span class="c1"># skip roles that have not requested gpus</span>
+            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+
             <span class="n">role_replicas</span> <span class="o">=</span> <span class="n">role_params</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">replica_id</span><span class="p">,</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">role_replicas</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_set_cuda_visible_devices_for_role_replica</span><span class="p">(</span>
-                    <span class="n">replica</span><span class="p">,</span> <span class="n">replica_id</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span><span class="p">,</span> <span class="n">role_gpu_start_idx</span>
+                <span class="n">end_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span>
+                <span class="n">replica</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">ENV_CUDA_VISIBLE_DEVICES</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">))</span>
                 <span class="p">)</span>
-            <span class="n">role_gpu_start_idx</span> <span class="o">+=</span> <span class="n">role</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">*</span> <span class="n">role</span><span class="o">.</span><span class="n">num_replicas</span>
+                <span class="n">start_idx</span> <span class="o">=</span> <span class="n">end_idx</span></div>
 
     <span class="k">def</span> <span class="nf">_to_popen_request</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1292,7 +1342,7 @@
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">replica_log_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replica_log_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_env_cuda_visible_devices</span><span class="p">(</span><span class="n">role_params</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_set_CUDA_VISIBLE_DEVICES</span><span class="p">(</span><span class="n">role_params</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">PopenRequest</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_log_dir</span><span class="p">,</span> <span class="n">role_params</span><span class="p">,</span> <span class="n">role_log_dirs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LocalScheduler.describe"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DescribeAppResponse</span><span class="p">]:</span>
