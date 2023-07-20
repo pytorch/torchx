@@ -171,6 +171,7 @@ def ddp(
     env: Optional[Dict[str, str]] = None,
     max_retries: int = 0,
     rdzv_port: int = 29500,
+    rdzv_backend: str = "c10d",
     mounts: Optional[List[str]] = None,
     debug: bool = False,
 ) -> specs.AppDef:
@@ -203,6 +204,7 @@ def ddp(
         rdzv_port: the port on rank0's host to use for hosting the c10d store used for rendezvous.
                    Only takes effect when running multi-node. When running single node, this parameter
                    is ignored and a random free port is chosen.
+        rdzv_backend: the rendezvous backend to use. Only takes effect when running multi-node.
         mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
                 See scheduler documentation for more info.
         debug: whether to run with preset debug flags enabled
@@ -216,7 +218,6 @@ def ddp(
     # nproc_per_node: number of processes on each node
     min_nnodes, max_nnodes, nproc_per_node, nnodes_rep = parse_nnodes(j)
 
-    rdzv_backend = "c10d"
     if max_nnodes == 1:
         # using port 0 makes elastic chose a free random port which is ok
         # for single-node jobs since all workers run under a single agent
