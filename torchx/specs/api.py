@@ -366,7 +366,7 @@ class AppDef:
     Args:
         name: Name of application
         roles: List of roles
-        metadata: metadata to the app (treament of metadata is scheduler dependent)
+        metadata: metadata to the app (treatment of metadata is scheduler dependent)
     """
 
     name: str

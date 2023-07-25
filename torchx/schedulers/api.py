@@ -97,7 +97,7 @@ T = TypeVar("T")
 class Scheduler(abc.ABC, Generic[T]):
     """
     An interface abstracting functionalities of a scheduler.
-    Implementors need only implement those methods annotated with
+    Implementers need only implement those methods annotated with
     ``@abc.abstractmethod``.
     """
 
@@ -148,7 +148,7 @@ class Scheduler(abc.ABC, Generic[T]):
     def schedule(self, dryrun_info: AppDryRunInfo) -> str:
         """
         Same as ``submit`` except that it takes an ``AppDryRunInfo``.
-        Implementors are encouraged to implement this method rather than
+        Implementers are encouraged to implement this method rather than
         directly implementing ``submit`` since ``submit`` can be trivially
         implemented by:
 
