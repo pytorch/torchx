@@ -12,18 +12,18 @@ jobs:
       matrix:
         include:
           - scheduler: "aws_batch"
-            platform: ubuntu-20.04
+            platform: "linux.20_04.4x"
           - scheduler: "aws_batch"
             container_repo: localhost
             extra_args: "--mock"
-            platform: ubuntu-20.04
+            platform: "linux.20_04.4x"
           - scheduler: "kubernetes"
             container_repo: localhost:5000/torchx
             platform: "linux.20_04.16x"
           - scheduler: "local_cwd"
             platform: ubuntu-20.04
           - scheduler: "local_docker"
-            platform: ubuntu-20.04
+            platform: "linux.20_04.4x"
           - scheduler: "ray"
             platform: ubuntu-20.04
       fail-fast: false

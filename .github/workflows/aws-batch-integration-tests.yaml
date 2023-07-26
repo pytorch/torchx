@@ -8,7 +8,7 @@ on:
 
 jobs:
   awsbatch:
-    runs-on: ubuntu-20.04
+    runs-on: "linux.20_04.4x"
     permissions:
       id-token: write
       contents: read
