@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -43,18 +43,13 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Airflow" href="airflow.html" />
     <link rel="prev" title="GCP Batch" href="../schedulers/gcp_batch.html" />
-  <!-- Google Analytics -->
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-117752657-2');
-    </script>
-  
-  <!-- End Google Analytics -->
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -471,7 +466,7 @@ the Volcano job scheduler on Kubernetes to run distributed apps. See
 <span class="sig-prename descclassname"><span class="pre">torchx.pipelines.kfp.adapter.</span></span><span class="sig-name descname"><span class="pre">component_from_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">AppDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ui_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.11)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#torchx.pipelines.kfp.adapter.ContainerFactory" title="torchx.pipelines.kfp.adapter.ContainerFactory"><span class="pre">ContainerFactory</span></a></span></span><a class="reference internal" href="../_modules/torchx/pipelines/kfp/adapter.html#component_from_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.pipelines.kfp.adapter.component_from_app" title="Permalink to this definition">¶</a></dt>
 <dd><p>component_from_app takes in a TorchX component/AppDef and returns a KFP
 ContainerOp factory. This is equivalent to the
-<a class="reference external" href="https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.load_component_from_text">kfp.components.load_component_from_*</a>
+<a class="reference external" href="https://kubeflow-pipelines.readthedocs.io/en/1.8.22/source/kfp.components.html#kfp.components.load_component_from_text">kfp.components.load_component_from_*</a>
 methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

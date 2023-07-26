@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -40,18 +40,13 @@
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-  <!-- Google Analytics -->
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-117752657-2');
-    </script>
-  
-  <!-- End Google Analytics -->
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -492,7 +487,7 @@
 <div class="viewcode-block" id="Scheduler"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler">[docs]</a><span class="k">class</span> <span class="nc">Scheduler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An interface abstracting functionalities of a scheduler.</span>
-<span class="sd">    Implementors need only implement those methods annotated with</span>
+<span class="sd">    Implementers need only implement those methods annotated with</span>
 <span class="sd">    ``@abc.abstractmethod``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -543,7 +538,7 @@
     <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as ``submit`` except that it takes an ``AppDryRunInfo``.</span>
-<span class="sd">        Implementors are encouraged to implement this method rather than</span>
+<span class="sd">        Implementers are encouraged to implement this method rather than</span>
 <span class="sd">        directly implementing ``submit`` since ``submit`` can be trivially</span>
 <span class="sd">        implemented by:</span>
 

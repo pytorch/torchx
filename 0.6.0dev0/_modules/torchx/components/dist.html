@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -40,18 +40,13 @@
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-  <!-- Google Analytics -->
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-117752657-2');
-    </script>
-  
-  <!-- End Google Analytics -->
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -564,6 +559,7 @@
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">rdzv_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">29500</span><span class="p">,</span>
+    <span class="n">rdzv_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span><span class="p">,</span>
     <span class="n">mounts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">specs</span><span class="o">.</span><span class="n">AppDef</span><span class="p">:</span>
@@ -596,6 +592,7 @@
 <span class="sd">        rdzv_port: the port on rank0&#39;s host to use for hosting the c10d store used for rendezvous.</span>
 <span class="sd">                   Only takes effect when running multi-node. When running single node, this parameter</span>
 <span class="sd">                   is ignored and a random free port is chosen.</span>
+<span class="sd">        rdzv_backend: the rendezvous backend to use. Only takes effect when running multi-node.</span>
 <span class="sd">        mounts: mounts to mount into the worker environment/container (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).</span>
 <span class="sd">                See scheduler documentation for more info.</span>
 <span class="sd">        debug: whether to run with preset debug flags enabled</span>
@@ -609,7 +606,6 @@
     <span class="c1"># nproc_per_node: number of processes on each node</span>
     <span class="n">min_nnodes</span><span class="p">,</span> <span class="n">max_nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span> <span class="n">nnodes_rep</span> <span class="o">=</span> <span class="n">parse_nnodes</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
 
-    <span class="n">rdzv_backend</span> <span class="o">=</span> <span class="s2">&quot;c10d&quot;</span>
     <span class="k">if</span> <span class="n">max_nnodes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># using port 0 makes elastic chose a free random port which is ok</span>
         <span class="c1"># for single-node jobs since all workers run under a single agent</span>

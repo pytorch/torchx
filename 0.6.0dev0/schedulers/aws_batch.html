@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -43,18 +43,13 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="IBM Spectrum LSF" href="lsf.html" />
     <link rel="prev" title="Ray" href="ray.html" />
-  <!-- Google Analytics -->
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-117752657-2');
-    </script>
-  
-  <!-- End Google Analytics -->
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -462,7 +457,7 @@ devices.</p>
 </ul>
 <p>See <a class="reference internal" href="../specs.html#torchx.specs.parse_mounts" title="torchx.specs.parse_mounts"><code class="xref py py-func docutils literal notranslate"><span class="pre">torchx.specs.parse_mounts()</span></code></a> for more info.</p>
 <p>For other filesystems such as FSx you can mount them onto the host and bind
-mount them into your job: <a class="reference external" href="https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/">https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/</a></p>
+mount them into your job: <a class="reference external" href="https://repost.aws/knowledge-center/batch-fsx-lustre-file-system-mount">https://repost.aws/knowledge-center/batch-fsx-lustre-file-system-mount</a></p>
 <p>For Elastic Fabric Adapter (EFA) you’ll need to use a device mount to mount
 them into the container: <a class="reference external" href="https://docs.aws.amazon.com/batch/latest/userguide/efa.html">https://docs.aws.amazon.com/batch/latest/userguide/efa.html</a></p>
 <p><strong>Compatibility</strong></p>
@@ -590,7 +585,7 @@ throw an ValueError.</p>
 <dt class="sig sig-object py" id="torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">
 <span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dryrun_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AppDryRunInfo</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#torchx.schedulers.aws_batch_scheduler.BatchJob" title="torchx.schedulers.aws_batch_scheduler.BatchJob"><span class="pre">BatchJob</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/torchx/schedulers/aws_batch_scheduler.html#AWSBatchScheduler.schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">submit</span></code> except that it takes an <code class="docutils literal notranslate"><span class="pre">AppDryRunInfo</span></code>.
-Implementors are encouraged to implement this method rather than
+Implementers are encouraged to implement this method rather than
 directly implementing <code class="docutils literal notranslate"><span class="pre">submit</span></code> since <code class="docutils literal notranslate"><span class="pre">submit</span></code> can be trivially
 implemented by:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>

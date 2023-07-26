@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
@@ -44,18 +44,13 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Application Examples" href="../examples_apps/index.html" />
     <link rel="prev" title="Kubeflow Pipelines" href="kfp.html" />
-  <!-- Google Analytics -->
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-117752657-2');
-    </script>
-  
-  <!-- End Google Analytics -->
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -400,7 +395,7 @@
 <h1>Airflow<a class="headerlink" href="#Airflow" title="Permalink to this heading">¶</a></h1>
 <p>For pipelines that support Python based execution you can directly use the TorchX API. TorchX is designed to be easily integrated in to other applications via the programmatic API. No special Airflow integrations are needed.</p>
 <p>With TorchX, you can use Airflow for the pipeline orchestration and run your PyTorch application (i.e. distributed training) on a remote GPU cluster.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -417,13 +412,6 @@
 <span class="n">DATA_INTERVAL_END</span> <span class="o">=</span> <span class="n">DATA_INTERVAL_START</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/airflow/models/base.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">49</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> MovedIn20Warning</span><span style="color: #808000; text-decoration-color: #808000">: Deprecated API features detected! These </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">feature(</span><span style="color: #808000; text-decoration-color: #808000">s</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">)</span><span style="color: #808000; text-decoration-color: #808000"> are not compatible with SQLAlchemy </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">2.0</span><span style="color: #808000; text-decoration-color: #808000">. To prevent incompatible upgrades prior to updating applications, ensure requirements files are pinned to </span><span style="color: #808000; text-decoration-color: #808000">"sqlalchemy&lt;2.0"</span><span style="color: #808000; text-decoration-color: #808000">. Set environment variable </span><span style="color: #808000; text-decoration-color: #808000">SQLALCHEMY_WARN_20</span><span style="color: #808000; text-decoration-color: #808000">=</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">1</span><span style="color: #808000; text-decoration-color: #808000"> to show all deprecation warnings.  Set environment variable </span><span style="color: #808000; text-decoration-color: #808000">SQLALCHEMY_SILENCE_UBER_WARNING</span><span style="color: #808000; text-decoration-color: #808000">=</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">1</span><span style="color: #808000; text-decoration-color: #808000"> to silence this message. </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">(</span><span style="color: #808000; text-decoration-color: #808000">Background on SQLAlchemy </span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">2.0</span><span style="color: #808000; text-decoration-color: #808000"> at: </span><span style="color: #808000; text-decoration-color: #808000; text-decoration: underline">https://sqlalche.me/e/b8d9)</span>
-</pre></div>
 </div>
 <p>To launch a TorchX job from Airflow you can create a Airflow Python task to import the runner, launch the job and wait for it to complete. If you’re running on a remote cluster you may need to use the virtualenv task to install the <code class="docutils literal notranslate"><span class="pre">torchx</span></code> package.</p>
 <div class="nbinput nblast docutils container">
@@ -490,7 +478,7 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_4231/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_4748/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
 </pre></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -498,27 +486,17 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,397</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1090} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-j9t3606hf3wbcd.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,404</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1090} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-j9t3606hf3wbcd.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,405</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1288} INFO -
---------------------------------------------------------------------------------
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,406</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1289} INFO - Starting attempt 1 of 1
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,407</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1290} INFO -
---------------------------------------------------------------------------------
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,419</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1309} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
-[<span class="ansi-blue-fg">2023-04-24 19:46:46,806</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1516} INFO - Exporting the following env vars:
-AIRFLOW_CTX_DAG_OWNER=airflow
-AIRFLOW_CTX_DAG_ID=example_python_operator-j9t3606hf3wbcd
-AIRFLOW_CTX_TASK_ID=hello_torchx
-AIRFLOW_CTX_EXECUTION_DATE=2021-09-13T00:00:00+00:00
-AIRFLOW_CTX_TRY_NUMBER=1
-AIRFLOW_CTX_DAG_RUN_ID=manual__2021-09-13T00:00:00+00:00
-[<span class="ansi-blue-fg">2023-04-24 19:46:47,299</span>] {<span class="ansi-blue-fg">api.py:</span>70} INFO - Tracker configurations: {}
-[<span class="ansi-blue-fg">2023-04-24 19:46:47,304</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>715} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-[<span class="ansi-blue-fg">2023-04-24 19:46:47,304</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>721} INFO - Log directory is: /tmp/torchx_qq8_oe4_
+[<span class="ansi-blue-fg">2023-07-26T07:29:32.762+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1103} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-cphnspmjnsp99c.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2023-07-26T07:29:32.768+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1103} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-cphnspmjnsp99c.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2023-07-26T07:29:32.769+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1308} INFO - Starting attempt 1 of 1
+[<span class="ansi-blue-fg">2023-07-26T07:29:32.779+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1327} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
+[<span class="ansi-blue-fg">2023-07-26T07:29:33.034+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1545} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER=&#39;airflow&#39; AIRFLOW_CTX_DAG_ID=&#39;example_python_operator-cphnspmjnsp99c&#39; AIRFLOW_CTX_TASK_ID=&#39;hello_torchx&#39; AIRFLOW_CTX_EXECUTION_DATE=&#39;2021-09-13T00:00:00+00:00&#39; AIRFLOW_CTX_TRY_NUMBER=&#39;1&#39; AIRFLOW_CTX_DAG_RUN_ID=&#39;manual__2021-09-13T00:00:00+00:00&#39;
+[<span class="ansi-blue-fg">2023-07-26T07:29:33.521+0000</span>] {<span class="ansi-blue-fg">api.py:</span>70} INFO - Tracker configurations: {}
+[<span class="ansi-blue-fg">2023-07-26T07:29:33.541+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>715} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+[<span class="ansi-blue-fg">2023-07-26T07:29:33.541+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>721} INFO - Log directory is: /tmp/torchx_do10r9d0
 Hello, TorchX!
-[<span class="ansi-blue-fg">2023-04-24 19:46:47,417</span>] {<span class="ansi-blue-fg">python.py:</span>177} INFO - Done. Returned value was: None
-[<span class="ansi-blue-fg">2023-04-24 19:46:47,425</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1327} INFO - Marking task as SUCCESS. dag_id=example_python_operator-j9t3606hf3wbcd, task_id=hello_torchx, execution_date=20210913T000000, start_date=20230424T194646, end_date=20230424T194647
+[<span class="ansi-blue-fg">2023-07-26T07:29:33.646+0000</span>] {<span class="ansi-blue-fg">python.py:</span>183} INFO - Done. Returned value was: None
+[<span class="ansi-blue-fg">2023-07-26T07:29:33.651+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1345} INFO - Marking task as SUCCESS. dag_id=example_python_operator-cphnspmjnsp99c, task_id=hello_torchx, execution_date=20210913T000000, start_date=20230726T072932, end_date=20230726T072933
 </pre></div></div>
 </div>
 <p>If all goes well you should see <code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">TorchX!</span></code> printed above.</p>

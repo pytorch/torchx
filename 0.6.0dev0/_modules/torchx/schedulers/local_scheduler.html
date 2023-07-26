@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
@@ -40,18 +40,13 @@
   <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-  <!-- Google Analytics -->
-  
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117752657-2"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-117752657-2');
-    </script>
-  
-  <!-- End Google Analytics -->
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -494,7 +489,7 @@
 
 <div class="viewcode-block" id="ImageProvider"><a class="viewcode-back" href="../../../schedulers/local.html#torchx.schedulers.local_scheduler.ImageProvider">[docs]</a><span class="k">class</span> <span class="nc">ImageProvider</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Manages downloading and setting up an on localhost. This is only needed for</span>
+<span class="sd">    Manages downloading and setting up an image on localhost. This is only needed for</span>
 <span class="sd">    ``LocalhostScheduler`` since typically real schedulers will do this</span>
 <span class="sd">    on-behalf of the user.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1161,7 +1156,7 @@
     <span class="k">def</span> <span class="nf">_cuda_device_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="c1"># this method deliberately does not use ``torch.cuda.device_count()``</span>
         <span class="c1"># to avoid taking a dependency on pytorch</span>
-        <span class="c1"># this make sit possible to avoid a BUCK dependency (internally at Meta)</span>
+        <span class="c1"># this makes it possible to avoid a BUCK dependency (internally at Meta)</span>
         <span class="c1"># on //caffe2:torch which slows down builds of //torchx:* rules</span>
         <span class="n">gpu_cmd</span> <span class="o">=</span> <span class="s2">&quot;nvidia-smi -L&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1227,7 +1222,7 @@
 <span class="w">                    </span><span class="sd">&quot;&quot;&quot;\n</span>
 <span class="sd">======================================================================</span>
 <span class="sd">Running multiple role replicas that require GPUs without</span>
-<span class="sd">setting `CUDA_VISIBLE_DEVICES` may result in multiple </span>
+<span class="sd">setting `CUDA_VISIBLE_DEVICES` may result in multiple</span>
 <span class="sd">processes using the same GPU device with undesired consequences</span>
 <span class="sd">such as CUDA OutOfMemory errors.</span>
 
