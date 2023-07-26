@@ -378,7 +378,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
     See :py:func:`torchx.specs.parse_mounts` for more info.
 
     For other filesystems such as FSx you can mount them onto the host and bind
-    mount them into your job: https://aws.amazon.com/premiumsupport/knowledge-center/batch-fsx-lustre-file-system-mount/
+    mount them into your job: https://repost.aws/knowledge-center/batch-fsx-lustre-file-system-mount
 
     For Elastic Fabric Adapter (EFA) you'll need to use a device mount to mount
     them into the container: https://docs.aws.amazon.com/batch/latest/userguide/efa.html

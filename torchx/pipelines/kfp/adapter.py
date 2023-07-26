@@ -97,7 +97,7 @@ def component_from_app(
     component_from_app takes in a TorchX component/AppDef and returns a KFP
     ContainerOp factory. This is equivalent to the
     `kfp.components.load_component_from_*
-    <https://kubeflow-pipelines.readthedocs.io/en/stable/source/kfp.components.html#kfp.components.load_component_from_text>`_
+    <https://kubeflow-pipelines.readthedocs.io/en/1.8.22/source/kfp.components.html#kfp.components.load_component_from_text>`_
     methods.
 
     Args:
