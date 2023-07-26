@@ -11,7 +11,7 @@ google-cloud-logging>=3.0.0
 google-cloud-runtimeconfig>=0.33.2
 hydra-core
 ipython
-kfp==1.8.9
+kfp==1.8.22
 mlflow-skinny
 moto==4.1.6
 pyre-extensions
