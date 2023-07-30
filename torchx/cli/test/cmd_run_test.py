@@ -189,6 +189,39 @@ class CmdRunTest(unittest.TestCase):
         call_kwargs = mock_runner_run.call_args[-1]
         self.assertEqual(call_kwargs["parent_run_id"], "experiment_1")
 
+    @patch("torchx.runner.Runner.dryrun_component")
+    def test_default_scheduler_opts(self, mock_runner_run: MagicMock) -> None:
+        args = self.parser.parse_args(
+            [
+                "--dryrun",
+                "--scheduler",
+                "local_cwd",
+                "-cfg",
+                f"log_dir={self.tmpdir}",
+                "utils.echo",
+                "--image",
+                "/tmp",
+            ]
+        )
+
+        app_run_info_stub = AppDryRunInfo("req", lambda x: x)
+        req_type_dataclass = dataclasses.make_dataclass("T", [])
+        app_run_info_stub._app = req_type_dataclass()
+        mock_runner_run.return_value = app_run_info_stub
+
+        self.cmd_run.run(args)
+
+        # compatible with python 3.7
+        call_kwargs = mock_runner_run.call_args[-1]
+        self.assertDictEqual(
+            call_kwargs["cfg"],
+            {
+                "log_dir": self.tmpdir,
+                "prepend_cwd": False,
+                "auto_set_cuda_visible_devices": False,
+            },
+        )
+
     def test_parse_component_name_and_args_no_default(self) -> None:
         sp = argparse.ArgumentParser(prog="test")
         self.assertEqual(

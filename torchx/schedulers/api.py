@@ -170,14 +170,12 @@ class Scheduler(abc.ABC, Generic[T]):
         to the scheduler implementation's documentation regarding
         the actual return type.
         """
-        # pyre-fixme: Generic cfg type passed to resolve
-        resolved_cfg = self.run_opts().resolve(cfg)
         # pyre-fixme: _submit_dryrun takes Generic type for resolved_cfg
-        dryrun_info = self._submit_dryrun(app, resolved_cfg)
+        dryrun_info = self._submit_dryrun(app, cfg)
         for role in app.roles:
             dryrun_info = role.pre_proc(self.backend, dryrun_info)
         dryrun_info._app = app
-        dryrun_info._cfg = resolved_cfg
+        dryrun_info._cfg = cfg
         return dryrun_info
 
     @abc.abstractmethod

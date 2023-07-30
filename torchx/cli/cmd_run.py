@@ -183,6 +183,7 @@ class CmdRun(SubCommand):
         scheduler_opts = runner.scheduler_run_opts(args.scheduler)
         cfg = scheduler_opts.cfg_from_str(args.scheduler_args)
         config.apply(scheduler=args.scheduler, cfg=cfg)
+        cfg = scheduler_opts.resolve(cfg)
 
         component, component_args = _parse_component_name_and_args(
             args.component_name_and_args,
