@@ -168,6 +168,7 @@ class LocalOpts(TypedDict, total=False):
     log_dir: str
     prepend_cwd: Optional[bool]
     auto_set_cuda_visible_devices: Optional[bool]
+    auto_set_cuda_visible_devices_ids: List[str]
 
 
 class LocalDirectoryImageProvider(ImageProvider):
@@ -595,6 +596,14 @@ class LocalScheduler(Scheduler[LocalOpts]):
             help="sets the `CUDA_AVAILABLE_DEVICES` for roles that request GPU resources."
             " Each role replica will be assigned one GPU. Does nothing if the device count is less than replicas.",
         )
+        opts.add(
+            "auto_set_cuda_visible_devices_ids",
+            type_=List[str],
+            default=[],
+            help="when auto_set_cuda_visible_devices is set, the ; separated list of GPUs to use "
+            "during auto-setting CUDA_VISIBLE_DEVICES. If not set, defaults to all devices "
+            "available on the machine.",
+        )
         return opts
 
     def _validate(self, app: AppDef, scheduler: str) -> None:
@@ -763,7 +772,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
             request, lambda p: pprint.pformat(asdict(p), indent=2, width=80)
         )
 
-    def _cuda_device_count(self) -> int:
+    def _cuda_device_count(self) -> Optional[int]:
         # this method deliberately does not use ``torch.cuda.device_count()``
         # to avoid taking a dependency on pytorch
         # this makes it possible to avoid a BUCK dependency (internally at Meta)
@@ -780,6 +789,11 @@ class LocalScheduler(Scheduler[LocalOpts]):
         except subprocess.CalledProcessError as e:
             log.exception(f"Got exception while listing GPUs: {e.stderr}")
             return 0
+        except FileNotFoundError as e:
+            log.error(
+                "nvidia-smi is not installed, could not automatically fetch available GPUs"
+            )
+            return None
 
     def auto_set_CUDA_VISIBLE_DEVICES(
         self,
@@ -794,6 +808,10 @@ class LocalScheduler(Scheduler[LocalOpts]):
         overwriting any existing ``CUDA_VISIBLE_DEVICES`` in the role's ``env`` field.
         To manually set ``CUDA_VISIBLE_DEVICES``, run with ``auto_set_cuda_visible_devices = False``
         in the scheduler runcfg.
+
+        If ``auto_set_cuda_visible_devices_ids`` is set to a list of indices, like
+        ``auto_set_cuda_visible_devices_ids=[5,7]`` it works as when set to
+        True, but will only use the device indices in the array to set the CUDA_VISIBLE_DEVICES.
 
         .. note::
             If the host's device count is less than the total number of requested GPUs,
@@ -818,6 +836,17 @@ class LocalScheduler(Scheduler[LocalOpts]):
               #. role_1, replica_1's ``CUDA_VISIBLE_DEVICES=3``
               #. role_1, replica_2's ``CUDA_VISIBLE_DEVICES=4``
 
+        With ``cuda_visible_devices=["4", "5", "7"]``
+
+        #. ``Role(num_replicas=3, resource=Resource(gpus=1))``
+              #. replica_0's ``CUDA_VISIBLE_DEVICES=4``
+              #. replica_1's ``CUDA_VISIBLE_DEVICES=5``
+              #. replica_2's ``CUDA_VISIBLE_DEVICES=7``
+
+         #. ``[Role(num_replicas=1, resource=Resource(gpus=2)), Role(num_replicas=1, resource=Resource(gpus=1))]``
+              #. role_0, replica_0's ``CUDA_VISIBLE_DEVICES=4,5``
+              #. role_1, replica_0's ``CUDA_VISIBLE_DEVICES=7``
+
         """
 
         total_requested_gpus = 0  # total number of gpus for the app
@@ -826,7 +855,12 @@ class LocalScheduler(Scheduler[LocalOpts]):
             gpus = role.num_replicas * role.resource.gpu
             total_requested_gpus += gpus
 
-        if not cfg.get("auto_set_cuda_visible_devices") or total_requested_gpus <= 0:
+        auto_set_cuda_visible_devices: Optional[bool] = cfg.get(
+            "auto_set_cuda_visible_devices"
+        )
+
+        # No auto set cuda visible devices, or no GPUs requested. Do not set anything
+        if not auto_set_cuda_visible_devices or total_requested_gpus <= 0:
             if total_requested_gpus > 0:
                 log.warning(
                     """\n
@@ -844,7 +878,55 @@ set the `auto_set_cuda_visible_devices = True` scheduler runopt
                 )
             return
 
-        device_count = self._cuda_device_count()
+        cuda_available_devices: Optional[int] = self._cuda_device_count()
+
+        # User provides mask of GPUs to schedule on
+        if auto_set_cuda_visible_devices_ids := cfg.get(
+            "auto_set_cuda_visible_devices_ids"
+        ):
+            available_devices: List[int] = sorted(
+                set(int(idx) for idx in auto_set_cuda_visible_devices_ids)
+            )
+            if len(auto_set_cuda_visible_devices_ids) != len(available_devices):
+                log.warning(
+                    f"""\n
+======================================================================
+Cannot auto-set `CUDA_VISIBLE_DEVICES`
+Defined subset of GPUs: {auto_set_cuda_visible_devices_ids} has repeated
+instances values.
+
+Remove repeated GPU indices from the array
+======================================================================
+                """
+                )
+                return
+            if any(
+                not (
+                    0 <= index
+                    and (
+                        # If the nvidia-smi is not available we cannot
+                        # validate the upper range, still try to run
+                        cuda_available_devices is None
+                        or index <= cuda_available_devices
+                    )
+                )
+                for index in available_devices
+            ):
+                log.warning(
+                    f"""\n
+======================================================================
+Cannot auto-set `CUDA_VISIBLE_DEVICES`
+Defined subset of GPUs: {auto_set_cuda_visible_devices_ids} has a GPU which
+is not in the GPU index range [0-{'?' if cuda_available_devices is None else {cuda_available_devices}}].
+======================================================================
+                """
+                )
+                return
+        else:
+            available_devices = list(range(cuda_available_devices or 0))
+
+        device_count: int = len(available_devices)
+
         if total_requested_gpus > device_count:
             log.warning(
                 f"""\n
@@ -869,7 +951,7 @@ Reduce requested GPU resources or use a host with more GPUs
             for replica_id, replica in enumerate(role_replicas):
                 end_idx = start_idx + role.resource.gpu
                 replica.env[ENV_CUDA_VISIBLE_DEVICES] = ",".join(
-                    list(str(idx) for idx in range(start_idx, end_idx))
+                    str(available_devices[idx]) for idx in range(start_idx, end_idx)
                 )
                 start_idx = end_idx
 

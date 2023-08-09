@@ -948,11 +948,18 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         )
 
     def dryrun(
-        self, *roles: Role, auto_set_cuda_visible_devices: bool = True
+        self,
+        *roles: Role,
+        auto_set_cuda_visible_devices: bool = True,
+        auto_set_cuda_visible_devices_ids: Optional[List[str]] = None,
     ) -> AppDryRunInfo[PopenRequest]:
+        auto_set_cuda_visible_devices_ids = auto_set_cuda_visible_devices_ids or []
         return self.scheduler.submit_dryrun(
             AppDef(name="_ignored_", roles=list(roles)),
-            cfg={"auto_set_cuda_visible_devices": auto_set_cuda_visible_devices},
+            cfg={
+                "auto_set_cuda_visible_devices": auto_set_cuda_visible_devices,
+                "auto_set_cuda_visible_devices_ids": auto_set_cuda_visible_devices_ids,
+            },
         )
 
     def assert_CUDA_VISIBLE_DEVICES(
@@ -994,6 +1001,54 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
     ) -> None:
         self.assert_CUDA_VISIBLE_DEVICES(
             self.dryrun(self.role("a", replicas=2, gpu=2)),
+            {},
+        )
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=42)
+    def test_auto_set_CUDA_VISIBLE_DEVICES_more_gpus_then_available_in_subset(
+        self, _: MagicMock
+    ) -> None:
+        self.assert_CUDA_VISIBLE_DEVICES(
+            self.dryrun(
+                self.role("a", replicas=2, gpu=2),
+                auto_set_cuda_visible_devices_ids=["1", "2"],
+            ),
+            {},
+        )
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=2)
+    def test_auto_set_auto_set_cuda_visible_devices_ids_with_repetitions(
+        self, _: MagicMock
+    ) -> None:
+        self.assert_CUDA_VISIBLE_DEVICES(
+            self.dryrun(
+                self.role("a", replicas=2, gpu=2),
+                auto_set_cuda_visible_devices_ids=["2", "2"],
+            ),
+            {},
+        )
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=2)
+    def test_auto_set_auto_set_cuda_visible_devices_ids_with_out_of_range_top(
+        self, _: MagicMock
+    ) -> None:
+        self.assert_CUDA_VISIBLE_DEVICES(
+            self.dryrun(
+                self.role("a", replicas=2, gpu=2),
+                auto_set_cuda_visible_devices_ids=["1", "2", "3", "42"],
+            ),
+            {},
+        )
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=2)
+    def test_auto_set_auto_set_cuda_visible_devices_ids_with_out_of_range_below(
+        self, _: MagicMock
+    ) -> None:
+        self.assert_CUDA_VISIBLE_DEVICES(
+            self.dryrun(
+                self.role("a", replicas=2, gpu=2),
+                auto_set_cuda_visible_devices_ids=["1", "2", "3", "-1"],
+            ),
             {},
         )
 
@@ -1039,6 +1094,73 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             )
 
     @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=8)
+    def test_auto_set_CUDA_VISIBLE_DEVICES_from_subset(self, _: MagicMock) -> None:
+        for gpu in [1, 2, 3, 4, 5, 6, 7, 8]:
+            subset = [
+                [],
+                ["7"],
+                ["7", "6"],
+                ["7", "6", "5"],
+                ["7", "6", "5", "4"],
+                ["7", "6", "5", "4", "3"],
+                ["7", "6", "5", "4", "3", "2"],
+                ["7", "6", "5", "4", "3", "2", "1"],
+                ["7", "6", "5", "4", "3", "2", "1", "0"],
+            ]
+            expected = [
+                [],
+                ["7"],
+                ["6,7"],
+                ["5,6,7"],
+                ["4,5,6,7"],
+                ["3,4,5,6,7"],
+                ["2,3,4,5,6,7"],
+                ["1,2,3,4,5,6,7"],
+                ["0,1,2,3,4,5,6,7"],
+            ]
+
+            self.assert_CUDA_VISIBLE_DEVICES(
+                self.dryrun(
+                    self.role(name="a", replicas=1, gpu=gpu),
+                    auto_set_cuda_visible_devices_ids=subset[gpu],
+                ),
+                {"a": expected[gpu]},
+            )
+
+        for gpu in [1, 2, 3, 4]:
+            subset = [
+                [],
+                ["7", "5"],
+                [
+                    "7",
+                    "5",
+                    "3",
+                    "1",
+                ],
+                ["7", "5", "3", "1", "2", "4"],
+                ["7", "6", "5", "4", "3", "2", "1", "0"],
+            ]
+            expected = [
+                [],
+                ["5", "7"],
+                ["1,3", "5,7"],
+                ["1,2,3", "4,5,7"],
+                ["0,1,2,3", "4,5,6,7"],
+            ]
+
+            self.assert_CUDA_VISIBLE_DEVICES(
+                self.dryrun(
+                    self.role(
+                        name="a",
+                        replicas=2,
+                        gpu=gpu,
+                    ),
+                    auto_set_cuda_visible_devices_ids=subset[gpu],
+                ),
+                {"a": expected[gpu]},
+            )
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=8)
     def test_auto_set_CUDA_VISIBLE_DEVICES_multi_role(self, _: MagicMock) -> None:
         self.assert_CUDA_VISIBLE_DEVICES(
             self.dryrun(
@@ -1048,6 +1170,25 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             ),
             {
                 "a": ["0", "1"],
+                "c": ["2,3", "4,5", "6,7"],
+            },
+        )
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=8)
+    def test_auto_set_CUDA_VISIBLE_DEVICES_multi_role_with_subset(
+        self, _: MagicMock
+    ) -> None:
+        self.assert_CUDA_VISIBLE_DEVICES(
+            self.dryrun(
+                self.role(name="a", replicas=1, gpu=1),
+                self.role(name="b", replicas=1, gpu=0),
+                self.role(name="c", replicas=3, gpu=2),
+                auto_set_cuda_visible_devices_ids=["1", "2", "3", "4", "5", "6", "7"],
+            ),
+            {
+                "a": [
+                    "1",
+                ],
                 "c": ["2,3", "4,5", "6,7"],
             },
         )
@@ -1084,6 +1225,54 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
         self.assertEqual(2, len(role2_params))
         self.assertEqual("4,5,6", role2_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
         self.assertEqual("7,8,9", role2_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
+
+    @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=16)
+    def test_get_cuda_devices_is_set_with_subset(self, _: MagicMock) -> None:
+        appdef = AppDef(
+            name="role1",
+            roles=[
+                Role(
+                    name="role1",
+                    image=self.test_dir,
+                    entrypoint="train",
+                    resource=Resource(gpu=2, cpu=0, memMB=0),
+                    num_replicas=2,
+                ),
+                Role(
+                    name="role2",
+                    image=self.test_dir,
+                    entrypoint="train",
+                    resource=Resource(gpu=3, cpu=0, memMB=0),
+                    num_replicas=2,
+                ),
+            ],
+        )
+        popen_req = self.scheduler._to_popen_request(
+            appdef,
+            {
+                "auto_set_cuda_visible_devices": True,
+                "auto_set_cuda_visible_devices_ids": [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "5",
+                    "7",
+                    "9",
+                    "11",
+                    "13",
+                    "15",
+                ],
+            },
+        )
+        role1_params = popen_req.role_params["role1"]
+        self.assertEqual(2, len(role1_params))
+        self.assertEqual("0,1", role1_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
+        self.assertEqual("2,3", role1_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
+        role2_params = popen_req.role_params["role2"]
+        self.assertEqual(2, len(role2_params))
+        self.assertEqual("5,7,9", role2_params[0].env[ENV_CUDA_VISIBLE_DEVICES])
+        self.assertEqual("11,13,15", role2_params[1].env[ENV_CUDA_VISIBLE_DEVICES])
 
     @patch(LOCAL_SCHED_DEVICE_COUNT, return_value=8)
     def test_get_cuda_devices_not_set(self, _: MagicMock) -> None:
