@@ -261,6 +261,7 @@ def ddp(
         nnodes_rep,
         "--nproc_per_node",
         str(nproc_per_node),
+        # node_rank is only used when rdzv_backend is 'static'
         "--node_rank",
         f"{macros.replica_id}",
         "--tee",
