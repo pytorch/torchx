@@ -649,6 +649,9 @@
         <span class="n">nnodes_rep</span><span class="p">,</span>
         <span class="s2">&quot;--nproc_per_node&quot;</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">nproc_per_node</span><span class="p">),</span>
+        <span class="c1"># node_rank is only used when rdzv_backend is &#39;static&#39;</span>
+        <span class="s2">&quot;--node_rank&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--tee&quot;</span><span class="p">,</span>
         <span class="s2">&quot;3&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--role&quot;</span><span class="p">,</span>
