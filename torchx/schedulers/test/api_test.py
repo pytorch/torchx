@@ -8,7 +8,7 @@
 
 import unittest
 from datetime import datetime
-from typing import Iterable, List, Mapping, Optional, TypeVar, Union
+from typing import Iterable, List, Mapping, Optional, Union
 from unittest.mock import MagicMock, patch
 
 from torchx.schedulers.api import (
@@ -27,75 +27,81 @@ from torchx.specs.api import (
     NULL_RESOURCE,
     Resource,
     Role,
-    runopts,
 )
 from torchx.workspace.api import WorkspaceMixin
+from typing_extensions import TypedDict
 
-T = TypeVar("T")
+
+class MockOpts(TypedDict, total=False):
+    """
+    Attributes
+    ----------
+    foo:
+        a dummy attribute
+    """
+
+    foo: str
+
+
+class MockScheduler(Scheduler[MockOpts], WorkspaceMixin[None]):
+    def __init__(self, session_name: str) -> None:
+        super().__init__("mock", session_name)
+
+    def schedule(self, dryrun_info: AppDryRunInfo[None]) -> str:
+        app = dryrun_info._app
+        assert app is not None
+        return app.name
+
+    def _submit_dryrun(
+        self,
+        app: AppDef,
+        cfg: MockOpts,
+    ) -> AppDryRunInfo[None]:
+        return AppDryRunInfo(None, lambda t: "None")
+
+    def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        return None
+
+    def _cancel_existing(self, app_id: str) -> None:
+        pass
+
+    def log_iter(
+        self,
+        app_id: str,
+        role_name: str,
+        k: int = 0,
+        regex: Optional[str] = None,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+        should_tail: bool = False,
+        streams: Optional[Stream] = None,
+    ) -> Iterable[str]:
+        return iter([])
+
+    def list(self) -> List[ListAppResponse]:
+        return []
+
+    def resolve_resource(self, resource: Union[str, Resource]) -> Resource:
+        return NULL_RESOURCE
+
+    def build_workspace_and_update_role(
+        self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
+    ) -> None:
+        role.image = workspace
 
 
 class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler[T], WorkspaceMixin[None]):
-        def __init__(self, session_name: str) -> None:
-            super().__init__("mock", session_name)
-
-        def schedule(self, dryrun_info: AppDryRunInfo[None]) -> str:
-            app = dryrun_info._app
-            assert app is not None
-            return app.name
-
-        def _submit_dryrun(
-            self,
-            app: AppDef,
-            cfg: Mapping[str, CfgVal],
-        ) -> AppDryRunInfo[None]:
-            return AppDryRunInfo(None, lambda t: "None")
-
-        def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
-            return None
-
-        def _cancel_existing(self, app_id: str) -> None:
-            pass
-
-        def log_iter(
-            self,
-            app_id: str,
-            role_name: str,
-            k: int = 0,
-            regex: Optional[str] = None,
-            since: Optional[datetime] = None,
-            until: Optional[datetime] = None,
-            should_tail: bool = False,
-            streams: Optional[Stream] = None,
-        ) -> Iterable[str]:
-            return iter([])
-
-        def list(self) -> List[ListAppResponse]:
-            return []
-
-        def _run_opts(self) -> runopts:
-            opts = runopts()
-            opts.add("foo", type_=str, required=True, help="required option")
-            return opts
-
-        def resolve_resource(self, resource: Union[str, Resource]) -> Resource:
-            return NULL_RESOURCE
-
-        def build_workspace_and_update_role(
-            self, role: Role, workspace: str, cfg: Mapping[str, CfgVal]
-        ) -> None:
-            role.image = workspace
-
     def test_invalid_run_cfg(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
         app_mock = MagicMock()
 
         with self.assertRaises(InvalidRunConfigException):
-            empty_cfg = {}
+            empty_cfg: MockOpts = {}
             scheduler_mock.submit(app_mock, empty_cfg)
 
         with self.assertRaises(InvalidRunConfigException):
-            bad_type_cfg = {"foo": 100}
+            # pyre-ignore[55]: expected type str
+            bad_type_cfg: MockOpts = {"foo": 100}
             scheduler_mock.submit(app_mock, bad_type_cfg)
 
     def test_submit_workspace(self) -> None:
@@ -106,36 +112,37 @@ class SchedulerTest(unittest.TestCase):
         )
         app = AppDef(name="test_app", roles=[role])
 
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
 
-        bad_type_cfg = {"foo": "asdf"}
+        bad_type_cfg: MockOpts = {"foo": "asdf"}
         scheduler_mock.submit(app, bad_type_cfg, workspace="some_workspace")
         self.assertEqual(app.roles[0].image, "some_workspace")
 
     def test_invalid_dryrun_cfg(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
         app_mock = MagicMock()
 
         with self.assertRaises(InvalidRunConfigException):
-            empty_cfg = {}
+            empty_cfg: MockOpts = {}
             scheduler_mock.submit_dryrun(app_mock, empty_cfg)
 
         with self.assertRaises(InvalidRunConfigException):
-            bad_type_cfg = {"foo": 100}
+            # pyre-ignore[55]: expected type str
+            bad_type_cfg: MockOpts = {"foo": 100}
             scheduler_mock.submit_dryrun(app_mock, bad_type_cfg)
 
     def test_role_preproc_called(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
         app_mock = MagicMock()
         app_mock.roles = [MagicMock()]
 
-        cfg = {"foo": "bar"}
+        cfg: MockOpts = {"foo": "bar"}
         scheduler_mock.submit_dryrun(app_mock, cfg)
         role_mock = app_mock.roles[0]
         role_mock.pre_proc.assert_called_once()
 
     def test_validate(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
         app_mock = MagicMock()
         app_mock.roles = [MagicMock()]
         app_mock.roles[0].resource = NULL_RESOURCE
@@ -144,7 +151,7 @@ class SchedulerTest(unittest.TestCase):
             scheduler_mock._validate(app_mock, "local")
 
     def test_cancel_not_exists(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
         with patch.object(scheduler_mock, "_cancel_existing") as cancel_mock:
             with patch.object(scheduler_mock, "exists") as exists_mock:
                 exists_mock.return_value = True
@@ -152,7 +159,7 @@ class SchedulerTest(unittest.TestCase):
                 cancel_mock.assert_called_once()
 
     def test_cancel_exists(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test_session")
+        scheduler_mock = MockScheduler("test_session")
         with patch.object(scheduler_mock, "_cancel_existing") as cancel_mock:
             with patch.object(scheduler_mock, "exists") as exists_mock:
                 exists_mock.return_value = False
@@ -160,7 +167,7 @@ class SchedulerTest(unittest.TestCase):
                 cancel_mock.assert_not_called()
 
     def test_close_twice(self) -> None:
-        scheduler_mock = SchedulerTest.MockScheduler("test")
+        scheduler_mock = MockScheduler("test")
         scheduler_mock.close()
         scheduler_mock.close()
         # nothing to validate explicitly, just that no errors are raised

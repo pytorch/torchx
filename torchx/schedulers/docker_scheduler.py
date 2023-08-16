@@ -35,7 +35,6 @@ from torchx.specs.api import (
     ReplicaStatus,
     Role,
     RoleStatus,
-    runopts,
     VolumeMount,
 )
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
@@ -120,6 +119,13 @@ def ensure_network(client: Optional["DockerClient"] = None) -> None:
 
 
 class DockerOpts(TypedDict, total=False):
+    """
+    Attributes
+    ----------
+    copy_env:
+        list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*",
+    """
+
     copy_env: Optional[List[str]]
 
 
@@ -347,16 +353,6 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
         containers = self._get_containers(app_id)
         for container in containers:
             container.stop()
-
-    def _run_opts(self) -> runopts:
-        opts = runopts()
-        opts.add(
-            "copy_env",
-            type_=List[str],
-            default=None,
-            help="list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*",
-        )
-        return opts
 
     def _get_app_state(self, container: "Container") -> AppState:
         if container.status == "exited":
