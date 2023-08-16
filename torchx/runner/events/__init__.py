@@ -19,6 +19,7 @@ Example of usage:
 """
 
 import logging
+import time
 import traceback
 from types import TracebackType
 from typing import Optional, Type
@@ -86,8 +87,12 @@ class log_event:
         self._torchx_event: TorchxEvent = self._generate_torchx_event(
             api, scheduler or "", app_id, app_image=app_image, runcfg=runcfg
         )
+        self._start_cpu_time_ns = 0
+        self._start_wall_time_ns = 0
 
     def __enter__(self) -> "log_event":
+        self._start_cpu_time_ns = time.process_time_ns()
+        self._start_wall_time_ns = time.perf_counter_ns()
         return self
 
     def __exit__(
@@ -96,6 +101,12 @@ class log_event:
         exec_value: Optional[BaseException],
         traceback_type: Optional[TracebackType],
     ) -> Optional[bool]:
+        self._torchx_event.cpu_time_usec = (
+            time.process_time_ns() - self._start_cpu_time_ns
+        ) // 1000
+        self._torchx_event.wall_time_usec = (
+            time.perf_counter_ns() - self._start_wall_time_ns
+        ) // 1000
         if traceback_type:
             self._torchx_event.raw_exception = traceback.format_exc()
         record(self._torchx_event)

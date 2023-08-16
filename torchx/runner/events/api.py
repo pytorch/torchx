@@ -30,6 +30,8 @@ class TorchxEvent:
         image: Image/container bundle that is used to execute request.
         runcfg: Run config that was used to schedule app.
         source: Type of source the event is generated.
+        cpu_time_usec: CPU time spent in usec
+        wall_time_usec: Wall time spent in usec
     """
 
     session: str
@@ -40,6 +42,8 @@ class TorchxEvent:
     runcfg: Optional[str] = None
     raw_exception: Optional[str] = None
     source: SourceType = SourceType.UNKNOWN
+    cpu_time_usec: Optional[int] = None
+    wall_time_usec: Optional[int] = None
 
     def __str__(self) -> str:
         return self.serialize()

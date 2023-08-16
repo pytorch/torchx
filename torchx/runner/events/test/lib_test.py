@@ -94,14 +94,6 @@ class LogEventTest(unittest.TestCase):
 
     def test_record_event(self, record_mock: MagicMock) -> None:
         cfg = json.dumps({"test_key": "test_value"})
-        expected_torchx_event = TorchxEvent(
-            "test_app_id",
-            "local",
-            "test_call",
-            "test_app_id",
-            app_image="test_app_image_id",
-            runcfg=cfg,
-        )
         with log_event(
             "test_call",
             "local",
@@ -110,6 +102,17 @@ class LogEventTest(unittest.TestCase):
             runcfg=cfg,
         ) as ctx:
             pass
+
+        expected_torchx_event = TorchxEvent(
+            "test_app_id",
+            "local",
+            "test_call",
+            "test_app_id",
+            app_image="test_app_image_id",
+            runcfg=cfg,
+            cpu_time_usec=ctx._torchx_event.cpu_time_usec,
+            wall_time_usec=ctx._torchx_event.wall_time_usec,
+        )
         self.assert_torchx_event(expected_torchx_event, ctx._torchx_event)
 
     def test_record_event_with_exception(self, record_mock: MagicMock) -> None:
