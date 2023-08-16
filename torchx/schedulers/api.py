@@ -136,12 +136,15 @@ class Scheduler(abc.ABC, Generic[T]):
         Returns:
             The application id that uniquely identifies the submitted app.
         """
+        # pyre-fixme: Generic cfg type passed to resolve
+        resolved_cfg = self.run_opts().resolve(cfg)
         if workspace:
             sched = self
             assert isinstance(sched, WorkspaceMixin)
             role = app.roles[0]
-            sched.build_workspace_and_update_role(role, workspace, cfg)
-        dryrun_info = self.submit_dryrun(app, cfg)
+            sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
+        # pyre-fixme: submit_dryrun takes Generic type for resolved_cfg
+        dryrun_info = self.submit_dryrun(app, resolved_cfg)
         return self.schedule(dryrun_info)
 
     @abc.abstractmethod
