@@ -526,12 +526,15 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The application id that uniquely identifies the submitted app.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pyre-fixme: Generic cfg type passed to resolve</span>
+        <span class="n">resolved_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">workspace</span><span class="p">:</span>
             <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sched</span><span class="p">,</span> <span class="n">WorkspaceMixin</span><span class="p">)</span>
             <span class="n">role</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">sched</span><span class="o">.</span><span class="n">build_workspace_and_update_role</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
-        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+            <span class="n">sched</span><span class="o">.</span><span class="n">build_workspace_and_update_role</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">workspace</span><span class="p">,</span> <span class="n">resolved_cfg</span><span class="p">)</span>
+        <span class="c1"># pyre-fixme: submit_dryrun takes Generic type for resolved_cfg</span>
+        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_dryrun</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">resolved_cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Scheduler.schedule"><a class="viewcode-back" href="../../../schedulers.html#torchx.schedulers.Scheduler.schedule">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
