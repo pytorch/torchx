@@ -114,10 +114,6 @@ class RunnerTest(TestWithTmpDir):
 
     def test_dryrun(self, _) -> None:
         scheduler_mock = MagicMock()
-        scheduler_mock.run_opts.return_value.resolve.return_value = {
-            **self.cfg,
-            "foo": "bar",
-        }
         with Runner(
             name=SESSION_NAME,
             scheduler_factories={"local_dir": lambda name: scheduler_mock},
@@ -131,9 +127,7 @@ class RunnerTest(TestWithTmpDir):
             )
             app = AppDef("name", roles=[role])
             runner.dryrun(app, "local_dir", cfg=self.cfg)
-            scheduler_mock.submit_dryrun.assert_called_once_with(
-                app, {**self.cfg, "foo": "bar"}
-            )
+            scheduler_mock.submit_dryrun.assert_called_once_with(app, self.cfg)
             scheduler_mock._validate.assert_called_once()
 
     def test_dryrun_env_variables(self, _) -> None:

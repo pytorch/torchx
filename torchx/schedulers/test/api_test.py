@@ -108,8 +108,8 @@ class SchedulerTest(unittest.TestCase):
 
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
 
-        cfg = {"foo": "asdf"}
-        scheduler_mock.submit(app, cfg, workspace="some_workspace")
+        bad_type_cfg = {"foo": "asdf"}
+        scheduler_mock.submit(app, bad_type_cfg, workspace="some_workspace")
         self.assertEqual(app.roles[0].image, "some_workspace")
 
     def test_invalid_dryrun_cfg(self) -> None:

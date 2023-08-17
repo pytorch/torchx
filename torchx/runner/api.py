@@ -357,7 +357,7 @@ class Runner:
         cfg = cfg or dict()
         with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
             sched = self._scheduler(scheduler)
-            resolved_cfg = sched.run_opts().resolve(cfg)
+
             if workspace and isinstance(sched, WorkspaceMixin):
                 role = app.roles[0]
                 old_img = role.image
@@ -366,7 +366,7 @@ class Runner:
                 logger.info(
                     'To disable workspaces pass: --workspace="" from CLI or workspace=None programmatically.'
                 )
-                sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
+                sched.build_workspace_and_update_role(role, workspace, cfg)
 
                 if old_img != role.image:
                     logger.info(
@@ -380,7 +380,7 @@ class Runner:
                     )
 
             sched._validate(app, scheduler)
-            dryrun_info = sched.submit_dryrun(app, resolved_cfg)
+            dryrun_info = sched.submit_dryrun(app, cfg)
             dryrun_info._scheduler = scheduler
             return dryrun_info
 
