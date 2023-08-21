@@ -63,7 +63,7 @@ def test_fn_with_bool(flag: bool = False) -> AppDef:
         return get_dummy_application("trainer-without-flag")
 
 
-def test_fn_with_bool_opional(flag: Optional[bool] = None) -> AppDef:
+def test_fn_with_bool_optional(flag: Optional[bool] = None) -> AppDef:
     """Dummy app with or without flag
 
     Args:
@@ -309,7 +309,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_bool_none(self) -> None:
         app_def = materialize_appdef(
-            test_fn_with_bool,
+            test_fn_with_bool_optional,
             [],
         )
         self.assertEqual("trainer-without-flag", app_def.roles[0].name)

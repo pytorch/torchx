@@ -135,7 +135,7 @@ def materialize_appdef(
         parameter_type = parameter.annotation
         parameter_type = decode_optional(parameter_type)
         if is_bool(parameter_type):
-            arg_value = arg_value.lower() == "true"
+            arg_value = arg_value and arg_value.lower() == "true"
         elif not is_primitive(parameter_type):
             arg_value = decode_from_string(arg_value, parameter_type)
         if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
