@@ -654,6 +654,10 @@
         <span class="s2">&quot;--role&quot;</span><span class="p">,</span>
         <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">]</span>
+    <span class="c1"># TODO &#39;node_rank&#39; is made optional as it currently does not work with the AWS Batch scheduler.</span>
+    <span class="c1"># node_rank is only used when rdzv_backend is &#39;static&#39;</span>
+    <span class="k">if</span> <span class="n">rdzv_backend</span> <span class="o">==</span> <span class="s2">&quot;static&quot;</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--node_rank&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">macros</span><span class="o">.</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">script</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="n">script</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
