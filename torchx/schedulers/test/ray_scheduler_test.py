@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from shutil import copy2
 from typing import Any, cast, Iterable, Iterator, List, Optional, Type
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from torchx.schedulers import get_scheduler_factories
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
@@ -22,6 +22,7 @@ from torchx.specs import AppDef, Resource, Role, runopts
 if has_ray():
     import ray
     from ray.cluster_utils import Cluster
+    from ray.dashboard.modules.job.sdk import JobSubmissionClient
     from ray.util.placement_group import remove_placement_group
     from torchx.schedulers.ray import ray_driver
     from torchx.schedulers.ray_scheduler import (
@@ -82,6 +83,9 @@ if has_ray():
                     "requirements": None,
                 }
             )
+
+            # mock validation step so that instantiation doesn't fail due to inability to reach dashboard
+            JobSubmissionClient._check_connection_and_version = MagicMock()
 
             self._scheduler = RayScheduler("test_session")
 
@@ -320,10 +324,14 @@ if has_ray():
         def test_list_throws_without_address(self) -> None:
             if "RAY_ADDRESS" in os.environ:
                 del os.environ["RAY_ADDRESS"]
-            with self.assertRaisesRegex(
-                Exception, "RAY_ADDRESS env variable is expected"
-            ):
+            with self.assertRaisesRegex(Exception, "RAY_ADDRESS env variable"):
                 self._scheduler.list()
+
+        def test_list_doesnt_throw_with_client(self) -> None:
+            ray_client = JobSubmissionClient(address="https://test.com")
+            ray_client.list_jobs = MagicMock(return_value=[])
+            _scheduler_with_client = RayScheduler("client_session", ray_client)
+            _scheduler_with_client.list()  # testing for success (should not throw exception)
 
         def test_min_replicas(self) -> None:
             app = AppDef(
@@ -357,6 +365,30 @@ if has_ray():
                 ValueError, "min_replicas is only supported with single role jobs"
             ):
                 self._scheduler._submit_dryrun(app, cfg={})
+
+        def test_nonmatching_address(self) -> None:
+            ray_client = JobSubmissionClient(address="https://test.address.com")
+            _scheduler_with_client = RayScheduler("client_session", ray_client)
+            app = AppDef(
+                name="app",
+                roles=[
+                    Role(name="role", image="."),
+                ],
+            )
+            with self.assertRaisesRegex(
+                ValueError, "client netloc .* does not match job netloc .*"
+            ):
+                _scheduler_with_client.submit(app=app, cfg={})
+
+        def test_client_with_headers(self) -> None:
+            # This tests only one option for the client. Different versions may have more options available.
+            headers = {"Authorization": "Bearer: token"}
+            ray_client = JobSubmissionClient(
+                address="https://test.com", headers=headers, verify=False
+            )
+            _scheduler_with_client = RayScheduler("client_session", ray_client)
+            scheduler_client = _scheduler_with_client._get_ray_client()
+            self.assertDictContainsSubset(scheduler_client._headers, headers)
 
     class RayClusterSetup:
         _instance = None  # pyre-ignore
