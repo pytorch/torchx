@@ -38,6 +38,12 @@ class DDPTest(ComponentTestCase):
         for k, v in _TORCH_DEBUG_FLAGS.items():
             self.assertEqual(env[k], v)
 
+    def test_ddp_rdzv_backend_static(self) -> None:
+        app = ddp(script="foo.py", rdzv_backend="static")
+        cmd = app.roles[0].args[1]
+        self.assertTrue("--rdzv_backend static" in cmd)
+        self.assertTrue("--node_rank" in cmd)
+
 
 class SpmdTest(ComponentTestCase):
     def test_validate_spmd(self) -> None:
