@@ -266,6 +266,10 @@ def ddp(
         "--role",
         "",
     ]
+    # TODO 'node_rank' is made optional as it currently does not work with the AWS Batch scheduler.
+    # node_rank is only used when rdzv_backend is 'static'
+    if rdzv_backend == "static":
+        cmd += ["--node_rank", f"{macros.replica_id}"]
     if script is not None:
         cmd += [script]
     elif m is not None:
