@@ -14,7 +14,9 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from shutil import copy2, rmtree
-from typing import Any, cast, Dict, Iterable, List, Optional, Tuple  # noqa
+from typing import Any, cast, Dict, Final, Iterable, List, Optional, Tuple  # noqa
+
+import urllib3
 
 from torchx.schedulers.api import (
     AppDryRunInfo,
@@ -148,8 +150,34 @@ if _has_ray:
 
         """
 
-        def __init__(self, session_name: str) -> None:
+        def __init__(
+            self, session_name: str, ray_client: Optional[JobSubmissionClient] = None
+        ) -> None:
             super().__init__("ray", session_name)
+
+            # w/o Final None check in _get_ray_client does not work as it pyre assumes mutability
+            self._ray_client: Final[Optional[JobSubmissionClient]] = ray_client
+
+        def _get_ray_client(
+            self, job_submission_netloc: Optional[str] = None
+        ) -> JobSubmissionClient:
+            if self._ray_client is not None:
+                client_netloc = urllib3.util.parse_url(
+                    self._ray_client.get_address()
+                ).netloc
+                if job_submission_netloc and job_submission_netloc != client_netloc:
+                    raise ValueError(
+                        f"client netloc ({client_netloc}) does not match job netloc ({job_submission_netloc})"
+                    )
+                return self._ray_client
+            elif os.getenv("RAY_ADDRESS"):
+                return JobSubmissionClient(os.getenv("RAY_ADDRESS"))
+            elif not job_submission_netloc:
+                raise Exception(
+                    "RAY_ADDRESS env variable or a scheduler with an attached Ray JobSubmissionClient is expected."
+                    " See https://docs.ray.io/en/latest/cluster/jobs-package-ref.html#job-submission-sdk for more info"
+                )
+            return JobSubmissionClient(f"http://{job_submission_netloc}")
 
         # TODO: Add address as a potential CLI argument after writing ray.status() or passing in config file
         def _run_opts(self) -> runopts:
@@ -196,9 +224,7 @@ if _has_ray:
                 )
 
             # 0. Create Job Client
-            client: JobSubmissionClient = JobSubmissionClient(
-                f"http://{job_submission_addr}"
-            )
+            client = self._get_ray_client(job_submission_netloc=job_submission_addr)
 
             # 1. Copy Ray driver utilities
             current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -341,12 +367,12 @@ if _has_ray:
 
         def _cancel_existing(self, app_id: str) -> None:  # pragma: no cover
             addr, app_id = self._parse_app_id(app_id)
-            client = JobSubmissionClient(f"http://{addr}")
+            client = self._get_ray_client(job_submission_netloc=addr)
             client.stop_job(app_id)
 
         def _get_job_status(self, app_id: str) -> JobStatus:
             addr, app_id = self._parse_app_id(app_id)
-            client = JobSubmissionClient(f"http://{addr}")
+            client = self._get_ray_client(job_submission_netloc=addr)
             status = client.get_job_status(app_id)
             if isinstance(status, str):
                 return cast(JobStatus, status)
@@ -393,7 +419,9 @@ if _has_ray:
         ) -> Iterable[str]:
             # TODO: support tailing, streams etc..
             addr, app_id = self._parse_app_id(app_id)
-            client: JobSubmissionClient = JobSubmissionClient(f"http://{addr}")
+            client: JobSubmissionClient = self._get_ray_client(
+                job_submission_netloc=addr
+            )
             logs: str = client.get_job_logs(app_id)
             iterator = split_lines(logs)
             if regex:
@@ -401,18 +429,12 @@ if _has_ray:
             return iterator
 
         def list(self) -> List[ListAppResponse]:
-            address = os.getenv("RAY_ADDRESS")
-            if not address:
-                raise Exception(
-                    "RAY_ADDRESS env variable is expected to be set to list jobs on ray scheduler."
-                    " See https://docs.ray.io/en/latest/cluster/jobs-package-ref.html#job-submission-sdk for more info"
-                )
-            client = JobSubmissionClient(address)
+            client = self._get_ray_client()
             jobs = client.list_jobs()
-            ip = address.split("http://", 1)[-1]
+            netloc = urllib3.util.parse_url(client.get_address()).netloc
             return [
                 ListAppResponse(
-                    app_id=f"{ip}-{details.submission_id}",
+                    app_id=f"{netloc}-{details.submission_id}",
                     state=_ray_status_to_torchx_appstate[details.status],
                 )
                 for details in jobs
