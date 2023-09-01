@@ -223,7 +223,7 @@ class CmdRun(SubCommand):
                     app_status = runner.status(app_handle)
                     if app_status:
                         logger.info(app_status.format())
-                    if args.wait:
+                    if args.wait or args.log:
                         self._wait_and_exit(runner, app_handle, log=args.log)
 
         except (ComponentValidationException, ComponentNotFoundException) as e:
