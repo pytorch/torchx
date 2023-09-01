@@ -101,12 +101,14 @@ def get_logs(
     if len(path) == 4:
         replica_ids = [(role_name, int(id)) for id in path[3].split(",") if id]
     else:
-        for i in range(10):
+        display_waiting = True
+        while True:
             status = runner.status(app_handle)
             if status and is_started(status.state):
                 break
-            if i == 0:
-                logger.info("Waiting for app to start before logging...")
+            elif display_waiting:
+                logger.info("Waiting for app state response before fetching logs...")
+                display_waiting = False
             time.sleep(1)
 
         app = none_throws(runner.describe(app_handle))
