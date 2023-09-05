@@ -69,6 +69,18 @@ class MockRunner(Runner):
         return iter([line for line in log_lines if re.match(regex, line)])
 
 
+class MockPendingRunner(MockRunner):
+    def __init__(self) -> None:
+        self._status_checks = 0
+
+    def status(self, app_handle: str) -> AppStatus:
+        if self._status_checks < 2:
+            self._status_checks += 1
+            return AppStatus(state=AppState.PENDING)
+        else:
+            return super().status(app_handle)
+
+
 class CmdLogTest(unittest.TestCase):
     @patch("sys.exit", side_effect=SentinelError)
     def test_cmd_log_bad_job_identifier(self, exit_mock: MagicMock) -> None:
@@ -163,6 +175,15 @@ class CmdLogTest(unittest.TestCase):
             },
             set(out.getvalue().split("\n")),
         )
+
+    @patch(RUNNER, new_callable=MockPendingRunner)
+    def test_cmd_log_wait_to_start(self, mock_runner: MagicMock) -> None:
+        out = io.StringIO()
+        with self.assertLogs(level="INFO") as cm:
+            get_logs(
+                out, "local_docker://test-session/SparseNNAppdef/trainer", regex=None
+            )
+        self.assertIn("Waiting", "\n".join(cm.output))
 
     @patch(RUNNER, new_callable=MockRunner)
     def test_print_log_lines_throws(self, mock_runner: MagicMock) -> None:
