@@ -805,7 +805,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
     co-scheduler.
     For installation instructions see: https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
-    This has been confirmed to work with MCAD main branch and OpenShift Kubernetes
+    This has been confirmed to work with MCAD main branch v1.34.1 or higher and OpenShift Kubernetes
     Client Version: 4.10.13
     Server Version: 4.9.18
     Kubernetes Version: v1.22.3+e790d7f
