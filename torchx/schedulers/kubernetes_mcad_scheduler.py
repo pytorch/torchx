@@ -19,6 +19,8 @@ Install MCAD:
 See deploying Multi-Cluster-Application-Dispatcher guide 
 https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md
 
+This implementation requires MCAD v1.34.1 or higher.
+
 TorchX uses `torch.distributed.run <https://pytorch.org/docs/stable/elastic/run.html>`_ to run distributed training.
 
 Learn more about running distributed trainers :py:mod:`torchx.components.dist`
@@ -369,7 +371,7 @@ def create_pod_group(
     pod_group_name = app_id + "-pg" + str(role_idx)
 
     labels = object_labels(app, app_id)
-    labels.update({"appwrapper.mcad.ibm.com": app_id})
+    labels.update({"appwrapper.workload.codeflare.dev": app_id})
 
     pod_group: Dict[str, Any] = {
         "apiVersion": "scheduling.sigs.k8s.io/v1alpha1",
@@ -434,7 +436,7 @@ def mcad_svc(
                     target_port=int(service_port),
                 )
             ],
-            selector={"appwrapper.mcad.ibm.com": svc_name},
+            selector={"appwrapper.workload.codeflare.dev": svc_name},
             session_affinity="None",
             type="ClusterIP",
         ),
@@ -596,7 +598,7 @@ def app_to_resource(
 
     """
     Create Service:
-    The selector will have the key 'appwrapper.mcad.ibm.com', and the value will be 
+    The selector will have the key 'appwrapper.workload.codeflare.dev', and the value will be 
     the appwrapper name
     """
 
@@ -627,7 +629,7 @@ def app_to_resource(
         enable_retry(job_spec, appwrapper_retries, total_pods)
 
     resource: Dict[str, object] = {
-        "apiVersion": "mcad.ibm.com/v1beta1",
+        "apiVersion": "workload.codeflare.dev/v1beta1",
         "kind": "AppWrapper",
         "metadata": {"name": unique_app_id, "namespace": namespace},
         "spec": job_spec,
@@ -947,7 +949,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
         try:
             resp = self._custom_objects_api().create_namespaced_custom_object(
-                group="mcad.ibm.com",
+                group="workload.codeflare.dev",
                 version="v1beta1",
                 namespace=namespace,
                 plural="appwrappers",
@@ -1035,7 +1037,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
     def _cancel_existing(self, app_id: str) -> None:
         namespace, name = app_id.split(":")
         self._custom_objects_api().delete_namespaced_custom_object(
-            group="mcad.ibm.com",
+            group="workload.codeflare.dev",
             version="v1beta1",
             namespace=namespace,
             plural="appwrappers",
@@ -1096,7 +1098,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
 
         # Production section
         api_instance = self._custom_objects_api
-        group = "mcad.ibm.com"
+        group = "workload.codeflare.dev"
         version = "v1beta1"
         plural = "appwrappers"
         try:
@@ -1214,7 +1216,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         namespace = active_context["context"]["namespace"]
 
         resp = self._custom_objects_api().list_namespaced_custom_object(
-            group="mcad.ibm.com",
+            group="workload.codeflare.dev",
             version="v1beta1",
             namespace=namespace,
             plural="appwrappers",
