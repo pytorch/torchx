@@ -168,6 +168,7 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
     """
 
     def __init__(self, session_name: str) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         super().__init__("docker", session_name)
 
     def schedule(self, dryrun_info: AppDryRunInfo[DockerJob]) -> str:

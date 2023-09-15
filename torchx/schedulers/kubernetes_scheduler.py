@@ -540,6 +540,7 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         super().__init__("kubernetes", session_name, docker_client=docker_client)
 
         self._client = client
@@ -777,9 +778,16 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         ]
 
 
-def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesScheduler:
+def create_scheduler(
+    session_name: str,
+    client: Optional["ApiClient"] = None,
+    docker_client: Optional["DockerClient"] = None,
+    **kwargs: Any,
+) -> KubernetesScheduler:
     return KubernetesScheduler(
         session_name=session_name,
+        client=client,
+        docker_client=docker_client,
     )
 
 

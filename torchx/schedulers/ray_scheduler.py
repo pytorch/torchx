@@ -153,6 +153,7 @@ if _has_ray:
         def __init__(
             self, session_name: str, ray_client: Optional[JobSubmissionClient] = None
         ) -> None:
+            # NOTE: make sure any new init options are supported in create_scheduler(...)
             super().__init__("ray", session_name)
 
             # w/o Final None check in _get_ray_client does not work as it pyre assumes mutability
@@ -441,10 +442,12 @@ if _has_ray:
             ]
 
 
-def create_scheduler(session_name: str, **kwargs: Any) -> "RayScheduler":
+def create_scheduler(
+    session_name: str, ray_client: Optional[JobSubmissionClient] = None, **kwargs: Any
+) -> "RayScheduler":
     if not has_ray():  # pragma: no cover
         raise ModuleNotFoundError(
             "Ray is not installed in the current Python environment."
         )
 
-    return RayScheduler(session_name=session_name)
+    return RayScheduler(session_name=session_name, ray_client=ray_client)

@@ -408,6 +408,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
         log_client: Optional[Any] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         super().__init__("aws_batch", session_name, docker_client=docker_client)
 
         # pyre-fixme[4]: Attribute annotation cannot be `Any`.
@@ -796,7 +797,18 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                 yield event["message"] + "\n"
 
 
-def create_scheduler(session_name: str, **kwargs: object) -> AWSBatchScheduler:
+def create_scheduler(
+    session_name: str,
+    # pyre-fixme[2]: Parameter annotation cannot be `Any`.
+    client: Optional[Any] = None,
+    # pyre-fixme[2]: Parameter annotation cannot be `Any`.
+    log_client: Optional[Any] = None,
+    docker_client: Optional["DockerClient"] = None,
+    **kwargs: object,
+) -> AWSBatchScheduler:
     return AWSBatchScheduler(
         session_name=session_name,
+        client=client,
+        log_client=log_client,
+        docker_client=docker_client,
     )

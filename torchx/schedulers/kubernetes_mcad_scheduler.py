@@ -895,6 +895,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         client: Optional["ApiClient"] = None,
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         super().__init__("kubernetes_mcad", session_name, docker_client=docker_client)
 
         self._client = client
@@ -1230,9 +1231,16 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         ]
 
 
-def create_scheduler(session_name: str, **kwargs: Any) -> KubernetesMCADScheduler:
+def create_scheduler(
+    session_name: str,
+    client: Optional["ApiClient"] = None,
+    docker_client: Optional["DockerClient"] = None,
+    **kwargs: Any,
+) -> KubernetesMCADScheduler:
     return KubernetesMCADScheduler(
         session_name=session_name,
+        client=client,
+        docker_client=docker_client,
     )
 
 
