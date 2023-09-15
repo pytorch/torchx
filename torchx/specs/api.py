@@ -104,6 +104,13 @@ class Resource:
 # sentinel value used for cases when resource does not matter (e.g. ignored)
 NULL_RESOURCE: Resource = Resource(cpu=-1, gpu=-1, memMB=-1)
 
+
+# no-arg static factory method to use with default_factory in @dataclass
+# needed to support python 3.11 since mutable defaults for dataclasses are not allowed in 3.11
+def _null_resource() -> Resource:
+    return NULL_RESOURCE
+
+
 # used as "*" scheduler backend
 ALL: str = "all"
 
@@ -333,7 +340,7 @@ class Role:
     num_replicas: int = 1
     max_retries: int = 0
     retry_policy: RetryPolicy = RetryPolicy.APPLICATION
-    resource: Resource = NULL_RESOURCE
+    resource: Resource = field(default_factory=_null_resource)
     port_map: Dict[str, int] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
     mounts: List[Union[BindMount, VolumeMount, DeviceMount]] = field(

@@ -44,7 +44,7 @@ class Config:
     locales: List[str] = field(default_factory=lambda: ["us", "eu", "fr"])
     empty_list: List[str] = field(default_factory=list)
     empty_map: Dict[str, str] = field(default_factory=dict)
-    model_config: ModelConfig = ModelConfig()
+    model_config: ModelConfig = field(default_factory=ModelConfig)
     datasets: List[DatasetConfig] = field(
         default_factory=lambda: [
             DatasetConfig(url="s3://dataset1"),
