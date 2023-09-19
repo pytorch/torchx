@@ -23,14 +23,14 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
-          aws-region: us-west-2
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-west-1
+          role-to-assume: ${{ secrets.TF_AWS_ROLE_ARN }}
           role-session-name: github-torchx
         continue-on-error: true
       - name: Configure Docker
         run: |
           set -eux
-          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
+          aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-1.amazonaws.com
         continue-on-error: true
       - name: Install dependencies
         run: |
@@ -38,7 +38,7 @@ jobs:
           pip install -e .[dev]
       - name: Run AWS Batch Integration Tests
         env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
         run: |
           set -ex
 
