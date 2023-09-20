@@ -400,6 +400,7 @@ components on a Kubernetes cluster via the Multi-Cluster-Application-Dispatcher 
 <p>Install MCAD:
 See deploying Multi-Cluster-Application-Dispatcher guide
 <a class="reference external" href="https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md">https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md</a></p>
+<p>This implementation requires MCAD v1.34.1 or higher.</p>
 <p>TorchX uses <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torch.distributed.run</a> to run distributed training.</p>
 <p>Learn more about running distributed trainers <a class="reference internal" href="../components/distributed.html#module-torchx.components.dist" title="torchx.components.dist"><code class="xref py py-mod docutils literal notranslate"><span class="pre">torchx.components.dist</span></code></a></p>
 </section>
@@ -414,7 +415,7 @@ Note that AppWrapper/MCAD supports gang scheduling among any app-wrapped jobs on
 However, for true gang scheduling AppWrapper/MCAD needs to be used with an additional Kubernetes
 co-scheduler.
 For installation instructions see: <a class="reference external" href="https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md">https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/doc/deploy/deployment.md</a></p>
-<p>This has been confirmed to work with MCAD main branch and OpenShift Kubernetes
+<p>This has been confirmed to work with MCAD main branch v1.34.1 or higher and OpenShift Kubernetes
 Client Version: 4.10.13
 Server Version: 4.9.18
 Kubernetes Version: v1.22.3+e790d7f</p>
