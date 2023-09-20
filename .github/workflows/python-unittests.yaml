@@ -10,7 +10,7 @@ jobs:
   unittest:
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.10']
+        python-version: [3.8, 3.9, "3.10", 3.11]
         platform: ["linux.20_04.4x"]
         include:
           - python-version: 3.9
@@ -32,7 +32,10 @@ jobs:
         run: |
           set -eux
           pip install pytest pytest-cov
-          pip install -e .[dev]
+          # use legacy resolver for python 3.11, otherwise pip will timeout trying to resolve deps
+          # TODO(kiukchung) long term we should narrowly scope dependency versions
+          # see: https://pip.pypa.io/en/latest/topics/dependency-resolution/
+          pip install --use-deprecated=legacy-resolver -e .[dev]
       - name: Run tests
         run: pytest --cov=./ --cov-report=xml
       - name: Upload coverage to Codecov

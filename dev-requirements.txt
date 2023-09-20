@@ -14,6 +14,8 @@ ipython
 kfp==1.8.22
 mlflow-skinny
 moto==4.1.6
+# kfp==1.8.22 needs protobuf < 4
+protobuf==3.20.3
 pyre-extensions
 pyre-check
 pytest

@@ -4,7 +4,8 @@ importlib-metadata
 pyyaml
 docker
 filelock
-fsspec
+# more recent versions of fsspec causes torchx/workspace/test/dir_workspace_test#test_torchcxignore to fail
+fsspec==2023.1.0
 # To resolve confliciting dependencies for urllib3: https://github.com/pytorch/torchx/actions/runs/3484190429/jobs/5828784263#step:4:552
 urllib3<1.27,>=1.21.1
 tabulate
