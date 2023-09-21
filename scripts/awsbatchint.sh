@@ -21,7 +21,7 @@ cd "$DIR"
 cat <<EOT > .torchxconfig
 [aws_batch]
 queue=torchx
-image_repo=495572122715.dkr.ecr.us-west-2.amazonaws.com/torchx/integration-tests
+image_repo=495572122715.dkr.ecr.us-west-1.amazonaws.com/torchx/integration-tests
 EOT
 
 cat <<EOT > main.py
