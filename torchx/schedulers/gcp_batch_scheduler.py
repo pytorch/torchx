@@ -479,7 +479,7 @@ def create_scheduler(
     session_name: str,
     # pyre-fixme[2]: Parameter annotation cannot be `Any`.
     client: Optional[Any] = None,
-    **kwargs: object
+    **kwargs: object,
 ) -> GCPBatchScheduler:
     return GCPBatchScheduler(
         session_name=session_name,

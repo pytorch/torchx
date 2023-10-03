@@ -95,8 +95,16 @@ class MockPaginator:
 
 class AWSBatchSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
-        scheduler = create_scheduler("foo")
+        client = MagicMock()
+        log_client = MagicMock()
+        docker_client = MagicMock()
+        scheduler = create_scheduler(
+            "foo", client=client, log_client=log_client, docker_client=docker_client
+        )
         self.assertIsInstance(scheduler, AWSBatchScheduler)
+        self.assertEqual(scheduler._client, client)
+        self.assertEqual(scheduler._log_client, log_client)
+        self.assertEqual(scheduler._docker_client, docker_client)
 
     def test_submit_dryrun_with_share_id(self) -> None:
         app = _test_app()
