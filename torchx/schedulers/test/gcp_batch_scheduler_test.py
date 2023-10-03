@@ -57,8 +57,10 @@ def mock_rand() -> Generator[None, None, None]:
 
 class GCPBatchSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
-        scheduler = create_scheduler("foo")
+        client = MagicMock()
+        scheduler = create_scheduler("foo", client=client)
         self.assertIsInstance(scheduler, GCPBatchScheduler)
+        self.assertEqual(scheduler._client, client)
 
     @mock_rand()
     def test_submit_dryrun(self) -> None:

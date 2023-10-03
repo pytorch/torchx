@@ -159,10 +159,14 @@ def _test_app(num_replicas: int = 1) -> specs.AppDef:
 
 class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
-        scheduler = create_scheduler("foo")
+        client = MagicMock()
+        docker_client = MagicMock()
+        scheduler = create_scheduler("foo", client=client, docker_client=docker_client)
         self.assertIsInstance(
             scheduler, kubernetes_mcad_scheduler.KubernetesMCADScheduler
         )
+        self.assertEquals(client, scheduler._client)
+        self.assertEquals(docker_client, scheduler._docker_client)
 
     def test_app_to_resource_resolved_macros(self) -> None:
         app = _test_app()

@@ -142,6 +142,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # pyre-fixme[2]: Parameter annotation cannot be `Any`.
         client: Optional[Any] = None,
     ) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         Scheduler.__init__(self, "gcp_batch", session_name)
         # pyre-fixme[4]: Attribute annotation cannot be `Any`.
         self.__client = client
@@ -474,7 +475,13 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         self._client.delete_job(request=request)
 
 
-def create_scheduler(session_name: str, **kwargs: object) -> GCPBatchScheduler:
+def create_scheduler(
+    session_name: str,
+    # pyre-fixme[2]: Parameter annotation cannot be `Any`.
+    client: Optional[Any] = None,
+    **kwargs: object,
+) -> GCPBatchScheduler:
     return GCPBatchScheduler(
         session_name=session_name,
+        client=client,
     )

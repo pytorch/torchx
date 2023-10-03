@@ -438,6 +438,7 @@ class LsfScheduler(Scheduler[LsfOpts]):
     """
 
     def __init__(self, session_name: str) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         super().__init__("lsf", session_name)
 
     def _run_opts(self) -> runopts:

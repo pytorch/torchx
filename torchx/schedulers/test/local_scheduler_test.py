@@ -174,9 +174,11 @@ class CWDImageProviderTest(unittest.TestCase):
         self.assertEqual(self.provider.get_entrypoint("asdf", role), "entrypoint.sh")
 
     def test_create_scheduler(self) -> None:
-        sched = create_scheduler("foo")
+        sched = create_scheduler("foo", cache_size=20, extra_paths=["foo"])
         self.assertEqual(sched.session_name, "foo")
         self.assertEqual(sched._image_provider_class, CWDImageProvider)
+        self.assertEqual(sched._cache_size, 20)
+        self.assertEqual(len(sched._extra_paths), 1)
 
 
 LOCAL_SCHEDULER_MAKE_UNIQUE = "torchx.schedulers.local_scheduler.make_unique"

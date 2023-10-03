@@ -556,6 +556,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         cache_size: int = 100,
         extra_paths: Optional[List[str]] = None,
     ) -> None:
+        # NOTE: make sure any new init options are supported in create_scheduler(...)
         super().__init__("local", session_name)
 
         # TODO T72035686 replace dict with a proper LRUCache data structure
@@ -1124,9 +1125,15 @@ class LogIterator:
                 return line
 
 
-def create_scheduler(session_name: str, **kwargs: Any) -> LocalScheduler:
+def create_scheduler(
+    session_name: str,
+    cache_size: int = 100,
+    extra_paths: Optional[List[str]] = None,
+    **kwargs: Any,
+) -> LocalScheduler:
     return LocalScheduler(
         session_name=session_name,
-        cache_size=kwargs.get("cache_size", 100),
         image_provider_class=CWDImageProvider,
+        cache_size=cache_size,
+        extra_paths=extra_paths,
     )
