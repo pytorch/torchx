@@ -1,5 +1,42 @@
 # CHANGELOG
 
+## torchx-0.6.0
+
+* Breaking changes
+  * Drop support for python 3.7.
+  * Upgrade docker base image python version to 2.0
+
+* `torchx.schedulers`
+  * Add support for options in create_schedulers factory method that allows scheduler configuration in runner
+  * Kubernetes MCAD Scheduler
+     * Add support for retrying
+     * Test, formatting and documentation updates
+  * AWS Batch Scheduler
+    * Fix logging rank attribution
+  * Ray Scheduler
+    * Add ability to programmatically define ray job client
+
+* `torchx.tracker`
+  * Fix adding artifacts to MLFlowTracker by multiple ranks
+
+* `torchx.components`
+  * dst.ddp
+    * Add ability to specify rendezvous backend and use c10d as a default mechanism
+    * Add node_rank parameter value for static rank setup
+
+* `torchx.runner`
+  * Resolve run_opts when passing to `torchx.workpsace` and for dry-run to correctly populate the values
+
+* `torchx.runner.events`
+  * Add support to log CPU and wall times
+
+* `torchx.cli`
+  * Wait for app to start when logging
+
+* `torchx.specs`
+  * Role.resources uses default_factory method to initialize its value
+
+
 ## torchx-0.5.0
 
 * Milestone: https://github.com/pytorch/torchx/milestone/7
