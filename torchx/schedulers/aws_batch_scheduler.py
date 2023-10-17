@@ -516,6 +516,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     TAG_TORCHX_VER: torchx.__version__,
                     TAG_TORCHX_APPNAME: app.name,
                     TAG_TORCHX_USER: cfg.get("user"),
+                    **app.metadata,
                 },
             },
             **({"schedulingPriority": priority} if share_id is not None else {}),
