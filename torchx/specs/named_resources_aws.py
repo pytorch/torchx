@@ -33,6 +33,8 @@ from typing import Callable, Mapping
 
 from torchx.specs.api import Resource
 
+EFA_DEVICE = "vpc.amazonaws.com/efa"
+
 # ecs and ec2 have memtax and currently AWS Batch uses hard memory limits
 # so we have to account for mem tax when registering these resources for AWS
 # otherwise the job will be stuck in the jobqueue forever
@@ -63,20 +65,32 @@ def aws_p3_16xlarge() -> Resource:
 
 def aws_p3dn_24xlarge() -> Resource:
     return Resource(
-        cpu=96, gpu=8, memMB=768 * GiB, capabilities={K8S_ITYPE: "p3dn.24xlarge"}
+        cpu=96,
+        gpu=8,
+        memMB=768 * GiB,
+        capabilities={K8S_ITYPE: "p3dn.24xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
 def aws_p4d_24xlarge() -> Resource:
     return Resource(
-        cpu=96, gpu=8, memMB=1152 * GiB, capabilities={K8S_ITYPE: "p4d.24xlarge"}
+        cpu=96,
+        gpu=8,
+        memMB=1152 * GiB,
+        capabilities={K8S_ITYPE: "p4d.24xlarge"},
+        devices={EFA_DEVICE: 4},
     )
 
 
 def aws_p4de_24xlarge() -> Resource:
     # p4de has same cpu, gpu, memMB as p4d but gpu memory is 2x (32GB vs 64GB per GPU)
     return Resource(
-        cpu=96, gpu=8, memMB=1152 * GiB, capabilities={K8S_ITYPE: "p4de.24xlarge"}
+        cpu=96,
+        gpu=8,
+        memMB=1152 * GiB,
+        capabilities={K8S_ITYPE: "p4de.24xlarge"},
+        devices={EFA_DEVICE: 4},
     )
 
 
