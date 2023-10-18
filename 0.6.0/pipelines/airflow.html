@@ -94,7 +94,19 @@
           </li>
 
           <li>
-            <a href="https://pytorch.org/mobile">Mobile</a>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                PyTorch Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">About PyTorch Edge</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch">
+                  <span class="dropdown-title">ExecuTorch</span>
+                </a>
+              </div>
+            </div>  
           </li>
 
           <li>
@@ -478,7 +490,7 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_166281/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_4225/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
 </pre></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -486,18 +498,18 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-blue-fg">2023-10-17T17:33:04.344+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1159} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-jklnpjczbhjrsc.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2023-10-17T17:33:04.351+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1159} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-jklnpjczbhjrsc.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2023-10-17T17:33:04.352+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1361} INFO - Starting attempt 1 of 1
-[<span class="ansi-blue-fg">2023-10-17T17:33:04.352+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1430} WARNING - cannot record queued_duration for task hello_torchx because previous state change time has not been saved
-[<span class="ansi-blue-fg">2023-10-17T17:33:04.367+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1382} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
-[<span class="ansi-blue-fg">2023-10-17T17:33:04.705+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1662} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER=&#39;airflow&#39; AIRFLOW_CTX_DAG_ID=&#39;example_python_operator-jklnpjczbhjrsc&#39; AIRFLOW_CTX_TASK_ID=&#39;hello_torchx&#39; AIRFLOW_CTX_EXECUTION_DATE=&#39;2021-09-13T00:00:00+00:00&#39; AIRFLOW_CTX_TRY_NUMBER=&#39;1&#39; AIRFLOW_CTX_DAG_RUN_ID=&#39;manual__2021-09-13T00:00:00+00:00&#39;
-[<span class="ansi-blue-fg">2023-10-17T17:33:05.710+0000</span>] {<span class="ansi-blue-fg">api.py:</span>70} INFO - Tracker configurations: {}
-[<span class="ansi-blue-fg">2023-10-17T17:33:05.714+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>716} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-[<span class="ansi-blue-fg">2023-10-17T17:33:05.715+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>722} INFO - Log directory is: /tmp/torchx_kyn5hizs
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.012+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1159} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-f5gh7krpnw270c.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.017+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1159} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-f5gh7krpnw270c.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.018+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1361} INFO - Starting attempt 1 of 1
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.019+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1430} WARNING - cannot record queued_duration for task hello_torchx because previous state change time has not been saved
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.028+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1382} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.272+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1662} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER=&#39;airflow&#39; AIRFLOW_CTX_DAG_ID=&#39;example_python_operator-f5gh7krpnw270c&#39; AIRFLOW_CTX_TASK_ID=&#39;hello_torchx&#39; AIRFLOW_CTX_EXECUTION_DATE=&#39;2021-09-13T00:00:00+00:00&#39; AIRFLOW_CTX_TRY_NUMBER=&#39;1&#39; AIRFLOW_CTX_DAG_RUN_ID=&#39;manual__2021-09-13T00:00:00+00:00&#39;
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.908+0000</span>] {<span class="ansi-blue-fg">api.py:</span>70} INFO - Tracker configurations: {}
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.911+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>716} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+[<span class="ansi-blue-fg">2023-10-18T20:47:28.912+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>722} INFO - Log directory is: /tmp/torchx_q9n4v08c
 Hello, TorchX!
-[<span class="ansi-blue-fg">2023-10-17T17:33:06.724+0000</span>] {<span class="ansi-blue-fg">python.py:</span>194} INFO - Done. Returned value was: None
-[<span class="ansi-blue-fg">2023-10-17T17:33:06.728+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1400} INFO - Marking task as SUCCESS. dag_id=example_python_operator-jklnpjczbhjrsc, task_id=hello_torchx, execution_date=20210913T000000, start_date=20231017T173304, end_date=20231017T173306
+[<span class="ansi-blue-fg">2023-10-18T20:47:29.019+0000</span>] {<span class="ansi-blue-fg">python.py:</span>194} INFO - Done. Returned value was: None
+[<span class="ansi-blue-fg">2023-10-18T20:47:29.024+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1400} INFO - Marking task as SUCCESS. dag_id=example_python_operator-f5gh7krpnw270c, task_id=hello_torchx, execution_date=20210913T000000, start_date=20231018T204728, end_date=20231018T204729
 </pre></div></div>
 </div>
 <p>If all goes well you should see <code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">TorchX!</span></code> printed above.</p>
@@ -682,9 +694,9 @@ Hello, TorchX!
         <div class="copyright">
         <p>© Copyright The Linux Foundation. The PyTorch Foundation is a project of The Linux Foundation.
           For web site terms of use, trademark policy and other policies applicable to The PyTorch Foundation please see
-          <a href="www.linuxfoundation.org/policies/">www.linuxfoundation.org/policies/</a>. The PyTorch Foundation supports the PyTorch open source
+          <a href="https://www.linuxfoundation.org/policies/">www.linuxfoundation.org/policies/</a>. The PyTorch Foundation supports the PyTorch open source
           project, which has been established as PyTorch Project a Series of LF Projects, LLC. For policies applicable to the PyTorch Project a Series of LF Projects, LLC,
-          please see <a href="www.lfprojects.org/policies/">www.lfprojects.org/policies/</a>.</p>
+          please see <a href="https://www.lfprojects.org/policies/">www.lfprojects.org/policies/</a>.</p>
       </div>
      </div>
 
@@ -723,7 +735,7 @@ Hello, TorchX!
           </li>
             
           <li>
-            <a href="https://pytorch.org/mobile">Mobile</a>
+            <a href="">Mobile</a>
           </li>
 
           <li>
