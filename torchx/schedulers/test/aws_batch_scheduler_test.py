@@ -54,7 +54,7 @@ def _test_app() -> specs.AppDef:
         ],
     )
 
-    return specs.AppDef("test", roles=[trainer_role])
+    return specs.AppDef("test", roles=[trainer_role], metadata={"FIZZ": "buzz"})
 
 
 @contextmanager
@@ -144,6 +144,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 "torchx.pytorch.org/version": torchx.__version__,
                 "torchx.pytorch.org/app-name": "test",
                 "torchx.pytorch.org/user": "testuser",
+                "FIZZ": "buzz",
             },
             info.request.job_def["tags"],
         )
@@ -231,6 +232,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                     "torchx.pytorch.org/version": torchx.__version__,
                     "torchx.pytorch.org/app-name": "test",
                     "torchx.pytorch.org/user": "testuser",
+                    "FIZZ": "buzz",
                 },
             },
         )
