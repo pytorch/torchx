@@ -81,6 +81,7 @@ from torchx.specs.api import (
     runopts,
     VolumeMount,
 )
+from torchx.specs.named_resources_aws import instance_type_from_resource
 from torchx.util.types import none_throws
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
@@ -244,6 +245,10 @@ def _role_to_node_properties(
         "mountPoints": mount_points,
         "volumes": volumes,
     }
+    if role.num_replicas > 1:
+        instance_type = instance_type_from_resource(role.resource)
+        if instance_type is not None:
+            container["instanceType"] = instance_type
 
     return {
         "targetNodes": f"{start_idx}:{start_idx + role.num_replicas - 1}",
