@@ -1,0 +1,1256 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>torchx.runner.config &mdash; PyTorch/TorchX main documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/torchx.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','UA-117752657-2');</script>
+    <!-- End Google Tag Manager -->
+  
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+
+          <li>
+          <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                PyTorch Edge
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/edge">
+                  <span class="dropdown-title">About PyTorch Edge</span>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/executorch">
+                  <span class="dropdown-title">ExecuTorch</span>
+                </a>
+              </div>
+            </div>  
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/docs/stable/index.html">
+                  <span class="dropdown-title">PyTorch</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/audio/stable/index.html">
+                  <span class="dropdown-title">torchaudio</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/text/stable/index.html">
+                  <span class="dropdown-title">torchtext</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/vision/stable/index.html">
+                  <span class="dropdown-title">torchvision</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
+                  <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
+                  <span class="dropdown-title">TorchServe</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchx/">
+                  <span class="dropdown-title">TorchX</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/xla">
+                  <span class="dropdown-title">PyTorch on XLA Devices</span>
+                  <p></p>
+                </a>
+            </div>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="https://pytorch.org/features">
+                  <span class="dropdown-title">About</span>
+                  <p>Learn about PyTorch’s features and capabilities</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/resources">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/hub">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">GitHub</a>
+          </li>
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+  
+  
+    <div id="redirect-banner" style="display: none">
+      <p>
+        This is the public documentation. There's an internal wiki with extra
+        information for Meta employees at
+        <a href="https://fburl.com/torchx">https://fburl.com/torchx</a>
+      </p>
+    </div>
+  
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+    <div class="version">
+      <a href='/torchx/versions.html'>v0.7.0dev0 &#x25BC</a>
+    </div>
+    
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Basic Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.config.html">.torchxconfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom_components.html">Custom Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tracker.html">torchx.tracker</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Schedulers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/local.html">Local</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/docker.html">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/kubernetes_mcad.html">Kubernetes-MCAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/slurm.html">Slurm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/ray.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/lsf.html">IBM Spectrum LSF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers/gcp_batch.html">GCP Batch</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Pipelines</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/kfp.html">Kubeflow Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines/airflow.html">Airflow</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_apps/index.html">Application Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples_pipelines/index.html">Pipelines Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/train.html">Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/distributed.html">Distributed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/interpret.html">Interpret</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/metrics.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/serve.html">Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/utils.html">Utils</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Application (Runtime)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runtime/tracking.html">Tracking</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../specs.html">torchx.specs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../runner.html">torchx.runner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../schedulers.html">torchx.schedulers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workspace.html">torchx.workspace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipelines.html">torchx.pipelines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../app_best_practices.html">App Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../component_best_practices.html">Component Best Practices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+          <li><a href="../../index.html">Module code</a> &gt;</li>
+        
+      <li>torchx.runner.config</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+  
+
+  <!-- copied from pytorch_sphinx_theme -->
+  
+  <div class="rst-content">
+  
+    <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+     <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+      
+  <h1>Source code for torchx.runner.config</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Meta Platforms, Inc. and affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This source code is licensed under the BSD-style license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Status: Beta</span>
+
+<span class="sd">You can store the scheduler run cfg (run configs) for your project</span>
+<span class="sd">by storing them in the ``.torchxconfig`` file. Currently this file is only read</span>
+<span class="sd">and honored when running the component from the CLI.</span>
+
+<span class="sd">CLI Usage</span>
+<span class="sd">~~~~~~~~~~~</span>
+
+
+<span class="sd">**Scheduler Config**</span>
+
+<span class="sd">#. ``cd`` into the directory where you want the ``.torchxconfig`` file to be dropped.</span>
+<span class="sd">   The CLI only picks up ``.torchxconfig`` files from the current-working-directory (CWD)</span>
+<span class="sd">   so chose a directory where you typically run ``torchx`` from. Typically this</span>
+<span class="sd">   is the root of your project directory.</span>
+
+<span class="sd">#. Generate the config file by running</span>
+
+<span class="sd">   .. code-block:: shell-session</span>
+
+<span class="sd">    $ torchx configure -s &lt;comma,delimited,scheduler,names&gt;</span>
+
+<span class="sd">    # -- or for all registered schedulers --</span>
+<span class="sd">    $ torchx configure</span>
+
+<span class="sd">#. If you specified ``-s local_cwd,kubernetes``, you should see a ``.torchxconfig``</span>
+<span class="sd">   file as shown below:</span>
+
+<span class="sd">   .. code-block:: shell-session</span>
+
+<span class="sd">    $ cat .torchxconfig</span>
+<span class="sd">    [local_cwd]</span>
+
+<span class="sd">    [kubernetes]</span>
+<span class="sd">    queue = #FIXME:(str) Volcano queue to schedule job in</span>
+
+<span class="sd">#. ``.torchxconfig`` in in INI format and the section names map to the scheduler names.</span>
+<span class="sd">   Each section contains the run configs for the scheduler as ``$key = $value`` pairs.</span>
+<span class="sd">   You may find that certain schedulers have empty sections, this means that</span>
+<span class="sd">   the scheduler defines sensible defaults for all its run configs hence no run configs</span>
+<span class="sd">   are required at runtime. If you&#39;d like to override the default you can add them.</span>
+<span class="sd">   **TIP:** To see all the run options for a scheduler use ``torchx runopts &lt;scheduler_name&gt;``.</span>
+
+<span class="sd">#. The sections with ``FIXME`` placeholders are run configs that are required</span>
+<span class="sd">   by the scheduler. Replace these with the values that apply to you.</span>
+
+<span class="sd">#. **IMPORTANT:** If you are happy with the scheduler provided defaults for a particular</span>
+<span class="sd">   run config, you **should not** redundantly specify them in ``.torchxconfig`` with the</span>
+<span class="sd">   same default value. This is because the scheduler may decide to change the default</span>
+<span class="sd">   value at a later date which would leave you with a stale default.</span>
+
+<span class="sd">#. Now you can run your component without having to specify the scheduler run configs</span>
+<span class="sd">   each time. Just make sure the directory you are running ``torchx`` cli from actually</span>
+<span class="sd">   has ``.torchxconfig``!</span>
+
+<span class="sd">   .. code-block:: shell-session</span>
+
+<span class="sd">    $ ls .torchxconfig</span>
+<span class="sd">    .torchxconfig</span>
+
+<span class="sd">    $ torchx run -s local_cwd ./my_component.py:train</span>
+
+<span class="sd">#. In addition, it is possible to specify a different config other than .torchxconfig to</span>
+<span class="sd">   load at runtime. Requirements are that the config path is specified by enviornment</span>
+<span class="sd">   variable TORCHX_CONFIG. It also disables hierarchy loading configs from multiple</span>
+<span class="sd">   directories as the cases otherwise.</span>
+
+<span class="sd">#. User level .torchxconfig</span>
+<span class="sd">   In addition to the project-level .torchxconfig at the root of the project directory,</span>
+<span class="sd">   you can create one in ``$HOME/.torchxconfig`` to override or specify additional default configs.</span>
+<span class="sd">   This config file will get overlaid on top of the one defined at the project root.</span>
+
+<span class="sd">#. Config options take the following precedence (high to low):</span>
+<span class="sd">    1. Options specified directly from the CLI</span>
+<span class="sd">    2. If TORCHXCONFIG env variable is set, the options specified in that file</span>
+<span class="sd">    3. If TORCHXCONFIG env variable is not set,</span>
+<span class="sd">        a. Options specified in user level .torchxconfig (``$HOME/.torchxconfig``)</span>
+<span class="sd">        b. Options specified in .torchxconfig</span>
+<span class="sd">    4. Any default values in the code</span>
+
+<span class="sd">   Note that malformed or unrecognized options are simply skipped and not applied</span>
+
+<span class="sd">**Component Config**</span>
+
+<span class="sd">You can specify component defaults by adding a section prefixed with</span>
+<span class="sd">``component:``.</span>
+
+<span class="sd">.. code-block:: ini</span>
+
+<span class="sd">    [component:dist.ddp]</span>
+<span class="sd">    j=2x8</span>
+<span class="sd">    cpu=4</span>
+
+<span class="sd">Now when you run the ``dist.ddp`` component those configs are automatically</span>
+<span class="sd">picked up.</span>
+
+<span class="sd">.. code-block:: shell-session</span>
+
+<span class="sd">    $ torchx run -s local_cwd dist.ddp</span>
+<span class="sd">    ... runs with -j 2x8 --cpu 4</span>
+
+
+<span class="sd">**CLI Subcommand Config**</span>
+
+<span class="sd">The default arguments for the ``torchx`` subcommands can be overwritten. Any</span>
+<span class="sd">``--foo FOO`` argument can be set via the correspond ``[cli:&lt;cmd&gt;]`` settings</span>
+<span class="sd">block.</span>
+
+<span class="sd">For the ``run`` command you can additionally set ``component`` to set the</span>
+<span class="sd">default component to run.</span>
+
+<span class="sd">.. code-block:: ini</span>
+
+<span class="sd">    [cli:run]</span>
+<span class="sd">    component=dist.ddp</span>
+<span class="sd">    scheduler=local_docker</span>
+<span class="sd">    workspace=file://some_workspace</span>
+
+
+<span class="sd">Programmatic Usage</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">Unlike the cli, ``.torchxconfig`` file **is not** picked up automatically</span>
+<span class="sd">from ``CWD`` if you are programmatically running your component with :py:class:`torchx.runner.Runner`.</span>
+<span class="sd">You&#39;ll have to manually specify the directory containing ``.torchxconfig``.</span>
+
+<span class="sd">Below is an example</span>
+
+<span class="sd">.. doctest:: [runner_config_example]</span>
+
+<span class="sd"> from torchx.runner import get_runner</span>
+<span class="sd"> from torchx.runner.config import apply</span>
+<span class="sd"> import torchx.specs as specs</span>
+
+<span class="sd"> def my_component(a: int) -&gt; specs.AppDef:</span>
+<span class="sd">    # &lt;... component body omitted for brevity ...&gt;</span>
+<span class="sd">    pass</span>
+
+<span class="sd"> scheduler = &quot;local_cwd&quot;</span>
+<span class="sd"> cfg = {&quot;log_dir&quot;: &quot;/these/take/outmost/precedence&quot;}</span>
+
+<span class="sd"> apply(scheduler, cfg, dirs=[&quot;/home/bob&quot;])  # looks for /home/bob/.torchxconfig</span>
+<span class="sd"> get_runner().run(my_component(1), scheduler, cfg)</span>
+
+<span class="sd">You may also specify multiple directories (in preceding order) which is useful when</span>
+<span class="sd">you want to keep personal config overrides on top of a project defined default.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">configparser</span> <span class="k">as</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
+
+<span class="kn">from</span> <span class="nn">torchx.schedulers</span> <span class="kn">import</span> <span class="n">get_scheduler_factories</span><span class="p">,</span> <span class="n">Scheduler</span>
+<span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">get_type_name</span>
+<span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">runopt</span>
+
+
+<span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;.torchxconfig&quot;</span>
+<span class="n">CONFIG_PREFIX_DELIM</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
+<span class="n">ENV_TORCHXCONFIG</span> <span class="o">=</span> <span class="s2">&quot;TORCHXCONFIG&quot;</span>
+<span class="n">DEFAULT_CONFIG_DIRS</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()),</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())]</span>
+
+<span class="n">_NONE</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+
+<span class="n">log</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_configparser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets up the configparser and returns it. The same config parser</span>
+<span class="sd">    should be used between dumps() and loads() methods for ser/de compatibility</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="c1"># if optionxform is not overridden, configparser will by default lowercase</span>
+    <span class="c1"># the option keys because it is compatible with Windows INI files</span>
+    <span class="c1"># which are expected to be parsed case insensitive.</span>
+    <span class="c1"># override since torchx&#39;s runopts are case-sensitive</span>
+    <span class="c1"># see: https://stackoverflow.com/questions/19359556/configparser-reads-capital-keys-and-make-them-lower-case</span>
+    <span class="c1"># pyre-ignore[8]</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">option</span><span class="p">:</span> <span class="n">option</span>
+
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span> <span class="nf">_get_scheduler</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scheduler</span><span class="p">:</span>
+    <span class="n">schedulers</span> <span class="o">=</span> <span class="n">get_scheduler_factories</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schedulers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` is not a registered scheduler. Valid scheduler names: </span><span class="si">{</span><span class="n">schedulers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">sched</span> <span class="o">=</span> <span class="n">schedulers</span><span class="p">[</span><span class="n">name</span><span class="p">](</span><span class="n">session_name</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sched</span>
+
+
+<span class="k">def</span> <span class="nf">_fixme_placeholder</span><span class="p">(</span><span class="n">runopt</span><span class="p">:</span> <span class="n">runopt</span><span class="p">,</span> <span class="n">max_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">ph</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;#FIXME:(</span><span class="si">{</span><span class="n">get_type_name</span><span class="p">(</span><span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">)</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">runopt</span><span class="o">.</span><span class="n">help</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">ph</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ph</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_len</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ph</span><span class="p">[:</span><span class="n">max_len</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
+
+
+<div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.dump">[docs]</a><span class="k">def</span> <span class="nf">dump</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">schedulers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dumps a default INI-style config template containing the :py:class:torchx.specs.runopts for the</span>
+<span class="sd">    given scheduler names into the file-like object specified by ``f``.</span>
+<span class="sd">    If no ``schedulers`` are specified dumps all known registered schedulers.</span>
+
+<span class="sd">    Optional runopts are pre-filled  with their default values.</span>
+<span class="sd">    Required runopts are set with a ``FIXME: ...`` placeholder.</span>
+<span class="sd">    To only dump required runopts pass ``required_only=True``.</span>
+
+<span class="sd">    Each scheduler&#39;s runopts are written in the section called</span>
+<span class="sd">    ``[{scheduler_name}]``.</span>
+
+<span class="sd">    For example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     [kubernetes]</span>
+<span class="sd">     namespace = default</span>
+<span class="sd">     queue = #FIXME (str)Volcano queue to schedule job in</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if given a scheduler name that is not known</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">schedulers</span><span class="p">:</span>
+        <span class="n">scheds</span> <span class="o">=</span> <span class="n">schedulers</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scheds</span> <span class="o">=</span> <span class="n">get_scheduler_factories</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">_configparser</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">sched_name</span> <span class="ow">in</span> <span class="n">scheds</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="n">_get_scheduler</span><span class="p">(</span><span class="n">sched_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">section</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sched_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">opt_name</span><span class="p">,</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">sched</span><span class="o">.</span><span class="n">run_opts</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_required</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">_fixme_placeholder</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># not required runopts MUST have a default</span>
+                <span class="k">if</span> <span class="n">required_only</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># serialize list elements with `;` delimiter (consistent with torchx cli)</span>
+                <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">opt_type</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                    <span class="c1"># deal with empty or None default lists</span>
+                    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+                        <span class="c1"># pyre-ignore[6] opt.default type checked already as List[str]</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="n">_NONE</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">opt_name</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">space_around_delimiters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="apply"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.apply">[docs]</a><span class="k">def</span> <span class="nf">apply</span><span class="p">(</span>
+    <span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">],</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a ``.torchxconfig`` INI file from the specified directories in</span>
+<span class="sd">    preceding order and applies the run configs for the scheduler onto</span>
+<span class="sd">    the given ``cfg``.</span>
+
+<span class="sd">    If no ``dirs`` is specified, then it looks for ``.torchxconfig`` in the</span>
+<span class="sd">    current working directory. If a specified directory does not have ``.torchxconfig``</span>
+<span class="sd">    then it is ignored.</span>
+
+<span class="sd">    Note that the configs already present in the given ``cfg`` take precedence</span>
+<span class="sd">    over the ones in the config file and only new configs are added. The same holds</span>
+<span class="sd">    true for the configs loaded in list order.</span>
+
+<span class="sd">    For instance if ``cfg={&quot;foo&quot;:&quot;bar&quot;}`` and the config file is:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # dir_1/.torchxconfig</span>
+<span class="sd">     [local_cwd]</span>
+<span class="sd">     foo = baz</span>
+<span class="sd">     hello = world</span>
+
+<span class="sd">     # dir_2/.torchxconfig</span>
+<span class="sd">     [local_cwd]</span>
+<span class="sd">     hello = bob</span>
+
+
+<span class="sd">    Then after the method call, ``cfg={&quot;foo&quot;:&quot;bar&quot;,&quot;hello&quot;:&quot;world&quot;}``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">configfile</span> <span class="ow">in</span> <span class="n">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;loaded configs from </span><span class="si">{</span><span class="n">configfile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_sections"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load_sections">[docs]</a><span class="k">def</span> <span class="nf">load_sections</span><span class="p">(</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the content of the sections in the given ``.torchxconfig`` file</span>
+<span class="sd">    that start with the specified prefix. Returns a map of maps of the</span>
+<span class="sd">    section name WITHOUT the prefix with the contents of the section loaded</span>
+<span class="sd">    into a map. ``&quot;:&quot;`` is used as the prefix delimiter.</span>
+
+<span class="sd">    Example config format for specifying defaults for the builtin</span>
+<span class="sd">    component ``dist.ddp`` is shown below:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     [component:dist.ddp]</span>
+<span class="sd">     j = 1x2</span>
+<span class="sd">     image = ghcr.io/foo:1</span>
+
+<span class="sd">     # calling `load_sections(prefix=&quot;component&quot;)` returns</span>
+<span class="sd">     #  {</span>
+<span class="sd">     #    &quot;dist.ddp&quot;: {</span>
+<span class="sd">     #       &quot;j&quot;:&quot;1x2&quot;,</span>
+<span class="sd">     #       &quot;image&quot;:&quot;ghcr.io/foo:1&quot;,</span>
+<span class="sd">     #     },</span>
+<span class="sd">     #  }</span>
+
+
+<span class="sd">    The keys in the section must match the parameter name of the component function.</span>
+<span class="sd">    The example below shows how to represent the various types that are allowable</span>
+<span class="sd">    as component parameter types.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     [component:foo.bar]</span>
+<span class="sd">     int = 1</span>
+<span class="sd">     float = 1.2</span>
+<span class="sd">     bool = True # or False</span>
+<span class="sd">     str = foobar</span>
+<span class="sd">     list = a,b,c</span>
+<span class="sd">     map = A=B,C=D</span>
+<span class="sd">     vararg = -a b --c=d e</span>
+
+<span class="sd">     # to call the component as:</span>
+<span class="sd">     foo.bar(</span>
+<span class="sd">        &quot;-a&quot;, &quot;b&quot;, &quot;--c=d&quot;, &quot;e&quot;,</span>
+<span class="sd">        int=1,</span>
+<span class="sd">        float=1.2,</span>
+<span class="sd">        bool=True,</span>
+<span class="sd">        str=&quot;foobar&quot;,</span>
+<span class="sd">        list=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;],</span>
+<span class="sd">        map={&quot;A&quot;:&quot;B&quot;, &quot;C&quot;: &quot;D&quot;})</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">strip_prefix</span><span class="p">(</span><span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># returns the section_name with the prefix removed</span>
+        <span class="c1"># or None if the section name does not match the prefix</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">section_name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">CONFIG_PREFIX_DELIM</span><span class="p">)</span>
+
+        <span class="c1"># index guard (e.g &quot;:foo&quot; and &quot;foo:&quot; are bad, just return None)</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">section_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">prefix</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">section_name</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">sections</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">configfile</span> <span class="ow">in</span> <span class="n">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">_configparser</span><span class="p">()</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">strip_prefix</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="n">sections</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section_name</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
+                        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Loaded config: </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">configfile</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">section</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">sections</span></div>
+
+
+<div class="viewcode-block" id="get_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.get_configs">[docs]</a><span class="k">def</span> <span class="nf">get_configs</span><span class="p">(</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets all the config values in the section ``[&quot;{prefix}:{name}&quot;]``.</span>
+<span class="sd">    Or an empty map if the section does not exist.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # for config file:</span>
+<span class="sd">     # [foo:bar]</span>
+<span class="sd">     # baz = 1</span>
+
+<span class="sd">     get_configs(prefix=&quot;foo&quot;, name=&quot;bar&quot;) # returns {&quot;baz&quot;: &quot;1&quot;}</span>
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;barr&quot;) # returns {}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sections</span> <span class="o">=</span> <span class="n">load_sections</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span></div>
+
+
+<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the config value for the ``key`` in the section ``[&quot;{prefix}:{name}&quot;]``.</span>
+<span class="sd">    Or ``None`` if no section or key exists</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">     # for config file:</span>
+<span class="sd">     # [foo:bar]</span>
+<span class="sd">     # baz = 1</span>
+
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;bar&quot;, key=&quot;baz&quot;) == 1</span>
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;bar&quot;, key=&quot;bazz&quot;) == None</span>
+<span class="sd">     get_config(prefix=&quot;foo&quot;, name=&quot;barr&quot;, key=&quot;baz&quot;) == None</span>
+<span class="sd">     get_config(prefix=&quot;fooo&quot;, name=&quot;bar&quot;, key=&quot;baz&quot;) == None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_configs</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dirs</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="find_configs"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.find_configs">[docs]</a><span class="k">def</span> <span class="nf">find_configs</span><span class="p">(</span><span class="n">dirs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds and returns the filepath to ``.torchxconfig`` files based</span>
+<span class="sd">    on the following logic:</span>
+
+<span class="sd">    1. If the environment variable ``TORCHXCONFIG`` exists, then its value</span>
+<span class="sd">       is returned in a single-element list and the directories specified through</span>
+<span class="sd">       the ``dirs`` parameter is NOT searched.</span>
+<span class="sd">    2. Otherwise, a ``.torchxconfig`` file is looked for in ``dirs`` and</span>
+<span class="sd">       the filepaths to existing config files are returned. If ``dirs`` is</span>
+<span class="sd">       not specified or is empty then ``dirs`` defaults to ``[$HOME, $CWD]``</span>
+<span class="sd">       where CWD is current working dir.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ENV_TORCHXCONFIG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configfile</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">ENV_TORCHXCONFIG</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">config</span><span class="si">}</span><span class="s2">` does not exist or is not a file.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">config_files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="n">dirs</span> <span class="o">=</span> <span class="n">DEFAULT_CONFIG_DIRS</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">CONFIG_FILE</span>
+            <span class="k">if</span> <span class="n">configfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">config_files</span></div>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../../runner.config.html#torchx.runner.config.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">scheduler</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    loads the section ``[{scheduler}]`` from the given</span>
+<span class="sd">    configfile ``f`` (in .INI format) into the provided ``runcfg``, only adding</span>
+<span class="sd">    configs that are NOT currently in the given ``runcfg`` (e.g. does not</span>
+<span class="sd">    override existing values in ``runcfg``). If no section is found, does nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">_configparser</span><span class="p">()</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">runopts</span> <span class="o">=</span> <span class="n">_get_scheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span><span class="o">.</span><span class="n">run_opts</span><span class="p">()</span>
+
+    <span class="n">section</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># DO NOT OVERRIDE existing configs</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="n">_NONE</span><span class="p">:</span>
+                <span class="c1"># should map to None (not str &#39;None&#39;)</span>
+                <span class="c1"># this also handles empty or None lists</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">runopt</span> <span class="o">=</span> <span class="n">runopts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">runopt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">` was declared in the [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">] section &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; of the config file but is not a runopt of `</span><span class="si">{</span><span class="n">scheduler</span><span class="si">}</span><span class="s2">` scheduler.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; Remove the entry from the config file to no longer see this warning&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+                        <span class="c1"># need to handle bool specially since str -&gt; bool is based on</span>
+                        <span class="c1"># str emptiness not value (e.g. bool(&quot;False&quot;) == True)</span>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span> <span class="ow">is</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># pyre-ignore[29]</span>
+                        <span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">runopt</span><span class="o">.</span><span class="n">opt_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</pre></div>
+
+     </article>
+     
+    </div>
+    <footer>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, TorchX Contributors.
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+
+  </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../_static/doctools.js"></script>
+         <script src="../../../_static/katex.min.js"></script>
+         <script src="../../../_static/auto-render.min.js"></script>
+         <script src="../../../_static/katex_autorenderer.js"></script>
+         <script src="../../../_static/js/torchx.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://pytorch.org/docs/stable/index.html">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pytorch.org/tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pytorch.org/resources">View Resources</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pytorch.org/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/">PyTorch</a></li>
+            <li><a href="https://pytorch.org/get-started">Get Started</a></li>
+            <li><a href="https://pytorch.org/features">Features</a></li>
+            <li><a href="https://pytorch.org/ecosystem">Ecosystem</a></li>
+            <li><a href="https://pytorch.org/blog/">Blog</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pytorch.org/resources">Resources</a></li>
+            <li><a href="https://pytorch.org/tutorials">Tutorials</a></li>
+            <li><a href="https://pytorch.org/docs/stable/index.html">Docs</a></li>
+            <li><a href="https://discuss.pytorch.org" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/pytorch/pytorch/issues" target="_blank">Github Issues</a></li>
+            <li><a href="https://pytorch.org/assets/brand-guidelines/PyTorch-Brand-Guidelines.pdf" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">Stay up to date</li>
+            <li><a href="https://www.facebook.com/pytorch" target="_blank">Facebook</a></li>
+            <li><a href="https://twitter.com/pytorch" target="_blank">Twitter</a></li>
+            <li><a href="https://www.youtube.com/pytorch" target="_blank">YouTube</a></li>
+            <li><a href="https://www.linkedin.com/company/pytorch" target="_blank">LinkedIn</a></li>
+          </ul>  
+          </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title">PyTorch Podcasts</li>
+            <li><a href="https://open.spotify.com/show/6UzHKeiy368jKfQMKKvJY5" target="_blank">Spotify</a></li>
+            <li><a href="https://podcasts.apple.com/us/podcast/pytorch-developer-podcast/id1566080008" target="_blank">Apple</a></li>
+            <li><a href="https://www.google.com/podcasts?feed=aHR0cHM6Ly9mZWVkcy5zaW1wbGVjYXN0LmNvbS9PQjVGa0lsOA%3D%3D" target="_blank">Google</a></li>
+            <li><a href="https://music.amazon.com/podcasts/7a4e6f0e-26c2-49e9-a478-41bd244197d0/PyTorch-Developer-Podcast?" target="_blank">Amazon</a></li>
+          </ul>
+         </div>
+        </div>
+        
+        <div class="privacy-policy">
+          <ul>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/terms/" target="_blank">Terms</a></li>
+            <li class="privacy-policy-links">|</li>
+            <li class="privacy-policy-links"><a href="https://www.linuxfoundation.org/privacy-policy/" target="_blank">Privacy</a></li>
+          </ul>
+        </div>
+        <div class="copyright">
+        <p>© Copyright The Linux Foundation. The PyTorch Foundation is a project of The Linux Foundation.
+          For web site terms of use, trademark policy and other policies applicable to The PyTorch Foundation please see
+          <a href="https://www.linuxfoundation.org/policies/">www.linuxfoundation.org/policies/</a>. The PyTorch Foundation supports the PyTorch open source
+          project, which has been established as PyTorch Project a Series of LF Projects, LLC. For policies applicable to the PyTorch Project a Series of LF Projects, LLC,
+          please see <a href="https://www.lfprojects.org/policies/">www.lfprojects.org/policies/</a>.</p>
+      </div>
+     </div>
+
+  </footer>
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pytorch.org/" aria-label="PyTorch"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pytorch.org/get-started">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/ecosystem">Ecosystem</a>
+          </li>
+            
+          <li>
+            <a href="">Mobile</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/blog/">Blog</a>
+          </li>
+
+          <li>
+            <a href="https://pytorch.org/tutorials">Tutorials</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Docs
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pytorch.org/docs/stable/index.html">PyTorch</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/audio/stable/index.html">torchaudio</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/text/stable/index.html">torchtext</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/vision/stable/index.html">torchvision</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/serve/">TorchServe</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchx/">TorchX</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/xla">PyTorch on XLA Devices</a>
+            </li>
+          </ul>
+
+          <li class="resources-mobile-menu-title">
+            Resources
+          </li>
+            
+           <ul class="resources-mobile-menu-items">
+
+            <li>
+              <a href="https://pytorch.org/features">About</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/#community-module">Community</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
+              <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
+            </li>
+          </ul>
+
+          <li>
+            <a href="https://github.com/pytorch/pytorch">Github</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+</body>
+</html>
