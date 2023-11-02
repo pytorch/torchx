@@ -13,7 +13,8 @@ class MinioFS(s3fs.S3FileSystem):
     tests in minikube.
     """
 
-    protocol = ["torchx_minio", "s3", "s3a"]
+    # pyre-ignore[15] declared in fsspec.spec.AbstractFileSystem.protocol as ClassVar[str | tuple[str, ...]]
+    protocol = ("torchx_minio", "s3", "s3a")
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(
