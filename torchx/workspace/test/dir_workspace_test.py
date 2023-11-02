@@ -92,11 +92,10 @@ class DirWorkspaceTest(unittest.TestCase):
 
         files = fs.glob("torchxignoredest/*") + fs.glob("torchxignoredest/**/*")
         # strip prefix
-        files = [
+        files = {
             os.path.normpath(file.partition("torchxignoredest/")[2]) for file in files
-        ]
-        print(files)
-        self.assertCountEqual(
+        }
+        self.assertSetEqual(
             files,
             {
                 ".torchxignore",
