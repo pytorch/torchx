@@ -21,6 +21,7 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
     "kubernetes": "torchx.schedulers.kubernetes_scheduler",
     "kubernetes_mcad": "torchx.schedulers.kubernetes_mcad_scheduler",
     "aws_batch": "torchx.schedulers.aws_batch_scheduler",
+    "aws_sagemaker": "torchx.schedulers.aws_sagemaker_scheduler",
     "gcp_batch": "torchx.schedulers.gcp_batch_scheduler",
     "ray": "torchx.schedulers.ray_scheduler",
     "lsf": "torchx.schedulers.lsf_scheduler",
@@ -29,7 +30,8 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
 
 class SchedulerFactory(Protocol):
     # pyre-fixme: Scheduler opts
-    def __call__(self, session_name: str, **kwargs: object) -> Scheduler: ...
+    def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
+        ...
 
 
 def _defer_load_scheduler(path: str) -> SchedulerFactory:
