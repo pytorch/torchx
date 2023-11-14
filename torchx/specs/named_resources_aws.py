@@ -137,25 +137,41 @@ def aws_g4dn_4xlarge() -> Resource:
 
 def aws_g4dn_8xlarge() -> Resource:
     return Resource(
-        cpu=32, gpu=1, memMB=128 * GiB, capabilities={K8S_ITYPE: "g4dn.8xlarge"}
-    )
-
-
-def aws_g4dn_16xlarge() -> Resource:
-    return Resource(
-        cpu=64, gpu=1, memMB=256 * GiB, capabilities={K8S_ITYPE: "g4dn.16xlarge"}
+        cpu=32,
+        gpu=1,
+        memMB=128 * GiB,
+        capabilities={K8S_ITYPE: "g4dn.8xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
 def aws_g4dn_12xlarge() -> Resource:
     return Resource(
-        cpu=48, gpu=4, memMB=192 * GiB, capabilities={K8S_ITYPE: "g4dn.12xlarge"}
+        cpu=48,
+        gpu=4,
+        memMB=192 * GiB,
+        capabilities={K8S_ITYPE: "g4dn.12xlarge"},
+        devices={EFA_DEVICE: 1},
+    )
+
+
+def aws_g4dn_16xlarge() -> Resource:
+    return Resource(
+        cpu=64,
+        gpu=1,
+        memMB=256 * GiB,
+        capabilities={K8S_ITYPE: "g4dn.16xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
 def aws_g4dn_metal() -> Resource:
     return Resource(
-        cpu=96, gpu=8, memMB=384 * GiB, capabilities={K8S_ITYPE: "g4dn.metal"}
+        cpu=96,
+        gpu=8,
+        memMB=384 * GiB,
+        capabilities={K8S_ITYPE: "g4dn.metal"},
+        devices={EFA_DEVICE: 1},
     )
 
 
@@ -177,31 +193,51 @@ def aws_g5_4xlarge() -> Resource:
 
 def aws_g5_8xlarge() -> Resource:
     return Resource(
-        cpu=32, gpu=1, memMB=128 * GiB, capabilities={K8S_ITYPE: "g5.8xlarge"}
-    )
-
-
-def aws_g5_16xlarge() -> Resource:
-    return Resource(
-        cpu=64, gpu=1, memMB=256 * GiB, capabilities={K8S_ITYPE: "g5.16xlarge"}
+        cpu=32,
+        gpu=1,
+        memMB=128 * GiB,
+        capabilities={K8S_ITYPE: "g5.8xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
 def aws_g5_12xlarge() -> Resource:
     return Resource(
-        cpu=48, gpu=4, memMB=192 * GiB, capabilities={K8S_ITYPE: "g5.12xlarge"}
+        cpu=48,
+        gpu=4,
+        memMB=192 * GiB,
+        capabilities={K8S_ITYPE: "g5.12xlarge"},
+        devices={EFA_DEVICE: 1},
+    )
+
+
+def aws_g5_16xlarge() -> Resource:
+    return Resource(
+        cpu=64,
+        gpu=1,
+        memMB=256 * GiB,
+        capabilities={K8S_ITYPE: "g5.16xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
 def aws_g5_24xlarge() -> Resource:
     return Resource(
-        cpu=96, gpu=4, memMB=384 * GiB, capabilities={K8S_ITYPE: "g5.24xlarge"}
+        cpu=96,
+        gpu=4,
+        memMB=384 * GiB,
+        capabilities={K8S_ITYPE: "g5.24xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
 def aws_g5_48xlarge() -> Resource:
     return Resource(
-        cpu=192, gpu=8, memMB=768 * GiB, capabilities={K8S_ITYPE: "g5.48xlarge"}
+        cpu=192,
+        gpu=8,
+        memMB=768 * GiB,
+        capabilities={K8S_ITYPE: "g5.48xlarge"},
+        devices={EFA_DEVICE: 1},
     )
 
 
@@ -213,7 +249,11 @@ def aws_trn1_2xlarge() -> Resource:
 
 def aws_trn1_32xlarge() -> Resource:
     return Resource(
-        cpu=128, gpu=0, memMB=512 * GiB, capabilities={K8S_ITYPE: "trn1.32xlarge"}
+        cpu=128,
+        gpu=0,
+        memMB=512 * GiB,
+        capabilities={K8S_ITYPE: "trn1.32xlarge"},
+        devices={EFA_DEVICE: 8},
     )
 
 
