@@ -191,12 +191,12 @@ class StructuredJArgument:
 
             .. doctest::
 
-                >>> str(StructuredJArgument.parse_from(h="aws_trn1.32xl", j="2"))
+                >>> str(StructuredJArgument.parse_from(h="aws_trn1.32xlarge", j="2"))
                 Traceback (most recent call last):
                     ...
-                ValueError: nproc_per_node cannot be inferred from GPU count. `trn1.32xl` is not a GPU instance. ...
+                ValueError: nproc_per_node cannot be inferred from GPU count. `trn1.32xlarge` is not a GPU instance. ...
 
-                >>> str(StructuredJArgument.parse_from(h="aws_trn1.32xl", j="2x16"))
+                >>> str(StructuredJArgument.parse_from(h="aws_trn1.32xlarge", j="2x16"))
                 '2x16'
 
         """
