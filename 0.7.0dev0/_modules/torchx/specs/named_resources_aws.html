@@ -431,6 +431,7 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">Resource</span>
@@ -443,8 +444,20 @@
 <span class="c1"># 97% is based on empirical observation that works well for most instance types</span>
 <span class="c1"># see: https://docs.aws.amazon.com/batch/latest/userguide/memory-management.html</span>
 <span class="n">MEM_TAX</span> <span class="o">=</span> <span class="mf">0.97</span>
+
+<span class="c1"># determines instance type for non-honogeneous CEs</span>
+<span class="c1"># see https://github.com/pytorch/torchx/issues/780</span>
 <span class="n">K8S_ITYPE</span> <span class="o">=</span> <span class="s2">&quot;node.kubernetes.io/instance-type&quot;</span>
 <span class="n">GiB</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="n">MEM_TAX</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">instance_type_from_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">instance_type</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">capabilities</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">K8S_ITYPE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">instance_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot determine resource instance type which can cause issues for non-homogeneous CEs and multinode jobs. Consider providing torchx.specs.named_resources_aws:K8S_TYPE resource capability.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">instance_type</span>
 
 
 <div class="viewcode-block" id="aws_p3_2xlarge"><a class="viewcode-back" href="../../../specs.html#torchx.specs.named_resources_aws.aws_p3_2xlarge">[docs]</a><span class="k">def</span> <span class="nf">aws_p3_2xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
@@ -594,13 +607,15 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">aws_trn1_2xl</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span><span class="n">cpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">32</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.2xl&quot;</span><span class="p">})</span>
-
-
-<span class="k">def</span> <span class="nf">aws_trn1_32xl</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">aws_trn1_2xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.32xl&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">32</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.2xlarge&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">aws_trn1_32xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.32xlarge&quot;</span><span class="p">}</span>
     <span class="p">)</span>
 
 
@@ -628,8 +643,8 @@
     <span class="s2">&quot;aws_g5.12xlarge&quot;</span><span class="p">:</span> <span class="n">aws_g5_12xlarge</span><span class="p">,</span>
     <span class="s2">&quot;aws_g5.24xlarge&quot;</span><span class="p">:</span> <span class="n">aws_g5_24xlarge</span><span class="p">,</span>
     <span class="s2">&quot;aws_g5.48xlarge&quot;</span><span class="p">:</span> <span class="n">aws_g5_48xlarge</span><span class="p">,</span>
-    <span class="s2">&quot;aws_trn1.2xl&quot;</span><span class="p">:</span> <span class="n">aws_trn1_2xl</span><span class="p">,</span>
-    <span class="s2">&quot;aws_trn1.32xl&quot;</span><span class="p">:</span> <span class="n">aws_trn1_32xl</span><span class="p">,</span>
+    <span class="s2">&quot;aws_trn1.2xlarge&quot;</span><span class="p">:</span> <span class="n">aws_trn1_2xlarge</span><span class="p">,</span>
+    <span class="s2">&quot;aws_trn1.32xlarge&quot;</span><span class="p">:</span> <span class="n">aws_trn1_32xlarge</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 
