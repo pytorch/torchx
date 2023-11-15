@@ -192,13 +192,15 @@ def aws_g5_48xlarge() -> Resource:
     )
 
 
-def aws_trn1_2xl() -> Resource:
-    return Resource(cpu=8, gpu=0, memMB=32 * GiB, capabilities={K8S_ITYPE: "trn1.2xl"})
-
-
-def aws_trn1_32xl() -> Resource:
+def aws_trn1_2xlarge() -> Resource:
     return Resource(
-        cpu=128, gpu=0, memMB=512 * GiB, capabilities={K8S_ITYPE: "trn1.32xl"}
+        cpu=8, gpu=0, memMB=32 * GiB, capabilities={K8S_ITYPE: "trn1.2xlarge"}
+    )
+
+
+def aws_trn1_32xlarge() -> Resource:
+    return Resource(
+        cpu=128, gpu=0, memMB=512 * GiB, capabilities={K8S_ITYPE: "trn1.32xlarge"}
     )
 
 
@@ -226,6 +228,6 @@ NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_g5.12xlarge": aws_g5_12xlarge,
     "aws_g5.24xlarge": aws_g5_24xlarge,
     "aws_g5.48xlarge": aws_g5_48xlarge,
-    "aws_trn1.2xl": aws_trn1_2xl,
-    "aws_trn1.32xl": aws_trn1_32xl,
+    "aws_trn1.2xlarge": aws_trn1_2xlarge,
+    "aws_trn1.32xlarge": aws_trn1_32xlarge,
 }
