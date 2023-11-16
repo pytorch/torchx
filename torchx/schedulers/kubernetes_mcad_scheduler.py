@@ -436,7 +436,7 @@ def mcad_svc(
                     target_port=int(service_port),
                 )
             ],
-            selector={"appwrapper.workload.codeflare.dev": svc_name},
+            selector={LABEL_UNIQUE_NAME: svc_name},
             session_affinity="None",
             type="ClusterIP",
         ),
