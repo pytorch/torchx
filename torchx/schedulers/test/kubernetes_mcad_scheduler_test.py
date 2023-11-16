@@ -667,7 +667,7 @@ spec:
             targetPort: 1234
           publishNotReadyAddresses: true
           selector:
-            appwrapper.workload.codeflare.dev: app-name
+            app.kubernetes.io/instance: app-name
           sessionAffinity: None
           type: ClusterIP
         status:
