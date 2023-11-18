@@ -49,8 +49,8 @@ def _get_or_create_logger(destination: str = "null") -> logging.Logger:
     if _events_logger:
         return _events_logger
     logging_handler = get_logging_handler(destination)
+    logging_handler.setLevel(logging.DEBUG)
     _events_logger = logging.getLogger(f"torchx-events-{destination}")
-    _events_logger.setLevel(logging.DEBUG)
     # Do not propagate message to the root logger
     _events_logger.propagate = False
     _events_logger.addHandler(logging_handler)
