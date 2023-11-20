@@ -450,7 +450,7 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                         target_port=int(service_port),
                     )
                 ],
-                selector={"appwrapper.workload.codeflare.dev": service_name},
+                selector={"app.kubernetes.io/instance": service_name},
                 session_affinity="None",
                 type="ClusterIP",
             ),
@@ -667,7 +667,7 @@ spec:
             targetPort: 1234
           publishNotReadyAddresses: true
           selector:
-            appwrapper.workload.codeflare.dev: app-name
+            app.kubernetes.io/instance: app-name
           sessionAffinity: None
           type: ClusterIP
         status:
