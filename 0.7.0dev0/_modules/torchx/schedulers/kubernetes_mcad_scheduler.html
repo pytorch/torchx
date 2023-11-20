@@ -838,7 +838,7 @@
                     <span class="n">target_port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">service_port</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">],</span>
-            <span class="n">selector</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;appwrapper.workload.codeflare.dev&quot;</span><span class="p">:</span> <span class="n">svc_name</span><span class="p">},</span>
+            <span class="n">selector</span><span class="o">=</span><span class="p">{</span><span class="n">LABEL_UNIQUE_NAME</span><span class="p">:</span> <span class="n">svc_name</span><span class="p">},</span>
             <span class="n">session_affinity</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;ClusterIP&quot;</span><span class="p">,</span>
         <span class="p">),</span>
