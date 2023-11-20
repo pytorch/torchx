@@ -539,25 +539,41 @@
 
 <span class="k">def</span> <span class="nf">aws_g4dn_8xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">128</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.8xlarge&quot;</span><span class="p">}</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">aws_g4dn_16xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">256</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.16xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">128</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.8xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">aws_g4dn_12xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">192</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.12xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">192</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.12xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">aws_g4dn_16xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">256</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.16xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">aws_g4dn_metal</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">96</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">384</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.metal&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">96</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">384</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g4dn.metal&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
@@ -579,31 +595,51 @@
 
 <span class="k">def</span> <span class="nf">aws_g5_8xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">128</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.8xlarge&quot;</span><span class="p">}</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">aws_g5_16xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">256</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.16xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">128</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.8xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">aws_g5_12xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">192</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.12xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">192</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.12xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">aws_g5_16xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">256</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.16xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">aws_g5_24xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">96</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">384</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.24xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">96</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">384</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.24xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">aws_g5_48xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">192</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">768</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.48xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">192</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">768</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;g5.48xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
@@ -615,7 +651,11 @@
 
 <span class="k">def</span> <span class="nf">aws_trn1_32xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.32xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.32xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
     <span class="p">)</span>
 
 
