@@ -39,7 +39,7 @@ def run(cfg: DictConfig) -> None:
     compute_world_size(cfg)
 
 
-if __name__ == "__main__":
+def main() -> None:
     # use compose API to make this compatible with ipython notebooks
     # need to initialize the config directory as a module to make it
     # not depends on rel path (PWD) or abs path (torchx install dir)
@@ -49,3 +49,7 @@ if __name__ == "__main__":
     ):
         cfg: DictConfig = hydra.compose(config_name="defaults")
         run(cfg)
+
+
+if __name__ == "__main__":
+    main()  # pragma: no cover
