@@ -39,9 +39,9 @@ EFA_DEVICE = "vpc.amazonaws.com/efa"
 # ecs and ec2 have memtax and currently AWS Batch uses hard memory limits
 # so we have to account for mem tax when registering these resources for AWS
 # otherwise the job will be stuck in the jobqueue forever
-# 97% is based on empirical observation that works well for most instance types
+# 96% is based on empirical observation that works well for most instance types
 # see: https://docs.aws.amazon.com/batch/latest/userguide/memory-management.html
-MEM_TAX = 0.97
+MEM_TAX = 0.96
 
 # determines instance type for non-honogeneous CEs
 # see https://github.com/pytorch/torchx/issues/780
