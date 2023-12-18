@@ -20,6 +20,7 @@ from typing import (
     Iterator,
     List,
     Mapping,
+    NamedTuple,
     Optional,
     Pattern,
     Tuple,
@@ -970,6 +971,16 @@ class UnknownSchedulerException(Exception):
 AppHandle = str
 
 
+class ParsedAppHandle(NamedTuple):
+    """
+    Individual accessible components of the `AppHandle`
+    """
+
+    scheduler_backend: str
+    session_name: str
+    app_id: str
+
+
 class UnknownAppException(Exception):
     """
     Raised by ``Session`` APIs when either the application does not
@@ -983,7 +994,7 @@ class UnknownAppException(Exception):
         )
 
 
-def parse_app_handle(app_handle: AppHandle) -> Tuple[str, str, str]:
+def parse_app_handle(app_handle: AppHandle) -> ParsedAppHandle:
     """
     parses the app handle into ```(scheduler_backend, session_name, and app_id)```
     """
@@ -997,4 +1008,4 @@ def parse_app_handle(app_handle: AppHandle) -> Tuple[str, str, str]:
     if not match:
         raise MalformedAppHandleException(app_handle)
     gd = match.groupdict()
-    return gd["scheduler_backend"], gd["session_name"], gd["app_id"]
+    return ParsedAppHandle(gd["scheduler_backend"], gd["session_name"], gd["app_id"])
