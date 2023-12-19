@@ -37,7 +37,7 @@ Tracker Setup
 -------------
 To enable tracking it requires:
 
-1. Defining tracker backends (entrypoints and configuration) on launcher side using :doc:`runner.config`
+1. Defining tracker backends (entrypoints/modules and configuration) on launcher side using :doc:`runner.config`
 2. Adding entrypoints within a user job using entry_points (`specification`_)
 
 .. _specification: https://packaging.python.org/en/latest/specifications/entry-points/
@@ -49,13 +49,13 @@ To enable tracking it requires:
 User can define any number of tracker backends under **torchx:tracker** section in :doc:`runner.config`, where:
    * Key: is an arbitrary name for the tracker, where the name will be used to configure its properties
         under [tracker:<TRACKER_NAME>]
-   * Value: is *entrypoint/factory method* that must be available within user job. The value will be injected into a
+   * Value: is *entrypoint* or *module* factory method that must be available within user job. The value will be injected into a
         user job and used to construct tracker implementation.
 
 .. code-block:: ini
 
     [torchx:tracker]
-    tracker_name=<entry_point>
+    tracker_name=<entry_point_or_module_factory_method>
 
 
 Each tracker can be additionally configured (currently limited to `config` parameter) under `[tracker:<TRACKER NAME>]` section:
@@ -71,10 +71,14 @@ For example, ~/.torchxconfig may be setup as:
 
     [torchx:tracker]
     tracker1=tracker1
-    tracker12=backend_2_entry_point
+    tracker2=backend_2_entry_point
+    tracker3=torchx.tracker.mlflow:create_tracker
 
     [tracker:tracker1]
     config=s3://my_bucket/config.json
+
+    [tracker:tracker3]
+    config=my_config.json
 
 
 2. User job configuration (Advanced)
