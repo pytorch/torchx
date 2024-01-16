@@ -174,6 +174,7 @@ def ddp(
     rdzv_backend: str = "c10d",
     mounts: Optional[List[str]] = None,
     debug: bool = False,
+    tee: int = 3,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -262,7 +263,7 @@ def ddp(
         "--nproc_per_node",
         str(nproc_per_node),
         "--tee",
-        "3",
+        str(tee),
         "--role",
         "",
     ]
