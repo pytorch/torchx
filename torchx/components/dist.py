@@ -209,6 +209,7 @@ def ddp(
         mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
                 See scheduler documentation for more info.
         debug: whether to run with preset debug flags enabled
+        tee: tees the specified std stream(s) to console + file. 0: none, 1: stdout, 2: stderr, 3: both
     """
 
     if (script is None) == (m is None):
