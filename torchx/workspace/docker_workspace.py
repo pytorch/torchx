@@ -104,7 +104,11 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             role: the role whose image (a Docker image) is to be used as the base image
             workspace: a fsspec path to a directory with contents to be overlaid
         """
-        old_imgs = [image.id for image in self._docker_client.images.list(name= cfg['image_repo'])]
+
+        old_imgs = [
+            image.id
+            for image in self._docker_client.images.list(name=cfg["image_repo"])
+        ]
         base_img = role.image
         context = _build_context(role.image, workspace)
 
