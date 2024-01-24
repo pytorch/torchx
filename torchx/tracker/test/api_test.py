@@ -9,7 +9,7 @@ import os
 from collections import defaultdict
 from typing import cast, DefaultDict, Dict, Iterable, Mapping, Optional, Tuple
 from unittest import mock, TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from torchx.tracker import app_run_from_env
 from torchx.tracker.api import (
@@ -26,6 +26,8 @@ from torchx.tracker.api import (
     trackers_from_environ,
     TrackerSource,
 )
+
+from torchx.tracker.mlflow import MLflowTracker
 
 RunId = str
 
@@ -270,6 +272,26 @@ class TrackerFactoryMethodsTest(TestCase):
             tracker_names = {"tracker1": "myconfig.txt"}
             trackers = build_trackers(tracker_names)
             self.assertEqual(0, len(list(trackers)))
+
+    def test_build_trackers_with_module(self) -> None:
+        module = MagicMock()
+        module.return_value = MagicMock(spec=MLflowTracker)
+        with patch(
+            "torchx.tracker.api.load_group",
+            return_value=None,
+        ) and patch(
+            "torchx.tracker.api.load_module",
+            return_value=module,
+        ):
+            tracker_names = {
+                "torchx.tracker.mlflow:create_tracker": (config := "myconfig.txt")
+            }
+            trackers = build_trackers(tracker_names)
+            trackers = list(trackers)
+            self.assertEqual(1, len(trackers))
+            tracker = trackers[0]
+            self.assertIsInstance(tracker, MLflowTracker)
+            module.assert_called_once_with(config)
 
     def test_build_trackers(self) -> None:
         with patch(
