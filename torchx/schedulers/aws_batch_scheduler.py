@@ -170,7 +170,10 @@ def resource_from_resource_requirements(
 
 
 def _role_to_node_properties(
-    role: Role, start_idx: int, privileged: bool = False
+    role: Role,
+    start_idx: int,
+    privileged: bool = False,
+    job_role_arn: Optional[str] = None,
 ) -> Dict[str, object]:
     role.mounts += get_device_mounts(role.resource.devices)
 
@@ -245,6 +248,8 @@ def _role_to_node_properties(
         "mountPoints": mount_points,
         "volumes": volumes,
     }
+    if job_role_arn:
+        container["jobRoleArn"] = job_role_arn
     if role.num_replicas > 1:
         instance_type = instance_type_from_resource(role.resource)
         if instance_type is not None:
@@ -349,6 +354,7 @@ class AWSBatchOpts(TypedDict, total=False):
     privileged: bool
     share_id: Optional[str]
     priority: int
+    job_role_arn: Optional[str]
 
 
 class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
@@ -498,6 +504,7 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     role,
                     start_idx=node_idx,
                     privileged=cfg["privileged"],
+                    job_role_arn=cfg.get("job_role_arn"),
                 )
             )
             node_idx += role.num_replicas
@@ -572,6 +579,11 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
             help="The scheduling priority for the job within the context of share_id. "
             "Higher number (between 0 and 9999) means higher priority. "
             "This will only take effect if the job queue has a scheduling policy.",
+        )
+        opts.add(
+            "job_role_arn",
+            type_=str,
+            help="The Amazon Resource Name (ARN) of the IAM role that the container can assume for AWS permissions.",
         )
         return opts
 
