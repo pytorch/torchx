@@ -109,7 +109,6 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             image.id
             for image in self._docker_client.images.list(name=cfg["image_repo"])
         ]
-        base_img = role.image
         context = _build_context(role.image, workspace)
 
         try:
@@ -134,19 +133,10 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                     self.LABEL_VERSION: torchx.__version__,
                 },
             )
-            role.image = image.id
+            if len(old_imgs) == 0 or role.image not in old_imgs:
+                role.image = image.id
         finally:
             context.close()
-        if len(old_imgs) > 0 and role.image in old_imgs:
-            log.info(
-                f"Reusing local image `{role.image}` for role[0]={role.name}."
-                " Either a patch was built or no changes to workspace was detected."
-            )
-        else:
-            log.info(
-                f"Built new image `{role.image}` based on original image `{base_img}`"
-                f" and changes in workspace `{workspace}` for role[0]={role.name}."
-            )
 
     def dryrun_push_images(
         self, app: AppDef, cfg: Mapping[str, CfgVal]
