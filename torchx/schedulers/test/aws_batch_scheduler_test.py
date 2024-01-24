@@ -152,6 +152,15 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             info.request.job_def["tags"],
         )
 
+    def test_submit_dryrun_job_role_arn(self) -> None:
+        cfg = AWSBatchOpts({"queue": "ignored_in_test", "job_role_arn": "fizzbuzz"})
+        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
+        self.assertEqual(1, len(node_groups))
+        self.assertEqual(
+            cfg["job_role_arn"], node_groups[0]["container"]["jobRoleArn"]
+        )
+
     def test_submit_dryrun_privileged(self) -> None:
         cfg = AWSBatchOpts({"queue": "ignored_in_test", "privileged": True})
         info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
