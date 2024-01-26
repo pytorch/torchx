@@ -157,8 +157,17 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
         node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
         self.assertEqual(1, len(node_groups))
+        self.assertEqual(cfg["job_role_arn"], node_groups[0]["container"]["jobRoleArn"])
+
+    def test_submit_dryrun_execution_role_arn(self) -> None:
+        cfg = AWSBatchOpts(
+            {"queue": "ignored_in_test", "execution_role_arn": "veryexecutive"}
+        )
+        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
+        self.assertEqual(1, len(node_groups))
         self.assertEqual(
-            cfg["job_role_arn"], node_groups[0]["container"]["jobRoleArn"]
+            cfg["execution_role_arn"], node_groups[0]["container"]["executionRoleArn"]
         )
 
     def test_submit_dryrun_privileged(self) -> None:
