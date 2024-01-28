@@ -14,6 +14,7 @@ from functools import lru_cache
 from typing import Iterable, Mapping, Optional
 
 from torchx.util.entrypoints import load_group
+from torchx.util.modules import load_module
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -177,30 +178,26 @@ def _extract_tracker_name_and_config_from_environ() -> Mapping[str, Optional[str
 
 
 def build_trackers(
-    entrypoint_and_config: Mapping[str, Optional[str]]
+    factory_and_config: Mapping[str, Optional[str]]
 ) -> Iterable[TrackerBase]:
     trackers = []
 
-    entrypoint_factories = load_group("torchx.tracker")
+    entrypoint_factories = load_group("torchx.tracker") or {}
     if not entrypoint_factories:
-        logger.warning(
-            "No 'torchx.tracker' entry_points are defined. Tracking will not capture any data."
-        )
-        return trackers
+        logger.warning("No 'torchx.tracker' entry_points are defined.")
 
-    for entrypoint_key, config in entrypoint_and_config.items():
-        if entrypoint_key not in entrypoint_factories:
+    for factory_name, config in factory_and_config.items():
+        factory = entrypoint_factories.get(factory_name) or load_module(factory_name)
+        if not factory:
             logger.warning(
-                f"Could not find `{entrypoint_key}` tracker entrypoint. Skipping..."
+                f"No tracker factory `{factory_name}` found in entry_points or modules. See https://pytorch.org/torchx/main/tracker.html#module-torchx.tracker"
             )
             continue
-        factory = entrypoint_factories[entrypoint_key]
         if config:
-            logger.info(f"Tracker config found for `{entrypoint_key}` as `{config}`")
-            tracker = factory(config)
+            logger.info(f"Tracker config found for `{factory_name}` as `{config}`")
         else:
-            logger.info(f"No tracker config specified for `{entrypoint_key}`")
-            tracker = factory(None)
+            logger.info(f"No tracker config specified for `{factory_name}`")
+        tracker = factory(config)
         trackers.append(tracker)
     return trackers
 
