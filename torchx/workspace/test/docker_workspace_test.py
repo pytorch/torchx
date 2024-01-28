@@ -52,7 +52,7 @@ if has_docker():
 
             workspace = DockerWorkspaceMixin()
             workspace.build_workspace_and_update_role(
-                role, "memory://test_workspace", {}
+                role, "memory://test_workspace", {"image_repo": "example/repo_name"}
             )
 
             self.assertNotEqual("busybox", role.image)
