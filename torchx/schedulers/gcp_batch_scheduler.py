@@ -205,14 +205,12 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             if cpu <= 0:
                 cpu = 1
             MILLI = 1000
-            # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
             res.cpu_milli = cpu * MILLI
             memMB = resource.memMB
             if memMB < 0:
                 raise ValueError(
                     f"memMB should to be set to a positive value, got {memMB}"
                 )
-            # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
             res.memory_mib = memMB
 
             # TODO support named resources
@@ -360,13 +358,11 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             return None
 
         gpu = 0
-        # pyre-fixme[16]: `Field` has no attribute `instances`.
         if len(job.allocation_policy.instances) != 0:
             gpu_type = job.allocation_policy.instances[0].policy.machine_type
             gpu = GPU_TYPE_TO_COUNT[gpu_type]
 
         roles = {}
-        # pyre-fixme[16]: `RepeatedField` has no attribute `__iter__`.
         for tg in job.task_groups:
             env = tg.task_spec.environment.variables
             role = env["TORCHX_ROLE_NAME"]
@@ -390,7 +386,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # TODO map role/replica status
         desc = DescribeAppResponse(
             app_id=app_id,
-            # pyre-fixme[16]: `Field` has no attribute `state`.
             state=JOB_STATE[job.status.state.name],
             roles=list(roles.values()),
         )
