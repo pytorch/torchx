@@ -105,6 +105,10 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             workspace: a fsspec path to a directory with contents to be overlaid
         """
 
+        old_imgs = [
+            image.id
+            for image in self._docker_client.images.list(name=cfg["image_repo"])
+        ]
         context = _build_context(role.image, workspace)
 
         try:
@@ -129,7 +133,8 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                     self.LABEL_VERSION: torchx.__version__,
                 },
             )
-            role.image = image.id
+            if len(old_imgs) == 0 or role.image not in old_imgs:
+                role.image = image.id
         finally:
             context.close()
 
