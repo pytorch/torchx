@@ -174,6 +174,7 @@ def ddp(
     rdzv_backend: str = "c10d",
     mounts: Optional[List[str]] = None,
     debug: bool = False,
+    tee: int = 3,
 ) -> specs.AppDef:
     """
     Distributed data parallel style application (one role, multi-replica).
@@ -208,6 +209,7 @@ def ddp(
         mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
                 See scheduler documentation for more info.
         debug: whether to run with preset debug flags enabled
+        tee: tees the specified std stream(s) to console + file. 0: none, 1: stdout, 2: stderr, 3: both
     """
 
     if (script is None) == (m is None):
@@ -262,7 +264,7 @@ def ddp(
         "--nproc_per_node",
         str(nproc_per_node),
         "--tee",
-        "3",
+        str(tee),
         "--role",
         "",
     ]
