@@ -20,7 +20,7 @@ from torchx.specs import AppDef, CfgVal, Role, runopts
 from torchx.workspace.api import walk_workspace, WorkspaceMixin
 
 if TYPE_CHECKING:
-    from docker import DockerClient
+    from docker import DockerClient, APIClient
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -83,7 +83,15 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             client = docker.from_env()
             self.__docker_client = client
         return client
+    @property
+    def _docker_api_client(self) -> "APIClient":
+        api_client = self.__docker_api_client
+        if api_client is None:
+            import docker
 
+            api_client = docker.APIClient()
+            self.__docker_api_client = api_client
+        return api_client
     def workspace_opts(self) -> runopts:
         opts = runopts()
         opts.add(
@@ -119,7 +127,7 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                     f"failed to pull image {role.image}, falling back to local: {e}"
                 )
             log.info("Building workspace docker image (this may take a while)...")
-            image, _ = self._docker_client.images.build(
+            build_events = self._docker_api_client.build(
                 fileobj=context,
                 custom_context=True,
                 dockerfile=TORCHX_DOCKERFILE,
@@ -132,9 +140,25 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 labels={
                     self.LABEL_VERSION: torchx.__version__,
                 },
+                decode=True
             )
-            if len(old_imgs) == 0 or role.image not in old_imgs:
-                role.image = image.id
+            while True:
+                try:
+                    output = build_events.__next__()
+                    if 'stream' in output:
+                        output_str = output['stream'].strip('\r\n').strip('\n')
+                        if output_str != '':
+                            log.info(output_str)
+                    if "aux" in output:
+                        image = output['aux']
+                        break
+                except StopIteration:
+                    break
+                except ValueError:
+                    log.error(f'Error parsing output from docker build: {output}')
+            
+            if len(old_imgs) == 0 or image['ID'] not in old_imgs:
+                role.image = image['ID']
         finally:
             context.close()
 
