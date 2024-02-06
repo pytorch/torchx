@@ -69,11 +69,12 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
         self,
         *args: object,
         docker_client: Optional["DockerClient"] = None,
+        docker_api_client: Optional["APIClient"] = None,
         **kwargs: object,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.__docker_client = docker_client
-        self.__docker_api_client = None
+        self.__docker_api_client = docker_api_client
 
     @property
     def _docker_client(self) -> "DockerClient":
@@ -145,20 +146,19 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 },
                 decode=True,
             )
+            build_msg: Dict[str, str] = {}
             while True:
                 try:
-                    output = build_events.__next__()
-                    if "stream" in output:
-                        output_str = output["stream"].strip("\r\n").strip("\n")
+                    build_msg = build_events.__next__()
+                    if "stream" in build_msg:
+                        output_str = build_msg["stream"].strip("\r\n").strip("\n")
                         if output_str != "":
                             log.info(output_str)
-                    if "aux" in output:
-                        image = output["aux"]
+                    if "aux" in build_msg:
+                        image = build_msg["aux"]
                         break
                 except StopIteration:
                     break
-                except ValueError:
-                    log.error(f"Error parsing output from docker build: {output}")
 
             if len(old_imgs) == 0 or image["ID"] not in old_imgs:
                 role.image = image["ID"]
