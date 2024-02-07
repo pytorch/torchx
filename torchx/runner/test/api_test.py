@@ -64,8 +64,8 @@ class RunnerTest(TestWithTmpDir):
 
     def test_validate_no_roles(self, _) -> None:
         with self.get_runner() as runner:
+            app = AppDef("no roles")
             with self.assertRaises(ValueError):
-                app = AppDef("no roles")
                 runner.run(app, scheduler="local_dir")
 
     def test_validate_no_resource(self, _) -> None:
