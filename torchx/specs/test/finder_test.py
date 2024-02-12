@@ -280,7 +280,7 @@ class GetBuiltinSourceTest(unittest.TestCase):
 
         runner = get_runner()
 
-        trial_idx = 0
+        trial_idx = "0"
         tracker_base = str(self.test_dir / "tracking")
 
         app_handle = runner.run_component(

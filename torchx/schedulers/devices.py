@@ -35,7 +35,7 @@ def get_device_mounts(devices: Dict[str, int]) -> List[DeviceMount]:
     device_mounts = []
     for device_name, num_devices in devices.items():
         if device_name not in DEVICES:
-            warnings.warn(f"Could not find named device: {device_name}")
+            warnings.warn(f"Could not find named device: {device_name}", RuntimeWarning)
             continue
         device_mounts += DEVICES[device_name](num_devices)
     return device_mounts

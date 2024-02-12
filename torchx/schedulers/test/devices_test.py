@@ -8,6 +8,7 @@
 
 import unittest
 
+import pytest
 from torchx.schedulers.devices import get_device_mounts
 from torchx.specs.api import DeviceMount
 
@@ -31,5 +32,5 @@ class DevicesTest(unittest.TestCase):
 
     def test_not_found_device_name(self) -> None:
         devices = {"shouldWarn": 1}
-        self.assertEqual(get_device_mounts(devices), [])
-        self.assertWarns(UserWarning, get_device_mounts, devices)
+        with pytest.warns(RuntimeWarning):
+            self.assertEqual(get_device_mounts(devices), [])

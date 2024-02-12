@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Iterator, Optional
 from unittest.mock import MagicMock, patch
 
+import pytest
 from torchx.cli.cmd_log import _prefix_line, ENDC, get_logs, GREEN, validate
 from torchx.runner.api import Runner
 from torchx.schedulers.api import Stream
@@ -191,7 +192,7 @@ class CmdLogTest(unittest.TestCase):
         # errors out; we raise the exception all the way through
         with patch.object(mock_runner, "log_lines") as log_lines_mock:
             log_lines_mock.side_effect = RuntimeError
-            with self.assertRaises(RuntimeError):
+            with pytest.raises(RuntimeError):
                 get_logs(
                     sys.stdout,
                     "local://test-session/SparseNNAppDef/trainer/0,1",

@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Any, Dict, Generator, Iterable, Optional
 from unittest.mock import MagicMock, patch
 
+import pytest
 import torchx
 from torchx import specs
 from torchx.schedulers.api import ListAppResponse
@@ -112,7 +113,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     def test_submit_dryrun_with_share_id(self) -> None:
         app = _test_app()
         cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "fooshare"})
-        info = create_scheduler("test").submit_dryrun(app, cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(app, cfg)
 
         req = info.request
         job_def = req.job_def
@@ -122,13 +124,15 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_submit_dryrun_with_priority_but_not_share_id(self) -> None:
         cfg = AWSBatchOpts({"queue": "testqueue", "priority": 42})
-        dryrun_info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            dryrun_info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
         self.assertFalse("schedulingPriority" in dryrun_info.request.job_def)
         self.assertIsNone(dryrun_info.request.share_id)
 
     def test_submit_dryrun_with_priority(self) -> None:
         cfg = AWSBatchOpts({"queue": "testqueue", "share_id": "foo", "priority": 42})
-        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
 
         req = info.request
         job_def = req.job_def
@@ -141,7 +145,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     def test_submit_dryrun_tags(self, _) -> None:
         # intentionally not specifying user in cfg to test default
         cfg = AWSBatchOpts({"queue": "ignored_in_test"})
-        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
         self.assertEqual(
             {
                 "torchx.pytorch.org/version": torchx.__version__,
@@ -154,7 +159,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_submit_dryrun_job_role_arn(self) -> None:
         cfg = AWSBatchOpts({"queue": "ignored_in_test", "job_role_arn": "fizzbuzz"})
-        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
         node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
         self.assertEqual(1, len(node_groups))
         self.assertEqual(cfg["job_role_arn"], node_groups[0]["container"]["jobRoleArn"])
@@ -163,7 +169,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         cfg = AWSBatchOpts(
             {"queue": "ignored_in_test", "execution_role_arn": "veryexecutive"}
         )
-        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
         node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
         self.assertEqual(1, len(node_groups))
         self.assertEqual(
@@ -172,7 +179,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_submit_dryrun_privileged(self) -> None:
         cfg = AWSBatchOpts({"queue": "ignored_in_test", "privileged": True})
-        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
         node_groups = info.request.job_def["nodeProperties"]["nodeRangeProperties"]
         self.assertEqual(1, len(node_groups))
         self.assertTrue(node_groups[0]["container"]["privileged"])
@@ -210,7 +218,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
     @mock_rand()
     def test_submit_dryrun(self) -> None:
         cfg = AWSBatchOpts({"queue": "testqueue", "user": "testuser"})
-        info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
+        with pytest.warns(ResourceWarning):
+            info = create_scheduler("test").submit_dryrun(_test_app(), cfg)
 
         req = info.request
         self.assertEqual(req.share_id, None)
@@ -660,8 +669,8 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         scheduler = self._mock_scheduler()
         app = _test_app()
         cfg = AWSBatchOpts({"queue": "testqueue"})
-
-        info = scheduler.submit_dryrun(app, cfg)
+        with pytest.warns(ResourceWarning):
+            info = scheduler.submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "testqueue:app-name-42")
         self.assertEqual(scheduler._client.register_job_definition.call_count, 1)
@@ -746,7 +755,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_resource_requirement_from_resource(self) -> None:
         cpu_resource = Resource(cpu=2, memMB=1024, gpu=0)
-        self.assertEquals(
+        self.assertEqual(
             [
                 {"type": "VCPU", "value": "2"},
                 {"type": "MEMORY", "value": "1024"},
@@ -755,7 +764,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         )
 
         zero_cpu_resource = Resource(cpu=0, memMB=1024, gpu=0)
-        self.assertEquals(
+        self.assertEqual(
             [
                 {"type": "VCPU", "value": "1"},
                 {"type": "MEMORY", "value": "1024"},
@@ -764,7 +773,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         )
 
         gpu_resource = Resource(cpu=1, memMB=1024, gpu=2)
-        self.assertEquals(
+        self.assertEqual(
             [
                 {"type": "VCPU", "value": "1"},
                 {"type": "MEMORY", "value": "1024"},

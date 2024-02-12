@@ -25,4 +25,4 @@ class BoothTest(unittest.TestCase):
         booth.main(["--x1", "1", "--x2", "3", "--tracker_base", self.test_dir])
 
         tracker = FsspecResultTracker(self.test_dir)
-        self.assertEqual(0.0, tracker[0]["booth_eval"])
+        self.assertEqual(0.0, tracker["0"]["booth_eval"])

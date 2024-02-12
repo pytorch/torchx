@@ -23,6 +23,7 @@ from typing import Callable, Dict, Generator, List, Optional
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
+import pytest
 from torchx.schedulers.api import DescribeAppResponse
 from torchx.schedulers.local_scheduler import (
     _join_PATH,
@@ -661,12 +662,13 @@ class LocalDirectorySchedulerTest(unittest.TestCase, LocalSchedulerTestUtil):
             self.assertEqual(str(i), line.strip())
 
         # since and until ignored
-        for i, line in enumerate(
-            self.scheduler.log_iter(
-                app_id, "role1", k=0, since=datetime.now(), until=datetime.now()
-            )
-        ):
-            self.assertEqual(str(i), line.strip())
+        with pytest.warns(RuntimeWarning):
+            for i, line in enumerate(
+                self.scheduler.log_iter(
+                    app_id, "role1", k=0, since=datetime.now(), until=datetime.now()
+                )
+            ):
+                self.assertEqual(str(i), line.strip())
 
         for i, line in enumerate(
             self.scheduler.log_iter(app_id, "role1", k=0, regex=r"[02468]")

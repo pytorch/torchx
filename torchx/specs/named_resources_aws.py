@@ -53,7 +53,8 @@ def instance_type_from_resource(resource: Resource) -> str:
     instance_type = resource.capabilities.get(K8S_ITYPE)
     if instance_type is None:
         warnings.warn(
-            "Cannot determine resource instance type which can cause issues for non-homogeneous CEs and multinode jobs. Consider providing torchx.specs.named_resources_aws:K8S_TYPE resource capability."
+            "Cannot determine resource instance type which can cause issues for non-homogeneous CEs and multinode jobs. Consider providing torchx.specs.named_resources_aws:K8S_TYPE resource capability.",
+            ResourceWarning,
         )
     return instance_type
 

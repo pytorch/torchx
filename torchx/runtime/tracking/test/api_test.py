@@ -35,13 +35,13 @@ class ApiTest(unittest.TestCase):
 
     def test_get_missing_key(self) -> None:
         tracker = FsspecResultTracker(self.test_dir)
-        res = tracker[1]
+        res = tracker["1"]
         self.assertFalse(res)
 
     def test_put_get_x2(self) -> None:
         tracker = FsspecResultTracker(self.test_dir)
-        tracker[1] = {"l2norm": 1}
-        tracker[1] = {"l2norm": 2}
+        tracker["1"] = {"l2norm": 1}
+        tracker["1"] = {"l2norm": 2}
 
         self.assertEqual(2, tracker["1"]["l2norm"])
         self.assertEqual(2, tracker["1"]["l2norm"])

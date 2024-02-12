@@ -226,7 +226,8 @@ class StructuredJArgument:
                     f" This may lead to under-utilization or an error. "
                     f" If this was intentional, ignore this warning."
                     f" Otherwise set `-j {nnodes}` to auto-set nproc_per_node"
-                    f" to the number of GPUs on the host."
+                    f" to the number of GPUs on the host.",
+                    ResourceWarning,
                 )
         else:
             raise ValueError(
