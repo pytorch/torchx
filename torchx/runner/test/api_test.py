@@ -82,16 +82,16 @@ class RunnerTest(TestWithTmpDir):
 
     def test_validate_invalid_replicas(self, _) -> None:
         with self.get_runner() as runner:
+            role = Role(
+                "invalid replicas",
+                image="torch",
+                entrypoint="echo",
+                args=["hello_world"],
+                num_replicas=0,
+                resource=Resource(cpu=1, gpu=0, memMB=500),
+            )
+            app = AppDef("invalid replicas", roles=[role])
             with self.assertRaises(ValueError):
-                role = Role(
-                    "invalid replicas",
-                    image="torch",
-                    entrypoint="echo",
-                    args=["hello_world"],
-                    num_replicas=0,
-                    resource=Resource(cpu=1, gpu=0, memMB=500),
-                )
-                app = AppDef("invalid replicas", roles=[role])
                 runner.run(app, scheduler="local_dir")
 
     def test_run(self, _) -> None:
