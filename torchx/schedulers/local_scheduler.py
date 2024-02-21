@@ -35,6 +35,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Protocol,
     TextIO,
     Tuple,
 )
@@ -262,6 +263,25 @@ AppName = str
 RoleName = str
 
 
+class PopenProtocol(Protocol):
+    @property
+    def pid(self) -> int:
+        ...
+
+    @property
+    def returncode(self) -> int:
+        ...
+
+    def wait(self, timeout: Optional[float] = None) -> int:
+        ...
+
+    def poll(self) -> Optional[int]:
+        ...
+
+    def kill(self) -> None:
+        ...
+
+
 @dataclass
 class _LocalReplica:
     """
@@ -270,8 +290,7 @@ class _LocalReplica:
 
     role_name: RoleName
     replica_id: int
-    # pyre-fixme[24]: Generic type `subprocess.Popen` expects 1 type parameter.
-    proc: subprocess.Popen
+    proc: PopenProtocol
 
     # IO streams:
     # None means no log_dir (out to console)
