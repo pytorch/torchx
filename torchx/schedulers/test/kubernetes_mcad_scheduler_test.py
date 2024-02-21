@@ -256,6 +256,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             V1SecurityContext,
             V1Volume,
             V1VolumeMount,
+            V1ConfigMapVolumeSource,
+            V1KeyToPath,
         )
 
         app = _test_app()
@@ -318,6 +320,26 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                     mount_path="/dev/shm",
                 ),
                 V1VolumeMount(
+                    name="odh-trusted-ca-cert",
+                    sub_path="odh-trusted-ca-bundle.crt",
+                    mount_path="/etc/pki/tls/certs/odh-trusted-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-trusted-ca-cert",
+                    sub_path="odh-trusted-ca-bundle.crt",
+                    mount_path="/etc/ssl/certs/odh-trusted-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-ca-cert",
+                    sub_path="odh-ca-bundle.crt",
+                    mount_path="/etc/pki/tls/certs/odh-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-ca-cert",
+                    sub_path="odh-ca-bundle.crt",
+                    mount_path="/etc/ssl/certs/odh-ca-bundle.crt",
+                ),
+                V1VolumeMount(
                     name="mount-0",
                     mount_path="/dst",
                     read_only=True,
@@ -342,6 +364,30 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                         ),
                     ),
                     V1Volume(
+                        name="odh-trusted-ca-cert",
+                        config_map=V1ConfigMapVolumeSource(
+                            name="odh-trusted-ca-bundle",
+                            items=[
+                                V1KeyToPath(
+                                    key="ca-bundle.crt", path="odh-custom-ca-bundle.crt"
+                                )
+                            ],
+                            optional=True,
+                        ),
+                    ),
+                    V1Volume(
+                        name="odh-ca-cert",
+                        config_map=V1ConfigMapVolumeSource(
+                            name="odh-trusted-ca-bundle",
+                            items=[
+                                V1KeyToPath(
+                                    key="odh-ca-bundle.crt", path="odh-ca-bundle.crt"
+                                )
+                            ],
+                            optional=True,
+                        ),
+                    ),
+                    V1Volume(
                         name="mount-0",
                         host_path=V1HostPathVolumeSource(
                             path="/src",
@@ -362,7 +408,6 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
                 namespace="test_namespace",
             ),
         )
-
         self.assertEqual(
             pod,
             want,
@@ -551,7 +596,6 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
             info = scheduler._submit_dryrun(app, cfg)
 
         resource = str(info.request)
-
         self.assertEqual(
             resource,
             f"""apiVersion: workload.codeflare.dev/v1beta1
@@ -631,6 +675,18 @@ spec:
             volumeMounts:
             - mountPath: /dev/shm
               name: dshm
+            - mountPath: /etc/pki/tls/certs/odh-trusted-ca-bundle.crt
+              name: odh-trusted-ca-cert
+              subPath: odh-trusted-ca-bundle.crt
+            - mountPath: /etc/ssl/certs/odh-trusted-ca-bundle.crt
+              name: odh-trusted-ca-cert
+              subPath: odh-trusted-ca-bundle.crt
+            - mountPath: /etc/pki/tls/certs/odh-ca-bundle.crt
+              name: odh-ca-cert
+              subPath: odh-ca-bundle.crt
+            - mountPath: /etc/ssl/certs/odh-ca-bundle.crt
+              name: odh-ca-cert
+              subPath: odh-ca-bundle.crt
             - mountPath: /dst
               name: mount-0
               readOnly: true
@@ -645,6 +701,20 @@ spec:
           - emptyDir:
               medium: Memory
             name: dshm
+          - configMap:
+              items:
+              - key: ca-bundle.crt
+                path: odh-custom-ca-bundle.crt
+              name: odh-trusted-ca-bundle
+              optional: true
+            name: odh-trusted-ca-cert
+          - configMap:
+              items:
+              - key: odh-ca-bundle.crt
+                path: odh-ca-bundle.crt
+              name: odh-trusted-ca-bundle
+              optional: true
+            name: odh-ca-cert
           - hostPath:
               path: /src
             name: mount-0
@@ -1266,6 +1336,8 @@ spec:
             V1PersistentVolumeClaimVolumeSource,
             V1Volume,
             V1VolumeMount,
+            V1ConfigMapVolumeSource,
+            V1KeyToPath,
         )
 
         role = specs.Role(
@@ -1296,6 +1368,30 @@ spec:
                     ),
                 ),
                 V1Volume(
+                    name="odh-trusted-ca-cert",
+                    config_map=V1ConfigMapVolumeSource(
+                        name="odh-trusted-ca-bundle",
+                        items=[
+                            V1KeyToPath(
+                                key="ca-bundle.crt", path="odh-custom-ca-bundle.crt"
+                            )
+                        ],
+                        optional=True,
+                    ),
+                ),
+                V1Volume(
+                    name="odh-ca-cert",
+                    config_map=V1ConfigMapVolumeSource(
+                        name="odh-trusted-ca-bundle",
+                        items=[
+                            V1KeyToPath(
+                                key="odh-ca-bundle.crt", path="odh-ca-bundle.crt"
+                            )
+                        ],
+                        optional=True,
+                    ),
+                ),
+                V1Volume(
                     name="mount-0",
                     persistent_volume_claim=V1PersistentVolumeClaimVolumeSource(
                         claim_name="name",
@@ -1311,6 +1407,26 @@ spec:
                     mount_path="/dev/shm",
                 ),
                 V1VolumeMount(
+                    name="odh-trusted-ca-cert",
+                    sub_path="odh-trusted-ca-bundle.crt",
+                    mount_path="/etc/pki/tls/certs/odh-trusted-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-trusted-ca-cert",
+                    sub_path="odh-trusted-ca-bundle.crt",
+                    mount_path="/etc/ssl/certs/odh-trusted-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-ca-cert",
+                    sub_path="odh-ca-bundle.crt",
+                    mount_path="/etc/pki/tls/certs/odh-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-ca-cert",
+                    sub_path="odh-ca-bundle.crt",
+                    mount_path="/etc/ssl/certs/odh-ca-bundle.crt",
+                ),
+                V1VolumeMount(
                     name="mount-0",
                     mount_path="/dst",
                     read_only=True,
@@ -1324,6 +1440,8 @@ spec:
             V1HostPathVolumeSource,
             V1Volume,
             V1VolumeMount,
+            V1ConfigMapVolumeSource,
+            V1KeyToPath,
         )
 
         role = specs.Role(
@@ -1349,6 +1467,30 @@ spec:
             pod.spec.volumes[1:],
             [
                 V1Volume(
+                    name="odh-trusted-ca-cert",
+                    config_map=V1ConfigMapVolumeSource(
+                        name="odh-trusted-ca-bundle",
+                        items=[
+                            V1KeyToPath(
+                                key="ca-bundle.crt", path="odh-custom-ca-bundle.crt"
+                            )
+                        ],
+                        optional=True,
+                    ),
+                ),
+                V1Volume(
+                    name="odh-ca-cert",
+                    config_map=V1ConfigMapVolumeSource(
+                        name="odh-trusted-ca-bundle",
+                        items=[
+                            V1KeyToPath(
+                                key="odh-ca-bundle.crt", path="odh-ca-bundle.crt"
+                            )
+                        ],
+                        optional=True,
+                    ),
+                ),
+                V1Volume(
                     name="mount-0",
                     host_path=V1HostPathVolumeSource(
                         path="foo",
@@ -1365,6 +1507,26 @@ spec:
         self.assertEqual(
             pod.spec.containers[0].volume_mounts[1:],
             [
+                V1VolumeMount(
+                    name="odh-trusted-ca-cert",
+                    sub_path="odh-trusted-ca-bundle.crt",
+                    mount_path="/etc/pki/tls/certs/odh-trusted-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-trusted-ca-cert",
+                    sub_path="odh-trusted-ca-bundle.crt",
+                    mount_path="/etc/ssl/certs/odh-trusted-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-ca-cert",
+                    sub_path="odh-ca-bundle.crt",
+                    mount_path="/etc/pki/tls/certs/odh-ca-bundle.crt",
+                ),
+                V1VolumeMount(
+                    name="odh-ca-cert",
+                    sub_path="odh-ca-bundle.crt",
+                    mount_path="/etc/ssl/certs/odh-ca-bundle.crt",
+                ),
                 V1VolumeMount(
                     name="mount-0",
                     mount_path="bar",

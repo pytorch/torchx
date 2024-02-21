@@ -191,6 +191,8 @@ def role_to_pod(
         V1SecurityContext,
         V1Volume,
         V1VolumeMount,
+        V1ConfigMapVolumeSource,
+        V1KeyToPath,
     )
 
     # limits puts an upper cap on the resources a pod may consume.
@@ -235,9 +237,47 @@ def role_to_pod(
                 medium="Memory",
             ),
         ),
+        V1Volume(
+            name="odh-trusted-ca-cert",
+            config_map=V1ConfigMapVolumeSource(
+                name="odh-trusted-ca-bundle",
+                items=[
+                    V1KeyToPath(key="ca-bundle.crt", path="odh-custom-ca-bundle.crt")
+                ],
+                optional=True,
+            ),
+        ),
+        V1Volume(
+            name="odh-ca-cert",
+            config_map=V1ConfigMapVolumeSource(
+                name="odh-trusted-ca-bundle",
+                items=[V1KeyToPath(key="odh-ca-bundle.crt", path="odh-ca-bundle.crt")],
+                optional=True,
+            ),
+        ),
     ]
     volume_mounts = [
         V1VolumeMount(name=SHM_VOL, mount_path="/dev/shm"),
+        V1VolumeMount(
+            name="odh-trusted-ca-cert",
+            sub_path="odh-trusted-ca-bundle.crt",
+            mount_path="/etc/pki/tls/certs/odh-trusted-ca-bundle.crt",
+        ),
+        V1VolumeMount(
+            name="odh-trusted-ca-cert",
+            sub_path="odh-trusted-ca-bundle.crt",
+            mount_path="/etc/ssl/certs/odh-trusted-ca-bundle.crt",
+        ),
+        V1VolumeMount(
+            name="odh-ca-cert",
+            sub_path="odh-ca-bundle.crt",
+            mount_path="/etc/pki/tls/certs/odh-ca-bundle.crt",
+        ),
+        V1VolumeMount(
+            name="odh-ca-cert",
+            sub_path="odh-ca-bundle.crt",
+            mount_path="/etc/ssl/certs/odh-ca-bundle.crt",
+        ),
     ]
     security_context = V1SecurityContext()
 
