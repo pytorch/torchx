@@ -131,7 +131,7 @@ class Runner:
         It is ok to call this method multiple times on the same runner object.
         """
 
-        for name, scheduler in self._scheduler_instances.items():
+        for scheduler in self._scheduler_instances.values():
             scheduler.close()
 
     def run_component(
