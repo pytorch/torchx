@@ -156,7 +156,9 @@ class RunnerTest(TestWithTmpDir):
                 entrypoint="echo",
                 args=["hello world"],
             )
-            app = AppDef("name", roles=[role1, role2])
+            app = AppDef(
+                "name", 
+                roles=[role1, role2])
             runner.dryrun(app, "local_dir", cfg=self.cfg)
             for role in app.roles:
                 self.assertEqual(
