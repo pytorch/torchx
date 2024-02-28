@@ -97,7 +97,7 @@ class Runner:
         self._name: str = name
         self._scheduler_factories = scheduler_factories
         self._scheduler_params: Dict[str, object] = scheduler_params or {}
-        # pyre-ignore[24]: Scheduler opts
+        # pyre-fixme[24]: SchedulerOpts is a generic, and we don't have access to the corresponding type
         self._scheduler_instances: Dict[str, Scheduler] = {}
         self._apps: Dict[AppHandle, AppDef] = {}
 
@@ -625,7 +625,7 @@ class Runner:
                 app.app_handle = make_app_handle(scheduler, self._name, app.app_id)
             return apps
 
-    # pyre-fixme: Scheduler opts
+    # pyre-fixme[24]: SchedulerOpts is a generic, and we don't have access to the corresponding type
     def _scheduler(self, scheduler: str) -> Scheduler:
         sched = self._scheduler_instances.get(scheduler)
         if not sched:
@@ -643,7 +643,7 @@ class Runner:
         self,
         app_handle: AppHandle,
         check_session: bool = True
-        # pyre-fixme: Scheduler opts
+        # pyre-fixme[24]: SchedulerOpts is a generic, and we don't have access to the corresponding type
     ) -> Tuple[Scheduler, str, str]:
         """
         Returns the scheduler and app_id from the app_handle.
