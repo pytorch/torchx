@@ -49,6 +49,22 @@ class DDPComponentProvider(ComponentProvider):
         )
 
 
+class AccelerateComponentProvider(ComponentProvider):
+    def get_app_def(self) -> AppDef:
+        return dist_components.accelerate(
+            script="torchx/examples/apps/compute_world_size/main.py",
+            name="accelerate-compute",
+            image=self._image,
+            cpu=1,
+            j="2x2",
+            max_retries=3,
+            main_process_port=19501,
+            env={
+                "LOGLEVEL": "INFO",
+            },
+        )
+
+
 class ServeComponentProvider(ComponentProvider):
     # TODO(aivanou): Remove dryrun and test e2e serve component+app
     def get_app_def(self) -> AppDef:

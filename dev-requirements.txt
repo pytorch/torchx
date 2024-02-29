@@ -1,3 +1,4 @@
+accelerate
 aiobotocore
 ax-platform[mysql]==0.2.3
 black==23.3.0
@@ -20,7 +21,7 @@ protobuf==3.20.3
 pyre-extensions
 pyre-check
 pytest
-pytorch-lightning==1.5.10
+pytorch-lightning==2.2.0
 torch-model-archiver>=0.4.2
 torch>=1.10.0
 torchmetrics<0.11.0

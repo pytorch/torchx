@@ -5,7 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 from torchx.components.component_test_base import ComponentTestCase
-from torchx.components.dist import _TORCH_DEBUG_FLAGS, ddp, parse_nnodes, spmd
+from torchx.components.dist import (
+    _TORCH_DEBUG_FLAGS, ddp, parse_nnodes, spmd,
+    accelerate,
+)
 
 
 class DDPTest(ComponentTestCase):
@@ -148,3 +151,37 @@ class SpmdTest(ComponentTestCase):
             "default-experiment",
             appdef.roles[0].env["TORCHX_TRACKING_EXPERIMENT_NAME"],
         )
+
+class AccelerateTest(ComponentTestCase):
+    def test_ddp(self) -> None:
+        import torchx.components.dist as dist
+
+        self.validate(dist, "accelerate")
+
+    def test_basic(self) -> None:
+        app = accelerate(
+            "--script_arg",
+            script="foo.py",
+            j="2x2",
+            accelerate_args=["--accelerate_arg"],
+            env={"a": "b"}
+        )
+        self.assertEqual(len(app.roles), 1)
+        role = app.roles[0]
+        self.assertEqual(role.num_replicas, 2)
+        args = " ".join(role.args)
+        self.assertIn("--script_arg", args)
+        self.assertIn("--accelerate_arg", args)
+        self.assertIn("a", role.env)
+
+    def test_mounts(self) -> None:
+        app = accelerate(
+            script="foo.py", mounts=["type=bind", "src=/dst", "dst=/dst", "readonly"]
+        )
+        self.assertEqual(len(app.roles[0].mounts), 1)
+
+    def test_debug(self) -> None:
+        app = accelerate(script="foo.py", debug=True)
+        env = app.roles[0].env
+        for k, v in _TORCH_DEBUG_FLAGS.items():
+            self.assertEqual(env[k], v)
