@@ -264,6 +264,12 @@ RoleName = str
 
 
 class PopenProtocol(Protocol):
+    """
+    Protocol wrapper around python's ``subprocess.Popen``. Keeps track of
+    the a list of interface methods that the process scheduled by the `LocalScheduler`
+    must implement.
+    """
+    
     @property
     def pid(self) -> int:
         ...
