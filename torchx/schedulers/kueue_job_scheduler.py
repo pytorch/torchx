@@ -65,7 +65,7 @@ from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from docker import DockerClient
-    from kubernetes.client import ApiClient, CustomObjectsApi, BatchV1Api, CoreV1Api
+    from kubernetes.client import ApiClient, BatchV1Api, CoreV1Api, CustomObjectsApi
     from kubernetes.client.models import (  # noqa: F401 imported but unused
         V1Container,
         V1Pod,
@@ -103,21 +103,16 @@ JOB_STATE: Dict[str, AppState] = {
     # Teriminated is the phase that the job is finished unexpected, e.g. events
     "Terminated": AppState.FAILED,
     "Failed": ReplicaState.FAILED,
-
-    "Suspended": AppState.SUSPENDED
+    "Suspended": AppState.SUSPENDED,
 }
 
 KUEUE_STATE: Dict[str, ReplicaState] = {
     # Kueue related States
-    #JobSuspended is the state where Kueue has suspended the job
+    # JobSuspended is the state where Kueue has suspended the job
     "JobSuspended": ReplicaState.SUSPENDED,
-    #JobResumed is the state where Kueue releases the Job
+    # JobResumed is the state where Kueue releases the Job
     "JobResumed": ReplicaState.RESUMED,
-    #Complete is the state where the Job has completed
-    "Complete": ReplicaState.SUCCEEDED,
-    #Failed is the state where the Job has failed
-    "Failed": ReplicaState.FAILED,
-    #Unknown is the state where the Job state is unknown
+    # Unknown is the state where the Job state is unknown
     "Unknown": ReplicaState.UNKNOWN,
 }
 
@@ -131,7 +126,7 @@ LABEL_ORGANIZATION = "app.kubernetes.io/managed-by"
 LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
 
 # Local Kueue and Priority class labels
-LOCAL_KUEUE_LABEL = "kueue.x-k8s.io/queue-name"
+LOCAL_QUEUE_LABEL = "kueue.x-k8s.io/queue-name"
 PRIORITY_CLASS_LABEL = "kueue.x-k8s.io/priority-class"
 
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
@@ -184,6 +179,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         requests["nvidia.com/gpu"] = limits["nvidia.com/gpu"] = str(resource.gpu)
 
     for device_name, device_limit in resource.devices.items():
+        requests[device_name] = str(device_limit)
         limits[device_name] = str(device_limit)
 
     resources = V1ResourceRequirements(
@@ -288,7 +284,7 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         ],
         volume_mounts=volume_mounts,
         security_context=security_context,
-    )       
+    )
 
     return V1Pod(
         spec=V1PodSpec(
@@ -312,19 +308,18 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
 def app_to_resource(
     app: AppDef,
     service_account: Optional[str],
-    local_kueue: Optional[str] = None,
+    local_queue: Optional[str] = None,
     kueue_priority_class: Optional[str] = None,
+    annotations: Optional[dict] = None,
 ) -> Dict[str, object]:
     """
     app_to_resource creates a kubernetes batch job resource definition from
     the provided AppDef. The resource definition can be used to launch the
     app on Kubernetes.
 
-    The local kueue is a required variable to add to the job labels.
+    The local queue is a required variable to add to the job labels.
     kueue_priority_class is used to provide the workload priority class name see: https://kueue.sigs.k8s.io/docs/concepts/workload_priority_class/#how-to-use-workloadpriorityclass-on-jobs
     """
-    if local_kueue == None:
-        raise ValueError("local_kueue name is required please specify local_kueue in scheduler_args")
     unique_app_id = normalize_str(make_unique(app.name))
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
@@ -349,7 +344,7 @@ def app_to_resource(
                     role=role,
                     replica_id=replica_id,
                     app_id=unique_app_id,
-                    local_kueue=local_kueue,
+                    local_queue=local_queue,
                     kueue_priority_class=kueue_priority_class,
                 )
             )
@@ -363,14 +358,16 @@ def app_to_resource(
 
             if role.min_replicas is not None:
                 # first min_replicas tasks are required, afterward optional
-                task["minAvailable"] = 1 if replica_id < role.min_replicas else 0          
+                task["minAvailable"] = 1 if replica_id < role.min_replicas else 0
 
     resource: Dict[str, object] = {
         "apiVersion": "batch/v1",
         "kind": "Job",
         "metadata": {"name": f"{unique_app_id}"},
-        "spec": task
+        "spec": task,
     }
+    if annotations is not None:
+        resource["metadata"]["annotations"] = annotations
     return resource
 
 
@@ -390,20 +387,21 @@ class KueueJobOpts(TypedDict, total=False):
     namespace: Optional[str]
     image_repo: Optional[str]
     service_account: Optional[str]
-    local_kueue: Optional[str]
+    local_queue: Optional[str]
     kueue_priority_class: Optional[str]
+    annotations: Optional[dict]
 
 
 class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
     """
     KueueJobScheduler is a TorchX scheduling interface to Kubernetes that relies on Kueue.
-    
+
     You can install Kueue here https://kueue.sigs.k8s.io/docs/installation/#install-a-released-version
 
     .. code-block:: bash
 
         $ pip install torchx[kueue_job]
-        $ torchx run --scheduler kueue_job --scheduler_args namespace=default,local_kueue="default-kueue",image_repo="user/alpine" utils.echo --image alpine:latest --msg hello
+        $ torchx run --scheduler kueue_job --scheduler_args namespace=default,local_queue="default-kueue",image_repo="user/alpine" utils.echo --image alpine:latest --msg hello
         kueue_job://torchx_user/1234
         $ torchx status kueue_job://torchx_user/1234
         ...
@@ -451,7 +449,7 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
     request by a small amount to account for the node reserved CPU and memory.
     If you run into scheduling issues you may need to reduce the requested CPU
     and memory from the host values.
-    
+
     **Compatibility**
 
     .. compatibility::
@@ -547,11 +545,9 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
             else:
                 raise
 
-        return f'{namespace}:{resp.metadata.name}'
+        return f"{namespace}:{resp.metadata.name}"
 
-    def _submit_dryrun(
-        self, app: AppDef, cfg: KueueJobOpts
-    ) -> AppDryRunInfo[KueueJob]:
+    def _submit_dryrun(self, app: AppDef, cfg: KueueJobOpts) -> AppDryRunInfo[KueueJob]:
         # map any local images to the remote image
         images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
@@ -560,17 +556,24 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
             service_account, str
         ), "service_account must be a str"
 
-        local_kueue = cfg.get("local_kueue")
-        assert local_kueue is None or isinstance(
-            local_kueue, str
-        ), "local_kueue must be a str"
-        
+        local_queue = cfg.get("local_queue")
+        assert isinstance(
+            local_queue, str
+        ), "local_queue is a required string please specify local_kueue in scheduler_args"
+
         kueue_priority_class = cfg.get("kueue_priority_class")
         assert kueue_priority_class is None or isinstance(
             kueue_priority_class, str
         ), "kueue_priority_class must be a str"
-        
-        resource = app_to_resource(app, service_account, local_kueue,  kueue_priority_class)
+
+        annotations = cfg.get("annotations")
+        assert annotations is None or isinstance(
+            annotations, dict
+        ), "annotations must be a dict"
+
+        resource = app_to_resource(
+            app, service_account, local_queue, kueue_priority_class, annotations
+        )
         req = KueueJob(
             resource=resource,
             images_to_push=images_to_push,
@@ -583,14 +586,14 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
 
     def _cancel_existing(self, app_id: str) -> None:
         from kubernetes import client
+
         namespace, name = app_id.split(":")
 
         self._batchv1_api().delete_namespaced_job(
             namespace=namespace,
             name=name,
-            body=client.V1DeleteOptions(
-                    propagation_policy='Foreground',
-                    grace_period_seconds=5))
+            body=client.V1DeleteOptions(propagation_policy="Foreground"),
+        )
 
     def _run_opts(self) -> runopts:
         opts = runopts()
@@ -606,7 +609,7 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
             help="The service account name to set on the pod specs",
         )
         opts.add(
-            "local_kueue",
+            "local_queue",
             type_=str,
             help="The Local Kueue name to set on the local Kueue label",
         )
@@ -615,11 +618,16 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
             type_=str,
             help="The kueue priority class name to use for the priority class label",
         )
+        opts.add(
+            "annotations",
+            type_=dict,
+            help="The annotations to add to the job",
+        )
         return opts
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
         from kubernetes import client
-        
+
         namespace, name = app_id.split(":")
         roles = {}
         roles_statuses = {}
@@ -629,38 +637,35 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
             job = api_instance.read_namespaced_job_status(name, namespace)
         except client.ApiException as e:
             return f"Exception: {e}"
-        
-
-        try: 
+        try:
             status = job.status
-        except:
+        except Exception as e:
+            print(f"Cannot gather job status: {e}")
             status = None
-        
+
         if status:
-            condition = status.conditions[0]
-            if condition.type == "Suspended" and condition.reason == "JobSuspended":
-                app_state = JOB_STATE["Suspended"]
-            elif condition.reason == "JobResumed":
-                if status.active is not None:
+            for condition in status.conditions or []:
+                role, _, idx = job.metadata.name.rpartition("-")
+                if condition.type == "Suspended":
+                    if condition.reason == "JobSuspended":
+                        app_state = JOB_STATE["Suspended"]
+                        state = KUEUE_STATE["JobSuspended"]
+                    elif condition.reason == "JobResumed":
+                        state = KUEUE_STATE["JobResumed"]
+                        if status.active is not None:
+                            app_state = JOB_STATE["Running"]
+                elif status.active is not None:
+                    state = JOB_STATE["Running"]
                     app_state = JOB_STATE["Running"]
-                elif status.succeeded is not None:
+                elif condition.type == "Complete":
+                    state = JOB_STATE["Completed"]
                     app_state = JOB_STATE["Completed"]
-                elif status.failed is not None:
+                elif condition.type == "Failed":
+                    state = JOB_STATE["Failed"]
                     app_state = JOB_STATE["Failed"]
                 else:
+                    state = JOB_STATE["Pending"]
                     app_state = JOB_STATE["Pending"]
-            else:
-                app_state = JOB_STATE["Pending"]
-
-            for condition in status.conditions or []:
-                role, _, idx = condition.type.rpartition("-")
-                state_str = condition.reason
-                if state_str == "JobResumed":
-                    state = KUEUE_STATE[state_str]
-                elif condition.type == "Complete":
-                    state = KUEUE_STATE["Complete"]
-                else:
-                    state = KUEUE_STATE["Unknown"]
 
                 if role not in roles:
                     roles[role] = Role(name=role, num_replicas=0, image="")
@@ -694,9 +699,7 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
         assert until is None, "kubernetes API doesn't support until"
 
         if streams not in (None, Stream.COMBINED):
-            raise ValueError(
-                "KueueJobScheduler only supports COMBINED log stream"
-            )
+            raise ValueError("KueueJobScheduler only supports COMBINED log stream")
 
         from kubernetes import client, watch
 
@@ -704,8 +707,8 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
 
         pod_name = get_pod_name_from_job(self, job_name=name, namespace=namespace)
         if pod_name is None:
-            return "Pods not found. Is the Job Suspended?"
-        
+            raise ValueError("Pods not found. Is the Job Suspended?")
+
         args: Dict[str, object] = {
             "name": pod_name,
             "namespace": namespace,
@@ -745,9 +748,10 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
             for app in resp["items"]
         ]
 
+
 def get_pod_name_from_job(self, job_name, namespace):
     from kubernetes import client
-    
+
     api_instance = self._batchv1_api()
 
     try:
@@ -756,7 +760,7 @@ def get_pod_name_from_job(self, job_name, namespace):
         return f"Api Exception: {e}"
 
     selector = job.spec.selector.match_labels
-    label = ','.join([f'{k}={v}' for k, v in selector.items()])
+    label = ",".join([f"{k}={v}" for k, v in selector.items()])
 
     api_instance = self._corev1_api()
     try:
@@ -768,7 +772,9 @@ def get_pod_name_from_job(self, job_name, namespace):
         return None
     else:
         # Sort the list of pods by creation timestamp and get most recent one
-        sorted_pods = sorted(pods.items, key=lambda p: str(p.metadata.creation_timestamp), reverse=True)
+        sorted_pods = sorted(
+            pods.items, key=lambda p: str(p.metadata.creation_timestamp), reverse=True
+        )
         most_recent_pod = sorted_pods[0].metadata.name
 
         return most_recent_pod
@@ -788,9 +794,15 @@ def create_scheduler(
 
 
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int, app_id: str, local_kueue: str, kueue_priority_class: str
+    app: AppDef,
+    role_idx: int,
+    role: Role,
+    replica_id: int,
+    app_id: str,
+    local_queue: str,
+    kueue_priority_class: str,
 ) -> Dict[str, str]:
-    
+
     labels = {
         LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
@@ -800,10 +812,9 @@ def pod_labels(
         LABEL_KUBE_APP_NAME: app.name,
         LABEL_ORGANIZATION: "torchx.pytorch.org",
         LABEL_UNIQUE_NAME: app_id,
-        LOCAL_KUEUE_LABEL: local_kueue
+        LOCAL_QUEUE_LABEL: local_queue,
     }
-    
+
     if kueue_priority_class is not None:
         labels[PRIORITY_CLASS_LABEL] = kueue_priority_class
     return labels
-

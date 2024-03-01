@@ -105,7 +105,9 @@ class KueueJobSchedulerTest(unittest.TestCase):
             "torchx.schedulers.kueue_job_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
-            resource = app_to_resource(app, service_account=None, local_kueue="default-kueue")
+            resource = app_to_resource(
+                app, service_account=None, local_queue="default-kueue"
+            )
             actual_cmd = (
                 # pyre-ignore [16]
                 resource["spec"]["template"]
@@ -125,7 +127,9 @@ class KueueJobSchedulerTest(unittest.TestCase):
 
     def test_restart_policy_not_set(self) -> None:
         app = _test_app()
-        resource = app_to_resource(app, service_account=None, local_kueue="default-kueue")
+        resource = app_to_resource(
+            app, service_account=None, local_queue="default-kueue"
+        )
         self.assertEqual(
             "Never",
             # pyre-ignore [16]
@@ -133,7 +137,9 @@ class KueueJobSchedulerTest(unittest.TestCase):
         )
         for role in app.roles:
             role.max_retries = 0
-        resource = app_to_resource(app, service_account=None, local_kueue="default-kueue")
+        resource = app_to_resource(
+            app, service_account=None, local_queue="default-kueue"
+        )
         self.assertFalse("restartPolicy" in resource["spec"])
         self.assertFalse("backoffLimit" in resource["spec"])
 
@@ -150,7 +156,7 @@ class KueueJobSchedulerTest(unittest.TestCase):
             V1ResourceRequirements,
             V1SecurityContext,
             V1Volume,
-            V1VolumeMount
+            V1VolumeMount,
         )
 
         app = _test_app()
@@ -227,15 +233,15 @@ class KueueJobSchedulerTest(unittest.TestCase):
             ),
         )
 
-        print(want)
-
         self.assertEqual(
             pod,
             want,
         )
 
     def test_submit_dryrun(self) -> None:
-        cfg = KueueJobOpts({"namespace": "testnamespace", "local_kueue": "default-kueue"})
+        cfg = KueueJobOpts(
+            {"namespace": "testnamespace", "local_queue": "default-kueue"}
+        )
         scheduler = create_scheduler("test")
         app = _test_app()
         with patch(
@@ -472,7 +478,9 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app(num_replicas=2)
-        cfg= KueueJobOpts({"namespace": "testnamespace", "local_kueue": "default-kueue"})
+        cfg = KueueJobOpts(
+            {"namespace": "testnamespace", "local_queue": "default-kueue"}
+        )
         with patch(
             "torchx.schedulers.kueue_job_scheduler.make_unique"
         ) as make_unique_ctx:
@@ -483,19 +491,14 @@ spec:
 
         container0 = task["template"].spec.containers[0]
         self.assertIn("KUEUE_JOB_TRAINERFOO_0_HOSTS", container0.command)
-        self.assertIn(
-            V1EnvVar(name="FOO", value="bar"), container0.env
-        )
+        self.assertIn(V1EnvVar(name="FOO", value="bar"), container0.env)
 
     def test_submit_dryrun_patch(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
         app.roles[0].image = "sha256:testhash"
         cfg = KueueJobOpts(
-            {
-                "image_repo": "example.com/some/repo",
-                "local_kueue": "default-kueue"
-            }
+            {"image_repo": "example.com/some/repo", "local_queue": "default-kueue"}
         )
         with patch(
             "torchx.schedulers.kueue_job_scheduler.make_unique"
@@ -521,7 +524,7 @@ spec:
         cfg = KueueJobOpts(
             {
                 "service_account": "srvacc",
-                "local_kueue": "default-kueue",
+                "local_queue": "default-kueue",
             }
         )
         info = scheduler.submit_dryrun(app, cfg)
@@ -533,27 +536,21 @@ spec:
 
     @patch("kubernetes.client.BatchV1Api.create_namespaced_job")
     def test_submit(self, create_namespaced_job: MagicMock) -> None:
-        from kubernetes.client.models import (
-            V1Job,
-            V1ObjectMeta
-        )
-        
+        from kubernetes.client.models import V1Job, V1ObjectMeta
+
         job = V1Job(
-            api_version= "v1",
-            metadata=V1ObjectMeta(
-            name="testid",
-            namespace="testnamespace"
-            ),
+            api_version="v1",
+            metadata=V1ObjectMeta(name="testid", namespace="testnamespace"),
         )
-        
+
         create_namespaced_job.return_value = job
-        
+
         scheduler = create_scheduler("test")
         app = _test_app()
         cfg = KueueJobOpts(
             {
                 "namespace": "testnamespace",
-                "local_kueue": "default-kueue",
+                "local_queue": "default-kueue",
             }
         )
 
@@ -564,9 +561,11 @@ spec:
         args, kwargs = call
         self.assertEqual(kwargs["namespace"], "testnamespace")
         self.assertEqual(kwargs["body"], info.request.resource)
-    
+
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
-    def test_submit_no_kueue_label(self, create_namespaced_custom_object: MagicMock) -> None:
+    def test_submit_no_kueue_label(
+        self, create_namespaced_custom_object: MagicMock
+    ) -> None:
         create_namespaced_custom_object.return_value = {
             "metadata": {"name": "testid"},
         }
@@ -577,13 +576,11 @@ spec:
                 "namespace": "testnamespace",
             }
         )
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AssertionError):
             scheduler.submit_dryrun(app, cfg)
 
     @patch("kubernetes.client.BatchV1Api.create_namespaced_job")
-    def test_submit_job_name_conflict(
-        self, create_namespaced_job: MagicMock
-    ) -> None:
+    def test_submit_job_name_conflict(self, create_namespaced_job: MagicMock) -> None:
         from kubernetes.client.rest import ApiException
 
         api_exc = ApiException(status=409, reason="Conflict")
@@ -595,7 +592,7 @@ spec:
         cfg = KueueJobOpts(
             {
                 "namespace": "testnamespace",
-                "local_kueue": "default-kueue",
+                "local_queue": "default-kueue",
             }
         )
         info = scheduler.submit_dryrun(app, cfg)
@@ -605,54 +602,54 @@ spec:
     @patch("kubernetes.client.BatchV1Api.read_namespaced_job_status")
     def test_describe(self, read_namespaced_job_status: MagicMock) -> None:
         from kubernetes.client.models import (
-            V1JobStatus,
-            V1JobCondition,
             V1Job,
-            V1ObjectMeta
+            V1JobCondition,
+            V1JobStatus,
+            V1ObjectMeta,
         )
 
         job = V1Job(
-            api_version= "v1",
-            metadata=V1ObjectMeta(
-            name="testid",
-            namespace="testnamespace"
+            api_version="v1",
+            metadata=V1ObjectMeta(name="testid", namespace="testnamespace"),
+            status=V1JobStatus(
+                completed_indexes=None,
+                completion_time=None,
+                conditions=[
+                    V1JobCondition(
+                        last_probe_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
+                        last_transition_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
+                        message="Job resumed",
+                        reason="JobResumed",
+                        status="False",
+                        type="Suspended",
+                    ),
+                    V1JobCondition(
+                        last_probe_time="datetime.datetime(2024, 2, 9, 10, 11, 58, tzinfo=tzutc())",
+                        last_transition_time="datetime.datetime(2024, 2, 9, 10, 11, 58, tzinfo=tzutc())",
+                        message=None,
+                        reason=None,
+                        status=True,
+                        type="Complete",
+                    ),
+                ],
+                failed=None,
+                ready=0,
+                start_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
+                succeeded=1,
+                uncounted_terminated_pods={"failed": None, "succeeded": None},
             ),
-            status = V1JobStatus(
-            completed_indexes=None,
-            completion_time=None,
-            conditions=[V1JobCondition(
-                last_probe_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
-                last_transition_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
-                message='Job resumed',
-                reason='JobResumed',
-                status='False',
-                type='Suspended'),
-                V1JobCondition(
-                last_probe_time="datetime.datetime(2024, 2, 9, 10, 11, 58, tzinfo=tzutc())",
-                last_transition_time="datetime.datetime(2024, 2, 9, 10, 11, 58, tzinfo=tzutc())",
-                message=None,
-                reason=None,
-                status=True,
-                type='Complete')],
-            failed=None,
-            ready=0,
-            start_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
-            succeeded=1,
-            uncounted_terminated_pods={'failed': None, 'succeeded': None}
         )
-        )
-    
-        
+
         read_namespaced_job_status.return_value = job
         app_id = "testnamespace:testid"
         scheduler = create_scheduler("test")
         info = scheduler.describe(app_id)
         call = read_namespaced_job_status.call_args
         args, kwargs = call
-        
+
         assert "testid" in args
         assert "testnamespace" in args
-        
+
         self.assertEqual(
             info,
             DescribeAppResponse(
@@ -673,7 +670,7 @@ spec:
                                 role="",
                                 state=specs.AppState.SUCCEEDED,
                                 hostname="",
-                            )
+                            ),
                         ],
                     ),
                 ],
@@ -691,7 +688,7 @@ spec:
         app_id = "testnamespace:testid"
         scheduler = create_scheduler("test")
         info = scheduler.describe(app_id)
-    
+
         self.assertEqual(
             info,
             DescribeAppResponse(
@@ -707,28 +704,30 @@ spec:
             set(runopts._opts.keys()),
             {
                 "namespace",
-                "local_kueue",
+                "local_queue",
                 "image_repo",
                 "service_account",
-                "kueue_priority_class"
+                "kueue_priority_class",
+                "annotations",
             },
         )
 
     @patch("kubernetes.client.BatchV1Api.delete_namespaced_job")
     def test_cancel_existing(self, delete_namespaced_job: MagicMock) -> None:
         from kubernetes import client
+
         scheduler = create_scheduler("test")
         scheduler._cancel_existing("testnamespace:testjob")
         call = delete_namespaced_job.call_args
         args, kwargs = call
-        self.assertEqual(kwargs, {
-            "namespace": "testnamespace",
-            "name": "testjob",
-            "body": client.V1DeleteOptions(
-                    propagation_policy='Foreground',
-                    grace_period_seconds=5)
-        })
-        
+        self.assertEqual(
+            kwargs,
+            {
+                "namespace": "testnamespace",
+                "name": "testjob",
+                "body": client.V1DeleteOptions(propagation_policy="Foreground"),
+            },
+        )
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
@@ -847,13 +846,18 @@ spec:
             with self.assertRaises(ApiException):
                 scheduler.list()
 
-    @patch("torchx.schedulers.kueue_job_scheduler.get_pod_name_from_job", return_value="testjob-roleblah-1-0")
+    @patch(
+        "torchx.schedulers.kueue_job_scheduler.get_pod_name_from_job",
+        return_value="testjob-roleblah-1-0",
+    )
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
-    def test_log_iter(self, read_namespaced_pod_log: MagicMock, read_namespaced_job: MagicMock) -> None:
+    def test_log_iter(
+        self, read_namespaced_pod_log: MagicMock, read_namespaced_job: MagicMock
+    ) -> None:
         scheduler = create_scheduler("test")
         read_namespaced_pod_log.return_value = "foo reg\nfoo\nbar reg\n"
         read_namespaced_job.return_value = "testjob-roleblah-1-0"
-        
+
         lines = scheduler.log_iter(
             app_id="testnamespace:testjob",
             role_name="role_blah",
@@ -906,20 +910,22 @@ spec:
     def test_min_replicas(self) -> None:
         app = _test_app(num_replicas=3)
         app.roles[0].min_replicas = 2
-        resource = app_to_resource(app, service_account=None, local_kueue="default-kueue")
-        
+        resource = app_to_resource(
+            app, service_account=None, local_queue="default-kueue"
+        )
 
-        
         # Modify the minAvailable property of each job in the resource
         for job in resource["spec"]:  # pyre-ignore[16]
             if "backoffLimit" not in job:
                 continue
-            resource["spec"]["minAvailable"] = max(0, resource["spec"]["backoffLimit"] - 1)
-        
+            resource["spec"]["minAvailable"] = max(
+                0, resource["spec"]["backoffLimit"] - 1
+            )
+
         min_available = resource["spec"]["minAvailable"]
 
         self.assertEqual(min_available, 2)
-        
+
     def test_submit_dryrun_priority_class(self) -> None:
         scheduler = create_scheduler("test")
         self.assertIn("kueue_priority_class", scheduler.run_opts()._opts)
@@ -927,17 +933,48 @@ spec:
         cfg = KueueJobOpts(
             {
                 "namespace": "testnamespace",
-                "local_kueue": "default-kueue",
+                "local_queue": "default-kueue",
                 "kueue_priority_class": "sample-priority",
             }
         )
 
         info = scheduler.submit_dryrun(app, cfg)
-        self.assertIn("'kueue.x-k8s.io/priority-class': 'sample-priority'", str(info.request.resource))
+        self.assertIn(
+            "'kueue.x-k8s.io/priority-class': 'sample-priority'",
+            str(info.request.resource),
+        )
 
         del cfg["kueue_priority_class"]
         info = scheduler.submit_dryrun(app, cfg)
-        self.assertNotIn("'kueue.x-k8s.io/priority-class': 'sample-priority'", str(info.request.resource))
+        self.assertNotIn(
+            "'kueue.x-k8s.io/priority-class': 'sample-priority'",
+            str(info.request.resource),
+        )
+
+    def test_submit_dryrun_with_annotations(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("annotations", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = KueueJobOpts(
+            {
+                "namespace": "testnamespace",
+                "local_queue": "default-kueue",
+                "annotations": {"test": "true"},
+            }
+        )
+
+        info = scheduler.submit_dryrun(app, cfg)
+        self.assertIn(
+            "'test': 'true'",
+            str(info.request.resource["metadata"]["annotations"]),
+        )
+
+        del cfg["annotations"]
+        info = scheduler.submit_dryrun(app, cfg)
+        self.assertNotIn(
+            "annotations",
+            str(info.request.resource["metadata"]),
+        )
 
 
 class KueueJobSchedulerNoImportTest(unittest.TestCase):
@@ -978,10 +1015,7 @@ class KueueJobSchedulerNoImportTest(unittest.TestCase):
         scheduler = kueue_job_scheduler.create_scheduler("foo")
         app = _test_app()
         cfg = KueueJobOpts(
-            {
-                "namespace": "testnamespace",
-                "local_kueue": "default-kueue"
-            }
+            {"namespace": "testnamespace", "local_queue": "default-kueue"}
         )
 
         with self.assertRaises(ModuleNotFoundError):
