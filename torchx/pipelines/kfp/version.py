@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 # Follows PEP-0440 version scheme guidelines
 # https://www.python.org/dev/peps/pep-0440/#version-scheme
 #
