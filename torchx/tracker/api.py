@@ -67,8 +67,7 @@ class AppRunTrackableSource:
     artifact_name: Optional[str]
 
 
-class Lineage:
-    ...
+class Lineage: ...
 
 
 class TrackerBase(ABC):
@@ -332,5 +331,4 @@ class AppRun:
 
         return model_run_sources
 
-    def children(self) -> Iterable[AppRun]:
-        ...
+    def children(self) -> Iterable[AppRun]: ...

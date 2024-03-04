@@ -74,8 +74,7 @@ class ContainerFactory(Protocol):
     kfp.dsl.ContainerOp.
     """
 
-    def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp:
-        ...
+    def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp: ...
 
 
 class KFPContainerFactory(ContainerFactory, Protocol):
