@@ -269,7 +269,7 @@ class PopenProtocol(Protocol):
     the a list of interface methods that the process scheduled by the `LocalScheduler`
     must implement.
     """
-    
+
     @property
     def pid(self) -> int:
         ...
