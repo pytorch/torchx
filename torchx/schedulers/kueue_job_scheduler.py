@@ -559,7 +559,7 @@ class KueueJobScheduler(DockerWorkspaceMixin, Scheduler[KueueJobOpts]):
         local_queue = cfg.get("local_queue")
         assert isinstance(
             local_queue, str
-        ), "local_queue is a required string please specify local_kueue in scheduler_args"
+        ), "local_queue is a required string please specify local_queue in scheduler_args"
 
         kueue_priority_class = cfg.get("kueue_priority_class")
         assert kueue_priority_class is None or isinstance(

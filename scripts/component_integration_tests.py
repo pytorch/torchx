@@ -103,7 +103,7 @@ def main() -> None:
                 examples_app_defs_providers,
             ],
             "image": torchx_image,
-            "cfg": {"namespace": "torchx-dev", "local_kueue": "default-kueue"},
+            "cfg": {"namespace": "torchx-dev", "local_queue": "default-kueue"},
         },
         "local_cwd": {
             "providers": [
