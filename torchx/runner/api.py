@@ -654,7 +654,7 @@ class Runner:
     def _scheduler_app_id(
         self,
         app_handle: AppHandle,
-        check_session: bool = True
+        check_session: bool = True,
         # pyre-fixme[24]: SchedulerOpts is a generic, and we don't have access to the corresponding type
     ) -> Tuple[Scheduler, str, str]:
         """
