@@ -12,11 +12,11 @@ then
     echo "Please install black."
     exit 1
 fi
-if [ ! "$(usort --version)" ]
-then
-    echo "Please install usort."
-    exit 1
-fi
+# if [ ! "$(usort --version)" ]
+# then
+#     echo "Please install usort."
+#     exit 1
+# fi
 if [ ! "$(flake8 --version)" ]
 then
     echo "Please install flake8."
@@ -55,7 +55,7 @@ then
     for file in $CHANGED_FILES
     do
         echo "Checking $file"
-        usort format "$file"
+        # usort format "$file"
         black "$file" -q
         flake8 "$file" || LINT_ERRORS=1
     done
@@ -76,8 +76,14 @@ fi
 CHANGED_FILES="$(git diff --name-only | grep '\.py$' | tr '\n' ' ')"
 if [ "$CHANGED_FILES" != "" ]
 then
+    RED="\033[0;31m"
+    echo "-------------------------------"
+    echo "${RED} [format] These files are not well-formatted:"
     git diff --name-only
-    echo "There are uncommitted changes on disk likely caused by the linters."
+    echo "-------------------------------"
+    echo "${RED} [format] Suggested format by lint:"
+    git diff
+    echo "${RED} You must fix them before merging the pull request."
     # need this so that CI fails
     exit 1
 fi

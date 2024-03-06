@@ -142,7 +142,7 @@ class RunnerTest(TestWithTmpDir):
             name=SESSION_NAME,
             scheduler_factories={"local_dir": lambda name: scheduler_mock},
         ) as runner:
-            role1 = Role(
+            role1 =   Role(
                 name="echo1",
                 image=str(self.tmpdir),
                 resource=resource.SMALL,
