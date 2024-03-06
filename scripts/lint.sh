@@ -76,8 +76,23 @@ fi
 CHANGED_FILES="$(git diff --name-only | grep '\.py$' | tr '\n' ' ')"
 if [ "$CHANGED_FILES" != "" ]
 then
+    RED="\e[31m"
+    ENDCOLOR="\e[0m"
+    echo "------------------------------------------"
+    echo -e "${RED}[format] These files are not well-formatted:${ENDCOLOR}"
     git diff --name-only
-    echo "There are uncommitted changes on disk likely caused by the linters."
+    echo "------------------------------------------"
+    echo -e "${RED}[format] Suggested format by lint:${ENDCOLOR}"
+    git diff
+    echo "------------------------------------------"
+    echo "To apply the suggested format, run:"
+    echo "usort format <file_name>"
+    echo "black <file_name> -q"
+    echo "flake8 <file_name>"
+    echo -e "${RED}You must fix them before merging the pull request.${ENDCOLOR}"
     # need this so that CI fails
     exit 1
+else
+    echo "All files are well-formatted."
+    exit 0
 fi
