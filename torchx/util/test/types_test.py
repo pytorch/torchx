@@ -10,6 +10,7 @@ from typing import cast, Dict, List, Optional, Union
 
 import typing_inspect
 from torchx.util.types import (
+    decode,
     decode_from_string,
     decode_optional,
     get_argparse_param_type,
@@ -22,12 +23,18 @@ from torchx.util.types import (
 
 
 def _test_complex_args(
-    arg1: int, arg2: Optional[List[str]], arg3: Union[float, int]
+    arg1: int,
+    arg2: Optional[List[str]],
+    arg3: Union[float, int],
 ) -> int:
     return 42
 
 
 def _test_dict(arg1: Dict[int, float]) -> int:
+    return 42
+
+
+def _test_nested_object(arg1: Dict[str, List[str]]) -> int:
     return 42
 
 
@@ -97,6 +104,25 @@ class TypesTest(unittest.TestCase):
         self.assertEqual(float(1.0), value[0])
         self.assertEqual(float(42.2), value[1])
         self.assertEqual(float(3.9), value[2])
+
+    def test_decode(self) -> None:
+        encoded_value = "1.0,42.2,3.9"
+
+        dict_parameters = inspect.signature(_test_nested_object).parameters
+        list_parameters = inspect.signature(_test_list).parameters
+
+        value = {"a": ["1", "2"], "b": ["3", "4"]}
+        self.assertDictEqual(value, decode(value, dict_parameters["arg1"].annotation))
+
+        self.assertEqual(decode("true", bool), True)
+        self.assertEqual(decode("false", bool), False)
+
+        self.assertEqual(decode(None, int), None)
+
+        self.assertEqual(
+            decode_from_string(encoded_value, list_parameters["arg1"].annotation),
+            decode(encoded_value, list_parameters["arg1"].annotation),
+        )
 
     def test_decode_from_string_empty(self) -> None:
         parameters = inspect.signature(_test_list).parameters

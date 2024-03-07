@@ -10,13 +10,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Union
 
 from torchx.specs.api import BindMount, MountType, VolumeMount
 from torchx.specs.file_linter import get_fn_docstring, TorchXArgumentHelpFormatter
-from torchx.util.types import (
-    decode_from_string,
-    decode_optional,
-    get_argparse_param_type,
-    is_bool,
-    is_primitive,
-)
+from torchx.util.types import decode, decode_optional, get_argparse_param_type, is_bool
 
 from .api import AppDef, DeviceMount
 
@@ -93,7 +87,7 @@ def _create_args_parser(
 def materialize_appdef(
     cmpnt_fn: Callable[..., AppDef],
     cmpnt_args: List[str],
-    cmpnt_defaults: Optional[Dict[str, str]] = None,
+    cmpnt_defaults: Optional[Dict[str, Any]] = None,
 ) -> AppDef:
     """
     Creates an application by running user defined ``app_fn``.
@@ -134,10 +128,7 @@ def materialize_appdef(
         arg_value = getattr(parsed_args, param_name)
         parameter_type = parameter.annotation
         parameter_type = decode_optional(parameter_type)
-        if is_bool(parameter_type):
-            arg_value = arg_value and arg_value.lower() == "true"
-        elif not is_primitive(parameter_type):
-            arg_value = decode_from_string(arg_value, parameter_type)
+        arg_value = decode(arg_value, parameter_type)
         if parameter.kind == inspect.Parameter.VAR_POSITIONAL:
             var_arg = arg_value
         elif parameter.kind == inspect.Parameter.KEYWORD_ONLY:
