@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 from torchx.components.component_test_base import ComponentTestCase
 from torchx.components.dist import _TORCH_DEBUG_FLAGS, ddp, parse_nnodes, spmd
 

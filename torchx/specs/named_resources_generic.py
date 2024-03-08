@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 """
 Defines generic named resources that are not specific to any cloud provider's
 instance types. These generic named resources are meant to be used as
