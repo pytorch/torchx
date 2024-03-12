@@ -407,7 +407,7 @@ class AppState(int, Enum):
     7. CANCELLED - app was cancelled before completing
     8. UNKNOWN - app state is unknown
     9. SUSPENDED - app is suspended
-    10. Resumed - app is resumed
+    10. RESUMED - app is resumed
     """
 
     UNSUBMITTED = 0

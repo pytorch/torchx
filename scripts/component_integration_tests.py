@@ -62,7 +62,7 @@ def main() -> None:
     if scheduler in (
         "kubernetes",
         "kubernetes_mcad",
-        "kueue_job",
+        "kueue",
         "local_docker",
         "aws_batch",
         "lsf",
@@ -97,13 +97,13 @@ def main() -> None:
                 "namespace": "torchx-dev",
             },
         },
-        "kueue_job": {
+        "kueue": {
             "providers": [
                 component_provider,
                 examples_app_defs_providers,
             ],
             "image": torchx_image,
-            "cfg": {"namespace": "torchx-dev", "local_queue": "default-kueue"},
+            "cfg": {"namespace": "torchx-dev", "local_queue": "torchx-local-queue"},
         },
         "local_cwd": {
             "providers": [

@@ -5,30 +5,17 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-# pyre-strict
-
 """
 
-This contains the TorchX Kubernetes scheduler which can be used to run TorchX
-components on a Kubernetes cluster.
+This contains the TorchX Kubernetes Kueue Job scheduler which can be used to run TorchX
+components on a Kubernetes cluster via Kueue.
 
 Prerequisites
 ==============
 
-The TorchX Kubernetes scheduler depends on Volcano. If you're trying to do an
-upgrade you'll need to completely remove all non-Job Volcano resources and recreate.
+The TorchX Kubernetes scheduler depends on Kueue.
 
-Install Volcano:
-
-.. code:: bash
-
-    kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
-
-See the
-`Volcano Quickstart <https://github.com/volcano-sh/volcano>`_
-for more information.
 """
-
 import json
 import logging
 import warnings
@@ -67,24 +54,18 @@ from torchx.specs.api import (
     macros,
     ReplicaState,
     ReplicaStatus,
-    RetryPolicy,
     Role,
     RoleStatus,
     runopts,
     VolumeMount,
 )
-from torchx.util.role_to_pod import role_to_pod
 from torchx.util.strings import normalize_str
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
-
+from torchx.util.role_to_pod import role_to_pod
 if TYPE_CHECKING:
     from docker import DockerClient
-    from kubernetes.client import ApiClient, CustomObjectsApi
-    from kubernetes.client.models import (  # noqa: F401 imported but unused
-        V1Container,
-        V1Pod,
-    )
+    from kubernetes.client import ApiClient, BatchV1Api, CoreV1Api, CustomObjectsApi
     from kubernetes.client.rest import ApiException
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -96,14 +77,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 # https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/
 RESERVED_MILLICPU = 100
 RESERVED_MEMMB = 1024
-
-RETRY_POLICIES: Mapping[str, Iterable[Mapping[str, str]]] = {
-    RetryPolicy.REPLICA: [],
-    RetryPolicy.APPLICATION: [
-        {"event": "PodEvicted", "action": "RestartJob"},
-        {"event": "PodFailed", "action": "RestartJob"},
-    ],
-}
 
 JOB_STATE: Dict[str, AppState] = {
     # Pending is the phase that job is pending in the queue, waiting for
@@ -125,34 +98,19 @@ JOB_STATE: Dict[str, AppState] = {
     "Terminating": AppState.RUNNING,
     # Teriminated is the phase that the job is finished unexpected, e.g. events
     "Terminated": AppState.FAILED,
-    "Failed": ReplicaState.FAILED,
+    # Failed is the phase that the job has failed
+    "Failed": AppState.FAILED,
+    # Suspended is the phase that the job has been suspended by Kueue
+    "Suspended": AppState.SUSPENDED,
 }
 
-TASK_STATE: Dict[str, ReplicaState] = {
-    # Pending means the task is pending in the apiserver.
-    "Pending": ReplicaState.PENDING,
-    # Allocated means the scheduler assigns a host to it.
-    "Allocated": ReplicaState.PENDING,
-    # Pipelined means the scheduler assigns a host to wait for releasing
-    # resource.
-    "Pipelined": ReplicaState.PENDING,
-    # Binding means the scheduler send Bind request to apiserver.
-    "Binding": ReplicaState.PENDING,
-    # Bound means the task/Pod bounds to a host.
-    "Bound": ReplicaState.PENDING,
-    # Running means a task is running on the host.
-    "Running": ReplicaState.RUNNING,
-    # Releasing means a task/pod is deleted.
-    "Releasing": ReplicaState.RUNNING,
-    # Succeeded means that all containers in the pod have voluntarily
-    # terminated with a container exit code of 0, and the system is not
-    # going to restart any of these containers.
-    "Succeeded": ReplicaState.SUCCEEDED,
-    # Failed means that all containers in the pod have terminated, and at
-    # least one container has terminated in a failure (exited with a
-    # non-zero exit code or was stopped by the system).
-    "Failed": ReplicaState.FAILED,
-    # Unknown means the status of task/pod is unknown to the scheduler.
+KUEUE_STATE: Dict[str, ReplicaState] = {
+    # Kueue related States
+    # JobSuspended is the state where Kueue has suspended the job
+    "JobSuspended": ReplicaState.SUSPENDED,
+    # JobResumed is the state where Kueue releases the Job
+    "JobResumed": ReplicaState.RESUMED,
+    # Unknown is the state where the Job state is unknown
     "Unknown": ReplicaState.UNKNOWN,
 }
 
@@ -165,6 +123,10 @@ LABEL_KUBE_APP_NAME = "app.kubernetes.io/name"
 LABEL_ORGANIZATION = "app.kubernetes.io/managed-by"
 LABEL_UNIQUE_NAME = "app.kubernetes.io/instance"
 
+# Local Kueue and Priority class labels
+LOCAL_QUEUE_LABEL = "kueue.x-k8s.io/queue-name"
+PRIORITY_CLASS_LABEL = "kueue.x-k8s.io/priority-class"
+
 
 def sanitize_for_serialization(obj: object) -> object:
     from kubernetes import client
@@ -172,27 +134,21 @@ def sanitize_for_serialization(obj: object) -> object:
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
 
-
 def app_to_resource(
     app: AppDef,
-    queue: str,
     service_account: Optional[str],
+    local_queue: Optional[str] = None,
     priority_class: Optional[str] = None,
+    annotations: Optional[dict] = None,
 ) -> Dict[str, object]:
     """
-    app_to_resource creates a volcano job kubernetes resource definition from
+    app_to_resource creates a kubernetes batch job resource definition from
     the provided AppDef. The resource definition can be used to launch the
     app on Kubernetes.
 
-    To support macros we generate one task per replica instead of using the
-    volcano `replicas` field since macros change the arguments on a per
-    replica basis.
-
-    Volcano has two levels of retries: one at the task level and one at the
-    job level. When using the APPLICATION retry policy, the job level retry
-    count is set to the minimum of the max_retries of the roles.
+    The local queue is a required variable to add to the job labels.
+    priority_class is used to provide the workload priority class name see: https://kueue.sigs.k8s.io/docs/concepts/workload_priority_class/#how-to-use-workloadpriorityclass-on-jobs
     """
-    tasks = []
     unique_app_id = normalize_str(make_unique(app.name))
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
@@ -200,7 +156,7 @@ def app_to_resource(
                 img_root="",
                 app_id=unique_app_id,
                 replica_id=str(replica_id),
-                rank0_env=f"VC_{normalize_str(app.roles[0].name)}_0_HOSTS".upper(),
+                rank0_env=f"KUEUE_{normalize_str(app.roles[0].name)}_0_HOSTS".upper(),
             )
             if role_idx == 0 and replica_id == 0:
                 values.rank0_env = "TORCHX_RANK0_HOST"
@@ -217,6 +173,8 @@ def app_to_resource(
                     role=role,
                     replica_id=replica_id,
                     app_id=unique_app_id,
+                    local_queue=local_queue,
+                    priority_class=priority_class,
                 )
             )
             task: Dict[str, Any] = {
@@ -225,44 +183,25 @@ def app_to_resource(
                 "template": pod,
             }
             if role.max_retries > 0:
-                task["maxRetry"] = role.max_retries
-                task["policies"] = RETRY_POLICIES[role.retry_policy]
-                msg = f"""
-Role {role.name} configured with restarts: {role.max_retries}. As of 1.4.0 Volcano
-does NOT support retries correctly. More info: https://github.com/volcano-sh/volcano/issues/1651
-                """
-                warnings.warn(msg)
+                task["backoffLimit"] = role.max_retries
+
             if role.min_replicas is not None:
                 # first min_replicas tasks are required, afterward optional
                 task["minAvailable"] = 1 if replica_id < role.min_replicas else 0
-            tasks.append(task)
-
-    job_retries = min(role.max_retries for role in app.roles)
-    job_spec = {
-        "schedulerName": "volcano",
-        "queue": queue,
-        "tasks": tasks,
-        "maxRetry": job_retries,
-        "plugins": {
-            # https://github.com/volcano-sh/volcano/issues/533
-            "svc": ["--publish-not-ready-addresses"],
-            "env": [],
-        },
-    }
-    if priority_class is not None:
-        job_spec["priorityClassName"] = priority_class
 
     resource: Dict[str, object] = {
-        "apiVersion": "batch.volcano.sh/v1alpha1",
+        "apiVersion": "batch/v1",
         "kind": "Job",
         "metadata": {"name": f"{unique_app_id}"},
-        "spec": job_spec,
+        "spec": task,
     }
+    if annotations is not None:
+        resource["metadata"]["annotations"] = annotations
     return resource
 
 
 @dataclass
-class KubernetesJob:
+class Kueue:
     images_to_push: Dict[str, Tuple[str, str]]
     resource: Dict[str, object]
 
@@ -273,46 +212,33 @@ class KubernetesJob:
         return str(self)
 
 
-class KubernetesOpts(TypedDict, total=False):
+class KueueOpts(TypedDict, total=False):
     namespace: Optional[str]
-    queue: str
     image_repo: Optional[str]
     service_account: Optional[str]
+    local_queue: Optional[str]
     priority_class: Optional[str]
+    annotations: Optional[dict]
 
 
-class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
+class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
     """
-    KubernetesScheduler is a TorchX scheduling interface to Kubernetes.
+    KueueScheduler is a TorchX scheduling interface to Kubernetes that relies on Kueue.
 
-    Important: Volcano is required to be installed on the Kubernetes cluster.
-    TorchX requires gang scheduling for multi-replica/multi-role execution
-    and Volcano is currently the only supported scheduler with Kubernetes.
-    For installation instructions see: https://github.com/volcano-sh/volcano
-
-    This has been confirmed to work with Volcano v1.3.0 and Kubernetes versions
-    v1.18-1.21. See https://github.com/pytorch/torchx/issues/120 which is
-    tracking Volcano support for Kubernetes v1.22.
-
-    .. note::
-
-        AppDefs that have more than 0 retries may not be displayed as pods if they failed.
-        This occurs due to known bug in Volcano(as per 1.4.0 release):
-        https://github.com/volcano-sh/volcano/issues/1651
-
+    You can install Kueue here https://kueue.sigs.k8s.io/docs/installation/#install-a-released-version
 
     .. code-block:: bash
 
-        $ pip install torchx[kubernetes]
-        $ torchx run --scheduler kubernetes --scheduler_args namespace=default,queue=test utils.echo --image alpine:latest --msg hello
-        kubernetes://torchx_user/1234
-        $ torchx status kubernetes://torchx_user/1234
+        $ pip install torchx[kueue]
+        $ torchx run --scheduler kueue --scheduler_args namespace=default,local_queue="default-kueue",image_repo="user/alpine" utils.echo --image alpine:latest --msg hello
+        kueue://torchx_user/1234
+        $ torchx status kueue://torchx_user/1234
         ...
 
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.kubernetes_scheduler.create_scheduler
+        class: torchx.schedulers.kueue_scheduler.create_scheduler
 
     **Mounts**
 
@@ -362,11 +288,10 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             logs: true
             distributed: true
             describe: |
-                Partial support. KubernetesScheduler will return job and replica
-                status but does not provide the complete original AppSpec.
+                Partial support. KueJobScheduler will return job and job suspension status but does not provide the complete original AppSpec.
             workspaces: true
             mounts: true
-            elasticity: Requires Volcano >1.6
+            elasticity: Requires Kueue >= v0.5.0
     """
 
     def __init__(
@@ -376,7 +301,7 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         docker_client: Optional["DockerClient"] = None,
     ) -> None:
         # NOTE: make sure any new init options are supported in create_scheduler(...)
-        super().__init__("kubernetes", session_name, docker_client=docker_client)
+        super().__init__("kueue", session_name, docker_client=docker_client)
 
         self._client = client
 
@@ -400,6 +325,16 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
 
         return client.CustomObjectsApi(self._api_client())
 
+    def _batchv1_api(self) -> "BatchV1Api":
+        from kubernetes import client
+
+        return client.BatchV1Api(self._api_client())
+
+    def _corev1_api(self) -> "CoreV1Api":
+        from kubernetes import client
+
+        return client.CoreV1Api(self._api_client())
+
     def _get_job_name_from_exception(self, e: "ApiException") -> Optional[str]:
         try:
             return json.loads(e.body)["details"]["name"]
@@ -413,7 +348,7 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         contexts, active_context = config.list_kube_config_contexts()
         return active_context
 
-    def schedule(self, dryrun_info: AppDryRunInfo[KubernetesJob]) -> str:
+    def schedule(self, dryrun_info: AppDryRunInfo[Kueue]) -> str:
         from kubernetes.client.rest import ApiException
 
         cfg = dryrun_info._cfg
@@ -425,13 +360,11 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
 
         resource = dryrun_info.request.resource
         try:
-            resp = self._custom_objects_api().create_namespaced_custom_object(
-                group="batch.volcano.sh",
-                version="v1alpha1",
+            resp = self._batchv1_api().create_namespaced_job(
                 namespace=namespace,
-                plural="jobs",
                 body=resource,
             )
+
         except ApiException as e:
             if e.status == 409 and e.reason == "Conflict":
                 job_name = self._get_job_name_from_exception(e)
@@ -441,15 +374,9 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             else:
                 raise
 
-        return f'{namespace}:{resp["metadata"]["name"]}'
+        return f"{namespace}:{resp.metadata.name}"
 
-    def _submit_dryrun(
-        self, app: AppDef, cfg: KubernetesOpts
-    ) -> AppDryRunInfo[KubernetesJob]:
-        queue = cfg.get("queue")
-        if not isinstance(queue, str):
-            raise TypeError(f"config value 'queue' must be a string, got {queue}")
-
+    def _submit_dryrun(self, app: AppDef, cfg: KueueOpts) -> AppDryRunInfo[Kueue]:
         # map any local images to the remote image
         images_to_push = self.dryrun_push_images(app, cast(Mapping[str, CfgVal], cfg))
 
@@ -458,13 +385,25 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             service_account, str
         ), "service_account must be a str"
 
+        local_queue = cfg.get("local_queue")
+        assert isinstance(
+            local_queue, str
+        ), "local_queue is a required string please specify local_queue in scheduler_args"
+
         priority_class = cfg.get("priority_class")
         assert priority_class is None or isinstance(
             priority_class, str
         ), "priority_class must be a str"
 
-        resource = app_to_resource(app, queue, service_account, priority_class)
-        req = KubernetesJob(
+        annotations = cfg.get("annotations")
+        assert annotations is None or isinstance(
+            annotations, dict
+        ), "annotations must be a dict"
+
+        resource = app_to_resource(
+            app, service_account, local_queue, priority_class, annotations
+        )
+        req = Kueue(
             resource=resource,
             images_to_push=images_to_push,
         )
@@ -475,13 +414,14 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         pass
 
     def _cancel_existing(self, app_id: str) -> None:
+        from kubernetes import client
+
         namespace, name = app_id.split(":")
-        self._custom_objects_api().delete_namespaced_custom_object(
-            group="batch.volcano.sh",
-            version="v1alpha1",
+
+        self._batchv1_api().delete_namespaced_job(
             namespace=namespace,
-            plural="jobs",
             name=name,
+            body=client.V1DeleteOptions(propagation_policy="Foreground"),
         )
 
     def _run_opts(self) -> runopts:
@@ -489,14 +429,8 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         opts.add(
             "namespace",
             type_=str,
-            help="Kubernetes namespace to schedule job in",
+            help="Kubernetes namespace to schedule Job in",
             default="default",
-        )
-        opts.add(
-            "queue",
-            type_=str,
-            help="Volcano queue to schedule job in",
-            required=True,
         )
         opts.add(
             "service_account",
@@ -504,46 +438,72 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
             help="The service account name to set on the pod specs",
         )
         opts.add(
+            "local_queue",
+            type_=str,
+            help="The Local Kueue name to set on the local Kueue label",
+        )
+        opts.add(
             "priority_class",
             type_=str,
-            help="The name of the PriorityClass to set on the job specs",
+            help="The kueue priority class name to use for the priority class label",
+        )
+        opts.add(
+            "annotations",
+            type_=dict,
+            help="The annotations to add to the job",
         )
         return opts
 
     def describe(self, app_id: str) -> Optional[DescribeAppResponse]:
+        from kubernetes import client
+
         namespace, name = app_id.split(":")
         roles = {}
         roles_statuses = {}
-        resp = self._custom_objects_api().get_namespaced_custom_object_status(
-            group="batch.volcano.sh",
-            version="v1alpha1",
-            namespace=namespace,
-            plural="jobs",
-            name=name,
-        )
-        status = resp.get("status")
+
+        try:
+            api_instance = self._batchv1_api()
+            job = api_instance.read_namespaced_job_status(name, namespace)
+        except client.ApiException as e:
+            return f"Exception: {e}"
+        try:
+            status = job.status
+        except Exception as e:
+            print(f"Cannot gather job status: {e}")
+            status = None
+        app_state = None
         if status:
-            state_str = status["state"]["phase"]
-            app_state = JOB_STATE[state_str]
+            for condition in status.conditions or []:
+                role, _, idx = job.metadata.name.rpartition("-")
+                condition_reason = condition.reason
+                if condition.type == "Suspended":
+                    app_state = JOB_STATE["Suspended"]
+                    state = KUEUE_STATE[condition_reason]
+                    if condition.reason == "JobResumed":
+                        state = KUEUE_STATE[condition_reason]
+                        if status.active is not None:
+                            app_state = JOB_STATE["Running"]
 
-            TASK_STATUS_COUNT = "taskStatusCount"
+                elif status.active is not None:
+                    state = app_state = JOB_STATE["Running"]
+                elif condition.type == "Complete":
+                    state = app_state = JOB_STATE["Completed"]
+                elif condition.type == "Failed":
+                    state = app_state = JOB_STATE["Failed"]
+                else:
+                    state = app_state = JOB_STATE["Pending"]
 
-            if TASK_STATUS_COUNT in status:
-                for name, status in status[TASK_STATUS_COUNT].items():
-                    role, _, idx = name.rpartition("-")
+                if role not in roles:
+                    roles[role] = Role(name=role, num_replicas=0, image="")
+                    roles_statuses[role] = RoleStatus(role, [])
 
-                    state_str = next(iter(status["phase"].keys()))
-                    state = TASK_STATE[state_str]
-
-                    if role not in roles:
-                        roles[role] = Role(name=role, num_replicas=0, image="")
-                        roles_statuses[role] = RoleStatus(role, [])
-                    roles[role].num_replicas += 1
-                    roles_statuses[role].replicas.append(
-                        ReplicaStatus(id=int(idx), role=role, state=state, hostname="")
-                    )
+                roles[role].num_replicas += 1
+                roles_statuses[role].replicas.append(
+                    ReplicaStatus(id=0, role=role, state=state, hostname="")
+                )
         else:
             app_state = AppState.UNKNOWN
+
         return DescribeAppResponse(
             app_id=app_id,
             roles=list(roles.values()),
@@ -565,13 +525,15 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         assert until is None, "kubernetes API doesn't support until"
 
         if streams not in (None, Stream.COMBINED):
-            raise ValueError("KubernetesScheduler only supports COMBINED log stream")
+            raise ValueError("KueueScheduler only supports COMBINED log stream")
 
         from kubernetes import client, watch
 
         namespace, name = app_id.split(":")
 
-        pod_name = normalize_str(f"{name}-{role_name}-{k}-0")
+        pod_name = get_pod_name_from_job(self, job_name=name, namespace=namespace)
+        if pod_name is None:
+            raise ValueError("Pods not found. Is the Job Suspended?")
 
         args: Dict[str, object] = {
             "name": pod_name,
@@ -598,10 +560,10 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         active_context = self._get_active_context()
         namespace = active_context["context"]["namespace"]
         resp = self._custom_objects_api().list_namespaced_custom_object(
-            group="batch.volcano.sh",
-            version="v1alpha1",
+            group="batch",
+            version="v1",
             namespace=namespace,
-            plural="jobs",
+            plural="job",
             timeout_seconds=30,
         )
         return [
@@ -613,13 +575,44 @@ class KubernetesScheduler(DockerWorkspaceMixin, Scheduler[KubernetesOpts]):
         ]
 
 
+def get_pod_name_from_job(self, job_name, namespace):
+    from kubernetes import client
+
+    api_instance = self._batchv1_api()
+
+    try:
+        job = api_instance.read_namespaced_job(job_name, namespace)
+    except client.ApiException as e:
+        return f"Api Exception: {e}"
+
+    selector = job.spec.selector.match_labels
+    label = ",".join([f"{k}={v}" for k, v in selector.items()])
+
+    api_instance = self._corev1_api()
+    try:
+        pods = api_instance.list_namespaced_pod(namespace, label_selector=label)
+    except client.ApiException as e:
+        return f"Api Exception {e}"
+
+    if not pods.items:
+        return None
+    else:
+        # Sort the list of pods by creation timestamp and get most recent one
+        sorted_pods = sorted(
+            pods.items, key=lambda p: str(p.metadata.creation_timestamp), reverse=True
+        )
+        most_recent_pod = sorted_pods[0].metadata.name
+
+        return most_recent_pod
+
+
 def create_scheduler(
     session_name: str,
     client: Optional["ApiClient"] = None,
     docker_client: Optional["DockerClient"] = None,
     **kwargs: Any,
-) -> KubernetesScheduler:
-    return KubernetesScheduler(
+) -> KueueScheduler:
+    return KueueScheduler(
         session_name=session_name,
         client=client,
         docker_client=docker_client,
@@ -627,9 +620,16 @@ def create_scheduler(
 
 
 def pod_labels(
-    app: AppDef, role_idx: int, role: Role, replica_id: int, app_id: str
+    app: AppDef,
+    role_idx: int,
+    role: Role,
+    replica_id: int,
+    app_id: str,
+    local_queue: str,
+    priority_class: str,
 ) -> Dict[str, str]:
-    return {
+
+    labels = {
         LABEL_VERSION: torchx.__version__,
         LABEL_APP_NAME: app.name,
         LABEL_ROLE_INDEX: str(role_idx),
@@ -638,4 +638,9 @@ def pod_labels(
         LABEL_KUBE_APP_NAME: app.name,
         LABEL_ORGANIZATION: "torchx.pytorch.org",
         LABEL_UNIQUE_NAME: app_id,
+        LOCAL_QUEUE_LABEL: local_queue,
     }
+
+    if priority_class is not None:
+        labels[PRIORITY_CLASS_LABEL] = priority_class
+    return labels

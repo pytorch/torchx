@@ -27,10 +27,9 @@ from torchx.schedulers.kubernetes_scheduler import (
     KubernetesJob,
     KubernetesOpts,
     KubernetesScheduler,
-    LABEL_INSTANCE_TYPE,
-    role_to_pod,
 )
 from torchx.specs import AppState
+from torchx.util.role_to_pod import LABEL_INSTANCE_TYPE, role_to_pod
 
 SKIP_DOCKER: bool = not has_docker()
 

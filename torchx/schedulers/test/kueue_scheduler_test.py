@@ -15,20 +15,19 @@ from unittest.mock import MagicMock, patch
 import torchx
 from torchx import schedulers, specs
 
-# @manual=//torchx/schedulers:kueue_job_scheduler
-from torchx.schedulers import kueue_job_scheduler
+# @manual=//torchx/schedulers:kueue_scheduler
+from torchx.schedulers import kueue_scheduler
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
 from torchx.schedulers.docker_scheduler import has_docker
-from torchx.schedulers.kueue_job_scheduler import (
+from torchx.schedulers.kueue_scheduler import (
     app_to_resource,
     create_scheduler,
-    KueueJob,
-    KueueJobOpts,
-    KueueJobScheduler,
-    LABEL_INSTANCE_TYPE,
-    role_to_pod,
+    Kueue,
+    KueueOpts,
+    KueueScheduler,
 )
 from torchx.specs import AppState
+from torchx.util.role_to_pod import role_to_pod, LABEL_INSTANCE_TYPE
 
 SKIP_DOCKER: bool = not has_docker()
 
@@ -89,12 +88,12 @@ def _test_app(num_replicas: int = 1) -> specs.AppDef:
     return specs.AppDef("test", roles=[trainer_role])
 
 
-class KueueJobSchedulerTest(unittest.TestCase):
+class KueueSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         client = MagicMock()
         docker_client = MagicMock
         scheduler = create_scheduler("foo", client=client, docker_client=docker_client)
-        self.assertIsInstance(scheduler, kueue_job_scheduler.KueueJobScheduler)
+        self.assertIsInstance(scheduler, kueue_scheduler.KueueScheduler)
         self.assertEqual(scheduler._docker_client, docker_client)
         self.assertEqual(scheduler._client, client)
 
@@ -102,7 +101,7 @@ class KueueJobSchedulerTest(unittest.TestCase):
         app = _test_app()
         unique_app_name = "app-name-42"
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.make_unique"
+            "torchx.schedulers.kueue_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
             resource = app_to_resource(
@@ -239,13 +238,13 @@ class KueueJobSchedulerTest(unittest.TestCase):
         )
 
     def test_submit_dryrun(self) -> None:
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {"namespace": "testnamespace", "local_queue": "default-kueue"}
         )
         scheduler = create_scheduler("test")
         app = _test_app()
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.make_unique"
+            "torchx.schedulers.kueue_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
@@ -478,11 +477,11 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app(num_replicas=2)
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {"namespace": "testnamespace", "local_queue": "default-kueue"}
         )
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.make_unique"
+            "torchx.schedulers.kueue_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
@@ -490,18 +489,18 @@ spec:
         task = info.request.resource["spec"]
 
         container0 = task["template"].spec.containers[0]
-        self.assertIn("KUEUE_JOB_TRAINERFOO_0_HOSTS", container0.command)
+        self.assertIn("KUEUE_TRAINERFOO_0_HOSTS", container0.command)
         self.assertIn(V1EnvVar(name="FOO", value="bar"), container0.env)
 
     def test_submit_dryrun_patch(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
         app.roles[0].image = "sha256:testhash"
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {"image_repo": "example.com/some/repo", "local_queue": "default-kueue"}
         )
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.make_unique"
+            "torchx.schedulers.kueue_scheduler.make_unique"
         ) as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
@@ -521,7 +520,7 @@ spec:
         scheduler = create_scheduler("test")
         self.assertIn("service_account", scheduler.run_opts()._opts)
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {
                 "service_account": "srvacc",
                 "local_queue": "default-kueue",
@@ -547,7 +546,7 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
                 "local_queue": "default-kueue",
@@ -571,7 +570,7 @@ spec:
         }
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
             }
@@ -589,7 +588,7 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
                 "local_queue": "default-kueue",
@@ -698,7 +697,7 @@ spec:
         )
 
     def test_runopts(self) -> None:
-        scheduler = kueue_job_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         runopts = scheduler.run_opts()
         self.assertEqual(
             set(runopts._opts.keys()),
@@ -707,7 +706,7 @@ spec:
                 "local_queue",
                 "image_repo",
                 "service_account",
-                "kueue_priority_class",
+                "priority_class",
                 "annotations",
             },
         )
@@ -732,7 +731,7 @@ spec:
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.KueueJobScheduler._get_active_context"
+            "torchx.schedulers.kueue_scheduler.KueueScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
             scheduler = create_scheduler("test")
@@ -797,7 +796,7 @@ spec:
             ],
         }
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.KueueJobScheduler._get_active_context"
+            "torchx.schedulers.kueue_scheduler.KueueScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
 
@@ -839,7 +838,7 @@ spec:
         )
         list_namespaced_custom_object.side_effect = api_exc
         with patch(
-            "torchx.schedulers.kueue_job_scheduler.KueueJobScheduler._get_active_context"
+            "torchx.schedulers.kueue_scheduler.KueueScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
             scheduler = create_scheduler("test")
@@ -847,7 +846,7 @@ spec:
                 scheduler.list()
 
     @patch(
-        "torchx.schedulers.kueue_job_scheduler.get_pod_name_from_job",
+        "torchx.schedulers.kueue_scheduler.get_pod_name_from_job",
         return_value="testjob-roleblah-1-0",
     )
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
@@ -887,13 +886,13 @@ spec:
 
     def test_push_patches(self) -> None:
         client = MagicMock()
-        scheduler = KueueJobScheduler(
+        scheduler = KueueScheduler(
             "foo",
             client=MagicMock(),
             docker_client=client,
         )
 
-        job = KueueJob(
+        job = Kueue(
             images_to_push={
                 "sha256:testimage": ("repo.com/img", "testimage"),
             },
@@ -928,13 +927,13 @@ spec:
 
     def test_submit_dryrun_priority_class(self) -> None:
         scheduler = create_scheduler("test")
-        self.assertIn("kueue_priority_class", scheduler.run_opts()._opts)
+        self.assertIn("priority_class", scheduler.run_opts()._opts)
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
                 "local_queue": "default-kueue",
-                "kueue_priority_class": "sample-priority",
+                "priority_class": "sample-priority",
             }
         )
 
@@ -944,7 +943,7 @@ spec:
             str(info.request.resource),
         )
 
-        del cfg["kueue_priority_class"]
+        del cfg["priority_class"]
         info = scheduler.submit_dryrun(app, cfg)
         self.assertNotIn(
             "'kueue.x-k8s.io/priority-class': 'sample-priority'",
@@ -955,7 +954,7 @@ spec:
         scheduler = create_scheduler("test")
         self.assertIn("annotations", scheduler.run_opts()._opts)
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
                 "local_queue": "default-kueue",
@@ -977,9 +976,9 @@ spec:
         )
 
 
-class KueueJobSchedulerNoImportTest(unittest.TestCase):
+class KueueSchedulerNoImportTest(unittest.TestCase):
     """
-    KueueJobSchedulerNoImportTest tests the kubernetes scheduler behavior when
+    KueueSchedulerNoImportTest tests the kubernetes scheduler behavior when
     Kubernetes is not available.
     """
 
@@ -989,9 +988,9 @@ class KueueJobSchedulerNoImportTest(unittest.TestCase):
             if mod.startswith("kubernetes"):
                 sys.modules[mod] = None  # pyre-ignore
 
-        # reload to ensure kueue_job_scheduler doesn't depend on them at import
+        # reload to ensure kueue_scheduler doesn't depend on them at import
         # time
-        importlib.reload(kueue_job_scheduler)
+        importlib.reload(kueue_scheduler)
         importlib.reload(schedulers)
 
     def tearDown(self) -> None:
@@ -999,22 +998,22 @@ class KueueJobSchedulerNoImportTest(unittest.TestCase):
         for mod in list(sys.modules.keys()):
             if mod.startswith("kubernetes"):
                 del sys.modules[mod]
-        # reimport kueue_job_scheduler to get to a clean state
-        importlib.reload(kueue_job_scheduler)
+        # reimport kueue_scheduler to get to a clean state
+        importlib.reload(kueue_scheduler)
 
     def test_runopts(self) -> None:
-        scheduler = kueue_job_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         self.assertIsNotNone(scheduler.run_opts())
 
     def test_describe(self) -> None:
-        scheduler = kueue_job_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         with self.assertRaises(ModuleNotFoundError):
             scheduler.describe("foo:bar")
 
     def test_dryrun(self) -> None:
-        scheduler = kueue_job_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         app = _test_app()
-        cfg = KueueJobOpts(
+        cfg = KueueOpts(
             {"namespace": "testnamespace", "local_queue": "default-kueue"}
         )
 
