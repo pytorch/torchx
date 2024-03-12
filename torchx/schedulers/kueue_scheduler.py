@@ -63,6 +63,7 @@ from torchx.util.strings import normalize_str
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
 from torchx.util.role_to_pod import role_to_pod
+
 if TYPE_CHECKING:
     from docker import DockerClient
     from kubernetes.client import ApiClient, BatchV1Api, CoreV1Api, CustomObjectsApi
@@ -133,6 +134,7 @@ def sanitize_for_serialization(obj: object) -> object:
 
     api = client.ApiClient()
     return api.sanitize_for_serialization(obj)
+
 
 def app_to_resource(
     app: AppDef,

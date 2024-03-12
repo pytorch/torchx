@@ -18,6 +18,7 @@ RESERVED_MEMMB = 1024
 LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
+
 def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod":
     from kubernetes.client.models import (  # noqa: F811 redefinition of unused
         V1Container,

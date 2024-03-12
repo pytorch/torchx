@@ -100,9 +100,7 @@ class KueueSchedulerTest(unittest.TestCase):
     def test_app_to_resource_resolved_macros(self) -> None:
         app = _test_app()
         unique_app_name = "app-name-42"
-        with patch(
-            "torchx.schedulers.kueue_scheduler.make_unique"
-        ) as make_unique_ctx:
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
             resource = app_to_resource(
                 app, service_account=None, local_queue="default-kueue"
@@ -238,14 +236,10 @@ class KueueSchedulerTest(unittest.TestCase):
         )
 
     def test_submit_dryrun(self) -> None:
-        cfg = KueueOpts(
-            {"namespace": "testnamespace", "local_queue": "default-kueue"}
-        )
+        cfg = KueueOpts({"namespace": "testnamespace", "local_queue": "default-kueue"})
         scheduler = create_scheduler("test")
         app = _test_app()
-        with patch(
-            "torchx.schedulers.kueue_scheduler.make_unique"
-        ) as make_unique_ctx:
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
@@ -477,12 +471,8 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app(num_replicas=2)
-        cfg = KueueOpts(
-            {"namespace": "testnamespace", "local_queue": "default-kueue"}
-        )
-        with patch(
-            "torchx.schedulers.kueue_scheduler.make_unique"
-        ) as make_unique_ctx:
+        cfg = KueueOpts({"namespace": "testnamespace", "local_queue": "default-kueue"})
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
@@ -499,9 +489,7 @@ spec:
         cfg = KueueOpts(
             {"image_repo": "example.com/some/repo", "local_queue": "default-kueue"}
         )
-        with patch(
-            "torchx.schedulers.kueue_scheduler.make_unique"
-        ) as make_unique_ctx:
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
@@ -1013,9 +1001,7 @@ class KueueSchedulerNoImportTest(unittest.TestCase):
     def test_dryrun(self) -> None:
         scheduler = kueue_scheduler.create_scheduler("foo")
         app = _test_app()
-        cfg = KueueOpts(
-            {"namespace": "testnamespace", "local_queue": "default-kueue"}
-        )
+        cfg = KueueOpts({"namespace": "testnamespace", "local_queue": "default-kueue"})
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler.submit_dryrun(app, cfg)
