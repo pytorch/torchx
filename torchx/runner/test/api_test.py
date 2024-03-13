@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from typing import Generator, List, Mapping, Optional
 from unittest.mock import MagicMock, patch
 
+import pytest
 from torchx.runner import get_runner, Runner
 from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
@@ -417,7 +418,7 @@ class RunnerTest(TestWithTmpDir):
             )
             app_handle = runner.run(AppDef(app_id, roles=[role]), scheduler="local_dir")
             status = none_throws(runner.status(app_handle))
-            self.assertEquals(resp.ui_url, status.ui_url)
+            self.assertEqual(resp.ui_url, status.ui_url)
 
     @patch("json.dumps")
     def test_status_structured_msg(self, json_dumps_mock: MagicMock, _) -> None:
@@ -441,7 +442,7 @@ class RunnerTest(TestWithTmpDir):
             )
             app_handle = runner.run(AppDef(app_id, roles=[role]), scheduler="local_dir")
             status = none_throws(runner.status(app_handle))
-            self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
+            self.assertEqual(resp.structured_error_msg, status.structured_error_msg)
 
     def test_wait_unknown_app(self, _) -> None:
         with self.get_runner() as runner:
@@ -460,7 +461,10 @@ class RunnerTest(TestWithTmpDir):
 
     def test_stop(self, _) -> None:
         with self.get_runner() as runner:
-            self.assertIsNone(runner.stop("local_dir://test_session/unknown_app_id"))
+            with pytest.warns(PendingDeprecationWarning):
+                self.assertIsNone(
+                    runner.stop("local_dir://test_session/unknown_app_id")
+                )
 
     def test_log_lines_unknown_app(self, _) -> None:
         with self.get_runner() as runner:
@@ -552,7 +556,7 @@ class RunnerTest(TestWithTmpDir):
             local_sched_mock.submit.called_once_with(app, {})
 
     def test_run_from_module(self, _: str) -> None:
-        runner = get_runner(name="test_session")
+        runner = get_runner()
         app_args = ["--image", "dummy_image", "--script", "test.py"]
         with patch.object(runner, "schedule"), patch.object(
             runner, "dryrun"

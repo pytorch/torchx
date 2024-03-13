@@ -48,12 +48,12 @@ def get_dummy_application(role: str) -> AppDef:
     return AppDef(name="test_app", roles=[trainer])
 
 
-def test_empty_fn() -> AppDef:
+def empty_fn() -> AppDef:
     """Empty function that returns dummy app"""
     return get_dummy_application("trainer")
 
 
-def test_fn_with_bool(flag: bool = False) -> AppDef:
+def fn_with_bool(flag: bool = False) -> AppDef:
     """Dummy app with or without flag
 
     Args:
@@ -65,7 +65,7 @@ def test_fn_with_bool(flag: bool = False) -> AppDef:
         return get_dummy_application("trainer-without-flag")
 
 
-def test_fn_with_bool_optional(flag: Optional[bool] = None) -> AppDef:
+def fn_with_bool_optional(flag: Optional[bool] = None) -> AppDef:
     """Dummy app with or without flag
 
     Args:
@@ -77,7 +77,7 @@ def test_fn_with_bool_optional(flag: Optional[bool] = None) -> AppDef:
         return get_dummy_application("trainer-without-flag")
 
 
-def test_empty_fn_no_docstring() -> AppDef:
+def empty_fn_no_docstring() -> AppDef:
     return get_dummy_application("trainer")
 
 
@@ -281,7 +281,7 @@ class AppDefLoadTest(unittest.TestCase):
         ], defaults
 
     def test_load_from_fn_empty(self) -> None:
-        actual_app = materialize_appdef(test_empty_fn, [])
+        actual_app = materialize_appdef(empty_fn, [])
         expected_app = get_dummy_application("trainer")
         self.assert_apps(expected_app, actual_app)
 
@@ -328,7 +328,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_bool_true(self) -> None:
         app_def = materialize_appdef(
-            test_fn_with_bool,
+            fn_with_bool,
             [
                 "--flag",
                 "True",
@@ -336,7 +336,7 @@ class AppDefLoadTest(unittest.TestCase):
         )
         self.assertEqual("trainer-with-flag", app_def.roles[0].name)
         app_def = materialize_appdef(
-            test_fn_with_bool,
+            fn_with_bool,
             [
                 "--flag",
                 "true",
@@ -346,7 +346,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_bool_false(self) -> None:
         app_def = materialize_appdef(
-            test_fn_with_bool,
+            fn_with_bool,
             [
                 "--flag",
                 "False",
@@ -354,7 +354,7 @@ class AppDefLoadTest(unittest.TestCase):
         )
         self.assertEqual("trainer-without-flag", app_def.roles[0].name)
         app_def = materialize_appdef(
-            test_fn_with_bool,
+            fn_with_bool,
             [
                 "--flag",
                 "false",
@@ -364,7 +364,7 @@ class AppDefLoadTest(unittest.TestCase):
 
     def test_bool_none(self) -> None:
         app_def = materialize_appdef(
-            test_fn_with_bool_optional,
+            fn_with_bool_optional,
             [],
         )
         self.assertEqual("trainer-without-flag", app_def.roles[0].name)

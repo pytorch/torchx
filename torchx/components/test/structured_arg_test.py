@@ -6,6 +6,7 @@
 import unittest
 from unittest import mock
 
+import pytest
 from torchx.components.structured_arg import StructuredJArgument, StructuredNameArgument
 
 WARNINGS_WARN = "torchx.components.structured_arg.warnings.warn"
@@ -71,18 +72,21 @@ class ArgJTest(unittest.TestCase):
             StructuredJArgument(nnodes=2, nproc_per_node=8),
             StructuredJArgument.parse_from(h="aws_p4d.24xlarge", j="2"),
         )
-        self.assertEqual(
-            StructuredJArgument(nnodes=2, nproc_per_node=4),
-            StructuredJArgument.parse_from(h="aws_p4d.24xlarge", j="2x4"),
-        )
-        self.assertEqual(
-            StructuredJArgument(nnodes=2, nproc_per_node=16),
-            StructuredJArgument.parse_from(h="aws_p4d.24xlarge", j="2x16"),
-        )
-        self.assertEqual(
-            StructuredJArgument(nnodes=2, nproc_per_node=8),
-            StructuredJArgument.parse_from(h="aws_trn1.2xlarge", j="2x8"),
-        )
+        with pytest.warns(ResourceWarning):
+            self.assertEqual(
+                StructuredJArgument(nnodes=2, nproc_per_node=4),
+                StructuredJArgument.parse_from(h="aws_p4d.24xlarge", j="2x4"),
+            )
+        with pytest.warns(ResourceWarning):
+            self.assertEqual(
+                StructuredJArgument(nnodes=2, nproc_per_node=16),
+                StructuredJArgument.parse_from(h="aws_p4d.24xlarge", j="2x16"),
+            )
+        with pytest.warns(ResourceWarning):
+            self.assertEqual(
+                StructuredJArgument(nnodes=2, nproc_per_node=8),
+                StructuredJArgument.parse_from(h="aws_trn1.2xlarge", j="2x8"),
+            )
 
         with self.assertRaisesRegex(
             ValueError,
