@@ -18,7 +18,9 @@ from .api import AppDef, DeviceMount
 
 
 def _create_args_parser(
-    cmpnt_fn: Callable[..., AppDef], cmpnt_defaults: Optional[Dict[str, str]] = None
+    cmpnt_fn: Callable[..., AppDef],
+    cmpnt_defaults: Optional[Dict[str, str]] = None,
+    config: Optional[Dict[str, Any]] = None,
 ) -> argparse.ArgumentParser:
     parameters = inspect.signature(cmpnt_fn).parameters
     function_desc, args_desc = get_fn_docstring(cmpnt_fn)
@@ -81,15 +83,26 @@ def _create_args_parser(
             if len(param_name) == 1:
                 arg_names = [f"-{param_name}"] + arg_names
             if "default" not in args:
-                args["required"] = True
+                if (config and param_name not in config) or not config:
+                    args["required"] = True
+
             script_parser.add_argument(*arg_names, **args)
     return script_parser
+
+
+def _merge_config_values_with_args(
+    parsed_args: argparse.Namespace, config: Dict[str, Any]
+) -> None:
+    for key, val in config.items():
+        if key in parsed_args:
+            setattr(parsed_args, key, val)
 
 
 def materialize_appdef(
     cmpnt_fn: Callable[..., AppDef],
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
+    config: Optional[Dict[str, Any]] = None,
 ) -> AppDef:
     """
     Creates an application by running user defined ``app_fn``.
@@ -114,12 +127,15 @@ def materialize_appdef(
         cmpnt_args: Function args
         cmpnt_defaults: Additional default values for parameters of ``app_fn``
                           (overrides the defaults set on the fn declaration)
+        config: Optional dict containing additional configuration for the component from a passed config file
     Returns:
         An application spec
     """
 
-    script_parser = _create_args_parser(cmpnt_fn, cmpnt_defaults)
+    script_parser = _create_args_parser(cmpnt_fn, cmpnt_defaults, config)
     parsed_args = script_parser.parse_args(cmpnt_args)
+    if config:
+        _merge_config_values_with_args(parsed_args, config)
 
     function_args = []
     var_arg = []
