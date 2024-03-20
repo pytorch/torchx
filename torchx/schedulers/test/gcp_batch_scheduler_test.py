@@ -85,9 +85,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         env["TORCHX_ROLE_NAME"] = "trainer"
         env["FOO"] = "bar"
         res = batch_v1.ComputeResource()
-        # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
         res.cpu_milli = 2000
-        # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
         res.memory_mib = 3000
         allocationPolicy = batch_v1.AllocationPolicy(
             instances=[
