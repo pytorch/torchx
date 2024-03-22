@@ -113,6 +113,23 @@ class CmdBuiltins(SubCommand):
             print(get_builtin_source(builtin_name))
 
 
+class SchedulerArgOnce(argparse.Action):
+    scheduler_args_set = False
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: List[str],
+        _option_string: Optional[str] = None,
+    ) -> None:
+        if self.scheduler_args_set:
+            logger.error("--scheduler_args is specified more than once")
+            sys.exit(1)
+        self.scheduler_args_set = True
+        setattr(namespace, self.dest, values)
+
+
 class CmdRun(SubCommand):
     def __init__(self) -> None:
         self._subparser: Optional[argparse.ArgumentParser] = None
@@ -133,6 +150,7 @@ class CmdRun(SubCommand):
             "-cfg",
             "--scheduler_args",
             type=str,
+            action=SchedulerArgOnce,
             help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."
             " For a list of scheduler run options run: `torchx runopts`",
         )
