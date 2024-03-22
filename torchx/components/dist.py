@@ -352,3 +352,118 @@ def parse_nnodes(j: str) -> Tuple[int, int, int, str]:
             f"Invalid format for -j, usage example: 1:2x4 or 1x4 or 4. Given: {j}"
         )
     return int(min_nnodes), int(max_nnodes), int(nproc_per_node), nnodes_rep
+
+def accelerate(
+    *script_args: str,
+    script: Optional[str] = None,
+    image: str = torchx.IMAGE,
+    name: str = "/",
+    h: Optional[str] = None,
+    cpu: int = 2,
+    gpu: int = 0,
+    memMB: int = 1024,
+    j: str = "1x2",
+    env: Optional[Dict[str, str]] = None,
+    max_retries: int = 0,
+    main_process_port: int = 29500,
+    accelerate_args: Optional[List[str]] = None,
+    mounts: Optional[List[str]] = None,
+    debug: bool = False,
+) -> specs.AppDef:
+    """
+    A component that uses HuggingFace accelerate to launch the job.
+
+    Args:
+        script_args: arguments to the main module
+        script: script or binary to run within the image
+        image: image (e.g. docker)
+        name: job name override in the following format: ``{experimentname}/{runname}`` or ``{experimentname}/`` or ``/{runname}`` or ``{runname}``.
+            Uses the script or module name if ``{runname}`` not specified.
+        cpu: number of cpus per replica
+        gpu: number of gpus per replica
+        memMB: cpu memory in MB per replica
+        h: a registered named resource (if specified takes precedence over cpu, gpu, memMB)
+        j: [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts, nproc_per_node must not exceed num gpus
+        env: environment varibles to be passed to the run (e.g. ENV1=v1,ENV2=v2,ENV3=v3)
+        max_retries: the number of scheduler retries allowed
+        main_process_port: the port on rank0's host to use for coordinating the workers.
+           Only takes effect when running multi-node. When running single node, this parameter
+           is ignored and a random free port is chosen.
+        mounts: mounts to mount into the worker environment/container (ex. type=<bind/volume>,src=/host,dst=/job[,readonly]).
+                See scheduler documentation for more info.
+        debug: whether to run with preset debug flags enabled
+    """
+
+    # nnodes: number of nodes or minimum nodes for elastic launch
+    # max_nnodes: maximum number of nodes for elastic launch
+    # nproc_per_node: number of processes on each node
+    min_nnodes, max_nnodes, nproc_per_node, nnodes_rep = parse_nnodes(j)
+
+    assert min_nnodes == max_nnodes, "accelerate component doesn't support elasticity"
+
+    if max_nnodes == 1:
+        # using port 0 makes elastic chose a free random port which is ok
+        # for single-node jobs since all workers run under a single agent
+        # When nnodes is 0 and max_nnodes is 1, it's stil a single node job
+        # but pending until the resources become available
+        main_process_ip = "localhost"
+    else:
+        # for multi-node, rely on the rank0_env environment variable set by
+        # the schedulers (see scheduler implementation for the actual env var this maps to)
+        # some schedulers (e.g. aws batch) make the rank0's ip-addr available on all BUT on rank0
+        # so default to "localhost" if the env var is not set or is empty
+        # rdzv_endpoint bash resolves to something to the effect of
+        # ${TORCHX_RANK0_HOST:=localhost}:29500
+        # use $$ in the prefix to escape the '$' literal (rather than a string Template substitution argument)
+        main_process_ip = _noquote(f"$${{{macros.rank0_env}:=localhost}}")
+
+    argname = StructuredNameArgument.parse_from(
+        name=name,
+        m=None,
+        script=script,
+    )
+
+    if env is None:
+        env = {}
+
+    if debug:
+        env.update(_TORCH_DEBUG_FLAGS)
+
+    env["TORCHX_TRACKING_EXPERIMENT_NAME"] = argname.experiment_name
+
+    cmd = [
+        "accelerate",
+        "launch",
+        f"--main_process_ip",
+        main_process_ip,
+        f"--main_process_port={main_process_port}",
+        f"--num_machines={max_nnodes}",
+        f"--num_processes={nproc_per_node*max_nnodes}",
+        f"--machine_rank={macros.replica_id}",
+        f"--max_restarts={max_retries}",
+    ]
+    if accelerate_args is not None:
+        cmd += accelerate_args
+    cmd += [script]
+    cmd += script_args
+
+    return specs.AppDef(
+        name=argname.run_name,
+        roles=[
+            specs.Role(
+                name=get_role_name(script, None),
+                image=image,
+                min_replicas=min_nnodes,
+                entrypoint="bash",
+                num_replicas=int(max_nnodes),
+                resource=specs.resource(cpu=cpu, gpu=gpu, memMB=memMB, h=h),
+                args=["-c", _args_join(cmd)],
+                env=env,
+                port_map={
+                    "accelerate": main_process_port,
+                },
+                max_retries=max_retries,
+                mounts=specs.parse_mounts(mounts) if mounts else [],
+            )
+        ],
+    )

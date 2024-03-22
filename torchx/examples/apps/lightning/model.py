@@ -49,8 +49,8 @@ class TinyImageNetModel(pl.LightningModule):
         m.fc.out_features = 200
         self.model: ResNet = m
 
-        self.train_acc = Accuracy()
-        self.val_acc = Accuracy()
+        self.train_acc = Accuracy(task="multiclass", num_classes=1000)
+        self.val_acc = Accuracy(task="multiclass", num_classes=1000)
 
     # pyre-fixme[14]
     def forward(self, x: torch.Tensor) -> torch.Tensor:
