@@ -268,6 +268,13 @@ def dump(
                         val = ";".join(opt.default)
                     else:
                         val = _NONE
+                elif opt.opt_type == Dict[str, str]:
+                    # deal with empty or None default lists
+                    if opt.default:
+                        # pyre-ignore[6] opt.default type checked already as Dict[str, str]
+                        val = ";".join([f"{k}:{v}" for k, v in opt.default.items()])
+                    else:
+                        val = _NONE
                 else:
                     val = f"{opt.default}"
 
@@ -527,6 +534,11 @@ def load(scheduler: str, f: TextIO, cfg: Dict[str, CfgVal]) -> None:
                         cfg[name] = config.getboolean(section, name)
                     elif runopt.opt_type is List[str]:
                         cfg[name] = value.split(";")
+                    elif runopt.opt_type is Dict[str, str]:
+                        cfg[name] = {
+                            s.split(":", 1)[0]: s.split(":", 1)[1]
+                            for s in value.replace(",", ";").split(";")
+                        }
                     else:
                         # pyre-ignore[29]
                         cfg[name] = runopt.opt_type(value)

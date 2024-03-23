@@ -431,6 +431,7 @@ class RunConfigTest(unittest.TestCase):
         opts = runopts()
         opts.add("K", type_=List[str], help="a list opt", default=[])
         opts.add("J", type_=str, help="a str opt", required=True)
+        opts.add("E", type_=Dict[str, str], help="a dict opt", default=[])
 
         self.assertDictEqual({}, opts.cfg_from_str(""))
         self.assertDictEqual({}, opts.cfg_from_str("UNKWN=b"))
@@ -454,6 +455,9 @@ class RunConfigTest(unittest.TestCase):
         )
         self.assertDictEqual(
             {"K": ["a"], "J": "d"}, opts.cfg_from_str("J=d,K=a,UNKWN=e")
+        )
+        self.assertDictEqual(
+            {"E": {"f": "b", "F": "B"}}, opts.cfg_from_str("E=f:b,F:B")
         )
 
     def test_resolve_from_str(self) -> None:
@@ -489,6 +493,10 @@ class RunConfigTest(unittest.TestCase):
         self.assertFalse(runopts.is_type(None, List[str]))
         self.assertTrue(runopts.is_type([], List[str]))
         self.assertTrue(runopts.is_type(["a", "b"], List[str]))
+        # List[str]
+        self.assertFalse(runopts.is_type(None, Dict[str, str]))
+        self.assertTrue(runopts.is_type({}, Dict[str, str]))
+        self.assertTrue(runopts.is_type({"foo": "bar", "fee": "bez"}, Dict[str, str]))
 
     def test_runopts_iter(self) -> None:
         runopts = self.get_runopts()

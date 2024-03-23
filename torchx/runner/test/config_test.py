@@ -106,6 +106,18 @@ class TestScheduler(Scheduler):
             help="a None list option",
         )
         opts.add(
+            "d",
+            type_=Dict[str, str],
+            default={"foo": "bar"},
+            help="a dict option",
+        )
+        opts.add(
+            "d_none",
+            type_=Dict[str, str],
+            default=None,
+            help="a None dict option",
+        )
+        opts.add(
             "empty",
             type_=str,
             default=None,

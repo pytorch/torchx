@@ -123,6 +123,7 @@ def ensure_network(client: Optional["DockerClient"] = None) -> None:
 
 class DockerOpts(TypedDict, total=False):
     copy_env: Optional[List[str]]
+    env: Optional[Dict[str, str]]
 
 
 class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
@@ -216,6 +217,10 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                 keys |= set(fnmatch.filter(os.environ.keys(), pattern))
             for k in keys:
                 default_env[k] = os.environ[k]
+
+        env = cfg.get("env")
+        if env:
+            default_env.update(env)
 
         app_id = make_unique(app.name)
         req = DockerJob(app_id=app_id, containers=[])
@@ -358,6 +363,12 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
             type_=List[str],
             default=None,
             help="list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*",
+        )
+        opts.add(
+            "env",
+            type_=Dict[str, str],
+            default=None,
+            help="environment varibles to be passed to the run (e.g. ENV1:v1,ENV2:v2,ENV3:v3)",
         )
         return opts
 

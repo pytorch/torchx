@@ -185,6 +185,21 @@ class DockerSchedulerTest(unittest.TestCase):
             },
         )
 
+    def test_env(self) -> None:
+        app = _test_app()
+        cfg = DockerOpts({"env": {"FOO_1": "BAR_1"}})
+        with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
+            make_unique_ctx.return_value = "app_name_42"
+            info = self.scheduler._submit_dryrun(app, cfg)
+        self.assertEqual(
+            info.request.containers[0].kwargs["environment"],
+            {
+                "FOO": "bar",
+                "FOO_1": "BAR_1",
+                "TORCHX_RANK0_HOST": "app_name_42-trainer-0",
+            },
+        )
+
 
 if has_docker():
     # These are the live tests that require a local docker instance.
