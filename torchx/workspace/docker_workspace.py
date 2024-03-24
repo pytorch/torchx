@@ -22,7 +22,7 @@ from torchx.specs import AppDef, CfgVal, Role, runopts
 from torchx.workspace.api import walk_workspace, WorkspaceMixin
 
 if TYPE_CHECKING:
-    from docker import DockerClient
+    from docker import APIClient, DockerClient
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -71,10 +71,12 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
         self,
         *args: object,
         docker_client: Optional["DockerClient"] = None,
+        docker_api_client: Optional["APIClient"] = None,
         **kwargs: object,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.__docker_client = docker_client
+        self.__docker_api_client = docker_api_client
 
     @property
     def _docker_client(self) -> "DockerClient":
@@ -85,6 +87,16 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             client = docker.from_env()
             self.__docker_client = client
         return client
+
+    @property
+    def _docker_api_client(self) -> "APIClient":
+        api_client = self.__docker_api_client
+        if api_client is None:
+            import docker
+
+            api_client = docker.APIClient()
+            self.__docker_api_client = api_client
+        return api_client
 
     def workspace_opts(self) -> runopts:
         opts = runopts()
@@ -121,7 +133,7 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                     f"failed to pull image {role.image}, falling back to local: {e}"
                 )
             log.info("Building workspace docker image (this may take a while)...")
-            image, _ = self._docker_client.images.build(
+            build_events = self._docker_api_client.build(
                 fileobj=context,
                 custom_context=True,
                 dockerfile=TORCHX_DOCKERFILE,
@@ -134,9 +146,24 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 labels={
                     self.LABEL_VERSION: torchx.__version__,
                 },
+                decode=True,
             )
-            if len(old_imgs) == 0 or role.image not in old_imgs:
-                role.image = image.id
+            build_msg: Dict[str, str] = {}
+            while True:
+                try:
+                    build_msg = build_events.__next__()
+                    if "stream" in build_msg:
+                        output_str = build_msg["stream"].strip("\r\n").strip("\n")
+                        if output_str != "":
+                            log.info(output_str)
+                    if "aux" in build_msg:
+                        image = build_msg["aux"]
+                        break
+                except StopIteration:
+                    break
+
+            if len(old_imgs) == 0 or image["ID"] not in old_imgs:
+                role.image = image["ID"]
         finally:
             context.close()
 
