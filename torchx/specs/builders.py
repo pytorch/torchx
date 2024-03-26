@@ -8,6 +8,7 @@
 
 import argparse
 import inspect
+from argparse import Namespace
 from typing import Any, Callable, Dict, List, Mapping, Optional, Union
 
 from torchx.specs.api import BindMount, MountType, VolumeMount
@@ -15,6 +16,8 @@ from torchx.specs.file_linter import get_fn_docstring, TorchXArgumentHelpFormatt
 from torchx.util.types import decode, decode_optional, get_argparse_param_type, is_bool
 
 from .api import AppDef, DeviceMount
+
+ENV_TORCHX_COMPONENT_ARGS = "TORCHX_COMPONENT_ARGS"
 
 
 def _create_args_parser(
@@ -98,11 +101,41 @@ def _merge_config_values_with_args(
             setattr(parsed_args, key, val)
 
 
+def parse_args(
+    cmpnt_fn: Callable[..., AppDef],
+    cmpnt_args: List[str],
+    cmpnt_defaults: Optional[Dict[str, Any]] = None,
+    config: Optional[Dict[str, Any]] = None,
+) -> Namespace:
+    """
+    Parse passed arguments, defaults, and config values into a namespace for
+    a component function.
+
+    Args:
+    cmpnt_fn: Component function
+    cmpnt_args: Function args
+    cmpnt_defaults: Additional default values for parameters of ``app_fn``
+                        (overrides the defaults set on the fn declaration)
+    config: Optional dict containing additional configuration for the component from a passed config file
+
+    Returns:
+    A Namespace object with the args, defaults, and config values incorporated.
+    """
+
+    script_parser = _create_args_parser(cmpnt_fn, cmpnt_defaults, config)
+    parsed_args = script_parser.parse_args(cmpnt_args)
+    if config:
+        _merge_config_values_with_args(parsed_args, config)
+
+    return parsed_args
+
+
 def materialize_appdef(
     cmpnt_fn: Callable[..., AppDef],
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
+    component_args_string: Optional[str] = None,
 ) -> AppDef:
     """
     Creates an application by running user defined ``app_fn``.
@@ -132,14 +165,11 @@ def materialize_appdef(
         An application spec
     """
 
-    script_parser = _create_args_parser(cmpnt_fn, cmpnt_defaults, config)
-    parsed_args = script_parser.parse_args(cmpnt_args)
-    if config:
-        _merge_config_values_with_args(parsed_args, config)
-
     function_args = []
     var_arg = []
     kwargs = {}
+
+    parsed_args = parse_args(cmpnt_fn, cmpnt_args, cmpnt_defaults, config)
 
     parameters = inspect.signature(cmpnt_fn).parameters
     for param_name, parameter in parameters.items():
@@ -158,7 +188,13 @@ def materialize_appdef(
     if len(var_arg) > 0 and var_arg[0] == "--":
         var_arg = var_arg[1:]
 
-    return cmpnt_fn(*function_args, *var_arg, **kwargs)
+    appdef = cmpnt_fn(*function_args, *var_arg, **kwargs)
+
+    if component_args_string:
+        for role in appdef.roles:
+            role.env[ENV_TORCHX_COMPONENT_ARGS] = component_args_string
+
+    return appdef
 
 
 def make_app_handle(scheduler_backend: str, session_name: str, app_id: str) -> str:
