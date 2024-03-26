@@ -875,7 +875,7 @@ class runopts:
                     for s in value.replace(";", ",").split(",")
                 }
             else:
-                # pyre-ignore[19]
+                # pyre-ignore[19, 6] type won't be dict here as we handled it above
                 return opt_type(value)
 
         cfg: Dict[str, CfgVal] = {}

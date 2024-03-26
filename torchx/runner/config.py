@@ -271,7 +271,7 @@ def dump(
                 elif opt.opt_type == Dict[str, str]:
                     # deal with empty or None default lists
                     if opt.default:
-                        # pyre-ignore[6] opt.default type checked already as Dict[str, str]
+                        # pyre-ignore[16] opt.default type checked already as Dict[str, str]
                         val = ";".join([f"{k}:{v}" for k, v in opt.default.items()])
                     else:
                         val = _NONE
