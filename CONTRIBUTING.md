@@ -29,6 +29,16 @@ Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
 disclosure of security bugs. In those cases, please go through the process
 outlined on that page and do not file a public issue.
 
+## Lint + Pyre
+
+Lint and type checking can be run via `lintrunner`
+
+```sh
+pip install lintrunner lintrunner-adapters
+lintrunner init
+lintrunner -a
+```
+
 ## Integration Tests
 
 See the [KFP integration test](scripts/kfpint.py) file for more details on setup

@@ -24,5 +24,5 @@ class MinioFS(s3fs.S3FileSystem):
             client_kwargs={
                 "endpoint_url": "http://minio-service:9000",
             },
-            **kwargs
+            **kwargs,
         )
