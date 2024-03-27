@@ -525,6 +525,7 @@
 
 <span class="k">class</span> <span class="nc">DockerOpts</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">copy_env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
 
 <div class="viewcode-block" id="DockerScheduler"><a class="viewcode-back" href="../../../schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler">[docs]</a><span class="k">class</span> <span class="nc">DockerScheduler</span><span class="p">(</span><span class="n">DockerWorkspaceMixin</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">[</span><span class="n">DockerOpts</span><span class="p">]):</span>
@@ -619,6 +620,10 @@
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                 <span class="n">default_env</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
 
+        <span class="n">env</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;env&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env</span><span class="p">:</span>
+            <span class="n">default_env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
         <span class="n">app_id</span> <span class="o">=</span> <span class="n">make_unique</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">DockerJob</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">containers</span><span class="o">=</span><span class="p">[])</span>
         <span class="n">rank0_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">-0&quot;</span>
@@ -696,9 +701,9 @@
                 <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">memMB</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="c1"># To support PyTorch dataloaders we need to set /dev/shm to</span>
                     <span class="c1"># larger than the 64M default.</span>
-                    <span class="n">c</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;mem_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;shm_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">)</span><span class="si">}</span><span class="s2">m&quot;</span>
-                    <span class="p">)</span>
+                    <span class="n">c</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;mem_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span>
+                        <span class="s2">&quot;shm_size&quot;</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">memMB</span><span class="p">)</span><span class="si">}</span><span class="s2">m&quot;</span>
                 <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">c</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;nano_cpus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">cpu</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -760,6 +765,14 @@
             <span class="n">type_</span><span class="o">=</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
             <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;env&quot;</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;environment variables to be passed to the run. The separator sign can be eiher comma or semicolon</span>
+<span class="s2">            (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top</span>
+<span class="s2">            of the ones from copy_env&quot;&quot;&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">opts</span>
 
