@@ -106,6 +106,18 @@ class TestScheduler(Scheduler):
             help="a None list option",
         )
         opts.add(
+            "d",
+            type_=Dict[str, str],
+            default={"foo": "bar"},
+            help="a dict option",
+        )
+        opts.add(
+            "d_none",
+            type_=Dict[str, str],
+            default=None,
+            help="a None dict option",
+        )
+        opts.add(
             "empty",
             type_=str,
             default=None,
@@ -131,6 +143,8 @@ _TEAM_CONFIG = """#
 s = team_default
 i = 50
 f = 1.2
+d = a:b,c:d
+d_none= x:y
 """
 
 _MY_CONFIG = """#
@@ -356,6 +370,8 @@ image = foobar_custom
             self.assertEqual("runtime_value", cfg.get("s"))
             self.assertEqual(50, cfg.get("i"))
             self.assertEqual(1.2, cfg.get("f"))
+            self.assertEqual({"a": "b", "c": "d"}, cfg.get("d"))
+            self.assertEqual({"x": "y"}, cfg.get("d_none"))
 
     @patch(
         TORCHX_GET_SCHEDULER_FACTORIES,

@@ -123,6 +123,7 @@ def ensure_network(client: Optional["DockerClient"] = None) -> None:
 
 class DockerOpts(TypedDict, total=False):
     copy_env: Optional[List[str]]
+    env: Optional[Dict[str, str]]
 
 
 class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
@@ -217,6 +218,10 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
             for k in keys:
                 default_env[k] = os.environ[k]
 
+        env = cfg.get("env")
+        if env:
+            default_env.update(env)
+
         app_id = make_unique(app.name)
         req = DockerJob(app_id=app_id, containers=[])
         rank0_name = f"{app_id}-{app.roles[0].name}-0"
@@ -294,9 +299,9 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                 if resource.memMB >= 0:
                     # To support PyTorch dataloaders we need to set /dev/shm to
                     # larger than the 64M default.
-                    c.kwargs["mem_limit"] = c.kwargs["shm_size"] = (
-                        f"{int(resource.memMB)}m"
-                    )
+                    c.kwargs["mem_limit"] = c.kwargs[
+                        "shm_size"
+                    ] = f"{int(resource.memMB)}m"
                 if resource.cpu >= 0:
                     c.kwargs["nano_cpus"] = int(resource.cpu * 1e9)
                 if resource.gpu > 0:
@@ -358,6 +363,14 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
             type_=List[str],
             default=None,
             help="list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*",
+        )
+        opts.add(
+            "env",
+            type_=Dict[str, str],
+            default=None,
+            help="""environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
+            (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
+            of the ones from copy_env""",
         )
         return opts
 

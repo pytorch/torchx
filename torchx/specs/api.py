@@ -639,11 +639,11 @@ class AppStatusError(Exception):
         self.status = status
 
 
-# valid run cfg values; only support primitives (str, int, float, bool, List[str])
+# valid run cfg values; only support primitives (str, int, float, bool, List[str], Dict[str, str])
 # TODO(wilsonhong): python 3.9+ supports list[T] in typing, which can be used directly
 # in isinstance(). Should replace with that.
 # see: https://docs.python.org/3/library/stdtypes.html#generic-alias-type
-CfgVal = Union[str, int, float, bool, List[str], None]
+CfgVal = Union[str, int, float, bool, List[str], Dict[str, str], None]
 
 
 T = TypeVar("T")
@@ -757,6 +757,10 @@ class runopts:
         except TypeError:
             if isinstance(obj, list):
                 return all(isinstance(e, str) for e in obj)
+            elif isinstance(obj, dict):
+                return all(
+                    isinstance(k, str) and isinstance(v, str) for k, v in obj.items()
+                )
             else:
                 return False
 
@@ -865,8 +869,13 @@ class runopts:
                 # lists may be ; or , delimited
                 # also deal with trailing "," by removing empty strings
                 return [v for v in value.replace(";", ",").split(",") if v]
+            elif opt_type == Dict[str, str]:
+                return {
+                    s.split(":", 1)[0]: s.split(":", 1)[1]
+                    for s in value.replace(";", ",").split(",")
+                }
             else:
-                # pyre-ignore[19]
+                # pyre-ignore[19, 6] type won't be dict here as we handled it above
                 return opt_type(value)
 
         cfg: Dict[str, CfgVal] = {}
