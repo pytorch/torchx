@@ -25,7 +25,7 @@ Install Volcano:
     kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
 
 See the
-`Volcano Quickstart <https://github.com/volcano-sh/volcano#quick-start-guide>`_
+`Volcano Quickstart <https://github.com/volcano-sh/volcano>`_
 for more information.
 """
 
