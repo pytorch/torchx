@@ -48,21 +48,18 @@ from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
     AppState,
-    BindMount,
     CfgVal,
-    DeviceMount,
     macros,
     ReplicaState,
     ReplicaStatus,
     Role,
     RoleStatus,
     runopts,
-    VolumeMount,
 )
+from torchx.util.role_to_pod import role_to_pod
 from torchx.util.strings import normalize_str
 from torchx.workspace.docker_workspace import DockerWorkspaceMixin
 from typing_extensions import TypedDict
-from torchx.util.role_to_pod import role_to_pod
 
 if TYPE_CHECKING:
     from docker import DockerClient
@@ -471,7 +468,7 @@ class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
         try:
             status = job.status
         except Exception as e:
-            print(f"Cannot gather job status: {e}")
+            logger.exception(f"Cannot gather job status: {e}")
             status = None
         app_state = None
         if status:

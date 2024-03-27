@@ -27,7 +27,7 @@ from torchx.schedulers.kueue_scheduler import (
     KueueScheduler,
 )
 from torchx.specs import AppState
-from torchx.util.role_to_pod import role_to_pod, LABEL_INSTANCE_TYPE
+from torchx.util.role_to_pod import LABEL_INSTANCE_TYPE, role_to_pod
 
 SKIP_DOCKER: bool = not has_docker()
 

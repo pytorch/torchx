@@ -3,20 +3,18 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-from torchx.specs.api import (
-    BindMount,
-    DeviceMount,
-    Role,
-    VolumeMount,
-)
-from typing import Dict, Optional
-from kubernetes.client.models import V1Pod
+from typing import Dict, Optional, TYPE_CHECKING
+
+from torchx.specs.api import BindMount, DeviceMount, Role, VolumeMount
 
 # Constants
 RESERVED_MILLICPU = 100
 RESERVED_MEMMB = 1024
 LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
 ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
+
+if TYPE_CHECKING:
+    from kubernetes.client.models import V1Pod
 
 
 def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod":

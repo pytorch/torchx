@@ -61,9 +61,7 @@ from torchx.schedulers.ids import make_unique
 from torchx.specs.api import (
     AppDef,
     AppState,
-    BindMount,
     CfgVal,
-    DeviceMount,
     macros,
     ReplicaState,
     ReplicaStatus,
@@ -71,7 +69,6 @@ from torchx.specs.api import (
     Role,
     RoleStatus,
     runopts,
-    VolumeMount,
 )
 from torchx.util.role_to_pod import role_to_pod
 from torchx.util.strings import normalize_str
