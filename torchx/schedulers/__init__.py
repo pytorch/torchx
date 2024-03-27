@@ -30,8 +30,7 @@ DEFAULT_SCHEDULER_MODULES: Mapping[str, str] = {
 
 class SchedulerFactory(Protocol):
     # pyre-fixme: Scheduler opts
-    def __call__(self, session_name: str, **kwargs: object) -> Scheduler:
-        ...
+    def __call__(self, session_name: str, **kwargs: object) -> Scheduler: ...
 
 
 def _defer_load_scheduler(path: str) -> SchedulerFactory:

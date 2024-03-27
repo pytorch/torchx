@@ -21,7 +21,7 @@ jobs:
         run: |
           set -eux
           pip install -e .[dev]
-          VERSION=$(grep "version" .pyre_configuration | sed -n -e 's/.*\(0\.0\.[0-9]*\).*/\1/p')
-          pip install pyre-check-nightly==$VERSION
+
+          lintrunner init
       - name: Run Pyre
         run: scripts/pyre.sh

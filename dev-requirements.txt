@@ -1,6 +1,5 @@
 aiobotocore==2.12.1
 ax-platform[mysql]==0.2.3
-black==22.12.0
 boto3==1.34.51
 captum>=0.4.0
 docker
@@ -29,8 +28,11 @@ torchserve>=0.10.0
 torchtext==0.17.1
 torchvision==0.17.1
 ts==0.5.1
-usort==1.0.5
 ray[default]
+
+# lint (linter versions are managed by lintrunner)
+lintrunner
+lintrunner-adapters
 
 
 # reduce backtracking
