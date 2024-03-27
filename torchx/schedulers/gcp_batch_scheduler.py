@@ -412,8 +412,10 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             raise ValueError(f"app not found: {app_id}")
 
         job_uid = job.uid
-        filters = [f"labels.job_uid={job_uid}"]
-        filters.append(f"resource.labels.task_id:task/{job_uid}-group0-{k}")
+        filters = [
+            f"labels.job_uid={job_uid}",
+            f"labels.task_id:{job_uid}-group0-{k}",
+        ]
 
         if since is not None:
             filters.append(f'timestamp>="{str(since.isoformat())}"')
@@ -434,7 +436,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
         logger = logging.Client().logger(BATCH_LOGGER_NAME)
         for entry in logger.list_entries(filter_=filter):
-            yield entry.payload
+            yield entry.payload + "\n"
 
     def _job_full_name_to_app_id(self, job_full_name: str) -> str:
         """
