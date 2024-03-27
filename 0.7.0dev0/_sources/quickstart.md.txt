@@ -25,7 +25,7 @@ the CLI and the library.
 <!-- #md -->
 ```sh
 # install torchx with all dependencies
-$ pip install torchx[dev]
+$ pip install "torchx[dev]"
 ```
 <!-- #endmd -->
 

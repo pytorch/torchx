@@ -95,7 +95,7 @@
           <li>
           <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
               <a class="resource-option with-down-arrow">
-                PyTorch Edge
+                Edge
               </a>
               <div class="resources-dropdown-menu">
                 <a class="nav-dropdown-item" href="https://pytorch.org/edge">
@@ -440,7 +440,7 @@ $<span class="w"> </span>torchx<span class="w"> </span>status<span class="w"> </
 handling.</p>
 <p><strong>Config Options</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
-        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[image_repo=IMAGE_REPO]
+        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[job_role_arn=JOB_ROLE_ARN],[execution_role_arn=EXECUTION_ROLE_ARN],[image_repo=IMAGE_REPO]
 
     required arguments:
         queue=QUEUE (str)
@@ -455,6 +455,10 @@ handling.</p>
             The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
         priority=PRIORITY (int, 0)
             The scheduling priority for the job within the context of share_id. Higher number (between 0 and 9999) means higher priority. This will only take effect if the job queue has a scheduling policy.
+        job_role_arn=JOB_ROLE_ARN (str, None)
+            The Amazon Resource Name (ARN) of the IAM role that the container can assume for AWS permissions.
+        execution_role_arn=EXECUTION_ROLE_ARN (str, None)
+            The Amazon Resource Name (ARN) of the IAM role that the ECS agent can assume for AWS permissions.
         image_repo=IMAGE_REPO (str, None)
             (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
 </pre></div>

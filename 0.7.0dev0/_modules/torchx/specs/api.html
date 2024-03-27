@@ -92,7 +92,7 @@
           <li>
           <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
               <a class="resource-option with-down-arrow">
-                PyTorch Edge
+                Edge
               </a>
               <div class="resources-dropdown-menu">
                 <a class="nav-dropdown-item" href="https://pytorch.org/edge">
@@ -407,6 +407,8 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="c1"># pyre-strict</span>
+
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -422,6 +424,7 @@
     <span class="n">Iterator</span><span class="p">,</span>
     <span class="n">List</span><span class="p">,</span>
     <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">NamedTuple</span><span class="p">,</span>
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">Pattern</span><span class="p">,</span>
     <span class="n">Tuple</span><span class="p">,</span>
@@ -1372,6 +1375,16 @@
 <span class="n">AppHandle</span> <span class="o">=</span> <span class="nb">str</span>
 
 
+<span class="k">class</span> <span class="nc">ParsedAppHandle</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Individual accessible components of the `AppHandle`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">scheduler_backend</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">session_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span>
+
+
 <span class="k">class</span> <span class="nc">UnknownAppException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised by ``Session`` APIs when either the application does not</span>
@@ -1385,7 +1398,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">parse_app_handle</span><span class="p">(</span><span class="n">app_handle</span><span class="p">:</span> <span class="n">AppHandle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAppHandle</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    parses the app handle into ```(scheduler_backend, session_name, and app_id)```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1399,7 +1412,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MalformedAppHandleException</span><span class="p">(</span><span class="n">app_handle</span><span class="p">)</span>
     <span class="n">gd</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;scheduler_backend&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;session_name&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;app_id&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ParsedAppHandle</span><span class="p">(</span><span class="n">gd</span><span class="p">[</span><span class="s2">&quot;scheduler_backend&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;session_name&quot;</span><span class="p">],</span> <span class="n">gd</span><span class="p">[</span><span class="s2">&quot;app_id&quot;</span><span class="p">])</span>
 </pre></div>
 
      </article>

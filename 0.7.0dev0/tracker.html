@@ -95,7 +95,7 @@
           <li>
           <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
               <a class="resource-option with-down-arrow">
-                PyTorch Edge
+                Edge
               </a>
               <div class="resources-dropdown-menu">
                 <a class="nav-dropdown-item" href="https://pytorch.org/edge">
@@ -455,7 +455,7 @@ implementation.</p>
 <h3>Tracker Setup<a class="headerlink" href="#tracker-setup" title="Permalink to this heading">¶</a></h3>
 <p>To enable tracking it requires:</p>
 <ol class="arabic simple">
-<li><p>Defining tracker backends (entrypoints and configuration) on launcher side using <a class="reference internal" href="runner.config.html"><span class="doc">.torchxconfig</span></a></p></li>
+<li><p>Defining tracker backends (entrypoints/modules and configuration) on launcher side using <a class="reference internal" href="runner.config.html"><span class="doc">.torchxconfig</span></a></p></li>
 <li><p>Adding entrypoints within a user job using entry_points (<a class="reference external" href="https://packaging.python.org/en/latest/specifications/entry-points/">specification</a>)</p></li>
 </ol>
 <section id="launcher-side-configuration">
@@ -468,7 +468,7 @@ implementation.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Value: is <em>entrypoint/factory method</em> that must be available within user job. The value will be injected into a</dt><dd><p>user job and used to construct tracker implementation.</p>
+<dt>Value: is <em>entrypoint</em> or <em>module</em> factory method that must be available within user job. The value will be injected into a</dt><dd><p>user job and used to construct tracker implementation.</p>
 </dd>
 </dl>
 </li>
@@ -476,7 +476,7 @@ implementation.</p>
 </dd>
 </dl>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx:tracker]</span>
-<span class="na">tracker_name</span><span class="o">=</span><span class="s">&lt;entry_point&gt;</span>
+<span class="na">tracker_name</span><span class="o">=</span><span class="s">&lt;entry_point_or_module_factory_method&gt;</span>
 </pre></div>
 </div>
 <p>Each tracker can be additionally configured (currently limited to <cite>config</cite> parameter) under <cite>[tracker:&lt;TRACKER NAME&gt;]</cite> section:</p>
@@ -487,10 +487,14 @@ implementation.</p>
 <p>For example, ~/.torchxconfig may be setup as:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[torchx:tracker]</span>
 <span class="na">tracker1</span><span class="o">=</span><span class="s">tracker1</span>
-<span class="na">tracker12</span><span class="o">=</span><span class="s">backend_2_entry_point</span>
+<span class="na">tracker2</span><span class="o">=</span><span class="s">backend_2_entry_point</span>
+<span class="na">tracker3</span><span class="o">=</span><span class="s">torchx.tracker.mlflow:create_tracker</span>
 
 <span class="k">[tracker:tracker1]</span>
 <span class="na">config</span><span class="o">=</span><span class="s">s3://my_bucket/config.json</span>
+
+<span class="k">[tracker:tracker3]</span>
+<span class="na">config</span><span class="o">=</span><span class="s">my_config.json</span>
 </pre></div>
 </div>
 </section>

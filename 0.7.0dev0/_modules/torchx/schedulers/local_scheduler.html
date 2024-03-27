@@ -92,7 +92,7 @@
           <li>
           <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
               <a class="resource-option with-down-arrow">
-                PyTorch Edge
+                Edge
               </a>
               <div class="resources-dropdown-menu">
                 <a class="nav-dropdown-item" href="https://pytorch.org/edge">
@@ -407,6 +407,8 @@
 <span class="c1"># This source code is licensed under the BSD-style license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="c1"># pyre-strict</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This contains the TorchX local scheduler which can be used to run TorchX</span>
 <span class="sd">components locally via subprocesses.</span>
@@ -429,7 +431,18 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FrameType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">BinaryIO</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Protocol</span><span class="p">,</span>
+    <span class="n">TextIO</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">torchx.schedulers.api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AppDryRunInfo</span><span class="p">,</span>
@@ -654,6 +667,26 @@
 <span class="n">RoleName</span> <span class="o">=</span> <span class="nb">str</span>
 
 
+<span class="k">class</span> <span class="nc">PopenProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Protocol wrapper around python&#39;s ``subprocess.Popen``. Keeps track of</span>
+<span class="sd">    the a list of interface methods that the process scheduled by the `LocalScheduler`</span>
+<span class="sd">    must implement.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">returncode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span> <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">_LocalReplica</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -662,8 +695,7 @@
 
     <span class="n">role_name</span><span class="p">:</span> <span class="n">RoleName</span>
     <span class="n">replica_id</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="c1"># pyre-fixme[24]: Generic type `subprocess.Popen` expects 1 type parameter.</span>
-    <span class="n">proc</span><span class="p">:</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span>
+    <span class="n">proc</span><span class="p">:</span> <span class="n">PopenProtocol</span>
 
     <span class="c1"># IO streams:</span>
     <span class="c1"># None means no log_dir (out to console)</span>
@@ -1060,29 +1092,11 @@
 <span class="sd">        as file name ``str`` rather than a file-like obj.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">stdout_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
-        <span class="n">stderr_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="n">combined_</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tee</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">combined_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">combined_file</span><span class="p">:</span>
-            <span class="n">combined_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span>
-                <span class="n">combined_file</span><span class="p">,</span>
-                <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
-                <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
-            <span class="p">)</span>
-
-        <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
-        <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
-        <span class="c1"># PATH is a special one, instead of overriding, append</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_join_PATH</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">))</span>
-
-        <span class="c1"># default to unbuffered python for faster responsiveness locally</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;PYTHONUNBUFFERED&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+        <span class="n">stdout_</span><span class="p">,</span> <span class="n">stderr_</span><span class="p">,</span> <span class="n">combined_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_replica_output_handles</span><span class="p">(</span><span class="n">replica_params</span><span class="p">)</span>
 
         <span class="n">args_pfmt</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">replica_params</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">role_name</span><span class="si">}</span><span class="s2"> (replica </span><span class="si">{</span><span class="n">replica_id</span><span class="si">}</span><span class="s2">):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">args_pfmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_replica_env</span><span class="p">(</span><span class="n">replica_params</span><span class="p">)</span>
 
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
             <span class="n">args</span><span class="o">=</span><span class="n">replica_params</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
@@ -1101,6 +1115,47 @@
             <span class="n">combined</span><span class="o">=</span><span class="n">combined_</span><span class="p">,</span>
             <span class="n">error_file</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TORCHELASTIC_ERROR_FILE&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;N/A&gt;&quot;</span><span class="p">),</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_replica_output_handles</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">FileIO</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tee</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the stdout, stderr, and combined outputs of the replica.</span>
+<span class="sd">        If the combined output file is not specified, then the combined output is ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">stdout_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="n">stderr_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">combined_</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tee</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">combined_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_io</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">combined</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">combined_file</span><span class="p">:</span>
+            <span class="n">combined_</span> <span class="o">=</span> <span class="n">Tee</span><span class="p">(</span>
+                <span class="n">combined_file</span><span class="p">,</span>
+                <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
+                <span class="n">none_throws</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">stdout_</span><span class="p">,</span> <span class="n">stderr_</span><span class="p">,</span> <span class="n">combined_</span>
+
+    <span class="k">def</span> <span class="nf">_get_replica_env</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">replica_params</span><span class="p">:</span> <span class="n">ReplicaParam</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns environment variables for the ``_LocalReplica``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># inherit parent&#39;s env vars since 99.9% of the time we want this behavior</span>
+        <span class="c1"># just make sure we override the parent&#39;s env vars with the user_defined ones</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+        <span class="c1"># PATH is a special one, instead of overriding, append</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_join_PATH</span><span class="p">(</span><span class="n">replica_params</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">))</span>
+
+        <span class="c1"># default to unbuffered python for faster responsiveness locally</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;PYTHONUNBUFFERED&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">env</span>
 
     <span class="k">def</span> <span class="nf">_get_app_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">LocalOpts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
