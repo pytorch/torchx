@@ -77,6 +77,7 @@ Works With
    schedulers/slurm
    schedulers/ray
    schedulers/aws_batch
+   schedulers/aws_sagemaker
    schedulers/lsf
    schedulers/gcp_batch
 

@@ -284,6 +284,7 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_sagemaker.html">AWS SageMaker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
@@ -451,10 +452,10 @@
       </ul></li>
       <li><a href="tracker.html#torchx.tracker.AppRun">AppRun (class in torchx.tracker)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.AppState">AppState (class in torchx.specs)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="specs.html#torchx.specs.AppStatus">AppStatus (class in torchx.specs)</a>
 </li>
       <li><a href="schedulers/local.html#torchx.schedulers.local_scheduler.LocalScheduler.auto_set_CUDA_VISIBLE_DEVICES">auto_set_CUDA_VISIBLE_DEVICES() (torchx.schedulers.local_scheduler.LocalScheduler method)</a>
@@ -468,6 +469,10 @@
       <li><a href="specs.html#torchx.specs.named_resources_aws.aws_t3_medium">aws_t3_medium() (in module torchx.specs.named_resources_aws)</a>
 </li>
       <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler">AWSBatchScheduler (class in torchx.schedulers.aws_batch_scheduler)</a>
+</li>
+      <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerJob">AWSSageMakerJob (class in torchx.schedulers.aws_sagemaker_scheduler)</a>
+</li>
+      <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler">AWSSageMakerScheduler (class in torchx.schedulers.aws_sagemaker_scheduler)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -538,6 +543,8 @@
       <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.create_scheduler">create_scheduler() (in module torchx.schedulers.aws_batch_scheduler)</a>
 
       <ul>
+        <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.create_scheduler">(in module torchx.schedulers.aws_sagemaker_scheduler)</a>
+</li>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.create_scheduler">(in module torchx.schedulers.docker_scheduler)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.create_scheduler">(in module torchx.schedulers.gcp_batch_scheduler)</a>
@@ -569,6 +576,8 @@
 
       <ul>
         <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.describe">(torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
+</li>
+        <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.describe">(torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler method)</a>
 </li>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.describe">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
@@ -764,6 +773,8 @@
       <ul>
         <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.list">(torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
 </li>
+        <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.list">(torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler method)</a>
+</li>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.list">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.list">(torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
@@ -798,6 +809,8 @@
       <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.log_iter">log_iter() (torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
 
       <ul>
+        <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.log_iter">(torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler method)</a>
+</li>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.log_iter">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
         <li><a href="schedulers/gcp_batch.html#torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler.log_iter">(torchx.schedulers.gcp_batch_scheduler.GCPBatchScheduler method)</a>
@@ -880,6 +893,8 @@
         <li><a href="schedulers.html#module-torchx.schedulers">torchx.schedulers</a>
 </li>
         <li><a href="schedulers/aws_batch.html#module-torchx.schedulers.aws_batch_scheduler">torchx.schedulers.aws_batch_scheduler</a>
+</li>
+        <li><a href="schedulers/aws_sagemaker.html#module-torchx.schedulers.aws_sagemaker_scheduler">torchx.schedulers.aws_sagemaker_scheduler</a>
 </li>
         <li><a href="schedulers/docker.html#module-torchx.schedulers.docker_scheduler">torchx.schedulers.docker_scheduler</a>
 </li>
@@ -1014,6 +1029,8 @@
 
       <ul>
         <li><a href="schedulers/aws_batch.html#torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler.schedule">(torchx.schedulers.aws_batch_scheduler.AWSBatchScheduler method)</a>
+</li>
+        <li><a href="schedulers/aws_sagemaker.html#torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler.schedule">(torchx.schedulers.aws_sagemaker_scheduler.AWSSageMakerScheduler method)</a>
 </li>
         <li><a href="schedulers/docker.html#torchx.schedulers.docker_scheduler.DockerScheduler.schedule">(torchx.schedulers.docker_scheduler.DockerScheduler method)</a>
 </li>
@@ -1203,6 +1220,13 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    torchx.schedulers.aws_sagemaker_scheduler
+
+      <ul>
+        <li><a href="schedulers/aws_sagemaker.html#module-torchx.schedulers.aws_sagemaker_scheduler">module</a>
+</li>
+      </ul></li>
       <li>
     torchx.schedulers.docker_scheduler
 

@@ -288,6 +288,7 @@
 <li class="toctree-l1"><a class="reference internal" href="schedulers/slurm.html">Slurm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/ray.html">Ray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/aws_batch.html">AWS Batch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schedulers/aws_sagemaker.html">AWS SageMaker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/lsf.html">IBM Spectrum LSF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schedulers/gcp_batch.html">GCP Batch</a></li>
 </ul>
@@ -854,7 +855,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:02 INFO     Tracker configurations: {}
+torchx 2024-03-27 23:40:43 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -862,7 +863,7 @@ torchx 2024-03-27 17:25:02 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:02 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2024-03-27 23:40:43 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -870,7 +871,7 @@ torchx 2024-03-27 17:25:02 INFO     Log directory not set in scheduler cfg. Crea
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:02 INFO     Log directory is: /tmp/torchx_61vmaf5p
+torchx 2024-03-27 23:40:43 INFO     Log directory is: /tmp/torchx_ccmdpnb2
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -878,7 +879,7 @@ torchx 2024-03-27 17:25:02 INFO     Log directory is: /tmp/torchx_61vmaf5p
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:02 INFO     Waiting for the app to finish...
+torchx 2024-03-27 23:40:43 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -894,7 +895,7 @@ python/0 Hello, your name!
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:03 INFO     Job finished: SUCCEEDED
+torchx 2024-03-27 23:40:44 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -902,7 +903,7 @@ torchx 2024-03-27 17:25:03 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-k0p56p51zngrcc
+local_cwd://torchx/torchx_utils_python-k0pfpz0kll2k5c
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -922,7 +923,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:04 INFO     Tracker configurations: {}
+torchx 2024-03-27 23:40:45 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -930,7 +931,7 @@ torchx 2024-03-27 17:25:04 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:04 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-03-27 23:40:45 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -938,7 +939,7 @@ torchx 2024-03-27 17:25:04 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:04 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-03-27 23:40:45 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -946,7 +947,7 @@ torchx 2024-03-27 17:25:04 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:04 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-03-27 23:40:45 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -954,7 +955,7 @@ torchx 2024-03-27 17:25:04 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:04 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-03-27 23:40:45 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -962,7 +963,7 @@ torchx 2024-03-27 17:25:04 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:13 INFO     Built new image `sha256:dec682f97bbe922705f3f3bbb24a10b221e548cf36102d0e3a83a033264a438c` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-03-27 23:40:54 INFO     Built new image `sha256:2253d42e83bbdfbe21eec6206a17580be0aa034135545ec363e9243996c71fef` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -970,7 +971,7 @@ torchx 2024-03-27 17:25:13 INFO     Built new image `sha256:dec682f97bbe922705f3
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:13 INFO     Waiting for the app to finish...
+torchx 2024-03-27 23:40:54 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -986,7 +987,7 @@ python/0 Hello, your name!
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:14 INFO     Job finished: SUCCEEDED
+torchx 2024-03-27 23:40:55 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -994,7 +995,7 @@ torchx 2024-03-27 17:25:14 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-j1qt72zkh1l29c
+local_docker://torchx/torchx_utils_python-z3zkt7vdswb0wc
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -1509,7 +1510,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:16 INFO     Tracker configurations: {}
+torchx 2024-03-27 23:40:57 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1517,7 +1518,7 @@ torchx 2024-03-27 17:25:16 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:16 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-03-27 23:40:57 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1525,7 +1526,7 @@ torchx 2024-03-27 17:25:16 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:16 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-03-27 23:40:57 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1533,7 +1534,7 @@ torchx 2024-03-27 17:25:16 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:16 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-03-27 23:40:57 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1541,7 +1542,7 @@ torchx 2024-03-27 17:25:16 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:16 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-03-27 23:40:57 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1549,7 +1550,7 @@ torchx 2024-03-27 17:25:16 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:25 INFO     Built new image `sha256:e3a57084b9ad0ca9377ff34c0551134c5c92f1a9539967d3c1e932182f6fa3ea` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2024-03-27 23:41:06 INFO     Built new image `sha256:e389325e1b3d800da97097fca038b3a1ed782ff19c7b3d16be4fd9ee756d76b8` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1557,7 +1558,7 @@ torchx 2024-03-27 17:25:25 INFO     Built new image `sha256:e3a57084b9ad0ca9377f
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:26 INFO     Waiting for the app to finish...
+torchx 2024-03-27 23:41:06 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1565,7 +1566,7 @@ torchx 2024-03-27 17:25:26 INFO     Waiting for the app to finish...
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING]
+dist_app/0 [2024-03-27 23:41:07,978] torch.distributed.run: [WARNING]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1573,7 +1574,7 @@ dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING] *****************************************
+dist_app/0 [2024-03-27 23:41:07,978] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1581,7 +1582,7 @@ dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING] **********
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 [2024-03-27 23:41:07,978] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1589,7 +1590,7 @@ dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING] Setting OM
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING] *****************************************
+dist_app/0 [2024-03-27 23:41:07,978] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1597,7 +1598,7 @@ dist_app/0 [2024-03-27 17:25:26,997] torch.distributed.run: [WARNING] **********
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING]
+dist_app/1 [2024-03-27 23:41:07,980] torch.distributed.run: [WARNING]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1605,7 +1606,7 @@ dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-03-27 23:41:07,980] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1613,7 +1614,7 @@ dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING] **********
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 [2024-03-27 23:41:07,980] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1621,7 +1622,7 @@ dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING] Setting OM
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-27 17:25:27,004] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-03-27 23:41:07,980] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1693,7 +1694,7 @@ dist_app/0 [1]:all_reduce output = tensor([6])
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:34 INFO     Job finished: SUCCEEDED
+torchx 2024-03-27 23:41:15 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1701,7 +1702,7 @@ torchx 2024-03-27 17:25:34 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-l4fwtn2265xhnd
+local_docker://torchx/dist_app-k9sl9rbqxsqlgd
 </pre></div></div>
 </div>
 </section>
@@ -2669,6 +2670,726 @@ aws_batch:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+sagemaker.config INFO - Not applying SDK defaults from location: /etc/xdg/sagemaker/config.yaml
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+sagemaker.config INFO - Not applying SDK defaults from location: /home/runner/.config/sagemaker/config.yaml
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+aws_sagemaker:
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+    usage:
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        role=ROLE,instance_type=INSTANCE_TYPE,[instance_count=INSTANCE_COUNT],[user=USER],[keep_alive_period_in_seconds=KEEP_ALIVE_PERIOD_IN_SECONDS],[volume_size=VOLUME_SIZE],[volume_kms_key=VOLUME_KMS_KEY],[max_run=MAX_RUN],[input_mode=INPUT_MODE],[output_path=OUTPUT_PATH],[output_kms_key=OUTPUT_KMS_KEY],[base_job_name=BASE_JOB_NAME],[tags=TAGS],[subnets=SUBNETS],[security_group_ids=SECURITY_GROUP_IDS],[model_uri=MODEL_URI],[model_channel_name=MODEL_CHANNEL_NAME],[metric_definitions=METRIC_DEFINITIONS],[encrypt_inter_container_traffic=ENCRYPT_INTER_CONTAINER_TRAFFIC],[use_spot_instances=USE_SPOT_INSTANCES],[max_wait=MAX_WAIT],[checkpoint_s3_uri=CHECKPOINT_S3_URI],[checkpoint_local_path=CHECKPOINT_LOCAL_PATH],[debugger_hook_config=DEBUGGER_HOOK_CONFIG],[enable_sagemaker_metrics=ENABLE_SAGEMAKER_METRICS],[enable_network_isolation=ENABLE_NETWORK_ISOLATION],[disable_profiler=DISABLE_PROFILER],[environment=ENVIRONMENT],[max_retry_attempts=MAX_RETRY_ATTEMPTS],[source_dir=SOURCE_DIR],[git_config=GIT_CONFIG],[hyperparameters=HYPERPARAMETERS],[container_log_level=CONTAINER_LOG_LEVEL],[code_location=CODE_LOCATION],[dependencies=DEPENDENCIES],[training_repository_access_mode=TRAINING_REPOSITORY_ACCESS_MODE],[training_repository_credentials_provider_arn=TRAINING_REPOSITORY_CREDENTIALS_PROVIDER_ARN],[disable_output_compression=DISABLE_OUTPUT_COMPRESSION],[enable_infra_check=ENABLE_INFRA_CHECK],[image_repo=IMAGE_REPO]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+    required arguments:
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        role=ROLE (str)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            an AWS IAM role (either name or full ARN). The Amazon SageMaker training jobs and APIs that create Amazon SageMaker endpoints use this role to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role, if it needs to access an AWS resource.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        instance_type=INSTANCE_TYPE (str)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            type of EC2 instance to use for training, for example, &#39;ml.c4.xlarge&#39;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+    optional arguments:
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        instance_count=INSTANCE_COUNT (int, 1)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            number of Amazon EC2 instances to use for training. Required if instance_groups is not set.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        user=USER (str, runner)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            the username to tag the job with. `getpass.getuser()` if not specified.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        keep_alive_period_in_seconds=KEEP_ALIVE_PERIOD_IN_SECONDS (int, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            the duration of time in seconds to retain configured resources in a warm pool for subsequent training jobs.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        volume_size=VOLUME_SIZE (int, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            size in GB of the storage volume to use for storing input and output data during training (default: 30).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        volume_kms_key=VOLUME_KMS_KEY (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            KMS key ID for encrypting EBS volume attached to the training instance.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        max_run=MAX_RUN (int, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            timeout in seconds for training (default: 24 * 60 * 60).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        input_mode=INPUT_MODE (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            the input mode that the algorithm supports (default: ‘File’).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        output_path=OUTPUT_PATH (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            S3 location for saving the training result (model artifacts and output files). If not specified, results are stored to a default bucket. If the bucket with the specific name does not exist, the estimator creates the bucket during the fit() method execution.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        output_kms_key=OUTPUT_KMS_KEY (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            KMS key ID for encrypting the training output (default: Your IAM role’s KMS key for Amazon S3).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        base_job_name=BASE_JOB_NAME (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            prefix for training job name when the fit() method launches. If not specified, the estimator generates a default job name based on the training image name and current timestamp.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        tags=TAGS (typing.List[typing.Dict[str, str]], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            list of tags for labeling a training job.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        subnets=SUBNETS (typing.List[str], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            list of subnet ids. If not specified training job will be created without VPC config.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        security_group_ids=SECURITY_GROUP_IDS (typing.List[str], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            list of security group ids. If not specified training job will be created without VPC config.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        model_uri=MODEL_URI (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            URI where a pre-trained model is stored, either locally or in S3.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        model_channel_name=MODEL_CHANNEL_NAME (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            name of the channel where ‘model_uri’ will be downloaded (default: ‘model’).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        metric_definitions=METRIC_DEFINITIONS (typing.List[typing.Dict[str, str]], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            list of dictionaries that defines the metric(s) used to evaluate the training jobs. Each dictionary contains two keys: ‘Name’ for the name of the metric, and ‘Regex’ for the regular expression used to extract the metric from the logs.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        encrypt_inter_container_traffic=ENCRYPT_INTER_CONTAINER_TRAFFIC (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            specifies whether traffic between training containers is encrypted for the training job (default: False).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        use_spot_instances=USE_SPOT_INSTANCES (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            specifies whether to use SageMaker Managed Spot instances for training. If enabled then the max_wait arg should also be set.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        max_wait=MAX_WAIT (int, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            timeout in seconds waiting for spot training job.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        checkpoint_s3_uri=CHECKPOINT_S3_URI (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            S3 URI in which to persist checkpoints that the algorithm persists (if any) during training.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        checkpoint_local_path=CHECKPOINT_LOCAL_PATH (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            local path that the algorithm writes its checkpoints to.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        debugger_hook_config=DEBUGGER_HOOK_CONFIG (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            configuration for how debugging information is emitted with SageMaker Debugger. If not specified, a default one is created using the estimator’s output_path, unless the region does not support SageMaker Debugger. To disable SageMaker Debugger, set this parameter to False.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        enable_sagemaker_metrics=ENABLE_SAGEMAKER_METRICS (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            enable SageMaker Metrics Time Series.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        enable_network_isolation=ENABLE_NETWORK_ISOLATION (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            specifies whether container will run in network isolation mode (default: False).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        disable_profiler=DISABLE_PROFILER (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            specifies whether Debugger monitoring and profiling will be disabled (default: False).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        environment=ENVIRONMENT (typing.Dict[str, str], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            environment variables to be set for use during training job
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        max_retry_attempts=MAX_RETRY_ATTEMPTS (int, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        source_dir=SOURCE_DIR (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            absolute, relative, or S3 URI Path to a directory with any other training source code dependencies aside from the entry point file (default: current working directory)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        git_config=GIT_CONFIG (typing.Dict[str, str], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            git configurations used for cloning files, including repo, branch, commit, 2FA_enabled, username, password, and token.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        hyperparameters=HYPERPARAMETERS (typing.Dict[str, str], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            dictionary containing the hyperparameters to initialize this estimator with.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        container_log_level=CONTAINER_LOG_LEVEL (int, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            log level to use within the container (default: logging.INFO).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        code_location=CODE_LOCATION (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            S3 prefix URI where custom code is uploaded.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        dependencies=DEPENDENCIES (typing.List[str], None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            list of absolute or relative paths to directories with any additional libraries that should be exported to the container.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        training_repository_access_mode=TRAINING_REPOSITORY_ACCESS_MODE (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            specifies how SageMaker accesses the Docker image that contains the training algorithm.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        training_repository_credentials_provider_arn=TRAINING_REPOSITORY_CREDENTIALS_PROVIDER_ARN (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            Amazon Resource Name (ARN) of an AWS Lambda function that provides credentials to authenticate to the private Docker registry where your training image is hosted.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        disable_output_compression=DISABLE_OUTPUT_COMPRESSION (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            when set to true, Model is uploaded to Amazon S3 without compression after training finishes.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        enable_infra_check=ENABLE_INFRA_CHECK (bool, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            specifies whether it is running Sagemaker built-in infra check jobs.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+        image_repo=IMAGE_REPO (str, None)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
 gcp_batch:
 </pre></div></div>
 </div>
@@ -3047,7 +3768,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:35 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2024-03-27 23:41:17 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3055,7 +3776,7 @@ torchx 2024-03-27 17:25:35 INFO     loaded configs from /home/runner/work/torchx
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:35 INFO     Tracker configurations: {}
+torchx 2024-03-27 23:41:17 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3063,7 +3784,7 @@ torchx 2024-03-27 17:25:35 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:35 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-03-27 23:41:17 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3071,7 +3792,7 @@ torchx 2024-03-27 17:25:35 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:35 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-03-27 23:41:17 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3079,7 +3800,7 @@ torchx 2024-03-27 17:25:35 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:36 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-03-27 23:41:18 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3087,7 +3808,7 @@ torchx 2024-03-27 17:25:36 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:25:36 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-03-27 23:41:18 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3095,7 +3816,7 @@ torchx 2024-03-27 17:25:36 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:26:58 INFO     Built new image `sha256:a733ad4011dc26d8cd99f0dafeeb9d49a1201b7035ffe5edb36c257fcce236a3` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-03-27 23:42:30 INFO     Built new image `sha256:fcdf3b7a13a4915769c9213f9f89f1441078268ba1471f4332eb97a96afeff02` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3103,7 +3824,7 @@ torchx 2024-03-27 17:26:58 INFO     Built new image `sha256:a733ad4011dc26d8cd99
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:26:58 INFO     Waiting for the app to finish...
+torchx 2024-03-27 23:42:31 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3975,7 +4696,7 @@ python/0 )
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-27 17:27:00 INFO     Job finished: SUCCEEDED
+torchx 2024-03-27 23:42:33 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -3983,7 +4704,7 @@ torchx 2024-03-27 17:27:00 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-hnq4ts7pggpfl
+local_docker://torchx/torchx_utils_python-q6ght57w1r4fbc
 </pre></div></div>
 </div>
 </section>
