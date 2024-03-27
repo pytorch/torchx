@@ -368,7 +368,9 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
             "env",
             type_=Dict[str, str],
             default=None,
-            help="environment varibles to be passed to the run (e.g. ENV1:v1,ENV2:v2,ENV3:v3)",
+            help="""environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
+            (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
+            of the ones from copy_env""",
         )
         return opts
 
