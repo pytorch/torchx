@@ -167,7 +167,7 @@ class AWSSageMakerScheduler(DockerWorkspaceMixin, Scheduler[AWSSageMakerOpts]): 
     **Config Options**
 
     .. runopts::
-        class: torchx.schedulers.sagemaker_scheduler.create_scheduler
+        class: torchx.schedulers.aws_sagemaker_scheduler.create_scheduler
 
     **Compatibility**
 
