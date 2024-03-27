@@ -21,6 +21,7 @@ pyre-extensions
 pyre-check
 pytest
 pytorch-lightning==1.5.10
+sagemaker>=2.149.0
 torch-model-archiver>=0.4.2
 torch==2.2.1
 torchmetrics==0.10.3
