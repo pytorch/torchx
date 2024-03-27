@@ -137,8 +137,8 @@ class KueueSchedulerTest(unittest.TestCase):
         resource = app_to_resource(
             app, service_account=None, local_queue="default-kueue"
         )
-        self.assertFalse("restartPolicy" in resource["spec"])
-        self.assertFalse("backoffLimit" in resource["spec"])
+        self.assertFalse("restartPolicy" in resource["spec"])  # pyre-ignore[58]
+        self.assertFalse("backoffLimit" in resource["spec"])  # pyre-ignore[58]
 
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
@@ -834,7 +834,7 @@ spec:
                 scheduler.list()
 
     @patch(
-        "torchx.schedulers.kueue_scheduler.get_pod_name_from_job",
+        "torchx.schedulers.kueue_scheduler.KueueScheduler.get_pod_name_from_job",
         return_value="testjob-roleblah-1-0",
     )
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
@@ -905,7 +905,8 @@ spec:
         for job in resource["spec"]:  # pyre-ignore[16]
             if "backoffLimit" not in job:
                 continue
-            resource["spec"]["minAvailable"] = max(
+
+            resource["spec"]["minAvailable"] = max(  # pyre-ignore[16]
                 0, resource["spec"]["backoffLimit"] - 1
             )
 

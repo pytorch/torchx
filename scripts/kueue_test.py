@@ -33,7 +33,7 @@ def build_and_push_image(container_repo: str) -> BuildInfo:
     return build
 
 
-def run_kueue_test(dryrun: bool = False):
+def run_kueue_test(dryrun: bool = False) -> None:
     # Gather args & build image
     print("Building image")
     args = argparser().parse_args()

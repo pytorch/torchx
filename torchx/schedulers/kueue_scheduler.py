@@ -138,7 +138,7 @@ def app_to_resource(
     service_account: Optional[str],
     local_queue: Optional[str] = None,
     priority_class: Optional[str] = None,
-    annotations: Optional[dict] = None,
+    annotations: Optional[Dict[str, str]] = None,
 ) -> Dict[str, object]:
     """
     app_to_resource creates a kubernetes batch job resource definition from
@@ -149,6 +149,7 @@ def app_to_resource(
     priority_class is used to provide the workload priority class name see: https://kueue.sigs.k8s.io/docs/concepts/workload_priority_class/#how-to-use-workloadpriorityclass-on-jobs
     """
     unique_app_id = normalize_str(make_unique(app.name))
+    task: Dict[str, Any] = {}
     for role_idx, role in enumerate(app.roles):
         for replica_id in range(role.num_replicas):
             values = macros.Values(
@@ -176,7 +177,7 @@ def app_to_resource(
                     priority_class=priority_class,
                 )
             )
-            task: Dict[str, Any] = {
+            task = {
                 "replicas": 1,
                 "name": name,
                 "template": pod,
@@ -195,7 +196,7 @@ def app_to_resource(
         "spec": task,
     }
     if annotations is not None:
-        resource["metadata"]["annotations"] = annotations
+        resource["metadata"]["annotations"] = annotations  # pyre-ignore [16]
     return resource
 
 
@@ -217,7 +218,7 @@ class KueueOpts(TypedDict, total=False):
     service_account: Optional[str]
     local_queue: Optional[str]
     priority_class: Optional[str]
-    annotations: Optional[dict]
+    annotations: Optional[Dict[str, str]]
 
 
 class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
@@ -448,7 +449,7 @@ class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
         )
         opts.add(
             "annotations",
-            type_=dict,
+            type_=Dict[str, str],
             help="The annotations to add to the job",
         )
         return opts
@@ -464,13 +465,13 @@ class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
             api_instance = self._batchv1_api()
             job = api_instance.read_namespaced_job_status(name, namespace)
         except client.ApiException as e:
-            return f"Exception: {e}"
+            logger.exception(f"Exception: {e}")
         try:
             status = job.status
         except Exception as e:
             logger.exception(f"Cannot gather job status: {e}")
             status = None
-        app_state = None
+        app_state = AppState.UNKNOWN
         if status:
             for condition in status.conditions or []:
                 role, _, idx = job.metadata.name.rpartition("-")
@@ -500,8 +501,6 @@ class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
                 roles_statuses[role].replicas.append(
                     ReplicaStatus(id=0, role=role, state=state, hostname="")
                 )
-        else:
-            app_state = AppState.UNKNOWN
 
         return DescribeAppResponse(
             app_id=app_id,
@@ -530,8 +529,8 @@ class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
 
         namespace, name = app_id.split(":")
 
-        pod_name = get_pod_name_from_job(self, job_name=name, namespace=namespace)
-        if pod_name is None:
+        pod_name = self.get_pod_name_from_job(job_name=name, namespace=namespace)
+        if pod_name == "":
             raise ValueError("Pods not found. Is the Job Suspended?")
 
         args: Dict[str, object] = {
@@ -573,36 +572,37 @@ class KueueScheduler(DockerWorkspaceMixin, Scheduler[KueueOpts]):
             for app in resp["items"]
         ]
 
+    def get_pod_name_from_job(self, job_name: str, namespace: str) -> str:
+        from kubernetes import client
 
-def get_pod_name_from_job(self, job_name, namespace):
-    from kubernetes import client
+        api_instance = self._batchv1_api()
 
-    api_instance = self._batchv1_api()
+        try:
+            job = api_instance.read_namespaced_job(job_name, namespace)
+        except client.ApiException as e:
+            return f"Api Exception: {e}"
 
-    try:
-        job = api_instance.read_namespaced_job(job_name, namespace)
-    except client.ApiException as e:
-        return f"Api Exception: {e}"
+        selector = job.spec.selector.match_labels
+        label = ",".join([f"{k}={v}" for k, v in selector.items()])
 
-    selector = job.spec.selector.match_labels
-    label = ",".join([f"{k}={v}" for k, v in selector.items()])
+        api_instance = self._corev1_api()
+        try:
+            pods = api_instance.list_namespaced_pod(namespace, label_selector=label)
+        except client.ApiException as e:
+            return f"Api Exception {e}"
 
-    api_instance = self._corev1_api()
-    try:
-        pods = api_instance.list_namespaced_pod(namespace, label_selector=label)
-    except client.ApiException as e:
-        return f"Api Exception {e}"
+        if not pods.items:
+            return ""
+        else:
+            # Sort the list of pods by creation timestamp and get most recent one
+            sorted_pods = sorted(
+                pods.items,
+                key=lambda p: str(p.metadata.creation_timestamp),
+                reverse=True,
+            )
+            most_recent_pod = sorted_pods[0].metadata.name
 
-    if not pods.items:
-        return None
-    else:
-        # Sort the list of pods by creation timestamp and get most recent one
-        sorted_pods = sorted(
-            pods.items, key=lambda p: str(p.metadata.creation_timestamp), reverse=True
-        )
-        most_recent_pod = sorted_pods[0].metadata.name
-
-        return most_recent_pod
+            return most_recent_pod
 
 
 def create_scheduler(
@@ -624,9 +624,9 @@ def pod_labels(
     role: Role,
     replica_id: int,
     app_id: str,
-    local_queue: str,
-    priority_class: str,
-) -> Dict[str, str]:
+    local_queue: Optional[str],
+    priority_class: Optional[str],
+) -> Dict[str, Optional[str]]:
 
     labels = {
         LABEL_VERSION: torchx.__version__,
