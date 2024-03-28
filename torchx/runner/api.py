@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import json
 import logging
 import os
@@ -131,7 +133,7 @@ class Runner:
         It is ok to call this method multiple times on the same runner object.
         """
 
-        for name, scheduler in self._scheduler_instances.items():
+        for scheduler in self._scheduler_instances.values():
             scheduler.close()
 
     def run_component(
@@ -642,7 +644,7 @@ class Runner:
     def _scheduler_app_id(
         self,
         app_handle: AppHandle,
-        check_session: bool = True
+        check_session: bool = True,
         # pyre-fixme[24]: SchedulerOpts is a generic, and we don't have access to the corresponding type
     ) -> Tuple[Scheduler, str, str]:
         """

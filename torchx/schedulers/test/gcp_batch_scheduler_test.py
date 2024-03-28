@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import unittest
 from contextlib import contextmanager
 from datetime import datetime
@@ -83,9 +85,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         env["TORCHX_ROLE_NAME"] = "trainer"
         env["FOO"] = "bar"
         res = batch_v1.ComputeResource()
-        # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
         res.cpu_milli = 2000
-        # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
         res.memory_mib = 3000
         allocationPolicy = batch_v1.AllocationPolicy(
             instances=[
@@ -245,7 +245,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         filter = "labels.job_uid=j-82c8495f-8cc9-443c-9e33-4904fcb1test"
         lines = scheduler._batch_log_iter(filter=filter)
         for l in lines:
-            self.assertEqual(l, "log line")
+            self.assertEqual(l, "log line\n")
         mock_log_client.assert_called()
         mock_logging_client.logger.assert_called_once_with("batch_task_logs")
         mock_logger.list_entries.assert_called_once_with(filter_=filter)
@@ -433,7 +433,7 @@ class GCPBatchSchedulerTest(unittest.TestCase):
         )
         scheduler._batch_log_iter.assert_called_once_with(
             f'labels.job_uid=j-82c8495f-8cc9-443c-9e33-4904fcb1test \
-AND resource.labels.task_id:task/j-82c8495f-8cc9-443c-9e33-4904fcb1test-group0-1 \
+AND labels.task_id:j-82c8495f-8cc9-443c-9e33-4904fcb1test-group0-1 \
 AND timestamp>="{str(datetime.fromtimestamp(0).isoformat())}" \
 AND textPayload =~ "foo.*"'
         )
@@ -444,7 +444,7 @@ AND textPayload =~ "foo.*"'
         logs = scheduler.log_iter(app_id)
         scheduler._batch_log_iter.assert_called_once_with(
             f'labels.job_uid=j-82c8495f-8cc9-443c-9e33-4904fcb1test \
-AND resource.labels.task_id:task/j-82c8495f-8cc9-443c-9e33-4904fcb1test-group0-0 \
+AND labels.task_id:j-82c8495f-8cc9-443c-9e33-4904fcb1test-group0-0 \
 AND timestamp>="{str(datetime.fromtimestamp(0).isoformat())}"'
         )
         self.assertEqual(

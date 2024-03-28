@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 """
 Defines methods for structured (higher order) component argument parsing.
 Use the functionalities defined in this module to author components

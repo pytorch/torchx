@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import json
 import os
 import os.path
@@ -74,8 +76,7 @@ class ContainerFactory(Protocol):
     kfp.dsl.ContainerOp.
     """
 
-    def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp:
-        ...
+    def __call__(self, *args: object, **kwargs: object) -> dsl.ContainerOp: ...
 
 
 class KFPContainerFactory(ContainerFactory, Protocol):

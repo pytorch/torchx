@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import argparse
 import sys
 import unittest
@@ -87,6 +89,7 @@ def _test_complex_fn(
     num_gpus: Optional[Dict[str, int]] = None,
     nnodes: int = 4,
     first_arg: Optional[str] = None,
+    nested_arg: Optional[Dict[str, List[str]]] = None,
     *roles_args: str,
 ) -> AppDef:
     """Creates complex application, testing all possible complex types
@@ -110,6 +113,8 @@ def _test_complex_fn(
         gpus = num_gpus[role_name]
         if first_arg:
             args = [first_arg, *roles_args]
+        elif nested_arg:
+            args = nested_arg[role_name]
         else:
             args = [*roles_args]
         role = Role(
@@ -171,6 +176,9 @@ class AppDefLoadTest(unittest.TestCase):
     def _get_role_args(self) -> List[str]:
         return ["--train", "data_source", "random", "--epochs", "128"]
 
+    def _get_nested_arg(self) -> Dict[str, List[str]]:
+        return {"worker": ["1", "2"], "master": ["3", "4"]}
+
     def _get_expected_app_with_default(self) -> AppDef:
         role_args = self._get_role_args()
         return _test_complex_fn(
@@ -180,6 +188,7 @@ class AppDefLoadTest(unittest.TestCase):
             None,
             None,
             4,
+            None,
             None,
             *role_args,
         )
@@ -207,6 +216,7 @@ class AppDefLoadTest(unittest.TestCase):
             {"worker": 1, "master": 4},
             8,
             "first_arg",
+            None,
             *role_args,
         )
 
@@ -230,6 +240,45 @@ class AppDefLoadTest(unittest.TestCase):
             "--",
             *role_args,
         ]
+
+    def _get_expected_app_with_nested_objects(self) -> AppDef:
+        role_args = self._get_role_args()
+        defaults = self._get_nested_arg()
+        return _test_complex_fn(
+            "test_app",
+            ["img1", "img2"],
+            {"worker": "worker.py", "master": "master.py"},
+            [1, 2],
+            {"worker": 1, "master": 4},
+            8,
+            "first_arg",
+            defaults,
+            *role_args,
+        )
+
+    def _get_app_args_and_defaults_with_nested_objects(
+        self,
+    ) -> Tuple[List[str], Dict[str, List[str]]]:
+        role_args = self._get_role_args()
+        defaults = self._get_nested_arg()
+        return [
+            "--app_name",
+            "test_app",
+            "--containers",
+            "img1,img2",
+            "--roles_scripts",
+            "worker=worker.py,master=master.py",
+            "--num_cpus",
+            "1,2",
+            "--num_gpus",
+            "worker=1,master=4",
+            "--nnodes",
+            "8",
+            "--first_arg",
+            "first_arg",
+            "--",
+            *role_args,
+        ], defaults
 
     def test_load_from_fn_empty(self) -> None:
         actual_app = materialize_appdef(test_empty_fn, [])
@@ -255,6 +304,12 @@ class AppDefLoadTest(unittest.TestCase):
         expected_app = self._get_expected_app_with_default()
         app_args = self._get_args_with_default()
         actual_app = materialize_appdef(_test_complex_fn, app_args)
+        self.assert_apps(expected_app, actual_app)
+
+    def test_with_nested_object(self) -> None:
+        expected_app = self._get_expected_app_with_nested_objects()
+        app_args, defaults = self._get_app_args_and_defaults_with_nested_objects()
+        actual_app = materialize_appdef(_test_complex_fn, app_args, defaults)
         self.assert_apps(expected_app, actual_app)
 
     def test_varargs(self) -> None:

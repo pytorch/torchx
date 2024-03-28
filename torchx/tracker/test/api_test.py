@@ -276,10 +276,7 @@ class TrackerFactoryMethodsTest(TestCase):
     def test_build_trackers_with_module(self) -> None:
         module = MagicMock()
         module.return_value = MagicMock(spec=MLflowTracker)
-        with patch(
-            "torchx.tracker.api.load_group",
-            return_value=None,
-        ) and patch(
+        with patch("torchx.tracker.api.load_group", return_value=None) and patch(
             "torchx.tracker.api.load_module",
             return_value=module,
         ):

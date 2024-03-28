@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 """
 This contains the TorchX local scheduler which can be used to run TorchX
 components locally via subprocesses.
@@ -35,6 +37,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Protocol,
     TextIO,
     Tuple,
 )
@@ -262,6 +265,26 @@ AppName = str
 RoleName = str
 
 
+class PopenProtocol(Protocol):
+    """
+    Protocol wrapper around python's ``subprocess.Popen``. Keeps track of
+    the a list of interface methods that the process scheduled by the `LocalScheduler`
+    must implement.
+    """
+
+    @property
+    def pid(self) -> int: ...
+
+    @property
+    def returncode(self) -> int: ...
+
+    def wait(self, timeout: Optional[float] = None) -> int: ...
+
+    def poll(self) -> Optional[int]: ...
+
+    def kill(self) -> None: ...
+
+
 @dataclass
 class _LocalReplica:
     """
@@ -270,8 +293,7 @@ class _LocalReplica:
 
     role_name: RoleName
     replica_id: int
-    # pyre-fixme[24]: Generic type `subprocess.Popen` expects 1 type parameter.
-    proc: subprocess.Popen
+    proc: PopenProtocol
 
     # IO streams:
     # None means no log_dir (out to console)

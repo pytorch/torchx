@@ -13,16 +13,19 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: "3.10"
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
       - name: Install Dependencies
         run: |
           set -eux
-          grep -E "(usort|black|flake8)" < dev-requirements.txt > /tmp/lint-requirements.txt
+          grep -E "(lintrunner)" < dev-requirements.txt > /tmp/lint-requirements.txt
           pip install -r /tmp/lint-requirements.txt
+
+          lintrunner init
       - name: Run Lint
         run: |
           git config --global url."https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-          scripts/lint.sh
+
+          lintrunner --skip PYRE --force-color --all-files
