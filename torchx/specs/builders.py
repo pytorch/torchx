@@ -8,6 +8,7 @@
 
 import argparse
 import inspect
+import os
 from argparse import Namespace
 from typing import Any, Callable, Dict, List, Mapping, Optional, Union
 
@@ -250,9 +251,12 @@ def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount, DeviceMo
     for opts in mount_opts:
         typ = opts.get("type")
         if typ == MountType.BIND:
+            src_path = opts["src"]
+            if src_path.startswith("~"):
+                src_path = os.path.expanduser(src_path)
             mounts.append(
                 BindMount(
-                    src_path=opts["src"],
+                    src_path=src_path,
                     dst_path=opts["dst"],
                     read_only="readonly" in opts,
                 )
