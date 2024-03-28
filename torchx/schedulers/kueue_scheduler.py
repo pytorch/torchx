@@ -196,7 +196,7 @@ def app_to_resource(
         "spec": task,
     }
     if annotations is not None:
-        resource["metadata"]["annotations"] = annotations  # pyre-ignore [16]
+        resource["metadata"]["annotations"] = annotations  # pyre-ignore[16]
     return resource
 
 
