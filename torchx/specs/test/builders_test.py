@@ -12,6 +12,7 @@ import unittest
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple
 from unittest.mock import patch
+from pathlib import Path
 
 from torchx.specs.api import AppDef, Resource, Role
 from torchx.specs.builders import (
@@ -522,6 +523,9 @@ class MountsTest(unittest.TestCase):
                     "src=foo",
                     "dst=bar",
                     "perm=rw",
+                    "type=bind",
+                    "src=~/foo",
+                    "dst=dst",
                 ]
             ),
             [
@@ -530,6 +534,7 @@ class MountsTest(unittest.TestCase):
                 VolumeMount(src="foo2", dst_path="dst2", read_only=True),
                 DeviceMount(src_path="duck", dst_path="duck", permissions="rwm"),
                 DeviceMount(src_path="foo", dst_path="bar", permissions="rw"),
+                BindMount(src_path=f"{str(Path.home())}/foo", dst_path="dst"),
             ],
         )
 
