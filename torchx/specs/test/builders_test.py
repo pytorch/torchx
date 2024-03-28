@@ -10,9 +10,9 @@ import argparse
 import sys
 import unittest
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from unittest.mock import patch
-from pathlib import Path
 
 from torchx.specs.api import AppDef, Resource, Role
 from torchx.specs.builders import (

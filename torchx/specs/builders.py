@@ -8,9 +8,9 @@
 
 import argparse
 import inspect
+import os
 from argparse import Namespace
 from typing import Any, Callable, Dict, List, Mapping, Optional, Union
-import os
 
 from torchx.specs.api import BindMount, MountType, VolumeMount
 from torchx.specs.file_linter import get_fn_docstring, TorchXArgumentHelpFormatter
@@ -252,7 +252,7 @@ def parse_mounts(opts: List[str]) -> List[Union[BindMount, VolumeMount, DeviceMo
         typ = opts.get("type")
         if typ == MountType.BIND:
             src_path = opts["src"]
-            if src_path.startswith('~'):
+            if src_path.startswith("~"):
                 src_path = os.path.expanduser(src_path)
             mounts.append(
                 BindMount(
