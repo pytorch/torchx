@@ -597,7 +597,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-usage: torchx run &lt;run args...&gt; python  [--help] [-m M] [-c C]
+usage: torchx run &lt;run args...&gt; python  [--help] [-m str] [-c str]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -605,7 +605,7 @@ usage: torchx run &lt;run args...&gt; python  [--help] [-m M] [-c C]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                        [--script SCRIPT] [--image IMAGE]
+                                        [--script str] [--image str]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -613,7 +613,7 @@ usage: torchx run &lt;run args...&gt; python  [--help] [-m M] [-c C]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                        [--name NAME] [--cpu CPU] [--gpu GPU]
+                                        [--name str] [--cpu int] [--gpu int]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -621,7 +621,7 @@ usage: torchx run &lt;run args...&gt; python  [--help] [-m M] [-c C]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                        [--memMB MEMMB] [-h H]
+                                        [--memMB int] [-h str]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -629,7 +629,7 @@ usage: torchx run &lt;run args...&gt; python  [--help] [-m M] [-c C]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                        [--num_replicas NUM_REPLICAS]
+                                        [--num_replicas int]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -661,7 +661,47 @@ Runs ``python`` with the specified module, command or script on the specified
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-...
+image and host. Use ``--`` to separate component args and program args
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(e.g. ``torchx run utils.python --m foo.main -- --args to --main``)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+      ``h`` takes precedence if specified for setting resource requirements.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+      See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -685,7 +725,7 @@ positional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  args                  arguments passed to the program in sys.argv[1:]
+  str                 arguments passed to the program in sys.argv[1:] (ignored
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -693,7 +733,7 @@ positional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        (ignored with `--c`) (required)
+                      with `--c`) (required)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -717,7 +757,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --help                show this help message and exit
+  --help              show this help message and exit
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -725,7 +765,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  -m M, --m M           run library module as a script (default: None)
+  -m str, --m str     run library module as a script (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -733,7 +773,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  -c C, --c C           program passed as string (may error if scheduler has a
+  -c str, --c str     program passed as string (may error if scheduler has a
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -741,7 +781,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        length limit on args) (default: None)
+                      length limit on args) (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -749,7 +789,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --script SCRIPT       .py script to run (default: None)
+  --script str        .py script to run (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -757,7 +797,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --image IMAGE         image to run on (default:
+  --image str         image to run on (default:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -765,7 +805,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ghcr.io/pytorch/torchx:0.7.0dev0)
+                      ghcr.io/pytorch/torchx:0.7.0dev0)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -773,7 +813,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --name NAME           name of the job (default: torchx_utils_python)
+  --name str          name of the job (default: torchx_utils_python)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -781,7 +821,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --cpu CPU             number of cpus per replica (default: 1)
+  --cpu int           number of cpus per replica (default: 1)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -789,7 +829,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --gpu GPU             number of gpus per replica (default: 0)
+  --gpu int           number of gpus per replica (default: 0)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -797,7 +837,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --memMB MEMMB         cpu memory in MB per replica (default: 1024)
+  --memMB int         cpu memory in MB per replica (default: 1024)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -805,7 +845,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  -h H, --h H           a registered named resource (if specified takes
+  -h str, --h str     a registered named resource (if specified takes
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -813,7 +853,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        precedence over cpu, gpu, memMB) (default: None)
+                      precedence over cpu, gpu, memMB) (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -821,15 +861,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --num_replicas NUM_REPLICAS
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                        number of copies to run (each on its own container)
+  --num_replicas int  number of copies to run (each on its own container)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -837,7 +869,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        (default: 1)
+                      (default: 1)
 </pre></div></div>
 </div>
 <p>The component takes in the script name and any extra arguments will be passed to the script itself.</p>
@@ -855,7 +887,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:28 INFO     Tracker configurations: {}
+torchx 2024-03-28 21:56:07 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -863,7 +895,7 @@ torchx 2024-03-28 20:22:28 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:28 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2024-03-28 21:56:07 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -871,7 +903,7 @@ torchx 2024-03-28 20:22:28 INFO     Log directory not set in scheduler cfg. Crea
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:28 INFO     Log directory is: /tmp/torchx_6lk22o69
+torchx 2024-03-28 21:56:07 INFO     Log directory is: /tmp/torchx_3gl29clt
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -879,7 +911,7 @@ torchx 2024-03-28 20:22:28 INFO     Log directory is: /tmp/torchx_6lk22o69
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:28 INFO     Waiting for the app to finish...
+torchx 2024-03-28 21:56:07 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -895,7 +927,7 @@ python/0 Hello, your name!
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:29 INFO     Job finished: SUCCEEDED
+torchx 2024-03-28 21:56:08 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -903,7 +935,7 @@ torchx 2024-03-28 20:22:29 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-c9tpbmjljshqqd
+local_cwd://torchx/torchx_utils_python-csnp97s0qs73hc
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -923,7 +955,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:30 INFO     Tracker configurations: {}
+torchx 2024-03-28 21:56:09 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -931,7 +963,7 @@ torchx 2024-03-28 20:22:30 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:30 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-03-28 21:56:09 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -939,7 +971,7 @@ torchx 2024-03-28 20:22:30 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:30 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-03-28 21:56:09 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -947,7 +979,7 @@ torchx 2024-03-28 20:22:30 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:30 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-03-28 21:56:09 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -955,7 +987,7 @@ torchx 2024-03-28 20:22:30 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:30 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-03-28 21:56:09 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -963,7 +995,7 @@ torchx 2024-03-28 20:22:30 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:39 INFO     Built new image `sha256:d690526f8547d6bb993413e71d1decfa5d74b37c136df915221366c9247858ef` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-03-28 21:56:18 INFO     Built new image `sha256:8a89e2ae2b984fc7663f2770eb70a3935feb7f250dfc29ba9f09652283c1221a` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -971,7 +1003,7 @@ torchx 2024-03-28 20:22:39 INFO     Built new image `sha256:d690526f8547d6bb9934
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:39 INFO     Waiting for the app to finish...
+torchx 2024-03-28 21:56:18 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -987,7 +1019,7 @@ python/0 Hello, your name!
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:40 INFO     Job finished: SUCCEEDED
+torchx 2024-03-28 21:56:19 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -995,7 +1027,7 @@ torchx 2024-03-28 20:22:40 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-m00cck9tgcnc1
+local_docker://torchx/torchx_utils_python-gj75xr993z3rjd
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -1017,7 +1049,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
+usage: torchx run &lt;run args...&gt; ddp  [--help] [--script str] [-m str]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1025,7 +1057,7 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                     [--image IMAGE] [--name NAME] [-h H]
+                                     [--image str] [--name str] [-h str]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1033,7 +1065,7 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                     [--cpu CPU] [--gpu GPU] [--memMB MEMMB]
+                                     [--cpu int] [--gpu int] [--memMB int]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1041,7 +1073,7 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                     [-j J] [--env ENV]
+                                     [-j str] [--env str] [--max_retries int]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1049,7 +1081,7 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                     [--max_retries MAX_RETRIES]
+                                     [--rdzv_port int] [--rdzv_backend str]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1057,31 +1089,7 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                                     [--rdzv_port RDZV_PORT]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--rdzv_backend RDZV_BACKEND]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--mounts MOUNTS] [--debug DEBUG]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--tee TEE]
+                                     [--mounts str] [--debug str] [--tee int]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1105,7 +1113,79 @@ usage: torchx run &lt;run args...&gt; ddp  [--help] [--script SCRIPT] [-m M]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Distributed data parallel style application (one role, multi-replica). ...
+Distributed data parallel style application (one role, multi-replica).
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+to launch and coordinate PyTorch worker processes. Defaults to using ``c10d`` rendezvous backend
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+on rendezvous_endpoint ``$rank_0_host:$rdzv_port``. Note that ``rdzv_port`` parameter is ignored
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+when running on single node, and instead we use port 0 which instructs torchelastic to chose
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+a free random port on the host.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+      ``h`` takes precedence if specified for setting resource requirements.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+      See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1129,7 +1209,7 @@ positional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  script_args           arguments to the main module (required)
+  str                 arguments to the main module (required)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1153,7 +1233,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --help                show this help message and exit
+  --help              show this help message and exit
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1161,7 +1241,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --script SCRIPT       script or binary to run within the image (default:
+  --script str        script or binary to run within the image (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1169,7 +1249,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        None)
+  -m str, --m str     the python module path to run (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1177,7 +1257,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  -m M, --m M           the python module path to run (default: None)
+  --image str         image (e.g. docker) (default:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1185,7 +1265,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --image IMAGE         image (e.g. docker) (default:
+                      ghcr.io/pytorch/torchx:0.7.0dev0)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1193,7 +1273,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ghcr.io/pytorch/torchx:0.7.0dev0)
+  --name str          job name override in the following format:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1201,7 +1281,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --name NAME           job name override in the following format:
+                      ``{experimentname}/{runname}`` or ``{experimentname}/``
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1209,7 +1289,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ``{experimentname}/{runname}`` or
+                      or ``/{runname}`` or ``{runname}``. Uses the script or
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1217,7 +1297,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ``{experimentname}/`` or ``/{runname}`` or
+                      module name if ``{runname}`` not specified. (default: /)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1225,7 +1305,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ``{runname}``. Uses the script or module name if
+  -h str, --h str     a registered named resource (if specified takes
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1233,7 +1313,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ``{runname}`` not specified. (default: /)
+                      precedence over cpu, gpu, memMB) (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1241,7 +1321,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  -h H, --h H           a registered named resource (if specified takes
+  --cpu int           number of cpus per replica (default: 2)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1249,7 +1329,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        precedence over cpu, gpu, memMB) (default: None)
+  --gpu int           number of gpus per replica (default: 0)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1257,7 +1337,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --cpu CPU             number of cpus per replica (default: 2)
+  --memMB int         cpu memory in MB per replica (default: 1024)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1265,7 +1345,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --gpu GPU             number of gpus per replica (default: 0)
+  -j str, --j str     [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts,
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1273,7 +1353,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --memMB MEMMB         cpu memory in MB per replica (default: 1024)
+                      nproc_per_node must not exceed num gpus (default: 1x2)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1281,7 +1361,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  -j J, --j J           [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu
+  --env str           environment varibles to be passed to the run (e.g.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1289,7 +1369,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        hosts, nproc_per_node must not exceed num gpus
+                      ENV1=v1,ENV2=v2,ENV3=v3) (default: None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1297,7 +1377,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        (default: 1x2)
+  --max_retries int   the number of scheduler retries allowed (default: 0)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1305,7 +1385,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --env ENV             environment varibles to be passed to the run (e.g.
+  --rdzv_port int     the port on rank0&#39;s host to use for hosting the c10d
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1313,7 +1393,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        ENV1=v1,ENV2=v2,ENV3=v3) (default: None)
+                      store used for rendezvous. Only takes effect when
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1321,7 +1401,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --max_retries MAX_RETRIES
+                      running multi-node. When running single node, this
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1329,7 +1409,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        the number of scheduler retries allowed (default: 0)
+                      parameter is ignored and a random free port is chosen.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1337,7 +1417,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --rdzv_port RDZV_PORT
+                      (default: 29500)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1345,7 +1425,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        the port on rank0&#39;s host to use for hosting the c10d
+  --rdzv_backend str  the rendezvous backend to use. Only takes effect when
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1353,7 +1433,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        store used for rendezvous. Only takes effect when
+                      running multi-node. (default: c10d)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1361,7 +1441,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        running multi-node. When running single node, this
+  --mounts str        mounts to mount into the worker environment/container
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1369,7 +1449,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        parameter is ignored and a random free port is chosen.
+                      (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1377,7 +1457,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        (default: 29500)
+                      See scheduler documentation for more info. (default:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1385,7 +1465,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --rdzv_backend RDZV_BACKEND
+                      None)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1393,7 +1473,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        the rendezvous backend to use. Only takes effect when
+  --debug str         whether to run with preset debug flags enabled (default:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1401,7 +1481,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        running multi-node. (default: c10d)
+                      False)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1409,55 +1489,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-  --mounts MOUNTS       mounts to mount into the worker environment/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                        (ex.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                        type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]). See
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                        scheduler documentation for more info. (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --debug DEBUG         whether to run with preset debug flags enabled
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                        (default: False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --tee TEE             tees the specified std stream(s) to console + file. 0:
+  --tee int           tees the specified std stream(s) to console + file. 0:
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1465,7 +1497,7 @@ optional arguments:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-                        none, 1: stdout, 2: stderr, 3: both (default: 3)
+                      none, 1: stdout, 2: stderr, 3: both (default: 3)
 </pre></div></div>
 </div>
 <p>Lets create a slightly more interesting app to leverage the TorchX distributed support.</p>
@@ -1510,7 +1542,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:42 INFO     Tracker configurations: {}
+torchx 2024-03-28 21:56:21 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1518,7 +1550,7 @@ torchx 2024-03-28 20:22:42 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:42 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-03-28 21:56:21 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1526,7 +1558,7 @@ torchx 2024-03-28 20:22:42 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:42 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-03-28 21:56:21 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1534,7 +1566,7 @@ torchx 2024-03-28 20:22:42 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:42 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-03-28 21:56:21 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1542,7 +1574,7 @@ torchx 2024-03-28 20:22:42 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:42 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-03-28 21:56:21 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1550,7 +1582,7 @@ torchx 2024-03-28 20:22:42 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:51 INFO     Built new image `sha256:255e833504d4fb65d6ccc9c870c745247223fc5df36743c9e01fc9564e71137a` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2024-03-28 21:56:30 INFO     Built new image `sha256:584495e45fc0c95e18b72ef73e5a4af8acd11ad7dc496575f575656dc2864a13` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1558,7 +1590,7 @@ torchx 2024-03-28 20:22:51 INFO     Built new image `sha256:255e833504d4fb65d6cc
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:22:51 INFO     Waiting for the app to finish...
+torchx 2024-03-28 21:56:31 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1566,7 +1598,7 @@ torchx 2024-03-28 20:22:51 INFO     Waiting for the app to finish...
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING]
+dist_app/1 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1574,7 +1606,7 @@ dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1582,7 +1614,7 @@ dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING] **********
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1590,7 +1622,7 @@ dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING] Setting OM
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1598,7 +1630,7 @@ dist_app/1 [2024-03-28 20:22:52,682] torch.distributed.run: [WARNING] **********
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING]
+dist_app/0 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1606,7 +1638,7 @@ dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING] *****************************************
+dist_app/0 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1614,7 +1646,7 @@ dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING] **********
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1622,55 +1654,7 @@ dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING] Setting OM
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-dist_app/0 [2024-03-28 20:22:52,717] torch.distributed.run: [WARNING] *****************************************
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [0]:I am worker 0 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [0]:all_reduce output = tensor([6])
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [1]:I am worker 1 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [1]:all_reduce output = tensor([6])
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/1 [1]:I am worker 3 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/1 [1]:all_reduce output = tensor([6])
+dist_app/0 [2024-03-28 21:56:32,095] torch.distributed.run: [WARNING] *****************************************
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1694,7 +1678,55 @@ dist_app/1 [0]:all_reduce output = tensor([6])
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:00 INFO     Job finished: SUCCEEDED
+dist_app/1 [1]:I am worker 3 of 4!
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+dist_app/1 [1]:all_reduce output = tensor([6])
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+dist_app/0 [1]:I am worker 1 of 4!
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+dist_app/0 [1]:all_reduce output = tensor([6])
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+dist_app/0 [0]:I am worker 0 of 4!
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+dist_app/0 [0]:all_reduce output = tensor([6])
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+torchx 2024-03-28 21:56:39 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1702,7 +1734,7 @@ torchx 2024-03-28 20:23:00 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-xhlvkm6f30k0t
+local_docker://torchx/dist_app-k9wgr9ccd2jps
 </pre></div></div>
 </div>
 </section>
@@ -3768,7 +3800,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:02 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2024-03-28 21:56:41 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3776,7 +3808,7 @@ torchx 2024-03-28 20:23:02 INFO     loaded configs from /home/runner/work/torchx
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:03 INFO     Tracker configurations: {}
+torchx 2024-03-28 21:56:41 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3784,7 +3816,7 @@ torchx 2024-03-28 20:23:03 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:03 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-03-28 21:56:41 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3792,7 +3824,7 @@ torchx 2024-03-28 20:23:03 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:03 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-03-28 21:56:41 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3800,7 +3832,7 @@ torchx 2024-03-28 20:23:03 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:03 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-03-28 21:56:42 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3808,7 +3840,7 @@ torchx 2024-03-28 20:23:03 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:23:03 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-03-28 21:56:42 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3816,7 +3848,7 @@ torchx 2024-03-28 20:23:03 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:24:38 INFO     Built new image `sha256:eb9bb3847afbd0baf1a69cf22cf0497200826819532876ae4b9632f22f6bfa21` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-03-28 21:58:02 INFO     Built new image `sha256:ad0bed096d11b3a7efbb94e523595a977bdbae3a62f8a15aab777b4fad589b08` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -3824,7 +3856,7 @@ torchx 2024-03-28 20:24:38 INFO     Built new image `sha256:eb9bb3847afbd0baf1a6
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:24:39 INFO     Waiting for the app to finish...
+torchx 2024-03-28 21:58:02 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -4696,7 +4728,7 @@ python/0 )
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-03-28 20:24:41 INFO     Job finished: SUCCEEDED
+torchx 2024-03-28 21:58:04 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -4704,7 +4736,7 @@ torchx 2024-03-28 20:24:41 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-n7vmw7zb02wrpd
+local_docker://torchx/torchx_utils_python-rz1vs9txcn9pv
 </pre></div></div>
 </div>
 </section>

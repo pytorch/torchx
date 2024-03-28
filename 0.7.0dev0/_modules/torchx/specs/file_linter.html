@@ -434,7 +434,11 @@
     <span class="k">return</span> <span class="n">args_decs</span>
 
 
-<div class="viewcode-block" id="TorchXArgumentHelpFormatter"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchXArgumentHelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">TorchXArgumentHelpFormatter</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">HelpFormatter</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchXArgumentHelpFormatter"><a class="viewcode-back" href="../../../specs.html#torchx.specs.file_linter.TorchXArgumentHelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">TorchXArgumentHelpFormatter</span><span class="p">(</span>
+    <span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
+    <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span>
+    <span class="n">argparse</span><span class="o">.</span><span class="n">MetavarTypeHelpFormatter</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Help message formatter which adds default values and required to argument help.</span>
 
 <span class="sd">    If the argument is required, the class appends `(required)` at the end of the help message.</span>
@@ -484,7 +488,7 @@
             <span class="n">args_description</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">description</span>
     <span class="n">short_func_description</span> <span class="o">=</span> <span class="n">docstring</span><span class="o">.</span><span class="n">short_description</span> <span class="ow">or</span> <span class="n">default_fn_desc</span>
     <span class="k">if</span> <span class="n">docstring</span><span class="o">.</span><span class="n">long_description</span><span class="p">:</span>
-        <span class="n">short_func_description</span> <span class="o">+=</span> <span class="s2">&quot; ...&quot;</span>
+        <span class="n">short_func_description</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">docstring</span><span class="o">.</span><span class="n">long_description</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">short_func_description</span> <span class="ow">or</span> <span class="n">default_fn_desc</span><span class="p">,</span> <span class="n">args_description</span><span class="p">)</span></div>
 
 
