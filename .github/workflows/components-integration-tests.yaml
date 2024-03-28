@@ -26,6 +26,9 @@ jobs:
             platform: "linux.20_04.4x"
           - scheduler: "ray"
             platform: ubuntu-20.04
+          - scheduler: "kueue"
+            container_repo: localhost:5000/torchx
+            platform: "linux.20_04.4x"
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     permissions:
@@ -80,6 +83,11 @@ jobs:
         if: ${{ matrix.scheduler == 'kubernetes' }}
         run: |
           scripts/setup_minikube.sh
+
+      - name: Start Kueue enabled Kubernetes
+        if: ${{ matrix.scheduler == 'kueue'}}
+        run: |
+          scripts/setup_minikube_kueue.sh
 
       - name: Run Components Integration Tests
         env:
