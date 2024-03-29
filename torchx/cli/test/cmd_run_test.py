@@ -61,7 +61,7 @@ class CmdRunTest(unittest.TestCase):
 
         args = [
             "--scheduler",
-            "local_conda",
+            "local_cwd",
             "--scheduler",
             "local_cwd",
         ]
