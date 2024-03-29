@@ -9,7 +9,7 @@ jobs:
   nightly:
     runs-on: linux.20_04.4x
     steps:
-      - name: Setup Python 3.8
+      - name: Setup Python 3.10
         uses: actions/setup-python@v2
         with:
           python-version: 3.10
