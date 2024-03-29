@@ -6,18 +6,24 @@
 
 # pyre-strict
 
+import logging
+import sys
 from argparse import Action, ArgumentParser, Namespace
-from typing import Any, Dict, Optional, Sequence, Text
+from typing import Any, Dict, List, Optional, Sequence, Set, Text
 
 from torchx.runner import config
 
+logger: logging.Logger = logging.getLogger(__name__)
 
-class _torchxconfig(Action):
+
+class torchxconfig(Action):
     """
     Custom argparse action that loads default torchx CLI options
     from .torchxconfig file.
 
     """
+
+    called_args: Set[str] = set()
 
     # since this action is used for each argparse argument
     # load the config section for the subcmd once
@@ -66,13 +72,18 @@ class _torchxconfig(Action):
         values: Any,  # pyre-ignore[2] declared as Any in superclass Action
         option_string: Optional[str] = None,
     ) -> None:
+        if option_string is not None:
+            if option_string in self.called_args:
+                logger.error(f"{option_string} is specified more than once")
+                sys.exit(1)
+            self.called_args.add(option_string)
         setattr(namespace, self.dest, values)
 
 
 # argparse takes the action as a Type[Action] so we can't have custom constructors
 # hence for each subcommand we need to subclass the base _torchxconfig Action
 # this is also how store_true and store_false builtin actions are implemented in argparse
-class torchxconfig_run(_torchxconfig):
+class torchxconfig_run(torchxconfig):
     """
     Custom action that gets the default argument from .torchxconfig.
     """
@@ -94,3 +105,25 @@ class torchxconfig_run(_torchxconfig):
             option_strings=option_strings,
             **kwargs,
         )
+
+
+class ArgOnceAction(Action):
+    """
+    Custom argparse action only allows argument to be specified once
+    """
+
+    called_args: Set[str] = set()
+
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: List[str],
+        option_string: Optional[str] = None,
+    ) -> None:
+        if option_string is not None:
+            if option_string in self.called_args:
+                logger.error(f"{option_string} is specified more than once")
+                sys.exit(1)
+            self.called_args.add(option_string)
+        setattr(namespace, self.dest, values)

@@ -19,7 +19,8 @@ DEFAULT_CONFIG_DIRS = "torchx.runner.config.DEFAULT_CONFIG_DIRS"
 class ArgparseUtilTest(TestWithTmpDir):
     def setUp(self) -> None:
         super().setUp()
-        argparse_util._torchxconfig._subcmd_configs.clear()
+        argparse_util.torchxconfig._subcmd_configs.clear()
+        argparse_util.torchxconfig.called_args = set()
 
     def test_torchxconfig_action(self) -> None:
         with mock.patch(DEFAULT_CONFIG_DIRS, [str(self.tmpdir)]):

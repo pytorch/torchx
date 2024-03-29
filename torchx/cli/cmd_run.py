@@ -17,7 +17,7 @@ from pprint import pformat
 from typing import Dict, List, Optional, Tuple
 
 import torchx.specs as specs
-from torchx.cli.argparse_util import torchxconfig_run
+from torchx.cli.argparse_util import ArgOnceAction, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
 from torchx.cli.cmd_log import get_logs
 from torchx.runner import config, get_runner, Runner
@@ -133,6 +133,7 @@ class CmdRun(SubCommand):
             "-cfg",
             "--scheduler_args",
             type=str,
+            action=ArgOnceAction,
             help="Arguments to pass to the scheduler (Ex:`cluster=foo,user=bar`)."
             " For a list of scheduler run options run: `torchx runopts`",
         )
@@ -165,6 +166,7 @@ class CmdRun(SubCommand):
         subparser.add_argument(
             "--parent_run_id",
             type=str,
+            action=ArgOnceAction,
             help="optional parent run ID that this run belongs to."
             " It can be used to group runs for experiment tracking purposes",
         )
