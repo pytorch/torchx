@@ -4,7 +4,6 @@ on:
   # run every day at 11:15am
   schedule:
     - cron:  '15 11 * * *'
-  pull_request:
 
 jobs:
   nightly:
@@ -23,7 +22,7 @@ jobs:
           pip install -e .[dev]
           pip install twine
       - name: Run tests
-        run: pytest --verbose -o python_files="*_test.py"
+        run: pytest --cov=./ --cov-report=xml 
       - name: Push nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
