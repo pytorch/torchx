@@ -190,8 +190,6 @@ class DistributedTestCase(TestWithTmpDir):
             rdzv_endpoint="localhost:0",
             max_restarts=0,
             monitor_interval=0.01,
-            log_dir=str(self.tmpdir),
-            tee=Std.ALL,
         )
 
         return elastic_launch(config, entrypoint=fn)
