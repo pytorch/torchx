@@ -19,6 +19,7 @@ moto==4.2.14
 pyre-extensions
 pyre-check
 pytest
+pytest-cov
 pytorch-lightning==1.5.10
 sagemaker>=2.149.0
 torch-model-archiver>=0.4.2
