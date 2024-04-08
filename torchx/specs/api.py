@@ -280,6 +280,27 @@ class DeviceMount:
 
 
 @dataclass
+class HealthCheck:
+    """
+    Defines health check settings for a node
+    Args:
+        port: port number for health check
+        regex: regex for health check success
+        timeout_secs: timeout for health check
+        interval_secs: interval between health checks
+        fail_secs: time to fail after health check failure
+        startup_grace_secs: startup grace period
+    """
+
+    port: int
+    regex: str
+    timeout_secs: int = 60
+    interval_secs: int = 15
+    fail_secs: int = 90
+    startup_grace_secs: int = 60
+
+
+@dataclass
 class Role:
     """
     A set of nodes that perform a specific duty within the ``AppDef``.
@@ -331,6 +352,7 @@ class Role:
             metadata: Free form information that is associated with the role, for example
                 scheduler specific data. The key should follow the pattern: ``$scheduler.$key``
             mounts: a list of mounts on the machine
+            health_check: health check settings
     """
 
     name: str
@@ -349,6 +371,7 @@ class Role:
     mounts: List[Union[BindMount, VolumeMount, DeviceMount]] = field(
         default_factory=list
     )
+    health_check: Optional[HealthCheck] = None
 
     def pre_proc(
         self,

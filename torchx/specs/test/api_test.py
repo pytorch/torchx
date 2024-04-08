@@ -25,6 +25,7 @@ from torchx.specs.api import (
     AppStatusError,
     CfgVal,
     get_type_name,
+    HealthCheck,
     InvalidRunConfigException,
     macros,
     MalformedAppHandleException,
@@ -311,6 +312,33 @@ class AppDefTest(unittest.TestCase):
         app = AppDef(name="test_app", metadata={"test_key": "test_value"})
         self.assertEqual("test_value", app.metadata["test_key"])
         self.assertEqual(None, app.metadata.get("non_existent"))
+
+
+class HealthCheckTest(unittest.TestCase):
+    def test_healthcheck(self) -> None:
+        health_check = HealthCheck(port=1010, regex="1", timeout_secs=20)
+        trainer = Role(
+            "trainer",
+            "test_image",
+            entrypoint="/bin/sleep",
+            args=["10"],
+            num_replicas=2,
+            health_check=health_check,
+        )
+        app = AppDef(name="test_app", roles=[trainer])
+        self.assertIsNotNone(app.roles[0].health_check)
+        self.assertEqual(health_check, app.roles[0].health_check)
+
+    def test_healthcheck_default(self) -> None:
+        trainer = Role(
+            "trainer",
+            "test_image",
+            entrypoint="/bin/sleep",
+            args=["10"],
+            num_replicas=2,
+        )
+        app = AppDef(name="test_app", roles=[trainer])
+        self.assertIsNone(app.roles[0].health_check)
 
 
 class RunConfigTest(unittest.TestCase):
