@@ -18,6 +18,7 @@ from typing import Dict, IO, Iterable, Mapping, Optional, TextIO, Tuple, TYPE_CH
 import fsspec
 
 import torchx
+from docker.errors import BuildError
 from torchx.specs import AppDef, CfgVal, Role, runopts
 from torchx.workspace.api import walk_workspace, WorkspaceMixin
 
@@ -93,6 +94,12 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
             type_=str,
             help="(remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container",
         )
+        opts.add(
+            "quiet",
+            type_=bool,
+            default=False,
+            help="whether to suppress verbose output for image building. Defaults to ``False``.",
+        )
         return opts
 
     def build_workspace_and_update_role(
@@ -121,7 +128,7 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                     f"failed to pull image {role.image}, falling back to local: {e}"
                 )
             log.info("Building workspace docker image (this may take a while)...")
-            image, _ = self._docker_client.images.build(
+            build_events = self._docker_client.api.build(
                 fileobj=context,
                 custom_context=True,
                 dockerfile=TORCHX_DOCKERFILE,
@@ -131,12 +138,26 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 },
                 pull=False,
                 rm=True,
+                decode=True,
                 labels={
                     self.LABEL_VERSION: torchx.__version__,
                 },
             )
+            image_id = None
+            for event in build_events:
+                if message := event.get("stream"):
+                    if not cfg.get("quiet", False):
+                        message = message.strip("\r\n").strip("\n")
+                        if message:
+                            log.info(message)
+                if aux := event.get("aux"):
+                    image_id = aux["ID"]
+                if error := event.get("error"):
+                    raise BuildError(reason=error, build_log=None)
             if len(old_imgs) == 0 or role.image not in old_imgs:
-                role.image = image.id
+                assert image_id, "image id was not found"
+                role.image = image_id
+
         finally:
             context.close()
 
