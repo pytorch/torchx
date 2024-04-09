@@ -200,6 +200,19 @@ class DockerSchedulerTest(unittest.TestCase):
             },
         )
 
+    def test_long_hostname(self) -> None:
+        app = _test_app()
+        for role in app.roles:
+            role.name = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin_blum_elective_spill_trammel_trainer"
+        with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
+            make_unique_ctx.return_value = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin_blum_elective_spill_trammel_12345"
+            info = self.scheduler._submit_dryrun(app, DockerOpts())
+        for container in info.request.containers:
+            assert "name" in container.kwargs
+            name = container.kwargs["name"]
+            assert isinstance(name, str)
+            assert len(name) < 65
+
 
 if has_docker():
     # These are the live tests that require a local docker instance.

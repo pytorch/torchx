@@ -224,7 +224,8 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
 
         app_id = make_unique(app.name)
         req = DockerJob(app_id=app_id, containers=[])
-        rank0_name = f"{app_id}-{app.roles[0].name}-0"
+        # trim app_id and role name in case name is longer than 64 letters
+        rank0_name = f"{app_id[-30:]}-{app.roles[0].name[:30]}-0"
         for role in app.roles:
             mounts = []
             devices = []
@@ -263,7 +264,8 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                     rank0_env="TORCHX_RANK0_HOST",
                 )
                 replica_role = values.apply(role)
-                name = f"{app_id}-{role.name}-{replica_id}"
+                # trim app_id and role name in case name is longer than 64 letters. Assume replica_id is less than 10_000.
+                name = f"{app_id[-30:]}-{role.name[:30]}-{replica_id}"
 
                 env = default_env.copy()
                 if replica_role.env:
