@@ -7,6 +7,7 @@
 
 # pyre-strict
 
+import logging
 import os
 import posixpath
 import shutil
@@ -16,6 +17,8 @@ from typing import Mapping
 import fsspec
 from torchx.specs import CfgVal, Role
 from torchx.workspace.api import walk_workspace, WorkspaceMixin
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class TmpDirWorkspaceMixin(WorkspaceMixin[None]):
@@ -31,6 +34,10 @@ class TmpDirWorkspaceMixin(WorkspaceMixin[None]):
         job_dir = mkdtemp(prefix="torchx_workspace")
         _copy_to_dir(workspace, job_dir)
         role.image = job_dir
+        logger.info(
+            f"Built new temporary directory `{role.image}` based on"
+            f" and changes in workspace `{workspace}` for role[0]={role.name}."
+        )
 
 
 class DirWorkspaceMixin(WorkspaceMixin[None]):
@@ -51,6 +58,10 @@ class DirWorkspaceMixin(WorkspaceMixin[None]):
         os.mkdir(job_dir)
         _copy_to_dir(workspace, job_dir)
         role.image = job_dir
+        logger.info(
+            f"Built new directory `{role.image}` based on"
+            f" and changes in workspace `{workspace}` for role[0]={role.name}."
+        )
 
 
 def _copy_to_dir(workspace: str, target: str) -> None:

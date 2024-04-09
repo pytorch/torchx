@@ -135,8 +135,17 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                     self.LABEL_VERSION: torchx.__version__,
                 },
             )
-            if len(old_imgs) == 0 or role.image not in old_imgs:
-                role.image = image.id
+            if cfg["image_repo"] is not None and image.id in old_imgs:
+                log.info(
+                    f"Reusing previously built image `{image.id}` for role[0]={role.name}."
+                    " Either a patch was built or no changes to workspace was detected."
+                )
+            else:
+                log.info(
+                    f"Built new image `{image.id}` based on original image `{role.image}`"
+                    f" and changes in workspace `{workspace}` for role[0]={role.name}."
+                )
+            role.image = image.id
         finally:
             context.close()
 
