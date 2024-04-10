@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import argparse
 import os
 import unittest
@@ -191,7 +193,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
 
     def test_validate_docstring(self) -> None:
         func_desc, param_desc = get_fn_docstring(_test_docstring)
-        self.assertEqual("Short Test description ...", func_desc)
+        self.assertEqual("Short Test description\nLong funct description", func_desc)
         self.assertEqual("arg0 desc", param_desc["arg0"])
         self.assertEqual("arg1 desc", param_desc["arg1"])
         self.assertEqual(" ", param_desc["arg2"])

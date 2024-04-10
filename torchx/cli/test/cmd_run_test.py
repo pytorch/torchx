@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import argparse
 import dataclasses
 import io
@@ -17,6 +19,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock, patch
+
+from torchx.cli.argparse_util import ArgOnceAction, torchxconfig
 
 from torchx.cli.cmd_run import _parse_component_name_and_args, CmdBuiltins, CmdRun
 from torchx.schedulers.local_scheduler import SignalException
@@ -43,6 +47,28 @@ class CmdRunTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir, ignore_errors=True)
+        ArgOnceAction.called_args = set()
+        torchxconfig.called_args = set()
+
+    def test_run_with_multiple_scheduler_args(self) -> None:
+
+        args = ["--scheduler_args", "first_args", "--scheduler_args", "second_args"]
+        with self.assertRaises(SystemExit) as cm:
+            self.parser.parse_args(args)
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_run_with_multiple_schedule_args(self) -> None:
+
+        args = [
+            "--scheduler",
+            "local_cwd",
+            "--scheduler",
+            "local_cwd",
+        ]
+
+        with self.assertRaises(SystemExit) as cm:
+            self.parser.parse_args(args)
+        self.assertEqual(cm.exception.code, 1)
 
     def test_run_with_user_conf_abs_path(self) -> None:
         args = self.parser.parse_args(

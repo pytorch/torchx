@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 """
 
 This contains the TorchX Kubernetes scheduler which can be used to run TorchX
@@ -23,7 +25,7 @@ Install Volcano:
     kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/v1.6.0/installer/volcano-development.yaml
 
 See the
-`Volcano Quickstart <https://github.com/volcano-sh/volcano#quick-start-guide>`_
+`Volcano Quickstart <https://github.com/volcano-sh/volcano>`_
 for more information.
 """
 

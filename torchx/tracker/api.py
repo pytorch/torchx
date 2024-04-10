@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 from __future__ import annotations
 
 import logging
@@ -67,8 +69,7 @@ class AppRunTrackableSource:
     artifact_name: Optional[str]
 
 
-class Lineage:
-    ...
+class Lineage: ...
 
 
 class TrackerBase(ABC):
@@ -332,5 +333,4 @@ class AppRun:
 
         return model_run_sources
 
-    def children(self) -> Iterable[AppRun]:
-        ...
+    def children(self) -> Iterable[AppRun]: ...

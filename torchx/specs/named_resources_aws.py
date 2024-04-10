@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 r"""
 `torchx.specs.named_resources_aws` contains resource definitions that represent corresponding AWS instance types
 taken from https://aws.amazon.com/ec2/instance-types/. The resources are exposed

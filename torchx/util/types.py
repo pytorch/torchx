@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import inspect
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
@@ -118,6 +120,16 @@ def _decode_string_to_list(
     for value in to_list(encoded_value):
         arg_values.append(value_type(value))
     return arg_values
+
+
+def decode(encoded_value: Any, annotation: Any):
+    if encoded_value is None:
+        return None
+    if is_bool(annotation):
+        return encoded_value and encoded_value.lower() == "true"
+    if not is_primitive(annotation) and type(encoded_value) == str:
+        return decode_from_string(encoded_value, annotation)
+    return encoded_value
 
 
 def decode_from_string(

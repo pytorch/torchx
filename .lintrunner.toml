@@ -1,0 +1,42 @@
+[[linter]]
+code = 'UFMT'
+include_patterns = [
+    '**/*.py',
+    '**/*.pyi',
+]
+command = [
+    'python3',
+    'tools/linter/adapters/ufmt_linter.py',
+    '--',
+    '@{{PATHSFILE}}'
+]
+init_command = [
+    'python3',
+    '-m',
+    'lintrunner_adapters',
+    'run',
+    'pip_init',
+    '--dry-run={{DRYRUN}}',
+    '--requirement=fmt-requirements.txt',
+    'ufmt==2.5.1',  # TODO: remove when synced fmt-requirements.txt includes ufmt
+]
+is_formatter = true
+
+[[linter]]
+code = 'PYRE'
+include_patterns = [
+    '**/*.py',
+    '**/*.pyi',
+]
+command = [
+    'python3',
+    'tools/linter/adapters/pyre_linter.py',
+    '--',
+    '@{{PATHSFILE}}'
+]
+init_command = [
+    'bash',
+    'scripts/setup_pyre.sh',
+    '--dry-run={{DRYRUN}}',
+]
+is_formatter = false

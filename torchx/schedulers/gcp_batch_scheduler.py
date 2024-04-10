@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 """
 
 This contains the TorchX GCP Batch scheduler which can be used to run TorchX
@@ -205,14 +207,12 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             if cpu <= 0:
                 cpu = 1
             MILLI = 1000
-            # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
             res.cpu_milli = cpu * MILLI
             memMB = resource.memMB
             if memMB < 0:
                 raise ValueError(
                     f"memMB should to be set to a positive value, got {memMB}"
                 )
-            # pyre-fixme[8]: Attribute has type `Field`; used as `int`.
             res.memory_mib = memMB
 
             # TODO support named resources
@@ -360,13 +360,11 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             return None
 
         gpu = 0
-        # pyre-fixme[16]: `Field` has no attribute `instances`.
         if len(job.allocation_policy.instances) != 0:
             gpu_type = job.allocation_policy.instances[0].policy.machine_type
             gpu = GPU_TYPE_TO_COUNT[gpu_type]
 
         roles = {}
-        # pyre-fixme[16]: `RepeatedField` has no attribute `__iter__`.
         for tg in job.task_groups:
             env = tg.task_spec.environment.variables
             role = env["TORCHX_ROLE_NAME"]
@@ -390,7 +388,6 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
         # TODO map role/replica status
         desc = DescribeAppResponse(
             app_id=app_id,
-            # pyre-fixme[16]: `Field` has no attribute `state`.
             state=JOB_STATE[job.status.state.name],
             roles=list(roles.values()),
         )
@@ -415,8 +412,10 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             raise ValueError(f"app not found: {app_id}")
 
         job_uid = job.uid
-        filters = [f"labels.job_uid={job_uid}"]
-        filters.append(f"resource.labels.task_id:task/{job_uid}-group0-{k}")
+        filters = [
+            f"labels.job_uid={job_uid}",
+            f"labels.task_id:{job_uid}-group0-{k}",
+        ]
 
         if since is not None:
             filters.append(f'timestamp>="{str(since.isoformat())}"')
@@ -437,7 +436,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
 
         logger = logging.Client().logger(BATCH_LOGGER_NAME)
         for entry in logger.list_entries(filter_=filter):
-            yield entry.payload
+            yield entry.payload + "\n"
 
     def _job_full_name_to_app_id(self, job_full_name: str) -> str:
         """

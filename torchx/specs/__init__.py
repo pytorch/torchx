@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 """
 This contains the TorchX AppDef and related component definitions. These are
 used by components to define the apps which can then be launched via a TorchX

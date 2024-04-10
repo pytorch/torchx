@@ -5,6 +5,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# pyre-strict
+
 import abc
 import argparse
 import ast
@@ -29,7 +31,11 @@ def _get_default_arguments_descriptions(fn: Callable[..., object]) -> Dict[str, 
     return args_decs
 
 
-class TorchXArgumentHelpFormatter(argparse.HelpFormatter):
+class TorchXArgumentHelpFormatter(
+    argparse.RawDescriptionHelpFormatter,
+    argparse.ArgumentDefaultsHelpFormatter,
+    argparse.MetavarTypeHelpFormatter,
+):
     """Help message formatter which adds default values and required to argument help.
 
     If the argument is required, the class appends `(required)` at the end of the help message.
@@ -79,7 +85,7 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
             args_description[param.arg_name] = param.description
     short_func_description = docstring.short_description or default_fn_desc
     if docstring.long_description:
-        short_func_description += " ..."
+        short_func_description += "\n" + docstring.long_description
     return (short_func_description or default_fn_desc, args_description)
 
 
