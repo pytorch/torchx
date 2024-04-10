@@ -60,7 +60,7 @@ jobs:
         run: |
           set -eux
           if [ -n "$AWS_ROLE_ARN" ]; then
-            aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-1.amazonaws.com
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
           fi
 
       - name: Install dependencies
@@ -85,4 +85,4 @@ jobs:
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
         run: |
-          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.TF_CONTAINER_REPO }}"  ${{ matrix.extra_args }}
+          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.CONTAINER_REPO }}"  ${{ matrix.extra_args }}
