@@ -162,8 +162,8 @@ class DockerWorkspaceMixin(WorkspaceMixin[Dict[str, Tuple[str, str]]]):
                 except StopIteration:
                     break
 
-            if len(old_imgs) == 0 or image["ID"] not in old_imgs:
-                role.image = image["ID"]
+            if len(old_imgs) == 0 or role.image not in old_imgs:
+                role.image = image.id
         finally:
             context.close()
 

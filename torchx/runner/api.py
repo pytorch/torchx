@@ -377,7 +377,7 @@ class Runner:
                     )
                 else:
                     logger.info(
-                        f"Reusing image based on `{old_img}` for role[0]={role.name}."
+                        f"Reusing original image `{old_img}` for role[0]={role.name}."
                         " Either a patch was built or no changes to workspace was detected."
                     )
 
