@@ -85,4 +85,4 @@ jobs:
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
         run: |
-          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.CONTAINER_REPO }}"  ${{ matrix.extra_args }}
+          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.TF_CONTAINER_REPO }}"  ${{ matrix.extra_args }}
