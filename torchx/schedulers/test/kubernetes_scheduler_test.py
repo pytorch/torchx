@@ -700,6 +700,7 @@ spec:
         self.assertEqual(
             set(runopts._opts.keys()),
             {
+                "quiet",
                 "queue",
                 "namespace",
                 "image_repo",
