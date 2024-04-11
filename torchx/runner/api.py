@@ -324,6 +324,10 @@ class Runner:
 
         configured_trackers = get_configured_trackers()
 
+        app_handle = make_app_handle(scheduler, self._name, macros.app_id)
+
+        os.environ[ENV_TORCHX_JOB_ID] = app_handle
+
         for role in app.roles:
             if not role.entrypoint:
                 raise ValueError(
@@ -342,9 +346,7 @@ class Runner:
             #    - inject it as TORCHX_TRACKERS=names (it is expected that entrypoints are defined)
             #    - for each backend check configuration file, if exists:
             #        - inject it as TORCHX_TRACKER_<name>_CONFIGFILE=filename
-            role.env[ENV_TORCHX_JOB_ID] = make_app_handle(
-                scheduler, self._name, macros.app_id
-            )
+            role.env[ENV_TORCHX_JOB_ID] = app_handle
 
             if parent_run_id:
                 role.env[ENV_TORCHX_PARENT_RUN_ID] = parent_run_id

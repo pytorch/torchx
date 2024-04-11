@@ -22,7 +22,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 ENV_TORCHX_TRACKERS = "TORCHX_TRACKERS"
 ENV_TORCHX_PARENT_RUN_ID = "TORCHX_PARENT_RUN_ID"
-ENV_TORCHX_JOB_ID = "TORCHX_JOB_ID"
+ENV_TORCHX_JOB_ID = "TTFB_TORCHX_JOB_ID"
 
 
 @dataclass
