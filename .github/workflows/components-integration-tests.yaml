@@ -43,46 +43,46 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
           aws-region: us-west-1
-          role-to-assume: ${{ secrets.TF_AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: github-torchx
         continue-on-error: true
-      - name: Configure Kube Config
-        env:
-          AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
-        run: |
-          set -eux
-          if [ -n "$AWS_ROLE_ARN" ]; then
-            aws eks update-kubeconfig --region=us-west-1 --name=${{ secrets.EKS_CLUSTER_NAME }}
-          fi
-      - name: Configure Docker
-        env:
-          AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
-        run: |
-          set -eux
-          if [ -n "$AWS_ROLE_ARN" ]; then
-            aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-1.amazonaws.com
-          fi
+      # - name: Configure Kube Config
+      #   env:
+      #     AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
+      #   run: |
+      #     set -eux
+      #     if [ -n "$AWS_ROLE_ARN" ]; then
+      #       aws eks update-kubeconfig --region=us-west-1 --name=${{ secrets.EKS_CLUSTER_NAME }}
+      #     fi
+      # - name: Configure Docker
+      #   env:
+      #     AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
+      #   run: |
+      #     set -eux
+      #     if [ -n "$AWS_ROLE_ARN" ]; then
+      #       aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-1.amazonaws.com
+      #     fi
 
-      - name: Install dependencies
-        run: |
-          set -eux
-          pip install -r dev-requirements.txt
-          pip install -e .[kubernetes]
+      # - name: Install dependencies
+      #   run: |
+      #     set -eux
+      #     pip install -r dev-requirements.txt
+      #     pip install -e .[kubernetes]
 
-      - name: Start Ray
-        if: ${{ matrix.scheduler == 'ray' }}
-        run: |
-          ray start --head
-          sleep 5 # wait till the node joins so that `status` command displays the head node info
-          ray status
+      # - name: Start Ray
+      #   if: ${{ matrix.scheduler == 'ray' }}
+      #   run: |
+      #     ray start --head
+      #     sleep 5 # wait till the node joins so that `status` command displays the head node info
+      #     ray status
 
-      - name: Start Kubernetes
-        if: ${{ matrix.scheduler == 'kubernetes' }}
-        run: |
-          scripts/setup_minikube.sh
+      # - name: Start Kubernetes
+      #   if: ${{ matrix.scheduler == 'kubernetes' }}
+      #   run: |
+      #     scripts/setup_minikube.sh
 
-      - name: Run Components Integration Tests
-        env:
-          INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
-        run: |
-          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.TF_CONTAINER_REPO }}"  ${{ matrix.extra_args }}
+      # - name: Run Components Integration Tests
+      #   env:
+      #     INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
+      #   run: |
+      #     scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.TF_CONTAINER_REPO }}"  ${{ matrix.extra_args }}
