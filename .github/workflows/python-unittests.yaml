@@ -43,7 +43,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,PYTHON
-          fail_ci_if_error: true
           files: ./coverage.xml,!./cache
           flags: unittests
           verbose: true
