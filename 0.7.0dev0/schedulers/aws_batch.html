@@ -441,7 +441,7 @@ $<span class="w"> </span>torchx<span class="w"> </span>status<span class="w"> </
 handling.</p>
 <p><strong>Config Options</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
-        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[job_role_arn=JOB_ROLE_ARN],[execution_role_arn=EXECUTION_ROLE_ARN],[image_repo=IMAGE_REPO]
+        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[job_role_arn=JOB_ROLE_ARN],[execution_role_arn=EXECUTION_ROLE_ARN],[image_repo=IMAGE_REPO],[quiet=QUIET]
 
     required arguments:
         queue=QUEUE (str)
@@ -462,6 +462,8 @@ handling.</p>
             The Amazon Resource Name (ARN) of the IAM role that the ECS agent can assume for AWS permissions.
         image_repo=IMAGE_REPO (str, None)
             (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
 </pre></div>
 </div>
 <p><strong>Mounts</strong></p>

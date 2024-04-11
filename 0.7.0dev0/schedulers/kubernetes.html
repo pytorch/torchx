@@ -445,22 +445,24 @@ $<span class="w"> </span>torchx<span class="w"> </span>status<span class="w"> </
 </pre></div>
 </div>
 <p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span><span class="p">,[</span><span class="n">namespace</span><span class="o">=</span><span class="n">NAMESPACE</span><span class="p">],[</span><span class="n">service_account</span><span class="o">=</span><span class="n">SERVICE_ACCOUNT</span><span class="p">],[</span><span class="n">priority_class</span><span class="o">=</span><span class="n">PRIORITY_CLASS</span><span class="p">],[</span><span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
+        queue=QUEUE,[namespace=NAMESPACE],[service_account=SERVICE_ACCOUNT],[priority_class=PRIORITY_CLASS],[image_repo=IMAGE_REPO],[quiet=QUIET]
 
-    <span class="n">required</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">queue</span><span class="o">=</span><span class="n">QUEUE</span> <span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-            <span class="n">Volcano</span> <span class="n">queue</span> <span class="n">to</span> <span class="n">schedule</span> <span class="n">job</span> <span class="ow">in</span>
+    required arguments:
+        queue=QUEUE (str)
+            Volcano queue to schedule job in
 
-    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">namespace</span><span class="o">=</span><span class="n">NAMESPACE</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
-            <span class="n">Kubernetes</span> <span class="n">namespace</span> <span class="n">to</span> <span class="n">schedule</span> <span class="n">job</span> <span class="ow">in</span>
-        <span class="n">service_account</span><span class="o">=</span><span class="n">SERVICE_ACCOUNT</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">The</span> <span class="n">service</span> <span class="n">account</span> <span class="n">name</span> <span class="n">to</span> <span class="nb">set</span> <span class="n">on</span> <span class="n">the</span> <span class="n">pod</span> <span class="n">specs</span>
-        <span class="n">priority_class</span><span class="o">=</span><span class="n">PRIORITY_CLASS</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">The</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PriorityClass</span> <span class="n">to</span> <span class="nb">set</span> <span class="n">on</span> <span class="n">the</span> <span class="n">job</span> <span class="n">specs</span>
-        <span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="p">(</span><span class="n">remote</span> <span class="n">jobs</span><span class="p">)</span> <span class="n">the</span> <span class="n">image</span> <span class="n">repository</span> <span class="n">to</span> <span class="n">use</span> <span class="n">when</span> <span class="n">pushing</span> <span class="n">patched</span> <span class="n">images</span><span class="p">,</span> <span class="n">must</span> <span class="n">have</span> <span class="n">push</span> <span class="n">access</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">container</span>
+    optional arguments:
+        namespace=NAMESPACE (str, default)
+            Kubernetes namespace to schedule job in
+        service_account=SERVICE_ACCOUNT (str, None)
+            The service account name to set on the pod specs
+        priority_class=PRIORITY_CLASS (str, None)
+            The name of the PriorityClass to set on the job specs
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
 </pre></div>
 </div>
 <p><strong>Mounts</strong></p>

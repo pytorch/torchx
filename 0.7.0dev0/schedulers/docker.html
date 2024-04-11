@@ -421,18 +421,20 @@ as Kubernetes.</p>
 in a job fails, only that replica will be restarted.</p>
 </div>
 <p><strong>Config Options</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">usage</span><span class="p">:</span>
-        <span class="p">[</span><span class="n">copy_env</span><span class="o">=</span><span class="n">COPY_ENV</span><span class="p">],[</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">],[</span><span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
+        [copy_env=COPY_ENV],[env=ENV],[image_repo=IMAGE_REPO],[quiet=QUIET]
 
-    <span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
-        <span class="n">copy_env</span><span class="o">=</span><span class="n">COPY_ENV</span> <span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="nb">list</span> <span class="n">of</span> <span class="n">glob</span> <span class="n">patterns</span> <span class="n">of</span> <span class="n">environment</span> <span class="n">variables</span> <span class="n">to</span> <span class="n">copy</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span> <span class="ow">in</span> <span class="n">AppDef</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">FOO_</span><span class="o">*</span>
-        <span class="n">env</span><span class="o">=</span><span class="n">ENV</span> <span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">environment</span> <span class="n">variables</span> <span class="n">to</span> <span class="n">be</span> <span class="n">passed</span> <span class="n">to</span> <span class="n">the</span> <span class="n">run</span><span class="o">.</span> <span class="n">The</span> <span class="n">separator</span> <span class="n">sign</span> <span class="n">can</span> <span class="n">be</span> <span class="n">eiher</span> <span class="n">comma</span> <span class="ow">or</span> <span class="n">semicolon</span>
-            <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">ENV1</span><span class="p">:</span><span class="n">v1</span><span class="p">,</span><span class="n">ENV2</span><span class="p">:</span><span class="n">v2</span><span class="p">,</span><span class="n">ENV3</span><span class="p">:</span><span class="n">v3</span> <span class="ow">or</span> <span class="n">ENV1</span><span class="p">:</span><span class="n">V1</span><span class="p">;</span><span class="n">ENV2</span><span class="p">:</span><span class="n">V2</span><span class="p">)</span><span class="o">.</span> <span class="n">Environment</span> <span class="n">variables</span> <span class="kn">from</span> <span class="nn">env</span> <span class="n">will</span> <span class="n">be</span> <span class="n">applied</span> <span class="n">on</span> <span class="n">top</span>
-            <span class="n">of</span> <span class="n">the</span> <span class="n">ones</span> <span class="kn">from</span> <span class="nn">copy_env</span>
-        <span class="n">image_repo</span><span class="o">=</span><span class="n">IMAGE_REPO</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="p">(</span><span class="n">remote</span> <span class="n">jobs</span><span class="p">)</span> <span class="n">the</span> <span class="n">image</span> <span class="n">repository</span> <span class="n">to</span> <span class="n">use</span> <span class="n">when</span> <span class="n">pushing</span> <span class="n">patched</span> <span class="n">images</span><span class="p">,</span> <span class="n">must</span> <span class="n">have</span> <span class="n">push</span> <span class="n">access</span><span class="o">.</span> <span class="n">Ex</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">container</span>
+    optional arguments:
+        copy_env=COPY_ENV (typing.List[str], None)
+            list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*
+        env=ENV (typing.Dict[str, str], None)
+            environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
+            (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
+            of the ones from copy_env
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
 </pre></div>
 </div>
 <p><strong>Mounts</strong></p>
