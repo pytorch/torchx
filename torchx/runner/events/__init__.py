@@ -91,10 +91,12 @@ class log_event:
         )
         self._start_cpu_time_ns = 0
         self._start_wall_time_ns = 0
+        self._start_epoch_time_usec = 0
 
     def __enter__(self) -> "log_event":
         self._start_cpu_time_ns = time.process_time_ns()
         self._start_wall_time_ns = time.perf_counter_ns()
+        self._start_epoch_time_usec = int(time.time() * 1000)
         return self
 
     def __exit__(
