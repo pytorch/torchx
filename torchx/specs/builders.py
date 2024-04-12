@@ -18,8 +18,6 @@ from torchx.util.types import decode, decode_optional, get_argparse_param_type, 
 
 from .api import AppDef, DeviceMount
 
-ENV_TORCHX_COMPONENT_ARGS = "TORCHX_COMPONENT_ARGS"
-
 
 def _create_args_parser(
     cmpnt_fn: Callable[..., AppDef],
@@ -136,7 +134,6 @@ def materialize_appdef(
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
-    component_args_string: Optional[str] = None,
 ) -> AppDef:
     """
     Creates an application by running user defined ``app_fn``.
@@ -190,10 +187,6 @@ def materialize_appdef(
         var_arg = var_arg[1:]
 
     appdef = cmpnt_fn(*function_args, *var_arg, **kwargs)
-
-    if component_args_string:
-        for role in appdef.roles:
-            role.env[ENV_TORCHX_COMPONENT_ARGS] = component_args_string
 
     return appdef
 
