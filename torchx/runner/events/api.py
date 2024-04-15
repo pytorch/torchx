@@ -46,6 +46,7 @@ class TorchxEvent:
     source: SourceType = SourceType.UNKNOWN
     cpu_time_usec: Optional[int] = None
     wall_time_usec: Optional[int] = None
+    start_epoch_time_usec: Optional[int] = None
 
     def __str__(self) -> str:
         return self.serialize()
