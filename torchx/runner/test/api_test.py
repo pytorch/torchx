@@ -20,7 +20,14 @@ from torchx.schedulers.local_scheduler import (
     LocalScheduler,
 )
 from torchx.specs import AppDryRunInfo, CfgVal
-from torchx.specs.api import AppDef, AppState, Resource, Role, UnknownAppException
+from torchx.specs.api import (
+    AppDef,
+    AppHandle,
+    AppState,
+    Resource,
+    Role,
+    UnknownAppException,
+)
 from torchx.specs.finder import ComponentNotFoundException
 from torchx.test.fixtures import TestWithTmpDir
 from torchx.tracker.api import ENV_TORCHX_JOB_ID, ENV_TORCHX_PARENT_RUN_ID
@@ -554,9 +561,9 @@ class RunnerTest(TestWithTmpDir):
     def test_run_from_module(self, _: str) -> None:
         runner = get_runner(name="test_session")
         app_args = ["--image", "dummy_image", "--script", "test.py"]
-        with patch.object(runner, "schedule"), patch.object(
-            runner, "dryrun"
-        ) as dryrun_mock:
+        with patch.object(
+            runner, "schedule", return_value=AppHandle("sample://torchx/app_handle")
+        ), patch.object(runner, "dryrun") as dryrun_mock:
             _ = runner.run_component("dist.ddp", app_args, "local")
             args, kwargs = dryrun_mock.call_args
             actual_app = args[0]
