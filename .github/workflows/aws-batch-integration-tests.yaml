@@ -26,7 +26,7 @@ jobs:
           aws-region: us-west-1
           role-to-assume: ${{ secrets.TF_AWS_ROLE_ARN }}
           role-session-name: github-torchx
-        continue-on-error: true
+        continue-on-error: true  
       - name: Configure Docker
         run: |
           set -eux
@@ -43,3 +43,4 @@ jobs:
           set -ex
 
           scripts/awsbatchint.sh
+        # asdf
