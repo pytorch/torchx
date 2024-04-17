@@ -578,15 +578,20 @@
 <span class="sd">            ComponentNotFoundException: if the ``component_path`` is failed to resolve.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun_component</span><span class="p">(</span>
-            <span class="n">component</span><span class="p">,</span>
-            <span class="n">component_args</span><span class="p">,</span>
-            <span class="n">scheduler</span><span class="p">,</span>
-            <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
-            <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span>
-            <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="s2">&quot;run_component&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun_component</span><span class="p">(</span>
+                <span class="n">component</span><span class="p">,</span>
+                <span class="n">component_args</span><span class="p">,</span>
+                <span class="n">scheduler</span><span class="p">,</span>
+                <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+                <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span>
+                <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">scheduler</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">app_image</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">app_id</span> <span class="o">=</span> <span class="n">parse_app_handle</span><span class="p">(</span><span class="n">handle</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">handle</span></div>
 
 <div class="viewcode-block" id="Runner.dryrun_component"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.dryrun_component">[docs]</a>    <span class="k">def</span> <span class="nf">dryrun_component</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -633,10 +638,19 @@
 <span class="sd">            An application handle that is used to call other action APIs on the app.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span>
-            <span class="n">app</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span> <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="n">log_event</span><span class="p">(</span><span class="n">api</span><span class="o">=</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">runcfg</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">if</span> <span class="n">cfg</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="n">dryrun_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dryrun</span><span class="p">(</span>
+                <span class="n">app</span><span class="p">,</span>
+                <span class="n">scheduler</span><span class="p">,</span>
+                <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+                <span class="n">workspace</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span>
+                <span class="n">parent_run_id</span><span class="o">=</span><span class="n">parent_run_id</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">dryrun_info</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">scheduler</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">)</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">app_image</span> <span class="o">=</span> <span class="n">none_throws</span><span class="p">(</span><span class="n">dryrun_info</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">_torchx_event</span><span class="o">.</span><span class="n">app_id</span> <span class="o">=</span> <span class="n">parse_app_handle</span><span class="p">(</span><span class="n">handle</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">handle</span></div>
 
 <div class="viewcode-block" id="Runner.schedule"><a class="viewcode-back" href="../../../runner.html#torchx.runner.Runner.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dryrun_info</span><span class="p">:</span> <span class="n">AppDryRunInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AppHandle</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
