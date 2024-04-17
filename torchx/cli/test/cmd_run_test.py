@@ -239,6 +239,12 @@ class CmdRunTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(["-m", "hello"], sp)
 
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(["-m", "hello", "-m", "repeate"], sp)
+
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(["--msg", "hello", "--msg", "repeate"], sp)
+
     def test_parse_component_name_and_args_with_default(self) -> None:
         sp = argparse.ArgumentParser(prog="test")
         dirs = [str(self.tmpdir)]

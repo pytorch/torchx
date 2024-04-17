@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import threading
+from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 from pprint import pformat
@@ -83,6 +84,13 @@ def _parse_component_name_and_args(
         else:  # first element is NOT an option; then it must be a component name
             component = args[0]
             component_args = args[1:]
+
+    # Error if there are repeated command line arguments
+    all_options = [x for x in component_args if x.startswith("-")]
+    arg_count = Counter(all_options)
+    duplicates = [arg for arg, count in arg_count.items() if count > 1]
+    if len(duplicates) > 0:
+        subparser.error(f"Repeated Command Line Arguments: {duplicates}")
 
     if not component:
         subparser.error(MISSING_COMPONENT_ERROR_MSG)
