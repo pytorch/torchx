@@ -96,7 +96,8 @@ class log_event:
     def __enter__(self) -> "log_event":
         self._start_cpu_time_ns = time.process_time_ns()
         self._start_wall_time_ns = time.perf_counter_ns()
-        self._start_epoch_time_usec = int(time.time() * 1000)
+        self._torchx_event.start_epoch_time_usec = int(time.time() * 1_000_000)
+
         return self
 
     def __exit__(

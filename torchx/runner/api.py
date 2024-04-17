@@ -177,15 +177,20 @@ class Runner:
             ComponentNotFoundException: if the ``component_path`` is failed to resolve.
         """
 
-        dryrun_info = self.dryrun_component(
-            component,
-            component_args,
-            scheduler,
-            cfg=cfg,
-            workspace=workspace,
-            parent_run_id=parent_run_id,
-        )
-        return self.schedule(dryrun_info)
+        with log_event("run_component") as ctx:
+            dryrun_info = self.dryrun_component(
+                component,
+                component_args,
+                scheduler,
+                cfg=cfg,
+                workspace=workspace,
+                parent_run_id=parent_run_id,
+            )
+            handle = self.schedule(dryrun_info)
+            ctx._torchx_event.scheduler = none_throws(dryrun_info._scheduler)
+            ctx._torchx_event.app_image = none_throws(dryrun_info._app).roles[0].image
+            ctx._torchx_event.app_id = parse_app_handle(handle)[2]
+            return handle
 
     def dryrun_component(
         self,
@@ -232,10 +237,19 @@ class Runner:
             An application handle that is used to call other action APIs on the app.
         """
 
-        dryrun_info = self.dryrun(
-            app, scheduler, cfg=cfg, workspace=workspace, parent_run_id=parent_run_id
-        )
-        return self.schedule(dryrun_info)
+        with log_event(api="run", runcfg=json.dumps(cfg) if cfg else None) as ctx:
+            dryrun_info = self.dryrun(
+                app,
+                scheduler,
+                cfg=cfg,
+                workspace=workspace,
+                parent_run_id=parent_run_id,
+            )
+            handle = self.schedule(dryrun_info)
+            ctx._torchx_event.scheduler = none_throws(dryrun_info._scheduler)
+            ctx._torchx_event.app_image = none_throws(dryrun_info._app).roles[0].image
+            ctx._torchx_event.app_id = parse_app_handle(handle)[2]
+            return handle
 
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
         """
