@@ -500,7 +500,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:10:29 INFO     Tracker configurations: {}
+torchx 2024-04-18 23:26:36 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -508,7 +508,7 @@ torchx 2024-04-17 21:10:29 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:10:29 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2024-04-18 23:26:36 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -516,7 +516,7 @@ torchx 2024-04-17 21:10:29 INFO     Log directory not set in scheduler cfg. Crea
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:10:29 INFO     Log directory is: /tmp/torchx_mu56rk4t
+torchx 2024-04-18 23:26:36 INFO     Log directory is: /tmp/torchx_rl8a3u6r
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -524,7 +524,7 @@ torchx 2024-04-17 21:10:29 INFO     Log directory is: /tmp/torchx_mu56rk4t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:10:29 INFO     Waiting for the app to finish...
+torchx 2024-04-18 23:26:36 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -540,7 +540,7 @@ greeter/0 Hello, your name!
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:10:30 INFO     Job finished: SUCCEEDED
+torchx 2024-04-18 23:26:37 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -548,7 +548,7 @@ torchx 2024-04-17 21:10:30 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/hello_world-ck41bvj4jjt1nc
+local_cwd://torchx/hello_world-nzt1snd23x3n1
 </pre></div></div>
 </div>
 <p>If we want to run in other environments, we can build a Docker container so we can run our component in Docker enabled environments such as Kubernetes or via the local Docker scheduler.</p>
@@ -677,7 +677,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#3 DONE 0.3s
+#3 DONE 0.6s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -741,47 +741,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:3dbec59e804974689ff0739216fb012d3e1cd6694632cd3a85b74b572266ec5c 7.21kB / 7.21kB done
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:d2e110be24e168b42c1a2ddbc4a476a217b73cccdba69cdcb212b812a88f5726 857B / 857B 0.1s done
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:889a7173dcfeb409f9d88054a97ab2445f5a799a823f719a5573365ee3662b6f 189B / 189B 0.1s done
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 0B / 26.70MB 0.1s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 0B / 9.94MB 0.1s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 0B / 2.00GB 0.1s
+#5 sha256:889a7173dcfeb409f9d88054a97ab2445f5a799a823f719a5573365ee3662b6f 0B / 189B 0.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -797,7 +757,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 23.07MB / 26.70MB 0.3s
+#5 sha256:3dbec59e804974689ff0739216fb012d3e1cd6694632cd3a85b74b572266ec5c 7.21kB / 7.21kB done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -805,7 +765,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 9.94MB / 9.94MB 0.2s done
+#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 0B / 26.70MB 0.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -813,7 +773,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:eccbe17c44e1b27c836dddc42f204bde06f73568b50833556b50324146bd43aa 132B / 132B 0.2s done
+#5 sha256:d2e110be24e168b42c1a2ddbc4a476a217b73cccdba69cdcb212b812a88f5726 0B / 857B 0.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -821,7 +781,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 0B / 21.46MB 0.3s
+#5 sha256:889a7173dcfeb409f9d88054a97ab2445f5a799a823f719a5573365ee3662b6f 189B / 189B 0.2s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -829,7 +789,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 26.70MB / 26.70MB 0.3s done
+#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 7.34MB / 26.70MB 0.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -837,7 +797,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 10.49MB / 21.46MB 0.4s
+#5 sha256:d2e110be24e168b42c1a2ddbc4a476a217b73cccdba69cdcb212b812a88f5726 857B / 857B 0.2s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -845,7 +805,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 0.1s
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 0B / 2.00GB 0.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -853,7 +813,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:06b5edd6bf524455a7c5a54cb27ced3ecc540414ecf38c24c80ba4368ebc77de 257B / 257B 0.4s done
+#5 sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 0B / 9.94MB 0.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -861,7 +821,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 0B / 1.71GB 0.4s
+#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 19.92MB / 26.70MB 0.5s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -869,7 +829,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 21.46MB / 21.46MB 0.5s done
+#5 sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 4.19MB / 9.94MB 0.5s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -877,7 +837,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:c0ad16d9fa05dbf708784e8aa10d69153465bae391345020be52cbe0a1701932 0B / 92B 0.5s
+#5 sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 26.70MB / 26.70MB 0.6s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -885,7 +845,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:c0ad16d9fa05dbf708784e8aa10d69153465bae391345020be52cbe0a1701932 92B / 92B 0.5s done
+#5 sha256:eccbe17c44e1b27c836dddc42f204bde06f73568b50833556b50324146bd43aa 0B / 132B 0.6s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -893,7 +853,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:30587ba7fd6bcbd1c883125d84517055b2d7f2d35a13faedbc8b15f94b900cc2 352B / 352B 0.5s done
+#5 extracting sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -901,7 +861,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 0B / 341.29MB 0.6s
+#5 sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 8.39MB / 9.94MB 0.8s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -909,7 +869,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 32.51MB / 341.29MB 0.8s
+#5 sha256:eccbe17c44e1b27c836dddc42f204bde06f73568b50833556b50324146bd43aa 132B / 132B 0.8s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -917,7 +877,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 110.10MB / 2.00GB 0.9s
+#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 0B / 21.46MB 0.8s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -925,7 +885,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 74.45MB / 341.29MB 1.1s
+#5 sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 9.94MB / 9.94MB 0.8s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -933,7 +893,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 103.81MB / 341.29MB 1.3s
+#5 sha256:06b5edd6bf524455a7c5a54cb27ced3ecc540414ecf38c24c80ba4368ebc77de 0B / 257B 0.9s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -941,7 +901,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 89.13MB / 1.71GB 1.5s
+#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 4.19MB / 21.46MB 1.0s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -949,7 +909,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 130.02MB / 341.29MB 1.5s
+#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 12.58MB / 21.46MB 1.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -957,7 +917,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 236.98MB / 2.00GB 1.7s
+#5 sha256:06b5edd6bf524455a7c5a54cb27ced3ecc540414ecf38c24c80ba4368ebc77de 257B / 257B 1.0s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -965,7 +925,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 1.3s done
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 0B / 1.71GB 1.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -973,7 +933,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 157.29MB / 341.29MB 1.7s
+#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 20.39MB / 21.46MB 1.2s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -981,7 +941,39 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 183.50MB / 341.29MB 1.9s
+#5 sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 21.46MB / 21.46MB 1.3s done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:c0ad16d9fa05dbf708784e8aa10d69153465bae391345020be52cbe0a1701932 0B / 92B 1.3s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:c0ad16d9fa05dbf708784e8aa10d69153465bae391345020be52cbe0a1701932 92B / 92B 1.4s done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:30587ba7fd6bcbd1c883125d84517055b2d7f2d35a13faedbc8b15f94b900cc2 0B / 352B 1.5s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 extracting sha256:4bbfd2c87b7524455f144a03bf387c88b6d4200e5e0df9139a9d5e79110f89ca 0.9s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -997,7 +989,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:889a7173dcfeb409f9d88054a97ab2445f5a799a823f719a5573365ee3662b6f 0.0s done
+#5 sha256:30587ba7fd6bcbd1c883125d84517055b2d7f2d35a13faedbc8b15f94b900cc2 352B / 352B 1.6s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1005,7 +997,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 203.42MB / 341.29MB 2.0s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 0B / 341.29MB 1.8s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1013,7 +1005,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 226.49MB / 341.29MB 2.1s
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 106.95MB / 2.00GB 1.9s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1021,7 +1013,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 188.74MB / 1.71GB 2.3s
+#5 extracting sha256:889a7173dcfeb409f9d88054a97ab2445f5a799a823f719a5573365ee3662b6f done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1029,7 +1021,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 262.14MB / 341.29MB 2.3s
+#5 extracting sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1037,7 +1029,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 353.37MB / 2.00GB 2.6s
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 85.98MB / 1.71GB 2.4s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1045,127 +1037,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 303.04MB / 341.29MB 2.6s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 331.35MB / 341.29MB 2.8s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 296.75MB / 1.71GB 3.0s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 467.66MB / 2.00GB 3.4s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 398.46MB / 1.71GB 3.6s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 341.29MB / 341.29MB 3.5s done
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f119a6d0a466a041afbcb08344ff624b5c5ac5f68b93d33af4827529ea1a6800 0B / 563.38kB 3.6s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f119a6d0a466a041afbcb08344ff624b5c5ac5f68b93d33af4827529ea1a6800 563.38kB / 563.38kB 3.8s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f119a6d0a466a041afbcb08344ff624b5c5ac5f68b93d33af4827529ea1a6800 563.38kB / 563.38kB 3.9s done
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:88d87059c913e67971846680d4032b75f96f599f8a67062f668fed6471fc2968 0B / 556.96kB 4.4s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 484.44MB / 1.71GB 4.5s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:88d87059c913e67971846680d4032b75f96f599f8a67062f668fed6471fc2968 556.96kB / 556.96kB 4.9s done
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 574.62MB / 2.00GB 5.0s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 extracting sha256:6009a622672af862e3a3979ffd58a348f95208a4bc3b6f6cea2efda4e8390203 0.1s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 679.48MB / 2.00GB 5.7s
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 588.25MB / 1.71GB 5.9s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 28.31MB / 341.29MB 2.7s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1181,7 +1053,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 794.82MB / 2.00GB 6.4s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 47.19MB / 341.29MB 3.0s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1189,7 +1061,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 683.67MB / 1.71GB 6.8s
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 208.67MB / 2.00GB 3.2s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1197,7 +1069,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 931.14MB / 2.00GB 7.1s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 72.35MB / 341.29MB 3.4s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1205,7 +1077,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 773.85MB / 1.71GB 7.4s
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 180.36MB / 1.71GB 3.7s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1213,7 +1085,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.06GB / 2.00GB 7.6s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 92.27MB / 341.29MB 3.7s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1221,7 +1093,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.16GB / 2.00GB 8.0s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 111.15MB / 341.29MB 4.0s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1229,7 +1101,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 878.71MB / 1.71GB 8.0s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 136.31MB / 341.29MB 4.4s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1237,7 +1109,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.26GB / 2.00GB 8.4s
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 314.57MB / 2.00GB 4.6s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1245,7 +1117,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 969.93MB / 1.71GB 8.5s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 155.19MB / 341.29MB 4.7s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1253,7 +1125,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.09GB / 1.71GB 9.1s
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 267.39MB / 1.71GB 4.9s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1261,7 +1133,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.37GB / 2.00GB 9.3s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 175.11MB / 341.29MB 5.0s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1269,7 +1141,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.19GB / 1.71GB 9.6s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 199.34MB / 341.29MB 5.4s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1277,7 +1149,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.28GB / 1.71GB 10.1s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 226.49MB / 341.29MB 5.8s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1285,7 +1157,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.51GB / 2.00GB 10.3s
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 421.53MB / 2.00GB 6.0s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1293,7 +1165,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.36GB / 1.71GB 10.6s
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 354.42MB / 1.71GB 6.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1301,7 +1173,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.62GB / 2.00GB 11.0s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 245.37MB / 341.29MB 6.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1309,7 +1181,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.45GB / 1.71GB 11.2s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 265.29MB / 341.29MB 6.4s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1317,7 +1189,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.75GB / 2.00GB 11.7s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 284.16MB / 341.29MB 6.7s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1325,7 +1197,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.55GB / 1.71GB 12.0s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 311.43MB / 341.29MB 7.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1333,7 +1205,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.88GB / 2.00GB 12.4s
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 441.52MB / 1.71GB 7.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1341,7 +1213,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.64GB / 1.71GB 13.0s
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 534.77MB / 2.00GB 7.5s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1349,7 +1221,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.99GB / 2.00GB 13.1s
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 337.40MB / 341.29MB 7.5s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1357,7 +1229,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 2.00GB / 2.00GB 15.0s done
+#5 sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 341.29MB / 341.29MB 8.1s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1365,7 +1237,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907
+#5 sha256:f119a6d0a466a041afbcb08344ff624b5c5ac5f68b93d33af4827529ea1a6800 0B / 563.38kB 8.2s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1373,7 +1245,255 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.71GB / 1.71GB 16.4s done
+#5 sha256:f119a6d0a466a041afbcb08344ff624b5c5ac5f68b93d33af4827529ea1a6800 563.38kB / 563.38kB 8.3s done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:88d87059c913e67971846680d4032b75f96f599f8a67062f668fed6471fc2968 0B / 556.96kB 8.4s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 535.82MB / 1.71GB 8.6s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:88d87059c913e67971846680d4032b75f96f599f8a67062f668fed6471fc2968 556.96kB / 556.96kB 8.5s done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 649.07MB / 2.00GB 9.0s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 626.00MB / 1.71GB 10.1s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 756.02MB / 2.00GB 10.4s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 714.08MB / 1.71GB 11.3s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 856.69MB / 2.00GB 12.0s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 803.21MB / 1.71GB 12.5s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 962.59MB / 2.00GB 13.4s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 891.29MB / 1.71GB 13.7s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.08GB / 2.00GB 14.9s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 980.42MB / 1.71GB 14.9s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.07GB / 1.71GB 16.2s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.18GB / 2.00GB 16.4s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.17GB / 1.71GB 17.5s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.29GB / 2.00GB 17.7s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.26GB / 1.71GB 18.7s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.40GB / 2.00GB 19.1s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.35GB / 1.71GB 19.9s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.50GB / 2.00GB 20.5s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.44GB / 1.71GB 21.2s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.61GB / 2.00GB 21.9s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.54GB / 1.71GB 22.8s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.72GB / 2.00GB 23.4s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.64GB / 1.71GB 24.1s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.83GB / 2.00GB 24.8s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 1.94GB / 2.00GB 26.2s
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 1.71GB / 1.71GB 26.3s done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 2.00GB / 2.00GB 28.5s done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 0.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1397,7 +1517,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 15.1s
+#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 15.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1405,7 +1525,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 20.2s
+#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 20.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1413,7 +1533,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 25.2s
+#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 25.3s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1421,7 +1541,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 30.5s
+#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 30.4s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1429,7 +1549,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 31.5s done
+#5 extracting sha256:143f801954310499daa44a8499a49797d2f282b5d56be601557ebe6cbf796907 30.5s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1453,7 +1573,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71
+#5 extracting sha256:d4c7af0d4fa735e6727a24afcea4022492c7f29ac85e31ddf3d385bfbf704f71 0.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1493,7 +1613,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 5.1s
+#5 extracting sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 5.2s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1501,7 +1621,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 10.1s
+#5 extracting sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 10.2s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1517,7 +1637,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 18.9s done
+#5 extracting sha256:f18d016c4ccc1c57c9e34cb119e1e1966287b08aa9b4d52a38b30815a56574b6 18.7s done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1557,7 +1677,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 5.5s
+#5 extracting sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 5.6s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1565,7 +1685,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 extracting sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 10.6s
+#5 extracting sha256:909695be1d5003de345714eec2ca3020a48dd8f407fe918cbd47a8db73d7a233 10.7s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1605,7 +1725,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#5 DONE 85.8s
+#5 DONE 99.0s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1629,7 +1749,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#6 DONE 0.0s
+#6 DONE 0.1s
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1669,7 +1789,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-#7 writing image sha256:f328eaa632164b085d1773c146674b6e045a9d92787695ecad43318b02030760 done
+#7 writing image sha256:e8dfd9a3d82d58a2419a1f52654cc6cbc6245de3c6cb2e73575f90f8e5c4d7d8 done
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1703,7 +1823,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:00 INFO     Tracker configurations: {}
+torchx 2024-04-18 23:28:24 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1711,7 +1831,7 @@ torchx 2024-04-17 21:12:00 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:00 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-04-18 23:28:24 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1719,7 +1839,7 @@ torchx 2024-04-17 21:12:00 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:00 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-04-18 23:28:24 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1727,7 +1847,7 @@ torchx 2024-04-17 21:12:00 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-04-18 23:28:24 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1735,7 +1855,7 @@ torchx 2024-04-17 21:12:01 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.43/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
+torchx 2024-04-18 23:28:25 WARNING  failed to pull image my_app:latest, falling back to local: 404 Client Error for http+docker://localhost/v1.43/images/create?tag=latest&amp;fromImage=my_app: Not Found (&#34;pull access denied for my_app, repository does not exist or may require &#39;docker login&#39;: denied: requested access to the resource is denied&#34;)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1743,7 +1863,7 @@ torchx 2024-04-17 21:12:01 WARNING  failed to pull image my_app:latest, falling 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-04-18 23:28:25 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1751,7 +1871,7 @@ torchx 2024-04-17 21:12:01 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 INFO     Step 1/4 : ARG IMAGE
+torchx 2024-04-18 23:28:25 INFO     Step 1/4 : ARG IMAGE
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1759,7 +1879,7 @@ torchx 2024-04-17 21:12:01 INFO     Step 1/4 : ARG IMAGE
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 INFO     Step 2/4 : FROM $IMAGE
+torchx 2024-04-18 23:28:25 INFO     Step 2/4 : FROM $IMAGE
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1767,7 +1887,7 @@ torchx 2024-04-17 21:12:01 INFO     Step 2/4 : FROM $IMAGE
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 INFO      ---&gt; f328eaa63216
+torchx 2024-04-18 23:28:25 INFO      ---&gt; e8dfd9a3d82d
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1775,7 +1895,7 @@ torchx 2024-04-17 21:12:01 INFO      ---&gt; f328eaa63216
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:01 INFO     Step 3/4 : COPY . .
+torchx 2024-04-18 23:28:25 INFO     Step 3/4 : COPY . .
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1783,7 +1903,7 @@ torchx 2024-04-17 21:12:01 INFO     Step 3/4 : COPY . .
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:04 INFO      ---&gt; 1d7d96b02e0b
+torchx 2024-04-18 23:28:28 INFO      ---&gt; 97fa5e684efc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1791,7 +1911,7 @@ torchx 2024-04-17 21:12:04 INFO      ---&gt; 1d7d96b02e0b
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:04 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
+torchx 2024-04-18 23:28:28 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1799,7 +1919,7 @@ torchx 2024-04-17 21:12:04 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:04 INFO      ---&gt; Running in d56baa3edf9a
+torchx 2024-04-18 23:28:28 INFO      ---&gt; Running in 1e3d5f40b848
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1807,7 +1927,7 @@ torchx 2024-04-17 21:12:04 INFO      ---&gt; Running in d56baa3edf9a
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:06 INFO     Removing intermediate container d56baa3edf9a
+torchx 2024-04-18 23:28:30 INFO     Removing intermediate container 1e3d5f40b848
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1815,7 +1935,7 @@ torchx 2024-04-17 21:12:06 INFO     Removing intermediate container d56baa3edf9a
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:06 INFO      ---&gt; 105c01584aac
+torchx 2024-04-18 23:28:30 INFO      ---&gt; fe3d6c1a82af
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1823,7 +1943,7 @@ torchx 2024-04-17 21:12:06 INFO      ---&gt; 105c01584aac
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:06 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2024-04-18 23:28:30 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1831,7 +1951,7 @@ torchx 2024-04-17 21:12:06 INFO     [Warning] One or more build-args [WORKSPACE]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:06 INFO     Successfully built 105c01584aac
+torchx 2024-04-18 23:28:30 INFO     Successfully built fe3d6c1a82af
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1839,7 +1959,7 @@ torchx 2024-04-17 21:12:06 INFO     Successfully built 105c01584aac
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:06 INFO     Built new image `sha256:105c01584aaca667b190759bcc67c8c70a96a1fe58ea9449cdb99b406bd66f11` based on original image `my_app:latest` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=greeter.
+torchx 2024-04-18 23:28:30 INFO     Built new image `sha256:fe3d6c1a82af0c87941d32af7248bbab409f1ed2d7d0798341f3bd43aedcd1e2` based on original image `my_app:latest` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=greeter.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1847,7 +1967,7 @@ torchx 2024-04-17 21:12:06 INFO     Built new image `sha256:105c01584aaca667b190
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:07 INFO     Waiting for the app to finish...
+torchx 2024-04-18 23:28:31 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1863,7 +1983,7 @@ greeter/0 Hello, your name!
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:08 INFO     Job finished: SUCCEEDED
+torchx 2024-04-18 23:28:32 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1871,7 +1991,7 @@ torchx 2024-04-17 21:12:08 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/hello_world-g77l92rnfw62td
+local_docker://torchx/hello_world-z0060mwkb3hfvc
 </pre></div></div>
 </div>
 <p>If you have a Kubernetes cluster you can use the <a class="reference internal" href="schedulers/kubernetes.html"><span class="doc">Kubernetes scheduler</span></a> to launch this on the cluster instead.</p>
@@ -2003,7 +2123,7 @@ torchx<span class="w"> </span>run<span class="w"> </span>utils.echo<span class="
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:10 INFO     Tracker configurations: {}
+torchx 2024-04-18 23:28:34 INFO     Tracker configurations: {}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2011,7 +2131,7 @@ torchx 2024-04-17 21:12:10 INFO     Tracker configurations: {}
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:10 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-04-18 23:28:34 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2019,7 +2139,7 @@ torchx 2024-04-17 21:12:10 INFO     Checking for changes in workspace `file:///h
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:10 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-04-18 23:28:34 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2027,7 +2147,7 @@ torchx 2024-04-17 21:12:10 INFO     To disable workspaces pass: --workspace=&#34
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:12:10 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-04-18 23:28:34 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2035,7 +2155,7 @@ torchx 2024-04-17 21:12:10 INFO     Workspace `file:///home/runner/work/torchx/t
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:26 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-04-18 23:31:20 INFO     Building workspace docker image (this may take a while)...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2043,7 +2163,7 @@ torchx 2024-04-17 21:14:26 INFO     Building workspace docker image (this may ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:26 INFO     Step 1/4 : ARG IMAGE
+torchx 2024-04-18 23:31:20 INFO     Step 1/4 : ARG IMAGE
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2051,7 +2171,7 @@ torchx 2024-04-17 21:14:26 INFO     Step 1/4 : ARG IMAGE
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:26 INFO     Step 2/4 : FROM $IMAGE
+torchx 2024-04-18 23:31:20 INFO     Step 2/4 : FROM $IMAGE
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2059,7 +2179,7 @@ torchx 2024-04-17 21:14:26 INFO     Step 2/4 : FROM $IMAGE
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:26 INFO      ---&gt; c45f001e48eb
+torchx 2024-04-18 23:31:20 INFO      ---&gt; 4ed78b201558
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2067,7 +2187,7 @@ torchx 2024-04-17 21:14:26 INFO      ---&gt; c45f001e48eb
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:26 INFO     Step 3/4 : COPY . .
+torchx 2024-04-18 23:31:20 INFO     Step 3/4 : COPY . .
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2075,7 +2195,7 @@ torchx 2024-04-17 21:14:26 INFO     Step 3/4 : COPY . .
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:30 INFO      ---&gt; 70329f54a34c
+torchx 2024-04-18 23:31:24 INFO      ---&gt; aa1bb4d2fd7e
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2083,7 +2203,7 @@ torchx 2024-04-17 21:14:30 INFO      ---&gt; 70329f54a34c
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:30 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
+torchx 2024-04-18 23:31:24 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2091,7 +2211,7 @@ torchx 2024-04-17 21:14:30 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:30 INFO      ---&gt; Running in 294afaa8347c
+torchx 2024-04-18 23:31:24 INFO      ---&gt; Running in 97fe12e2471b
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2099,7 +2219,7 @@ torchx 2024-04-17 21:14:30 INFO      ---&gt; Running in 294afaa8347c
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:34 INFO     Removing intermediate container 294afaa8347c
+torchx 2024-04-18 23:31:28 INFO     Removing intermediate container 97fe12e2471b
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2107,7 +2227,7 @@ torchx 2024-04-17 21:14:34 INFO     Removing intermediate container 294afaa8347c
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:34 INFO      ---&gt; 608bf633ddb0
+torchx 2024-04-18 23:31:28 INFO      ---&gt; 1e8911296631
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2115,7 +2235,7 @@ torchx 2024-04-17 21:14:34 INFO      ---&gt; 608bf633ddb0
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:34 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2024-04-18 23:31:28 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2123,7 +2243,7 @@ torchx 2024-04-17 21:14:34 INFO     [Warning] One or more build-args [WORKSPACE]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:34 INFO     Successfully built 608bf633ddb0
+torchx 2024-04-18 23:31:29 INFO     Successfully built 1e8911296631
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2131,7 +2251,7 @@ torchx 2024-04-17 21:14:34 INFO     Successfully built 608bf633ddb0
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:34 INFO     Built new image `sha256:608bf633ddb0bc31e54ac89939d1a100c5bf7a64a3ad33fc53382d3e4b4a0b96` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=echo.
+torchx 2024-04-18 23:31:29 INFO     Built new image `sha256:1e89112966318d64c773c8641d05773d74b451287a48d8e1207b616b58fd7df7` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=echo.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2139,7 +2259,7 @@ torchx 2024-04-17 21:14:34 INFO     Built new image `sha256:608bf633ddb0bc31e54a
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:35 INFO     Waiting for the app to finish...
+torchx 2024-04-18 23:31:29 INFO     Waiting for the app to finish...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2147,7 +2267,7 @@ torchx 2024-04-17 21:14:35 INFO     Waiting for the app to finish...
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-17 21:14:35 INFO     Job finished: SUCCEEDED
+torchx 2024-04-18 23:31:29 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2163,7 +2283,7 @@ echo/0 Hello :)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/echo-ddw1rt6cm2nn1c
+local_docker://torchx/echo-vcs0dqlt2bs9jd
 </pre></div></div>
 </div>
 </section>
