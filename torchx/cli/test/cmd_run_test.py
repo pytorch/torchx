@@ -230,6 +230,27 @@ class CmdRunTest(unittest.TestCase):
             _parse_component_name_and_args(["utils.echo", "--msg", "hello"], sp),
         )
 
+        self.assertEqual(
+            ("utils.echo", ["--msg", "hello", "--", "--"]),
+            _parse_component_name_and_args(
+                ["utils.echo", "--msg", "hello", "--", "--"], sp
+            ),
+        )
+
+        self.assertEqual(
+            ("utils.echo", ["--msg", "hello", "-", "-"]),
+            _parse_component_name_and_args(
+                ["utils.echo", "--msg", "hello", "-", "-"], sp
+            ),
+        )
+
+        self.assertEqual(
+            ("utils.echo", ["--msg", "hello", "-  ", "-  "]),
+            _parse_component_name_and_args(
+                ["utils.echo", "--msg", "hello", "-  ", "-  "], sp
+            ),
+        )
+
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(["--"], sp)
 
@@ -244,6 +265,11 @@ class CmdRunTest(unittest.TestCase):
 
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(["--msg", "hello", "--msg", "repeate"], sp)
+
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(
+                ["--msg  ", "hello", "--msg     ", "repeate"], sp
+            )
 
     def test_parse_component_name_and_args_with_default(self) -> None:
         sp = argparse.ArgumentParser(prog="test")

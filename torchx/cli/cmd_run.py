@@ -86,7 +86,11 @@ def _parse_component_name_and_args(
             component_args = args[1:]
 
     # Error if there are repeated command line arguments
-    all_options = [x for x in component_args if x.startswith("-")]
+    all_options = [
+        x
+        for x in component_args
+        if x.startswith("-") and x.strip() != "-" and x.strip() != "--"
+    ]
     arg_count = Counter(all_options)
     duplicates = [arg for arg, count in arg_count.items() if count > 1]
     if len(duplicates) > 0:
