@@ -416,6 +416,7 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
@@ -957,7 +958,10 @@
 
     <span class="k">def</span> <span class="nf">_format_replica_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replica_status</span><span class="p">:</span> <span class="n">ReplicaStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span> <span class="o">!=</span> <span class="n">NONE</span><span class="p">:</span>
-            <span class="n">error_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">error_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">replica_status</span><span class="o">.</span><span class="n">structured_error_msg</span>
             <span class="n">error_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_error_message</span><span class="p">(</span>
                 <span class="n">msg</span><span class="o">=</span><span class="n">error_data</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">][</span><span class="s2">&quot;message&quot;</span><span class="p">],</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;    error_msg: &quot;</span>
             <span class="p">)</span>
