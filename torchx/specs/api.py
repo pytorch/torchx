@@ -13,6 +13,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
+from json import JSONDecodeError
 from string import Template
 from typing import (
     Any,
@@ -554,7 +555,10 @@ class AppStatus:
 
     def _format_replica_status(self, replica_status: ReplicaStatus) -> str:
         if replica_status.structured_error_msg != NONE:
-            error_data = json.loads(replica_status.structured_error_msg)
+            try:
+                error_data = json.loads(replica_status.structured_error_msg)
+            except JSONDecodeError:
+                return replica_status.structured_error_msg
             error_message = self._format_error_message(
                 msg=error_data["message"]["message"], header="    error_msg: "
             )
