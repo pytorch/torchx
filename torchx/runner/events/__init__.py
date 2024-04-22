@@ -85,9 +85,15 @@ class log_event:
         app_id: Optional[str] = None,
         app_image: Optional[str] = None,
         runcfg: Optional[str] = None,
+        workspace: Optional[str] = None,
     ) -> None:
         self._torchx_event: TorchxEvent = self._generate_torchx_event(
-            api, scheduler or "", app_id, app_image=app_image, runcfg=runcfg
+            api,
+            scheduler or "",
+            app_id,
+            app_image=app_image,
+            runcfg=runcfg,
+            workspace=workspace,
         )
         self._start_cpu_time_ns = 0
         self._start_wall_time_ns = 0
@@ -124,6 +130,7 @@ class log_event:
         app_image: Optional[str] = None,
         runcfg: Optional[str] = None,
         source: SourceType = SourceType.UNKNOWN,
+        workspace: Optional[str] = None,
     ) -> TorchxEvent:
         return TorchxEvent(
             session=app_id or "",
@@ -133,4 +140,5 @@ class log_event:
             app_image=app_image,
             runcfg=runcfg,
             source=source,
+            workspace=workspace,
         )
