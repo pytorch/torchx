@@ -85,16 +85,25 @@ def _parse_component_name_and_args(
             component = args[0]
             component_args = args[1:]
 
+    # Removed due to an issue created with a boolean input S412679
+    # TODO : Looking into a clean fix for this issue
     # Error if there are repeated command line arguments
-    all_options = [
-        x
-        for x in component_args
-        if x.startswith("-") and x.strip() != "-" and x.strip() != "--"
-    ]
-    arg_count = Counter(all_options)
-    duplicates = [arg for arg, count in arg_count.items() if count > 1]
-    if len(duplicates) > 0:
-        subparser.error(f"Repeated Command Line Arguments: {duplicates}")
+    if False:
+        all_options = [
+            x
+            for x in component_args
+            if isinstance(x, str)
+            and x.startswith("-")
+            and x.strip() != "-"
+            and x.strip() != "--"
+        ]
+        arg_count = Counter(all_options)
+        duplicates = [arg for arg, count in arg_count.items() if count > 1]
+        if len(duplicates) > 0:
+            subparser.error(f"Repeated Command Line Arguments: {duplicates}")
+
+
+    # Error if component name is not specified
 
     if not component:
         subparser.error(MISSING_COMPONENT_ERROR_MSG)
