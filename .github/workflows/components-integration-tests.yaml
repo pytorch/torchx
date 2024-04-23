@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - scheduler: "aws_batch"
-            platform: "linux.20_04.4x"
           # - scheduler: "aws_batch"
-          #   container_repo: localhost
+          #   platform: "linux.20_04.4x"
+          - scheduler: "aws_batch"
+            container_repo: localhost
           #   extra_args: "--mock"
           #   platform: "linux.20_04.4x"
           # - scheduler: "kubernetes"
