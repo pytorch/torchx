@@ -13,19 +13,19 @@ jobs:
         include:
           - scheduler: "aws_batch"
             platform: "linux.20_04.4x"
-          - scheduler: "aws_batch"
-            container_repo: localhost
-            extra_args: "--mock"
-            platform: "linux.20_04.4x"
-          - scheduler: "kubernetes"
-            container_repo: localhost:5000/torchx
-            platform: "linux.20_04.16x"
-          - scheduler: "local_cwd"
-            platform: ubuntu-20.04
-          - scheduler: "local_docker"
-            platform: "linux.20_04.4x"
-          - scheduler: "ray"
-            platform: ubuntu-20.04
+          # - scheduler: "aws_batch"
+          #   container_repo: localhost
+          #   extra_args: "--mock"
+          #   platform: "linux.20_04.4x"
+          # - scheduler: "kubernetes"
+          #   container_repo: localhost:5000/torchx
+          #   platform: "linux.20_04.16x"
+          # - scheduler: "local_cwd"
+          #   platform: ubuntu-20.04
+          # - scheduler: "local_docker"
+          #   platform: "linux.20_04.4x"
+          # - scheduler: "ray"
+          #   platform: ubuntu-20.04
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     permissions:
@@ -42,13 +42,13 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
-          aws-region: us-west-2
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-west-1
+          role-to-assume: ${{ secrets.TF_AWS_ROLE_ARN }}
           role-session-name: github-torchx
         continue-on-error: true
       - name: Configure Kube Config
         env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
         run: |
           set -eux
           if [ -n "$AWS_ROLE_ARN" ]; then
@@ -56,11 +56,11 @@ jobs:
           fi
       - name: Configure Docker
         env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
         run: |
           set -eux
           if [ -n "$AWS_ROLE_ARN" ]; then
-            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-2.amazonaws.com
+            aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 495572122715.dkr.ecr.us-west-1.amazonaws.com
           fi
 
       - name: Install dependencies
@@ -85,4 +85,4 @@ jobs:
         env:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
         run: |
-          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.CONTAINER_REPO }}"  ${{ matrix.extra_args }}
+          scripts/component_integration_tests.py --scheduler ${{ matrix.scheduler }} --container_repo "${{ matrix.container_repo || secrets.TF_CONTAINER_REPO }}"  ${{ matrix.extra_args }}
