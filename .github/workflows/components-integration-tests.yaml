@@ -11,21 +11,21 @@ jobs:
     strategy:
       matrix:
         include:
-          # - scheduler: "aws_batch"
-          #   platform: "linux.20_04.4x"
+          - scheduler: "aws_batch"
+            platform: "linux.20_04.4x"
           - scheduler: "aws_batch"
             container_repo: localhost
-          #   extra_args: "--mock"
-          #   platform: "linux.20_04.4x"
+            extra_args: "--mock"
+            platform: "linux.20_04.4x"
           # - scheduler: "kubernetes"
           #   container_repo: localhost:5000/torchx
           #   platform: "linux.20_04.16x"
-          # - scheduler: "local_cwd"
-          #   platform: ubuntu-20.04
-          # - scheduler: "local_docker"
-          #   platform: "linux.20_04.4x"
-          # - scheduler: "ray"
-          #   platform: ubuntu-20.04
+          - scheduler: "local_cwd"
+            platform: ubuntu-20.04
+          - scheduler: "local_docker"
+            platform: "linux.20_04.4x"
+          - scheduler: "ray"
+            platform: ubuntu-20.04
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     permissions:
