@@ -46,14 +46,6 @@ jobs:
           role-to-assume: ${{ secrets.TF_AWS_ROLE_ARN }}
           role-session-name: github-torchx
         continue-on-error: true
-      # - name: Configure Kube Config
-      #   env:
-      #     AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-      #   run: |
-      #     set -eux
-      #     if [ -n "$AWS_ROLE_ARN" ]; then
-      #       aws eks update-kubeconfig --region=us-west-2 --name=${{ secrets.EKS_CLUSTER_NAME }}
-      #     fi
       - name: Configure Docker
         env:
           AWS_ROLE_ARN: ${{ secrets.TF_AWS_ROLE_ARN }}
