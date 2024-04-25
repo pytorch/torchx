@@ -46,12 +46,14 @@ class TorchxEventLibTest(unittest.TestCase):
             scheduler="test_scheduler",
             api="test_api",
             app_image="test_app_image",
+            workspace="test_workspace",
         )
         self.assertEqual("test_session", event.session)
         self.assertEqual("test_scheduler", event.scheduler)
         self.assertEqual("test_api", event.api)
         self.assertEqual("test_app_image", event.app_image)
         self.assertEqual(SourceType.UNKNOWN, event.source)
+        self.assertEqual("test_workspace", event.workspace)
 
     def test_event_deser(self) -> None:
         event = TorchxEvent(
@@ -59,6 +61,7 @@ class TorchxEventLibTest(unittest.TestCase):
             scheduler="test_scheduler",
             api="test_api",
             app_image="test_app_image",
+            workspace="test_workspace",
             source=SourceType.EXTERNAL,
         )
         json_event = event.serialize()
@@ -74,6 +77,7 @@ class LogEventTest(unittest.TestCase):
         self.assertEqual(expected.api, actual.api)
         self.assertEqual(expected.app_image, actual.app_image)
         self.assertEqual(expected.source, actual.source)
+        self.assertEqual(expected.workspace, actual.workspace)
 
     def test_create_context(self, _) -> None:
         cfg = json.dumps({"test_key": "test_value"})
@@ -83,6 +87,7 @@ class LogEventTest(unittest.TestCase):
             "test_app_id",
             app_image="test_app_image_id",
             runcfg=cfg,
+            workspace="test_workspace",
         )
         expected_torchx_event = TorchxEvent(
             "test_app_id",
@@ -91,7 +96,9 @@ class LogEventTest(unittest.TestCase):
             "test_app_id",
             app_image="test_app_image_id",
             runcfg=cfg,
+            workspace="test_workspace",
         )
+
         self.assert_torchx_event(expected_torchx_event, context._torchx_event)
 
     def test_record_event(self, record_mock: MagicMock) -> None:
@@ -102,6 +109,7 @@ class LogEventTest(unittest.TestCase):
             "test_app_id",
             app_image="test_app_image_id",
             runcfg=cfg,
+            workspace="test_workspace",
         ) as ctx:
             pass
 
@@ -112,6 +120,7 @@ class LogEventTest(unittest.TestCase):
             "test_app_id",
             app_image="test_app_image_id",
             runcfg=cfg,
+            workspace="test_workspace",
             cpu_time_usec=ctx._torchx_event.cpu_time_usec,
             wall_time_usec=ctx._torchx_event.wall_time_usec,
         )

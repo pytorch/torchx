@@ -177,7 +177,7 @@ class Runner:
             ComponentNotFoundException: if the ``component_path`` is failed to resolve.
         """
 
-        with log_event("run_component") as ctx:
+        with log_event("run_component", workspace=workspace) as ctx:
             dryrun_info = self.dryrun_component(
                 component,
                 component_args,
@@ -237,7 +237,9 @@ class Runner:
             An application handle that is used to call other action APIs on the app.
         """
 
-        with log_event(api="run", runcfg=json.dumps(cfg) if cfg else None) as ctx:
+        with log_event(
+            api="run", runcfg=json.dumps(cfg) if cfg else None, workspace=workspace
+        ) as ctx:
             dryrun_info = self.dryrun(
                 app,
                 scheduler,
@@ -371,7 +373,12 @@ class Runner:
                     role.env[tracker_config_env_var_name(name)] = config
 
         cfg = cfg or dict()
-        with log_event("dryrun", scheduler, runcfg=json.dumps(cfg) if cfg else None):
+        with log_event(
+            "dryrun",
+            scheduler,
+            runcfg=json.dumps(cfg) if cfg else None,
+            workspace=workspace,
+        ):
             sched = self._scheduler(scheduler)
             resolved_cfg = sched.run_opts().resolve(cfg)
             if workspace and isinstance(sched, WorkspaceMixin):
