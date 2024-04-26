@@ -124,6 +124,7 @@ def ensure_network(client: Optional["DockerClient"] = None) -> None:
 class DockerOpts(TypedDict, total=False):
     copy_env: Optional[List[str]]
     env: Optional[Dict[str, str]]
+    privileged: bool
 
 
 class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
@@ -287,6 +288,7 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                             LABEL_REPLICA_ID: str(replica_id),
                         },
                         "hostname": name,
+                        "privileged": cfg.get("privileged", False),
                         "network": NETWORK,
                         "mounts": mounts,
                         "devices": devices,
@@ -373,6 +375,13 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
             help="""environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
             (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
             of the ones from copy_env""",
+        )
+        opts.add(
+            "privileged",
+            type_=bool,
+            default=False,
+            help="If true runs the container with elevated permissions."
+            " Equivalent to running with `docker run --privileged`.",
         )
         return opts
 
