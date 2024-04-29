@@ -424,131 +424,26 @@ torchx<span class="w"> </span>--help
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-usage: torchx [-h] [--log_level LOG_LEVEL] [--version]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-              {builtins,cancel,configure,describe,list,log,run,runopts,status,tracker}
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-              ...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-torchx CLI
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -h, --help            show this help message and exit
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --log_level LOG_LEVEL
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                        Python logging log level
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --version             show program&#39;s version number and exit
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-sub-commands:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  Use the following commands to run operations, e.g.: torchx run ${JOB_NAME}
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+usage: torchx [-h] [--log_level LOG_LEVEL] [--version]
+              {builtins,cancel,configure,describe,list,log,run,runopts,status,tracker}
+              ...
+
+torchx CLI
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --log_level LOG_LEVEL
+                        Python logging log level
+  --version             show program&#39;s version number and exit
+
+sub-commands:
+  Use the following commands to run operations, e.g.: torchx run ${JOB_NAME}
+
   {builtins,cancel,configure,describe,list,log,run,runopts,status,tracker}
 </pre></div></div>
 </div>
@@ -592,283 +487,45 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-usage: torchx run &lt;run args...&gt; python  [--help] [-m str] [-c str]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                        [--script str] [--image str]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                        [--name str] [--cpu int] [--gpu int]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                        [--memMB int] [-h str]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                        [--num_replicas int]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                        ...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Runs ``python`` with the specified module, command or script on the specified
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-image and host. Use ``--`` to separate component args and program args
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-(e.g. ``torchx run utils.python --m foo.main -- --args to --main``)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-      ``h`` takes precedence if specified for setting resource requirements.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-      See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-positional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  str                 arguments passed to the program in sys.argv[1:] (ignored
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      with `--c`) (required)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --help              show this help message and exit
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -m str, --m str     run library module as a script (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -c str, --c str     program passed as string (may error if scheduler has a
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      length limit on args) (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --script str        .py script to run (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --image str         image to run on (default:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      ghcr.io/pytorch/torchx:0.7.0dev0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --name str          name of the job (default: torchx_utils_python)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --cpu int           number of cpus per replica (default: 1)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --gpu int           number of gpus per replica (default: 0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --memMB int         cpu memory in MB per replica (default: 1024)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -h str, --h str     a registered named resource (if specified takes
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      precedence over cpu, gpu, memMB) (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --num_replicas int  number of copies to run (each on its own container)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+usage: torchx run &lt;run args...&gt; python  [--help] [-m str] [-c str]
+                                        [--script str] [--image str]
+                                        [--name str] [--cpu int] [--gpu int]
+                                        [--memMB int] [-h str]
+                                        [--num_replicas int]
+                                        ...
+
+Runs ``python`` with the specified module, command or script on the specified
+image and host. Use ``--`` to separate component args and program args
+(e.g. ``torchx run utils.python --m foo.main -- --args to --main``)
+
+Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
+      ``h`` takes precedence if specified for setting resource requirements.
+      See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.
+
+positional arguments:
+  str                 arguments passed to the program in sys.argv[1:] (ignored
+                      with `--c`) (required)
+
+optional arguments:
+  --help              show this help message and exit
+  -m str, --m str     run library module as a script (default: None)
+  -c str, --c str     program passed as string (may error if scheduler has a
+                      length limit on args) (default: None)
+  --script str        .py script to run (default: None)
+  --image str         image to run on (default:
+                      ghcr.io/pytorch/torchx:0.7.0dev0)
+  --name str          name of the job (default: torchx_utils_python)
+  --cpu int           number of cpus per replica (default: 1)
+  --gpu int           number of gpus per replica (default: 0)
+  --memMB int         cpu memory in MB per replica (default: 1024)
+  -h str, --h str     a registered named resource (if specified takes
+                      precedence over cpu, gpu, memMB) (default: None)
+  --num_replicas int  number of copies to run (each on its own container)
                       (default: 1)
 </pre></div></div>
 </div>
@@ -887,47 +544,12 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-26 00:56:21 INFO     Tracker configurations: {}
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:21 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:21 INFO     Log directory is: /tmp/torchx_ihal07lm
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:21 INFO     Waiting for the app to finish...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
+torchx 2024-04-29 20:42:50 INFO     Tracker configurations: {}
+torchx 2024-04-29 20:42:50 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2024-04-29 20:42:50 INFO     Log directory is: /tmp/torchx_6_eql3aw
+torchx 2024-04-29 20:42:50 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:22 INFO     Job finished: SUCCEEDED
+torchx 2024-04-29 20:42:51 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -935,7 +557,7 @@ torchx 2024-04-26 00:56:22 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-qh4mbcdzsc6ftc
+local_cwd://torchx/torchx_utils_python-dnb0g6wg2nntmd
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -955,159 +577,26 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Tracker configurations: {}
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Building workspace docker image (this may take a while)...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Step 1/4 : ARG IMAGE
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Step 2/4 : FROM $IMAGE
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO      ---&gt; 0536262621c1
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:23 INFO     Step 3/4 : COPY . .
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:28 INFO      ---&gt; f26e9e4d767b
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:28 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:28 INFO      ---&gt; Running in 3ef0d55559b2
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:32 INFO     Removing intermediate container 3ef0d55559b2
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:32 INFO      ---&gt; cefa0dae9866
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:32 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:32 INFO     Successfully built cefa0dae9866
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:32 INFO     Built new image `sha256:cefa0dae9866281dfa7577f1a83367b22c49680f2d02270c7ac4b40c58649b6f` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:32 INFO     Waiting for the app to finish...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
+torchx 2024-04-29 20:42:52 INFO     Tracker configurations: {}
+torchx 2024-04-29 20:42:52 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-04-29 20:42:52 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-04-29 20:42:52 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-04-29 20:42:52 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-04-29 20:42:52 INFO     Step 1/4 : ARG IMAGE
+torchx 2024-04-29 20:42:52 INFO     Step 2/4 : FROM $IMAGE
+torchx 2024-04-29 20:42:52 INFO      ---&gt; 260b56c1b014
+torchx 2024-04-29 20:42:52 INFO     Step 3/4 : COPY . .
+torchx 2024-04-29 20:42:57 INFO      ---&gt; b607ecb8c908
+torchx 2024-04-29 20:42:57 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
+torchx 2024-04-29 20:42:57 INFO      ---&gt; Running in 5f03cfab1e2e
+torchx 2024-04-29 20:43:01 INFO     Removing intermediate container 5f03cfab1e2e
+torchx 2024-04-29 20:43:01 INFO      ---&gt; f3d32d073c90
+torchx 2024-04-29 20:43:01 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2024-04-29 20:43:01 INFO     Successfully built f3d32d073c90
+torchx 2024-04-29 20:43:01 INFO     Built new image `sha256:f3d32d073c905d58faefaf3d6779accb821008021efcf27bb4c003e4604afaa8` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-04-29 20:43:01 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:33 INFO     Job finished: SUCCEEDED
+torchx 2024-04-29 20:43:02 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1115,7 +604,7 @@ torchx 2024-04-26 00:56:33 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-lrn23lpg4q61d
+local_docker://torchx/torchx_utils_python-p3t9nhhcbq2qj
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -1132,459 +621,67 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-usage: torchx run &lt;run args...&gt; ddp  [--help] [--script str] [-m str]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--image str] [--name str] [-h str]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--cpu int] [--gpu int] [--memMB int]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [-j str] [--env str] [--max_retries int]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--rdzv_port int] [--rdzv_backend str]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     [--mounts str] [--debug str] [--tee int]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                                     ...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Distributed data parallel style application (one role, multi-replica).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-to launch and coordinate PyTorch worker processes. Defaults to using ``c10d`` rendezvous backend
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-on rendezvous_endpoint ``$rank_0_host:$rdzv_port``. Note that ``rdzv_port`` parameter is ignored
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-when running on single node, and instead we use port 0 which instructs torchelastic to chose
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-a free random port on the host.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-      ``h`` takes precedence if specified for setting resource requirements.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-      See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-positional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  str                 arguments to the main module (required)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --help              show this help message and exit
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --script str        script or binary to run within the image (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -m str, --m str     the python module path to run (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --image str         image (e.g. docker) (default:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      ghcr.io/pytorch/torchx:0.7.0dev0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --name str          job name override in the following format:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      ``{experimentname}/{runname}`` or ``{experimentname}/``
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      or ``/{runname}`` or ``{runname}``. Uses the script or
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      module name if ``{runname}`` not specified. (default: /)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -h str, --h str     a registered named resource (if specified takes
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      precedence over cpu, gpu, memMB) (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --cpu int           number of cpus per replica (default: 2)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --gpu int           number of gpus per replica (default: 0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --memMB int         cpu memory in MB per replica (default: 1024)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  -j str, --j str     [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts,
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      nproc_per_node must not exceed num gpus (default: 1x2)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --env str           environment varibles to be passed to the run (e.g.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      ENV1=v1,ENV2=v2,ENV3=v3) (default: None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --max_retries int   the number of scheduler retries allowed (default: 0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --rdzv_port int     the port on rank0&#39;s host to use for hosting the c10d
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      store used for rendezvous. Only takes effect when
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      running multi-node. When running single node, this
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      parameter is ignored and a random free port is chosen.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      (default: 29500)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --rdzv_backend str  the rendezvous backend to use. Only takes effect when
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      running multi-node. (default: c10d)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --mounts str        mounts to mount into the worker environment/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      See scheduler documentation for more info. (default:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --debug str         whether to run with preset debug flags enabled (default:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-                      False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-  --tee int           tees the specified std stream(s) to console + file. 0:
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+usage: torchx run &lt;run args...&gt; ddp  [--help] [--script str] [-m str]
+                                     [--image str] [--name str] [-h str]
+                                     [--cpu int] [--gpu int] [--memMB int]
+                                     [-j str] [--env str] [--max_retries int]
+                                     [--rdzv_port int] [--rdzv_backend str]
+                                     [--mounts str] [--debug str] [--tee int]
+                                     ...
+
+Distributed data parallel style application (one role, multi-replica).
+Uses `torch.distributed.run &lt;https://pytorch.org/docs/stable/distributed.elastic.html&gt;`_
+to launch and coordinate PyTorch worker processes. Defaults to using ``c10d`` rendezvous backend
+on rendezvous_endpoint ``$rank_0_host:$rdzv_port``. Note that ``rdzv_port`` parameter is ignored
+when running on single node, and instead we use port 0 which instructs torchelastic to chose
+a free random port on the host.
+
+Note: (cpu, gpu, memMB) parameters are mutually exclusive with ``h`` (named resource) where
+      ``h`` takes precedence if specified for setting resource requirements.
+      See `registering named resources &lt;https://pytorch.org/torchx/latest/advanced.html#registering-named-resources&gt;`_.
+
+positional arguments:
+  str                 arguments to the main module (required)
+
+optional arguments:
+  --help              show this help message and exit
+  --script str        script or binary to run within the image (default: None)
+  -m str, --m str     the python module path to run (default: None)
+  --image str         image (e.g. docker) (default:
+                      ghcr.io/pytorch/torchx:0.7.0dev0)
+  --name str          job name override in the following format:
+                      ``{experimentname}/{runname}`` or ``{experimentname}/``
+                      or ``/{runname}`` or ``{runname}``. Uses the script or
+                      module name if ``{runname}`` not specified. (default: /)
+  -h str, --h str     a registered named resource (if specified takes
+                      precedence over cpu, gpu, memMB) (default: None)
+  --cpu int           number of cpus per replica (default: 2)
+  --gpu int           number of gpus per replica (default: 0)
+  --memMB int         cpu memory in MB per replica (default: 1024)
+  -j str, --j str     [{min_nnodes}:]{nnodes}x{nproc_per_node}, for gpu hosts,
+                      nproc_per_node must not exceed num gpus (default: 1x2)
+  --env str           environment varibles to be passed to the run (e.g.
+                      ENV1=v1,ENV2=v2,ENV3=v3) (default: None)
+  --max_retries int   the number of scheduler retries allowed (default: 0)
+  --rdzv_port int     the port on rank0&#39;s host to use for hosting the c10d
+                      store used for rendezvous. Only takes effect when
+                      running multi-node. When running single node, this
+                      parameter is ignored and a random free port is chosen.
+                      (default: 29500)
+  --rdzv_backend str  the rendezvous backend to use. Only takes effect when
+                      running multi-node. (default: c10d)
+  --mounts str        mounts to mount into the worker environment/container
+                      (ex. type=&lt;bind/volume&gt;,src=/host,dst=/job[,readonly]).
+                      See scheduler documentation for more info. (default:
+                      None)
+  --debug str         whether to run with preset debug flags enabled (default:
+                      False)
+  --tee int           tees the specified std stream(s) to console + file. 0:
                       none, 1: stdout, 2: stderr, 3: both (default: 3)
 </pre></div></div>
 </div>
@@ -1630,279 +727,41 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-26 00:56:35 INFO     Tracker configurations: {}
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:35 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:35 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:35 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:35 INFO     Building workspace docker image (this may take a while)...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:36 INFO     Step 1/4 : ARG IMAGE
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:36 INFO     Step 2/4 : FROM $IMAGE
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:36 INFO      ---&gt; 0536262621c1
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:36 INFO     Step 3/4 : COPY . .
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:40 INFO      ---&gt; 7e5909f56faf
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:40 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:40 INFO      ---&gt; Running in 3dd84bd39e2b
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:44 INFO     Removing intermediate container 3dd84bd39e2b
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:44 INFO      ---&gt; 51a07f79f2a2
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:44 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:44 INFO     Successfully built 51a07f79f2a2
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:44 INFO     Built new image `sha256:51a07f79f2a2dedb068f3942e9ccfe944156a5966115a317ae119b800af2ddfe` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:45 INFO     Waiting for the app to finish...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING] *****************************************
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/0 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING] *****************************************
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/1 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/1 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING] *****************************************
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/1 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-dist_app/1 [2024-04-26 00:56:46,057] torch.distributed.run: [WARNING] *****************************************
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
+torchx 2024-04-29 20:43:04 INFO     Tracker configurations: {}
+torchx 2024-04-29 20:43:04 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-04-29 20:43:04 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-04-29 20:43:04 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-04-29 20:43:04 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-04-29 20:43:04 INFO     Step 1/4 : ARG IMAGE
+torchx 2024-04-29 20:43:04 INFO     Step 2/4 : FROM $IMAGE
+torchx 2024-04-29 20:43:04 INFO      ---&gt; 260b56c1b014
+torchx 2024-04-29 20:43:04 INFO     Step 3/4 : COPY . .
+torchx 2024-04-29 20:43:09 INFO      ---&gt; 2733b8452518
+torchx 2024-04-29 20:43:09 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
+torchx 2024-04-29 20:43:09 INFO      ---&gt; Running in 225c1c1452e8
+torchx 2024-04-29 20:43:13 INFO     Removing intermediate container 225c1c1452e8
+torchx 2024-04-29 20:43:13 INFO      ---&gt; a015be1f5da5
+torchx 2024-04-29 20:43:13 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2024-04-29 20:43:13 INFO     Successfully built a015be1f5da5
+torchx 2024-04-29 20:43:13 INFO     Built new image `sha256:a015be1f5da5b8277263b299acd4f611c5835de65a48a867f44a21fcc3b35df8` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2024-04-29 20:43:14 INFO     Waiting for the app to finish...
+dist_app/0 [2024-04-29 20:43:15,202] torch.distributed.run: [WARNING]
+dist_app/0 [2024-04-29 20:43:15,202] torch.distributed.run: [WARNING] *****************************************
+dist_app/0 [2024-04-29 20:43:15,202] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 [2024-04-29 20:43:15,202] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-04-29 20:43:15,208] torch.distributed.run: [WARNING]
+dist_app/1 [2024-04-29 20:43:15,208] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-04-29 20:43:15,208] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 [2024-04-29 20:43:15,208] torch.distributed.run: [WARNING] *****************************************
 dist_app/1 [0]:I am worker 2 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/1 [0]:all_reduce output = tensor([6])
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/1 [1]:I am worker 3 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/1 [1]:all_reduce output = tensor([6])
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/0 [0]:I am worker 0 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/0 [0]:all_reduce output = tensor([6])
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/0 [1]:I am worker 1 of 4!
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 dist_app/0 [1]:all_reduce output = tensor([6])
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:53 INFO     Job finished: SUCCEEDED
+torchx 2024-04-29 20:43:22 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1910,7 +769,7 @@ torchx 2024-04-26 00:56:53 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-kr1kvwz531gpbd
+local_docker://torchx/dist_app-ntfdpsq7xf4lcc
 </pre></div></div>
 </div>
 </section>
@@ -1969,2011 +828,261 @@ torchx<span class="w"> </span>runopts
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-local_docker:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [copy_env=COPY_ENV],[env=ENV],[image_repo=IMAGE_REPO],[quiet=QUIET]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        copy_env=COPY_ENV (typing.List[str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        env=ENV (typing.Dict[str, str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            of the ones from copy_env
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        image_repo=IMAGE_REPO (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        quiet=QUIET (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            whether to suppress verbose output for image building. Defaults to ``False``.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-local_cwd:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [log_dir=LOG_DIR],[prepend_cwd=PREPEND_CWD],[auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        log_dir=LOG_DIR (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            dir to write stdout/stderr log files of replicas
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        prepend_cwd=PREPEND_CWD (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            if set, prepends CWD to replica&#39;s PATH env var making any binaries in CWD take precedence over those in PATH
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            sets the `CUDA_AVAILABLE_DEVICES` for roles that request GPU resources. Each role replica will be assigned one GPU. Does nothing if the device count is less than replicas.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-slurm:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [partition=PARTITION],[time=TIME],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        partition=PARTITION (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The partition to run the job in.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        time=TIME (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The maximum time the job is allowed to run for. Formats:             &#34;minutes&#34;, &#34;minutes:seconds&#34;, &#34;hours:minutes:seconds&#34;, &#34;days-hours&#34;,             &#34;days-hours:minutes&#34; or &#34;days-hours:minutes:seconds&#34;
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        comment=COMMENT (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Comment to set on the slurm job.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        constraint=CONSTRAINT (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Constraint to use for the slurm job.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        mail-user=MAIL-USER (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            User to mail on job end.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        mail-type=MAIL-TYPE (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            What events to mail users on.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        job_dir=JOB_DIR (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The directory to place the job code and outputs. The
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            directory must not exist and will be created. To enable log
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-kubernetes:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        queue=QUEUE,[namespace=NAMESPACE],[service_account=SERVICE_ACCOUNT],[priority_class=PRIORITY_CLASS],[image_repo=IMAGE_REPO],[quiet=QUIET]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    required arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        queue=QUEUE (str)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Volcano queue to schedule job in
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        namespace=NAMESPACE (str, default)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Kubernetes namespace to schedule job in
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        service_account=SERVICE_ACCOUNT (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The service account name to set on the pod specs
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        priority_class=PRIORITY_CLASS (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The name of the PriorityClass to set on the job specs
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        image_repo=IMAGE_REPO (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        quiet=QUIET (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            whether to suppress verbose output for image building. Defaults to ``False``.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-kubernetes_mcad:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [namespace=NAMESPACE],[image_repo=IMAGE_REPO],[service_account=SERVICE_ACCOUNT],[priority=PRIORITY],[priority_class_name=PRIORITY_CLASS_NAME],[image_secret=IMAGE_SECRET],[coscheduler_name=COSCHEDULER_NAME],[network=NETWORK]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        namespace=NAMESPACE (str, default)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Kubernetes namespace to schedule job in
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        image_repo=IMAGE_REPO (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        service_account=SERVICE_ACCOUNT (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The service account name to set on the pod specs
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        priority=PRIORITY (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The priority level to set on the job specs. Higher integer value means higher priority
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        priority_class_name=PRIORITY_CLASS_NAME (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Pod specific priority level. Check with your Kubernetes cluster admin if Priority classes are defined on your system
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        image_secret=IMAGE_SECRET (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The name of the Kubernetes/OpenShift secret set up for private images
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        coscheduler_name=COSCHEDULER_NAME (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Option to run TorchX-MCAD with a co-scheduler. User must provide the co-scheduler name.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        network=NETWORK (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Name of additional pod-to-pod network beyond default Kubernetes network
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-aws_batch:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[job_role_arn=JOB_ROLE_ARN],[execution_role_arn=EXECUTION_ROLE_ARN],[image_repo=IMAGE_REPO],[quiet=QUIET]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    required arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        queue=QUEUE (str)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            queue to schedule job in
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        user=USER (str, runner)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The username to tag the job with. `getpass.getuser()` if not specified.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        privileged=PRIVILEGED (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            If true runs the container with elevated permissions. Equivalent to running with `docker run --privileged`.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        share_id=SHARE_ID (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        priority=PRIORITY (int, 0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The scheduling priority for the job within the context of share_id. Higher number (between 0 and 9999) means higher priority. This will only take effect if the job queue has a scheduling policy.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        job_role_arn=JOB_ROLE_ARN (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The Amazon Resource Name (ARN) of the IAM role that the container can assume for AWS permissions.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        execution_role_arn=EXECUTION_ROLE_ARN (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The Amazon Resource Name (ARN) of the IAM role that the ECS agent can assume for AWS permissions.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        image_repo=IMAGE_REPO (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        quiet=QUIET (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            whether to suppress verbose output for image building. Defaults to ``False``.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-sagemaker.config INFO - Not applying SDK defaults from location: /etc/xdg/sagemaker/config.yaml
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-sagemaker.config INFO - Not applying SDK defaults from location: /home/runner/.config/sagemaker/config.yaml
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-aws_sagemaker:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        role=ROLE,instance_type=INSTANCE_TYPE,[instance_count=INSTANCE_COUNT],[user=USER],[keep_alive_period_in_seconds=KEEP_ALIVE_PERIOD_IN_SECONDS],[volume_size=VOLUME_SIZE],[volume_kms_key=VOLUME_KMS_KEY],[max_run=MAX_RUN],[input_mode=INPUT_MODE],[output_path=OUTPUT_PATH],[output_kms_key=OUTPUT_KMS_KEY],[base_job_name=BASE_JOB_NAME],[tags=TAGS],[subnets=SUBNETS],[security_group_ids=SECURITY_GROUP_IDS],[model_uri=MODEL_URI],[model_channel_name=MODEL_CHANNEL_NAME],[metric_definitions=METRIC_DEFINITIONS],[encrypt_inter_container_traffic=ENCRYPT_INTER_CONTAINER_TRAFFIC],[use_spot_instances=USE_SPOT_INSTANCES],[max_wait=MAX_WAIT],[checkpoint_s3_uri=CHECKPOINT_S3_URI],[checkpoint_local_path=CHECKPOINT_LOCAL_PATH],[debugger_hook_config=DEBUGGER_HOOK_CONFIG],[enable_sagemaker_metrics=ENABLE_SAGEMAKER_METRICS],[enable_network_isolation=ENABLE_NETWORK_ISOLATION],[disable_profiler=DISABLE_PROFILER],[environment=ENVIRONMENT],[max_retry_attempts=MAX_RETRY_ATTEMPTS],[source_dir=SOURCE_DIR],[git_config=GIT_CONFIG],[hyperparameters=HYPERPARAMETERS],[container_log_level=CONTAINER_LOG_LEVEL],[code_location=CODE_LOCATION],[dependencies=DEPENDENCIES],[training_repository_access_mode=TRAINING_REPOSITORY_ACCESS_MODE],[training_repository_credentials_provider_arn=TRAINING_REPOSITORY_CREDENTIALS_PROVIDER_ARN],[disable_output_compression=DISABLE_OUTPUT_COMPRESSION],[enable_infra_check=ENABLE_INFRA_CHECK],[image_repo=IMAGE_REPO],[quiet=QUIET]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    required arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        role=ROLE (str)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            an AWS IAM role (either name or full ARN). The Amazon SageMaker training jobs and APIs that create Amazon SageMaker endpoints use this role to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role, if it needs to access an AWS resource.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        instance_type=INSTANCE_TYPE (str)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            type of EC2 instance to use for training, for example, &#39;ml.c4.xlarge&#39;
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        instance_count=INSTANCE_COUNT (int, 1)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            number of Amazon EC2 instances to use for training. Required if instance_groups is not set.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        user=USER (str, runner)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            the username to tag the job with. `getpass.getuser()` if not specified.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        keep_alive_period_in_seconds=KEEP_ALIVE_PERIOD_IN_SECONDS (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            the duration of time in seconds to retain configured resources in a warm pool for subsequent training jobs.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        volume_size=VOLUME_SIZE (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            size in GB of the storage volume to use for storing input and output data during training (default: 30).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        volume_kms_key=VOLUME_KMS_KEY (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            KMS key ID for encrypting EBS volume attached to the training instance.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        max_run=MAX_RUN (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            timeout in seconds for training (default: 24 * 60 * 60).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        input_mode=INPUT_MODE (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            the input mode that the algorithm supports (default: ‘File’).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        output_path=OUTPUT_PATH (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            S3 location for saving the training result (model artifacts and output files). If not specified, results are stored to a default bucket. If the bucket with the specific name does not exist, the estimator creates the bucket during the fit() method execution.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        output_kms_key=OUTPUT_KMS_KEY (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            KMS key ID for encrypting the training output (default: Your IAM role’s KMS key for Amazon S3).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        base_job_name=BASE_JOB_NAME (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            prefix for training job name when the fit() method launches. If not specified, the estimator generates a default job name based on the training image name and current timestamp.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        tags=TAGS (typing.List[typing.Dict[str, str]], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            list of tags for labeling a training job.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        subnets=SUBNETS (typing.List[str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            list of subnet ids. If not specified training job will be created without VPC config.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        security_group_ids=SECURITY_GROUP_IDS (typing.List[str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            list of security group ids. If not specified training job will be created without VPC config.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        model_uri=MODEL_URI (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            URI where a pre-trained model is stored, either locally or in S3.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        model_channel_name=MODEL_CHANNEL_NAME (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            name of the channel where ‘model_uri’ will be downloaded (default: ‘model’).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        metric_definitions=METRIC_DEFINITIONS (typing.List[typing.Dict[str, str]], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            list of dictionaries that defines the metric(s) used to evaluate the training jobs. Each dictionary contains two keys: ‘Name’ for the name of the metric, and ‘Regex’ for the regular expression used to extract the metric from the logs.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        encrypt_inter_container_traffic=ENCRYPT_INTER_CONTAINER_TRAFFIC (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            specifies whether traffic between training containers is encrypted for the training job (default: False).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        use_spot_instances=USE_SPOT_INSTANCES (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            specifies whether to use SageMaker Managed Spot instances for training. If enabled then the max_wait arg should also be set.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        max_wait=MAX_WAIT (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            timeout in seconds waiting for spot training job.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        checkpoint_s3_uri=CHECKPOINT_S3_URI (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            S3 URI in which to persist checkpoints that the algorithm persists (if any) during training.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        checkpoint_local_path=CHECKPOINT_LOCAL_PATH (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            local path that the algorithm writes its checkpoints to.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        debugger_hook_config=DEBUGGER_HOOK_CONFIG (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            configuration for how debugging information is emitted with SageMaker Debugger. If not specified, a default one is created using the estimator’s output_path, unless the region does not support SageMaker Debugger. To disable SageMaker Debugger, set this parameter to False.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        enable_sagemaker_metrics=ENABLE_SAGEMAKER_METRICS (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            enable SageMaker Metrics Time Series.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        enable_network_isolation=ENABLE_NETWORK_ISOLATION (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            specifies whether container will run in network isolation mode (default: False).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        disable_profiler=DISABLE_PROFILER (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            specifies whether Debugger monitoring and profiling will be disabled (default: False).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        environment=ENVIRONMENT (typing.Dict[str, str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            environment variables to be set for use during training job
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        max_retry_attempts=MAX_RETRY_ATTEMPTS (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        source_dir=SOURCE_DIR (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            absolute, relative, or S3 URI Path to a directory with any other training source code dependencies aside from the entry point file (default: current working directory)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        git_config=GIT_CONFIG (typing.Dict[str, str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            git configurations used for cloning files, including repo, branch, commit, 2FA_enabled, username, password, and token.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        hyperparameters=HYPERPARAMETERS (typing.Dict[str, str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            dictionary containing the hyperparameters to initialize this estimator with.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        container_log_level=CONTAINER_LOG_LEVEL (int, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            log level to use within the container (default: logging.INFO).
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        code_location=CODE_LOCATION (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            S3 prefix URI where custom code is uploaded.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        dependencies=DEPENDENCIES (typing.List[str], None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            list of absolute or relative paths to directories with any additional libraries that should be exported to the container.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        training_repository_access_mode=TRAINING_REPOSITORY_ACCESS_MODE (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            specifies how SageMaker accesses the Docker image that contains the training algorithm.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        training_repository_credentials_provider_arn=TRAINING_REPOSITORY_CREDENTIALS_PROVIDER_ARN (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Amazon Resource Name (ARN) of an AWS Lambda function that provides credentials to authenticate to the private Docker registry where your training image is hosted.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        disable_output_compression=DISABLE_OUTPUT_COMPRESSION (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            when set to true, Model is uploaded to Amazon S3 without compression after training finishes.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        enable_infra_check=ENABLE_INFRA_CHECK (bool, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            specifies whether it is running Sagemaker built-in infra check jobs.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        image_repo=IMAGE_REPO (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        quiet=QUIET (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            whether to suppress verbose output for image building. Defaults to ``False``.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-gcp_batch:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [project=PROJECT],[location=LOCATION]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        project=PROJECT (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Name of the GCP project. Defaults to the configured GCP project in the environment
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        location=LOCATION (str, us-central1)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Name of the location to schedule the job in. Defaults to us-central1
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-ray:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [cluster_config_file=CLUSTER_CONFIG_FILE],[cluster_name=CLUSTER_NAME],[dashboard_address=DASHBOARD_ADDRESS],[requirements=REQUIREMENTS]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        cluster_config_file=CLUSTER_CONFIG_FILE (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Use CLUSTER_CONFIG_FILE to access or create the Ray cluster.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        cluster_name=CLUSTER_NAME (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Override the configured cluster name.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        dashboard_address=DASHBOARD_ADDRESS (str, 127.0.0.1:8265)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Use ray status to get the dashboard address you will submit jobs against
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        requirements=REQUIREMENTS (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            Path to requirements.txt
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-lsf:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    usage:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        [lsf_queue=LSF_QUEUE],[jobdir=JOBDIR],[container_workdir=CONTAINER_WORKDIR],[host_network=HOST_NETWORK],[shm_size=SHM_SIZE]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-    optional arguments:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        lsf_queue=LSF_QUEUE (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            queue name to submit jobs
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        jobdir=JOBDIR (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            The directory to place the job code and outputs. The directory must not exist and will be created.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        container_workdir=CONTAINER_WORKDIR (str, None)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            working directory in container jobs
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        host_network=HOST_NETWORK (bool, False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            True if using the host network for jobs
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-        shm_size=SHM_SIZE (str, 64m)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-            size of shared memory (/dev/shm) for jobs
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+local_docker:
+    usage:
+        [copy_env=COPY_ENV],[env=ENV],[image_repo=IMAGE_REPO],[quiet=QUIET]
+
+    optional arguments:
+        copy_env=COPY_ENV (typing.List[str], None)
+            list of glob patterns of environment variables to copy if not set in AppDef. Ex: FOO_*
+        env=ENV (typing.Dict[str, str], None)
+            environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
+            (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
+            of the ones from copy_env
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
+
+local_cwd:
+    usage:
+        [log_dir=LOG_DIR],[prepend_cwd=PREPEND_CWD],[auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES]
+
+    optional arguments:
+        log_dir=LOG_DIR (str, None)
+            dir to write stdout/stderr log files of replicas
+        prepend_cwd=PREPEND_CWD (bool, False)
+            if set, prepends CWD to replica&#39;s PATH env var making any binaries in CWD take precedence over those in PATH
+        auto_set_cuda_visible_devices=AUTO_SET_CUDA_VISIBLE_DEVICES (bool, False)
+            sets the `CUDA_AVAILABLE_DEVICES` for roles that request GPU resources. Each role replica will be assigned one GPU. Does nothing if the device count is less than replicas.
+
+slurm:
+    usage:
+        [partition=PARTITION],[time=TIME],[comment=COMMENT],[constraint=CONSTRAINT],[mail-user=MAIL-USER],[mail-type=MAIL-TYPE],[job_dir=JOB_DIR]
+
+    optional arguments:
+        partition=PARTITION (str, None)
+            The partition to run the job in.
+        time=TIME (str, None)
+            The maximum time the job is allowed to run for. Formats:             &#34;minutes&#34;, &#34;minutes:seconds&#34;, &#34;hours:minutes:seconds&#34;, &#34;days-hours&#34;,             &#34;days-hours:minutes&#34; or &#34;days-hours:minutes:seconds&#34;
+        comment=COMMENT (str, None)
+            Comment to set on the slurm job.
+        constraint=CONSTRAINT (str, None)
+            Constraint to use for the slurm job.
+        mail-user=MAIL-USER (str, None)
+            User to mail on job end.
+        mail-type=MAIL-TYPE (str, None)
+            What events to mail users on.
+        job_dir=JOB_DIR (str, None)
+            The directory to place the job code and outputs. The
+            directory must not exist and will be created. To enable log
+            iteration, jobs will be tracked in ``.torchxslurmjobdirs``.
+
+
+kubernetes:
+    usage:
+        queue=QUEUE,[namespace=NAMESPACE],[service_account=SERVICE_ACCOUNT],[priority_class=PRIORITY_CLASS],[image_repo=IMAGE_REPO],[quiet=QUIET]
+
+    required arguments:
+        queue=QUEUE (str)
+            Volcano queue to schedule job in
+
+    optional arguments:
+        namespace=NAMESPACE (str, default)
+            Kubernetes namespace to schedule job in
+        service_account=SERVICE_ACCOUNT (str, None)
+            The service account name to set on the pod specs
+        priority_class=PRIORITY_CLASS (str, None)
+            The name of the PriorityClass to set on the job specs
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
+
+kubernetes_mcad:
+    usage:
+        [namespace=NAMESPACE],[image_repo=IMAGE_REPO],[service_account=SERVICE_ACCOUNT],[priority=PRIORITY],[priority_class_name=PRIORITY_CLASS_NAME],[image_secret=IMAGE_SECRET],[coscheduler_name=COSCHEDULER_NAME],[network=NETWORK]
+
+    optional arguments:
+        namespace=NAMESPACE (str, default)
+            Kubernetes namespace to schedule job in
+        image_repo=IMAGE_REPO (str, None)
+            The image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        service_account=SERVICE_ACCOUNT (str, None)
+            The service account name to set on the pod specs
+        priority=PRIORITY (int, None)
+            The priority level to set on the job specs. Higher integer value means higher priority
+        priority_class_name=PRIORITY_CLASS_NAME (str, None)
+            Pod specific priority level. Check with your Kubernetes cluster admin if Priority classes are defined on your system
+        image_secret=IMAGE_SECRET (str, None)
+            The name of the Kubernetes/OpenShift secret set up for private images
+        coscheduler_name=COSCHEDULER_NAME (str, None)
+            Option to run TorchX-MCAD with a co-scheduler. User must provide the co-scheduler name.
+        network=NETWORK (str, None)
+            Name of additional pod-to-pod network beyond default Kubernetes network
+
+aws_batch:
+    usage:
+        queue=QUEUE,[user=USER],[privileged=PRIVILEGED],[share_id=SHARE_ID],[priority=PRIORITY],[job_role_arn=JOB_ROLE_ARN],[execution_role_arn=EXECUTION_ROLE_ARN],[image_repo=IMAGE_REPO],[quiet=QUIET]
+
+    required arguments:
+        queue=QUEUE (str)
+            queue to schedule job in
+
+    optional arguments:
+        user=USER (str, runner)
+            The username to tag the job with. `getpass.getuser()` if not specified.
+        privileged=PRIVILEGED (bool, False)
+            If true runs the container with elevated permissions. Equivalent to running with `docker run --privileged`.
+        share_id=SHARE_ID (str, None)
+            The share identifier for the job. This must be set if and only if the job queue has a scheduling policy.
+        priority=PRIORITY (int, 0)
+            The scheduling priority for the job within the context of share_id. Higher number (between 0 and 9999) means higher priority. This will only take effect if the job queue has a scheduling policy.
+        job_role_arn=JOB_ROLE_ARN (str, None)
+            The Amazon Resource Name (ARN) of the IAM role that the container can assume for AWS permissions.
+        execution_role_arn=EXECUTION_ROLE_ARN (str, None)
+            The Amazon Resource Name (ARN) of the IAM role that the ECS agent can assume for AWS permissions.
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
+
+sagemaker.config INFO - Not applying SDK defaults from location: /etc/xdg/sagemaker/config.yaml
+sagemaker.config INFO - Not applying SDK defaults from location: /home/runner/.config/sagemaker/config.yaml
+aws_sagemaker:
+    usage:
+        role=ROLE,instance_type=INSTANCE_TYPE,[instance_count=INSTANCE_COUNT],[user=USER],[keep_alive_period_in_seconds=KEEP_ALIVE_PERIOD_IN_SECONDS],[volume_size=VOLUME_SIZE],[volume_kms_key=VOLUME_KMS_KEY],[max_run=MAX_RUN],[input_mode=INPUT_MODE],[output_path=OUTPUT_PATH],[output_kms_key=OUTPUT_KMS_KEY],[base_job_name=BASE_JOB_NAME],[tags=TAGS],[subnets=SUBNETS],[security_group_ids=SECURITY_GROUP_IDS],[model_uri=MODEL_URI],[model_channel_name=MODEL_CHANNEL_NAME],[metric_definitions=METRIC_DEFINITIONS],[encrypt_inter_container_traffic=ENCRYPT_INTER_CONTAINER_TRAFFIC],[use_spot_instances=USE_SPOT_INSTANCES],[max_wait=MAX_WAIT],[checkpoint_s3_uri=CHECKPOINT_S3_URI],[checkpoint_local_path=CHECKPOINT_LOCAL_PATH],[debugger_hook_config=DEBUGGER_HOOK_CONFIG],[enable_sagemaker_metrics=ENABLE_SAGEMAKER_METRICS],[enable_network_isolation=ENABLE_NETWORK_ISOLATION],[disable_profiler=DISABLE_PROFILER],[environment=ENVIRONMENT],[max_retry_attempts=MAX_RETRY_ATTEMPTS],[source_dir=SOURCE_DIR],[git_config=GIT_CONFIG],[hyperparameters=HYPERPARAMETERS],[container_log_level=CONTAINER_LOG_LEVEL],[code_location=CODE_LOCATION],[dependencies=DEPENDENCIES],[training_repository_access_mode=TRAINING_REPOSITORY_ACCESS_MODE],[training_repository_credentials_provider_arn=TRAINING_REPOSITORY_CREDENTIALS_PROVIDER_ARN],[disable_output_compression=DISABLE_OUTPUT_COMPRESSION],[enable_infra_check=ENABLE_INFRA_CHECK],[image_repo=IMAGE_REPO],[quiet=QUIET]
+
+    required arguments:
+        role=ROLE (str)
+            an AWS IAM role (either name or full ARN). The Amazon SageMaker training jobs and APIs that create Amazon SageMaker endpoints use this role to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role, if it needs to access an AWS resource.
+        instance_type=INSTANCE_TYPE (str)
+            type of EC2 instance to use for training, for example, &#39;ml.c4.xlarge&#39;
+
+    optional arguments:
+        instance_count=INSTANCE_COUNT (int, 1)
+            number of Amazon EC2 instances to use for training. Required if instance_groups is not set.
+        user=USER (str, runner)
+            the username to tag the job with. `getpass.getuser()` if not specified.
+        keep_alive_period_in_seconds=KEEP_ALIVE_PERIOD_IN_SECONDS (int, None)
+            the duration of time in seconds to retain configured resources in a warm pool for subsequent training jobs.
+        volume_size=VOLUME_SIZE (int, None)
+            size in GB of the storage volume to use for storing input and output data during training (default: 30).
+        volume_kms_key=VOLUME_KMS_KEY (str, None)
+            KMS key ID for encrypting EBS volume attached to the training instance.
+        max_run=MAX_RUN (int, None)
+            timeout in seconds for training (default: 24 * 60 * 60).
+        input_mode=INPUT_MODE (str, None)
+            the input mode that the algorithm supports (default: ‘File’).
+        output_path=OUTPUT_PATH (str, None)
+            S3 location for saving the training result (model artifacts and output files). If not specified, results are stored to a default bucket. If the bucket with the specific name does not exist, the estimator creates the bucket during the fit() method execution.
+        output_kms_key=OUTPUT_KMS_KEY (str, None)
+            KMS key ID for encrypting the training output (default: Your IAM role’s KMS key for Amazon S3).
+        base_job_name=BASE_JOB_NAME (str, None)
+            prefix for training job name when the fit() method launches. If not specified, the estimator generates a default job name based on the training image name and current timestamp.
+        tags=TAGS (typing.List[typing.Dict[str, str]], None)
+            list of tags for labeling a training job.
+        subnets=SUBNETS (typing.List[str], None)
+            list of subnet ids. If not specified training job will be created without VPC config.
+        security_group_ids=SECURITY_GROUP_IDS (typing.List[str], None)
+            list of security group ids. If not specified training job will be created without VPC config.
+        model_uri=MODEL_URI (str, None)
+            URI where a pre-trained model is stored, either locally or in S3.
+        model_channel_name=MODEL_CHANNEL_NAME (str, None)
+            name of the channel where ‘model_uri’ will be downloaded (default: ‘model’).
+        metric_definitions=METRIC_DEFINITIONS (typing.List[typing.Dict[str, str]], None)
+            list of dictionaries that defines the metric(s) used to evaluate the training jobs. Each dictionary contains two keys: ‘Name’ for the name of the metric, and ‘Regex’ for the regular expression used to extract the metric from the logs.
+        encrypt_inter_container_traffic=ENCRYPT_INTER_CONTAINER_TRAFFIC (bool, None)
+            specifies whether traffic between training containers is encrypted for the training job (default: False).
+        use_spot_instances=USE_SPOT_INSTANCES (bool, None)
+            specifies whether to use SageMaker Managed Spot instances for training. If enabled then the max_wait arg should also be set.
+        max_wait=MAX_WAIT (int, None)
+            timeout in seconds waiting for spot training job.
+        checkpoint_s3_uri=CHECKPOINT_S3_URI (str, None)
+            S3 URI in which to persist checkpoints that the algorithm persists (if any) during training.
+        checkpoint_local_path=CHECKPOINT_LOCAL_PATH (str, None)
+            local path that the algorithm writes its checkpoints to.
+        debugger_hook_config=DEBUGGER_HOOK_CONFIG (bool, None)
+            configuration for how debugging information is emitted with SageMaker Debugger. If not specified, a default one is created using the estimator’s output_path, unless the region does not support SageMaker Debugger. To disable SageMaker Debugger, set this parameter to False.
+        enable_sagemaker_metrics=ENABLE_SAGEMAKER_METRICS (bool, None)
+            enable SageMaker Metrics Time Series.
+        enable_network_isolation=ENABLE_NETWORK_ISOLATION (bool, None)
+            specifies whether container will run in network isolation mode (default: False).
+        disable_profiler=DISABLE_PROFILER (bool, None)
+            specifies whether Debugger monitoring and profiling will be disabled (default: False).
+        environment=ENVIRONMENT (typing.Dict[str, str], None)
+            environment variables to be set for use during training job
+        max_retry_attempts=MAX_RETRY_ATTEMPTS (int, None)
+            number of times to move a job to the STARTING status. You can specify between 1 and 30 attempts.
+        source_dir=SOURCE_DIR (str, None)
+            absolute, relative, or S3 URI Path to a directory with any other training source code dependencies aside from the entry point file (default: current working directory)
+        git_config=GIT_CONFIG (typing.Dict[str, str], None)
+            git configurations used for cloning files, including repo, branch, commit, 2FA_enabled, username, password, and token.
+        hyperparameters=HYPERPARAMETERS (typing.Dict[str, str], None)
+            dictionary containing the hyperparameters to initialize this estimator with.
+        container_log_level=CONTAINER_LOG_LEVEL (int, None)
+            log level to use within the container (default: logging.INFO).
+        code_location=CODE_LOCATION (str, None)
+            S3 prefix URI where custom code is uploaded.
+        dependencies=DEPENDENCIES (typing.List[str], None)
+            list of absolute or relative paths to directories with any additional libraries that should be exported to the container.
+        training_repository_access_mode=TRAINING_REPOSITORY_ACCESS_MODE (str, None)
+            specifies how SageMaker accesses the Docker image that contains the training algorithm.
+        training_repository_credentials_provider_arn=TRAINING_REPOSITORY_CREDENTIALS_PROVIDER_ARN (str, None)
+            Amazon Resource Name (ARN) of an AWS Lambda function that provides credentials to authenticate to the private Docker registry where your training image is hosted.
+        disable_output_compression=DISABLE_OUTPUT_COMPRESSION (bool, None)
+            when set to true, Model is uploaded to Amazon S3 without compression after training finishes.
+        enable_infra_check=ENABLE_INFRA_CHECK (bool, None)
+            specifies whether it is running Sagemaker built-in infra check jobs.
+        image_repo=IMAGE_REPO (str, None)
+            (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
+        quiet=QUIET (bool, False)
+            whether to suppress verbose output for image building. Defaults to ``False``.
+
+gcp_batch:
+    usage:
+        [project=PROJECT],[location=LOCATION]
+
+    optional arguments:
+        project=PROJECT (str, None)
+            Name of the GCP project. Defaults to the configured GCP project in the environment
+        location=LOCATION (str, us-central1)
+            Name of the location to schedule the job in. Defaults to us-central1
+
+ray:
+    usage:
+        [cluster_config_file=CLUSTER_CONFIG_FILE],[cluster_name=CLUSTER_NAME],[dashboard_address=DASHBOARD_ADDRESS],[requirements=REQUIREMENTS]
+
+    optional arguments:
+        cluster_config_file=CLUSTER_CONFIG_FILE (str, None)
+            Use CLUSTER_CONFIG_FILE to access or create the Ray cluster.
+        cluster_name=CLUSTER_NAME (str, None)
+            Override the configured cluster name.
+        dashboard_address=DASHBOARD_ADDRESS (str, 127.0.0.1:8265)
+            Use ray status to get the dashboard address you will submit jobs against
+        requirements=REQUIREMENTS (str, None)
+            Path to requirements.txt
+
+lsf:
+    usage:
+        [lsf_queue=LSF_QUEUE],[jobdir=JOBDIR],[container_workdir=CONTAINER_WORKDIR],[host_network=HOST_NETWORK],[shm_size=SHM_SIZE]
+
+    optional arguments:
+        lsf_queue=LSF_QUEUE (str, None)
+            queue name to submit jobs
+        jobdir=JOBDIR (str, None)
+            The directory to place the job code and outputs. The directory must not exist and will be created.
+        container_workdir=CONTAINER_WORKDIR (str, None)
+            working directory in container jobs
+        host_network=HOST_NETWORK (bool, False)
+            True if using the host network for jobs
+        shm_size=SHM_SIZE (str, 64m)
+            size of shared memory (/dev/shm) for jobs
 
 </pre></div></div>
 </div>
@@ -4040,1279 +1149,166 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-04-26 00:56:55 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:56 INFO     Tracker configurations: {}
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:56 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:56 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:56 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:56 INFO     Building workspace docker image (this may take a while)...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:56:56 INFO     Step 1/4 : FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:11 INFO      ---&gt; c3f17e5ac010
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:11 INFO     Step 2/4 : RUN pip install timm
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:11 INFO      ---&gt; Running in 327206b93ebd
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:12 INFO     Collecting timm
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:12 INFO       Downloading timm-0.9.12-py3-none-any.whl (2.2 MB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:12 INFO     Requirement already satisfied: torchvision in /opt/conda/lib/python3.7/site-packages (from timm) (0.11.0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:12 INFO     Requirement already satisfied: torch&gt;=1.7 in /opt/conda/lib/python3.7/site-packages (from timm) (1.10.0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:12 INFO     Collecting safetensors
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:12 INFO       Downloading safetensors-0.4.3-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Collecting huggingface-hub
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO       Downloading huggingface_hub-0.16.4-py3-none-any.whl (268 kB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: pyyaml in /opt/conda/lib/python3.7/site-packages (from timm) (5.4.1)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: typing_extensions in /opt/conda/lib/python3.7/site-packages (from torch&gt;=1.7-&gt;timm) (3.10.0.2)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: tqdm&gt;=4.42.1 in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (4.61.2)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Collecting importlib-metadata
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO       Downloading importlib_metadata-6.7.0-py3-none-any.whl (22 kB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Collecting fsspec
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO       Downloading fsspec-2023.1.0-py3-none-any.whl (143 kB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: requests in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (2.25.1)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Collecting packaging&gt;=20.9
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO       Downloading packaging-24.0-py3-none-any.whl (53 kB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: filelock in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (3.0.12)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Collecting zipp&gt;=0.5
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO       Downloading zipp-3.15.0-py3-none-any.whl (6.8 kB)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: certifi&gt;=2017.4.17 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2021.10.8)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (1.26.6)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (4.0.0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: idna&lt;3,&gt;=2.5 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2.10)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: numpy in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (1.21.2)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Requirement already satisfied: pillow!=8.3.0,&gt;=5.3.0 in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (8.4.0)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:13 INFO     Installing collected packages: zipp, packaging, importlib-metadata, fsspec, safetensors, huggingface-hub, timm
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:14 INFO     Successfully installed fsspec-2023.1.0 huggingface-hub-0.16.4 importlib-metadata-6.7.0 packaging-24.0 safetensors-0.4.3 timm-0.9.12 zipp-3.15.0
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:16 INFO     Removing intermediate container 327206b93ebd
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:16 INFO      ---&gt; 7aa4bcc9fac0
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:16 INFO     Step 3/4 : COPY . .
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:18 INFO      ---&gt; f2a94db8de92
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:18 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:18 INFO      ---&gt; Running in 216ffc2cf5c8
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:19 INFO     Removing intermediate container 216ffc2cf5c8
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:19 INFO      ---&gt; 7958ec449965
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:19 INFO     [Warning] One or more build-args [IMAGE WORKSPACE] were not consumed
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:19 INFO     Successfully built 7958ec449965
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:19 INFO     Built new image `sha256:7958ec449965dd03bfc203ea82947b5cf84a48950a0950a9dcc323b8eaebc43c` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:19 INFO     Waiting for the app to finish...
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
+torchx 2024-04-29 20:43:24 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2024-04-29 20:43:25 INFO     Tracker configurations: {}
+torchx 2024-04-29 20:43:25 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-04-29 20:43:25 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-04-29 20:43:25 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-04-29 20:43:25 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-04-29 20:43:25 INFO     Step 1/4 : FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
+torchx 2024-04-29 20:44:58 INFO      ---&gt; c3f17e5ac010
+torchx 2024-04-29 20:44:58 INFO     Step 2/4 : RUN pip install timm
+torchx 2024-04-29 20:44:58 INFO      ---&gt; Running in db009140928e
+torchx 2024-04-29 20:44:59 INFO     Collecting timm
+torchx 2024-04-29 20:44:59 INFO       Downloading timm-0.9.12-py3-none-any.whl (2.2 MB)
+torchx 2024-04-29 20:44:59 INFO     Requirement already satisfied: torch&gt;=1.7 in /opt/conda/lib/python3.7/site-packages (from timm) (1.10.0)
+torchx 2024-04-29 20:44:59 INFO     Collecting safetensors
+torchx 2024-04-29 20:44:59 INFO       Downloading safetensors-0.4.3-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)
+torchx 2024-04-29 20:44:59 INFO     Requirement already satisfied: pyyaml in /opt/conda/lib/python3.7/site-packages (from timm) (5.4.1)
+torchx 2024-04-29 20:45:00 INFO     Collecting huggingface-hub
+torchx 2024-04-29 20:45:00 INFO       Downloading huggingface_hub-0.16.4-py3-none-any.whl (268 kB)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: torchvision in /opt/conda/lib/python3.7/site-packages (from timm) (0.11.0)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: typing_extensions in /opt/conda/lib/python3.7/site-packages (from torch&gt;=1.7-&gt;timm) (3.10.0.2)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: tqdm&gt;=4.42.1 in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (4.61.2)
+torchx 2024-04-29 20:45:00 INFO     Collecting packaging&gt;=20.9
+torchx 2024-04-29 20:45:00 INFO       Downloading packaging-24.0-py3-none-any.whl (53 kB)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: requests in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (2.25.1)
+torchx 2024-04-29 20:45:00 INFO     Collecting fsspec
+torchx 2024-04-29 20:45:00 INFO       Downloading fsspec-2023.1.0-py3-none-any.whl (143 kB)
+torchx 2024-04-29 20:45:00 INFO     Collecting importlib-metadata
+torchx 2024-04-29 20:45:00 INFO       Downloading importlib_metadata-6.7.0-py3-none-any.whl (22 kB)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: filelock in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (3.0.12)
+torchx 2024-04-29 20:45:00 INFO     Collecting zipp&gt;=0.5
+torchx 2024-04-29 20:45:00 INFO       Downloading zipp-3.15.0-py3-none-any.whl (6.8 kB)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (4.0.0)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: idna&lt;3,&gt;=2.5 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2.10)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: certifi&gt;=2017.4.17 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2021.10.8)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (1.26.6)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: numpy in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (1.21.2)
+torchx 2024-04-29 20:45:00 INFO     Requirement already satisfied: pillow!=8.3.0,&gt;=5.3.0 in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (8.4.0)
+torchx 2024-04-29 20:45:00 INFO     Installing collected packages: zipp, packaging, importlib-metadata, fsspec, safetensors, huggingface-hub, timm
+torchx 2024-04-29 20:45:01 INFO     Successfully installed fsspec-2023.1.0 huggingface-hub-0.16.4 importlib-metadata-6.7.0 packaging-24.0 safetensors-0.4.3 timm-0.9.12 zipp-3.15.0
+torchx 2024-04-29 20:45:03 INFO     Removing intermediate container db009140928e
+torchx 2024-04-29 20:45:03 INFO      ---&gt; e5350abc87a5
+torchx 2024-04-29 20:45:03 INFO     Step 3/4 : COPY . .
+torchx 2024-04-29 20:45:05 INFO      ---&gt; 792df77bf789
+torchx 2024-04-29 20:45:05 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.7.0dev0
+torchx 2024-04-29 20:45:05 INFO      ---&gt; Running in d12c00427d04
+torchx 2024-04-29 20:45:06 INFO     Removing intermediate container d12c00427d04
+torchx 2024-04-29 20:45:06 INFO      ---&gt; e4ad8ac72846
+torchx 2024-04-29 20:45:06 INFO     [Warning] One or more build-args [IMAGE WORKSPACE] were not consumed
+torchx 2024-04-29 20:45:06 INFO     Successfully built e4ad8ac72846
+torchx 2024-04-29 20:45:06 INFO     Built new image `sha256:e4ad8ac72846c645da8694faa0f43894d632642cb7585985801dc33ac0d2d244` based on original image `ghcr.io/pytorch/torchx:0.7.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-04-29 20:45:06 INFO     Waiting for the app to finish...
 python/0 ResNet(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (layer1): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (0): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (1): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (layer2): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (0): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (downsample): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0         (0): Conv2d(64, 128, kernel_size=(1, 1), stride=(2, 2), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0         (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (1): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (layer3): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (0): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(128, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (downsample): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0         (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(2, 2), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0         (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (1): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (layer4): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (0): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(256, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (downsample): Sequential(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0         (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0         (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     (1): BasicBlock(
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (drop_block): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act1): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (aa): Identity()
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0       (act2): ReLU(inplace=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0     )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (global_pool): SelectAdaptivePool2d(pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
 python/0 )
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-torchx 2024-04-26 00:58:21 INFO     Job finished: SUCCEEDED
+torchx 2024-04-29 20:45:08 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -5320,7 +1316,7 @@ torchx 2024-04-26 00:58:21 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-g575bwbth7f9k
+local_docker://torchx/torchx_utils_python-zpq79tk7955zkd
 </pre></div></div>
 </div>
 </section>
