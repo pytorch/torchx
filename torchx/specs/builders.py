@@ -26,8 +26,11 @@ def _create_args_parser(
 ) -> argparse.ArgumentParser:
     parameters = inspect.signature(cmpnt_fn).parameters
     function_desc, args_desc = get_fn_docstring(cmpnt_fn)
+    component_full_name = f"{cmpnt_fn.__module__}.{cmpnt_fn.__name__}".removeprefix(
+        "torchx.components."
+    )
     script_parser = argparse.ArgumentParser(
-        prog=f"torchx run <run args...> {cmpnt_fn.__name__} ",
+        prog=f"torchx run <run args...> {component_full_name} ",
         description=function_desc,
         formatter_class=TorchXArgumentHelpFormatter,
         # enables components to have "h" as a parameter
