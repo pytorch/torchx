@@ -14,6 +14,7 @@ Kubernetes integration tests.
 import argparse
 import logging
 import os
+import warnings
 
 from dataclasses import asdict
 from json import dumps
@@ -57,6 +58,7 @@ def build_and_push_image() -> BuildInfo:
 
 
 def run_job(dryrun: bool = False) -> None:
+    warnings.warn("AAAA6")
     log.info(f"\nAAAA")
     register_gpu_resource()
     build = build_and_push_image()
