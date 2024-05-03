@@ -57,14 +57,18 @@ def build_and_push_image() -> BuildInfo:
 
 
 def run_job(dryrun: bool = False) -> None:
+    log.info(f"\nAAAA")
     register_gpu_resource()
     build = build_and_push_image()
+    log.info(f"\nAAAA2")
     image = build.torchx_image
     runner = get_runner("kubeflow-dist-runner")
 
     storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(storage_path, build.id)
     output_path = os.path.join(root, "output")
+
+    log.info(f"\nAAAA3")
 
     args = ("--output_path", output_path)
     train_app = dist_ddp(
@@ -74,6 +78,7 @@ def run_job(dryrun: bool = False) -> None:
         h="GPU_X1",
         j="2x1",
     )
+    log.info(f"\nAAAA4")
     print(f"Starting Trainer with args: {args}")
     cfg = {
         "namespace": "default",
