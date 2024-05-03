@@ -58,19 +58,18 @@ def build_and_push_image() -> BuildInfo:
 
 
 def run_job(dryrun: bool = False) -> None:
-    warnings.warn("AAAA6")
-    log.info(f"\nAAAA")
+    warnings.warn("AAAA0")
     register_gpu_resource()
     build = build_and_push_image()
-    log.info(f"\nAAAA2")
+    warnings.warn("AAAA1")
     image = build.torchx_image
     runner = get_runner("kubeflow-dist-runner")
-
+    warnings.warn("AAAA2")
     storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(storage_path, build.id)
     output_path = os.path.join(root, "output")
+    warnings.warn("AAAA3")
 
-    log.info(f"\nAAAA3")
 
     args = ("--output_path", output_path)
     train_app = dist_ddp(
@@ -80,13 +79,13 @@ def run_job(dryrun: bool = False) -> None:
         h="GPU_X1",
         j="2x1",
     )
-    log.info(f"\nAAAA4")
     print(f"Starting Trainer with args: {args}")
     cfg = {
         "namespace": "default",
         "queue": "default",
     }
     print("Submitting pods")
+    warnings.warn("AAAA4")
     if dryrun:
         dryrun_info = runner.dryrun(train_app, "kubernetes", cfg)
         print(f"Dryrun info: {dryrun_info}")
@@ -94,8 +93,9 @@ def run_job(dryrun: bool = False) -> None:
         dryrun_info2 = runner.dryrun(
             train_app, "kubernetes", cfg=cfg
         )
-        log.info(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
-        log.info(f"\nScheduler Request:\n{dryrun_info2}")
+        warnings.warn("AAAA5")
+        warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
+        warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
 
 
         app_handle = runner.run(train_app, "kubernetes", cfg)
