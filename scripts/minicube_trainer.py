@@ -12,7 +12,11 @@ Kubernetes integration tests.
 """
 
 import argparse
+import logging
 import os
+
+from dataclasses import asdict
+from json import dumps
 
 from integ_test_utils import (
     build_images,
@@ -25,6 +29,8 @@ from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import _named_resource_factories, AppState, Resource
 from torchx.util.types import none_throws
+
+log: logging.Logger = logging.getLogger(__name__)
 
 
 GiB: int = 1024
