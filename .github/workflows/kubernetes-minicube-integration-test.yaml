@@ -32,4 +32,5 @@ jobs:
           INTEGRATION_TEST_STORAGE: ${{ secrets.INTEGRATION_TEST_STORAGE }}
           CONTAINER_REPO: localhost:5000/torchx
         run: |
+          chmod +x scripts/minicube_trainer.py
           scripts/minicube_trainer.py
