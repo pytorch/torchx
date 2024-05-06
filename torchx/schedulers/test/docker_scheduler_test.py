@@ -91,7 +91,7 @@ class DockerSchedulerTest(unittest.TestCase):
                         "device_requests": [
                             DeviceRequest(
                                 count=4,
-                                capabilities=[["compute"]],
+                                capabilities=[["compute", "utility"]],
                             )
                         ],
                         "devices": [
