@@ -57,18 +57,14 @@ def build_and_push_image() -> BuildInfo:
     return build
 
 
-def run_job(dryrun: bool = False) -> None:
-    warnings.warn("AAAA0")
+def run_job() -> None:
     register_gpu_resource()
     build = build_and_push_image()
-    warnings.warn("AAAA1")
     image = build.torchx_image
     runner = get_runner("kubeflow-dist-runner")
-    warnings.warn("AAAA2")
     storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(storage_path, build.id)
     output_path = os.path.join(root, "output")
-    warnings.warn("AAAA3")
 
 
     args = ("--output_path", output_path)
@@ -85,41 +81,26 @@ def run_job(dryrun: bool = False) -> None:
         "queue": "default",
     }
     print("Submitting pods")
-    warnings.warn("AAAA4")
-    if dryrun:
-        dryrun_info = runner.dryrun(train_app, "kubernetes", cfg)
-        print(f"Dryrun info: {dryrun_info}")
-    else:
-        dryrun_info2 = runner.dryrun(
-            train_app, "kubernetes", cfg=cfg
-        )
-        warnings.warn("AAAA5")
-        warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
-        warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
+    dryrun_info2 = runner.dryrun(
+        train_app, "kubernetes", cfg=cfg
+    )
+    warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
+    warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
 
 
-        app_handle = runner.run(train_app, "kubernetes", cfg)
-        print(app_handle)
-        runner.wait(app_handle)
-        final_status = runner.status(app_handle)
-        print(f"Final status: {final_status}")
-        if none_throws(final_status).state != AppState.SUCCEEDED:
-            raise Exception(f"Dist app failed with status: {final_status}")
+    app_handle = runner.run(train_app, "kubernetes", cfg)
+    print(app_handle)
+    warnings.warn("AAAA6")
+    runner.wait(app_handle)
+    final_status = runner.status(app_handle)
+    print(f"Final status: {final_status}")
+    if none_throws(final_status).state != AppState.SUCCEEDED:
+        raise Exception(f"Dist app failed with status: {final_status}")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="kubernetes dist trainer integration test runner"
-    )
-    parser.add_argument(
-        "--dryrun",
-        action="store_true",
-        help="Does not actually submit the app," " just prints the scheduler request",
-    )
-    args = parser.parse_args()
-
     try:
-        run_job(args.dryrun)
+        run_job()
     except MissingEnvError:
         print("Skip runnig tests, executed only docker buid step")
 
