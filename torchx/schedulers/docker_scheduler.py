@@ -314,7 +314,7 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                     c.kwargs["device_requests"] = [
                         DeviceRequest(
                             count=resource.gpu,
-                            capabilities=[["compute"]],
+                            capabilities=[["compute", "utility"]],
                         )
                     ]
                 req.containers.append(c)
