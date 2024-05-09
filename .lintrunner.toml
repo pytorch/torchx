@@ -17,8 +17,7 @@ init_command = [
     'run',
     'pip_init',
     '--dry-run={{DRYRUN}}',
-    '--requirement=fmt-requirements.txt',
-    'ufmt==2.5.1',  # TODO: remove when synced fmt-requirements.txt includes ufmt
+    '--requirement=fmt-requirements.txt'
 ]
 is_formatter = true
 
