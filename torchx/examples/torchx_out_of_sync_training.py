@@ -8,4 +8,4 @@
 # pyre-strict
 
 # This file is for lex team to ramp up on torchX OSS.
-# Please do not modify this file unless you know what you are doing.
+# Please DO NOT modify this file unless you know what you are doing.
