@@ -9,6 +9,8 @@
 
 """
 Kubernetes integration tests.
+git commit -m "mini_v9"
+git push origin minicube2
 """
 
 import argparse
@@ -67,24 +69,28 @@ def run_job() -> None:
     output_path = os.path.join(root, "output")
     args = ("--output_path", output_path)
     train_app = dist_ddp(
-        *("--output_path", output_path),
-        image=image,
-        m="torchx.examples.apps.lightning.train",
-        h="GPU_X1",
-        j="2x1",
+       m="torchx.examples.apps.compute_world_size.main",
+            name="ddp-trainer",
+            image=image,
+            cpu=1,
+            j="2x2",
+            max_retries=3,
+            env={
+                "LOGLEVEL": "INFO",
+            },
     )
-    print(f"Starting Trainer with args: {args}")
     cfg = {
-        "namespace": "default",
+        # "namespace": "default",
+        "namespace": "torchx-dev",
         "queue": "default",
     }
-    print("Submitting pods")
+
     dryrun_info2 = runner.dryrun(train_app, "kubernetes", cfg=cfg)
     warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
     warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
     app_handle = runner.run(train_app, "kubernetes", cfg)
-    print(app_handle)
-    warnings.warn("AAAA6")
+
+
     runner.wait(app_handle)
     final_status = runner.status(app_handle)
     print(f"Final status: {final_status}")
