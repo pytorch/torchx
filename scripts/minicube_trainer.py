@@ -65,8 +65,6 @@ def run_job() -> None:
     storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
     root = os.path.join(storage_path, build.id)
     output_path = os.path.join(root, "output")
-
-
     args = ("--output_path", output_path)
     train_app = dist_ddp(
         *("--output_path", output_path),
@@ -84,8 +82,6 @@ def run_job() -> None:
     dryrun_info2 = runner.dryrun(train_app, "kubernetes", cfg=cfg)
     warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
     warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
-
-
     app_handle = runner.run(train_app, "kubernetes", cfg)
     print(app_handle)
     warnings.warn("AAAA6")
