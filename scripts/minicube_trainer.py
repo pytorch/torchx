@@ -9,18 +9,9 @@
 
 """
 Kubernetes integration tests.
-git commit -m "mini_v9"
-git push origin minicube2
 """
 
-import argparse
 import logging
-import os
-import warnings
-
-from dataclasses import asdict
-from json import dumps
-
 from integ_test_utils import (
     build_images,
     BuildInfo,
@@ -35,11 +26,8 @@ from torchx.util.types import none_throws
 
 log: logging.Logger = logging.getLogger(__name__)
 
-
 GiB: int = 1024
 
-
-# TODO(aivanou): remove this when partial resources are introduced.
 def register_gpu_resource() -> None:
     res = Resource(
         cpu=2,
@@ -63,34 +51,23 @@ def run_job() -> None:
     register_gpu_resource()
     build = build_and_push_image()
     image = build.torchx_image
-    runner = get_runner("kubeflow-dist-runner")
-    storage_path = os.getenv("INTEGRATION_TEST_STORAGE", "/tmp/storage")
-    root = os.path.join(storage_path, build.id)
-    output_path = os.path.join(root, "output")
-    args = ("--output_path", output_path)
+    runner = get_runner()
     train_app = dist_ddp(
-       m="torchx.examples.apps.compute_world_size.main",
-            name="ddp-trainer",
-            image=image,
-            cpu=1,
-            j="2x2",
-            max_retries=3,
-            env={
-                "LOGLEVEL": "INFO",
-            },
+        m="torchx.examples.apps.compute_world_size.main",
+        name="ddp-trainer",
+        image=image,
+        cpu=1,
+        j="2x2",
+        max_retries=3,
+        env={
+            "LOGLEVEL": "INFO",
+        },
     )
     cfg = {
-        # "namespace": "default",
         "namespace": "torchx-dev",
         "queue": "default",
     }
-
-    dryrun_info2 = runner.dryrun(train_app, "kubernetes", cfg=cfg)
-    warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
-    warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
     app_handle = runner.run(train_app, "kubernetes", cfg)
-
-
     runner.wait(app_handle)
     final_status = runner.status(app_handle)
     print(f"Final status: {final_status}")
