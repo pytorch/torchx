@@ -81,9 +81,7 @@ def run_job() -> None:
         "queue": "default",
     }
     print("Submitting pods")
-    dryrun_info2 = runner.dryrun(
-        train_app, "kubernetes", cfg=cfg
-    )
+    dryrun_info2 = runner.dryrun(train_app, "kubernetes", cfg=cfg)
     warnings.warn(f"\nAppDef:\n{dumps(asdict(train_app), indent=4)}")
     warnings.warn(f"\nScheduler Request:\n{dryrun_info2}")
 
