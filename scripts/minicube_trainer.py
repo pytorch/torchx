@@ -12,6 +12,7 @@ Kubernetes integration tests.
 """
 
 import logging
+
 from integ_test_utils import (
     build_images,
     BuildInfo,
@@ -27,6 +28,7 @@ from torchx.util.types import none_throws
 log: logging.Logger = logging.getLogger(__name__)
 
 GiB: int = 1024
+
 
 def register_gpu_resource() -> None:
     res = Resource(
