@@ -54,16 +54,22 @@ def run_job() -> None:
     build = build_and_push_image()
     image = build.torchx_image
     runner = get_runner()
+    # train_app = dist_ddp(
+    #     m="torchx.examples.apps.compute_world_size.main",
+    #     name="ddp-trainer",
+    #     image=image,
+    #     cpu=1,
+    #     j="2x2",
+    #     max_retries=3,
+    #     env={
+    #         "LOGLEVEL": "INFO",
+    #     },
+    # )
     train_app = dist_ddp(
-        m="torchx.examples.apps.compute_world_size.main",
-        name="ddp-trainer",
         image=image,
-        cpu=1,
-        j="2x2",
-        max_retries=3,
-        env={
-            "LOGLEVEL": "INFO",
-        },
+        m="torchx.examples.apps.lightning.train",
+        h="GPU_X1",
+        j="2x1",
     )
     cfg = {
         "namespace": "torchx-dev",
