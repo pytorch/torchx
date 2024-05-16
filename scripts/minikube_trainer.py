@@ -57,18 +57,21 @@ def run_job() -> None:
         "queue": "default",
     }
     app_handle = runner.run(train_app, "kubernetes", cfg)
+    log.info("Start waiting for app to finish")
     runner.wait(app_handle)
     final_status = runner.status(app_handle)
-    print(f"Final status: {final_status}")
+    log.info(f"Final status: {final_status}")
     if none_throws(final_status).state != AppState.SUCCEEDED:
         raise Exception(f"Dist app failed with status: {final_status}")
+
+
 
 
 def main() -> None:
     try:
         run_job()
     except MissingEnvError:
-        print("Skip runnig tests, executed only docker buid step")
+        print("Skip running tests, executed only docker buid step")
 
 
 if __name__ == "__main__":
