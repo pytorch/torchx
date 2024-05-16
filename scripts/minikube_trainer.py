@@ -24,7 +24,7 @@ from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import _named_resource_factories, AppState, Resource
 from torchx.util.types import none_throws
-from scripts.component_integration_tests import build_and_push_image
+from component_integration_tests import build_and_push_image
 
 log: logging.Logger = logging.getLogger(__name__)
 
