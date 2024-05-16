@@ -65,8 +65,6 @@ def run_job() -> None:
         raise Exception(f"Dist app failed with status: {final_status}")
 
 
-
-
 def main() -> None:
     try:
         run_job()
