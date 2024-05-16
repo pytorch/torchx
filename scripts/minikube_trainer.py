@@ -13,18 +13,16 @@ Kubernetes integration tests.
 
 import logging
 
+from component_integration_tests import build_and_push_image
+
 from integ_test_utils import (
-    build_images,
-    BuildInfo,
     getenv_asserts,
     MissingEnvError,
-    push_images,
 )
 from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import _named_resource_factories, AppState, Resource
 from torchx.util.types import none_throws
-from component_integration_tests import build_and_push_image
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -39,12 +37,6 @@ def register_gpu_resource() -> None:
     )
     print(f"Registering resource: {res}")
     _named_resource_factories["GPU_X1"] = lambda: res
-
-
-# def build_and_push_image() -> BuildInfo:
-#     build = build_images()
-#     push_images(build, container_repo=getenv_asserts("CONTAINER_REPO"))
-#     return build
 
 
 def run_job() -> None:
