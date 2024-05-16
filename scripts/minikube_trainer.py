@@ -15,10 +15,7 @@ import logging
 
 from component_integration_tests import build_and_push_image
 
-from integ_test_utils import (
-    getenv_asserts,
-    MissingEnvError,
-)
+from integ_test_utils import getenv_asserts, MissingEnvError
 from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import _named_resource_factories, AppState, Resource
