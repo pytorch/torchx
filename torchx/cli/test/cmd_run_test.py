@@ -251,6 +251,32 @@ class CmdRunTest(unittest.TestCase):
             ),
         )
 
+        self.assertEqual(
+            (
+                "fb.python.binary",
+                [
+                    "--img",
+                    "lex_ig_o3_package",
+                    "-m",
+                    "dper_lib.instagram.pyper_v2.teams.stories.train",
+                    "--",
+                    "-m",
+                ],
+            ),
+            _parse_component_name_and_args(
+                [
+                    "fb.python.binary",
+                    "--img",
+                    "lex_ig_o3_package",
+                    "-m",
+                    "dper_lib.instagram.pyper_v2.teams.stories.train",
+                    "--",
+                    "-m",
+                ],
+                sp,
+            ),
+        )
+
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(["--"], sp)
 
@@ -269,6 +295,11 @@ class CmdRunTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             _parse_component_name_and_args(
                 ["--msg  ", "hello", "--msg     ", "repeate"], sp
+            )
+
+        with self.assertRaises(SystemExit):
+            _parse_component_name_and_args(
+                ["--m", "hello", "--", "--msg", "msg", "--msg", "repeate"], sp
             )
 
     def test_parse_component_name_and_args_with_default(self) -> None:
