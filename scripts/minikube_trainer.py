@@ -11,8 +11,6 @@
 Kubernetes integration tests.
 """
 
-import logging
-
 from component_integration_tests import build_and_push_image
 
 from integ_test_utils import getenv_asserts, MissingEnvError
@@ -20,8 +18,6 @@ from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import _named_resource_factories, AppState, Resource
 from torchx.util.types import none_throws
-
-log: logging.Logger = logging.getLogger(__name__)
 
 GiB: int = 1024
 
@@ -57,10 +53,10 @@ def run_job() -> None:
         "queue": "default",
     }
     app_handle = runner.run(train_app, "kubernetes", cfg)
-    log.info("Start waiting for app to finish")
+    print("Start waiting for app to finish")
     runner.wait(app_handle)
     final_status = runner.status(app_handle)
-    log.info(f"Final status: {final_status}")
+    print(f"Final status: {final_status}")
     if none_throws(final_status).state != AppState.SUCCEEDED:
         raise Exception(f"Dist app failed with status: {final_status}")
 
