@@ -1,0 +1,35 @@
+name: Kubernetes Minikube Integration Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  kubernetes-launch:
+    runs-on: "linux.20_04.16x"
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          architecture: x64
+      - name: Checkout TorchX
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          set -eux
+          pip install -e .[kubernetes]
+      - name: Start Kubernetes
+        run: |
+          scripts/setup_minikube.sh
+      - name: Run Kubernetes Integration Tests
+        env:
+          CONTAINER_REPO: localhost:5000/torchx
+        run: |
+          chmod +x scripts/minikube_trainer.py
+          scripts/minikube_trainer.py
