@@ -1,4 +1,4 @@
-name: Kubernetes Minicube Integration Test
+name: Kubernetes Minikube Integration Test
 
 on:
   push:
@@ -31,5 +31,5 @@ jobs:
         env:
           CONTAINER_REPO: localhost:5000/torchx
         run: |
-          chmod +x scripts/minicube_trainer.py
-          scripts/minicube_trainer.py
+          chmod +x scripts/minikube_trainer.py
+          scripts/minikube_trainer.py

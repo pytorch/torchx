@@ -24,6 +24,7 @@ from torchx.components.dist import ddp as dist_ddp
 from torchx.runner import get_runner
 from torchx.specs import _named_resource_factories, AppState, Resource
 from torchx.util.types import none_throws
+from scripts.component_integration_tests import build_and_push_image
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -35,23 +36,20 @@ def register_gpu_resource() -> None:
         cpu=2,
         gpu=1,
         memMB=8 * GiB,
-        capabilities={
-            "node.kubernetes.io/instance-type": "p3.2xlarge",
-        },
     )
     print(f"Registering resource: {res}")
     _named_resource_factories["GPU_X1"] = lambda: res
 
 
-def build_and_push_image() -> BuildInfo:
-    build = build_images()
-    push_images(build, container_repo=getenv_asserts("CONTAINER_REPO"))
-    return build
+# def build_and_push_image() -> BuildInfo:
+#     build = build_images()
+#     push_images(build, container_repo=getenv_asserts("CONTAINER_REPO"))
+#     return build
 
 
 def run_job() -> None:
     register_gpu_resource()
-    build = build_and_push_image()
+    build = build_and_push_image(container_repo=getenv_asserts("CONTAINER_REPO"))
     image = build.torchx_image
     runner = get_runner()
     train_app = dist_ddp(
