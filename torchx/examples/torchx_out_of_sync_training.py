@@ -7,5 +7,5 @@
 
 # pyre-strict
 
-# This file is for lex team to ramp up on torchX OSS.
+# This file is for lex team to ramp up on torchX OSS. It's for training purpose.
 # Please DO NOT modify this file unless you know what you are doing.
