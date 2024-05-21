@@ -45,6 +45,9 @@ def to_dict(arg: str) -> Dict[str, str]:
 
      to_dict("FOO=v1") == {"FOO": "v1"}
 
+     to_dict("FOO=''") == {"FOO": ""}
+     to_dict('FOO=""') == {"FOO": ""}
+
      to_dict("FOO=v1,v2") == {"FOO": "v1,v2"]}
      to_dict("FOO=v1;v2") == {"FOO": "v1;v2"]}
      to_dict("FOO=v1;v2") == {"FOO": "v1;v2,"]}
@@ -70,6 +73,9 @@ def to_dict(arg: str) -> Dict[str, str]:
         else:
             return vk[0:idx].strip(), vk[idx + 1 :].strip()
 
+    def to_val(val: str) -> str:
+        return val if val != '""' and val != "''" else ""
+
     arg_map: Dict[str, str] = {}
 
     if not arg:
@@ -92,10 +98,10 @@ def to_dict(arg: str) -> Dict[str, str]:
     # middle elements are value_{n}<delim>key_{n+1}
     for vk in split_arg[1 : split_arg_len - 1]:  # python deals with
         val, key_next = parse_val_key(vk)
-        arg_map[key] = val
+        arg_map[key] = to_val(val)
         key = key_next
     val = split_arg[-1]  # last element is always a value
-    arg_map[key] = val
+    arg_map[key] = to_val(val)
     return arg_map
 
 

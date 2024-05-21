@@ -150,6 +150,10 @@ class TypesTest(unittest.TestCase):
         self.assertDictEqual({"FOO": "v1,v2"}, to_dict("FOO=v1,v2"))
         self.assertDictEqual({"FOO": "v1;v2"}, to_dict("FOO=v1;v2"))
 
+        # Handles empty strings as a special case
+        self.assertDictEqual({"FOO": ""}, to_dict("FOO=''"))
+        self.assertDictEqual({"FOO": ""}, to_dict('FOO=""'))
+
         # trailing delimiters preserved
         # a delim without the next key should be interpreted as the value for FOO
         self.assertDictEqual({"FOO": ","}, to_dict("FOO=,"))
