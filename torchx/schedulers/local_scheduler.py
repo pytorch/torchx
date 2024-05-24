@@ -1184,11 +1184,12 @@ def create_scheduler(
     session_name: str,
     cache_size: int = 100,
     extra_paths: Optional[List[str]] = None,
+    image_provider_class: Callable[[LocalOpts], ImageProvider] = CWDImageProvider,
     **kwargs: Any,
 ) -> LocalScheduler:
     return LocalScheduler(
         session_name=session_name,
-        image_provider_class=CWDImageProvider,
+        image_provider_class=image_provider_class,
         cache_size=cache_size,
         extra_paths=extra_paths,
     )

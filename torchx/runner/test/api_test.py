@@ -10,14 +10,15 @@
 import datetime
 import os
 from contextlib import contextmanager
-from typing import Generator, List, Mapping, Optional
+from typing import cast, Generator, List, Mapping, Optional
 from unittest.mock import MagicMock, patch
 
 from torchx.runner import get_runner, Runner
+from torchx.schedulers import SchedulerFactory
 from torchx.schedulers.api import DescribeAppResponse, ListAppResponse, Scheduler
 from torchx.schedulers.local_scheduler import (
+    create_scheduler,
     LocalDirectoryImageProvider,
-    LocalScheduler,
 )
 from torchx.specs import AppDryRunInfo, CfgVal
 from torchx.specs.api import (
@@ -64,7 +65,7 @@ class RunnerTest(TestWithTmpDir):
     def get_runner(self) -> Generator[Runner, None, None]:
         with Runner(
             SESSION_NAME,
-            scheduler_factories={"local_dir": LocalScheduler},
+            scheduler_factories={"local_dir": cast(SchedulerFactory, create_scheduler)},
             scheduler_params={
                 "image_provider_class": LocalDirectoryImageProvider,
             },
@@ -79,14 +80,14 @@ class RunnerTest(TestWithTmpDir):
 
     def test_validate_no_resource(self, _) -> None:
         with self.get_runner() as runner:
+            role = Role(
+                "no resource",
+                image="no_image",
+                entrypoint="echo",
+                args=["hello_world"],
+            )
+            app = AppDef("no resource", roles=[role])
             with self.assertRaises(ValueError):
-                role = Role(
-                    "no resource",
-                    image="no_image",
-                    entrypoint="echo",
-                    args=["hello_world"],
-                )
-                app = AppDef("no resource", roles=[role])
                 runner.run(app, scheduler="local_dir")
 
     def test_validate_invalid_replicas(self, _) -> None:
@@ -129,7 +130,7 @@ class RunnerTest(TestWithTmpDir):
         }
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+            scheduler_factories={"local_dir": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             role = Role(
                 name="touch",
@@ -149,7 +150,7 @@ class RunnerTest(TestWithTmpDir):
         scheduler_mock = MagicMock()
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+            scheduler_factories={"local_dir": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             role1 = Role(
                 name="echo1",
@@ -178,7 +179,7 @@ class RunnerTest(TestWithTmpDir):
         expected_parent_run_id = "123"
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+            scheduler_factories={"local_dir": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             role1 = Role(
                 name="echo1",
@@ -217,7 +218,7 @@ class RunnerTest(TestWithTmpDir):
 
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+            scheduler_factories={"local_dir": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             role1 = Role(
                 name="echo1",
@@ -265,7 +266,7 @@ class RunnerTest(TestWithTmpDir):
 
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+            scheduler_factories={"local_dir": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             role1 = Role(
                 name="echo1",
@@ -333,8 +334,10 @@ class RunnerTest(TestWithTmpDir):
             name=SESSION_NAME,
             # pyre-fixme[6]: scheduler factory type
             scheduler_factories={
-                "no-build-img": lambda name: TestScheduler(build_new_img=False),
-                "builds-img": lambda name: TestScheduler(build_new_img=True),
+                "no-build-img": lambda name, **kwargs: TestScheduler(
+                    build_new_img=False
+                ),
+                "builds-img": lambda name, **kwargs: TestScheduler(build_new_img=True),
             },
         ) as runner:
             app = AppDef(
@@ -371,7 +374,7 @@ class RunnerTest(TestWithTmpDir):
                 name="sleep",
                 image=str(self.tmpdir),
                 resource=resource.SMALL,
-                entrypoint="sleep.sh",
+                entrypoint="sleep",
                 args=["60"],
             )
             app = AppDef("sleeper", roles=[role])
@@ -387,7 +390,7 @@ class RunnerTest(TestWithTmpDir):
                 name="sleep",
                 image=str(self.tmpdir),
                 resource=resource.SMALL,
-                entrypoint="sleep.sh",
+                entrypoint="sleep",
                 args=["60"],
             )
             app = AppDef("sleeper", roles=[role])
@@ -414,7 +417,7 @@ class RunnerTest(TestWithTmpDir):
 
         with Runner(
             name="test_ui_url_session",
-            scheduler_factories={"local_dir": lambda name: mock_scheduler},
+            scheduler_factories={"local_dir": lambda name, **kwargs: mock_scheduler},
         ) as runner:
             role = Role(
                 "ignored",
@@ -438,7 +441,7 @@ class RunnerTest(TestWithTmpDir):
 
         with Runner(
             name="test_structured_msg",
-            scheduler_factories={"local_dir": lambda name: mock_scheduler},
+            scheduler_factories={"local_dir": lambda name, **kwargs: mock_scheduler},
         ) as runner:
             role = Role(
                 "ignored",
@@ -485,7 +488,7 @@ class RunnerTest(TestWithTmpDir):
 
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"local_dir": lambda name: scheduler_mock},
+            scheduler_factories={"local_dir": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             role_name = "trainer"
             replica_id = 2
@@ -529,7 +532,7 @@ class RunnerTest(TestWithTmpDir):
         ]
         with Runner(
             name=SESSION_NAME,
-            scheduler_factories={"kubernetes": lambda name: scheduler_mock},
+            scheduler_factories={"kubernetes": lambda name, **kwargs: scheduler_mock},
         ) as runner:
             apps = runner.list("kubernetes")
             self.assertEqual(apps, apps_expected)
@@ -541,8 +544,8 @@ class RunnerTest(TestWithTmpDir):
         json_dumps_mock.return_value = "{}"
         local_sched_mock = MagicMock()
         scheduler_factories = {
-            "local_dir": lambda name: local_dir_sched_mock,
-            "local": lambda name: local_sched_mock,
+            "local_dir": lambda name, **kwargs: local_dir_sched_mock,
+            "local": lambda name, **kwargs: local_sched_mock,
         }
         with Runner(
             name="test_session", scheduler_factories=scheduler_factories
@@ -576,8 +579,8 @@ class RunnerTest(TestWithTmpDir):
     def test_run_from_file_no_function_found(self, _) -> None:
         local_sched_mock = MagicMock()
         schedulers = {
-            "local_dir": lambda name: local_sched_mock,
-            "local": lambda name: local_sched_mock,
+            "local_dir": lambda name, **kwargs: local_sched_mock,
+            "local": lambda name, **kwargs: local_sched_mock,
         }
         with Runner(name="test_session", scheduler_factories=schedulers) as runner:
             component_path = get_full_path("distributed.py")
@@ -591,7 +594,7 @@ class RunnerTest(TestWithTmpDir):
         mock_scheduler = MagicMock()
         with patch(
             GET_SCHEDULER_FACTORIES,
-            return_value={"local_dir": lambda name: mock_scheduler},
+            return_value={"local_dir": lambda name, **kwargs: mock_scheduler},
         ):
             with get_runner() as runner:
                 # force schedulers to load
@@ -602,17 +605,17 @@ class RunnerTest(TestWithTmpDir):
         mock_scheduler = MagicMock()
         with patch(
             GET_SCHEDULER_FACTORIES,
-            return_value={"local_dir": lambda name: mock_scheduler},
+            return_value={"local_dir": lambda name, **kwargs: mock_scheduler},
         ):
             with self.assertRaisesRegex(RuntimeError, "foobar"):
-                with get_runner() as runner:
+                with get_runner():
                     raise RuntimeError("foobar")
 
     def test_runner_manual_close(self, _) -> None:
         mock_scheduler = MagicMock()
         with patch(
             GET_SCHEDULER_FACTORIES,
-            return_value={"local_dir": lambda name: mock_scheduler},
+            return_value={"local_dir": lambda name, **kwargs: mock_scheduler},
         ):
             runner = get_runner()
             # force schedulers to load
