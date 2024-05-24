@@ -537,13 +537,24 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_factories</span> <span class="o">=</span> <span class="n">scheduler_factories</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="n">scheduler_params</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_scheduler_params_from_env</span><span class="p">()),</span>
+            <span class="o">**</span><span class="p">(</span><span class="n">scheduler_params</span> <span class="ow">or</span> <span class="p">{}),</span>
+        <span class="p">}</span>
         <span class="c1"># pyre-fixme[24]: SchedulerOpts is a generic, and we don&#39;t have access to the corresponding type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler_instances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Scheduler</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AppHandle</span><span class="p">,</span> <span class="n">AppDef</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># component_name -&gt; map of component_fn_param_name -&gt; user-specified default val encoded as str</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component_defaults</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">component_defaults</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_get_scheduler_params_from_env</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="n">scheduler_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">lower_case_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">lower_case_key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">):</span>
+                <span class="n">scheduler_params</span><span class="p">[</span><span class="n">lower_case_key</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;torchx_&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">scheduler_params</span>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Runner&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span>
