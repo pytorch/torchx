@@ -98,13 +98,24 @@ class Runner:
         """
         self._name: str = name
         self._scheduler_factories = scheduler_factories
-        self._scheduler_params: Dict[str, object] = scheduler_params or {}
+        self._scheduler_params: Dict[str, Any] = {
+            **(self._get_scheduler_params_from_env()),
+            **(scheduler_params or {}),
+        }
         # pyre-fixme[24]: SchedulerOpts is a generic, and we don't have access to the corresponding type
         self._scheduler_instances: Dict[str, Scheduler] = {}
         self._apps: Dict[AppHandle, AppDef] = {}
 
         # component_name -> map of component_fn_param_name -> user-specified default val encoded as str
         self._component_defaults: Dict[str, Dict[str, str]] = component_defaults or {}
+
+    def _get_scheduler_params_from_env(self) -> Dict[str, str]:
+        scheduler_params = {}
+        for key, value in os.environ.items():
+            lower_case_key = key.lower()
+            if lower_case_key.startswith("torchx_"):
+                scheduler_params[lower_case_key.strip("torchx_")] = value
+        return scheduler_params
 
     def __enter__(self) -> "Runner":
         return self
