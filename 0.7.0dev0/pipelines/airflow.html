@@ -529,7 +529,7 @@
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_4241/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">/tmp/ipykernel_4474/454499020.py:</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold">3</span><span style="color: #808000; text-decoration-color: #808000; font-weight: bold"> RemovedInAirflow3Warning</span><span style="color: #808000; text-decoration-color: #808000">: Param `schedule_interval` is deprecated and will be removed in a future release. Please use `schedule` instead.</span>
 </pre></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -537,20 +537,20 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.087+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-m5wmpdvf55tp9.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.095+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2076} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-m5wmpdvf55tp9.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.096+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2306} INFO - Starting attempt 1 of 1
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.097+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2388} WARNING - cannot record queued_duration for task hello_torchx because previous state change time has not been saved
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.107+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2330} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.368+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER=&#39;airflow&#39; AIRFLOW_CTX_DAG_ID=&#39;example_python_operator-m5wmpdvf55tp9&#39; AIRFLOW_CTX_TASK_ID=&#39;hello_torchx&#39; AIRFLOW_CTX_EXECUTION_DATE=&#39;2021-09-13T00:00:00+00:00&#39; AIRFLOW_CTX_TRY_NUMBER=&#39;1&#39; AIRFLOW_CTX_DAG_RUN_ID=&#39;manual__2021-09-13T00:00:00+00:00&#39;
-[<span class="ansi-blue-fg">2024-05-28T15:57:14.371+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>430} INFO - ::endgroup::
-[<span class="ansi-blue-fg">2024-05-28T15:57:15.030+0000</span>] {<span class="ansi-blue-fg">api.py:</span>72} INFO - Tracker configurations: {}
-[<span class="ansi-blue-fg">2024-05-28T15:57:15.034+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>771} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-[<span class="ansi-blue-fg">2024-05-28T15:57:15.035+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>777} INFO - Log directory is: /tmp/torchx_cc6tlvyk
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.419+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=&lt;TaskInstance: example_python_operator-r3gsgfcwvww5jd.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.424+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2076} INFO - Dependencies all met for dep_context=requeueable deps ti=&lt;TaskInstance: example_python_operator-r3gsgfcwvww5jd.hello_torchx manual__2021-09-13T00:00:00+00:00 [None]&gt;
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.425+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2306} INFO - Starting attempt 1 of 1
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.426+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2388} WARNING - cannot record queued_duration for task hello_torchx because previous state change time has not been saved
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.435+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2330} INFO - Executing &lt;Task(_PythonDecoratedOperator): hello_torchx&gt; on 2021-09-13 00:00:00+00:00
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.684+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER=&#39;airflow&#39; AIRFLOW_CTX_DAG_ID=&#39;example_python_operator-r3gsgfcwvww5jd&#39; AIRFLOW_CTX_TASK_ID=&#39;hello_torchx&#39; AIRFLOW_CTX_EXECUTION_DATE=&#39;2021-09-13T00:00:00+00:00&#39; AIRFLOW_CTX_TRY_NUMBER=&#39;1&#39; AIRFLOW_CTX_DAG_RUN_ID=&#39;manual__2021-09-13T00:00:00+00:00&#39;
+[<span class="ansi-blue-fg">2024-05-28T16:21:03.687+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>430} INFO - ::endgroup::
+[<span class="ansi-blue-fg">2024-05-28T16:21:04.347+0000</span>] {<span class="ansi-blue-fg">api.py:</span>72} INFO - Tracker configurations: {}
+[<span class="ansi-blue-fg">2024-05-28T16:21:04.350+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>771} INFO - Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+[<span class="ansi-blue-fg">2024-05-28T16:21:04.351+0000</span>] {<span class="ansi-blue-fg">local_scheduler.py:</span>777} INFO - Log directory is: /tmp/torchx_vf6o8_d1
 Hello, TorchX!
-[<span class="ansi-blue-fg">2024-05-28T15:57:15.144+0000</span>] {<span class="ansi-blue-fg">python.py:</span>237} INFO - Done. Returned value was: None
-[<span class="ansi-blue-fg">2024-05-28T15:57:15.145+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>441} INFO - ::group::Post task execution logs
-[<span class="ansi-blue-fg">2024-05-28T15:57:15.150+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1206} INFO - Marking task as SUCCESS. dag_id=example_python_operator-m5wmpdvf55tp9, task_id=hello_torchx, run_id=manual__2021-09-13T00:00:00+00:00, execution_date=20210913T000000, start_date=20240528T155714, end_date=20240528T155715
+[<span class="ansi-blue-fg">2024-05-28T16:21:04.455+0000</span>] {<span class="ansi-blue-fg">python.py:</span>237} INFO - Done. Returned value was: None
+[<span class="ansi-blue-fg">2024-05-28T16:21:04.456+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>441} INFO - ::group::Post task execution logs
+[<span class="ansi-blue-fg">2024-05-28T16:21:04.461+0000</span>] {<span class="ansi-blue-fg">taskinstance.py:</span>1206} INFO - Marking task as SUCCESS. dag_id=example_python_operator-r3gsgfcwvww5jd, task_id=hello_torchx, run_id=manual__2021-09-13T00:00:00+00:00, execution_date=20210913T000000, start_date=20240528T162103, end_date=20240528T162104
 </pre></div></div>
 </div>
 <p>If all goes well you should see <code class="docutils literal notranslate"><span class="pre">Hello,</span> <span class="pre">TorchX!</span></code> printed above.</p>
