@@ -174,13 +174,9 @@ def _mock_aws_batch() -> None:
     ensure_network()
     os.environ.setdefault("MOTO_DOCKER_NETWORK_NAME", NETWORK)
 
-    from moto import mock_batch, mock_ec2, mock_ecs, mock_iam, mock_logs
+    from moto import mock_aws
 
-    mock_batch().__enter__()
-    mock_iam().__enter__()
-    mock_ec2().__enter__()
-    mock_ecs().__enter__()
-    mock_logs().__enter__()
+    mock_aws().__enter__()
 
     import boto3.session
 
