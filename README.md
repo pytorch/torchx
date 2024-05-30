@@ -1,5 +1,5 @@
 [![PyPI](https://img.shields.io/pypi/v/torchx)](https://pypi.org/project/torchx/)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/pytorch/torchx/blob/main/LICENSE)
 ![Tests](https://github.com/pytorch/torchx/actions/workflows/python-unittests.yaml/badge.svg)
 ![Lint](https://github.com/pytorch/torchx/actions/workflows/lint.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/pytorch/torchx/branch/main/graph/badge.svg?token=ceHHIm0hXy)](https://codecov.io/gh/pytorch/torchx)
@@ -93,8 +93,8 @@ See: https://github.com/pytorch/torchx/pkgs/container/torchx
 
 ## Contributing
 
-We welcome PRs! See the [CONTRIBUTING](CONTRIBUTING.md) file.
+We welcome PRs! See the [CONTRIBUTING](https://github.com/pytorch/torchx/blob/main/CONTRIBUTING.md) file.
 
 ## License
 
-TorchX is BSD licensed, as found in the [LICENSE](LICENSE) file.
+TorchX is BSD licensed, as found in the [LICENSE](https://github.com/pytorch/torchx/blob/main/LICENSE) file.
