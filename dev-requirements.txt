@@ -15,7 +15,7 @@ hydra-core
 ipython
 kfp==1.8.22
 mlflow-skinny
-moto==4.2.14
+moto~=5.0.8
 pyre-extensions
 pyre-check
 pytest
