@@ -460,7 +460,7 @@ in a job fails, only that replica will be restarted.</p>
 </div>
 <p><strong>Config Options</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    usage:
-        [copy_env=COPY_ENV],[env=ENV],[image_repo=IMAGE_REPO],[quiet=QUIET]
+        [copy_env=COPY_ENV],[env=ENV],[privileged=PRIVILEGED],[image_repo=IMAGE_REPO],[quiet=QUIET]
 
     optional arguments:
         copy_env=COPY_ENV (typing.List[str], None)
@@ -469,6 +469,8 @@ in a job fails, only that replica will be restarted.</p>
             environment variables to be passed to the run. The separator sign can be eiher comma or semicolon
             (e.g. ENV1:v1,ENV2:v2,ENV3:v3 or ENV1:V1;ENV2:V2). Environment variables from env will be applied on top
             of the ones from copy_env
+        privileged=PRIVILEGED (bool, False)
+            If true runs the container with elevated permissions. Equivalent to running with `docker run --privileged`.
         image_repo=IMAGE_REPO (str, None)
             (remote jobs) the image repository to use when pushing patched images, must have push access. Ex: example.com/your/container
         quiet=QUIET (bool, False)
