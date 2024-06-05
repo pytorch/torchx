@@ -71,7 +71,7 @@ class DockerSchedulerTest(unittest.TestCase):
         app = _test_app()
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app_name_42"
-            info = self.scheduler._submit_dryrun(app, cfg={})
+            info = self.scheduler.submit_dryrun(app, cfg={})
 
         want = DockerJob(
             "app_name_42",
@@ -109,6 +109,7 @@ class DockerSchedulerTest(unittest.TestCase):
                         },
                         "mem_limit": "3000m",
                         "shm_size": "3000m",
+                        "privileged": False,
                         "name": "app_name_42-trainer-0",
                         "hostname": "app_name_42-trainer-0",
                         "nano_cpus": int(2e9),
@@ -137,7 +138,7 @@ class DockerSchedulerTest(unittest.TestCase):
             specs.VolumeMount(src="name", dst_path="/tmp", read_only=True),
         ]
 
-        info = self.scheduler._submit_dryrun(app, cfg={})
+        info = self.scheduler.submit_dryrun(app, cfg={})
         want = [
             Mount(
                 target="/tmp",
@@ -154,7 +155,7 @@ class DockerSchedulerTest(unittest.TestCase):
             specs.DeviceMount(src_path="foo", dst_path="bar"),
         ]
 
-        info = self.scheduler._submit_dryrun(app, cfg={})
+        info = self.scheduler.submit_dryrun(app, cfg={})
         self.assertEqual(info.request.containers[0].kwargs["devices"], ["foo:bar:rwm"])
 
     def test_resource_devices(self) -> None:
@@ -162,7 +163,7 @@ class DockerSchedulerTest(unittest.TestCase):
         app.roles[0].mounts = []
         app.roles[0].resource.devices = {"vpc.amazonaws.com/efa": 1}
 
-        info = self.scheduler._submit_dryrun(app, cfg={})
+        info = self.scheduler.submit_dryrun(app, cfg={})
         self.assertEqual(
             info.request.containers[0].kwargs["devices"],
             ["/dev/infiniband/uverbs0:/dev/infiniband/uverbs0:rwm"],
@@ -174,7 +175,7 @@ class DockerSchedulerTest(unittest.TestCase):
         cfg = DockerOpts({"copy_env": ["FOO_*", "BAR_*"]})
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app_name_42"
-            info = self.scheduler._submit_dryrun(app, cfg)
+            info = self.scheduler.submit_dryrun(app, cfg)
         self.assertEqual(
             info.request.containers[0].kwargs["environment"],
             {
@@ -190,7 +191,7 @@ class DockerSchedulerTest(unittest.TestCase):
         cfg = DockerOpts({"env": {"FOO_1": "BAR_1"}})
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app_name_42"
-            info = self.scheduler._submit_dryrun(app, cfg)
+            info = self.scheduler.submit_dryrun(app, cfg)
         self.assertEqual(
             info.request.containers[0].kwargs["environment"],
             {
@@ -200,13 +201,21 @@ class DockerSchedulerTest(unittest.TestCase):
             },
         )
 
+    def test_privileged(self) -> None:
+        app = _test_app()
+        cfg = DockerOpts({"privileged": True})
+        with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
+            make_unique_ctx.return_value = "app_name_42"
+            info = self.scheduler.submit_dryrun(app, cfg)
+        self.assertTrue(info.request.containers[0].kwargs["privileged"])
+
     def test_long_hostname(self) -> None:
         app = _test_app()
         for role in app.roles:
             role.name = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin_blum_elective_spill_trammel_trainer"
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin_blum_elective_spill_trammel_12345"
-            info = self.scheduler._submit_dryrun(app, DockerOpts())
+            info = self.scheduler.submit_dryrun(app, DockerOpts())
         for container in info.request.containers:
             assert "name" in container.kwargs
             name = container.kwargs["name"]
