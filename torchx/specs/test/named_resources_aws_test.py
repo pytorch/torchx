@@ -38,6 +38,7 @@ from torchx.specs.named_resources_aws import (
     GiB,
     K8S_ITYPE,
     NAMED_RESOURCES,
+    NEURON_DEVICE,
 )
 
 
@@ -170,11 +171,13 @@ class NamedResourcesTest(unittest.TestCase):
         self.assertEqual(8, trn1_2.cpu)
         self.assertEqual(0, trn1_2.gpu)
         self.assertEqual(32 * GiB, trn1_2.memMB)
+        self.assertEqual({NEURON_DEVICE: 1}, trn1_2.devices)
 
         trn1_32 = aws_trn1_32xlarge()
         self.assertEqual(trn1_32.cpu, trn1_2.cpu * 16)
         self.assertEqual(trn1_32.gpu, trn1_2.gpu)
         self.assertEqual(trn1_32.memMB, trn1_2.memMB * 16)
+        self.assertEqual({EFA_DEVICE: 8, NEURON_DEVICE: 16}, trn1_32.devices)
 
     def test_aws_m5_2xlarge(self) -> None:
         resource = aws_m5_2xlarge()

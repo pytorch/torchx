@@ -7,25 +7,36 @@
 
 # pyre-strict
 import warnings
+from functools import partial
 from typing import Callable, Dict, List, Mapping
 
 from torchx.specs.api import DeviceMount
+from torchx.specs.named_resources_aws import EFA_DEVICE, NEURON_DEVICE
 
 
-def efa_to_devicemounts(num_devices: int) -> List[DeviceMount]:
+def to_devicemounts(num_devices: int, device_type: str) -> List[DeviceMount]:
     device_mounts = []
     for device_index in range(0, num_devices):
         device_mounts.append(
             DeviceMount(
-                src_path="/dev/infiniband/uverbs" + str(device_index),
-                dst_path="/dev/infiniband/uverbs" + str(device_index),
+                src_path=device_type + str(device_index),
+                dst_path=device_type + str(device_index),
             )
         )
     return device_mounts
 
 
+neuron_to_devicemounts: Callable[[int], List[DeviceMount]] = partial(
+    to_devicemounts, device_type="/dev/neuron"
+)
+efa_to_devicemounts: Callable[[int], List[DeviceMount]] = partial(
+    to_devicemounts, device_type="/dev/infiniband/uverbs"
+)
+
+
 DEVICES: Mapping[str, Callable[[int], List[DeviceMount]]] = {
-    "vpc.amazonaws.com/efa": efa_to_devicemounts,
+    EFA_DEVICE: efa_to_devicemounts,
+    NEURON_DEVICE: neuron_to_devicemounts,
 }
 
 
