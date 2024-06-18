@@ -678,11 +678,15 @@
 <span class="sd">                application to deal with failed replica departures and</span>
 <span class="sd">                replacement replica admittance.</span>
 <span class="sd">    2. APPLICATION: Restarts the entire application.</span>
-
+<span class="sd">    3. HOT_SPARE: Restarts the replicas for a role as long as quorum (min_replicas)</span>
+<span class="sd">                is not violated using extra hosts as spares. It does not really support</span>
+<span class="sd">                elasticity and just uses the delta between num_replicas and min_replicas</span>
+<span class="sd">                as spares (EXPERIMENTAL).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">REPLICA</span> <span class="o">=</span> <span class="s2">&quot;REPLICA&quot;</span>
-    <span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION&quot;</span></div>
+    <span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION&quot;</span>
+    <span class="n">HOT_SPARE</span> <span class="o">=</span> <span class="s2">&quot;HOT_SPARE&quot;</span></div>
 
 
 <span class="k">class</span> <span class="nc">MountType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
@@ -781,6 +785,8 @@
 <span class="sd">                and num_replicas depending on the cluster resources and</span>
 <span class="sd">                policies. If the scheduler doesn&#39;t support auto scaling this</span>
 <span class="sd">                field is ignored and the job size will be num_replicas.</span>
+<span class="sd">                EXPERIMENTAL: For HOT_SPARE restart policy this field is used to</span>
+<span class="sd">                indicate the quorum required for the job to run.</span>
 <span class="sd">            max_retries: max number of retries before giving up</span>
 <span class="sd">            retry_policy: retry behavior upon replica failures</span>
 <span class="sd">            resource: Resource requirement for the role. The role should be scheduled</span>
