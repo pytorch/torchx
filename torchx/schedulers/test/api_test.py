@@ -26,6 +26,7 @@ from torchx.specs.api import (
     AppDryRunInfo,
     CfgVal,
     InvalidRunConfigException,
+    macros,
     NULL_RESOURCE,
     Resource,
     Role,
@@ -113,6 +114,28 @@ class SchedulerTest(unittest.TestCase):
         cfg = {"foo": "asdf"}
         scheduler_mock.submit(app, cfg, workspace="some_workspace")
         self.assertEqual(app.roles[0].image, "some_workspace")
+
+    def test_metadata_macro_substitute(self) -> None:
+        role = Role(
+            name="sleep",
+            image="",
+            entrypoint="foo.sh",
+            metadata={
+                "bridge": {
+                    "tier": "${app_id}",
+                },
+                "packages": ["foo", "package_${app_id}"],
+            },
+        )
+        values = macros.Values(
+            img_root="",
+            app_id="test_app",
+            replica_id=str(1),
+            rank0_env="TORCHX_RANK0_HOST",
+        )
+        replica_role = values.apply(role)
+        self.assertEqual(replica_role.metadata["bridge"]["tier"], "test_app")
+        self.assertEqual(replica_role.metadata["packages"], ["foo", "package_test_app"])
 
     def test_invalid_dryrun_cfg(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
