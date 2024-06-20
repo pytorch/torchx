@@ -37,6 +37,7 @@ from typing import Callable, Mapping
 from torchx.specs.api import Resource
 
 EFA_DEVICE = "vpc.amazonaws.com/efa"
+NEURON_DEVICE = "aws.amazon.com/neurondevice"
 
 # ecs and ec2 have memtax and currently AWS Batch uses hard memory limits
 # so we have to account for mem tax when registering these resources for AWS
@@ -255,7 +256,11 @@ def aws_g5_48xlarge() -> Resource:
 
 def aws_trn1_2xlarge() -> Resource:
     return Resource(
-        cpu=8, gpu=0, memMB=32 * GiB, capabilities={K8S_ITYPE: "trn1.2xlarge"}
+        cpu=8,
+        gpu=0,
+        memMB=32 * GiB,
+        capabilities={K8S_ITYPE: "trn1.2xlarge"},
+        devices={NEURON_DEVICE: 1},
     )
 
 
@@ -265,7 +270,7 @@ def aws_trn1_32xlarge() -> Resource:
         gpu=0,
         memMB=512 * GiB,
         capabilities={K8S_ITYPE: "trn1.32xlarge"},
-        devices={EFA_DEVICE: 8},
+        devices={EFA_DEVICE: 8, NEURON_DEVICE: 16},
     )
 
 

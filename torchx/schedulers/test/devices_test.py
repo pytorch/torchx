@@ -16,7 +16,7 @@ from torchx.specs.api import DeviceMount
 
 class DevicesTest(unittest.TestCase):
     def test_get_efa(self) -> None:
-        devices = {"vpc.amazonaws.com/efa": 2}
+        devices = {"vpc.amazonaws.com/efa": 2, "aws.amazon.com/neurondevice": 1}
         self.assertEqual(
             get_device_mounts(devices),
             [
@@ -28,6 +28,7 @@ class DevicesTest(unittest.TestCase):
                     src_path="/dev/infiniband/uverbs1",
                     dst_path="/dev/infiniband/uverbs1",
                 ),
+                DeviceMount(src_path="/dev/neuron0", dst_path="/dev/neuron0"),
             ],
         )
 

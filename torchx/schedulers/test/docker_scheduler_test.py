@@ -161,12 +161,19 @@ class DockerSchedulerTest(unittest.TestCase):
     def test_resource_devices(self) -> None:
         app = _test_app()
         app.roles[0].mounts = []
-        app.roles[0].resource.devices = {"vpc.amazonaws.com/efa": 1}
+        app.roles[0].resource.devices = {
+            "vpc.amazonaws.com/efa": 1,
+            "aws.amazon.com/neurondevice": 2,
+        }
 
         info = self.scheduler.submit_dryrun(app, cfg={})
         self.assertEqual(
             info.request.containers[0].kwargs["devices"],
-            ["/dev/infiniband/uverbs0:/dev/infiniband/uverbs0:rwm"],
+            [
+                "/dev/infiniband/uverbs0:/dev/infiniband/uverbs0:rwm",
+                "/dev/neuron0:/dev/neuron0:rwm",
+                "/dev/neuron1:/dev/neuron1:rwm",
+            ],
         )
 
     @patch("os.environ", {"FOO_1": "f1", "BAR_1": "b1", "FOOBAR_1": "fb1"})

@@ -361,7 +361,10 @@ class AWSBatchSchedulerTest(unittest.TestCase):
             image="",
             mounts=[],
             resource=specs.Resource(
-                cpu=1, memMB=1000, gpu=0, devices={"vpc.amazonaws.com/efa": 2}
+                cpu=1,
+                memMB=1000,
+                gpu=0,
+                devices={"vpc.amazonaws.com/efa": 2, "aws.amazon.com/neurondevice": 1},
             ),
         )
         props = _role_to_node_properties(role, 0)
@@ -377,6 +380,11 @@ class AWSBatchSchedulerTest(unittest.TestCase):
                 {
                     "hostPath": "/dev/infiniband/uverbs1",
                     "containerPath": "/dev/infiniband/uverbs1",
+                    "permissions": ["READ", "WRITE", "MKNOD"],
+                },
+                {
+                    "hostPath": "/dev/neuron0",
+                    "containerPath": "/dev/neuron0",
                     "permissions": ["READ", "WRITE", "MKNOD"],
                 },
             ],
