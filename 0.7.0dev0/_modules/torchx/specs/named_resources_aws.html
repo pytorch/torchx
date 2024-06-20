@@ -478,6 +478,7 @@
 <span class="kn">from</span> <span class="nn">torchx.specs.api</span> <span class="kn">import</span> <span class="n">Resource</span>
 
 <span class="n">EFA_DEVICE</span> <span class="o">=</span> <span class="s2">&quot;vpc.amazonaws.com/efa&quot;</span>
+<span class="n">NEURON_DEVICE</span> <span class="o">=</span> <span class="s2">&quot;aws.amazon.com/neurondevice&quot;</span>
 
 <span class="c1"># ecs and ec2 have memtax and currently AWS Batch uses hard memory limits</span>
 <span class="c1"># so we have to account for mem tax when registering these resources for AWS</span>
@@ -696,7 +697,11 @@
 
 <span class="k">def</span> <span class="nf">aws_trn1_2xlarge</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Resource</span><span class="p">(</span>
-        <span class="n">cpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memMB</span><span class="o">=</span><span class="mi">32</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.2xlarge&quot;</span><span class="p">}</span>
+        <span class="n">cpu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">memMB</span><span class="o">=</span><span class="mi">32</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.2xlarge&quot;</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">NEURON_DEVICE</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
     <span class="p">)</span>
 
 
@@ -706,7 +711,7 @@
         <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">memMB</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="n">GiB</span><span class="p">,</span>
         <span class="n">capabilities</span><span class="o">=</span><span class="p">{</span><span class="n">K8S_ITYPE</span><span class="p">:</span> <span class="s2">&quot;trn1.32xlarge&quot;</span><span class="p">},</span>
-        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+        <span class="n">devices</span><span class="o">=</span><span class="p">{</span><span class="n">EFA_DEVICE</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="n">NEURON_DEVICE</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
     <span class="p">)</span>
 
 
