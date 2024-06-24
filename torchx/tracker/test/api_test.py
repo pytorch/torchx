@@ -34,7 +34,7 @@ RunId = str
 DEFAULT_SOURCE: str = "__parent__"
 
 
-class TestTrackerBackend(TrackerBase):
+class TrackerBackendTester(TrackerBase):
     def __init__(self, config_path: Optional[str] = None) -> None:
         self._artifacts: DefaultDict[
             RunId,
@@ -104,7 +104,7 @@ class TestTrackerBackend(TrackerBase):
 class AppRunApiTest(TestCase):
     def setUp(self) -> None:
         os.environ[ENV_TORCHX_JOB_ID] = "scheduler://session/app_id"
-        self.tracker = TestTrackerBackend()
+        self.tracker = TrackerBackendTester()
         self.run_id = "run_id"
         self.model_run = AppRun(self.run_id, [self.tracker])
 
@@ -130,7 +130,7 @@ class AppRunApiTest(TestCase):
             self.assertEqual(1, len(trackers))
 
             tracker = trackers[0]
-            self.assertEqual(TestTrackerBackend, type(tracker))
+            self.assertEqual(TrackerBackendTester, type(tracker))
 
             sources = list(tracker.sources("run_id"))
             self.assertEqual(1, len(sources))
@@ -184,7 +184,7 @@ class AppRunApiTest(TestCase):
 
 
 def tracker_factory(config: Optional[str] = None) -> TrackerBase:
-    return TestTrackerBackend(config)
+    return TrackerBackendTester(config)
 
 
 class TrackerFactoryMethodsTest(TestCase):
@@ -203,7 +203,7 @@ class TrackerFactoryMethodsTest(TestCase):
         ):
             trackers = trackers_from_environ()
             self.assertEqual(1, len(list(trackers)))
-            self.assertEqual(TestTrackerBackend, type(trackers[0]))
+            self.assertEqual(TrackerBackendTester, type(trackers[0]))
 
     @mock.patch.dict(
         os.environ,
@@ -218,7 +218,7 @@ class TrackerFactoryMethodsTest(TestCase):
             return_value={"tracker1": tracker_factory},
         ):
             trackers = trackers_from_environ()
-            tracker = cast(TestTrackerBackend, list(trackers)[0])
+            tracker = cast(TrackerBackendTester, list(trackers)[0])
             self.assertEqual("myconfig.txt", tracker.config_path)
 
     def test_tracker_from_environ_that_wasnt_setup(self) -> None:

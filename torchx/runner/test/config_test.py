@@ -29,7 +29,7 @@ from torchx.specs import AppDef, AppDryRunInfo, CfgVal, runopts
 from torchx.test.fixtures import TestWithTmpDir
 
 
-class TestScheduler(Scheduler):
+class SchedulerTester(Scheduler):
     def __init__(self, session_name: str) -> None:
         super().__init__("test", session_name)
 
@@ -357,7 +357,7 @@ image = foobar_custom
 
     @patch(
         TORCHX_GET_SCHEDULER_FACTORIES,
-        return_value={"test": TestScheduler},
+        return_value={"test": SchedulerTester},
     )
     def test_apply_default(self, _) -> None:
         with patch(
@@ -375,7 +375,7 @@ image = foobar_custom
 
     @patch(
         TORCHX_GET_SCHEDULER_FACTORIES,
-        return_value={"test": TestScheduler},
+        return_value={"test": SchedulerTester},
     )
     def test_apply_dirs(self, _) -> None:
         cfg: Dict[str, CfgVal] = {"s": "runtime_value"}
@@ -394,7 +394,7 @@ image = foobar_custom
 
     @patch(
         TORCHX_GET_SCHEDULER_FACTORIES,
-        return_value={"test": TestScheduler},
+        return_value={"test": SchedulerTester},
     )
     def test_dump_only_required(self, _) -> None:
         sfile = StringIO()
@@ -411,7 +411,7 @@ image = foobar_custom
 
     @patch(
         TORCHX_GET_SCHEDULER_FACTORIES,
-        return_value={"test": TestScheduler},
+        return_value={"test": SchedulerTester},
     )
     def test_load_invalid_runopt(self, _) -> None:
         cfg = {}
@@ -425,7 +425,7 @@ image = foobar_custom
         # this makes things super hard to guarantee BC - stale config file will fail
         # to run, we don't want that)
 
-        self.assertEquals("option_that_exists", cfg.get("s"))
+        self.assertEqual("option_that_exists", cfg.get("s"))
 
     def test_load_no_section(self) -> None:
         cfg = {}
@@ -447,7 +447,7 @@ image = foobar_custom
 
     @patch(
         TORCHX_GET_SCHEDULER_FACTORIES,
-        return_value={"test": TestScheduler},
+        return_value={"test": SchedulerTester},
     )
     def test_dump_and_load_all_runopt_types(self, _) -> None:
         sfile = StringIO()
@@ -459,7 +459,7 @@ image = foobar_custom
         load(scheduler="test", f=sfile, cfg=cfg)
 
         # all runopts in the TestScheduler have defaults, just check against those
-        for opt_name, opt in TestScheduler("test").run_opts():
+        for opt_name, opt in SchedulerTester("test").run_opts():
             self.assertEqual(cfg.get(opt_name), opt.default)
 
     def test_dump_and_load_all_registered_schedulers(self) -> None:
