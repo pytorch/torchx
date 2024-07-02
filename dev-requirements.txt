@@ -21,6 +21,7 @@ pyre-check
 pytest
 pytest-cov
 pytorch-lightning
+tensorboard
 sagemaker>=2.149.0
 torch-model-archiver>=0.4.2
 torch==2.2.1
