@@ -20,7 +20,8 @@ pyre-extensions
 pyre-check
 pytest
 pytest-cov
-pytorch-lightning==1.5.10
+pytorch-lightning==2.3.1
+tensorboard==2.14.0
 sagemaker>=2.149.0
 torch-model-archiver>=0.4.2
 torch==2.2.1
