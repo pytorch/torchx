@@ -19,9 +19,9 @@ output is used for HPO optimization with Ax.
 import time
 from typing import Dict
 
-from lightning.profiler import Profiler
+from pytorch_lightning.loggers.logger import Logger
 
-from lightning_fabric.loggers.logger import Logger
+from pytorch_lightning.profilers.profiler import Profiler
 
 
 class SimpleLoggingProfiler(Profiler):
