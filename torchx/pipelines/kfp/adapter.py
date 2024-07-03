@@ -105,7 +105,7 @@ def component_from_app(
         app: The AppDef to generate a KFP container factory for.
         ui_metadata: KFP UI Metadata to output so you can have model results show
             up in the UI. See
-            https://www.kubeflow.org/docs/components/pipelines/sdk/output-viewer/
+            https://www.kubeflow.org/docs/components/pipelines/legacy-v1/sdk/output-viewer/
             for more info on the format.
 
     >>> from torchx import specs
