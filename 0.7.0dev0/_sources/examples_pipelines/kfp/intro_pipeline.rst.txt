@@ -81,7 +81,7 @@ pipeline.yaml) that you can upload to your KFP cluster via the UI or
 a kfp.Client.
 
 See the
-`KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/tutorials/sdk-examples/#examples>`_
+`KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/legacy-v1/tutorials/sdk-examples/#examples>`_
 for more info on launching KFP pipelines.
 
 See the :ref:`examples_pipelines/kfp/advanced_pipeline:Advanced KubeFlow Pipelines Example` for how to chain multiple

@@ -60,7 +60,7 @@ with open("pipeline.yaml", "rt") as f:
 # a kfp.Client.
 #
 # See the
-# `KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/tutorials/sdk-examples/#examples>`_
+# `KFP SDK Examples <https://www.kubeflow.org/docs/components/pipelines/legacy-v1/tutorials/sdk-examples/#examples>`_
 # for more info on launching KFP pipelines.
 
 # %%
