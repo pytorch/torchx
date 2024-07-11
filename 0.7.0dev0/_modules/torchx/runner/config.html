@@ -928,7 +928,7 @@
             <span class="n">dirs</span> <span class="o">=</span> <span class="n">DEFAULT_CONFIG_DIRS</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
             <span class="n">configfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">CONFIG_FILE</span>
-            <span class="k">if</span> <span class="n">configfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">configfile</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">):</span>
                 <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">configfile</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">config_files</span></div>
 
