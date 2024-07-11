@@ -489,7 +489,7 @@ def find_configs(dirs: Optional[Iterable[str]] = None) -> List[str]:
             dirs = DEFAULT_CONFIG_DIRS
         for d in dirs:
             configfile = Path(d) / CONFIG_FILE
-            if configfile.exists():
+            if os.access(configfile, os.R_OK):
                 config_files.append(str(configfile))
     return config_files
 
