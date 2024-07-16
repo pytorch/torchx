@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## torchx-0.7.0
+
+* `torchx.schedulers`
+  * AWS Batch Scheduler
+    * Add job_role_arn and execution_role_arn as run options for AWS permission
+    * Add instance type for aws_batch_scheduler multinode jobs
+    * Add neuron device mount for aws trn instances 
+    * Update EFA_DEVICE details for AWS resources
+  * Add aws_sagemaker_scheduler
+    * Torchx scheduler for AWS SageMaker
+  * Docker Scheduler
+    * Add support for setting environment variables
+  * GCP Batch Scheduler
+    * Fix log
+ 
+* `torchx.tracker`
+  * Add module lookup for building trackers
+
+* `torchx.cli`
+  * Throw error if there are multiple scheduler arguments
+ 
+* `torchx.specs.api`
+  * Add macro support to metadata variables
+  * Add NamedTuple for Tuple from parsing AppHandle
+
+* Changes to ease maintenance
+  * Migrate all active AWS resources to US-west-1 region with Terraform
+  * Fix all Github Actions
+  * Better linter error message.
+  * Migrate Kubernetes Integration test to MiniKube
+  * Deprecate KFP Integration Tests
+ 
+* Additional changes
+  * Add verbose flag to docker mixin
+
+
 ## torchx-0.6.0
 
 * Breaking changes
