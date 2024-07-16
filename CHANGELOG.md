@@ -6,9 +6,10 @@
   * AWS Batch Scheduler
     * Add job_role_arn and execution_role_arn as run options for AWS permission
     * Add instance type for aws_batch_scheduler multinode jobs
-    * Add neuron device mount for aws trn instances. 
+    * Add neuron device mount for aws trn instances 
     * Update EFA_DEVICE details for AWS resources
   * Add aws_sagemaker_scheduler
+    * Torchx scheduler for AWS SageMaker
   * Docker Scheduler
     * Add support for setting environment variables
   * GCP Batch Scheduler
