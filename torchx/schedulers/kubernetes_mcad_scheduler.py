@@ -478,7 +478,7 @@ def get_unique_truncated_appid(app: AppDef) -> str:
     if unique_id_size <= 3:
         msg = "Name size has too many characters for some Kubernetes objects. Truncating \
 application name."
-        warnings.warn(msg)
+        warnings.warn(msg, RuntimeWarning)
         end = 63 - uid_chars - pg_chars
         substring = app.name[0:end]
         app.name = substring
@@ -501,7 +501,7 @@ def get_port_for_service(app: AppDef) -> str:
     if not (0 < int(port) <= 65535):
         msg = """Warning: port_map set to invalid port number. Value must be between 1-65535, with torchx default = 29500. Setting port to default = 29500"""
         port = "29500"
-        warnings.warn(msg)
+        warnings.warn(msg, RuntimeWarning)
 
     return port
 
@@ -1147,7 +1147,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
             task_count = 0
             for role in roles:
                 msg = "Warning - MCAD does not report individual replica statuses, but overall task status. Replica id  may not match status"
-                warnings.warn(msg)
+                warnings.warn(msg, RuntimeWarning)
 
                 roles_statuses[role] = RoleStatus(role, [])
                 for idx in range(0, roles[role].num_replicas):
