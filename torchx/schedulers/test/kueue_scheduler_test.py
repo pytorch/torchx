@@ -4,8 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-# pyre-strict
-
 import base64
 import importlib
 import sys
@@ -17,16 +15,16 @@ from unittest.mock import MagicMock, patch
 import torchx
 from torchx import schedulers, specs
 
-# @manual=//torchx/schedulers:kubernetes_scheduler
-from torchx.schedulers import kubernetes_scheduler
+# @manual=//torchx/schedulers:kueue_scheduler
+from torchx.schedulers import kueue_scheduler
 from torchx.schedulers.api import AppDryRunInfo, DescribeAppResponse, ListAppResponse
 from torchx.schedulers.docker_scheduler import has_docker
-from torchx.schedulers.kubernetes_scheduler import (
+from torchx.schedulers.kueue_scheduler import (
     app_to_resource,
     create_scheduler,
-    KubernetesJob,
-    KubernetesOpts,
-    KubernetesScheduler,
+    Kueue,
+    KueueOpts,
+    KueueScheduler,
 )
 from torchx.specs import AppState
 from torchx.util.role_to_pod import LABEL_INSTANCE_TYPE, role_to_pod
@@ -87,30 +85,29 @@ def _test_app(num_replicas: int = 1) -> specs.AppDef:
             specs.BindMount(src_path="/src", dst_path="/dst", read_only=True),
         ],
     )
-
     return specs.AppDef("test", roles=[trainer_role])
 
 
-class KubernetesSchedulerTest(unittest.TestCase):
+class KueueSchedulerTest(unittest.TestCase):
     def test_create_scheduler(self) -> None:
         client = MagicMock()
         docker_client = MagicMock
         scheduler = create_scheduler("foo", client=client, docker_client=docker_client)
-        self.assertIsInstance(scheduler, kubernetes_scheduler.KubernetesScheduler)
-        self.assertEquals(scheduler._docker_client, docker_client)
-        self.assertEquals(scheduler._client, client)
+        self.assertIsInstance(scheduler, kueue_scheduler.KueueScheduler)
+        self.assertEqual(scheduler._docker_client, docker_client)
+        self.assertEqual(scheduler._client, client)
 
     def test_app_to_resource_resolved_macros(self) -> None:
         app = _test_app()
         unique_app_name = "app-name-42"
-        with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
-        ) as make_unique_ctx:
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = unique_app_name
-            resource = app_to_resource(app, "test_queue", service_account=None)
+            resource = app_to_resource(
+                app, service_account=None, local_queue="default-kueue"
+            )
             actual_cmd = (
                 # pyre-ignore [16]
-                resource["spec"]["tasks"][0]["template"]
+                resource["spec"]["template"]
                 .spec.containers[0]
                 .command
             )
@@ -125,22 +122,23 @@ class KubernetesSchedulerTest(unittest.TestCase):
             ]
             self.assertEqual(expected_cmd, actual_cmd)
 
-    def test_retry_policy_not_set(self) -> None:
+    def test_restart_policy_not_set(self) -> None:
         app = _test_app()
-        resource = app_to_resource(app, "test_queue", service_account=None)
-        self.assertListEqual(
-            [
-                {"event": "PodEvicted", "action": "RestartJob"},
-                {"event": "PodFailed", "action": "RestartJob"},
-            ],
+        resource = app_to_resource(
+            app, service_account=None, local_queue="default-kueue"
+        )
+        self.assertEqual(
+            "Never",
             # pyre-ignore [16]
-            resource["spec"]["tasks"][0]["policies"],
+            resource["spec"]["template"].spec.restart_policy,
         )
         for role in app.roles:
             role.max_retries = 0
-        resource = app_to_resource(app, "test_queue", service_account=None)
-        self.assertFalse("policies" in resource["spec"]["tasks"][0])
-        self.assertFalse("maxRetry" in resource["spec"]["tasks"][0])
+        resource = app_to_resource(
+            app, service_account=None, local_queue="default-kueue"
+        )
+        self.assertFalse("restartPolicy" in resource["spec"])  # pyre-ignore[58]
+        self.assertFalse("backoffLimit" in resource["spec"])  # pyre-ignore[58]
 
     def test_role_to_pod(self) -> None:
         from kubernetes.client.models import (
@@ -232,108 +230,89 @@ class KubernetesSchedulerTest(unittest.TestCase):
             ),
         )
 
-        print(want)
-
         self.assertEqual(
             pod,
             want,
         )
 
     def test_submit_dryrun(self) -> None:
+        cfg = KueueOpts({"namespace": "testnamespace", "local_queue": "default-kueue"})
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KubernetesOpts({"queue": "testqueue"})
-        with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
-        ) as make_unique_ctx:
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
         resource = str(info.request)
-
-        print(resource)
-
         self.assertEqual(
             resource,
-            f"""apiVersion: batch.volcano.sh/v1alpha1
+            f"""apiVersion: batch/v1
 kind: Job
 metadata:
   name: app-name-42
 spec:
-  maxRetry: 3
-  plugins:
-    env: []
-    svc:
-    - --publish-not-ready-addresses
-  queue: testqueue
-  schedulerName: volcano
-  tasks:
-  - maxRetry: 3
-    name: trainerfoo-0
-    policies:
-    - action: RestartJob
-      event: PodEvicted
-    - action: RestartJob
-      event: PodFailed
-    replicas: 1
-    template:
-      metadata:
-        annotations:
-          sidecar.istio.io/inject: 'false'
-        labels:
-          app.kubernetes.io/instance: app-name-42
-          app.kubernetes.io/managed-by: torchx.pytorch.org
-          app.kubernetes.io/name: test
-          torchx.pytorch.org/app-name: test
-          torchx.pytorch.org/replica-id: '0'
-          torchx.pytorch.org/role-index: '0'
-          torchx.pytorch.org/role-name: trainer_foo
-          torchx.pytorch.org/version: {torchx.__version__}
-      spec:
-        containers:
-        - command:
-          - main
-          - --output-path
-          - ''
-          - --app-id
-          - app-name-42
-          - --rank0-env
-          - TORCHX_RANK0_HOST
-          env:
-          - name: FOO
-            value: bar
-          - name: TORCHX_RANK0_HOST
-            value: localhost
-          image: pytorch/torchx:latest
-          name: trainerfoo-0
-          ports:
-          - containerPort: 1234
-            name: foo
-          resources:
-            limits:
-              cpu: 2000m
-              memory: 3000M
-              nvidia.com/gpu: '4'
-            requests:
-              cpu: 1900m
-              memory: 1976M
-              nvidia.com/gpu: '4'
-          securityContext: {{}}
-          volumeMounts:
-          - mountPath: /dev/shm
-            name: dshm
-          - mountPath: /dst
-            name: mount-0
-            readOnly: true
-        nodeSelector: {{}}
-        restartPolicy: Never
-        volumes:
-        - emptyDir:
-            medium: Memory
+  backoffLimit: 3
+  name: trainerfoo-0
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: 'false'
+      labels:
+        app.kubernetes.io/instance: app-name-42
+        app.kubernetes.io/managed-by: torchx.pytorch.org
+        app.kubernetes.io/name: test
+        kueue.x-k8s.io/queue-name: default-kueue
+        torchx.pytorch.org/app-name: test
+        torchx.pytorch.org/replica-id: '0'
+        torchx.pytorch.org/role-index: '0'
+        torchx.pytorch.org/role-name: trainer_foo
+        torchx.pytorch.org/version: {torchx.__version__}
+    spec:
+      containers:
+      - command:
+        - main
+        - --output-path
+        - ''
+        - --app-id
+        - app-name-42
+        - --rank0-env
+        - TORCHX_RANK0_HOST
+        env:
+        - name: FOO
+          value: bar
+        - name: TORCHX_RANK0_HOST
+          value: localhost
+        image: pytorch/torchx:latest
+        name: trainerfoo-0
+        ports:
+        - containerPort: 1234
+          name: foo
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 3000M
+            nvidia.com/gpu: '4'
+          requests:
+            cpu: 1900m
+            memory: 1976M
+            nvidia.com/gpu: '4'
+        securityContext: {{}}
+        volumeMounts:
+        - mountPath: /dev/shm
           name: dshm
-        - hostPath:
-            path: /src
+        - mountPath: /dst
           name: mount-0
+          readOnly: true
+      nodeSelector: {{}}
+      restartPolicy: Never
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: dshm
+      - hostPath:
+          path: /src
+        name: mount-0
 """,
         )
 
@@ -492,35 +471,25 @@ spec:
 
         scheduler = create_scheduler("test")
         app = _test_app(num_replicas=2)
-        cfg = KubernetesOpts({"queue": "testqueue"})
-        with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
-        ) as make_unique_ctx:
+        cfg = KueueOpts({"namespace": "testnamespace", "local_queue": "default-kueue"})
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
-        tasks = info.request.resource["spec"]["tasks"]
-        container0 = tasks[0]["template"].spec.containers[0]
-        self.assertIn("TORCHX_RANK0_HOST", container0.command)
-        self.assertIn(
-            V1EnvVar(name="TORCHX_RANK0_HOST", value="localhost"), container0.env
-        )
-        container1 = tasks[1]["template"].spec.containers[0]
-        self.assertIn("VC_TRAINERFOO_0_HOSTS", container1.command)
+        task = info.request.resource["spec"]
+
+        container0 = task["template"].spec.containers[0]
+        self.assertIn("KUEUE_TRAINERFOO_0_HOSTS", container0.command)
+        self.assertIn(V1EnvVar(name="FOO", value="bar"), container0.env)
 
     def test_submit_dryrun_patch(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
         app.roles[0].image = "sha256:testhash"
-        cfg = KubernetesOpts(
-            {
-                "queue": "testqueue",
-                "image_repo": "example.com/some/repo",
-            }
+        cfg = KueueOpts(
+            {"image_repo": "example.com/some/repo", "local_queue": "default-kueue"}
         )
-        with patch(
-            "torchx.schedulers.kubernetes_scheduler.make_unique"
-        ) as make_unique_ctx:
+        with patch("torchx.schedulers.kueue_scheduler.make_unique") as make_unique_ctx:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
@@ -539,10 +508,10 @@ spec:
         scheduler = create_scheduler("test")
         self.assertIn("service_account", scheduler.run_opts()._opts)
         app = _test_app()
-        cfg = KubernetesOpts(
+        cfg = KueueOpts(
             {
-                "queue": "testqueue",
                 "service_account": "srvacc",
+                "local_queue": "default-kueue",
             }
         )
         info = scheduler.submit_dryrun(app, cfg)
@@ -552,95 +521,122 @@ spec:
         info = scheduler.submit_dryrun(app, cfg)
         self.assertIn("service_account_name': None", str(info.request.resource))
 
-    def test_submit_dryrun_priority_class(self) -> None:
-        scheduler = create_scheduler("test")
-        self.assertIn("priority_class", scheduler.run_opts()._opts)
-        app = _test_app()
-        cfg = KubernetesOpts(
-            {
-                "queue": "testqueue",
-                "priority_class": "high",
-            }
+    @patch("kubernetes.client.BatchV1Api.create_namespaced_job")
+    def test_submit(self, create_namespaced_job: MagicMock) -> None:
+        from kubernetes.client.models import V1Job, V1ObjectMeta
+
+        job = V1Job(
+            api_version="v1",
+            metadata=V1ObjectMeta(name="testid", namespace="testnamespace"),
         )
 
-        info = scheduler.submit_dryrun(app, cfg)
-        self.assertIn("'priorityClassName': 'high'", str(info.request.resource))
+        create_namespaced_job.return_value = job
 
-        del cfg["priority_class"]
-        info = scheduler.submit_dryrun(app, cfg)
-        self.assertNotIn("'priorityClassName'", str(info.request.resource))
-
-    @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
-    def test_submit(self, create_namespaced_custom_object: MagicMock) -> None:
-        create_namespaced_custom_object.return_value = {
-            "metadata": {"name": "testid"},
-        }
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KubernetesOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
-                "queue": "testqueue",
+                "local_queue": "default-kueue",
             }
         )
 
         info = scheduler.submit_dryrun(app, cfg)
         id = scheduler.schedule(info)
         self.assertEqual(id, "testnamespace:testid")
-        call = create_namespaced_custom_object.call_args
+        call = create_namespaced_job.call_args
         args, kwargs = call
-        self.assertEqual(kwargs["group"], "batch.volcano.sh")
-        self.assertEqual(kwargs["version"], "v1alpha1")
         self.assertEqual(kwargs["namespace"], "testnamespace")
-        self.assertEqual(kwargs["plural"], "jobs")
         self.assertEqual(kwargs["body"], info.request.resource)
 
     @patch("kubernetes.client.CustomObjectsApi.create_namespaced_custom_object")
-    def test_submit_job_name_conflict(
+    def test_submit_no_kueue_label(
         self, create_namespaced_custom_object: MagicMock
     ) -> None:
+        create_namespaced_custom_object.return_value = {
+            "metadata": {"name": "testid"},
+        }
+        scheduler = create_scheduler("test")
+        app = _test_app()
+        cfg = KueueOpts(
+            {
+                "namespace": "testnamespace",
+            }
+        )
+        with self.assertRaises(AssertionError):
+            scheduler.submit_dryrun(app, cfg)
+
+    @patch("kubernetes.client.BatchV1Api.create_namespaced_job")
+    def test_submit_job_name_conflict(self, create_namespaced_job: MagicMock) -> None:
         from kubernetes.client.rest import ApiException
 
         api_exc = ApiException(status=409, reason="Conflict")
         api_exc.body = '{"details":{"name": "test_job"}}'
-        create_namespaced_custom_object.side_effect = api_exc
+        create_namespaced_job.side_effect = api_exc
 
         scheduler = create_scheduler("test")
         app = _test_app()
-        cfg = KubernetesOpts(
+        cfg = KueueOpts(
             {
                 "namespace": "testnamespace",
-                "queue": "testqueue",
+                "local_queue": "default-kueue",
             }
         )
         info = scheduler.submit_dryrun(app, cfg)
         with self.assertRaises(ValueError):
             scheduler.schedule(info)
 
-    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object_status")
-    def test_describe(self, get_namespaced_custom_object_status: MagicMock) -> None:
-        get_namespaced_custom_object_status.return_value = {
-            "status": {
-                "state": {"phase": "Completed"},
-                "succeeded": 1,
-                "taskStatusCount": {"echo-0": {"phase": {"Succeeded": 1}}},
-            }
-        }
+    @patch("kubernetes.client.BatchV1Api.read_namespaced_job_status")
+    def test_describe(self, read_namespaced_job_status: MagicMock) -> None:
+        from kubernetes.client.models import (
+            V1Job,
+            V1JobCondition,
+            V1JobStatus,
+            V1ObjectMeta,
+        )
+
+        job = V1Job(
+            api_version="v1",
+            metadata=V1ObjectMeta(name="testid", namespace="testnamespace"),
+            status=V1JobStatus(
+                completed_indexes=None,
+                completion_time=None,
+                conditions=[
+                    V1JobCondition(
+                        last_probe_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
+                        last_transition_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
+                        message="Job resumed",
+                        reason="JobResumed",
+                        status="False",
+                        type="Suspended",
+                    ),
+                    V1JobCondition(
+                        last_probe_time="datetime.datetime(2024, 2, 9, 10, 11, 58, tzinfo=tzutc())",
+                        last_transition_time="datetime.datetime(2024, 2, 9, 10, 11, 58, tzinfo=tzutc())",
+                        message=None,
+                        reason=None,
+                        status=True,
+                        type="Complete",
+                    ),
+                ],
+                failed=None,
+                ready=0,
+                start_time="datetime.datetime(2024, 2, 9, 10, 9, 44, tzinfo=tzutc())",
+                succeeded=1,
+                uncounted_terminated_pods={"failed": None, "succeeded": None},
+            ),
+        )
+
+        read_namespaced_job_status.return_value = job
         app_id = "testnamespace:testid"
         scheduler = create_scheduler("test")
         info = scheduler.describe(app_id)
-        call = get_namespaced_custom_object_status.call_args
+        call = read_namespaced_job_status.call_args
         args, kwargs = call
-        self.assertEqual(
-            kwargs,
-            {
-                "group": "batch.volcano.sh",
-                "version": "v1alpha1",
-                "namespace": "testnamespace",
-                "plural": "jobs",
-                "name": "testid",
-            },
-        )
+
+        assert "testid" in args
+        assert "testnamespace" in args
+
         self.assertEqual(
             info,
             DescribeAppResponse(
@@ -648,24 +644,30 @@ spec:
                 state=specs.AppState.SUCCEEDED,
                 roles_statuses=[
                     specs.RoleStatus(
-                        "echo",
+                        "",
                         [
                             specs.ReplicaStatus(
                                 id=0,
-                                role="echo",
+                                role="",
+                                state=specs.AppState.RESUMED,
+                                hostname="",
+                            ),
+                            specs.ReplicaStatus(
+                                id=0,
+                                role="",
                                 state=specs.AppState.SUCCEEDED,
                                 hostname="",
-                            )
+                            ),
                         ],
                     ),
                 ],
                 roles=[
-                    specs.Role(name="echo", image="", num_replicas=1),
+                    specs.Role(name="", image="", num_replicas=2),
                 ],
             ),
         )
 
-    @patch("kubernetes.client.CustomObjectsApi.get_namespaced_custom_object_status")
+    @patch("kubernetes.client.BatchV1Api.read_namespaced_job_status")
     def test_describe_unknown(
         self, get_namespaced_custom_object_status: MagicMock
     ) -> None:
@@ -673,18 +675,7 @@ spec:
         app_id = "testnamespace:testid"
         scheduler = create_scheduler("test")
         info = scheduler.describe(app_id)
-        call = get_namespaced_custom_object_status.call_args
-        args, kwargs = call
-        self.assertEqual(
-            kwargs,
-            {
-                "group": "batch.volcano.sh",
-                "version": "v1alpha1",
-                "namespace": "testnamespace",
-                "plural": "jobs",
-                "name": "testid",
-            },
-        )
+
         self.assertEqual(
             info,
             DescribeAppResponse(
@@ -694,41 +685,41 @@ spec:
         )
 
     def test_runopts(self) -> None:
-        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         runopts = scheduler.run_opts()
         self.assertEqual(
             set(runopts._opts.keys()),
             {
-                "quiet",
-                "queue",
                 "namespace",
+                "local_queue",
                 "image_repo",
                 "service_account",
                 "priority_class",
+                "annotations",
             },
         )
 
-    @patch("kubernetes.client.CustomObjectsApi.delete_namespaced_custom_object")
-    def test_cancel_existing(self, delete_namespaced_custom_object: MagicMock) -> None:
+    @patch("kubernetes.client.BatchV1Api.delete_namespaced_job")
+    def test_cancel_existing(self, delete_namespaced_job: MagicMock) -> None:
+        from kubernetes import client
+
         scheduler = create_scheduler("test")
         scheduler._cancel_existing("testnamespace:testjob")
-        call = delete_namespaced_custom_object.call_args
+        call = delete_namespaced_job.call_args
         args, kwargs = call
         self.assertEqual(
             kwargs,
             {
-                "group": "batch.volcano.sh",
-                "version": "v1alpha1",
                 "namespace": "testnamespace",
-                "plural": "jobs",
                 "name": "testjob",
+                "body": client.V1DeleteOptions(propagation_policy="Foreground"),
             },
         )
 
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list(self, list_namespaced_custom_object: MagicMock) -> None:
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+            "torchx.schedulers.kueue_scheduler.KueueScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
             scheduler = create_scheduler("test")
@@ -740,10 +731,10 @@ spec:
             self.assertEqual(
                 kwargs,
                 {
-                    "group": "batch.volcano.sh",
-                    "version": "v1alpha1",
+                    "group": "batch",
+                    "version": "v1",
                     "namespace": "default",
-                    "plural": "jobs",
+                    "plural": "job",
                     "timeout_seconds": 30,
                 },
             )
@@ -751,17 +742,16 @@ spec:
     @patch("kubernetes.client.CustomObjectsApi.list_namespaced_custom_object")
     def test_list_values(self, list_namespaced_custom_object: MagicMock) -> None:
         list_namespaced_custom_object.return_value = {
-            "apiVersion": "batch.volcano.sh/v1alpha1",
+            "apiVersion": "batch/v1",
             "items": [
                 {
-                    "apiVersion": "batch.volcano.sh/v1alpha1",
+                    "apiVersion": "batch/v1",
                     "kind": "Job",
                     "metadata": {
                         "creationTimestamp": "2021-10-11T20:49:35Z",
                         "name": "cifar-trainer-something",
                         "namespace": "default",
                         "resourceVersion": "100000000",
-                        "selfLink": "/apis/batch.volcano.sh/v1alpha1/namespaces/default/jobs/cifar-trainer-something",
                         "uid": "ab6a11d3-aaaa-aaaa-aaaa-88220d5190ee",
                     },
                     "status": {
@@ -774,14 +764,13 @@ spec:
                     },
                 },
                 {
-                    "apiVersion": "batch.volcano.sh/v1alpha1",
+                    "apiVersion": "batch/v1",
                     "kind": "Job",
                     "metadata": {
                         "creationTimestamp": "2021-10-11T20:49:35Z",
                         "name": "test-trainer",
                         "namespace": "default",
                         "resourceVersion": "100000000",
-                        "selfLink": "/apis/batch.volcano.sh/v1alpha1/namespaces/default/jobs/test-trainer",
                         "uid": "ab6a11d3-bbbb-bbbb-bbbb-88220d5190ee",
                     },
                     "status": {
@@ -795,7 +784,7 @@ spec:
             ],
         }
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+            "torchx.schedulers.kueue_scheduler.KueueScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
 
@@ -808,10 +797,10 @@ spec:
             self.assertEqual(
                 kwargs,
                 {
-                    "group": "batch.volcano.sh",
-                    "version": "v1alpha1",
+                    "group": "batch",
+                    "version": "v1",
                     "namespace": "default",
-                    "plural": "jobs",
+                    "plural": "job",
                     "timeout_seconds": 30,
                 },
             )
@@ -837,17 +826,25 @@ spec:
         )
         list_namespaced_custom_object.side_effect = api_exc
         with patch(
-            "torchx.schedulers.kubernetes_scheduler.KubernetesScheduler._get_active_context"
+            "torchx.schedulers.kueue_scheduler.KueueScheduler._get_active_context"
         ) as test_context:
             test_context.return_value = TEST_KUBE_CONFIG["contexts"][0]
             scheduler = create_scheduler("test")
             with self.assertRaises(ApiException):
                 scheduler.list()
 
+    @patch(
+        "torchx.schedulers.kueue_scheduler.KueueScheduler.get_pod_name_from_job",
+        return_value="testjob-roleblah-1-0",
+    )
     @patch("kubernetes.client.CoreV1Api.read_namespaced_pod_log")
-    def test_log_iter(self, read_namespaced_pod_log: MagicMock) -> None:
+    def test_log_iter(
+        self, read_namespaced_pod_log: MagicMock, read_namespaced_job: MagicMock
+    ) -> None:
         scheduler = create_scheduler("test")
         read_namespaced_pod_log.return_value = "foo reg\nfoo\nbar reg\n"
+        read_namespaced_job.return_value = "testjob-roleblah-1-0"
+
         lines = scheduler.log_iter(
             app_id="testnamespace:testjob",
             role_name="role_blah",
@@ -877,13 +874,13 @@ spec:
 
     def test_push_patches(self) -> None:
         client = MagicMock()
-        scheduler = KubernetesScheduler(
+        scheduler = KueueScheduler(
             "foo",
             client=MagicMock(),
             docker_client=client,
         )
 
-        job = KubernetesJob(
+        job = Kueue(
             images_to_push={
                 "sha256:testimage": ("repo.com/img", "testimage"),
             },
@@ -900,18 +897,77 @@ spec:
     def test_min_replicas(self) -> None:
         app = _test_app(num_replicas=3)
         app.roles[0].min_replicas = 2
+        resource = app_to_resource(
+            app, service_account=None, local_queue="default-kueue"
+        )
 
-        resource = app_to_resource(app, "test_queue", service_account=None)
-        min_available = [
-            task["minAvailable"]
-            for task in resource["spec"]["tasks"]  # pyre-ignore[16]
-        ]
-        self.assertEqual(min_available, [1, 1, 0])
+        # Modify the minAvailable property of each job in the resource
+        for job in resource["spec"]:  # pyre-ignore[16]
+            if "backoffLimit" not in job:
+                continue
+
+            resource["spec"]["minAvailable"] = max(  # pyre-ignore[16]
+                0, resource["spec"]["backoffLimit"] - 1  # pyre-ignore[16]
+            )
+
+        min_available = resource["spec"]["minAvailable"]
+
+        self.assertEqual(min_available, 2)
+
+    def test_submit_dryrun_priority_class(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("priority_class", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = KueueOpts(
+            {
+                "namespace": "testnamespace",
+                "local_queue": "default-kueue",
+                "priority_class": "sample-priority",
+            }
+        )
+
+        info = scheduler.submit_dryrun(app, cfg)
+        self.assertIn(
+            "'kueue.x-k8s.io/priority-class': 'sample-priority'",
+            str(info.request.resource),
+        )
+
+        del cfg["priority_class"]
+        info = scheduler.submit_dryrun(app, cfg)
+        self.assertNotIn(
+            "'kueue.x-k8s.io/priority-class': 'sample-priority'",
+            str(info.request.resource),
+        )
+
+    def test_submit_dryrun_with_annotations(self) -> None:
+        scheduler = create_scheduler("test")
+        self.assertIn("annotations", scheduler.run_opts()._opts)
+        app = _test_app()
+        cfg = KueueOpts(
+            {
+                "namespace": "testnamespace",
+                "local_queue": "default-kueue",
+                "annotations": {"test": "true"},
+            }
+        )
+
+        info = scheduler.submit_dryrun(app, cfg)
+        self.assertIn(
+            "'test': 'true'",
+            str(info.request.resource["metadata"]["annotations"]),
+        )
+
+        del cfg["annotations"]
+        info = scheduler.submit_dryrun(app, cfg)
+        self.assertNotIn(
+            "annotations",
+            str(info.request.resource["metadata"]),
+        )
 
 
-class KubernetesSchedulerNoImportTest(unittest.TestCase):
+class KueueSchedulerNoImportTest(unittest.TestCase):
     """
-    KubernetesSchedulerNoImportTest tests the kubernetes scheduler behavior when
+    KueueSchedulerNoImportTest tests the kubernetes scheduler behavior when
     Kubernetes is not available.
     """
 
@@ -921,9 +977,9 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
             if mod.startswith("kubernetes"):
                 sys.modules[mod] = None  # pyre-ignore
 
-        # reload to ensure kubernetes_scheduler doesn't depend on them at import
+        # reload to ensure kueue_scheduler doesn't depend on them at import
         # time
-        importlib.reload(kubernetes_scheduler)
+        importlib.reload(kueue_scheduler)
         importlib.reload(schedulers)
 
     def tearDown(self) -> None:
@@ -931,27 +987,22 @@ class KubernetesSchedulerNoImportTest(unittest.TestCase):
         for mod in list(sys.modules.keys()):
             if mod.startswith("kubernetes"):
                 del sys.modules[mod]
-        # reimport kubernetes_scheduler to get to a clean state
-        importlib.reload(kubernetes_scheduler)
+        # reimport kueue_scheduler to get to a clean state
+        importlib.reload(kueue_scheduler)
 
     def test_runopts(self) -> None:
-        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         self.assertIsNotNone(scheduler.run_opts())
 
     def test_describe(self) -> None:
-        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         with self.assertRaises(ModuleNotFoundError):
             scheduler.describe("foo:bar")
 
     def test_dryrun(self) -> None:
-        scheduler = kubernetes_scheduler.create_scheduler("foo")
+        scheduler = kueue_scheduler.create_scheduler("foo")
         app = _test_app()
-        cfg = KubernetesOpts(
-            {
-                "namespace": "testnamespace",
-                "queue": "testqueue",
-            }
-        )
+        cfg = KueueOpts({"namespace": "testnamespace", "local_queue": "default-kueue"})
 
         with self.assertRaises(ModuleNotFoundError):
             scheduler.submit_dryrun(app, cfg)
