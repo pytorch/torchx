@@ -485,6 +485,41 @@ class RunConfigTest(unittest.TestCase):
             ),
         ),
 
+    def test_config_from_json_repr(self) -> None:
+        opts = runopts()
+        opts.add("foo", type_=str, default="", help="")
+        opts.add("test_key", type_=str, default="", help="")
+        opts.add("default_time", type_=int, default=0, help="")
+        opts.add("enable", type_=bool, default=True, help="")
+        opts.add("disable", type_=bool, default=True, help="")
+        opts.add("complex_list", type_=List[str], default=[], help="")
+        opts.add("complex_dict", type_=Dict[str, str], default={}, help="")
+
+        self.assertDictEqual(
+            {
+                "foo": "bar",
+                "test_key": "test_value",
+                "default_time": 42,
+                "enable": True,
+                "disable": False,
+                "complex_list": ["v1", "v2", "v3"],
+                "complex_dict": {"k1": "v1", "k2": "v2"},
+            },
+            opts.resolve(
+                opts.cfg_from_json_repr(
+                    """{
+                        "foo": "bar",
+                        "test_key": "test_value",
+                        "default_time": 42,
+                        "enable": true,
+                        "disable": false,
+                        "complex_list": ["v1", "v2", "v3"],
+                        "complex_dict": {"k1": "v1", "k2": "v2"}
+                    }"""
+                )
+            ),
+        )
+
     def test_runopts_is_type(self) -> None:
         # primitive types
         self.assertTrue(runopts.is_type(3, int))
