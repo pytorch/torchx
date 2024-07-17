@@ -18,7 +18,7 @@ from torchx.util.entrypoints import load
 # 0.1.0bN  # Beta release
 # 0.1.0rcN  # Release Candidate
 # 0.1.0  # Final release
-__version__ = "0.7.0"
+__version__ = "0.8.0dev0"
 
 
 # Use the github container registry images corresponding to the current package
