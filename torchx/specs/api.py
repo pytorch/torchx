@@ -913,6 +913,23 @@ class runopts:
                 cfg[key] = _cast_to_type(val, runopt_.opt_type)
         return cfg
 
+    def cfg_from_json_repr(self, json_repr: str) -> Dict[str, CfgVal]:
+        """
+        Converts the given dict to a valid cfg for this ``runopts`` object.
+        """
+        cfg: Dict[str, CfgVal] = {}
+        cfg_dict = json.loads(json_repr)
+        for key, val in cfg_dict.items():
+            runopt_ = self.get(key)
+            if runopt_:
+                if runopt_.opt_type == List[str]:
+                    cfg[key] = [str(v) for v in val]
+                elif runopt_.opt_type == Dict[str, str]:
+                    cfg[key] = {str(k): str(v) for k, v in val.items()}
+                else:
+                    cfg[key] = val
+        return cfg
+
     def add(
         self,
         cfg_key: str,
