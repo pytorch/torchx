@@ -266,6 +266,17 @@ class RoleBuilderTest(unittest.TestCase):
         self.assertEqual(5, trainer.max_retries)
         self.assertEqual(RetryPolicy.REPLICA, trainer.retry_policy)
 
+    def test_retry_policies(self) -> None:
+        self.assertCountEqual(
+            set(RetryPolicy),  # pyre-ignore[6]: Enum isn't iterable
+            {
+                RetryPolicy.APPLICATION,
+                RetryPolicy.REPLICA,
+                RetryPolicy.ROLE,
+                RetryPolicy.HOT_SPARE,
+            },
+        )
+
 
 class AppHandleTest(unittest.TestCase):
     def test_parse_malformed_app_handles(self) -> None:
