@@ -682,11 +682,14 @@
 <span class="sd">                is not violated using extra hosts as spares. It does not really support</span>
 <span class="sd">                elasticity and just uses the delta between num_replicas and min_replicas</span>
 <span class="sd">                as spares (EXPERIMENTAL).</span>
+<span class="sd">    4. ROLE: Restarts the role when any error occurs in that role. This does not</span>
+<span class="sd">             restart the whole job.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">REPLICA</span> <span class="o">=</span> <span class="s2">&quot;REPLICA&quot;</span>
     <span class="n">APPLICATION</span> <span class="o">=</span> <span class="s2">&quot;APPLICATION&quot;</span>
-    <span class="n">HOT_SPARE</span> <span class="o">=</span> <span class="s2">&quot;HOT_SPARE&quot;</span></div>
+    <span class="n">HOT_SPARE</span> <span class="o">=</span> <span class="s2">&quot;HOT_SPARE&quot;</span>
+    <span class="n">ROLE</span> <span class="o">=</span> <span class="s2">&quot;ROLE&quot;</span></div>
 
 
 <span class="k">class</span> <span class="nc">MountType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>

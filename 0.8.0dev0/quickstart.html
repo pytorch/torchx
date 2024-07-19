@@ -582,12 +582,12 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-07-17 21:19:29 INFO     Tracker configurations: {}
-torchx 2024-07-17 21:19:29 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
-torchx 2024-07-17 21:19:29 INFO     Log directory is: /tmp/torchx_e29v7757
-torchx 2024-07-17 21:19:29 INFO     Waiting for the app to finish...
+torchx 2024-07-19 22:27:04 INFO     Tracker configurations: {}
+torchx 2024-07-19 22:27:04 INFO     Log directory not set in scheduler cfg. Creating a temporary log dir that will be deleted on exit. To preserve log directory set the `log_dir` cfg option
+torchx 2024-07-19 22:27:04 INFO     Log directory is: /tmp/torchx_6j_zseuz
+torchx 2024-07-19 22:27:04 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2024-07-17 21:19:30 INFO     Job finished: SUCCEEDED
+torchx 2024-07-19 22:27:05 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -595,7 +595,7 @@ torchx 2024-07-17 21:19:30 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_cwd://torchx/torchx_utils_python-w4mkzcbh5rpkk
+local_cwd://torchx/torchx_utils_python-cw6n7rdbpkcjlc
 </pre></div></div>
 </div>
 <p>We can run the exact same app via the <code class="docutils literal notranslate"><span class="pre">local_docker</span></code> scheduler. This scheduler will package up the local workspace as a layer on top of the specified image. This provides a very similar environment to the container based remote schedulers.</p>
@@ -615,26 +615,26 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-07-17 21:19:31 INFO     Tracker configurations: {}
-torchx 2024-07-17 21:19:31 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2024-07-17 21:19:31 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2024-07-17 21:19:31 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2024-07-17 21:19:31 INFO     Building workspace docker image (this may take a while)...
-torchx 2024-07-17 21:19:31 INFO     Step 1/4 : ARG IMAGE
-torchx 2024-07-17 21:19:31 INFO     Step 2/4 : FROM $IMAGE
-torchx 2024-07-17 21:19:31 INFO      ---&gt; 815d0c94da49
-torchx 2024-07-17 21:19:31 INFO     Step 3/4 : COPY . .
-torchx 2024-07-17 21:19:38 INFO      ---&gt; de6c111fae85
-torchx 2024-07-17 21:19:38 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
-torchx 2024-07-17 21:19:38 INFO      ---&gt; Running in 4408cb1c2c97
-torchx 2024-07-17 21:19:45 INFO      ---&gt; Removed intermediate container 4408cb1c2c97
-torchx 2024-07-17 21:19:45 INFO      ---&gt; dd78eceef8d4
-torchx 2024-07-17 21:19:45 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
-torchx 2024-07-17 21:19:45 INFO     Successfully built dd78eceef8d4
-torchx 2024-07-17 21:19:45 INFO     Built new image `sha256:dd78eceef8d4f22c73817570be9d6821c160a0ca6880f31aa89d63e9ad940eec` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2024-07-17 21:19:46 INFO     Waiting for the app to finish...
+torchx 2024-07-19 22:27:06 INFO     Tracker configurations: {}
+torchx 2024-07-19 22:27:06 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-07-19 22:27:06 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-07-19 22:27:06 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-07-19 22:27:06 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-07-19 22:27:06 INFO     Step 1/4 : ARG IMAGE
+torchx 2024-07-19 22:27:06 INFO     Step 2/4 : FROM $IMAGE
+torchx 2024-07-19 22:27:06 INFO      ---&gt; f10f7f274326
+torchx 2024-07-19 22:27:06 INFO     Step 3/4 : COPY . .
+torchx 2024-07-19 22:27:13 INFO      ---&gt; 1e901e3420c2
+torchx 2024-07-19 22:27:13 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
+torchx 2024-07-19 22:27:13 INFO      ---&gt; Running in 552dc7323ec9
+torchx 2024-07-19 22:27:20 INFO      ---&gt; Removed intermediate container 552dc7323ec9
+torchx 2024-07-19 22:27:20 INFO      ---&gt; 5a3ba3d571ff
+torchx 2024-07-19 22:27:20 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2024-07-19 22:27:20 INFO     Successfully built 5a3ba3d571ff
+torchx 2024-07-19 22:27:20 INFO     Built new image `sha256:5a3ba3d571ff569b94f81198085eb29752a8c88070051f22f9022d45bb17560f` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-07-19 22:27:21 INFO     Waiting for the app to finish...
 python/0 Hello, your name!
-torchx 2024-07-17 21:19:47 INFO     Job finished: SUCCEEDED
+torchx 2024-07-19 22:27:22 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -642,7 +642,7 @@ torchx 2024-07-17 21:19:47 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-qvpgpd4bbr4qw
+local_docker://torchx/torchx_utils_python-scz319vg1lr1kd
 </pre></div></div>
 </div>
 <p>TorchX defaults to using the <a class="reference external" href="https://ghcr.io/pytorch/torchx">ghcr.io/pytorch/torchx</a> Docker container image which contains the PyTorch libraries, TorchX and related dependencies.</p>
@@ -765,32 +765,32 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-07-17 21:19:49 INFO     Tracker configurations: {}
-torchx 2024-07-17 21:19:49 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2024-07-17 21:19:49 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2024-07-17 21:19:49 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2024-07-17 21:19:49 INFO     Building workspace docker image (this may take a while)...
-torchx 2024-07-17 21:19:49 INFO     Step 1/4 : ARG IMAGE
-torchx 2024-07-17 21:19:49 INFO     Step 2/4 : FROM $IMAGE
-torchx 2024-07-17 21:19:49 INFO      ---&gt; 815d0c94da49
-torchx 2024-07-17 21:19:49 INFO     Step 3/4 : COPY . .
-torchx 2024-07-17 21:19:56 INFO      ---&gt; 22ad0c0a54ad
-torchx 2024-07-17 21:19:56 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
-torchx 2024-07-17 21:19:56 INFO      ---&gt; Running in 0edeea46729a
-torchx 2024-07-17 21:20:03 INFO      ---&gt; Removed intermediate container 0edeea46729a
-torchx 2024-07-17 21:20:03 INFO      ---&gt; 1ea19c2bd448
-torchx 2024-07-17 21:20:03 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
-torchx 2024-07-17 21:20:03 INFO     Successfully built 1ea19c2bd448
-torchx 2024-07-17 21:20:03 INFO     Built new image `sha256:1ea19c2bd44845df7613178806c6e1ef360b8b25376b70e259e7692a7c8545d8` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
-torchx 2024-07-17 21:20:04 INFO     Waiting for the app to finish...
-dist_app/0 [2024-07-17 21:20:05,345] torch.distributed.run: [WARNING]
-dist_app/0 [2024-07-17 21:20:05,345] torch.distributed.run: [WARNING] *****************************************
-dist_app/0 [2024-07-17 21:20:05,345] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-dist_app/0 [2024-07-17 21:20:05,345] torch.distributed.run: [WARNING] *****************************************
-dist_app/1 [2024-07-17 21:20:05,397] torch.distributed.run: [WARNING]
-dist_app/1 [2024-07-17 21:20:05,397] torch.distributed.run: [WARNING] *****************************************
-dist_app/1 [2024-07-17 21:20:05,397] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
-dist_app/1 [2024-07-17 21:20:05,397] torch.distributed.run: [WARNING] *****************************************
+torchx 2024-07-19 22:27:24 INFO     Tracker configurations: {}
+torchx 2024-07-19 22:27:24 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-07-19 22:27:24 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-07-19 22:27:24 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-07-19 22:27:24 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-07-19 22:27:24 INFO     Step 1/4 : ARG IMAGE
+torchx 2024-07-19 22:27:24 INFO     Step 2/4 : FROM $IMAGE
+torchx 2024-07-19 22:27:24 INFO      ---&gt; f10f7f274326
+torchx 2024-07-19 22:27:24 INFO     Step 3/4 : COPY . .
+torchx 2024-07-19 22:27:31 INFO      ---&gt; 8b4a795c777c
+torchx 2024-07-19 22:27:31 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
+torchx 2024-07-19 22:27:31 INFO      ---&gt; Running in ff4468f7f149
+torchx 2024-07-19 22:27:38 INFO      ---&gt; Removed intermediate container ff4468f7f149
+torchx 2024-07-19 22:27:38 INFO      ---&gt; f24bfb04ae1c
+torchx 2024-07-19 22:27:38 INFO     [Warning] One or more build-args [WORKSPACE] were not consumed
+torchx 2024-07-19 22:27:38 INFO     Successfully built f24bfb04ae1c
+torchx 2024-07-19 22:27:38 INFO     Built new image `sha256:f24bfb04ae1c9c9e7b2ce764509e5b9e0094643ca388672fe9bc9b7f1d947d28` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=dist_app.
+torchx 2024-07-19 22:27:39 INFO     Waiting for the app to finish...
+dist_app/0 [2024-07-19 22:27:40,436] torch.distributed.run: [WARNING]
+dist_app/0 [2024-07-19 22:27:40,436] torch.distributed.run: [WARNING] *****************************************
+dist_app/0 [2024-07-19 22:27:40,436] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/0 [2024-07-19 22:27:40,436] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-07-19 22:27:40,484] torch.distributed.run: [WARNING]
+dist_app/1 [2024-07-19 22:27:40,484] torch.distributed.run: [WARNING] *****************************************
+dist_app/1 [2024-07-19 22:27:40,484] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed.
+dist_app/1 [2024-07-19 22:27:40,484] torch.distributed.run: [WARNING] *****************************************
 dist_app/1 [0]:I am worker 2 of 4!
 dist_app/1 [0]:all_reduce output = tensor([6])
 dist_app/1 [1]:I am worker 3 of 4!
@@ -799,7 +799,7 @@ dist_app/0 [1]:I am worker 1 of 4!
 dist_app/0 [1]:all_reduce output = tensor([6])
 dist_app/0 [0]:I am worker 0 of 4!
 dist_app/0 [0]:all_reduce output = tensor([6])
-torchx 2024-07-17 21:20:12 INFO     Job finished: SUCCEEDED
+torchx 2024-07-19 22:27:47 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -807,7 +807,7 @@ torchx 2024-07-17 21:20:12 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/dist_app-bbhlpfmnf2vwrc
+local_docker://torchx/dist_app-c200244p4nlqqc
 </pre></div></div>
 </div>
 </section>
@@ -1189,57 +1189,57 @@ torchx<span class="w"> </span>run<span class="w"> </span>--scheduler<span class=
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-torchx 2024-07-17 21:20:14 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
-torchx 2024-07-17 21:20:15 INFO     Tracker configurations: {}
-torchx 2024-07-17 21:20:15 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
-torchx 2024-07-17 21:20:15 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
-torchx 2024-07-17 21:20:15 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
-torchx 2024-07-17 21:20:15 INFO     Building workspace docker image (this may take a while)...
-torchx 2024-07-17 21:20:15 INFO     Step 1/4 : FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
-torchx 2024-07-17 21:21:25 INFO      ---&gt; c3f17e5ac010
-torchx 2024-07-17 21:21:25 INFO     Step 2/4 : RUN pip install timm
-torchx 2024-07-17 21:21:25 INFO      ---&gt; Running in 51aa5329eb8f
-torchx 2024-07-17 21:21:26 INFO     Collecting timm
-torchx 2024-07-17 21:21:26 INFO       Downloading timm-0.9.12-py3-none-any.whl (2.2 MB)
-torchx 2024-07-17 21:21:26 INFO     Requirement already satisfied: pyyaml in /opt/conda/lib/python3.7/site-packages (from timm) (5.4.1)
-torchx 2024-07-17 21:21:26 INFO     Requirement already satisfied: torchvision in /opt/conda/lib/python3.7/site-packages (from timm) (0.11.0)
-torchx 2024-07-17 21:21:26 INFO     Collecting huggingface-hub
-torchx 2024-07-17 21:21:26 INFO       Downloading huggingface_hub-0.16.4-py3-none-any.whl (268 kB)
-torchx 2024-07-17 21:21:26 INFO     Requirement already satisfied: torch&gt;=1.7 in /opt/conda/lib/python3.7/site-packages (from timm) (1.10.0)
-torchx 2024-07-17 21:21:26 INFO     Collecting safetensors
-torchx 2024-07-17 21:21:26 INFO       Downloading safetensors-0.4.3-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)
-torchx 2024-07-17 21:21:26 INFO     Requirement already satisfied: typing_extensions in /opt/conda/lib/python3.7/site-packages (from torch&gt;=1.7-&gt;timm) (3.10.0.2)
-torchx 2024-07-17 21:21:27 INFO     Collecting importlib-metadata
-torchx 2024-07-17 21:21:27 INFO       Downloading importlib_metadata-6.7.0-py3-none-any.whl (22 kB)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: tqdm&gt;=4.42.1 in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (4.61.2)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: filelock in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (3.0.12)
-torchx 2024-07-17 21:21:27 INFO     Collecting fsspec
-torchx 2024-07-17 21:21:27 INFO       Downloading fsspec-2023.1.0-py3-none-any.whl (143 kB)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: requests in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (2.25.1)
-torchx 2024-07-17 21:21:27 INFO     Collecting packaging&gt;=20.9
-torchx 2024-07-17 21:21:27 INFO       Downloading packaging-24.0-py3-none-any.whl (53 kB)
-torchx 2024-07-17 21:21:27 INFO     Collecting zipp&gt;=0.5
-torchx 2024-07-17 21:21:27 INFO       Downloading zipp-3.15.0-py3-none-any.whl (6.8 kB)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: certifi&gt;=2017.4.17 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2021.10.8)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: idna&lt;3,&gt;=2.5 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2.10)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (4.0.0)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (1.26.6)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: numpy in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (1.21.2)
-torchx 2024-07-17 21:21:27 INFO     Requirement already satisfied: pillow!=8.3.0,&gt;=5.3.0 in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (8.4.0)
-torchx 2024-07-17 21:21:27 INFO     Installing collected packages: zipp, packaging, importlib-metadata, fsspec, safetensors, huggingface-hub, timm
-torchx 2024-07-17 21:21:28 INFO     Successfully installed fsspec-2023.1.0 huggingface-hub-0.16.4 importlib-metadata-6.7.0 packaging-24.0 safetensors-0.4.3 timm-0.9.12 zipp-3.15.0
-torchx 2024-07-17 21:21:31 INFO      ---&gt; Removed intermediate container 51aa5329eb8f
-torchx 2024-07-17 21:21:31 INFO      ---&gt; ecb18f801bf1
-torchx 2024-07-17 21:21:31 INFO     Step 3/4 : COPY . .
-torchx 2024-07-17 21:21:33 INFO      ---&gt; e2a0b072c129
-torchx 2024-07-17 21:21:33 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
-torchx 2024-07-17 21:21:33 INFO      ---&gt; Running in f01cc16ab706
-torchx 2024-07-17 21:21:36 INFO      ---&gt; Removed intermediate container f01cc16ab706
-torchx 2024-07-17 21:21:36 INFO      ---&gt; 0fa644bbfd16
-torchx 2024-07-17 21:21:36 INFO     [Warning] One or more build-args [IMAGE WORKSPACE] were not consumed
-torchx 2024-07-17 21:21:36 INFO     Successfully built 0fa644bbfd16
-torchx 2024-07-17 21:21:36 INFO     Built new image `sha256:0fa644bbfd16fa726fce93235242408f92bf84e4664aa3bdd05112aee9506825` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
-torchx 2024-07-17 21:21:36 INFO     Waiting for the app to finish...
+torchx 2024-07-19 22:27:49 INFO     loaded configs from /home/runner/work/torchx/torchx/docs/source/.torchxconfig
+torchx 2024-07-19 22:27:50 INFO     Tracker configurations: {}
+torchx 2024-07-19 22:27:50 INFO     Checking for changes in workspace `file:///home/runner/work/torchx/torchx/docs/source`...
+torchx 2024-07-19 22:27:50 INFO     To disable workspaces pass: --workspace=&#34;&#34; from CLI or workspace=None programmatically.
+torchx 2024-07-19 22:27:50 INFO     Workspace `file:///home/runner/work/torchx/torchx/docs/source` resolved to filesystem path `/home/runner/work/torchx/torchx/docs/source`
+torchx 2024-07-19 22:27:50 INFO     Building workspace docker image (this may take a while)...
+torchx 2024-07-19 22:27:50 INFO     Step 1/4 : FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
+torchx 2024-07-19 22:28:58 INFO      ---&gt; c3f17e5ac010
+torchx 2024-07-19 22:28:58 INFO     Step 2/4 : RUN pip install timm
+torchx 2024-07-19 22:28:58 INFO      ---&gt; Running in 8ead6bbfd384
+torchx 2024-07-19 22:28:59 INFO     Collecting timm
+torchx 2024-07-19 22:28:59 INFO       Downloading timm-0.9.12-py3-none-any.whl (2.2 MB)
+torchx 2024-07-19 22:28:59 INFO     Collecting huggingface-hub
+torchx 2024-07-19 22:28:59 INFO       Downloading huggingface_hub-0.16.4-py3-none-any.whl (268 kB)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: pyyaml in /opt/conda/lib/python3.7/site-packages (from timm) (5.4.1)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: torch&gt;=1.7 in /opt/conda/lib/python3.7/site-packages (from timm) (1.10.0)
+torchx 2024-07-19 22:28:59 INFO     Collecting safetensors
+torchx 2024-07-19 22:28:59 INFO       Downloading safetensors-0.4.3-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: torchvision in /opt/conda/lib/python3.7/site-packages (from timm) (0.11.0)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: typing_extensions in /opt/conda/lib/python3.7/site-packages (from torch&gt;=1.7-&gt;timm) (3.10.0.2)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: requests in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (2.25.1)
+torchx 2024-07-19 22:28:59 INFO     Collecting importlib-metadata
+torchx 2024-07-19 22:28:59 INFO       Downloading importlib_metadata-6.7.0-py3-none-any.whl (22 kB)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: tqdm&gt;=4.42.1 in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (4.61.2)
+torchx 2024-07-19 22:28:59 INFO     Requirement already satisfied: filelock in /opt/conda/lib/python3.7/site-packages (from huggingface-hub-&gt;timm) (3.0.12)
+torchx 2024-07-19 22:29:00 INFO     Collecting fsspec
+torchx 2024-07-19 22:29:00 INFO       Downloading fsspec-2023.1.0-py3-none-any.whl (143 kB)
+torchx 2024-07-19 22:29:00 INFO     Collecting packaging&gt;=20.9
+torchx 2024-07-19 22:29:00 INFO       Downloading packaging-24.0-py3-none-any.whl (53 kB)
+torchx 2024-07-19 22:29:00 INFO     Collecting zipp&gt;=0.5
+torchx 2024-07-19 22:29:00 INFO       Downloading zipp-3.15.0-py3-none-any.whl (6.8 kB)
+torchx 2024-07-19 22:29:00 INFO     Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (1.26.6)
+torchx 2024-07-19 22:29:00 INFO     Requirement already satisfied: certifi&gt;=2017.4.17 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2021.10.8)
+torchx 2024-07-19 22:29:00 INFO     Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (4.0.0)
+torchx 2024-07-19 22:29:00 INFO     Requirement already satisfied: idna&lt;3,&gt;=2.5 in /opt/conda/lib/python3.7/site-packages (from requests-&gt;huggingface-hub-&gt;timm) (2.10)
+torchx 2024-07-19 22:29:00 INFO     Requirement already satisfied: numpy in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (1.21.2)
+torchx 2024-07-19 22:29:00 INFO     Requirement already satisfied: pillow!=8.3.0,&gt;=5.3.0 in /opt/conda/lib/python3.7/site-packages (from torchvision-&gt;timm) (8.4.0)
+torchx 2024-07-19 22:29:00 INFO     Installing collected packages: zipp, packaging, importlib-metadata, fsspec, safetensors, huggingface-hub, timm
+torchx 2024-07-19 22:29:01 INFO     Successfully installed fsspec-2023.1.0 huggingface-hub-0.16.4 importlib-metadata-6.7.0 packaging-24.0 safetensors-0.4.3 timm-0.9.12 zipp-3.15.0
+torchx 2024-07-19 22:29:04 INFO      ---&gt; Removed intermediate container 8ead6bbfd384
+torchx 2024-07-19 22:29:04 INFO      ---&gt; ece91bc2e2c1
+torchx 2024-07-19 22:29:04 INFO     Step 3/4 : COPY . .
+torchx 2024-07-19 22:29:06 INFO      ---&gt; b70348cbc125
+torchx 2024-07-19 22:29:06 INFO     Step 4/4 : LABEL torchx.pytorch.org/version=0.8.0dev0
+torchx 2024-07-19 22:29:06 INFO      ---&gt; Running in 66bee6d33d25
+torchx 2024-07-19 22:29:08 INFO      ---&gt; Removed intermediate container 66bee6d33d25
+torchx 2024-07-19 22:29:08 INFO      ---&gt; 116689da4bb4
+torchx 2024-07-19 22:29:08 INFO     [Warning] One or more build-args [IMAGE WORKSPACE] were not consumed
+torchx 2024-07-19 22:29:08 INFO     Successfully built 116689da4bb4
+torchx 2024-07-19 22:29:08 INFO     Built new image `sha256:116689da4bb4201d94ebac5e4f1ab557bdd9ebd5bd72535691bc1c720cf33924` based on original image `ghcr.io/pytorch/torchx:0.8.0dev0` and changes in workspace `file:///home/runner/work/torchx/torchx/docs/source` for role[0]=python.
+torchx 2024-07-19 22:29:08 INFO     Waiting for the app to finish...
 python/0 ResNet(
 python/0   (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 python/0   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -1348,7 +1348,7 @@ python/0   )
 python/0   (global_pool): SelectAdaptivePool2d(pool_type=avg, flatten=Flatten(start_dim=1, end_dim=-1))
 python/0   (fc): Linear(in_features=512, out_features=1000, bias=True)
 python/0 )
-torchx 2024-07-17 21:21:38 INFO     Job finished: SUCCEEDED
+torchx 2024-07-19 22:29:11 INFO     Job finished: SUCCEEDED
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1356,7 +1356,7 @@ torchx 2024-07-17 21:21:38 INFO     Job finished: SUCCEEDED
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-local_docker://torchx/torchx_utils_python-l454k9s5fd97nd
+local_docker://torchx/torchx_utils_python-r162k7czzsdqwd
 </pre></div></div>
 </div>
 </section>
