@@ -241,11 +241,14 @@ class RetryPolicy(str, Enum):
                 is not violated using extra hosts as spares. It does not really support
                 elasticity and just uses the delta between num_replicas and min_replicas
                 as spares (EXPERIMENTAL).
+    4. ROLE: Restarts the role when any error occurs in that role. This does not
+             restart the whole job.
     """
 
     REPLICA = "REPLICA"
     APPLICATION = "APPLICATION"
     HOT_SPARE = "HOT_SPARE"
+    ROLE = "ROLE"
 
 
 class MountType(str, Enum):
