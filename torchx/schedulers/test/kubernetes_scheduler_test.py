@@ -28,6 +28,7 @@ from torchx.schedulers.kubernetes_scheduler import (
     KubernetesOpts,
     KubernetesScheduler,
     LABEL_INSTANCE_TYPE,
+    PLACEHOLDER_FIELD_PATH,
     role_to_pod,
 )
 from torchx.specs import AppState
@@ -75,7 +76,7 @@ def _test_app(num_replicas: int = 1) -> specs.AppDef:
             "--rank0-env",
             specs.macros.rank0_env,
         ],
-        env={"FOO": "bar"},
+        env={"FOO": "bar", "FOO_FIELD_PATH": f"{PLACEHOLDER_FIELD_PATH}bar"},
         resource=specs.Resource(
             cpu=2,
             memMB=3000,
@@ -149,7 +150,9 @@ class KubernetesSchedulerTest(unittest.TestCase):
             V1ContainerPort,
             V1EmptyDirVolumeSource,
             V1EnvVar,
+            V1EnvVarSource,
             V1HostPathVolumeSource,
+            V1ObjectFieldSelector,
             V1ObjectMeta,
             V1Pod,
             V1PodSpec,
@@ -188,7 +191,15 @@ class KubernetesSchedulerTest(unittest.TestCase):
             ],
             image="pytorch/torchx:latest",
             name="name",
-            env=[V1EnvVar(name="FOO", value="bar")],
+            env=[
+                V1EnvVar(name="FOO", value="bar"),
+                V1EnvVar(
+                    name="FOO_FIELD_PATH",
+                    value_from=V1EnvVarSource(
+                        field_ref=V1ObjectFieldSelector(field_path="bar")
+                    ),
+                ),
+            ],
             resources=resources,
             ports=[V1ContainerPort(name="foo", container_port=1234)],
             security_context=V1SecurityContext(),
@@ -303,6 +314,10 @@ spec:
           env:
           - name: FOO
             value: bar
+          - name: FOO_FIELD_PATH
+            valueFrom:
+              fieldRef:
+                fieldPath: bar
           - name: TORCHX_RANK0_HOST
             value: localhost
           image: pytorch/torchx:latest

@@ -169,6 +169,17 @@ ANNOTATION_ISTIO_SIDECAR = "sidecar.istio.io/inject"
 
 LABEL_INSTANCE_TYPE = "node.kubernetes.io/instance-type"
 
+# role.env translates to static env variables in the yaml
+# {"FOO" : "bar"}               =====>      - name: FOO
+#                                             value: bar
+# unless this placeholder is present at the start of the role.env value then the env variable
+# in the yaml will be dynamically populated at runtime (placeholder is stripped out of the value)
+# {"FOO" : "[FIELD_PATH]bar"}   =====>      - name: FOO
+#                                             valueFrom:
+#                                               fieldRef:
+#                                                 fieldPath: bar
+PLACEHOLDER_FIELD_PATH = "[FIELD_PATH]"
+
 
 def sanitize_for_serialization(obj: object) -> object:
     from kubernetes import client
@@ -183,7 +194,9 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         V1ContainerPort,
         V1EmptyDirVolumeSource,
         V1EnvVar,
+        V1EnvVarSource,
         V1HostPathVolumeSource,
+        V1ObjectFieldSelector,
         V1ObjectMeta,
         V1PersistentVolumeClaimVolumeSource,
         V1Pod,
@@ -303,9 +316,20 @@ def role_to_pod(name: str, role: Role, service_account: Optional[str]) -> "V1Pod
         image=role.image,
         name=name,
         env=[
-            V1EnvVar(
-                name=name,
-                value=value,
+            (
+                V1EnvVar(
+                    name=name,
+                    value_from=V1EnvVarSource(
+                        field_ref=V1ObjectFieldSelector(
+                            field_path=value.strip(PLACEHOLDER_FIELD_PATH)
+                        )
+                    ),
+                )
+                if value.startswith(PLACEHOLDER_FIELD_PATH)
+                else V1EnvVar(
+                    name=name,
+                    value=value,
+                )
             )
             for name, value in role.env.items()
         ],
