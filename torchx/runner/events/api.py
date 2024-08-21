@@ -29,6 +29,7 @@ class TorchxEvent:
         scheduler: Scheduler that is used to execute request
         api: Api name
         app_id: Unique id that is set by the underlying scheduler
+        distributed_ai_stack: Distributed AI stack used in the workflow (e.g., PyPer, HPC)
         image: Image/container bundle that is used to execute request.
         runcfg: Run config that was used to schedule app.
         source: Type of source the event is generated.
@@ -41,6 +42,7 @@ class TorchxEvent:
     api: str
     app_id: Optional[str] = None
     app_image: Optional[str] = None
+    distributed_ai_stack: Optional[str] = None
     runcfg: Optional[str] = None
     raw_exception: Optional[str] = None
     source: SourceType = SourceType.UNKNOWN

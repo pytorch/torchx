@@ -29,6 +29,9 @@ class TorchxEventLibTest(unittest.TestCase):
         self.assertEqual(actual_event.api, expected_event.api)
         self.assertEqual(actual_event.app_id, expected_event.app_id)
         self.assertEqual(actual_event.app_image, expected_event.app_image)
+        self.assertEqual(
+            actual_event.distributed_ai_stack, expected_event.distributed_ai_stack
+        )
         self.assertEqual(actual_event.runcfg, expected_event.runcfg)
         self.assertEqual(actual_event.source, expected_event.source)
 
@@ -47,6 +50,7 @@ class TorchxEventLibTest(unittest.TestCase):
             api="test_api",
             app_image="test_app_image",
             workspace="test_workspace",
+            distributed_ai_stack="test_distributed_ai_stack",
         )
         self.assertEqual("test_session", event.session)
         self.assertEqual("test_scheduler", event.scheduler)
@@ -54,6 +58,7 @@ class TorchxEventLibTest(unittest.TestCase):
         self.assertEqual("test_app_image", event.app_image)
         self.assertEqual(SourceType.UNKNOWN, event.source)
         self.assertEqual("test_workspace", event.workspace)
+        self.assertEqual("test_distributed_ai_stack", event.distributed_ai_stack)
 
     def test_event_deser(self) -> None:
         event = TorchxEvent(
@@ -62,6 +67,7 @@ class TorchxEventLibTest(unittest.TestCase):
             api="test_api",
             app_image="test_app_image",
             workspace="test_workspace",
+            distributed_ai_stack="test_distributed_ai_stack",
             source=SourceType.EXTERNAL,
         )
         json_event = event.serialize()
@@ -76,6 +82,7 @@ class LogEventTest(unittest.TestCase):
         self.assertEqual(expected.app_id, actual.app_id)
         self.assertEqual(expected.api, actual.api)
         self.assertEqual(expected.app_image, actual.app_image)
+        self.assertEqual(expected.distributed_ai_stack, actual.distributed_ai_stack)
         self.assertEqual(expected.source, actual.source)
         self.assertEqual(expected.workspace, actual.workspace)
 
@@ -86,6 +93,7 @@ class LogEventTest(unittest.TestCase):
             "local",
             "test_app_id",
             app_image="test_app_image_id",
+            distributed_ai_stack="test_distributed_ai_stack",
             runcfg=cfg,
             workspace="test_workspace",
         )
@@ -95,6 +103,7 @@ class LogEventTest(unittest.TestCase):
             "test_call",
             "test_app_id",
             app_image="test_app_image_id",
+            distributed_ai_stack="test_distributed_ai_stack",
             runcfg=cfg,
             workspace="test_workspace",
         )
@@ -108,6 +117,7 @@ class LogEventTest(unittest.TestCase):
             "local",
             "test_app_id",
             app_image="test_app_image_id",
+            distributed_ai_stack="test_distributed_ai_stack",
             runcfg=cfg,
             workspace="test_workspace",
         ) as ctx:
@@ -119,6 +129,7 @@ class LogEventTest(unittest.TestCase):
             "test_call",
             "test_app_id",
             app_image="test_app_image_id",
+            distributed_ai_stack="test_distributed_ai_stack",
             runcfg=cfg,
             workspace="test_workspace",
             cpu_time_usec=ctx._torchx_event.cpu_time_usec,
