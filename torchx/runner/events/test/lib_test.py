@@ -31,6 +31,7 @@ class TorchxEventLibTest(unittest.TestCase):
         self.assertEqual(actual_event.app_image, expected_event.app_image)
         self.assertEqual(actual_event.runcfg, expected_event.runcfg)
         self.assertEqual(actual_event.source, expected_event.source)
+        self.assertEqual(actual_event.app_metadata, expected_event.app_metadata)
 
     @patch("torchx.runner.events.get_logging_handler")
     def test_get_or_create_logger(self, logging_handler_mock: MagicMock) -> None:
@@ -41,11 +42,13 @@ class TorchxEventLibTest(unittest.TestCase):
         self.assertIsInstance(logger.handlers[0], logging.NullHandler)
 
     def test_event_created(self) -> None:
+        test_metadata = {"test_key": "test_value"}
         event = TorchxEvent(
             session="test_session",
             scheduler="test_scheduler",
             api="test_api",
             app_image="test_app_image",
+            app_metadata=test_metadata,
             workspace="test_workspace",
         )
         self.assertEqual("test_session", event.session)
@@ -54,13 +57,16 @@ class TorchxEventLibTest(unittest.TestCase):
         self.assertEqual("test_app_image", event.app_image)
         self.assertEqual(SourceType.UNKNOWN, event.source)
         self.assertEqual("test_workspace", event.workspace)
+        self.assertEqual(test_metadata, event.app_metadata)
 
     def test_event_deser(self) -> None:
+        test_metadata = {"test_key": "test_value"}
         event = TorchxEvent(
             session="test_session",
             scheduler="test_scheduler",
             api="test_api",
             app_image="test_app_image",
+            app_metadata=test_metadata,
             workspace="test_workspace",
             source=SourceType.EXTERNAL,
         )
@@ -78,14 +84,17 @@ class LogEventTest(unittest.TestCase):
         self.assertEqual(expected.app_image, actual.app_image)
         self.assertEqual(expected.source, actual.source)
         self.assertEqual(expected.workspace, actual.workspace)
+        self.assertEqual(expected.app_metadata, actual.app_metadata)
 
     def test_create_context(self, _) -> None:
-        cfg = json.dumps({"test_key": "test_value"})
+        test_dict = {"test_key": "test_value"}
+        cfg = json.dumps(test_dict)
         context = log_event(
             "test_call",
             "local",
             "test_app_id",
             app_image="test_app_image_id",
+            app_metadata=test_dict,
             runcfg=cfg,
             workspace="test_workspace",
         )
@@ -95,6 +104,7 @@ class LogEventTest(unittest.TestCase):
             "test_call",
             "test_app_id",
             app_image="test_app_image_id",
+            app_metadata=test_dict,
             runcfg=cfg,
             workspace="test_workspace",
         )
@@ -102,12 +112,14 @@ class LogEventTest(unittest.TestCase):
         self.assert_torchx_event(expected_torchx_event, context._torchx_event)
 
     def test_record_event(self, record_mock: MagicMock) -> None:
-        cfg = json.dumps({"test_key": "test_value"})
+        test_dict = {"test_key": "test_value"}
+        cfg = json.dumps(test_dict)
         with log_event(
             "test_call",
             "local",
             "test_app_id",
             app_image="test_app_image_id",
+            app_metadata=test_dict,
             runcfg=cfg,
             workspace="test_workspace",
         ) as ctx:
@@ -119,6 +131,7 @@ class LogEventTest(unittest.TestCase):
             "test_call",
             "test_app_id",
             app_image="test_app_image_id",
+            app_metadata=test_dict,
             runcfg=cfg,
             workspace="test_workspace",
             cpu_time_usec=ctx._torchx_event.cpu_time_usec,

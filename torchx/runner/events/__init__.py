@@ -24,7 +24,7 @@ import logging
 import time
 import traceback
 from types import TracebackType
-from typing import Optional, Type
+from typing import Dict, Optional, Type
 
 from torchx.runner.events.handlers import get_logging_handler
 
@@ -84,6 +84,7 @@ class log_event:
         scheduler: Optional[str] = None,
         app_id: Optional[str] = None,
         app_image: Optional[str] = None,
+        app_metadata: Optional[Dict[str, str]] = None,
         runcfg: Optional[str] = None,
         workspace: Optional[str] = None,
     ) -> None:
@@ -92,6 +93,7 @@ class log_event:
             scheduler or "",
             app_id,
             app_image=app_image,
+            app_metadata=app_metadata,
             runcfg=runcfg,
             workspace=workspace,
         )
@@ -128,6 +130,7 @@ class log_event:
         scheduler: str,
         app_id: Optional[str] = None,
         app_image: Optional[str] = None,
+        app_metadata: Optional[Dict[str, str]] = None,
         runcfg: Optional[str] = None,
         source: SourceType = SourceType.UNKNOWN,
         workspace: Optional[str] = None,
@@ -138,6 +141,7 @@ class log_event:
             api=api,
             app_id=app_id,
             app_image=app_image,
+            app_metadata=app_metadata,
             runcfg=runcfg,
             source=source,
             workspace=workspace,
