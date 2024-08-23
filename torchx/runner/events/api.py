@@ -10,7 +10,7 @@
 import json
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 
 class SourceType(str, Enum):
@@ -30,10 +30,13 @@ class TorchxEvent:
         api: Api name
         app_id: Unique id that is set by the underlying scheduler
         image: Image/container bundle that is used to execute request.
+        app_metadata: metadata to the app (treatment of metadata is scheduler dependent)
         runcfg: Run config that was used to schedule app.
         source: Type of source the event is generated.
         cpu_time_usec: CPU time spent in usec
         wall_time_usec: Wall time spent in usec
+        start_epoch_time_usec: Epoch time in usec when runner event starts
+        Workspace: Track how different workspaces/no workspace affects build and scheduler
     """
 
     session: str
@@ -41,6 +44,7 @@ class TorchxEvent:
     api: str
     app_id: Optional[str] = None
     app_image: Optional[str] = None
+    app_metadata: Optional[Dict[str, str]] = None
     runcfg: Optional[str] = None
     raw_exception: Optional[str] = None
     source: SourceType = SourceType.UNKNOWN

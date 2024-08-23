@@ -198,10 +198,12 @@ class Runner:
                 parent_run_id=parent_run_id,
             )
             handle = self.schedule(dryrun_info)
+            app = none_throws(dryrun_info._app)
             ctx._torchx_event.workspace = workspace
             ctx._torchx_event.scheduler = none_throws(dryrun_info._scheduler)
-            ctx._torchx_event.app_image = none_throws(dryrun_info._app).roles[0].image
+            ctx._torchx_event.app_image = app.roles[0].image
             ctx._torchx_event.app_id = parse_app_handle(handle)[2]
+            ctx._torchx_event.app_metadata = app.metadata
             return handle
 
     def dryrun_component(
@@ -263,6 +265,7 @@ class Runner:
             ctx._torchx_event.scheduler = none_throws(dryrun_info._scheduler)
             ctx._torchx_event.app_image = none_throws(dryrun_info._app).roles[0].image
             ctx._torchx_event.app_id = parse_app_handle(handle)[2]
+            ctx._torchx_event.app_metadata = app.metadata
             return handle
 
     def schedule(self, dryrun_info: AppDryRunInfo) -> AppHandle:
