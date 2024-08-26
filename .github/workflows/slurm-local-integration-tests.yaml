@@ -23,6 +23,10 @@ jobs:
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
+      - name: Install Dependencies
+        run:
+          set -ex
+          pip install wheel
       - name: Checkout slurm-docker-cluster
         run: |
           set -ex
@@ -49,11 +53,6 @@ jobs:
           set -ex
           cd slurm-docker-cluster
           IMAGE_TAG=$SLURM_VERSION docker-compose up --detach
-      - name: Install Dependencies
-        run:
-          set -ex
-
-          pip install wheel
       - name: Run Slurm Integration Tests
         run: |
           set -e
