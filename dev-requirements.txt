@@ -3,6 +3,7 @@ ax-platform[mysql]==0.2.3
 boto3==1.34.51
 captum>=0.4.0
 docker
+docker-compose
 kubernetes==25.3.0
 flake8==3.9.0
 fsspec==2024.3.1
