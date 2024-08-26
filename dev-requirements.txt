@@ -31,6 +31,7 @@ torchtext==0.17.1
 torchvision==0.17.1
 ts==0.5.1
 ray[default]
+wheel
 
 # lint (linter versions are managed by lintrunner)
 lintrunner
