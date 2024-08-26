@@ -510,9 +510,7 @@ the image given an image name (str), which could be a simple name
 set the job size can automatically adjust between min_replicas
 and num_replicas depending on the cluster resources and
 policies. If the scheduler doesn’t support auto scaling this
-field is ignored and the job size will be num_replicas.
-EXPERIMENTAL: For HOT_SPARE restart policy this field is used to
-indicate the quorum required for the job to run.</p></li>
+field is ignored and the job size will be num_replicas.</p></li>
 <li><p><strong>max_retries</strong> – max number of retries before giving up</p></li>
 <li><p><strong>retry_policy</strong> – retry behavior upon replica failures</p></li>
 <li><p><strong>resource</strong> – Resource requirement for the role. The role should be scheduled
@@ -565,13 +563,6 @@ replacement replica admittance.</p>
 </dl>
 </li>
 <li><p>APPLICATION: Restarts the entire application.</p></li>
-<li><dl class="simple">
-<dt>HOT_SPARE: Restarts the replicas for a role as long as quorum (min_replicas)</dt><dd><p>is not violated using extra hosts as spares. It does not really support
-elasticity and just uses the delta between num_replicas and min_replicas
-as spares (EXPERIMENTAL).</p>
-</dd>
-</dl>
-</li>
 <li><dl class="simple">
 <dt>ROLE: Restarts the role when any error occurs in that role. This does not</dt><dd><p>restart the whole job.</p>
 </dd>
