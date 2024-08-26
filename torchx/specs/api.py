@@ -237,17 +237,12 @@ class RetryPolicy(str, Enum):
                 application to deal with failed replica departures and
                 replacement replica admittance.
     2. APPLICATION: Restarts the entire application.
-    3. HOT_SPARE: Restarts the replicas for a role as long as quorum (min_replicas)
-                is not violated using extra hosts as spares. It does not really support
-                elasticity and just uses the delta between num_replicas and min_replicas
-                as spares (EXPERIMENTAL).
-    4. ROLE: Restarts the role when any error occurs in that role. This does not
+    3. ROLE: Restarts the role when any error occurs in that role. This does not
              restart the whole job.
     """
 
     REPLICA = "REPLICA"
     APPLICATION = "APPLICATION"
-    HOT_SPARE = "HOT_SPARE"
     ROLE = "ROLE"
 
 
@@ -347,8 +342,6 @@ class Role:
                 and num_replicas depending on the cluster resources and
                 policies. If the scheduler doesn't support auto scaling this
                 field is ignored and the job size will be num_replicas.
-                EXPERIMENTAL: For HOT_SPARE restart policy this field is used to
-                indicate the quorum required for the job to run.
             max_retries: max number of retries before giving up
             retry_policy: retry behavior upon replica failures
             resource: Resource requirement for the role. The role should be scheduled

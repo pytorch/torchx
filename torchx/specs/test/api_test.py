@@ -273,7 +273,6 @@ class RoleBuilderTest(unittest.TestCase):
                 RetryPolicy.APPLICATION,
                 RetryPolicy.REPLICA,
                 RetryPolicy.ROLE,
-                RetryPolicy.HOT_SPARE,
             },
         )
 
@@ -494,7 +493,7 @@ class RunConfigTest(unittest.TestCase):
                     "foo=bar,test_key=test_value,default_time=42,enable=True,disable=False,complex_list=v1;v2;v3"
                 )
             ),
-        ),
+        )
 
     def test_config_from_json_repr(self) -> None:
         opts = runopts()
