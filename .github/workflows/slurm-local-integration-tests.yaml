@@ -38,7 +38,7 @@ jobs:
           set -ex
 
           cd slurm-docker-cluster
-          docker-compose pull --ignore-pull-failures
+          docker compose pull --ignore-pull-failures
         continue-on-error: true
       # cache layers to avoid rebuilding slurm
       - uses: satackey/action-docker-layer-caching@v0.0.11
@@ -52,7 +52,7 @@ jobs:
         run: |
           set -ex
           cd slurm-docker-cluster
-          IMAGE_TAG=$SLURM_VERSION docker-compose up --detach
+          IMAGE_TAG=$SLURM_VERSION docker compose up --detach
       - name: Run Slurm Integration Tests
         run: |
           set -e
