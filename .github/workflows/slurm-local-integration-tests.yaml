@@ -27,6 +27,7 @@ jobs:
         run:
           set -ex
           pip install wheel
+          pip3 install wheel
       - name: Checkout slurm-docker-cluster
         run: |
           set -ex
