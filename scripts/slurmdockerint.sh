@@ -11,6 +11,7 @@ DIST=dist
 
 rm -r $DIST || true
 python setup.py bdist_wheel
+python3 setup.py bdist_wheel
 
 WHEEL="$DIST/$(ls $DIST)"
 
