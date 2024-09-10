@@ -27,6 +27,7 @@ from types import TracebackType
 from typing import Dict, Optional, Type
 
 from torchx.runner.events.handlers import get_logging_handler
+from torchx.util.session import get_session_id_or_create_new
 
 from .api import SourceType, TorchxEvent  # noqa F401
 
@@ -136,7 +137,7 @@ class log_event:
         workspace: Optional[str] = None,
     ) -> TorchxEvent:
         return TorchxEvent(
-            session=app_id or "",
+            session=get_session_id_or_create_new(),
             scheduler=scheduler,
             api=api,
             app_id=app_id,

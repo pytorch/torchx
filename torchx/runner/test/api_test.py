@@ -51,7 +51,7 @@ def get_full_path(name: str) -> str:
     return os.path.join(os.path.dirname(__file__), "resource", name)
 
 
-@patch("torchx.runner.api.log_event")
+@patch("torchx.runner.events.record")
 class RunnerTest(TestWithTmpDir):
     def setUp(self) -> None:
         super().setUp()
@@ -104,7 +104,35 @@ class RunnerTest(TestWithTmpDir):
             with self.assertRaises(ValueError):
                 runner.run(app, scheduler="local_dir")
 
-    def test_run(self, _) -> None:
+    def test_session_id(self, record_mock: MagicMock) -> None:
+        test_file = self.tmpdir / "test_file"
+
+        with self.get_runner() as runner:
+            self.assertEqual(1, len(runner.scheduler_backends()))
+            role = Role(
+                name="touch",
+                image=str(self.tmpdir),
+                resource=resource.SMALL,
+                entrypoint="touch.sh",
+                args=[str(test_file)],
+            )
+            app = AppDef("name", roles=[role])
+
+            app_handle_1 = runner.run(app, scheduler="local_dir", cfg=self.cfg)
+            none_throws(runner.wait(app_handle_1, wait_interval=0.1))
+
+            app_handle_2 = runner.run(app, scheduler="local_dir", cfg=self.cfg)
+            none_throws(runner.wait(app_handle_2, wait_interval=0.1))
+
+            from torchx.util.session import CURRENT_SESSION_ID
+
+            self.assertIsNotNone(CURRENT_SESSION_ID)
+            record_mock.assert_called()
+            for i in range(record_mock.call_count):
+                event = record_mock.call_args_list[i].args[0]
+                self.assertEqual(event.session, CURRENT_SESSION_ID)
+
+    def test_run(self, record_mock: MagicMock) -> None:
         test_file = self.tmpdir / "test_file"
 
         with self.get_runner() as runner:
@@ -121,8 +149,15 @@ class RunnerTest(TestWithTmpDir):
             app_handle = runner.run(app, scheduler="local_dir", cfg=self.cfg)
             app_status = none_throws(runner.wait(app_handle, wait_interval=0.1))
             self.assertEqual(AppState.SUCCEEDED, app_status.state)
+            from torchx.util.session import CURRENT_SESSION_ID
 
-    def test_dryrun(self, _) -> None:
+            self.assertIsNotNone(CURRENT_SESSION_ID)
+            record_mock.assert_called()
+            for i in range(record_mock.call_count):
+                event = record_mock.call_args_list[i].args[0]
+                self.assertEqual(event.session, CURRENT_SESSION_ID)
+
+    def test_dryrun(self, record_mock: MagicMock) -> None:
         scheduler_mock = MagicMock()
         scheduler_mock.run_opts.return_value.resolve.return_value = {
             **self.cfg,
@@ -145,6 +180,13 @@ class RunnerTest(TestWithTmpDir):
                 app, {**self.cfg, "foo": "bar"}
             )
             scheduler_mock._validate.assert_called_once()
+            from torchx.util.session import CURRENT_SESSION_ID
+
+            self.assertIsNotNone(CURRENT_SESSION_ID)
+            record_mock.assert_called()
+            for i in range(record_mock.call_count):
+                event = record_mock.call_args_list[i].args[0]
+                self.assertEqual(event.session, CURRENT_SESSION_ID)
 
     def test_dryrun_env_variables(self, _) -> None:
         scheduler_mock = MagicMock()

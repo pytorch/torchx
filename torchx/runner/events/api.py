@@ -25,7 +25,7 @@ class TorchxEvent:
     The class represents the event produced by ``torchx.runner`` api calls.
 
     Arguments:
-        session: Session id that was used to execute request.
+        session: Session id of the current run
         scheduler: Scheduler that is used to execute request
         api: Api name
         app_id: Unique id that is set by the underlying scheduler
