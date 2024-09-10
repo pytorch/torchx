@@ -50,7 +50,7 @@ jobs:
           cd slurm-docker-cluster
           IMAGE_TAG=$SLURM_VERSION docker compose up --detach
       - name: Install Dependencies
-        run:
+        run: |
           set -ex
           pip install wheel
       - name: Run Slurm Integration Tests
