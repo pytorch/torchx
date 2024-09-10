@@ -19,6 +19,8 @@ from torchx.runner.events import (
     TorchxEvent,
 )
 
+SESSION_ID = "123"
+
 
 class TorchxEventLibTest(unittest.TestCase):
     def assert_event(
@@ -44,14 +46,14 @@ class TorchxEventLibTest(unittest.TestCase):
     def test_event_created(self) -> None:
         test_metadata = {"test_key": "test_value"}
         event = TorchxEvent(
-            session="test_session",
+            session=SESSION_ID,
             scheduler="test_scheduler",
             api="test_api",
             app_image="test_app_image",
             app_metadata=test_metadata,
             workspace="test_workspace",
         )
-        self.assertEqual("test_session", event.session)
+        self.assertEqual(SESSION_ID, event.session)
         self.assertEqual("test_scheduler", event.scheduler)
         self.assertEqual("test_api", event.api)
         self.assertEqual("test_app_image", event.app_image)
@@ -76,6 +78,7 @@ class TorchxEventLibTest(unittest.TestCase):
 
 
 @patch("torchx.runner.events.record")
+@patch("torchx.runner.events.get_session_id_or_create_new")
 class LogEventTest(unittest.TestCase):
     def assert_torchx_event(self, expected: TorchxEvent, actual: TorchxEvent) -> None:
         self.assertEqual(expected.session, actual.session)
@@ -86,7 +89,10 @@ class LogEventTest(unittest.TestCase):
         self.assertEqual(expected.workspace, actual.workspace)
         self.assertEqual(expected.app_metadata, actual.app_metadata)
 
-    def test_create_context(self, _) -> None:
+    def test_create_context(
+        self, get_session_id_or_create_new_mock: MagicMock, record_mock: MagicMock
+    ) -> None:
+        get_session_id_or_create_new_mock.return_value = SESSION_ID
         test_dict = {"test_key": "test_value"}
         cfg = json.dumps(test_dict)
         context = log_event(
@@ -99,7 +105,7 @@ class LogEventTest(unittest.TestCase):
             workspace="test_workspace",
         )
         expected_torchx_event = TorchxEvent(
-            "test_app_id",
+            SESSION_ID,
             "local",
             "test_call",
             "test_app_id",
@@ -111,7 +117,10 @@ class LogEventTest(unittest.TestCase):
 
         self.assert_torchx_event(expected_torchx_event, context._torchx_event)
 
-    def test_record_event(self, record_mock: MagicMock) -> None:
+    def test_record_event(
+        self, get_session_id_or_create_new_mock: MagicMock, record_mock: MagicMock
+    ) -> None:
+        get_session_id_or_create_new_mock.return_value = SESSION_ID
         test_dict = {"test_key": "test_value"}
         cfg = json.dumps(test_dict)
         with log_event(
@@ -126,7 +135,7 @@ class LogEventTest(unittest.TestCase):
             pass
 
         expected_torchx_event = TorchxEvent(
-            "test_app_id",
+            SESSION_ID,
             "local",
             "test_call",
             "test_app_id",
@@ -139,7 +148,9 @@ class LogEventTest(unittest.TestCase):
         )
         self.assert_torchx_event(expected_torchx_event, ctx._torchx_event)
 
-    def test_record_event_with_exception(self, record_mock: MagicMock) -> None:
+    def test_record_event_with_exception(
+        self, get_session_id_or_create_new_mock: MagicMock, record_mock: MagicMock
+    ) -> None:
         cfg = json.dumps({"test_key": "test_value"})
         with self.assertRaises(RuntimeError):
             with log_event("test_call", "local", "test_app_id", cfg) as ctx:
