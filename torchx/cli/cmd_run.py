@@ -21,7 +21,6 @@ from typing import Dict, List, Optional, Tuple
 import torchx.specs as specs
 from torchx.cli.argparse_util import ArgOnceAction, torchxconfig_run
 from torchx.cli.cmd_base import SubCommand
-from torchx.cli.cmd_log import get_logs
 from torchx.runner import config, get_runner, Runner
 from torchx.runner.config import load_sections
 from torchx.schedulers import get_default_scheduler_name, get_scheduler_factories
@@ -32,6 +31,7 @@ from torchx.specs.finder import (
     get_builtin_source,
     get_components,
 )
+from torchx.util.log_tee_helpers import tee_logs
 from torchx.util.types import none_throws
 
 
@@ -288,16 +288,14 @@ class CmdRun(SubCommand):
             logger.debug(status)
 
     def _start_log_thread(self, runner: Runner, app_handle: str) -> threading.Thread:
-        thread = threading.Thread(
-            target=get_logs,
-            kwargs={
-                "file": sys.stderr,
-                "runner": runner,
-                "identifier": app_handle,
-                "regex": None,
-                "should_tail": True,
-            },
+        thread = tee_logs(
+            dst=sys.stderr,
+            app_handle=app_handle,
+            regex=None,
+            runner=runner,
+            should_tail=True,
+            streams=None,
+            colorize=not sys.stderr.closed and sys.stderr.isatty(),
         )
-        thread.daemon = True
         thread.start()
         return thread
