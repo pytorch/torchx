@@ -23,6 +23,10 @@ from torchx.runner import get_runner, Runner
 from torchx.schedulers.api import Stream
 from torchx.specs.api import is_started
 from torchx.specs.builders import make_app_handle
+from torchx.util.log_tee_helpers import (
+    _find_role_replicas as find_role_replicas,
+    _prefix_line,
+)
 
 from torchx.util.types import none_throws
 
@@ -37,19 +41,6 @@ def validate(job_identifier: str) -> None:
             f"{job_identifier} is not of the form {ID_FORMAT}",
         )
         sys.exit(1)
-
-
-def _prefix_line(prefix: str, line: str) -> str:
-    """
-    _prefix_line ensure the prefix is still present even when dealing with return characters
-    """
-    if "\r" in line:
-        line = line.replace("\r", f"\r{prefix}")
-    if "\n" in line[:-1]:
-        line = line[:-1].replace("\n", f"\n{prefix}") + line[-1:]
-    if not line.startswith("\r"):
-        line = f"{prefix}{line}"
-    return line
 
 
 def print_log_lines(
@@ -165,17 +156,6 @@ def get_logs(
             logger.error(threads_exceptions[i])
 
         raise threads_exceptions[0]
-
-
-def find_role_replicas(
-    app: specs.AppDef, role_name: Optional[str]
-) -> List[Tuple[str, int]]:
-    role_replicas = []
-    for role in app.roles:
-        if role_name is None or role_name == role.name:
-            for i in range(role.num_replicas):
-                role_replicas.append((role.name, i))
-    return role_replicas
 
 
 class CmdLog(SubCommand):
