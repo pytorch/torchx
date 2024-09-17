@@ -7,6 +7,7 @@
 
 # pyre-strict
 
+import asyncio
 import os
 import time
 import unittest
@@ -275,6 +276,28 @@ class RoleBuilderTest(unittest.TestCase):
                 RetryPolicy.ROLE,
             },
         )
+
+    def test_override_role(self) -> None:
+        default = Role(
+            "foobar",
+            "torch",
+            overrides={"image": lambda: "base", "entrypoint": lambda: "nentry"},
+        )
+        self.assertEqual("base", default.image)
+        self.assertEqual("nentry", default.entrypoint)
+
+    def test_async_override_role(self) -> None:
+        async def update(value: str, time_seconds: int) -> str:
+            await asyncio.sleep(time_seconds)
+            return value
+
+        default = Role(
+            "foobar",
+            "torch",
+            overrides={"image": update("base", 1), "entrypoint": update("nentry", 2)},
+        )
+        self.assertEqual("base", default.image)
+        self.assertEqual("nentry", default.entrypoint)
 
 
 class AppHandleTest(unittest.TestCase):
