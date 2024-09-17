@@ -7,7 +7,9 @@
 
 # pyre-strict
 
+import asyncio
 import copy
+import inspect
 import json
 import re
 import typing
@@ -370,6 +372,24 @@ class Role:
     mounts: List[Union[BindMount, VolumeMount, DeviceMount]] = field(
         default_factory=list
     )
+    overrides: Dict[str, Any] = field(default_factory=dict)
+
+    # pyre-ignore
+    def __getattribute__(self, attrname: str) -> Any:
+        if attrname == "overrides":
+            return super().__getattribute__(attrname)
+        try:
+            ov = super().__getattribute__("overrides")
+        except AttributeError:
+            ov = {}
+        if attrname in ov:
+            if inspect.isawaitable(ov[attrname]):
+                result = asyncio.get_event_loop().run_until_complete(ov[attrname])
+            else:
+                result = ov[attrname]()
+            setattr(self, attrname, result)
+            del ov[attrname]
+        return super().__getattribute__(attrname)
 
     def pre_proc(
         self,
