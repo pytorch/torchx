@@ -17,6 +17,7 @@ def get_session_id_or_create_new() -> str:
     """
     Returns the current session ID, or creates a new one if none exists.
     The session ID remains the same as long as it is in the same process.
+    Please DO NOT use this function out of torchx codebase.
     """
     global CURRENT_SESSION_ID
     if CURRENT_SESSION_ID:
@@ -24,3 +25,11 @@ def get_session_id_or_create_new() -> str:
     session_id = str(uuid.uuid4())
     CURRENT_SESSION_ID = session_id
     return session_id
+
+
+def get_torchx_session_id() -> Optional[str]:
+    """
+    Returns the torchx session ID.
+    Please use this function to get the session ID out of torchx codebase.
+    """
+    return CURRENT_SESSION_ID
