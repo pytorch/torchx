@@ -60,6 +60,7 @@ Documentation
       fb/cogwheel.rst
       fb/named_resources.rst
       fb/tracker.md
+      fb/troubleshooting.md
 
 
 Works With
