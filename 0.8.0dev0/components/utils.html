@@ -550,6 +550,65 @@ See <a class="reference external" href="https://pytorch.org/torchx/latest/advanc
 </dl>
 </dd></dl>
 
+<p>Usage is very similar to just regular python, except that this supports remote launches. Example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># locally (cmd)</span>
+$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>utils.python<span class="w"> </span>--image<span class="w"> </span><span class="nv">$FBPKG</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch; print(torch.__version__)&quot;</span>
+
+<span class="c1"># locally (module)</span>
+$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>utils.python<span class="w"> </span>--image<span class="w"> </span><span class="nv">$FBPKG</span><span class="w"> </span>-m<span class="w"> </span>foo.bar.main
+
+<span class="c1"># remote (cmd)</span>
+$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>mast<span class="w"> </span>utils.python<span class="w"> </span>--image<span class="w"> </span><span class="nv">$FBPKG</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch; print(torch.__version__)&quot;</span>
+
+<span class="c1"># remote (module)</span>
+$<span class="w"> </span>torchx<span class="w"> </span>run<span class="w"> </span>-s<span class="w"> </span>mast<span class="w"> </span>utils.python<span class="w"> </span>--image<span class="w"> </span><span class="nv">$FBPKG</span><span class="w"> </span>-m<span class="w"> </span>foo.bar.main
+</pre></div>
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">torchx</span> <span class="pre">run</span></code> patches the current working directory (CWD) on top of <code class="docutils literal notranslate"><span class="pre">$FBPKG</span></code> for faster remote iteration.</p></li>
+<li><p>Patch contents will contain all changes to local fbcode however, the patch building is only triggered if CWD is a subdirectory of fbcode. If you are running from the root of fbcode (e.g. ~/fbsource/fbcode) your job will NOT be patched!</p></li>
+<li><p>Be careful not to abuse <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CMD</span></code>. Schedulers have a length limit on the arguments, hence don’t try to pass long CMDs, use it sparingly.</p></li>
+<li><p>In <cite>-m MODULE</cite>, the module needs to be rooted off of fbcode. Example: for ~/fbsource/fbcode/foo/bar/main.py the module is <code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">foo.bar.main</span></code>.</p></li>
+<li><p>DO NOT override <code class="docutils literal notranslate"><span class="pre">base_module</span></code> in <code class="docutils literal notranslate"><span class="pre">python_library</span></code> buck rule. If you do, you are on your own, patching won’t work.</p></li>
+</ul>
+<p>Inline Script in Component</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>IMPORTANT: DO NOT ABUSE THIS FEATURE! This use be used sparringly and not abused! We reserve the right to remove this feature in the future.</p>
+</div>
+<p>A nice side effect of how TorchX and penv python is built is that you can do pretty much anything that you would normally do with python, with the added benefit that it auto patches your working directory and gives you the ability to run locally and remotely.
+This means that python <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CMD</span></code> will also work. Here’s an example illustrating this</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/fbsource/fbcode/torchx/examples/apps
+
+<span class="gp">$ </span>ls
+<span class="go">component.py  config  main.py  module  README.md  TARGETS</span>
+
+<span class="gp"># </span>lets<span class="w"> </span>try<span class="w"> </span>getting<span class="w"> </span>the<span class="w"> </span>version<span class="w"> </span>of<span class="w"> </span>torch<span class="w"> </span>from<span class="w"> </span>a<span class="w"> </span>prebuilt<span class="w"> </span>fbpkg<span class="w"> </span>or<span class="w"> </span>bento<span class="w"> </span>kernel
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>utils.python<span class="w"> </span>--image<span class="w"> </span>bento_kernel_pytorch_lightning<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch; print(torch.__version__)&quot;</span>
+<span class="go">torchx 2021-10-27 11:27:28 INFO     loaded configs from /data/users/kiuk/fbsource/fbcode/torchx/fb/example/.torchxconfig</span>
+<span class="go">2021-10-27 11:27:44,633 fbpkg.fetch INFO: completed download of bento_kernel_pytorch_lightning:405</span>
+<span class="go">2021-10-27 11:27:44,634 fbpkg.fetch INFO: extracted bento_kernel_pytorch_lightning:405 to bento_kernel_pytorch_lightning</span>
+<span class="go">2021-10-27 11:27:48,591 fbpkg.util WARNING: removing old version /home/kiuk/.torchx/fbpkg/bento_kernel_pytorch_lightning/403</span>
+<span class="go">All packages downloaded successfully</span>
+<span class="go">local_penv://torchx/torchx_utils_python_6effc4e2</span>
+<span class="go">torchx 2021-10-27 11:27:49 INFO     Waiting for the app to finish...</span>
+<span class="go">1.11.0a0+fb</span>
+<span class="go">torchx 2021-10-27 11:27:58 INFO     Job finished: SUCCEEDED</span>
+<span class="go">Now for a more interesting example, lets run a dumb all reduce of a 1-d tensor on 1 worker:</span>
+<span class="gp">$ </span>torchx<span class="w"> </span>run<span class="w"> </span>utils.python<span class="w"> </span>--image<span class="w"> </span>torchx_fb_example<span class="w"> </span><span class="se">\</span>
+-c<span class="w"> </span><span class="s2">&quot;import torch; import torch.distributed as dist; dist.init_process_group(backend=&#39;gloo&#39;, init_method=&#39;tcp://localhost:29500&#39;, rank=0, world_size=1); t=torch.tensor(1); dist.all_reduce(t); print(f&#39;all reduce result: {t.item()}&#39;)&quot;</span>
+
+<span class="go">torchx 2021-10-27 10:23:05 INFO     loaded configs from /data/users/kiuk/fbsource/fbcode/torchx/fb/example/.torchxconfig</span>
+<span class="go">2021-10-27 10:23:09,339 fbpkg.fetch INFO: checksums verified: torchx_fb_example:11</span>
+<span class="go">All packages verified</span>
+<span class="go">local_penv://torchx/torchx_utils_python_08a41456</span>
+<span class="go">torchx 2021-10-27 10:23:09 INFO     Waiting for the app to finish...</span>
+<span class="go">all reduce result: 1</span>
+<span class="go">torchx 2021-10-27 10:23:13 INFO     Job finished: SUCCEEDED</span>
+<span class="go">WARNING: Long inlined scripts won&#39;t work since schedulers typically have a character limit on the length of each argument.</span>
+</pre></div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="torchx.components.utils.booth">
 <span class="sig-prename descclassname"><span class="pre">torchx.components.utils.</span></span><span class="sig-name descname"><span class="pre">booth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/tmp/torchx-util-booth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ghcr.io/pytorch/torchx:0.8.0dev0'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../specs.html#torchx.specs.AppDef" title="torchx.specs.api.AppDef"><span class="pre">AppDef</span></a></span></span><a class="reference internal" href="../_modules/torchx/components/utils.html#booth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#torchx.components.utils.booth" title="Permalink to this definition">¶</a></dt>
