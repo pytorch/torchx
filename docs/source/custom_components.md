@@ -19,6 +19,23 @@ and launch it via two different schedulers.
 
 See the [Quickstart Guide](quickstart.md) for installation and basic usage.
 
+
+## Builtins
+
+Before writing a custom component, check if any of the builtin components satisfy your needs. TorchX provides a number of builtin components with premade images. You can discover them via:
+
+```sh
+torchx builtins
+```
+
+You can use these either from the CLI, from a pipeline or programmatically like
+you would any other component.
+
+```sh
+torchx run utils.echo --msg "Hello :)"
+```
+
+
 ## Hello World
 
 Lets start off with writing a simple "Hello World" python app. This is just a
@@ -130,20 +147,3 @@ $ docker push my_app:latest
 $ torchx run --scheduler kubernetes my_component.py:greet --image "my_app:latest" --user "your name"
 ```
 <!-- #endmd -->
-
-
-## Builtins
-
-TorchX also provides a number of builtin components with premade images. You can discover
-them via:
-
-```sh
-torchx builtins
-```
-
-You can use these either from the CLI, from a pipeline or programmatically like
-you would any other component.
-
-```sh
-torchx run utils.echo --msg "Hello :)"
-```
