@@ -9,7 +9,8 @@
 import abc
 import fnmatch
 import posixpath
-from typing import Generic, Iterable, Mapping, Tuple, TYPE_CHECKING, TypeVar
+from dataclasses import dataclass
+from typing import Any, Dict, Generic, Iterable, Mapping, Tuple, TYPE_CHECKING, TypeVar
 
 from torchx.specs import AppDef, CfgVal, Role, runopts
 
@@ -19,6 +20,36 @@ if TYPE_CHECKING:
 TORCHX_IGNORE = ".torchxignore"
 
 T = TypeVar("T")
+
+PackageType = TypeVar("PackageType")
+WorkspaceConfigType = TypeVar("WorkspaceConfigType")
+
+
+@dataclass
+class PkgInfo(Generic[PackageType]):
+    """
+    Convenience class used to specify information regarding the built workspace
+    """
+
+    img: str
+    lazy_overrides: Dict[str, Any]
+    metadata: PackageType
+
+
+@dataclass
+class WorkspaceBuilder(Generic[PackageType, WorkspaceConfigType]):
+    cfg: WorkspaceConfigType
+
+    @abc.abstractmethod
+    def build_workspace(self, sync: bool = True) -> PkgInfo[PackageType]:
+        """
+        Builds the specified ``workspace`` with respect to ``img``.
+        In the simplest case, this method builds a new image.
+        Certain (more efficient) implementations build
+        incremental diff patches that overlay on top of the role's image.
+
+        """
+        pass
 
 
 class WorkspaceMixin(abc.ABC, Generic[T]):

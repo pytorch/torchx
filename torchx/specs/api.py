@@ -11,6 +11,7 @@ import asyncio
 import copy
 import inspect
 import json
+import logging as logger
 import re
 import typing
 from dataclasses import asdict, dataclass, field
@@ -189,7 +190,16 @@ class macros:
             apply applies the values to a copy the specified role and returns it.
             """
 
+            # Overrides might contain future values which can't be serialized so taken out for the copy
+            overrides = role.overrides
+            if len(overrides) > 0:
+                logger.warning(
+                    "Role overrides are not supported for macros. Overrides will not be copied"
+                )
+                role.overrides = {}
             role = copy.deepcopy(role)
+            role.overrides = overrides
+
             role.args = [self.substitute(arg) for arg in role.args]
             role.env = {key: self.substitute(arg) for key, arg in role.env.items()}
             role.metadata = self._apply_nested(role.metadata)
