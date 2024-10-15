@@ -452,6 +452,7 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">logger</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
@@ -630,7 +631,16 @@
 <span class="sd">            apply applies the values to a copy the specified role and returns it.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
 
+            <span class="c1"># Overrides might contain future values which can&#39;t be serialized so taken out for the copy</span>
+            <span class="n">overrides</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">overrides</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Role overrides are not supported for macros. Overrides will not be copied&quot;</span>
+                <span class="p">)</span>
+                <span class="n">role</span><span class="o">.</span><span class="n">overrides</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">role</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">overrides</span> <span class="o">=</span> <span class="n">overrides</span>
+
             <span class="n">role</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
             <span class="n">role</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="n">role</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_nested</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>

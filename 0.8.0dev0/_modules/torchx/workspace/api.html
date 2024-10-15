@@ -448,7 +448,8 @@
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">fnmatch</span>
 <span class="kn">import</span> <span class="nn">posixpath</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span> <span class="nn">torchx.specs</span> <span class="kn">import</span> <span class="n">AppDef</span><span class="p">,</span> <span class="n">CfgVal</span><span class="p">,</span> <span class="n">Role</span><span class="p">,</span> <span class="n">runopts</span>
 
@@ -458,6 +459,36 @@
 <span class="n">TORCHX_IGNORE</span> <span class="o">=</span> <span class="s2">&quot;.torchxignore&quot;</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+<span class="n">PackageType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;PackageType&quot;</span><span class="p">)</span>
+<span class="n">WorkspaceConfigType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;WorkspaceConfigType&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PkgInfo</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">PackageType</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convenience class used to specify information regarding the built workspace</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">img</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">lazy_overrides</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">PackageType</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">WorkspaceBuilder</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">PackageType</span><span class="p">,</span> <span class="n">WorkspaceConfigType</span><span class="p">]):</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">WorkspaceConfigType</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">build_workspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PkgInfo</span><span class="p">[</span><span class="n">PackageType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds the specified ``workspace`` with respect to ``img``.</span>
+<span class="sd">        In the simplest case, this method builds a new image.</span>
+<span class="sd">        Certain (more efficient) implementations build</span>
+<span class="sd">        incremental diff patches that overlay on top of the role&#39;s image.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
 
 
 <div class="viewcode-block" id="WorkspaceMixin"><a class="viewcode-back" href="../../../workspace.html#torchx.workspace.WorkspaceMixin">[docs]</a><span class="k">class</span> <span class="nc">WorkspaceMixin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
