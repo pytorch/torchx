@@ -14,7 +14,7 @@ import time
 import warnings
 from datetime import datetime
 from types import TracebackType
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 
 from torchx.runner.events import log_event
 from torchx.schedulers import get_scheduler_factories, SchedulerFactory
@@ -41,7 +41,7 @@ from torchx.tracker.api import (
 )
 
 from torchx.util.types import none_throws
-from torchx.workspace.api import WorkspaceMixin
+from torchx.workspace.api import PkgInfo, WorkspaceBuilder, WorkspaceMixin
 
 from .config import get_config, get_configs
 
@@ -49,6 +49,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 NONE: str = "<NONE>"
+S = TypeVar("S")
+T = TypeVar("T")
 
 
 def get_configured_trackers() -> Dict[str, Optional[str]]:
@@ -146,6 +148,18 @@ class Runner:
 
         for scheduler in self._scheduler_instances.values():
             scheduler.close()
+
+    def build_standalone_workspace(
+        self,
+        workspace_builder: WorkspaceBuilder[S, T],
+        sync: bool = True,
+    ) -> PkgInfo[S]:
+        """
+        Build a standalone workspace for the given role.
+        This method is used to build a workspace for a role independent of the scheduler and
+        also enables asynchronous workspace building using the Role overrides.
+        """
+        return workspace_builder.build_workspace(sync)
 
     def run_component(
         self,
