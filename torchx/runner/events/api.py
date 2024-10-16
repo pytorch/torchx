@@ -52,6 +52,9 @@ class TorchxEvent:
     wall_time_usec: Optional[int] = None
     start_epoch_time_usec: Optional[int] = None
     workspace: Optional[str] = None
+    exception_type: Optional[str] = None
+    exception_message: Optional[str] = None
+    exception_source_location: Optional[str] = None
 
     def __str__(self) -> str:
         return self.serialize()
