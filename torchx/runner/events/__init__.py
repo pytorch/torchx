@@ -20,7 +20,9 @@ Example of usage:
 
 """
 
+import json
 import logging
+import sys
 import time
 import traceback
 from types import TracebackType
@@ -123,6 +125,20 @@ class log_event:
         ) // 1000
         if traceback_type:
             self._torchx_event.raw_exception = traceback.format_exc()
+            typ, value, tb = sys.exc_info()
+            if tb:
+                last_frame = traceback.extract_tb(tb)[-1]
+                self._torchx_event.exception_source_location = json.dumps(
+                    {
+                        "filename": last_frame.filename,
+                        "lineno": last_frame.lineno,
+                        "name": last_frame.name,
+                    }
+                )
+        if exec_type:
+            self._torchx_event.exception_type = exec_type.__name__
+        if exec_value:
+            self._torchx_event.exception_message = str(exec_value)
         record(self._torchx_event)
 
     def _generate_torchx_event(
