@@ -50,7 +50,9 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
 
     role = app.roles[0]
     assert (
-        role.num_replicas == 1
+        role.num_replicas
+        == 1
+        # pyre-fixme[16]: `AppDef` has no attribute `num_replicas`.
     ), f"KFP adapter only supports one replica, got {app.num_replicas}"
 
     command = [role.entrypoint, *role.args]
