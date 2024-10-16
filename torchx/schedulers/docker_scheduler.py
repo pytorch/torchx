@@ -9,6 +9,7 @@
 import fnmatch
 import logging
 import os.path
+import re
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
@@ -265,9 +266,12 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
                     rank0_env="TORCHX_RANK0_HOST",
                 )
                 replica_role = values.apply(role)
-                # trim app_id and role name in case name is longer than 64 letters. Assume replica_id is less than 10_000.
-                name = f"{app_id[-30:]}-{role.name[:30]}-{replica_id}"
-
+                # trim app_id and role name in case name is longer than 64 letters. Assume replica_id is less than 10_000. Remove invalid prefixes (https://github.com/moby/moby/blob/master/daemon/names/names.go#L6).
+                name = re.sub(
+                    r"^[^a-zA-Z0-9]+",
+                    "",
+                    f"{app_id[-30:]}-{role.name[:30]}-{replica_id}",
+                )
                 env = default_env.copy()
                 if replica_role.env:
                     env.update(replica_role.env)

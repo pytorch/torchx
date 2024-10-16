@@ -221,13 +221,15 @@ class DockerSchedulerTest(unittest.TestCase):
         for role in app.roles:
             role.name = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin_blum_elective_spill_trammel_trainer"
         with patch("torchx.schedulers.docker_scheduler.make_unique") as make_unique_ctx:
-            make_unique_ctx.return_value = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin_blum_elective_spill_trammel_12345"
+            make_unique_ctx.return_value = "ethology_explore_magic_calliope_divisive_whirl_dealt_lotus_oncology_facet_deerskin__.-_elective_spill_trammel_1234"
             info = self.scheduler.submit_dryrun(app, DockerOpts())
         for container in info.request.containers:
             assert "name" in container.kwargs
             name = container.kwargs["name"]
             assert isinstance(name, str)
             assert len(name) < 65
+            # Assert match container name rules https://github.com/moby/moby/blob/master/daemon/names/names.go#L6
+            self.assertRegex(name, r"[a-zA-Z0-9][a-zA-Z0-9_.-]")
 
 
 if has_docker():
