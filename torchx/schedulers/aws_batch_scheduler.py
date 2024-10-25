@@ -809,6 +809,8 @@ class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
                     startFromHead=True,
                     **args,
                 )
+            # pyre-fixme[66]: Exception handler type annotation `unknown` must
+            #  extend BaseException.
             except self._log_client.exceptions.ResourceNotFoundException:
                 return []  # noqa: B901
             if response["nextForwardToken"] == next_token:
