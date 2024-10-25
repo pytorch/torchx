@@ -9,14 +9,14 @@
   "ignore_all_errors": [
     "./stubs/"
   ],
+  "search_path": [
+    "stubs"
+  ],
   "site_package_search_strategy": "all",
   "source_directories": [
     "scripts",
     "."
   ],
-  "search_path": [
-    "stubs"
-  ],
   "strict": true,
-  "version": "0.0.101709640814"
+  "version": "0.0.101729681899"
 }
