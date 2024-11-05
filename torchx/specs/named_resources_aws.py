@@ -254,6 +254,80 @@ def aws_g5_48xlarge() -> Resource:
     )
 
 
+def aws_g6e_xlarge() -> Resource:
+    return Resource(
+        cpu=4,
+        gpu=1,
+        memMB=32 * GiB,
+        capabilities={K8S_ITYPE: "g6e.xlarge"},
+    )
+
+
+def aws_g6e_2xlarge() -> Resource:
+    return Resource(
+        cpu=8,
+        gpu=1,
+        memMB=64 * GiB,
+        capabilities={K8S_ITYPE: "g6e.2xlarge"},
+    )
+
+
+def aws_g6e_4xlarge() -> Resource:
+    return Resource(
+        cpu=16,
+        gpu=1,
+        memMB=128 * GiB,
+        capabilities={K8S_ITYPE: "g6e.4xlarge"},
+    )
+
+
+def aws_g6e_8xlarge() -> Resource:
+    return Resource(
+        cpu=32,
+        gpu=1,
+        memMB=256 * GiB,
+        capabilities={K8S_ITYPE: "g6e.8xlarge"},
+    )
+
+
+def aws_g6e_16xlarge() -> Resource:
+    return Resource(
+        cpu=64,
+        gpu=1,
+        memMB=512 * GiB,
+        capabilities={K8S_ITYPE: "g6e.16xlarge"},
+    )
+
+
+def aws_g6e_12xlarge() -> Resource:
+    return Resource(
+        cpu=48,
+        gpu=4,
+        memMB=384 * GiB,
+        capabilities={K8S_ITYPE: "g6e.12xlarge"},
+    )
+
+
+def aws_g6e_24xlarge() -> Resource:
+    return Resource(
+        cpu=96,
+        gpu=4,
+        memMB=768 * GiB,
+        capabilities={K8S_ITYPE: "g6e.24xlarge"},
+        devices={EFA_DEVICE: 2},
+    )
+
+
+def aws_g6e_48xlarge() -> Resource:
+    return Resource(
+        cpu=192,
+        gpu=8,
+        memMB=1536 * GiB,
+        capabilities={K8S_ITYPE: "g6e.48xlarge"},
+        devices={EFA_DEVICE: 4},
+    )
+
+
 def aws_trn1_2xlarge() -> Resource:
     return Resource(
         cpu=8,
@@ -299,6 +373,14 @@ NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_g5.12xlarge": aws_g5_12xlarge,
     "aws_g5.24xlarge": aws_g5_24xlarge,
     "aws_g5.48xlarge": aws_g5_48xlarge,
+    "aws_g6e.xlarge": aws_g6e_xlarge,
+    "aws_g6e.2xlarge": aws_g6e_2xlarge,
+    "aws_g6e.4xlarge": aws_g6e_4xlarge,
+    "aws_g6e.8xlarge": aws_g6e_8xlarge,
+    "aws_g6e.16xlarge": aws_g6e_16xlarge,
+    "aws_g6e.12xlarge": aws_g6e_12xlarge,
+    "aws_g6e.24xlarge": aws_g6e_24xlarge,
+    "aws_g6e.48xlarge": aws_g6e_48xlarge,
     "aws_trn1.2xlarge": aws_trn1_2xlarge,
     "aws_trn1.32xlarge": aws_trn1_32xlarge,
 }
