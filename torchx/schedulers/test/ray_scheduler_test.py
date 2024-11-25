@@ -584,9 +584,7 @@ if has_ray():
             self.assertIsNotNone(driver.rank_0_port)
 
             # 3-2
-            terminal = (
-                driver._step()
-            )  # actor 1 finished, actor 2 has been scheduled yet, usually, the driver stops here
+            terminal = driver._step()  # actor 1 finished, actor 2 has been scheduled yet, usually, the driver stops here
             self.assertEqual(terminal, True)
             self.assertEqual(driver.command_actors_count, 0)
             self.assertEqual(len(driver.active_tasks), 1)  # actor schedule task

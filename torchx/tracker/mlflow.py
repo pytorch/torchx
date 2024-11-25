@@ -254,7 +254,10 @@ class MLflowTracker(TrackerBase):
         return [r.info.run_name for r in runs]
 
     def log_params_flat(
-        self, run_name: str, cfg: Any, key: str = ""  # pyre-ignore[2]
+        self,
+        run_name: str,
+        cfg: Any,
+        key: str = "",  # pyre-ignore[2]
     ) -> None:
         """
         Designed to be primarily used with hydra-style config objects (e.g. dataclasses),

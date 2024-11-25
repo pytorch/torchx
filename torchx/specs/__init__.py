@@ -12,6 +12,7 @@ This contains the TorchX AppDef and related component definitions. These are
 used by components to define the apps which can then be launched via a TorchX
 scheduler or pipeline adapter.
 """
+
 import difflib
 from typing import Callable, Dict, Optional
 
