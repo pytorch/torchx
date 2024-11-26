@@ -48,6 +48,7 @@ def run_pyre() -> List[PyreResult]:
         ["pyre", "--output=json", "incremental"],
         capture_output=True,
     )
+    proc.check_returncode()  # throws CalledProcessError if cmd failed
     return json.loads(proc.stdout)
 
 
