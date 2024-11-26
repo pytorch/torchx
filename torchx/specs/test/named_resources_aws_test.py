@@ -23,6 +23,14 @@ from torchx.specs.named_resources_aws import (
     aws_g5_4xlarge,
     aws_g5_8xlarge,
     aws_g5_xlarge,
+    aws_g6e_12xlarge,
+    aws_g6e_16xlarge,
+    aws_g6e_24xlarge,
+    aws_g6e_2xlarge,
+    aws_g6e_48xlarge,
+    aws_g6e_4xlarge,
+    aws_g6e_8xlarge,
+    aws_g6e_xlarge,
     aws_m5_2xlarge,
     aws_p3_16xlarge,
     aws_p3_2xlarge,
@@ -86,6 +94,50 @@ class NamedResourcesTest(unittest.TestCase):
         self.assertEqual(8, p5.gpu)
         self.assertEqual(2048 * GiB, p5.memMB)
         self.assertEqual({EFA_DEVICE: 32}, p5.devices)
+
+    def test_aws_g6e(self) -> None:
+        g6e = aws_g6e_xlarge()
+        g6e_2 = aws_g6e_2xlarge()
+        g6e_4 = aws_g6e_4xlarge()
+        g6e_8 = aws_g6e_8xlarge()
+        g6e_16 = aws_g6e_16xlarge()
+        g6e_12 = aws_g6e_12xlarge()
+        g6e_24 = aws_g6e_24xlarge()
+        g6e_48 = aws_g6e_48xlarge()
+
+        self.assertEqual(4, g6e.cpu)
+        self.assertEqual(1, g6e.gpu)
+        self.assertEqual(32 * GiB, g6e.memMB)
+
+        self.assertEqual(8, g6e_2.cpu)
+        self.assertEqual(1, g6e_2.gpu)
+        self.assertEqual(64 * GiB, g6e_2.memMB)
+
+        self.assertEqual(16, g6e_4.cpu)
+        self.assertEqual(1, g6e_4.gpu)
+        self.assertEqual(128 * GiB, g6e_4.memMB)
+
+        self.assertEqual(32, g6e_8.cpu)
+        self.assertEqual(1, g6e_8.gpu)
+        self.assertEqual(256 * GiB, g6e_8.memMB)
+
+        self.assertEqual(64, g6e_16.cpu)
+        self.assertEqual(1, g6e_16.gpu)
+        self.assertEqual(512 * GiB, g6e_16.memMB)
+
+        self.assertEqual(48, g6e_12.cpu)
+        self.assertEqual(4, g6e_12.gpu)
+        self.assertEqual(384 * GiB, g6e_12.memMB)
+
+        self.assertEqual(96, g6e_24.cpu)
+        self.assertEqual(4, g6e_24.gpu)
+        self.assertEqual(768 * GiB, g6e_24.memMB)
+        self.assertEqual({EFA_DEVICE: 2}, g6e_24.devices)
+
+        self.assertEqual(192, g6e_48.cpu)
+        self.assertEqual(8, g6e_48.gpu)
+        self.assertEqual(1536 * GiB, g6e_48.memMB)
+        self.assertEqual({EFA_DEVICE: 4}, g6e_48.devices)
 
     def test_aws_g4dn(self) -> None:
         g4d = aws_g4dn_xlarge()
