@@ -8,6 +8,7 @@
 import unittest
 
 from torchx.specs.named_resources_aws import (
+    aws_c5_18xlarge,
     aws_g4dn_12xlarge,
     aws_g4dn_16xlarge,
     aws_g4dn_2xlarge,
@@ -236,6 +237,12 @@ class NamedResourcesTest(unittest.TestCase):
         self.assertEqual(8, resource.cpu)
         self.assertEqual(0, resource.gpu)
         self.assertEqual(32 * GiB, resource.memMB)
+
+    def test_aws_c5_18xlarge(self) -> None:
+        resource = aws_c5_18xlarge()
+        self.assertEqual(72, resource.cpu)
+        self.assertEqual(0, resource.gpu)
+        self.assertEqual(144 * GiB, resource.memMB)
 
     def test_aws_t3_medium(self) -> None:
         resource = aws_t3_medium()

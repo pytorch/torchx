@@ -130,6 +130,12 @@ def aws_m5_2xlarge() -> Resource:
     )
 
 
+def aws_c5_18xlarge() -> Resource:
+    return Resource(
+        cpu=72, gpu=0, memMB=144 * GiB, capabilities={K8S_ITYPE: "c5.18xlarge"}
+    )
+
+
 def aws_g4dn_xlarge() -> Resource:
     return Resource(
         cpu=4, gpu=1, memMB=16 * GiB, capabilities={K8S_ITYPE: "g4dn.xlarge"}
@@ -351,6 +357,7 @@ def aws_trn1_32xlarge() -> Resource:
 NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_t3.medium": aws_t3_medium,
     "aws_m5.2xlarge": aws_m5_2xlarge,
+    "aws_c5.18xlarge": aws_c5_18xlarge,
     "aws_p3.2xlarge": aws_p3_2xlarge,
     "aws_p3.8xlarge": aws_p3_8xlarge,
     "aws_p3.16xlarge": aws_p3_16xlarge,
