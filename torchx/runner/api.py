@@ -404,10 +404,11 @@ class Runner:
                     role.env[tracker_config_env_var_name(name)] = config
 
         cfg = cfg or dict()
+        runcfg = json.dumps(cfg) if cfg else None
         with log_event(
             "dryrun",
             scheduler,
-            runcfg=json.dumps(cfg) if cfg else None,
+            runcfg=runcfg,
             workspace=workspace,
         ):
             sched = self._scheduler(scheduler)
@@ -433,7 +434,13 @@ class Runner:
                         " Either a patch was built or no changes to workspace was detected."
                     )
 
-            sched._validate(app, scheduler)
+            with log_event(
+                "validate",
+                scheduler,
+                runcfg=runcfg,
+                workspace=workspace,
+            ):
+                sched._validate(app, scheduler)
             dryrun_info = sched.submit_dryrun(app, resolved_cfg)
             dryrun_info._scheduler = scheduler
             return dryrun_info
