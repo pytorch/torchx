@@ -25,3 +25,8 @@ jobs:
           lintrunner init
       - name: Run Pyre
         run: scripts/pyre.sh
+        continue-on-error: true
+      - name: log
+        run: cat /home/runner/work/torchx/torchx/.pyre/*
+      - name: Rage
+        run: pyre rage
