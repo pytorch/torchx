@@ -33,8 +33,9 @@ def run(
         args=command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
     )
     raw_output, raw_err = p.communicate()
-    raw_output, raw_err = raw_output.strip().decode("utf-8"), raw_err.strip().decode(
-        "utf-8"
+    raw_output, raw_err = (
+        raw_output.strip().decode("utf-8"),
+        raw_err.strip().decode("utf-8"),
     )
     rc = p.returncode
     if rc != 0:

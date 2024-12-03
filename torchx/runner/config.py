@@ -157,6 +157,7 @@ You may also specify multiple directories (in preceding order) which is useful w
 you want to keep personal config overrides on top of a project defined default.
 
 """
+
 import configparser as configparser
 import logging
 import os

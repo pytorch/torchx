@@ -36,6 +36,7 @@ See
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository
 for how to create a image repository.
 """
+
 import getpass
 import re
 import threading
@@ -155,7 +156,7 @@ def resource_requirements_from_resource(resource: Resource) -> List[Dict[str, st
 
 
 def resource_from_resource_requirements(
-    resource_requirements: List[Dict[str, str]]
+    resource_requirements: List[Dict[str, str]],
 ) -> Resource:
     resrc_req = {
         ResourceType.from_str(r["type"]): int(r["value"]) for r in resource_requirements
