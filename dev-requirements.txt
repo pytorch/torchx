@@ -13,7 +13,7 @@ google-cloud-logging==3.10.0
 google-cloud-runtimeconfig==0.34.0
 hydra-core
 ipython
-kfp==1.8.22
+kfp
 mlflow-skinny
 moto~=5.0.8
 pyre-extensions
@@ -24,7 +24,7 @@ pytorch-lightning==2.3.1
 tensorboard==2.14.0
 sagemaker>=2.149.0
 torch-model-archiver>=0.4.2
-torch==2.2.1
+torch>=2.2.1
 torchmetrics==0.10.3
 torchserve>=0.10.0
 torchtext==0.17.1
@@ -42,5 +42,4 @@ lintrunner-adapters
 grpcio==1.62.1
 grpcio-status==1.48.1
 googleapis-common-protos==1.63.0
-google-api-core==2.18.0
 protobuf==3.20.3 # kfp==1.8.22 needs protobuf < 4
