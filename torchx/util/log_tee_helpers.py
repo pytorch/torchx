@@ -102,7 +102,7 @@ def _print_log_lines_for_role_replica(
                 color_begin = ""
                 color_end = ""
             prefix = f"{color_begin}{which_role}/{which_replica}{color_end} "
-            print(_prefix_line(prefix, line), file=dst, end="", flush=True)
+            print(_prefix_line(prefix, line.strip()), file=dst, end="\n", flush=True)
     except Exception as e:
         exceptions.put(e)
         raise
