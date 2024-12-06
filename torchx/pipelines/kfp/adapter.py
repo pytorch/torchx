@@ -51,7 +51,7 @@ def component_spec_from_app(app: api.AppDef) -> Tuple[str, api.Role]:
     role = app.roles[0]
     assert (
         role.num_replicas == 1
-    ), f"KFP adapter only supports one replica, got {app.num_replicas}"
+    ), f"KFP adapter only supports one replica, got {app.num_replicas}"  # pyre-fixme[16] Assume num_replicas is available on app
 
     command = [role.entrypoint, *role.args]
 

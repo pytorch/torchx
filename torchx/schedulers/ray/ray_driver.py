@@ -116,7 +116,9 @@ def load_actor_json(filename: str) -> List[RayActor]:
         return actors
 
 
-def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
+def create_placement_group_async(
+    replicas: List[RayActor],
+) -> PlacementGroup:  # pyre-ignore[11]
     """return a placement group reference, the corresponding placement group could be scheduled or pending"""
     bundles = []
     for replica in replicas:

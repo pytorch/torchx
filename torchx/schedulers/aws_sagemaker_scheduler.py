@@ -261,9 +261,9 @@ class AWSSageMakerScheduler(DockerWorkspaceMixin, Scheduler[AWSSageMakerOpts]): 
                 raise ValueError(
                     f"{key} is controlled by aws_sagemaker_scheduler and is set to {job_def[key]}"
                 )
-            value = cfg.get(key)  # pyre-ignore[26]
+            value = cfg.get(key)
             if value is not None:
-                job_def[key] = value
+                job_def[key] = value  # pyre-ignore[6]
 
         req = AWSSageMakerJob(
             job_name=job_name,

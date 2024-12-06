@@ -99,6 +99,7 @@ def test(
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
+            # pyre-fixme[58] Assuming F.nll_loss(...).item() is a number
             test_loss += F.nll_loss(
                 output, target, reduction="sum"
             ).item()  # sum up batch loss

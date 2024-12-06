@@ -64,18 +64,15 @@ class ImageFolderSamplesDataset(datasets.ImageFolder):
 # our trainer and other components that need to load data.
 
 
-# pyre-fixme[13]: Attribute `test_ds` is never initialized.
-# pyre-fixme[13]: Attribute `train_ds` is never initialized.
-# pyre-fixme[13]: Attribute `val_ds` is never initialized.
 class TinyImageNetDataModule(pl.LightningDataModule):
     """
     TinyImageNetDataModule is a pytorch LightningDataModule for the tiny
     imagenet dataset.
     """
 
-    train_ds: ImageFolderSamplesDataset
-    val_ds: ImageFolderSamplesDataset
-    test_ds: ImageFolderSamplesDataset
+    train_ds: ImageFolderSamplesDataset  # pyre-fixme[13]: Attribute `train_ds` is never initialized.
+    val_ds: ImageFolderSamplesDataset  # pyre-fixme[13]: Attribute `val_ds` is never initialized.
+    test_ds: ImageFolderSamplesDataset  # pyre-fixme[13]: Attribute `test_ds` is never initialized.
 
     def __init__(
         self, data_dir: str, batch_size: int = 16, num_samples: Optional[int] = None
