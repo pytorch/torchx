@@ -23,5 +23,9 @@ jobs:
           pip install -e .[dev]
 
           lintrunner init
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
       - name: Run Pyre
         run: scripts/pyre.sh
