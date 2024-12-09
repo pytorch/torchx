@@ -17,6 +17,7 @@ kfp==1.8.22
 mlflow-skinny
 moto~=5.0.8
 pyre-extensions
+pyre-check
 pytest
 pytest-cov
 pytorch-lightning==2.3.1
@@ -36,8 +37,6 @@ wheel
 lintrunner
 lintrunner-adapters
 
-# type check
-pyre-check-nightly=0.0.101732536891
 
 # reduce backtracking
 grpcio==1.62.1
