@@ -70,8 +70,11 @@ class TinyImageNetDataModule(pl.LightningDataModule):
     imagenet dataset.
     """
 
+    # pyre-fixme[13]: Attribute `test_ds` is never initialized.
     train_ds: ImageFolderSamplesDataset
+    # pyre-fixme[13]: Attribute `train_ds` is never initialized.
     val_ds: ImageFolderSamplesDataset
+    # pyre-fixme[13]: Attribute `val_ds` is never initialized.
     test_ds: ImageFolderSamplesDataset
 
     def __init__(
