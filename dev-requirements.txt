@@ -36,6 +36,8 @@ wheel
 lintrunner
 lintrunner-adapters
 
+# type check
+pyre-check-nightly=0.0.101732536891
 
 # reduce backtracking
 grpcio==1.62.1
