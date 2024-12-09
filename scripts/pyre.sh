@@ -7,6 +7,8 @@
 
 set -eux
 
+ldd --version
+
 ## HACK: run pyre binary manually to see the error
 
 echo '{
