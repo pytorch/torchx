@@ -630,7 +630,7 @@ class LocalScheduler(Scheduler[LocalOpts]):
         )
         return opts
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: LocalOpts) -> None:
         # Skip validation step for local application
         pass
 

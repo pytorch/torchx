@@ -337,7 +337,7 @@ class Scheduler(abc.ABC, Generic[T]):
             f"{self.__class__.__qualname__} does not support application log iteration"
         )
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: T) -> None:
         """
         Validates whether application is consistent with the scheduler.
 

@@ -318,7 +318,7 @@ if _has_ray:
 
             return AppDryRunInfo(job, repr)
 
-        def _validate(self, app: AppDef, scheduler: str) -> None:
+        def _validate(self, app: AppDef, scheduler: str, cfg: RayOpts) -> None:
             if scheduler != "ray":
                 raise ValueError(
                     f"An unknown scheduler backend '{scheduler}' has been passed to the Ray scheduler."

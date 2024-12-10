@@ -166,7 +166,7 @@ class SchedulerTest(unittest.TestCase):
         app_mock.roles[0].resource = NULL_RESOURCE
 
         with self.assertRaises(ValueError):
-            scheduler_mock._validate(app_mock, "local")
+            scheduler_mock._validate(app_mock, "local", cfg={})
 
     def test_cancel_not_exists(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")

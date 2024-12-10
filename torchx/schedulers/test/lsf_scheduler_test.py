@@ -515,7 +515,7 @@ dist_app-vdkcfm1p7lxcx EXIT 1
     def test_validate(self) -> None:
         scheduler = create_scheduler("foo")
         app = simple_app()
-        scheduler._validate(app, "lsf")
+        scheduler._validate(app, "lsf", cfg={})
 
     @patch("subprocess.run")
     def test_schedule(self, run: MagicMock) -> None:

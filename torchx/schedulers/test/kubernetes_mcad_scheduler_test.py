@@ -167,8 +167,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         self.assertIsInstance(
             scheduler, kubernetes_mcad_scheduler.KubernetesMCADScheduler
         )
-        self.assertEquals(client, scheduler._client)
-        self.assertEquals(docker_client, scheduler._docker_client)
+        self.assertEqual(client, scheduler._client)
+        self.assertEqual(docker_client, scheduler._docker_client)
 
     def test_app_to_resource_resolved_macros(self) -> None:
         app = _test_app()
@@ -468,7 +468,11 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
     def test_validate(self) -> None:
         scheduler = create_scheduler("test")
         app = _test_app()
-        scheduler._validate(app, "kubernetes_mcad")
+        scheduler._validate(
+            app,
+            "kubernetes_mcad",
+            cfg=KubernetesMCADOpts({"namespace": "test_namespace"}),
+        )
 
     def test_cleanup_str(self) -> None:
         self.assertEqual("abcd123", cleanup_str("abcd123"))
