@@ -116,7 +116,7 @@ def load_actor_json(filename: str) -> List[RayActor]:
         return actors
 
 
-def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:
+def create_placement_group_async(replicas: List[RayActor]) -> PlacementGroup:  # type: ignore
     """return a placement group reference, the corresponding placement group could be scheduled or pending"""
     bundles = []
     for replica in replicas:

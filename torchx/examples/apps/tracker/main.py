@@ -99,6 +99,8 @@ def test(
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
+            # pyre-fixme[58]: `+` is not supported for operand types `int` and
+            #  `Union[bool, float, int]`.
             test_loss += F.nll_loss(
                 output, target, reduction="sum"
             ).item()  # sum up batch loss
