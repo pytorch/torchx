@@ -197,7 +197,9 @@ if has_ray():
             with self._assert_log_message(
                 "WARNING", "The Ray scheduler does not support port mapping."
             ):
-                self._scheduler._validate(self._app_def, scheduler="ray")
+                self._scheduler._validate(
+                    self._app_def, scheduler="ray", cfg=self._run_cfg
+                )
 
         def test_submit_dryrun_raises_error_if_cluster_config_file_is_not_str(
             self,
