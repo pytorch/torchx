@@ -464,7 +464,7 @@ class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
             for job in all_jobs
         ]
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: GCPBatchOpts) -> None:
         # Skip validation step
         pass
 

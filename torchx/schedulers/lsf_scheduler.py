@@ -488,7 +488,7 @@ class LsfScheduler(Scheduler[LsfOpts]):
             subprocess.run(req.cmd, stdout=subprocess.PIPE, check=True)
         return req.app_id
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: LsfOpts) -> None:
         # Skip validation step for lsf
         pass
 

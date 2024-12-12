@@ -1033,7 +1033,7 @@ class KubernetesMCADScheduler(DockerWorkspaceMixin, Scheduler[KubernetesMCADOpts
         info._cfg = cfg
         return info
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: KubernetesMCADOpts) -> None:
         # Skip validation step
         pass
 

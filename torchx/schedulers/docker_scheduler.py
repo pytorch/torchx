@@ -327,7 +327,7 @@ class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
 
         return AppDryRunInfo(req, repr)
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: DockerOpts) -> None:
         # Skip validation step
         pass
 

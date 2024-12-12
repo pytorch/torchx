@@ -472,7 +472,7 @@ class SlurmScheduler(DirWorkspaceMixin, Scheduler[SlurmOpts]):
 
         return AppDryRunInfo(req, repr)
 
-    def _validate(self, app: AppDef, scheduler: str) -> None:
+    def _validate(self, app: AppDef, scheduler: str, cfg: SlurmOpts) -> None:
         # Skip validation step for slurm
         pass
 

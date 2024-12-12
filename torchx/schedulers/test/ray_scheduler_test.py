@@ -139,7 +139,9 @@ if has_ray():
 
         def test_validate_does_not_raise_error_and_does_not_log_warning(self) -> None:
             with self.assertLogs(_logger, "WARNING") as cm:
-                self._scheduler._validate(self._app_def, scheduler="ray")
+                self._scheduler._validate(
+                    self._app_def, scheduler="ray", cfg=self._run_cfg
+                )
 
                 _logger.warning("dummy log")
 
@@ -150,7 +152,9 @@ if has_ray():
                 ValueError,
                 r"^An unknown scheduler backend 'dummy' has been passed to the Ray scheduler.$",
             ):
-                self._scheduler._validate(self._app_def, scheduler="dummy")
+                self._scheduler._validate(
+                    self._app_def, scheduler="dummy", cfg=self._run_cfg
+                )
 
         @contextmanager
         def _assert_log_message(self, level: str, msg: str) -> Iterator[None]:
@@ -170,7 +174,9 @@ if has_ray():
             with self._assert_log_message(
                 "WARNING", "The Ray scheduler does not use metadata information."
             ):
-                self._scheduler._validate(self._app_def, scheduler="ray")
+                self._scheduler._validate(
+                    self._app_def, scheduler="ray", cfg=self._run_cfg
+                )
 
         def test_validate_warns_when_role_contains_resource_capability(self) -> None:
             self._app_def.roles[1].resource.capabilities["dummy_cap1"] = 1
@@ -180,7 +186,9 @@ if has_ray():
                 "WARNING",
                 "The Ray scheduler does not support custom resource capabilities.",
             ):
-                self._scheduler._validate(self._app_def, scheduler="ray")
+                self._scheduler._validate(
+                    self._app_def, scheduler="ray", cfg=self._run_cfg
+                )
 
         def test_validate_warns_when_role_contains_port_map(self) -> None:
             self._app_def.roles[1].port_map["dummy_map1"] = 1

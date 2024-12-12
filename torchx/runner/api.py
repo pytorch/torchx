@@ -433,7 +433,7 @@ class Runner:
                         " Either a patch was built or no changes to workspace was detected."
                     )
 
-            sched._validate(app, scheduler)
+            sched._validate(app, scheduler, resolved_cfg)
             dryrun_info = sched.submit_dryrun(app, resolved_cfg)
             dryrun_info._scheduler = scheduler
             return dryrun_info
