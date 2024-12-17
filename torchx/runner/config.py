@@ -249,7 +249,16 @@ def dump(
     if schedulers:
         scheds = schedulers
     else:
-        scheds = get_scheduler_factories().keys()
+        scheduler_factories = {
+            **get_scheduler_factories(),
+            **(
+                get_scheduler_factories(
+                    group="torchx.schedulers.orchestrator", skip_defaults=True
+                )
+                or {}
+            ),
+        }
+        scheds = scheduler_factories.keys()
 
     config = _configparser()
     for sched_name in scheds:
