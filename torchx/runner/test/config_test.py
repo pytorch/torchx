@@ -470,10 +470,22 @@ image = foobar_custom
         sfile = StringIO()
         dump(sfile)
 
-        for sched_name, sched in get_scheduler_factories().items():
+        scheduler_factories = {
+            **get_scheduler_factories(),
+            **(
+                get_scheduler_factories(
+                    group="torchx.schedulers.orchestrator", skip_defaults=True
+                )
+                or {}
+            ),
+        }
+
+        for sched_name, sched in scheduler_factories.items():
             sfile.seek(0)  # reset the file pos
             cfg = {}
             load(scheduler=sched_name, f=sfile, cfg=cfg)
-
             for opt_name, _ in sched("test").run_opts():
-                self.assertTrue(opt_name in cfg)
+                self.assertTrue(
+                    opt_name in cfg,
+                    f"missing {opt_name} in {sched} run opts with cfg {cfg}",
+                )

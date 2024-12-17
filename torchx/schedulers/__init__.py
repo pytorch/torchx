@@ -42,9 +42,11 @@ def _defer_load_scheduler(path: str) -> SchedulerFactory:
     return run
 
 
-def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
+def get_scheduler_factories(
+    group: str = "torchx.schedulers", skip_defaults: bool = False
+) -> Dict[str, SchedulerFactory]:
     """
-    get_scheduler_factories returns all the available schedulers names and the
+    get_scheduler_factories returns all the available schedulers names under `group` and the
     method to instantiate them.
 
     The first scheduler in the dictionary is used as the default scheduler.
@@ -55,8 +57,9 @@ def get_scheduler_factories() -> Dict[str, SchedulerFactory]:
         default_schedulers[scheduler] = _defer_load_scheduler(path)
 
     return load_group(
-        "torchx.schedulers",
+        group,
         default=default_schedulers,
+        skip_defaults=skip_defaults,
     )
 
 
