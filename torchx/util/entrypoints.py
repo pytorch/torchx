@@ -51,8 +51,7 @@ def _defer_load_ep(ep: EntryPoint) -> object:
 
 # pyre-ignore-all-errors[3, 2]
 def load_group(
-    group: str,
-    default: Optional[Dict[str, Any]] = None,
+    group: str, default: Optional[Dict[str, Any]] = None, skip_defaults: bool = False
 ):
     """
     Loads all the entry points specified by ``group`` and returns
@@ -72,6 +71,7 @@ def load_group(
     1. ``load_group("foo")["bar"]("baz")`` -> equivalent to calling ``this.is.a_fn("baz")``
     1. ``load_group("food")`` -> ``None``
     1. ``load_group("food", default={"hello": this.is.c_fn})["hello"]("world")`` -> equivalent to calling ``this.is.c_fn("world")``
+    1. ``load_group("food", default={"hello": this.is.c_fn}, skip_defaults=True)`` -> ``None``
 
 
     If the entrypoint is a module (versus a function as shown above), then calling the ``deferred_load_fn``
@@ -90,6 +90,8 @@ def load_group(
     entrypoints = metadata.entry_points().select(group=group)
 
     if len(entrypoints) == 0:
+        if skip_defaults:
+            return None
         return default
 
     eps = {}

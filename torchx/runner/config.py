@@ -197,7 +197,15 @@ def _configparser() -> configparser.ConfigParser:
 
 
 def _get_scheduler(name: str) -> Scheduler:
-    schedulers = get_scheduler_factories()
+    schedulers = {
+        **get_scheduler_factories(),
+        **(
+            get_scheduler_factories(
+                group="torchx.schedulers.orchestrator", skip_defaults=True
+            )
+            or {}
+        ),
+    }
     if name not in schedulers:
         raise ValueError(
             f"`{name}` is not a registered scheduler. Valid scheduler names: {schedulers.keys()}"

@@ -22,6 +22,7 @@ class spy_load_group:
         group: str,
         default: Dict[str, Any],
         ignore_missing: Optional[bool] = False,
+        skip_defaults: bool = False,
     ) -> Dict[str, Any]:
         return default
 
