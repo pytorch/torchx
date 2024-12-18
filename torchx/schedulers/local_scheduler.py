@@ -696,12 +696,11 @@ class LocalScheduler(Scheduler[LocalOpts]):
         log.debug(f"Running {role_name} (replica {replica_id}):\n {args_pfmt}")
         env = self._get_replica_env(replica_params)
 
-        proc = subprocess.Popen(
+        proc = self.run_local_job(
             args=replica_params.args,
             env=env,
             stdout=stdout_,
             stderr=stderr_,
-            start_new_session=True,
             cwd=replica_params.cwd,
         )
         return _LocalReplica(
@@ -712,6 +711,23 @@ class LocalScheduler(Scheduler[LocalOpts]):
             stderr=stderr_,
             combined=combined_,
             error_file=env.get("TORCHELASTIC_ERROR_FILE", "<N/A>"),
+        )
+
+    def run_local_job(
+        self,
+        args: List[str],
+        env: Dict[str, str],
+        stdout: Optional[io.FileIO],
+        stderr: Optional[io.FileIO],
+        cwd: Optional[str] = None,
+    ) -> "subprocess.Popen[bytes]":
+        return subprocess.Popen(
+            args=args,
+            env=env,
+            stdout=stdout,
+            stderr=stderr,
+            start_new_session=True,
+            cwd=cwd,
         )
 
     def _get_replica_output_handles(
