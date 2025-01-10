@@ -469,7 +469,7 @@ class RunnerTest(TestWithTmpDir):
             )
             app_handle = runner.run(AppDef(app_id, roles=[role]), scheduler="local_dir")
             status = none_throws(runner.status(app_handle))
-            self.assertEquals(resp.ui_url, status.ui_url)
+            self.assertEqual(resp.ui_url, status.ui_url)
 
     @patch("json.dumps")
     def test_status_structured_msg(self, json_dumps_mock: MagicMock, _) -> None:
@@ -493,7 +493,7 @@ class RunnerTest(TestWithTmpDir):
             )
             app_handle = runner.run(AppDef(app_id, roles=[role]), scheduler="local_dir")
             status = none_throws(runner.status(app_handle))
-            self.assertEquals(resp.structured_error_msg, status.structured_error_msg)
+            self.assertEqual(resp.structured_error_msg, status.structured_error_msg)
 
     def test_wait_unknown_app(self, _) -> None:
         with self.get_runner() as runner:
