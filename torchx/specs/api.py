@@ -948,7 +948,12 @@ class runopts:
         for key, val in cfg_dict.items():
             runopt_ = self.get(key)
             if runopt_:
-                if runopt_.opt_type == List[str]:
+                # Optional runopt cfg values default their value to None,
+                # but use `_type` to specify their type when provided.
+                # Make sure not to treat None's as lists/dictionaries
+                if val is None:
+                    cfg[key] = val
+                elif runopt_.opt_type == List[str]:
                     cfg[key] = [str(v) for v in val]
                 elif runopt_.opt_type == Dict[str, str]:
                     cfg[key] = {str(k): str(v) for k, v in val.items()}

@@ -555,6 +555,7 @@ class RunConfigTest(unittest.TestCase):
         opts.add("disable", type_=bool, default=True, help="")
         opts.add("complex_list", type_=List[str], default=[], help="")
         opts.add("complex_dict", type_=Dict[str, str], default={}, help="")
+        opts.add("default_none", type_=List[str], help="")
 
         self.assertDictEqual(
             {
@@ -565,6 +566,7 @@ class RunConfigTest(unittest.TestCase):
                 "disable": False,
                 "complex_list": ["v1", "v2", "v3"],
                 "complex_dict": {"k1": "v1", "k2": "v2"},
+                "default_none": None,
             },
             opts.resolve(
                 opts.cfg_from_json_repr(
@@ -575,7 +577,8 @@ class RunConfigTest(unittest.TestCase):
                         "enable": true,
                         "disable": false,
                         "complex_list": ["v1", "v2", "v3"],
-                        "complex_dict": {"k1": "v1", "k2": "v2"}
+                        "complex_dict": {"k1": "v1", "k2": "v2"},
+                        "default_none": null
                     }"""
                 )
             ),
