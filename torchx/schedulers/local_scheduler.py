@@ -1073,7 +1073,8 @@ Reduce requested GPU resources or use a host with more GPUs
         if since or until:
             warnings.warn(
                 "Since and/or until times specified for LocalScheduler.log_iter."
-                " These will be ignored and all log lines will be returned"
+                " These will be ignored and all log lines will be returned",
+                RuntimeWarning,
             )
 
         app = self._apps[app_id]

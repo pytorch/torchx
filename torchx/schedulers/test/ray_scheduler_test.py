@@ -398,7 +398,7 @@ if has_ray():
             )
             _scheduler_with_client = RayScheduler("client_session", ray_client)
             scheduler_client = _scheduler_with_client._get_ray_client()
-            self.assertDictContainsSubset(scheduler_client._headers, headers)
+            assert scheduler_client._headers.items() <= headers.items()
 
     class RayClusterSetup:
         _instance = None  # pyre-ignore

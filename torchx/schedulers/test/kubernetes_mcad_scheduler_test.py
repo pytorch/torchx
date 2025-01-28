@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
+import pytest
 import torchx
 from torchx import schedulers, specs
 
@@ -495,12 +496,13 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         app.name = (
             "abcdefghijklmnopqrstuvwxyz012345678910111213141516171819202122232425"
         )
-        self.assertEqual(59, len(get_unique_truncated_appid(app)))
-        self.assertIn(
-            "abcdefghijklmnopqrstuvwxyz01234567891011121314151617181",
-            get_unique_truncated_appid(app),
-        )
-        self.assertNotIn("9202122232425", get_unique_truncated_appid(app))
+        with pytest.warns(RuntimeWarning):
+            self.assertEqual(59, len(get_unique_truncated_appid(app)))
+            self.assertIn(
+                "abcdefghijklmnopqrstuvwxyz01234567891011121314151617181",
+                get_unique_truncated_appid(app),
+            )
+            self.assertNotIn("9202122232425", get_unique_truncated_appid(app))
 
     def test_get_port_for_service(self) -> None:
         scheduler = create_scheduler("test")
@@ -519,7 +521,8 @@ class KubernetesMCADSchedulerTest(unittest.TestCase):
         scheduler = create_scheduler("test")
         app = _test_app()
         app.roles[0].port_map = {"foo": 65536}
-        test_port = get_port_for_service(app)
+        with pytest.warns(RuntimeWarning):
+            test_port = get_port_for_service(app)
         self.assertEqual(test_port, "29500")
 
     def test_get_pending_appwrapper_status(self) -> None:
@@ -1668,10 +1671,10 @@ spec:
                 },
             },
         }
-
         app_id = "foo:bar"
         scheduler = create_scheduler("foo")
-        info = scheduler.describe(app_id)
+        with pytest.warns(RuntimeWarning):
+            info = scheduler.describe(app_id)
         call = get_namespaced_custom_object.call_args
         args, kwargs = call
 
@@ -1742,7 +1745,8 @@ spec:
 
         app_id = "foo:bar"
         scheduler = create_scheduler("foo")
-        info = scheduler.describe(app_id)
+        with pytest.warns(RuntimeWarning):
+            info = scheduler.describe(app_id)
 
         self.assertEqual(
             info,

@@ -38,9 +38,9 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--trial_idx",
-        type=int,
+        type=str,
         help="trial index (ignore if not running hpo)",
-        default=0,
+        default="0",
     )
     return parser.parse_args(argv)
 
