@@ -425,7 +425,7 @@ image = foobar_custom
         # this makes things super hard to guarantee BC - stale config file will fail
         # to run, we don't want that)
 
-        self.assertEquals("option_that_exists", cfg.get("s"))
+        self.assertEqual("option_that_exists", cfg.get("s"))
 
     def test_load_no_section(self) -> None:
         cfg = {}
