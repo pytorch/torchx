@@ -301,7 +301,6 @@ class RoleBuilderTest(unittest.TestCase):
         self.assertEqual("nentry", default.entrypoint)
 
     def test_concurrent_override_role(self) -> None:
-
         def delay(value: Tuple[str, str], time_seconds: int) -> Tuple[str, str]:
             time.sleep(time_seconds)
             return value

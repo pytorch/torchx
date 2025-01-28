@@ -171,5 +171,7 @@ class FsspecTest(unittest.TestCase):
 
         tracker = create(f"file://{str(configfile)}")
         self.assertEqual(
-            tracker._path_builder.root_dir, tracker_root_path  # pyre-ignore
+            # pyre-fixme[16]: `TrackerBase` has no attribute `_path_builder`.
+            tracker._path_builder.root_dir,
+            tracker_root_path,
         )
