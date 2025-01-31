@@ -756,7 +756,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
 
     def test_resource_requirement_from_resource(self) -> None:
         cpu_resource = Resource(cpu=2, memMB=1024, gpu=0)
-        self.assertEquals(
+        self.assertEqual(
             [
                 {"type": "VCPU", "value": "2"},
                 {"type": "MEMORY", "value": "1024"},
@@ -765,7 +765,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         )
 
         zero_cpu_resource = Resource(cpu=0, memMB=1024, gpu=0)
-        self.assertEquals(
+        self.assertEqual(
             [
                 {"type": "VCPU", "value": "1"},
                 {"type": "MEMORY", "value": "1024"},
@@ -774,7 +774,7 @@ class AWSBatchSchedulerTest(unittest.TestCase):
         )
 
         gpu_resource = Resource(cpu=1, memMB=1024, gpu=2)
-        self.assertEquals(
+        self.assertEqual(
             [
                 {"type": "VCPU", "value": "1"},
                 {"type": "MEMORY", "value": "1024"},
