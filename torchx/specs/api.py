@@ -398,7 +398,7 @@ class Role:
             else:
                 result = ov[attrname]()
             setattr(self, attrname, result)
-            del ov[attrname]
+            ov[attrname] = lambda: result
         return super().__getattribute__(attrname)
 
     def pre_proc(
