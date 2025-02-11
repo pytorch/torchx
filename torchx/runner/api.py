@@ -412,6 +412,14 @@ class Runner:
         ):
             sched = self._scheduler(scheduler)
             resolved_cfg = sched.run_opts().resolve(cfg)
+
+            # early validation before build workspace
+            with log_event(
+                "pre_build_validate",
+                scheduler,
+            ):
+                sched._pre_build_validate(app, scheduler, resolved_cfg)
+
             if workspace and isinstance(sched, WorkspaceMixin):
                 role = app.roles[0]
                 old_img = role.image
@@ -420,7 +428,13 @@ class Runner:
                 logger.info(
                     'To disable workspaces pass: --workspace="" from CLI or workspace=None programmatically.'
                 )
-                sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
+                with log_event(
+                    "build_workspace_and_update_role",
+                    scheduler,
+                ) as ctx:
+                    sched.build_workspace_and_update_role(role, workspace, resolved_cfg)
+                    ctx._torchx_event.app_image = role.image
+                    ctx._torchx_event.workspace = workspace
 
                 if old_img != role.image:
                     logger.info(

@@ -337,12 +337,19 @@ class Scheduler(abc.ABC, Generic[T]):
             f"{self.__class__.__qualname__} does not support application log iteration"
         )
 
+    def _pre_build_validate(self, app: AppDef, scheduler: str, cfg: T) -> None:
+        """
+        validates before workspace build whether application is consistent with the scheduler.
+
+        Raises error if application is not compatible with scheduler
+        """
+        pass
+
     def _validate(self, app: AppDef, scheduler: str, cfg: T) -> None:
         """
-        Validates whether application is consistent with the scheduler.
+        Validates after workspace build whether application is consistent with the scheduler.
 
-        Raises:
-            ValueError: if application is not compatible with scheduler
+        Raises error if application is not compatible with scheduler
         """
         for role in app.roles:
             if role.resource == NULL_RESOURCE:
