@@ -120,6 +120,16 @@ def aws_p5_48xlarge() -> Resource:
     )
 
 
+def aws_p5en_48xlarge() -> Resource:
+    return Resource(
+        cpu=192,
+        gpu=8,
+        memMB=2048 * GiB,
+        capabilities={K8S_ITYPE: "p5en.48xlarge"},
+        devices={EFA_DEVICE: 16},
+    )
+
+
 def aws_t3_medium() -> Resource:
     return Resource(cpu=2, gpu=0, memMB=4 * GiB, capabilities={K8S_ITYPE: "t3.medium"})
 
@@ -365,6 +375,7 @@ NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_p4d.24xlarge": aws_p4d_24xlarge,
     "aws_p4de.24xlarge": aws_p4de_24xlarge,
     "aws_p5.48xlarge": aws_p5_48xlarge,
+    "aws_p5en.48xlarge": aws_p5en_48xlarge,
     "aws_g4dn.xlarge": aws_g4dn_xlarge,
     "aws_g4dn.2xlarge": aws_g4dn_2xlarge,
     "aws_g4dn.4xlarge": aws_g4dn_4xlarge,
