@@ -32,6 +32,10 @@ from torchx.specs.named_resources_aws import (
     aws_g6e_4xlarge,
     aws_g6e_8xlarge,
     aws_g6e_xlarge,
+    aws_inf2_24xlarge,
+    aws_inf2_48xlarge,
+    aws_inf2_8xlarge,
+    aws_inf2_xlarge,
     aws_m5_2xlarge,
     aws_p3_16xlarge,
     aws_p3_2xlarge,
@@ -238,6 +242,31 @@ class NamedResourcesTest(unittest.TestCase):
         self.assertEqual(trn1_32.gpu, trn1_2.gpu)
         self.assertEqual(trn1_32.memMB, trn1_2.memMB * 16)
         self.assertEqual({EFA_DEVICE: 8, NEURON_DEVICE: 16}, trn1_32.devices)
+
+    def test_aws_inf2(self) -> None:
+        inf2_xlarge = aws_inf2_xlarge()
+        self.assertEqual(4, inf2_xlarge.cpu)
+        self.assertEqual(0, inf2_xlarge.gpu)
+        self.assertEqual(16 * GiB, inf2_xlarge.memMB)
+        self.assertEqual({NEURON_DEVICE: 1}, inf2_xlarge.devices)
+
+        inf2_8xlarge = aws_inf2_8xlarge()
+        self.assertEqual(32, inf2_8xlarge.cpu)
+        self.assertEqual(0, inf2_8xlarge.gpu)
+        self.assertEqual(128 * GiB, inf2_8xlarge.memMB)
+        self.assertEqual({NEURON_DEVICE: 1}, inf2_8xlarge.devices)
+
+        inf2_24xlarge = aws_inf2_24xlarge()
+        self.assertEqual(96, inf2_24xlarge.cpu)
+        self.assertEqual(0, inf2_24xlarge.gpu)
+        self.assertEqual(384 * GiB, inf2_24xlarge.memMB)
+        self.assertEqual({NEURON_DEVICE: 6}, inf2_24xlarge.devices)
+
+        inf2_48xlarge = aws_inf2_48xlarge()
+        self.assertEqual(192, inf2_48xlarge.cpu)
+        self.assertEqual(0, inf2_48xlarge.gpu)
+        self.assertEqual(768 * GiB, inf2_48xlarge.memMB)
+        self.assertEqual({NEURON_DEVICE: 12}, inf2_48xlarge.devices)
 
     def test_aws_m5_2xlarge(self) -> None:
         resource = aws_m5_2xlarge()
