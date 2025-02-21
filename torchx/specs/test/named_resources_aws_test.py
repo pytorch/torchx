@@ -249,7 +249,7 @@ class NamedResourcesTest(unittest.TestCase):
         resource = aws_c5_18xlarge()
         self.assertEqual(72, resource.cpu)
         self.assertEqual(0, resource.gpu)
-        self.assertEqual(144 * GiB, resource.memMB)
+        self.assertEqual(142 * GiB, resource.memMB)
 
     def test_aws_t3_medium(self) -> None:
         resource = aws_t3_medium()
