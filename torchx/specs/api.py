@@ -63,6 +63,9 @@ _RPC_ERROR_MESSAGE_RE: Pattern[str] = re.compile(
 #     (most recent call first):
 _EMBEDDED_ERROR_MESSAGE_RE: Pattern[str] = re.compile(r"(?P<msg>.+)\nException.*")
 
+YELLOW_BOLD = "\033[1;33m"
+RESET = "\033[0m"
+
 
 # ========================================
 # ==== Distributed AppDef API =======
@@ -937,6 +940,10 @@ class runopts:
             runopt_ = self.get(key)
             if runopt_:
                 cfg[key] = _cast_to_type(val, runopt_.opt_type)
+            else:
+                logger.warning(
+                    f"{YELLOW_BOLD}Unknown run option passed to scheduler: {key}={val}{RESET}"
+                )
         return cfg
 
     def cfg_from_json_repr(self, json_repr: str) -> Dict[str, CfgVal]:
