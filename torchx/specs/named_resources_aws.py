@@ -142,7 +142,11 @@ def aws_m5_2xlarge() -> Resource:
 
 def aws_c5_18xlarge() -> Resource:
     return Resource(
-        cpu=72, gpu=0, memMB=144 * GiB, capabilities={K8S_ITYPE: "c5.18xlarge"}
+        # using lower memory size than the spec since MEM_TAX is not enough for adjustment
+        cpu=72,
+        gpu=0,
+        memMB=142 * GiB,
+        capabilities={K8S_ITYPE: "c5.18xlarge"},
     )
 
 
