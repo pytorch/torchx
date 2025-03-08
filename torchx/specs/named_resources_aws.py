@@ -368,6 +368,46 @@ def aws_trn1_32xlarge() -> Resource:
     )
 
 
+def aws_inf2_xlarge() -> Resource:
+    return Resource(
+        cpu=4,
+        gpu=0,
+        memMB=16 * GiB,
+        capabilities={K8S_ITYPE: "inf2.xlarge"},
+        devices={NEURON_DEVICE: 1},
+    )
+
+
+def aws_inf2_8xlarge() -> Resource:
+    return Resource(
+        cpu=32,
+        gpu=0,
+        memMB=128 * GiB,
+        capabilities={K8S_ITYPE: "inf2.8xlarge"},
+        devices={NEURON_DEVICE: 1},
+    )
+
+
+def aws_inf2_24xlarge() -> Resource:
+    return Resource(
+        cpu=96,
+        gpu=0,
+        memMB=384 * GiB,
+        capabilities={K8S_ITYPE: "inf2.24xlarge"},
+        devices={NEURON_DEVICE: 6},
+    )
+
+
+def aws_inf2_48xlarge() -> Resource:
+    return Resource(
+        cpu=192,
+        gpu=0,
+        memMB=768 * GiB,
+        capabilities={K8S_ITYPE: "inf2.48xlarge"},
+        devices={NEURON_DEVICE: 12},
+    )
+
+
 NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_t3.medium": aws_t3_medium,
     "aws_m5.2xlarge": aws_m5_2xlarge,
@@ -405,4 +445,8 @@ NAMED_RESOURCES: Mapping[str, Callable[[], Resource]] = {
     "aws_g6e.48xlarge": aws_g6e_48xlarge,
     "aws_trn1.2xlarge": aws_trn1_2xlarge,
     "aws_trn1.32xlarge": aws_trn1_32xlarge,
+    "aws_inf2.xlarge": aws_inf2_xlarge,
+    "aws_inf2.8xlarge": aws_inf2_8xlarge,
+    "aws_inf2.24xlarge": aws_inf2_24xlarge,
+    "aws_inf2.48xlarge": aws_inf2_48xlarge,
 }
