@@ -66,7 +66,7 @@ Periodic checkpoints allow your application to recover from failures and in some
 cases allow you to restart your trainer with different parameters without losing
 training progress.
 
-`Pytorch Lighting <https://pytorch-lightning.readthedocs.io/en/latest/common/checkpointing.html>`__
+`Pytorch Lightning <https://pytorch-lightning.readthedocs.io/en/latest/common/checkpointing.html>`__
 provides a standardized way to checkpoint your models.
 
 Fine Tuning
