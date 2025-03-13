@@ -505,6 +505,7 @@ class Runner:
             )
             if app_status:
                 app_status.ui_url = desc.ui_url
+                app_status.ji_url = desc.ji_url
             return app_status
 
     def wait(
