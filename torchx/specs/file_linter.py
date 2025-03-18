@@ -244,11 +244,18 @@ class TorchFunctionVisitor(ast.NodeVisitor):
 
     """
 
-    def __init__(self, component_function_name: str) -> None:
-        self.validators = [
-            TorchxFunctionArgsValidator(),
-            TorchxReturnValidator(),
-        ]
+    def __init__(
+        self,
+        component_function_name: str,
+        validators: Optional[List[TorchxFunctionValidator]],
+    ) -> None:
+        if validators is None:
+            self.validators: List[TorchxFunctionValidator] = [
+                TorchxFunctionArgsValidator(),
+                TorchxReturnValidator(),
+            ]
+        else:
+            self.validators = validators
         self.linter_errors: List[LinterMessage] = []
         self.component_function_name = component_function_name
         self.visited_function = False
@@ -264,7 +271,11 @@ class TorchFunctionVisitor(ast.NodeVisitor):
             self.linter_errors += validator.validate(node)
 
 
-def validate(path: str, component_function: str) -> List[LinterMessage]:
+def validate(
+    path: str,
+    component_function: str,
+    validators: Optional[List[TorchxFunctionValidator]],
+) -> List[LinterMessage]:
     """
     Validates the function to make sure it complies the component standard.
 
@@ -293,7 +304,7 @@ def validate(path: str, component_function: str) -> List[LinterMessage]:
             severity="error",
         )
         return [linter_message]
-    visitor = TorchFunctionVisitor(component_function)
+    visitor = TorchFunctionVisitor(component_function, validators)
     visitor.visit(module)
     linter_errors = visitor.linter_errors
     if not visitor.visited_function:

@@ -106,13 +106,13 @@ _ = torchx.specs.test.finder_test
 
     @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
     def test_get_invalid_component(self, _: MagicMock) -> None:
-        components = _load_components()
+        components = _load_components(None)
         foobar_component = components["invalid_component"]
         self.assertEqual(1, len(foobar_component.validation_errors))
 
     @patch(_METADATA_EPS, return_value=_ENTRY_POINTS)
     def test_get_entrypoints_components(self, _: MagicMock) -> None:
-        components = _load_components()
+        components = _load_components(None)
         foobar_component = components["_test_component"]
         self.assertEqual(_test_component, foobar_component.fn)
         self.assertEqual("_test_component", foobar_component.fn_name)
@@ -132,7 +132,7 @@ bar = torchx.specs.test.components.c.d
         ),
     )
     def test_load_custom_components(self, _: MagicMock) -> None:
-        components = _load_components()
+        components = _load_components(None)
 
         # the name of the appdefs returned by each component
         # is the expected component name
@@ -155,7 +155,7 @@ _1 = torchx.specs.test.components.c.d
         ),
     )
     def test_load_custom_components_nogroup(self, _: MagicMock) -> None:
-        components = _load_components()
+        components = _load_components(None)
 
         # test component names are hardcoded expecting
         # test.components.* to be grouped under foo.*
@@ -166,16 +166,17 @@ _1 = torchx.specs.test.components.c.d
             self.assertEqual(expected_name, actual_name)
 
     def test_load_builtins(self) -> None:
-        components = _load_components()
+        components = _load_components(None)
 
         # if nothing registered in entrypoints, then builtins should be loaded
         expected = {
-            c.name for c in ModuleComponentsFinder("torchx.components", group="").find()
+            c.name
+            for c in ModuleComponentsFinder("torchx.components", group="").find(None)
         }
         self.assertEqual(components.keys(), expected)
 
     def test_load_builtin_echo(self) -> None:
-        components = _load_components()
+        components = _load_components(None)
         self.assertTrue(len(components) > 1)
         component = components["utils.echo"]
         self.assertEqual("utils.echo", component.name)
@@ -194,7 +195,7 @@ class CustomComponentsFinderTest(unittest.TestCase):
     def test_find_components(self) -> None:
         components = CustomComponentsFinder(
             current_file_path(), "_test_component"
-        ).find()
+        ).find(None)
         self.assertEqual(1, len(components))
         component = components[0]
         self.assertEqual(f"{current_file_path()}:_test_component", component.name)
@@ -205,7 +206,7 @@ class CustomComponentsFinderTest(unittest.TestCase):
     def test_find_components_without_docstring(self) -> None:
         components = CustomComponentsFinder(
             current_file_path(), "_test_component_without_docstring"
-        ).find()
+        ).find(None)
         self.assertEqual(1, len(components))
         component = components[0]
         self.assertEqual(
