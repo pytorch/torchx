@@ -121,14 +121,13 @@ class SpecsFileValidatorTest(unittest.TestCase):
         content = "!!foo====bar"
         with patch("torchx.specs.file_linter.read_conf_file") as read_conf_file_mock:
             read_conf_file_mock.return_value = content
-            errors = validate(self._path, "unknown_function")
+            errors = validate(self._path, "unknown_function", None)
             self.assertEqual(1, len(errors))
             self.assertEqual("invalid syntax", errors[0].description)
 
     def test_validate_varargs_kwargs_fn(self) -> None:
         linter_errors = validate(
-            self._path,
-            "_test_invalid_fn_with_varags_and_kwargs",
+            self._path, "_test_invalid_fn_with_varags_and_kwargs", None
         )
         self.assertEqual(1, len(linter_errors))
         self.assertTrue(
@@ -136,7 +135,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         )
 
     def test_validate_no_return(self) -> None:
-        linter_errors = validate(self._path, "_test_fn_no_return")
+        linter_errors = validate(self._path, "_test_fn_no_return", None)
         self.assertEqual(1, len(linter_errors))
         expected_desc = (
             "Function: _test_fn_no_return missing return annotation or "
@@ -145,7 +144,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         self.assertEqual(expected_desc, linter_errors[0].description)
 
     def test_validate_incorrect_return(self) -> None:
-        linter_errors = validate(self._path, "_test_fn_return_int")
+        linter_errors = validate(self._path, "_test_fn_return_int", None)
         self.assertEqual(1, len(linter_errors))
         expected_desc = (
             "Function: _test_fn_return_int has incorrect return annotation, "
@@ -153,12 +152,24 @@ class SpecsFileValidatorTest(unittest.TestCase):
         )
         self.assertEqual(expected_desc, linter_errors[0].description)
 
+    def test_no_validators_has_no_validation(self) -> None:
+        linter_errors = validate(self._path, "_test_fn_return_int", [])
+        self.assertEqual(0, len(linter_errors))
+
+        linter_errors = validate(self._path, "_test_fn_no_return", [])
+        self.assertEqual(0, len(linter_errors))
+
+        linter_errors = validate(
+            self._path, "_test_invalid_fn_with_varags_and_kwargs", []
+        )
+        self.assertEqual(0, len(linter_errors))
+
     def test_validate_empty_fn(self) -> None:
-        linter_errors = validate(self._path, "_test_empty_fn")
+        linter_errors = validate(self._path, "_test_empty_fn", None)
         self.assertEqual(0, len(linter_errors))
 
     def test_validate_args_no_type_defs(self) -> None:
-        linter_errors = validate(self._path, "_test_args_no_type_defs")
+        linter_errors = validate(self._path, "_test_args_no_type_defs", None)
         print(linter_errors)
         self.assertEqual(2, len(linter_errors))
         self.assertEqual(
@@ -169,10 +180,7 @@ class SpecsFileValidatorTest(unittest.TestCase):
         )
 
     def test_validate_args_no_type_defs_complex(self) -> None:
-        linter_errors = validate(
-            self._path,
-            "_test_args_dict_list_complex_types",
-        )
+        linter_errors = validate(self._path, "_test_args_dict_list_complex_types", None)
         self.assertEqual(5, len(linter_errors))
         self.assertEqual(
             "Arg arg0 missing type annotation", linter_errors[0].description
@@ -210,7 +218,7 @@ to your component (see: https://pytorch.org/torchx/latest/component_best_practic
         self.assertEqual(" ", param_desc["arg0"])
 
     def test_validate_unknown_function(self) -> None:
-        linter_errors = validate(self._path, "unknown_function")
+        linter_errors = validate(self._path, "unknown_function", None)
         self.assertEqual(1, len(linter_errors))
         self.assertEqual(
             "Function unknown_function not found", linter_errors[0].description
