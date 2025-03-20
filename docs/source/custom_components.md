@@ -14,15 +14,16 @@ jupyter:
 
 # Custom Components
 
-This is a guide on how to build a simple app and custom component spec
-and launch it via two different schedulers.
+This is a guide on how to build a simple app and custom component spec and
+launch it via two different schedulers.
 
 See the [Quickstart Guide](quickstart.md) for installation and basic usage.
 
-
 ## Builtins
 
-Before writing a custom component, check if any of the builtin components satisfy your needs. TorchX provides a number of builtin components with premade images. You can discover them via:
+Before writing a custom component, check if any of the builtin components
+satisfy your needs. TorchX provides a number of builtin components with premade
+images. You can discover them via:
 
 ```sh
 torchx builtins
@@ -34,7 +35,6 @@ you would any other component.
 ```sh
 torchx run utils.echo --msg "Hello :)"
 ```
-
 
 ## Hello World
 
@@ -71,8 +71,8 @@ if __name__ == "__main__":
     main(args.user)
 ```
 
-Now that we have an app we can write the component file for it. This
-function allows us to reuse and share our app in a user friendly way.
+Now that we have an app we can write the component file for it. This function
+allows us to reuse and share our app in a user friendly way.
 
 We can use this component from the `torchx` cli or programmatically as part of a
 pipeline.
@@ -99,8 +99,8 @@ def greet(user: str, image: str = "my_app:latest") -> specs.AppDef:
     )
 ```
 
-We can execute our component via `torchx run`. The
-`local_cwd` scheduler executes the component relative to the current directory.
+We can execute our component via `torchx run`. The `local_cwd` scheduler
+executes the component relative to the current directory.
 
 ```sh
 torchx run --scheduler local_cwd my_component.py:greet --user "your name"
@@ -137,13 +137,15 @@ We can then launch it on the local scheduler.
 torchx run --scheduler local_docker my_component.py:greet --image "my_app:latest" --user "your name"
 ```
 
-If you have a Kubernetes cluster you can use the [Kubernetes scheduler](schedulers/kubernetes.rst) to launch
-this on the cluster instead.
-
+If you have a Kubernetes cluster you can use the
+[Kubernetes scheduler](schedulers/kubernetes.rst) to launch this on the cluster
+instead.
 
 <!-- #md -->
+
 ```sh
 $ docker push my_app:latest
 $ torchx run --scheduler kubernetes my_component.py:greet --image "my_app:latest" --user "your name"
 ```
+
 <!-- #endmd -->
