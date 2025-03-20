@@ -111,15 +111,12 @@ Works With
 
 Examples
 ------------
-
 .. toctree::
    :maxdepth: 1
    :caption: Examples
 
-
    examples_apps/index
    examples_pipelines/index
-
 
 
 Components Library

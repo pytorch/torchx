@@ -16,7 +16,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: "3.10"
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
@@ -72,7 +72,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: "3.10"
           architecture: x64
       - name: Checkout TorchX
         uses: actions/checkout@v2
