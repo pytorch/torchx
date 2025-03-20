@@ -16,13 +16,14 @@ from dataclasses import dataclass
 from inspect import getmembers, isfunction
 from pathlib import Path
 from types import ModuleType
-from typing import Callable, Dict, Generator, List, Optional, Union
+from typing import Any, Callable, Dict, Generator, List, Optional, Union
 
 from torchx.specs import AppDef
 from torchx.specs.file_linter import get_fn_docstring, TorchxFunctionValidator, validate
 from torchx.util import entrypoints
 from torchx.util.io import read_conf_file
 from torchx.util.types import none_throws
+
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -53,7 +54,10 @@ class _Component:
     name: str
     description: str
     fn_name: str
-    fn: Callable[..., AppDef]
+
+    # pyre-ignore[4] TODO temporary until PipelineDef is decoupled and can be exposed as type to OSS
+    fn: Callable[..., Any]
+
     validation_errors: List[str]
 
 
