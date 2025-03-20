@@ -101,7 +101,7 @@ def _merge_config_values_with_args(
 
 
 def parse_args(
-    cmpnt_fn: Callable[..., AppDef],
+    cmpnt_fn: Callable[..., Any],  # pyre-ignore[2]
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
@@ -130,7 +130,7 @@ def parse_args(
 
 
 def materialize_appdef(
-    cmpnt_fn: Callable[..., AppDef],
+    cmpnt_fn: Callable[..., Any],  # pyre-ignore[2]
     cmpnt_args: List[str],
     cmpnt_defaults: Optional[Dict[str, Any]] = None,
     config: Optional[Dict[str, Any]] = None,
@@ -187,6 +187,10 @@ def materialize_appdef(
         var_arg = var_arg[1:]
 
     appdef = cmpnt_fn(*function_args, *var_arg, **kwargs)
+    if not isinstance(appdef, AppDef):
+        raise TypeError(
+            f"Expected a component that returns `AppDef`, but got `{type(appdef)}`"
+        )
 
     return appdef
 
