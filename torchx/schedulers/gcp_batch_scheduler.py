@@ -104,7 +104,7 @@ class GCPBatchOpts(TypedDict, total=False):
     location: Optional[str]
 
 
-class GCPBatchScheduler(Scheduler[GCPBatchOpts]):
+class GCPBatchScheduler(Scheduler[GCPBatchOpts, AppDef, AppDryRunInfo[GCPBatchJob]]):
     """
     GCPBatchScheduler is a TorchX scheduling interface to GCP Batch.
 
