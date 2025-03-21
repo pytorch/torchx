@@ -23,7 +23,7 @@ import pytorch_lightning as pl
 import torch
 import torch.jit
 from torch.nn import functional as F
-from torchmetrics import Accuracy
+from torchmetrics.classification import MulticlassAccuracy
 from torchvision.models.resnet import BasicBlock, ResNet
 
 
@@ -44,13 +44,12 @@ class TinyImageNetModel(pl.LightningModule):
 
         # We use the torchvision resnet model with some small tweaks to match
         # TinyImageNet.
-        m = ResNet(BasicBlock, layer_sizes)
+        m = ResNet(BasicBlock, layer_sizes, num_classes=200)
         m.avgpool = torch.nn.AdaptiveAvgPool2d(1)
-        m.fc.out_features = 200
         self.model: ResNet = m
 
-        self.train_acc = Accuracy()
-        self.val_acc = Accuracy()
+        self.train_acc = MulticlassAccuracy(num_classes=m.fc.out_features)
+        self.val_acc = MulticlassAccuracy(num_classes=m.fc.out_features)
 
     # pyre-fixme[14]
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -71,7 +70,7 @@ class TinyImageNetModel(pl.LightningModule):
     def _step(
         self,
         step_name: str,
-        acc_metric: Accuracy,
+        acc_metric: MulticlassAccuracy,
         batch: Tuple[torch.Tensor, torch.Tensor],
         batch_idx: int,
     ) -> torch.Tensor:

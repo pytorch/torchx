@@ -60,6 +60,7 @@ import pytorch_lightning as pl
 import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
+from torch.distributed.elastic.multiprocessing import errors
 from torchx.examples.apps.lightning.data import (
     create_random_data,
     download_data,
@@ -85,7 +86,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--batch_size", type=int, default=32, help="batch size to use for training"
     )
-    parser.add_argument("--num_samples", type=int, default=10, help="num_samples")
+    parser.add_argument(
+        "--num_samples",
+        type=int,
+        default=32,
+        help="number of samples in the dataset",
+    )
     parser.add_argument(
         "--data_path",
         type=str,
@@ -126,6 +132,7 @@ def get_model_checkpoint(args: argparse.Namespace) -> Optional[ModelCheckpoint]:
     )
 
 
+@errors.record
 def main(argv: List[str]) -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         args = parse_args(argv)
@@ -138,7 +145,7 @@ def main(argv: List[str]) -> None:
         if not args.data_path:
             data_path = os.path.join(tmpdir, "data")
             os.makedirs(data_path)
-            create_random_data(data_path)
+            create_random_data(data_path, args.num_samples)
         else:
             data_path = download_data(args.data_path, tmpdir)
 

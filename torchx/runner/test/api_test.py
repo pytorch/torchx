@@ -601,7 +601,7 @@ class RunnerTest(TestWithTmpDir):
             )
             app = AppDef("sleeper", roles=[role])
             runner.run(app, scheduler="local")
-            local_sched_mock.submit.called_once_with(app, {})
+            local_sched_mock.schedule.assert_called_once()
 
     def test_run_from_module(self, _: str) -> None:
         runner = get_runner(name="test_session")

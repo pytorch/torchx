@@ -390,6 +390,12 @@ if has_ray():
             ):
                 _scheduler_with_client.submit(app=app, cfg={})
 
+        def _assertDictContainsSubset(self, expected, actual, msg=None):
+            # NB: implement unittest.TestCase.assertDictContainsSubsetNew() since it was removed in python-3.11
+            for key, value in expected.items():
+                self.assertIn(key, actual, msg)
+                self.assertEqual(actual[key], value, msg)
+
         def test_client_with_headers(self) -> None:
             # This tests only one option for the client. Different versions may have more options available.
             headers = {"Authorization": "Bearer: token"}
@@ -398,7 +404,7 @@ if has_ray():
             )
             _scheduler_with_client = RayScheduler("client_session", ray_client)
             scheduler_client = _scheduler_with_client._get_ray_client()
-            self.assertDictContainsSubset(scheduler_client._headers, headers)
+            self._assertDictContainsSubset(scheduler_client._headers, headers)
 
     class RayClusterSetup:
         _instance = None  # pyre-ignore
@@ -606,7 +612,7 @@ if has_ray():
             # 3-3
             teriminal = (
                 driver._step()
-            )  # pg 2 becomes availiable, but actor 2 shouldn't be executed
+            )  # pg 2 becomes available, but actor 2 shouldn't be executed
             self.assertEqual(teriminal, False)
             self.assertEqual(len(driver.active_tasks), 0)  # actor1 should be finished
             self.assertEqual(driver.command_actors_count, 0)

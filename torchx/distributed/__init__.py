@@ -83,9 +83,7 @@ def local_device() -> torch.device:
     if dist.is_initialized():
         default_pg = _get_default_group()
         return (
-            local_cuda_device()
-            if default_pg.options.backend == "nccl"
-            else torch.device("cpu")
+            local_cuda_device() if default_pg.name() == "nccl" else torch.device("cpu")
         )
     else:
         return torch.device("cuda") if has_cuda_devices() else torch.device("cpu")
