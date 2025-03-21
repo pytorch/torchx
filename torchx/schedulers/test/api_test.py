@@ -35,10 +35,12 @@ from torchx.specs.api import (
 from torchx.workspace.api import WorkspaceMixin
 
 T = TypeVar("T")
+A = TypeVar("A")
+D = TypeVar("D")
 
 
 class SchedulerTest(unittest.TestCase):
-    class MockScheduler(Scheduler[T], WorkspaceMixin[None]):
+    class MockScheduler(Scheduler[T, A, D], WorkspaceMixin[None]):
         def __init__(self, session_name: str) -> None:
             super().__init__("mock", session_name)
 
@@ -151,7 +153,7 @@ class SchedulerTest(unittest.TestCase):
 
     def test_role_preproc_called(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
-        app_mock = MagicMock()
+        app_mock = AppDef(name="test")
         app_mock.roles = [MagicMock()]
 
         cfg = {"foo": "bar"}
@@ -161,7 +163,7 @@ class SchedulerTest(unittest.TestCase):
 
     def test_validate(self) -> None:
         scheduler_mock = SchedulerTest.MockScheduler("test_session")
-        app_mock = MagicMock()
+        app_mock = AppDef(name="test")
         app_mock.roles = [MagicMock()]
         app_mock.roles[0].resource = NULL_RESOURCE
 

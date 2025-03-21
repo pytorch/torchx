@@ -363,7 +363,9 @@ class AWSBatchOpts(TypedDict, total=False):
     execution_role_arn: Optional[str]
 
 
-class AWSBatchScheduler(DockerWorkspaceMixin, Scheduler[AWSBatchOpts]):
+class AWSBatchScheduler(
+    DockerWorkspaceMixin, Scheduler[AWSBatchOpts, AppDef, AppDryRunInfo[BatchJob]]
+):
     """
     AWSBatchScheduler is a TorchX scheduling interface to AWS Batch.
 
