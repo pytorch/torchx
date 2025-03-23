@@ -114,7 +114,9 @@ if _has_ray:
         requirements: Optional[str] = None
         actors: List[RayActor] = field(default_factory=list)
 
-    class RayScheduler(TmpDirWorkspaceMixin, Scheduler[RayOpts]):
+    class RayScheduler(
+        TmpDirWorkspaceMixin, Scheduler[RayOpts, AppDef, AppDryRunInfo[RayJob]]
+    ):
         """
         RayScheduler is a TorchX scheduling interface to Ray. The job def
         workers will be launched as Ray actors

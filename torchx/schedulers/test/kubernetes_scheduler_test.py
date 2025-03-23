@@ -515,7 +515,7 @@ spec:
             make_unique_ctx.return_value = "app-name-42"
             info = scheduler.submit_dryrun(app, cfg)
 
-        tasks = info.request.resource["spec"]["tasks"]
+        tasks = info.request.resource["spec"]["tasks"]  # pyre-ignore[16]
         container0 = tasks[0]["template"].spec.containers[0]
         self.assertIn("TORCHX_RANK0_HOST", container0.command)
         self.assertIn(
