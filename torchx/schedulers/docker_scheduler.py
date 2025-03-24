@@ -128,7 +128,9 @@ class DockerOpts(TypedDict, total=False):
     privileged: bool
 
 
-class DockerScheduler(DockerWorkspaceMixin, Scheduler[DockerOpts]):
+class DockerScheduler(
+    DockerWorkspaceMixin, Scheduler[DockerOpts, AppDef, AppDryRunInfo[DockerJob]]
+):
     """
     DockerScheduler is a TorchX scheduling interface to Docker.
 
