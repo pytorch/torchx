@@ -25,6 +25,17 @@ def _create_args_parser(
     config: Optional[Dict[str, Any]] = None,
 ) -> argparse.ArgumentParser:
     parameters = inspect.signature(cmpnt_fn).parameters
+    return _create_args_parser_from_parameters(
+        cmpnt_fn, parameters, cmpnt_defaults, config
+    )
+
+
+def _create_args_parser_from_parameters(
+    cmpnt_fn: Callable[..., Any],  # pyre-ignore[2]
+    parameters: Mapping[str, inspect.Parameter],
+    cmpnt_defaults: Optional[Dict[str, str]] = None,
+    config: Optional[Dict[str, Any]] = None,
+) -> argparse.ArgumentParser:
     function_desc, args_desc = get_fn_docstring(cmpnt_fn)
     script_parser = argparse.ArgumentParser(
         prog=f"torchx run <run args...> {cmpnt_fn.__name__} ",
