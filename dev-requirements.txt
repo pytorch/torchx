@@ -1,6 +1,6 @@
-aiobotocore==2.12.1
+aiobotocore==2.20.0
 ax-platform[mysql]==0.2.3
-boto3==1.34.51
+boto3==1.36.0
 captum>=0.4.0
 docker
 kubernetes==25.3.0
@@ -20,9 +20,9 @@ pyre-extensions
 pyre-check
 pytest
 pytest-cov
-pytorch-lightning==2.3.1
+pytorch-lightning==2.5.0
 tensorboard==2.14.0
-sagemaker==2.224.4
+sagemaker==2.230.0
 torch-model-archiver>=0.4.2
 torch>=2.6.0
 torchmetrics==1.6.3
