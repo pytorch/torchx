@@ -26,8 +26,8 @@ class UtilTest(unittest.TestCase):
                     "rank": 0,
                     "world_size": 1,
                     "master_addr": "localhost",
-                    # ephemeral port range in linux
-                    "master_port": random.randint(32768, 60999),
+                    # specifying 0 as master_port makes TCPStore chose a free random port
+                    "master_port": 0,
                     "backend": "gloo",
                 }
             }
