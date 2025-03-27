@@ -13,7 +13,7 @@ google-cloud-logging==3.10.0
 google-cloud-runtimeconfig==0.34.0
 hydra-core
 ipython
-kfp==1.8.22
+kfp==2.5.0
 mlflow-skinny
 moto~=5.0.8
 pyre-extensions
@@ -22,7 +22,7 @@ pytest
 pytest-cov
 pytorch-lightning==2.5.0
 tensorboard==2.14.0
-sagemaker==2.230.0
+sagemaker==2.242.0
 torch-model-archiver>=0.4.2
 torch>=2.6.0
 torchmetrics==1.6.3
